@@ -10,17 +10,15 @@
     </span>
 {% endif %}
 
-<i
-    tabindex="0"
-    class="{{ icon|default('fa-question-circle') ~ ' fa u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default()|prefixClass(omitPrefix) }}"
-    aria-label="{{ 'contextual.help'|trans }}"
-    v-tooltip="'{{ helpText|wysiwyg|e('html_attr') }}'"
+<dp-contextual-help
+    class="{{ 'u-nojs-hide'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
+    :text="'{{ helpText|wysiwyg|e('html_attr') }}'"
     {% if showPlainHint|default(false) == true %}data-wizard-tooltip{% endif %}>
-</i>
+</dp-contextual-help>
 <noscript>
     <span
         tabindex="0"
-        class="{{ 'o-tooltip'|prefixClass(omitPrefix) }} {{ cssClasses|default('o-tooltip--question-circle')|prefixClass(omitPrefix) }}"
+        class="{{ 'o-tooltip fa fa-question-circle'|prefixClass(omitPrefix) }} {{ cssClasses|default|prefixClass(omitPrefix) }}"
         aria-label="{{ 'contextual.help'|trans }}"
         aria-describedby="{{ contextualHelpId }}">
         <span

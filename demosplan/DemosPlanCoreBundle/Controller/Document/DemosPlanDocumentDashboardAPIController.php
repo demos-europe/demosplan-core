@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -29,6 +30,8 @@ use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -42,7 +45,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanDocumentDashboardAPIController extends APIController
 {
     public function __construct(
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
@@ -50,7 +53,9 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        SchemaPathProcessor $schemaPathProcessor
+        MessageFormatter $messageFormatter,
+        SchemaPathProcessor $schemaPathProcessor,
+        private ManagerRegistry $managerRegistry
     ) {
         parent::__construct(
             $apiLogger,
@@ -60,7 +65,8 @@ class DemosPlanDocumentDashboardAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 
@@ -155,7 +161,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
         }
 
         /** @var ProcedureRepository $procedureRepository */
-        $procedureRepository = $this->getDoctrine()->getRepository(Procedure::class);
+        $procedureRepository = $this->managerRegistry->getRepository(Procedure::class);
         $procedure->setSettings($procedureSettings);
         $updatedProcedure = $procedureRepository->updateObject($procedure);
         // always update elasticsearch as changes that where made only in

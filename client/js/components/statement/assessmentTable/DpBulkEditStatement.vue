@@ -62,7 +62,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
@@ -97,6 +97,7 @@
             @input="updateRecommendationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -104,6 +105,7 @@
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
                 :class="prefixClass('menubar__button')"
                 type="button"
                 v-tooltip="Translator.trans('boilerplate.insert')"
@@ -162,7 +164,7 @@
         </p>
 
         <div class="u-mt-0_5 u-mb border u-p-0_75">
-          <dp-text-wrapper :text="options.recommendation.value" />
+          <text-content-renderer :text="options.recommendation.value" />
         </div>
       </div>
 
@@ -212,11 +214,12 @@ import {
   dpApi,
   DpButton,
   DpMultiselect,
-  DpTextWrapper,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -226,11 +229,11 @@ export default {
     DpBoilerPlateModal,
     DpMultiselect,
     DpButton,
-    DpTextWrapper,
-    DpEditor: async () => {
+    TextContentRenderer,
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -289,8 +292,8 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength']),
+    ...mapState('Statement', ['selectedElements']),
+    ...mapGetters('Statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -314,7 +317,7 @@ export default {
     payloadRelationships () {
       return {
         statements: {
-          data: this.selectedElementsIds.map(id => ({ id: id, type: 'statement' }))
+          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' }))
         },
         ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
       }
@@ -330,10 +333,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetSelectionAction: 'resetSelection'
     }),
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
+    ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()
@@ -343,7 +346,9 @@ export default {
     },
 
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     redirectToAssessmentTable () {
@@ -365,7 +370,7 @@ export default {
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId
         }),
-        data: JSON.stringify(payload)
+        data: payload
       })
         .then(checkResponse)
         .then(() => {

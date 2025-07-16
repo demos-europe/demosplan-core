@@ -12,8 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -55,7 +57,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrgaService extends CoreService
+class OrgaService extends CoreService implements OrgaServiceInterface
 {
     /** @var MailService */
     protected $mailService;
@@ -104,7 +106,7 @@ class OrgaService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $contentService;
@@ -157,7 +159,7 @@ class OrgaService extends CoreService
         string $userLastName,
         string $email,
         Customer $customer,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $masterUserRoles = $this->roleService->getUserRolesByCodes([Role::ORGANISATION_ADMINISTRATION]);
         $masterUserRole = $masterUserRoles[0];
@@ -700,7 +702,7 @@ class OrgaService extends CoreService
     public function addReport(string $orgaId, $data, $showListBefore)
     {
         $message = [];
-        $user = null;
+        $user = new AnonymousUser();
         if ($this->tokenStorage instanceof TokenStorageInterface && $this->tokenStorage->getToken() instanceof TokenInterface) {
             $user = $this->tokenStorage->getToken()->getUser();
         }
@@ -788,7 +790,7 @@ class OrgaService extends CoreService
      */
     public function getInvitablePublicAgencies(): array
     {
-        return $this->invitablePublicAgencyResourceType->listEntities([]);
+        return $this->invitablePublicAgencyResourceType->getEntities([], []);
     }
 
     /**
@@ -833,7 +835,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * Get single orgaobject by filter.
+     * Gets a list of orgaInterfaces by filter.
      *
      * @param array $filter
      *

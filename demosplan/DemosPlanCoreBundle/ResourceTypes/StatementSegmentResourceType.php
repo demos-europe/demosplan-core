@@ -12,10 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -26,16 +25,18 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\PropertyConfig\Builder\PropertyConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<Segment>
- * @template-implements ReadableEsResourceTypeInterface<Segment>
+ * @template-implements ReadableEsResourceTypeInterface<SegmentInterface>
  *
- * @template-extends DplanResourceType<Segment>
+ * @template-extends DplanResourceType<SegmentInterface>
  *
  * @property-read End $recommendation
  * @property-read End $polygon
@@ -49,8 +50,9 @@ use Elastica\Index;
  * @property-read TagResourceType $tags
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
+ * @property-read End $customFields
  */
-final class StatementSegmentResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface, ReadableEsResourceTypeInterface
+final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
     /**
      * @var Index
@@ -61,7 +63,8 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -85,6 +88,14 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         );
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_json_api_statement_segment');
+    }
+
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -102,72 +113,9 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
-            $procedureIds,
-            $this->parentStatementOfSegment->procedure->id
-        )];
-    }
-
-    /**
-     * @return array<string,string|null>
-     */
-    public function getUpdatableProperties(object $updateTarget): array
-    {
-        $updatableProperties = [
-            $this->assignee,
-            $this->parentStatement,
-            $this->tags,
-            $this->text,
-            // for now everyone that is allowed to access
-            // segments is allowed to change its place
-            $this->place,
-        ];
-
-        if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            $updatableProperties[] = $this->recommendation;
-        }
-
-        if ($this->currentUser->hasPermission('feature_segment_polygon_set')) {
-            $updatableProperties[] = $this->polygon;
-        }
-
-        return $this->toProperties(...$updatableProperties);
-    }
-
-    /**
-     * Prevents updates to the given Segment if it not claimed after the update by the
-     * current user.
-     *
-     * @param Segment             $entity
-     * @param array<string,mixed> $properties
-     *
-     * @return ResourceChange<Segment>
-     *
-     * @throws UserNotFoundException
-     */
-    public function updateObject(object $entity, array $properties): ResourceChange
-    {
-        // update the object first and check its state afterwards
-        $resourceChange = new ResourceChange($entity, $this, $properties);
-
-        $parentStatementPropertyPath = $this->parentStatement->getAsNamesInDotNotation();
-        $parentStatementOfSegment = null;
-        if (\array_key_exists($parentStatementPropertyPath, $properties)) {
-            $parentStatementOfSegment = $properties[$parentStatementPropertyPath];
-        }
-
-        if (\array_key_exists($parentStatementPropertyPath, $properties)) {
-            unset($properties[$parentStatementPropertyPath]);
-            $entity->setParentStatementOfSegment($parentStatementOfSegment);
-        }
-
-        $this->resourceTypeService->updateObjectNaive($entity, $properties);
-        $this->resourceTypeService->validateObject(
-            $entity,
-            [ResourceTypeService::VALIDATION_GROUP_DEFAULT, Segment::VALIDATION_GROUP_SEGMENT_MANDATORY]
-        );
-
-        return $resourceChange;
+        return [] === $procedureIds
+            ? [$this->conditionFactory->false()]
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
     }
 
     public function getFacetDefinitions(): array
@@ -207,36 +155,78 @@ final class StatementSegmentResourceType extends DplanResourceType implements Up
         return $this->esType;
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
+        $recommendation = $this->createAttribute($this->recommendation)->readable(true);
+        $polygon = $this->createAttribute($this->polygon);
+
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->recommendation)->readable(true),
-            $this->createAttribute($this->text)->readable(true),
+            $this->createIdentifier()->readable(),
+            $recommendation,
+            $polygon,
+            $this->createAttribute($this->text)->readable(true)->updatable(),
             $this->createAttribute($this->externId)->readable(true),
             $this->createAttribute($this->internId)->readable(true),
             $this->createAttribute($this->orderInProcedure)->readable(true),
-            $this->createToOneRelationship($this->parentStatement)->readable()->aliasedPath($this->parentStatementOfSegment),
-            $this->createToOneRelationship($this->assignee)->readable(),
-            $this->createToManyRelationship($this->tags)->readable(),
+            $this->createToOneRelationship($this->parentStatement)
+                ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+                ->readable()->updatable()->aliasedPath($this->parentStatementOfSegment),
+            $this->createToOneRelationship($this->assignee)->readable()->updatable(),
+            $this->createToManyRelationship($this->tags)->readable()->updatable(),
             // for now all segments have a place, this may change however
-            $this->createToOneRelationship($this->place)->readable(),
-            $this->createToManyRelationship($this->comments)->readable(),
+            $this->createToOneRelationship($this->place)->readable()
+                // for now everyone that is allowed to access
+                // segments is allowed to change its place
+                ->updatable(),
         ];
+
+        if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
+            $properties[] = $this->createToManyRelationship($this->comments)->readable();
+        }
         if ($this->currentUser->hasPermission('feature_segment_polygon_read')) {
-            $properties[] = $this->createAttribute($this->polygon)->readable(true);
+            $polygon->readable(true);
+        }
+        if ($this->currentUser->hasPermission('feature_segment_polygon_set')) {
+            $polygon->updatable();
+        }
+        if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
+            $recommendation->updatable();
         }
 
-        return array_map(static fn(PropertyBuilder $property): PropertyBuilder => $property->filterable()->sortable(), $properties);
+        if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
+            $properties[] = $this->createAttribute($this->customFields)
+                ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (Segment $segment, array $customFields): array {
+                            $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $segment->getProcedure()->getId(),
+                                'PROCEDURE',
+                                'SEGMENT'
+                            );
+                            $segment->setCustomFields($customFieldList);
+
+                            return [];
+                        },
+                        OptionalField::YES
+                    )
+                );
+        }
+
+        return array_map(
+            static fn (PropertyConfigBuilderInterface $property): PropertyConfigBuilderInterface => $property
+                ->filterable()
+                ->sortable(),
+            $properties
+        );
+    }
+
+    public function getUpdateValidationGroups(): array
+    {
+        return [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY];
     }
 }

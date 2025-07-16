@@ -13,7 +13,7 @@
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
-        :procedure-id="procedureId" />
+        :procedure-id="procedure.id" />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"
         v-show="slidebar.showTab === 'comments'"
@@ -23,7 +23,8 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
-        :procedure-id="procedureId"
+        :map-data="procedureMapSettings"
+        :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
     </dp-slidebar>
@@ -31,8 +32,11 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
-          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
-            {{ Translator.trans('statement') }} #{{ statementExternId }}
+          <status-badge
+            class="mr-2"
+            :status="statement.attributes.status || 'new'" />
+          <h1 class="font-size-larger align-middle inline-block u-m-0">
+            #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
@@ -53,29 +57,28 @@
             </button>
           </div>
         </div>
-        <ul class="float-right space-inline-s flex">
+        <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
-              entity-type="statement"
               :assigned-id="currentAssignee.id"
               :assigned-name="currentAssignee.name"
               :assigned-organisation="currentAssignee.orgaName"
               :current-user-id="currentUser.id"
+              entity-type="statement"
               :is-loading="isLoading"
               :label="Translator.trans(`${currentUser.id === currentAssignee.id ? 'assigned' : 'assign'}`)"
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <dp-button
-              class="u-ph-0_25"
-              :href="Routing.generate('dplan_segments_export', { procedureId: procedureId, statementId: statementId })"
-              :text="Translator.trans('export.verb')"
-              variant="subtle" />
+            <statement-export-modal
+              data-cy="statementSegmentsList:export"
+              @export="showHintAndDoExport"
+              is-single-statement-export />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -85,22 +88,28 @@
                 </span>
               </template>
               <template v-if="statement">
-                <div class="overflow-x-scroll break-words max-height-500 max-width-600 width-max-content">
-                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
+                  <span
+                    v-if="originalAttachment.hash"
+                    class="block weight--bold">
+                    {{ Translator.trans('original.pdf') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
-                    :attachment="originalAttachment"
                     class="block whitespace-normal u-mr-0_75"
-                    :procedure-id="procedureId" />
+                    :attachment="originalAttachment"
+                    :procedure-id="procedure.id" />
                   <span
                     v-if="additionalAttachments.length > 0"
-                    class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                    class="block weight--bold">
+                    {{ Translator.trans('more.attachments') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
-                    :key="attachment.hash"
-                    :attachment="attachment"
                     class="block whitespace-normal u-mr-0_75"
-                    :procedure-id="procedureId" />
+                    :attachment="attachment"
+                    :key="attachment.hash"
+                    :procedure-id="procedure.id" />
                 </div>
               </template>
             </dp-flyout>
@@ -134,23 +143,31 @@
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
+        :available-counties="availableCounties"
+        :available-municipalities="availableMunicipalities"
+        :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
+        :editable="editable"
+        :statement-form-definitions="statementFormDefinitions"
+        :procedure="procedure"
+        :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
-        :editable="editable"
         @close="showInfobox = false"
+        @input="checkStatementClaim"
         @save="(statement) => saveStatement(statement)"
-        @input="checkStatementClaim" />
+        @updatedVoters="getStatement" />
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
-        :statement-id="statementId"
-        :procedure-id="procedureId" />
+        :procedure-id="procedure.id"
+        :statement-id="statementId" />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
-        :editable="editable"
-        :statement-id="statementId"
         :current-user="currentUser"
+        :editable="editable"
+        :has-draft-segments="hasDraftSegments()"
+        :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
     </div>
@@ -161,7 +178,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement
@@ -172,17 +188,18 @@ import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHist
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
+import StatusBadge from '../Shared/StatusBadge'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
     DpClaim,
-    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -190,28 +207,75 @@ export default {
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
+    StatementExportModal,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
-    StatementSegmentsEdit
+    StatementSegmentsEdit,
+    StatusBadge
   },
 
   provide () {
     return {
-      procedureId: this.procedureId,
+      procedureId: this.procedure.id,
       recommendationProcedureIds: this.recommendationProcedureIds
     }
   },
 
   props: {
+    availableCounties: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     currentUser: {
       type: Object,
       required: true
     },
 
-    procedureId: {
-      type: String,
-      required: true
+    /**
+     * If inside a source procedure that is already coupled, HEARING_AUTHORITY_ADMIN users may copy statements to the
+     * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
+     */
+    isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    procedure: {
+      type: Object,
+      required: true,
+      validator: (p) => {
+        let valid = true
+
+        Object.keys(p).forEach(key => {
+          if (!['id', 'name', 'orgaName'].includes(key)) {
+            valid = false
+          }
+        })
+
+        return valid
+      }
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     recommendationProcedureIds: {
@@ -230,6 +294,11 @@ export default {
       required: true
     },
 
+    statementFormDefinitions: {
+      required: true,
+      type: Object
+    },
+
     submitTypeOptions: {
       type: Array,
       required: false,
@@ -241,6 +310,8 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
+      segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
       statementClaimChecked: false,
@@ -249,36 +320,37 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
-    ...mapGetters('segmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', [
+      'commentsList'
+    ]),
 
     additionalAttachments () {
-      /**
-       * Until we move completely to the "new way" of handling files,
-       * We have to get the additional files directly from files since that's the place where they get stored.
-       * When crating a new 'additionalFile' via API, the backend creates this kind of relationship as a sideeffect
-       */
-      if (this?.statement?.hasRelationship('files')) {
-        const files = this.statement.relationships.files.list()
+      if (this.statement?.hasRelationship('genericAttachments')) {
+        const attachments = this.statement.relationships.genericAttachments.list()
 
-        return Object.values(files).map(file => {
+        return Object.values(attachments).map(attachment => {
+          const file = attachment?.relationships?.file.get()
+
           return {
-            hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: file.type
+            hash: file.attributes.hash,
+            id: attachment.id
           }
         })
       } else {
@@ -293,23 +365,6 @@ export default {
           id: user.id
         }))
         : []
-    },
-
-    attachments () {
-      if (this?.statement?.hasRelationship('attachments')) {
-        const attachments = this.statement.relationships.attachments.list()
-
-        return Object.values(attachments).map(attachment => {
-          const file = attachment?.relationships?.file.get()
-          return {
-            hash: file.attributes.hash,
-            filename: file.attributes.filename,
-            type: attachment.attributes.type
-          }
-        })
-      } else {
-        return []
-      }
     },
 
     attachmentsAndOriginalPdfCount () {
@@ -332,7 +387,7 @@ export default {
 
       if (currentAssigneeId) {
         const assignee = this.assignableUsersObject[currentAssigneeId] || { attributes: {} }
-        const assigneeOrga = assignee.rel ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee.rel ? assignee.rel('orga') : null
 
         return {
           id: currentAssigneeId,
@@ -347,7 +402,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
@@ -381,7 +436,19 @@ export default {
     },
 
     originalAttachment () {
-      return this.attachments.find((attachment) => attachment.type === 'source_statement') || {}
+      const originalAttachment = this.statement.hasRelationship('sourceAttachment')
+        ? Object.values(this.statement.relationships.sourceAttachment.list())[0]
+        : {}
+
+      const file = originalAttachment?.relationships?.file.get()
+
+      return originalAttachment && file
+        ? {
+            filename: file.attributes.filename,
+            hash: file.attributes.hash,
+            id: originalAttachment.id
+          }
+        : {}
     },
 
     statement () {
@@ -390,33 +457,45 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
   methods: {
-    ...mapMutations('segmentSlidebar', [
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('AssignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchLayers: 'fetchLayers',
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
+    ...mapActions('Statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
-    }),
-
-    ...mapActions('segmentSlidebar', [
+    ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
@@ -447,7 +526,7 @@ export default {
           relationships: {
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: this.currentUser.id
               }
             }
@@ -460,7 +539,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
         })
         .catch((err) => {
@@ -473,61 +552,174 @@ export default {
         })
     },
 
+
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedure.id,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
+    },
+
     getStatement () {
+      const statementFields = [
+        'assignee',
+        'authoredDate',
+        'authorName',
+        'consentRevoked',
+        'counties',
+        'document',
+        'elements',
+        'fullText',
+        'genericAttachments',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isManual',
+        'isSubmittedByCitizen',
+        'memo',
+        'municipalities',
+        'numberOfAnonymVotes',
+        'paragraph',
+        'paragraphParentId',
+        'paragraphVersion',
+        'polygon',
+        'priorityAreas',
+        'priorityAreas',
+        'procedurePhase',
+        'publicVerified',
+        'publicVerifiedTranslation',
+        'recommendation',
+        'segmentDraftList',
+        'sourceAttachment',
+        'submitDate',
+        'submitName',
+        'submitterAndAuthorMetaDataAnonymized',
+        'submitterEmailAddress',
+        'submitType',
+        'status',
+        'votes'
+      ]
+
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+
+      if (hasPermission('field_statement_phase')) {
+        statementFields.push('availableProcedurePhases')
+      }
+
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        statementFields.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
+      }
+
+      const allFields = {
+        ElementsDetails: [
+          'documents',
+          'paragraphs',
+          'title'
+        ].join(),
+        File: [
+          'hash',
+          'filename'
+        ].join(),
+        GenericStatementAttachment: [
+          'file'
+        ].join(),
+        ParagraphVersion: [
+          'title'
+        ].join(),
+        SingleDocument: [
+          'title'
+        ].join(),
+        SourceStatementAttachment: [
+          'file'
+        ].join(),
+        Statement: statementFields.join()
+      }
+
+      if (hasPermission('feature_statements_vote')) {
+        allFields.StatementVote = [
+          'city',
+          'createdByCitizen',
+          'departmentName',
+          'email',
+          'name',
+          'organisationName',
+          'postcode'
+        ].join()
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        allFields.SimilarStatementSubmitter = [
+          'city',
+          'emailAddress',
+          'fullName',
+          'postalCode',
+          'streetName',
+          'streetNumber'
+        ].join()
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        allFields.User = [
+          'orga'
+        ].join()
+      }
+
+      const include = [
+        'assignee',
+        'document',
+        'elements',
+        'genericAttachments',
+        'genericAttachments.file',
+        'paragraph',
+        'paragraphVersion.paragraph',
+        'sourceAttachment',
+        'sourceAttachment.file',
+        'votes'
+      ]
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        include.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        include.push('user', 'user.orga')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
-        include: [
-          'assignee',
-          'attachments',
-          'attachments.file',
-          'files',
-          'similarStatementSubmitters'
-        ].join(),
-        fields: {
-          Statement: [
-            'assignee',
-            'attachments',
-            'similarStatementSubmitters',
-            'authoredDate',
-            'authorName',
-            'files',
-            'fullText',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isManual',
-            'memo',
-            'recommendation',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized'
-          ].join(),
-          SimilarStatementSubmitter: [
-            'city',
-            'emailAddress',
-            'fullName',
-            'postalCode',
-            'streetName',
-            'streetNumber'
-          ].join(),
-          StatementAttachment: [
-            'id',
-            'file',
-            'type'
-          ].join(),
-          File: [
-            'hash',
-            'filename'
-          ].join()
-        }
+        include: include.join(),
+        fields: allFields
       })
+    },
+
+    hasDraftSegments () {
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
     resetSlidebar () {
@@ -542,8 +734,6 @@ export default {
     saveStatement (statement) {
       this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
-      // The key isManual is readonly, so we should remove it before saving
-      delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
 
       this.saveStatementAction(statement.id)
@@ -563,7 +753,7 @@ export default {
             ...this.statements[this.statement.id].relationships,
             assignee: {
               data: {
-                type: 'User',
+                type: 'Claim',
                 id: claimingStatement ? this.currentUser.id : null
               }
             }
@@ -576,12 +766,39 @@ export default {
       const queryParams = new URLSearchParams(window.location.search)
       let action = queryParams.get('action')
 
-      if (action && action.includes('?')) {
+      if (action?.includes('?')) {
         action = action.split('?')[0]
       }
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
       this.currentAction = action || defaultAction
+    },
+
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+      const parameters = {
+        procedureId: this.procedure.id,
+        statementId: this.statementId
+      }
+
+      if (docxHeaders) {
+        parameters.tableHeaders = {
+          col1: docxHeaders.col1,
+          col2: docxHeaders.col2,
+          col3: docxHeaders.col3
+        }
+      }
+
+      if (fileNameTemplate) {
+        parameters.fileNameTemplate = fileNameTemplate
+      }
+
+      isObscured && (parameters.isObscured = isObscured)
+      isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
+      isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
+
+      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = Routing.generate(route, parameters)
+      }
     },
 
     /**
@@ -644,7 +861,7 @@ export default {
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
-          this.setStatement({ ...dataToUpdate, id: this.statement.id, group: null })
+          this.setStatement({ ...dataToUpdate, id: this.statement.id })
           dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.unassigned'))
         })
         .catch((err) => {
@@ -664,13 +881,27 @@ export default {
 
   mounted () {
     this.getStatement()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {
         Orga: 'name'
       }
     })
-    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+    this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
+      .then(response => {
+        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+      })
+
+    this.fetchLayers(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings.layers = response.data
+          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
+          .map(layer => layer.attributes)
+      })
   }
 }
 </script>

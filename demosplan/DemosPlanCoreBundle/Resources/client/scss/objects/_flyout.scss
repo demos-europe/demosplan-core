@@ -62,6 +62,7 @@
     &.is-expanded {
         .o-flyout__content {
             display: block;
+            position: absolute;
         }
     }
 }

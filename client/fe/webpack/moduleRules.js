@@ -9,6 +9,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
+const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
 
 /**
  * List of modules which need to be transpiled with Babel
@@ -30,63 +31,64 @@ transpiledModules = transpiledModules.concat(
   ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
 )
 
-const postcssPresetEnv = require('postcss-preset-env')
+const postcssPrefixSelector = require('postcss-prefix-selector')({
+  prefix: config.cssPrefix,
+  exclude: [
+    ...config.cssPrefixExcludes.defaultExcludePatterns,
+    ...config.cssPrefixExcludes.externalClassPrefixes
+  ],
+  transform (prefix, selector) {
+    selector = selector.split(' ').map((selector) => {
+      if (selector[0] !== '.') {
+        // We only want to prefix classes
+        return selector
+      }
+
+      // Patch OpenLayers & Tooltips, which got excluded by a too aggressive regex
+      if (selector.match(/\.([\w-_]-ol-[\w-_]+)/) || selector.match(/\.(o-tooltip[\w-_]*)/)) {
+        return prefix + selector.substring(1)
+      }
+
+      return prefix + selector.substring(1)
+    }).join(' ')
+
+    return selector
+  },
+  ignoreFiles: [/.+style\.scss/]
+})
+
+const tailwindCss = require('@tailwindcss/postcss')
+const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
+/*
+ * 1 When "polyfill" cascade layers, postcssPresetEnv applies :not(#/#) to all selectors,
+ *   and repeat that multiple times to simulate the cascade layers specificity that way.
+ *   Sadly this doubles the size of the css file, so we disable it. Anyway, cascade layers
+ *   seem to be supported by 93% of all browsers at the time of writing this.
+ * 2 The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible.
+ *   It can either not be ignored because it conflicts with the way that :focus-visible is used
+ *   within the `keyboard-focus` scss mixin.
+ */
+const postcssPresetEnv = require('postcss-preset-env')({
+  features: {
+    'cascade-layers': false, // 1
+    'focus-visible-pseudo-class': false // 2
+  }
+})
+const postcssPurgeCss = purgeCSSPlugin({
+  ...config.purgeCss,
+  defaultExtractor (content) {
+    const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
+    return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
+  }
+})
 
 const postCssPlugins = [
-  require('postcss-prefix-selector')({
-    prefix: config.cssPrefix,
-    exclude: [
-      ...config.cssPrefixExcludes.defaultExcludePatterns,
-      ...config.cssPrefixExcludes.externalClassPrefixes
-    ],
-    transform (prefix, selector) {
-      selector = selector.split(' ').map((selector) => {
-        if (selector[0] !== '.') {
-          // We only want to prefix classes
-          return selector
-        }
-
-        // Patch OpenLayers & Tooltips, which got excluded by a too aggressive regex
-        if (selector.match(/\.([\w-_]-ol-[\w-_]+)/) || selector.match(/\.(o-tooltip[\w-_]*)/)) {
-          return prefix + selector.substring(1)
-        }
-
-        return prefix + selector.substring(1)
-      }).join(' ')
-
-      return selector
-    },
-    ignoreFiles: [/.+style\.scss/]
-  }),
-  require('tailwindcss'),
-  require('postcss-flexbugs-fixes'),
-  /*
-   * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be
-   * ignored because it conflicts with the way that :focus-visible is used within the `keyboard-focus` scss mixin.
-   */
-  postcssPresetEnv({
-    features: {
-      'focus-visible-pseudo-class': false
-    }
-  }),
-  // The autoprefixer must run after postcss-prefix-selector
-  require('autoprefixer')
+  postcssPrefixSelector,
+  tailwindCss,
+  postcssFlexbugsFixes,
+  postcssPresetEnv,
+  postcssPurgeCss
 ]
-
-if (config.cssPurge.enabled) {
-  const purgeCss = [
-    '@fullhuman/postcss-purgecss',
-    {
-      content: config.cssPurge.paths,
-      defaultExtractor (content) {
-        const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
-        return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/]+/g) || []
-      },
-      safelist: config.cssPurge.safelist
-    }
-  ]
-  postCssPlugins.splice(-2, 0, purgeCss)
-}
 
 /**
  * Module Rules for Webpack
@@ -96,43 +98,17 @@ if (config.cssPurge.enabled) {
 const moduleRules =
   [
     {
-      test: /\.vue$/,
-      loader: 'vue-loader'
+      test: /\.css$/,
+      use: [MiniCssExtractPlugin.loader],
+      exclude: [/client\/css\/(tailwind|preflight)\.css/]
     },
     {
-      test: /\.js$/,
-      include: transpiledModules,
-      exclude: [
-        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
-      ],
-      use: {
-        loader: 'babel-loader'
-      }
-    },
-    {
-      test: /\.js$/,
-      use: ['source-map-loader'],
-      enforce: 'pre',
-      exclude: (path) => {
-        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
-      }
-    },
-    {
-      test: /\.s?css$/,
+      test: /\.scss$/,
       use: [
         MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
-            /*
-             * "importLoaders: 1" gets postcss-loader to also process css imports.
-             * @see https://webpack.js.org/loaders/css-loader/#importloaders
-             * However when omitting the .css extension from the @imported css files,
-             * sass-loader will treat the import like a scss file, inlining it
-             * instead of leaving the css @import unprocessed as a native import.
-             * @see https://github.com/webpack-contrib/sass-loader/issues/101#issuecomment-128684387
-             */
-            importLoaders: config.isProduction === true ? 1 : 0,
             sourceMap: false,
             url: false
           }
@@ -154,9 +130,9 @@ const moduleRules =
           loader: 'sass-loader',
           options: {
             implementation: require('sass-embedded'),
-            additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
             sassOptions: {
-              includePaths: [
+              additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
+              loadPaths: [
                 config.projectRoot + 'web/',
                 config.publicPath
               ]
@@ -164,6 +140,57 @@ const moduleRules =
           }
         }
       ]
+    },
+    {
+      test: /\.css$/,
+      use: [
+        MiniCssExtractPlugin.loader,
+        {
+          loader: 'css-loader',
+          options: {
+            sourceMap: false,
+            url: false
+          }
+        },
+        {
+          loader: 'postcss-loader',
+          options: {
+            postcssOptions: {
+              plugins: [tailwindCss]
+            },
+            sourceMap: false
+          }
+        }
+      ]
+    },
+    {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
+    },
+    {
+      test: /\.js$/,
+      include: transpiledModules,
+      exclude: [
+        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
+      ],
+      use: {
+        loader: 'babel-loader'
+      }
+    },
+    {
+      test: /\.js$/,
+      use: ['source-map-loader'],
+      enforce: 'pre',
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

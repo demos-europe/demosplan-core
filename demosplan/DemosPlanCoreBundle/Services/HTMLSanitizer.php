@@ -23,6 +23,7 @@ class HTMLSanitizer
 
     public function __construct(private readonly HTMLPurifier $htmlPurifier, string $cacheDirectory)
     {
+        // uses local file, no need for flysystem
         // Make sure the cache directory exists, as the purifier won't create it for you
         if (!file_exists($cacheDirectory) && !mkdir($cacheDirectory, 0777, true) && !is_dir($cacheDirectory)) {
             throw new RuntimeException(sprintf('HTML purifier directory "%s" can not be created', $cacheDirectory));
@@ -71,7 +72,7 @@ class HTMLSanitizer
             ->merge($additionalAllowedTags)
             ->flatMap(
                 // format as tags, as strip_tags() needs tags formatted as "<a>"
-                static fn($tagName) => ["<{$tagName}>"]
+                static fn ($tagName) => ["<{$tagName}>"]
             )
             ->implode('');
 
@@ -89,6 +90,8 @@ class HTMLSanitizer
         $config = HTMLPurifier_Config::createDefault();
         $config->set('HTML.DefinitionID', 'dplan purifier');
         $config->set('HTML.DefinitionRev', 1);
+        $config->set('Attr.AllowedFrameTargets', ['_blank']);
+        $config->set('Attr.AllowedRel', ['noopener noreferrer nofollow']);
         $config->set('Cache.SerializerPath', $this->cacheDirectory);
         $def = $config->maybeGetRawHTMLDefinition();
 

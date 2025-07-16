@@ -19,7 +19,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -29,6 +31,8 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ElementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -44,6 +48,11 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use ReflectionException;
+use Symfony\Component\Validator\Constraints\Blank;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
@@ -70,7 +79,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         private readonly PlanningDocumentCategoryResourceType $elementResourceType,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
+        protected readonly ValidatorInterface $validator,
+        private readonly ElementReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -185,11 +198,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $this->getTopElements($procedureId, [], ['title' => $hiddenTitlesArray, 'deleted' => [false]]);
 
         // return IDs only:
-        return collect(array_merge($mapCategories, $hiddenByConfigCategories))->map(
-            fn ($element) =>
-                /* @var Elements $element */
-                $element->getId()
-        )->toArray();
+        return collect(array_merge($mapCategories, $hiddenByConfigCategories))
+            ->sort(fn ($elementA, $elementB) => strcasecmp($elementA->getTitle(), $elementB->getTitle()))
+            ->map(
+                fn ($element) =>
+                    /* @var Elements $element */
+                    $element->getId()
+            )
+            ->toArray();
     }
 
     /**
@@ -278,13 +294,13 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         $elements = $this->getElementsListObjects($procedureId, $organisationId, $isOwner);
         $elements = array_filter($elements, static fn (Elements $element) => in_array(
             $element->getCategory(),
-            [ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH, ElementsInterface::ELEMENTS_CATEGORY_FILE],
+            [ElementsInterface::ELEMENT_CATEGORIES['paragraph'], ElementsInterface::ELEMENT_CATEGORIES['file']],
             true
         ));
         $elements = array_map($this->convertElementToArray(...), $elements);
         foreach ($elements as $key => $element) {
             $elements[$key]['paragraphDocs'] = false;
-            if (ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH === $element['category']) {
+            if (ElementsInterface::ELEMENT_CATEGORIES['paragraph'] === $element['category']) {
                 $elements[$key]['paragraphDocs'] = true;
             }
             $documentList = $this->paragraphService->getParaDocumentObjectList($procedureId, $element['id']);
@@ -303,8 +319,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function getMapElements(string $procedureId)
     {
-        return $this->getElementsRepository()
-            ->getOneBy(['pId' => $procedureId, 'category' => 'map']);
+        return $this->getElementsRepository()->getOneBy(['pId' => $procedureId, 'category' => 'map']);
     }
 
     /**
@@ -397,17 +412,18 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Fügt ein Element hinzu.
      *
-     * @return array
-     *
      * @throws Exception
      */
     public function addElement(array $data): ?array
     {
         try {
             $this->validateParentsCount($data);
-            $result = $this->getElementsRepository()->add($data);
+            $element = $this->getElementsRepository()->add($data);
 
-            return $this->convertElementToArray($result);
+            $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+            $this->eventDispatcher->dispatch($reportEntryEvent);
+
+            return $this->convertElementToArray($element);
         } catch (Exception $e) {
             $this->logger->warning('addElement failed. ', [$e]);
             throw $e;
@@ -419,7 +435,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function addEntity(Elements $element): Elements
     {
-        return $this->getElementsRepository()->updateObject($element);
+        $element = $this->getElementsRepository()->updateObject($element);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $element;
     }
 
     public function getNextFreeOrderIndex(Procedure $procedure): int
@@ -458,8 +479,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                     }
 
                     // lösche ggf paragraphs
-                    $paragraphIds = $this->getElementsRepository()
-                        ->getParagraphIds($elementId);
+                    $paragraphIds = $this->getElementsRepository()->getParagraphIds($elementId);
 
                     $paragraphDeleted = $this->paragraphService->deleteParaDocument($paragraphIds);
                     if (false === $paragraphDeleted) {
@@ -481,6 +501,10 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                             }
                         }
                     }
+
+                    $elementToDelete = $this->getElementObject($elementId);
+                    $reportEntryEvent = new CreateReportEntryEvent($elementToDelete, ReportEntry::CATEGORY_DELETE);
+                    $this->eventDispatcher->dispatch($reportEntryEvent);
                     $this->getElementsRepository()->delete($elementId);
                 } catch (Exception $e) {
                     $this->logger->error('An error occurred while deleting an element: ', [$e]);
@@ -529,9 +553,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $element['title'] = $defaultStatementElementTitle;
         }
 
-        $result = $repository->update($element['ident'], $element);
+        $element = $repository->update($element['ident'], $element);
 
-        return $this->convertElementToArray($result);
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $this->convertElementToArray($element);
     }
 
     /**
@@ -547,7 +574,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $titlesOfHiddenElements = $this->globalConfig->getAdminlistElementsHiddenByTitle();
         // category map is allowed to be modified
-        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::FILE_TYPE_PLANZEICHNUNG !== $title);
+        $titlesOfHiddenElements = collect($titlesOfHiddenElements)->filter(static fn ($title) => ElementsInterface::ELEMENT_TITLES['planzeichnung'] !== $title);
         if ($titlesOfHiddenElements->contains($currentTitle)) {
             // deny update of elements which are hidden for this project, because this means also there are not editable.
             throw new HiddenElementUpdateException();
@@ -564,7 +591,13 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $element->setTitle($defaultStatementElementTitle);
         }
 
-        return $repository->updateObject($element);
+        /** @var Elements $element */
+        $element = $repository->updateObject($element);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $element;
     }
 
     /**
@@ -645,8 +678,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
     /**
      * Convert datetime element array.
-     *
-     * @return mixed
      */
     protected function convertDateTime(array $element)
     {
@@ -768,17 +799,19 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         array $elementIdsToSwitch,
         DateTime $designatedSwitchDateTime,
         bool $designatedState,
-        string $procedureId
+        string $procedureId,
     ): array {
         $condition = $this->conditionFactory
             ->allConditionsApply(
                 $this->conditionFactory->propertyHasValue($procedureId, $this->elementResourceType->procedure->id),
-                $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
+                [] === $elementIdsToSwitch
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
                 $this->conditionFactory->propertyHasValue(!$designatedState, $this->elementResourceType->enabled),
             );
 
         /** @var Elements[] $elements */
-        $elements = $this->elementResourceType->listEntities([$condition]);
+        $elements = $this->elementResourceType->getEntities([$condition], []);
 
         foreach ($elements as $element) {
             $element->setDesignatedSwitchDate($designatedSwitchDateTime);
@@ -790,13 +823,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Kopiert alle Elements (Planunterlagenkategorien) von einem Verfahren in ein anderes.
      *
-     * @param string $destinationProcedureId
-     *
-     * @return array
-     *
-     * @throws Exception
+     * @throws Exception|Throwable
      */
-    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): ?array
+    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): void
     {
         $entityManager = $this->entityManager;
 
@@ -813,7 +842,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $copiedElement = clone $elementToCopy;
                 $copiedElement->setDocuments(new ArrayCollection([]));
 
-                if (ElementsInterface::ELEMENTS_CATEGORY_MAP === $copiedElement->getCategory()) {
+                if (ElementsInterface::ELEMENT_CATEGORIES['map'] === $copiedElement->getCategory()) {
                     $behaviorDefinition = $destinationProcedure->getProcedureBehaviorDefinition();
                     if ($behaviorDefinition instanceof ProcedureBehaviorDefinition
                         && !$behaviorDefinition->isAllowedToEnableMap()) {
@@ -845,8 +874,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $elementIds[$elementToCopy->getId()] = $copiedElement->getId();
             }
             $entityManager->flush();
-
-            return $elementIds;
         } catch (Exception $e) {
             $this->logger->warning('Copy elements failed. Message: ', [$e]);
             throw $e;
@@ -931,5 +958,136 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         }
 
         return $this->countParents($parent);
+    }
+
+    public function getPlanningDocumentCategoryByTitle(string $procedureId, string $title): ?Elements
+    {
+        return $this->elementsRepository->findOneBy([
+            'title'     => $title,
+            'procedure' => $procedureId,
+        ]);
+    }
+
+    /**
+     * Tries to guess the type of a related planning document category (element)
+     * to be created based on the given parameters.
+     *
+     * @param string $elementTitle   statement.elements.title
+     *                               = Name of the kind of related document which type we want to determine here.
+     * @param string $documentTitle  statement.document(singleDocumentVersion).title
+     * @param string $paragraphTitle statement.paragraph(paragraphVersion).title
+     *
+     * @return string|ConstraintViolationListInterface|null
+     *                                                      ConstraintViolationListInterface in case of the combination of the incoming titles are illicit.
+     *                                                      Name of the found system category type if found one.
+     *                                                      Null if the combination of incoming titles are allowed but no system-category-type matched.
+     */
+    public function guessSystemCategoryType(
+        string $elementTitle,
+        string $documentTitle,
+        string $paragraphTitle,
+    ): string|ConstraintViolationListInterface|null {
+        if ('' !== $documentTitle) {
+            $violations = $this->validator->validate($paragraphTitle, new Blank(
+                ['message' => 'statement.categoryType.already.defined.by.give.document']
+            ));
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
+
+            // documentTitle and no paragraphTitle =
+            return ElementsInterface::ELEMENT_CATEGORIES['file'];
+        }
+
+        if ('' !== $paragraphTitle) {
+            $violations = $this->validator->validate($documentTitle, new Blank(
+                ['message' => 'statement.categoryType.already.defined.by.given.paragraph']
+            ));
+
+            if (0 !== $violations->count()) {
+                return $violations;
+            }
+
+            // paragraphTitle and no documentTitle =
+            return ElementsInterface::ELEMENT_CATEGORIES['paragraph'];
+        }
+
+        return $this->findSystemCategoryTypeTitleBasedOfTitle($elementTitle);
+    }
+
+    /**
+     * Tries to guess the type of the planning document category with the document(elements) title only.
+     *
+     * @return string|ConstraintViolationListInterface|null
+     *                                                      ConstraintViolationListInterface if given title is empty.
+     *                                                      System-category-title if appropriate one was found, otherwise null.
+     */
+    private function findSystemCategoryTypeTitleBasedOfTitle(string $title,
+    ): string|ConstraintViolationListInterface|null {
+        $violations = $this->validator->validate(
+            $title,
+            new NotBlank(['message' => 'element.title.not.blank'])
+        );
+
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
+        return match ($title) {
+            // statement
+            ElementsInterface::ELEMENT_TITLES['gesamtstellungnahme'],
+            ElementsInterface::ELEMENT_TITLES['fehlanzeige'] => ElementsInterface::ELEMENT_CATEGORIES['statement'],
+
+            // paragraph:
+            ElementsInterface::ELEMENT_TITLES['textliche_festsetzungen'],
+            ElementsInterface::ELEMENT_TITLES['begruendung'],
+            ElementsInterface::ELEMENT_TITLES['verordnung_text_teil_b'] => ElementsInterface::ELEMENT_CATEGORIES['paragraph'],
+
+            // map:
+            ElementsInterface::ELEMENT_TITLES['planzeichnung'] => ElementsInterface::ELEMENT_CATEGORIES['map'],
+
+            // file:
+            ElementsInterface::ELEMENT_TITLES['grobabstimmungspapier'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_i'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_ii'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlage'],
+            ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['fnp_berichtigung'],
+            ElementsInterface::ELEMENT_TITLES['gutachten'],
+            ElementsInterface::ELEMENT_TITLES['lapro_aenderung'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_grobabstimmung_arbeitskreise'],
+            ElementsInterface::ELEMENT_TITLES['niederschrift_sonstige'],
+            ElementsInterface::ELEMENT_TITLES['scoping_papier'],
+            ElementsInterface::ELEMENT_TITLES['scoping_protokoll'],
+            ElementsInterface::ELEMENT_TITLES['verordnung'],
+            ElementsInterface::ELEMENT_TITLES['verteiler'],
+            ElementsInterface::ELEMENT_TITLES['weitere_information'],
+            ElementsInterface::ELEMENT_TITLES['ergaenzende_unterlagen'],
+            ElementsInterface::ELEMENT_TITLES['niederschriften'],
+            ElementsInterface::ELEMENT_TITLES['untersuchungen'],
+            ElementsInterface::ELEMENT_TITLES['untersuchung'],
+            ElementsInterface::ELEMENT_TITLES['verteiler_und_einladung'],
+            ElementsInterface::ELEMENT_TITLES['arbeitskreispapier_0'],
+            ElementsInterface::ELEMENT_TITLES['infoblatt'],
+            ElementsInterface::ELEMENT_TITLES['infoblatt_scoping_papier_nur_scoping_protokoll'],
+            ElementsInterface::ELEMENT_TITLES['staedtebauliche_vertraege_ergaenzende_unterlagen'],
+            ElementsInterface::ELEMENT_TITLES['protokolle_und_niederschriften'],
+            ElementsInterface::ELEMENT_TITLES['landschaftsplan_aenderung'] => ElementsInterface::ELEMENT_CATEGORIES['file'],
+
+            default => null,
+        };
+    }
+
+    public function getPlanningDocumentCategoryByTitleAndCategoryType(
+        string $procedureId,
+        string $title,
+        string $category,
+    ): ?Elements {
+        return $this->elementsRepository->findOneBy([
+            'title'     => $title,
+            'category'  => $category,
+            'procedure' => $procedureId,
+        ]);
     }
 }

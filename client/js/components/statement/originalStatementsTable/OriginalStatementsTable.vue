@@ -45,6 +45,10 @@
       type="hidden"
       name="r_limit"
       :value="pageSize">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
@@ -59,8 +63,10 @@
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      ref="exportModal"
+      :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
       view="original_statements" />
@@ -70,8 +76,9 @@
       :procedure-id="procedureId" />
 
     <slot
+      v-bind="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId }"
       name="filter"
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
+      :toggle-export-modal="toggleExportModal" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
@@ -83,12 +90,12 @@
       v-else-if="Object.keys(statements).length"
       class="c-at-orig">
       <colgroup>
-        <col class="width-10p">
-        <col class="width-10p text-left">
+        <col class="w-[10%]">
+        <col class="w-[10%] text-left">
         <col
           span="3"
-          class="width-25p">
-        <col class="width-5p">
+          class="w-1/4">
+        <col class="w-[5%]">
       </colgroup>
       <thead class="c-at-orig__header">
         <tr>
@@ -138,7 +145,8 @@
 import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import { defineAsyncComponent } from 'vue'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
 export default {
@@ -146,17 +154,22 @@ export default {
 
   components: {
     DpLoading,
-    DpExportModal,
-    DpInlineNotification: async () => {
+    ExportModal,
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
+    }),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
     OriginalStatementsTableItem
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     exportOptions: {
       type: Object,
       required: false,
@@ -197,27 +210,32 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements',
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById'
     ]),
 
     allItemsOnPageSelected () {
       return Object.keys(this.statements).length === 0 ? false : Object.keys(this.statements).every(stn => Object.keys(this.selectedElements).includes(stn))
+    },
+
+    isNoItemSelected () {
+      return Object.keys(this.selectedElements).length === 0
     }
+
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
+    ...mapActions('AssessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
@@ -225,12 +243,12 @@ export default {
       'setSelectionAction'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination',
       'updatePersistStatementSelection'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
@@ -248,12 +266,14 @@ export default {
     },
 
     copyStatements () {
-      if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
-        this.action = 'copy'
-        this.$nextTick(() => {
-          this.$refs.bpform.submit()
-        })
+      if (!dpconfirm(Translator.trans('check.entries.marked.copy'))) {
+        return
       }
+
+      this.action = 'copy'
+      this.$nextTick(() => {
+        this.$refs.bpform.submit()
+      })
     },
 
     handlePageChange (newPage) {
@@ -280,7 +300,7 @@ export default {
     toggleAllCheckboxes () {
       const status = this.allCheckboxesToggled
       const statements = JSON.parse(JSON.stringify(this.statements))
-      const payload = { status: status, statements: statements }
+      const payload = { status, statements }
 
       if (status) {
         for (const statementId in statements) {
@@ -296,6 +316,10 @@ export default {
       }
 
       this.setSelectionAction(payload)
+    },
+
+    toggleExportModal (tab) {
+      this.$refs.exportModal.toggleModal(tab)
     },
 
     triggerApiCallForStatements () {

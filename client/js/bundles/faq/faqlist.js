@@ -11,16 +11,18 @@
  * This is the entrypoint for faqlist.html.twig
  */
 
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
-import DpFaqSupport from '@DpJs/components/faq/DpFaqSupport'
+import DpSupport from '@DpJs/components/support/DpSupport'
 import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
-  RegisterFlyout,
-  DpFaqSupport
+  DpSupport,
+  RegisterFlyout
 }
 
-initialize(components).then(() => {
+const apiStores = ['CustomerContact']
+
+initialize(components, {}, apiStores).then(() => {
   highlightActiveLinks('[data-highlight-current]')
 })

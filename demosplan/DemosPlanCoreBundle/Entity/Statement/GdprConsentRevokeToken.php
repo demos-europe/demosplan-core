@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GdprConsentRevokeTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -40,7 +41,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository")
  */
-class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface
+class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, GdprConsentRevokeTokenInterface
 {
     /**
      * @var string|null

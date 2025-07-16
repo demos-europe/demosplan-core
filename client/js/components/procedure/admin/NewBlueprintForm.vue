@@ -26,10 +26,14 @@
       type="hidden"
       name="r_master"
       value="true">
+    <input
+      name="_token"
+      type="hidden"
+      :value="csrfToken">
 
     <fieldset>
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
       <dp-form-row class="u-mb-0_75">
         <dp-input
@@ -188,6 +192,11 @@ export default {
       default: () => []
     },
 
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     initEmailAddresses: {
       type: Array,
       default: () => []
@@ -247,7 +256,7 @@ export default {
         },
         include: 'agencyExtraEmailAddresses'
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
           return {

@@ -12,10 +12,9 @@
     <!-- Select boilerplate -->
     <div class="u-pb-0_25">
       <label class="u-mb-0_5">
-        <i
-          class="fa fa-question-circle float-right u-mt-0_125"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="tooltipContent" />
+        <dp-contextual-help
+          class="float-right u-mt-0_125"
+          :tooltip-options="tooltipOptions" />
         {{ title }}
       </label>
       <dp-multiselect
@@ -44,7 +43,7 @@
         Vorschau:
       </label>
       <div
-        class="u-p-0_5 border border-radius-large min-height-250"
+        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
         id="previewField"
         v-cleanhtml="previewValue" />
     </div>
@@ -52,11 +51,12 @@
 </template>
 
 <script>
-import { CleanHtml, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
+    DpContextualHelp,
     DpMultiselect
   },
 
@@ -103,6 +103,10 @@ export default {
     }
   },
 
+  emits: [
+    'boilerplate-text-added'
+  ],
+
   data () {
     return {
       selectedBoilerPlate: '',
@@ -111,10 +115,10 @@ export default {
   },
 
   computed: {
-    tooltipContent () {
+    tooltipOptions () {
       return {
-        content: Translator.trans('boilerplates.categories.explanation'),
-        classes: 'z-modal'
+        classes: 'z-modal',
+        content: Translator.trans('boilerplates.categories.explanation')
       }
     }
   },

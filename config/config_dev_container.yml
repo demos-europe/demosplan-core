@@ -7,44 +7,24 @@ parameters:
     database_user: "root"
     database_password: ""
 
-    elasticsearch_populate_workers: 4
-    elasticsearch_urls:
-        -   url: "http://search7:9200"
+    elasticsearch_populate_workers: 3
+    elasticsearch_urls: ["http://search8:9200"]
 
     fileservice_filepath: "/opt/uploads"
 
     is_shared_folder: true
 
-    mailer_dsn: "smtp://mailhog:1025"
+    mailer_dsn: "smtp://mailpit:1025"
 
     https_only: false
-
-    demosplan_csp_script_src:
-        - 'self'
-        - 'unsafe-eval' # vue.js needs it if templates are not precompiled
-        - 'sg.geodatenzentrum.de'
-        - '*.demos-europe.eu'
-        - 'matomo' # local matomo
-        - '172.22.255.8' # local matomo
-    demosplan_csp_font_src:
-        - 'self'
-        - 'fonts.google.com'
-        - 'fonts.gstatic.com'
-        - '*.demos-europe.eu'
-        - 'data:'
-    demosplan_csp_style_src:
-        - 'unsafe-inline'
-        - 'self'
-        - 'fast.fonts.net'
-        - 'fonts.googleapis.com'
-        - '*.demos-europe.eu'
-        - 'cdnjs.cloudflare.com'
 
     rabbitmq_routing_disabled: true
     tex2pdf_url: "http://pdflatex_api_nginx:8080"
     docx_importer_route: "http://docx_importer_nginx:8080"
+    avscan_url: "http://avscan_api:3000"
 
     gateway_url: '/app_dev.php/dplan/login'
+    pipeline.ai.link.pattern: '/(http:\/\/dpp_endpoint_pdfimporter[:\/\-\w.?=&]+png)/'
 
     demosplan_user_authenticator_service:
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
@@ -55,7 +35,3 @@ parameters:
     url_scheme: http
 
     wegewerk_dev_mode_rewrite: true
-
-services:
-    demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\DocxImporterHttp'
-    demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorHttp'

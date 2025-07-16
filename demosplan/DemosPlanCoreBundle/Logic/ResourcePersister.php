@@ -10,10 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
@@ -26,20 +34,20 @@ class ResourcePersister extends CoreService
     }
 
     /**
-     * @template T
+     * @template T of ProcedureType|ProcedureUiDefinition|ProcedureBehaviorDefinition|StatementFieldDefinition
      *
-     * @param UpdatableDqlResourceTypeInterface<T> $resourceType
-     * @param T                                    $entity
-     * @param array<string, mixed>                 $properties
+     * @param (ProcedureTypeResourceType|ProcedureUiDefinitionResourceType|ProcedureBehaviorDefinitionResourceType|StatementFieldDefinitionResourceType)&DplanResourceType<T> $resourceType
+     * @param T                                                                                                                                                               $entity
+     * @param array<string, mixed>                                                                                                                                            $properties
      *
      * @throws PropertyUpdateAccessException
      */
     public function updateBackingObjectWithEntity(
-        UpdatableDqlResourceTypeInterface $resourceType,
-        object $entity,
+        ProcedureTypeResourceType|ProcedureUiDefinitionResourceType|ProcedureBehaviorDefinitionResourceType|StatementFieldDefinitionResourceType $resourceType,
+        ProcedureType|ProcedureUiDefinition|ProcedureBehaviorDefinition|StatementFieldDefinition $entity,
         array $properties
     ): ResourceChange {
-        $allowedProperties = $resourceType->getUpdatableProperties($entity);
+        $allowedProperties = $resourceType->getUpdatableProperties();
         if ([] === $allowedProperties) {
             throw new BadRequestException("User is not allowed to update resources of type {$resourceType::getName()}.");
         }

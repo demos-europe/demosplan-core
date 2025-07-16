@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
@@ -30,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage as ProcedureSer
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Exception;
 use InvalidArgumentException;
 use SimpleXMLElement;
@@ -61,43 +59,11 @@ class DemosPlanMapController extends BaseController
      */
     #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
     public function mapAdminAction(
-        ProcedureServiceStorage $procedureServiceStorage,
         Breadcrumb $breadcrumb,
-        ContentService $contentService,
-        CurrentProcedureService $currentProcedureService,
-        GetFeatureInfo $getFeatureInfo,
-        MapService $mapService,
-        ProcedureService $procedureService,
-        Request $request,
         TranslatorInterface $translator,
-        $procedureId
+        ProcedureService $procedureService,
+        $procedureId,
     ) {
-        $templateVars = [];
-        $inData = $this->prepareIncomingData($request, 'mapglobals');
-        // Wenn das Formular abgeschickt wurde, wird editStatementAction erneut aufgerufen, handlet die Daten und leitet dann auf die passende Liste weiter.
-
-        if (array_key_exists('action', $inData) && 'mapglobals' === $inData['action']) {
-            $storageResult = $procedureServiceStorage->administrationGlobalGisHandler($inData, $procedureId);
-
-            if (false != $storageResult && array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
-                // Erfolgsmeldung
-                $this->getMessageBag()->add('confirm', 'confirm.mapsection.saved');
-                if ($request->request->has('submit_item_return_button')) {
-                    return new RedirectResponse($this->generateUrl('DemosPlan_element_administration', ['procedure' => $procedureId]));
-                }
-
-                return $this->redirectToRoute('DemosPlan_map_administration_map', ['procedureId' => $procedureId]);
-            }
-        }
-
-        $outputResult = $currentProcedureService->getProcedureArray();
-        $templateVars['mapglobals'] = $outputResult['settings'];
-        // globale Sachdatenabfrage hinzufügen
-        $templateVars['mapglobals']['featureInfoUrl'] = $getFeatureInfo;
-        //  to be interpreted as json, the string begins with '[' and ends with ']'; those have to be removed first
-        $scales = str_replace(['[', ']'], '', (string) $this->globalConfig->getMapPublicAvailableScales());
-        $templateVars['availableScales'] = explode(',', $scales);
-
         // reichere die breadcrumb mit extraItem an
         $breadcrumb->addItem(
             [
@@ -109,27 +75,11 @@ class DemosPlanMapController extends BaseController
             ]
         );
 
-        // get settings of current procedure
-        $settings = $contentService->getSettings(
-            'layerGroupsAlternateVisibility',
-            SettingsFilter::whereProcedureId($procedureId)->lock(),
-            false
-        );
-
-        $layerGroupsAlternateVisibility = (1 === count((array) $settings)) ? $settings[0]->getContent() : false;
-        if (false === is_bool($layerGroupsAlternateVisibility)) {
-            $layerGroupsAlternateVisibility = filter_var($layerGroupsAlternateVisibility, FILTER_VALIDATE_BOOLEAN);
-        }
-        $templateVars['mapglobals']['layerGroupsAlternateVisibility'] = $layerGroupsAlternateVisibility;
-        // @improve T14122
-        $templateVars['mapOptions'] = $mapService->getMapOptions($procedureId);
-        $procedureObject = $procedureService->getProcedure($procedureId);
-        $templateVars['coordinate'] = $procedureObject->getCoordinate();
-        $templateVars['territory'] = $procedureObject->getSettings()->getTerritory();
+        $procedure = $procedureService->getProcedure($procedureId);
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanMap/map_admin.html.twig',
-            ['templateVars' => $templateVars, 'procedure' => $procedureId, 'title' => 'drawing.admin.adjustments.gis']
+            ['procedure' => $procedureId, 'isMaster' => $procedure?->getMaster(), 'title' => 'drawing.admin.adjustments.gis']
         );
     }
 
@@ -147,14 +97,14 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
     public function mapAdminGislayerNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         Request $request,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         $templateVars = [];
         try {
@@ -170,9 +120,9 @@ class DemosPlanMapController extends BaseController
                 $templateVars['inData'] = $inData;
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult &&
-                    array_key_exists('ident', $storageResult) &&
-                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult
+                    && array_key_exists('ident', $storageResult)
+                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -237,7 +187,7 @@ class DemosPlanMapController extends BaseController
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
         $procedure,
-        $gislayerID
+        $gislayerID,
     ) {
         try {
             // Storage und Output initialisieren
@@ -250,9 +200,9 @@ class DemosPlanMapController extends BaseController
                 $storageResult = $serviceStorage->administrationGislayerEditHandler($procedure, $inData);
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult &&
-                    array_key_exists('ident', $storageResult) &&
-                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult
+                    && array_key_exists('ident', $storageResult)
+                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -311,7 +261,7 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category')]
+    #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', options: ['expose' => true])]
     public function mapAdminGislayerCategoryNewAction(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();
@@ -342,8 +292,9 @@ class DemosPlanMapController extends BaseController
                         ['procedureId' => $procedureId]
                     );
                 }
-            } catch (InvalidArgumentException) {
-                $this->messageBag->warning('warning', 'error.name');
+            } catch (InvalidArgumentException $exception) {
+                $this->logger->warning('Exception on GisLayerCategory adding.', ['exception' => $exception]);
+                $this->messageBag->add('warning', 'error.name');
             }
         }
 
@@ -453,7 +404,7 @@ class DemosPlanMapController extends BaseController
         ProcedureService $procedureService,
         ProcedureServiceStorage $procedureServiceStorage,
         Request $request,
-        $procedureId
+        $procedureId,
     ) {
         $mapOfProcedure = $elementHandler->mapHandler($procedureId);
         $requestPost = $request->request->all();
@@ -488,8 +439,8 @@ class DemosPlanMapController extends BaseController
             }
 
             // upload Planzeichnung
-            if ((array_key_exists('uploadedFiles', $requestPost) &&
-                    '' !== $requestPost['uploadedFiles']['r_planDrawPDF']) || array_key_exists('r_planDrawDelete', $requestPost)) {
+            if ((array_key_exists('uploadedFiles', $requestPost)
+                    && '' !== $requestPost['uploadedFiles']['r_planDrawPDF']) || array_key_exists('r_planDrawDelete', $requestPost)) {
                 $inData = $this->prepareIncomingData($request, 'plandraw');
                 if (array_key_exists('r_planDrawDelete', $requestPost)) {
                     $inData['r_planDrawPDF'] = '';
@@ -569,7 +520,7 @@ class DemosPlanMapController extends BaseController
         Request $request,
         ServiceStorage $serviceStorage,
         MapService $mapService,
-        MapHandler $mapHandler
+        MapHandler $mapHandler,
     ) {
         $requestPost = $request->request;
         if ($requestPost->has('gislayerdelete')) {
@@ -635,7 +586,7 @@ class DemosPlanMapController extends BaseController
         MasterTemplateService $masterTemplateService,
         ServiceStorage $serviceStorage,
         $type = 'edit',
-        $gislayerID = null
+        $gislayerID = null,
     ) {
         $templateVars = [];
         try {
@@ -656,8 +607,8 @@ class DemosPlanMapController extends BaseController
                     $adminLayers = $mapService->getGisAdminList($masterTemplateId);
                     $masterBlaupauseGisLayers = $mapService->getLayerObjects($adminLayers);
                     foreach ($masterBlaupauseGisLayers as $masterBlaupauseLayer) {
-                        if (array_key_exists('ident', $storageResult) &&
-                            $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()
+                        if (array_key_exists('ident', $storageResult)
+                            && $storageResult['ident'] == $masterBlaupauseLayer->getGlobalLayerId()
                         ) {
                             // überschreibe die relevanten Werte, damit die Masterblaupause geupdated wird
                             $inDataMaster = $inData;
@@ -673,9 +624,9 @@ class DemosPlanMapController extends BaseController
                 }
 
                 // Erfolgreich gespeichert
-                if (false != $storageResult &&
-                    array_key_exists('ident', $storageResult) &&
-                    !array_key_exists('mandatoryfieldwarning', $storageResult)
+                if (false != $storageResult
+                    && array_key_exists('ident', $storageResult)
+                    && !array_key_exists('mandatoryfieldwarning', $storageResult)
                 ) {
                     // Erfolgsmeldung
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
@@ -774,6 +725,7 @@ class DemosPlanMapController extends BaseController
             }
             if ($noSpecificAreaVal === $procedureObject->getPlanningArea()) {
                 $this->getLogger()->debug('Do not check for specific planning area');
+
                 // what should be the correct return value? tbd when transforming to jsonApi
                 return new JsonResponse([
                     'code'    => 100,

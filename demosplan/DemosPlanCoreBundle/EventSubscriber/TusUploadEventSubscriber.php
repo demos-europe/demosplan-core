@@ -29,6 +29,7 @@ use TusPhp\File;
  * Tus is the [transload-it upload specification](https://tus.io)
  * which our uploader component in the frontend (Uppy) uses
  * to process files in chunks.
+ * This class will be called when the route /_tus/upload is called
  */
 class TusUploadEventSubscriber implements EventSubscriberInterface
 {
@@ -60,6 +61,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         $filePathParts = explode('/', $file->getFilePath());
         $uploadedFilename = array_pop($filePathParts);
         if ($filename !== $uploadedFilename) {
+            // local file is valid, no need for flysystem
             $fs = new Filesystem();
             $filePathParts[] = $filename;
             $sanitizedPath = implode('/', $filePathParts);
@@ -76,7 +78,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         try {
             $checkVirus = FileService::VIRUSCHECK_ASYNC;
             $this->logger->info('Try to save temporary file', [$file->getFilePath()]);
-            $fileId = $this->fileService->saveTemporaryFile(
+            $fileId = $this->fileService->saveTemporaryLocalFile(
                 $file->getFilePath(),
                 $filename,
                 null,
@@ -86,10 +88,10 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
             )->getId();
         } catch (VirusFoundException $e) {
             $this->logger->error('Virus found in File ', [$e]);
-            $fileId = '';
+            $fileId = $fileHash ='';
         } catch (Throwable $e) {
             $this->logger->error('Could not save uploaded File ', [$e]);
-            $fileId = '';
+            $fileId = $fileHash = '';
         }
 
         // we handled the file and can allow tus to have the same file uploaded again

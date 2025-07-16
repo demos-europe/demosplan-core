@@ -36,6 +36,9 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Faker\Provider\Uuid;
 
+/**
+ * @template-extends SluggedRepository<Orga>
+ */
 class OrgaRepository extends SluggedRepository implements ArrayInterface
 {
     /**
@@ -74,6 +77,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             ->setParameter('planningOfficeOrgaTypeName', OrgaType::PLANNING_AGENCY)
             ->andWhere('relation_customer_orga_orga_type.customer = :customer')
             ->setParameter('customer', $customer)
+            ->andWhere('relation_customer_orga_orga_type.status = :status')
+            ->setParameter('status', OrgaStatusInCustomer::STATUS_ACCEPTED)
             ->getQuery();
 
         $orgaResult = $query->getResult();

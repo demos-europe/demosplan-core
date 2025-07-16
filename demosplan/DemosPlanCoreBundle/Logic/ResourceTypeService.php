@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use function array_key_exists;
-
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ResourceTypeServiceInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertyUpdateAccessException;
@@ -21,6 +19,8 @@ use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+use function array_key_exists;
 
 class ResourceTypeService implements ResourceTypeServiceInterface
 {
@@ -66,7 +66,7 @@ class ResourceTypeService implements ResourceTypeServiceInterface
     {
         foreach ($properties as $propertyName => $propertyValue) {
             if (!is_string($propertyName)) {
-                throw PropertyUpdateAccessException::intPropertyKey($propertyName);
+                throw PropertyUpdateAccessException::intPropertyKey($type, $propertyName);
             }
             if (!array_key_exists($propertyName, $allowedProperties)) {
                 $propertyNames = array_keys($allowedProperties);
@@ -89,21 +89,10 @@ class ResourceTypeService implements ResourceTypeServiceInterface
         if (0 !== count($missingProperties)) {
             $missingPropertiesString = implode(',', array_keys($missingProperties));
 
-            throw new AccessException("The following properties are required but were not provided when creating a new {$type::getName()} resource: $missingPropertiesString");
+            throw new AccessException($type, "The following properties are required but were not provided when creating a new {$type->getTypeName()} resource: $missingPropertiesString");
         }
     }
 
-    /**
-     * Validates the given object using the annotations defined on its properties/getters.
-     *
-     * @param array<int,string>|null $groups the groups to validate against. If no groups are given
-     *                                       the `Default` group will be used, which considers only
-     *                                       constraints that are not part of any other group.
-     *
-     * @throws ViolationsException thrown if the validation found violations
-     *
-     * @see https://symfony.com/doc/4.4/validation/groups.html
-     */
     public function validateObject(object $entity, array $groups = null): void
     {
         $violationList = $this->validator->validate($entity, null, $groups);

@@ -38,6 +38,10 @@
         text-transform: uppercase;
     }
 
+    p {
+        min-height: 24px;
+    }
+
     p > a {
         @include keyboard-focus($padded: true);
 

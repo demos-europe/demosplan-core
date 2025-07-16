@@ -18,24 +18,24 @@ use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInte
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceDeletionEvent;
-use demosplan\DemosPlanCoreBundle\Event\BeforeResourceUpdateEvent;
-use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureCoupleTokenAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetInternalPropertiesEvent;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\GetPropertiesEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use EDT\JsonApi\ResourceTypes\PropertyBuilder;
-use EDT\PathBuilding\End;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\JsonApi\Event\BeforeDeletionEvent;
+use EDT\JsonApi\Event\BeforeUpdateEvent;
+use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder;
+use EDT\JsonApi\Utilities\PropertyBuilderFactory;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -48,11 +48,6 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
      */
     final public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureProvider,
         private readonly CurrentUserInterface $currentUserProvider,
@@ -60,41 +55,36 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         private readonly MessageBagInterface $messageBag,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureCoupleTokenRepository $tokenRepository,
+        private readonly PropertyBuilderFactory $propertyBuilderFactory,
         private readonly StatementResourceType $statementResourceType,
         private readonly TokenFactory $tokenFactory,
-        TranslatorInterface $translator
+        protected TranslatorInterface $translator
     ) {
-        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeResourceUpdateEvent::class                => 'preventUpdateAndDeletion',
-            BeforeResourceDeletionEvent::class              => 'preventUpdateAndDeletion',
+            BeforeUpdateEvent::class                        => 'preventUpdateAndDeletion',
+            BeforeDeletionEvent::class                      => 'preventUpdateAndDeletion',
             PostNewProcedureCreatedEventInterface::class    => [
                 ['createTokenForProcedure'],
                 ['coupleProcedures'],
             ],
-            GetPropertiesEventInterface::class              => 'addProperties',
-            GetInternalPropertiesEvent::class               => 'addInternalProperties',
+            GetPropertiesEventInterface::class      => 'addProperties',
         ];
     }
 
-    /**
-     * @param BeforeResourceUpdateEvent|BeforeResourceDeletionEvent $event
-     */
-    public function preventUpdateAndDeletion(DPlanEvent $event): void
+    public function preventUpdateAndDeletion(BeforeUpdateEvent|BeforeDeletionEvent $event): void
     {
-        if (!$event->getResourceType() instanceof StatementResourceType) {
+        $type = $event->getType();
+        if (!$type instanceof StatementResourceType) {
             return;
         }
 
-        /** @var Statement $statement */
-        $statement = $event->getEntity();
         $link = $this->entitySyncLinkRepository->findOneBy([
             'class'    => Statement::class,
-            'sourceId' => $statement->getId(),
+            'sourceId' => $event->getEntityIdentifier(),
         ]);
 
         if (null !== $link) {
@@ -184,7 +174,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         }
     }
 
-    public function addProperties(GetPropertiesEventInterface $event): void
+    public function addProperties(GetPropertiesEvent $event): void
     {
         // The synchronized property is added to statement resource only
         if (!$event->getType() instanceof StatementResourceType) {
@@ -204,26 +194,29 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
             return;
         }
 
-        $path = new End();
-        $path->setParent($this->statementResourceType);
-        $path->setParentPropertyName(self::SYNCHRONIZED_PROPERTY);
-        $property = new PropertyBuilder($path, $this->statementResourceType->getEntityClass());
-        $property->readable(false, fn (Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
-            'sourceId' => $statement->getId(),
-            'class'    => Statement::class,
-        ]));
-        $event->addProperty($property);
+        // add `synchronized` attribute
+        $configBuilder = $event->getConfigBuilder();
+        $attributeConfigBuilder = $this->createSynchronizedAttribute();
+        $configBuilder->setAttributeConfigBuilder(self::SYNCHRONIZED_PROPERTY, $attributeConfigBuilder);
     }
 
-    public function addInternalProperties(GetInternalPropertiesEvent $event): void
+    /**
+     * @return AttributeConfigBuilder<ClauseFunctionInterface<bool>, Statement>
+     */
+    protected function createSynchronizedAttribute(): AttributeConfigBuilder
     {
-        // The synchronized property is added to statement resource only
-        if (!$event->getType() instanceof StatementResourceType) {
-            return;
-        }
+        $attributeConfigBuilder = $this->propertyBuilderFactory->createAttribute(
+            $this->statementResourceType->getEntityClass(),
+            self::SYNCHRONIZED_PROPERTY
+        );
+        $attributeConfigBuilder->readable(
+            false,
+            fn (Statement $statement): bool => null !== $this->entitySyncLinkRepository->findOneBy([
+                'sourceId' => $statement->getId(),
+                'class'    => Statement::class,
+            ])
+        );
 
-        $properties = $event->getProperties();
-        $properties[self::SYNCHRONIZED_PROPERTY] = null;
-        $event->setProperties($properties);
+        return $attributeConfigBuilder;
     }
 }

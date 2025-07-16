@@ -16,9 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use Doctrine\Persistence\ObjectManager;
 
-/**
- * @deprecated loading fixture data via Foundry-Factories instead
- */
 class LoadProcedureTypeData extends ProdFixture
 {
     public function load(ObjectManager $manager): void

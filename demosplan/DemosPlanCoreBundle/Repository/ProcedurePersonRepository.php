@@ -12,6 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
+
+/**
+ * @template-extends FluentRepository<ProcedurePerson>
+ */
 class ProcedurePersonRepository extends FluentRepository
 {
 }

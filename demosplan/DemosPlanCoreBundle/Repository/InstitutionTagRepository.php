@@ -17,7 +17,10 @@ use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Exception;
 
-class InstitutionTagRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<InstitutionTag>
+ */
+class InstitutionTagRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * @return InstitutionTag|null

@@ -17,6 +17,8 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -37,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
@@ -59,6 +62,7 @@ class StatementCopier extends CoreService
         private readonly CurrentUserInterface $currentUser,
         private readonly ElementsService $elementService,
         private readonly FileService $fileService,
+        private readonly FileContainerRepository $fileContainerRepository,
         IndexManager $elasticsearchIndexManager,
         private readonly MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
@@ -69,7 +73,8 @@ class StatementCopier extends CoreService
         private readonly StatementHandler $statementHandler,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly StatementRepository $statementRepository,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
+        private readonly NCNameGenerator $nameGenerator,
     ) {
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
         $this->reportService = $reportService;
@@ -352,9 +357,15 @@ class StatementCopier extends CoreService
         // create a physical copy of files as the increased complexity of having
         // multiple references to one file does count more than hdd space
         foreach ($statementToCopy->getFiles() as $fileString) {
-            // filestring is written into $fileService on copy
             try {
-                $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                $file = $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                if ($file instanceof File) {
+                    $this->fileService->addStatementFileContainer(
+                        $copiedStatement->getId(),
+                        $file->getHash(),
+                        $file->getFileString()
+                    );
+                }
             } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
@@ -363,11 +374,6 @@ class StatementCopier extends CoreService
                 );
                 $this->getLogger()->error('Fail to copy Files of Statement', [$statementToCopy->getId()]);
             }
-            $this->fileService->addStatementFileContainer(
-                $copiedStatement->getId(),
-                $this->fileService->getInfoFromFileString($this->fileService->getFileString(), 'hash'),
-                $this->fileService->getFileString()
-            );
         }
 
         // copy
@@ -426,7 +432,7 @@ class StatementCopier extends CoreService
         Statement $statement,
         Procedure $targetProcedure,
         bool $ignoreReviewer = false,
-        bool $ignoreInternId = false
+        bool $ignoreInternId = false,
     ): bool {
         $sourceProcedure = $statement->getProcedure();
 
@@ -490,15 +496,52 @@ class StatementCopier extends CoreService
     }
 
     /**
-     * Copy a specific statement.
+     * Copy a specific statement including related files.
+     *
+     * @param bool $createReport          if this parameter is true, a copy-reportEntry will be generated
+     * @param bool $copyOnCreateStatement Determines if this method is called on create a Statement.
+     *                                    In case of creating new clusterStatement, coping new created
+     *                                    clusterStatement, has to be allowed.
+     *
+     * @throws CopyException
+     */
+    public function copyStatementObjectWithinProcedureWithRelatedFiles(
+        Statement $statement,
+        bool $createReport = true,
+        bool $copyOnCreateStatement = false,
+    ): Statement {
+        $newStatement = $this->copyStatementObjectWithinProcedure(
+            $statement,
+            $createReport,
+            $copyOnCreateStatement,
+            false // do not flush to avoid constraints at this point
+        );
+        if (!$statement instanceof Statement) {
+            throw new CopyException('error on copying original statement');
+        }
+        // persist to get an ID for the FileContainer copying below
+        $this->getDoctrine()->getManager()->persist($newStatement);
+        if ([] !== $statement->getFiles()) {
+            $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+
+            return $newStatement;
+        }
+
+        // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
+        // the new copied statement is already flushed while copying FileContainers in the previous method 'addFilesToCopiedStatement'.
+        $this->getDoctrine()->getManager()->flush();
+
+        return $newStatement;
+    }
+
+    /**
+     * Copy a specific statement without the file-references!
      *
      * @param bool $createReport          if this parameter is true, a copy-reportEntry will be generated
      * @param bool $copyOnCreateStatement Determines if this method is called on create a Statement.
      *                                    In case of creating new clusterStatement, coping new created
      *                                    clusterStatement, has to be allowed.
      * @param bool $persistAndFlush       determines if copied Statement will be persisted
-     *
-     * @return Statement|false
      *
      * @throws CopyException
      * @throws ClusterStatementCopyNotImplementedException
@@ -507,10 +550,9 @@ class StatementCopier extends CoreService
         Statement $statement,
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
-        bool $persistAndFlush = true
-    ) {
+        bool $persistAndFlush = true,
+    ): Statement|false {
         try {
-            $oldStatementId = $statement->getId();
             $em = $this->getDoctrine()->getManager();
 
             // ClusterStatementCopyNotImplementedException is thrown here too
@@ -546,9 +588,9 @@ class StatementCopier extends CoreService
             // T15852 + T14880:
             // in each case reset public verified to ensure FP has to check each new statement
             if (!$newStatement->isManual() && in_array($newStatement->getPublicVerified(), [
-                    Statement::PUBLICATION_APPROVED,
-                    Statement::PUBLICATION_REJECTED,
-                ], true)
+                Statement::PUBLICATION_APPROVED,
+                Statement::PUBLICATION_REJECTED,
+            ], true)
             ) {
                 $newStatement = $this->statementService->setPublicVerified(
                     $newStatement,
@@ -573,20 +615,14 @@ class StatementCopier extends CoreService
                 $em->flush();
             }
 
-            // add Files to Statement in case of existing (persisted/flushed) "oldStatement"
-            if (null !== $oldStatementId) {
-                // automatically flushes everything
-                $this->statementService->addFilesToCopiedStatement($newStatement, $oldStatementId);
-            } else {
-                $this->getLogger()->info(
-                    'Can not copy files, because the given statement to copy does not exist in database yet.'
-                );
-            }
-
             if (true === $createReport) {
                 try {
                     $entry = $this->statementReportEntryFactory->createStatementCopiedEntry($newStatement);
-                    $this->reportService->persistAndFlushReportEntries($entry);
+                    if ($persistAndFlush) {
+                        $this->reportService->persistAndFlushReportEntries($entry);
+                    } else {
+                        $this->reportService->persistReportEntries([$entry]);
+                    }
                     $this->logger->info(
                         'generate report of copyStatement(). ReportID: ',
                         ['identifier' => $entry->getIdentifier()]
@@ -599,7 +635,7 @@ class StatementCopier extends CoreService
             return $newStatement;
         } catch (CopyException $e) {
             throw $e;
-        } catch (ClusterStatementCopyNotImplementedException $e) {
+        } catch (ClusterStatementCopyNotImplementedException) {
             return false;
         } catch (Exception $e) {
             $this->getLogger()->error('Could not copy statement ', [$e]);
@@ -613,10 +649,9 @@ class StatementCopier extends CoreService
      * Will check for headStatement, assignment and claimant.
      * Will also add a corresponding message.
      *
-     * @param Statement $statement             - statement to check
-     * @param bool      $copyOnCreateStatement - Determines if this method is called on create a Statement
-     * @param Statement $statement             - statement to check
-     * @param bool      $ignoreCluster         - Determines if this method is called on create a Statement
+     * @param Statement $statement     - statement to check
+     * @param Statement $statement     - statement to check
+     * @param bool      $ignoreCluster - Determines if this method is called on create a Statement
      *
      * @return bool false, if the given statement<ul>
      *              <li>is a headstatement</li>
@@ -631,7 +666,7 @@ class StatementCopier extends CoreService
     public function isCopyStatementAllowed(
         Statement $statement,
         bool $ignoreCluster = false,
-        bool $ignoreReviewer = false
+        bool $ignoreReviewer = false,
     ): bool {
         // check here for clustermember instead for cluster flag, because on create new cluster a statement will be created, marked as cluster and  have to be copied.
         if (false === $ignoreCluster && $statement->isClusterStatement()) {

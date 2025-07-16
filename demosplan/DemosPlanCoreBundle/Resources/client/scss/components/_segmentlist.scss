@@ -7,9 +7,6 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-$utility-border-color: $dp-color-border-default;
-$utility-border-thickness: $dp-border-thickness;
-
 .segment-list {
     &-infobox {
         border: 1px solid $dp-color-neutral-light-2 !important;
@@ -21,7 +18,6 @@ $utility-border-thickness: $dp-border-thickness;
 
     &-row {
         display: flex;
-        border-radius: 4px;
 
         &:not(.segment-list-row--assigned) {
             background-color: $dp-color-white;

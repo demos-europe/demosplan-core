@@ -12,17 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableDqlResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
- * @template-implements UpdatableDqlResourceTypeInterface<StatementFieldDefinition>
- *
  * @template-extends DplanResourceType<StatementFieldDefinition>
  *
  * @property-read End $name
@@ -31,7 +28,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $required
  * @property-read StatementFormDefinitionResourceType $formDefinition
  */
-final class StatementFieldDefinitionResourceType extends DplanResourceType implements UpdatableDqlResourceTypeInterface
+final class StatementFieldDefinitionResourceType extends DplanResourceType
 {
     protected function getAccessConditions(): array
     {
@@ -52,9 +49,9 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
     {
         foreach ($properties as $propertyName => $value) {
             match ($propertyName) {
-                $this->enabled->getAsNamesInDotNotation() => $object->setEnabled($value),
+                $this->enabled->getAsNamesInDotNotation()  => $object->setEnabled($value),
                 $this->required->getAsNamesInDotNotation() => $object->setRequired($value),
-                default => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
+                default                                    => throw new InvalidArgumentException("Property not available for update: {$propertyName}"),
             };
         }
 
@@ -63,15 +60,20 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
         return new ResourceChange($object, $this, $properties);
     }
 
-    public function getUpdatableProperties(object $updateTarget): array
+    public function getUpdatableProperties(): array
     {
-        return $this->toProperties(
-            $this->enabled,
-            $this->required
-        );
+        return [
+            $this->enabled->getAsNamesInDotNotation()  => null,
+            $this->required->getAsNamesInDotNotation() => null,
+        ];
     }
 
     public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('area_procedure_type_edit');
+    }
+
+    public function isUpdateAllowed(): bool
     {
         return $this->currentUser->hasPermission('area_procedure_type_edit');
     }
@@ -81,24 +83,14 @@ final class StatementFieldDefinitionResourceType extends DplanResourceType imple
         return 'StatementFieldDefinition';
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->orderNumber)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->enabled)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->required)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->enabled)->readable(true)->sortable()->filterable()->updatable(),
+            $this->createAttribute($this->required)->readable(true)->sortable()->filterable()->updatable(),
             $this->createToOneRelationship($this->formDefinition)->readable()->sortable()->filterable(),
         ];
     }

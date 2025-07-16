@@ -3,5 +3,17 @@
 {% block demosplanbundlecontent %}
 	% Überschrift
 	\section*{{ '{' }}{{title|latex|raw}}{{ '}' }}
-		{% if templateVars.table.entries is defined %}{% if templateVars.table.entries.total is defined %}{% if templateVars.table.entries.total > 0 %}{% for statement in templateVars.table.entries.statements %}{% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/export_assessment_table_original_entry.tex.twig' %}{% endfor %}{% endif %}{% endif %}{% endif %}
+
+		{% if templateVars.table.entries is defined %}
+            {% if templateVars.table.entries.total is defined %}
+                {% if templateVars.table.entries.total > 0 %}
+                    {% for statement in templateVars.table.entries.statements %}
+                        {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/export_assessment_table_original_entry.tex.twig' %}
+                        {% if newPagePerStn|default(false) %}
+                            \newpage
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
 {% endblock %}

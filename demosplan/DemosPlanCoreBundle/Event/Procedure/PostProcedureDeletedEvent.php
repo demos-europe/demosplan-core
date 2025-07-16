@@ -17,11 +17,8 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class PostProcedureDeletedEvent extends DPlanEvent implements PostProcedureDeletedEventInterface
 {
-    protected string $procedureId;
-
-    public function __construct(string $procedureId)
+    public function __construct(protected string $procedureId)
     {
-        $this->procedureId = $procedureId;
     }
 
     public function getProcedureId(): string

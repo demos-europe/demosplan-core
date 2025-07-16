@@ -13,53 +13,54 @@
         action="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
         <input type="hidden" name="manualsort" value="">
 
-        {# mark all #}
-        <label class="u-mb-0 u-mh-0_75 inline-block">
-            <input
-                class="u-mr-0"
-                type="checkbox"
-                data-cy="checkAllItems"
-                data-form-actions-check-all
-                name="checkAllItems"
-                value="">
-            {{ "all"|trans }}
-        </label>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        {# delete marked items #}
-        <button
-            class="btn-icns u-ml-0_25"
-            data-cy="deleteSelectedBoilerplate"
-            name="boilerplateDeleteChecked"
-            data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
-            <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
-        </button>
+        <div class="flex flex-wrap-reverse gap-4 items-center justify-between">
+            <div>
+                {# mark all #}
+                <label class="mb-0 mx-3 inline-block">
+                    <input
+                        class="mr-0"
+                        type="checkbox"
+                        data-cy="checkAllItems"
+                        data-form-actions-check-all
+                        name="checkAllItems">
+                    {{ "all"|trans }}
+                </label>
 
-        <dp-split-button
-            data-cy="addNewBoilerplate"
-            class="inline-block float-right">
-            <a
-               class="btn btn--primary has-dropdown u-m-0"
-               data-cy="generateBoilerplate"
-               href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
-                {{ "boilerplate.generate"|trans }}
-            </a><!--
-         --><template v-slot:dropdown>
-            <a
-               data-cy="addNewBoilerplateGroup"
-               href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
-               {{ "new.group.create"|trans }}
-            </a>
-            </template>
-        </dp-split-button>
+                {# delete marked items #}
+                <button
+                    class="btn-icns m-0"
+                    data-cy="deleteSelectedBoilerplate"
+                    name="boilerplateDeleteChecked">
+                    <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+                </button>
+            </div>
 
+            <div class="ml-3">
+                <dp-button
+                    class="mr-2"
+                    data-cy="addNewBoilerplate"
+                    href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'boilerplate'|trans }) }}">
+                </dp-button>
+
+                <dp-button
+                    data-cy="addNewBoilerplateGroup"
+                    href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'group'|trans }) }}"
+                    variant="outline">
+                </dp-button>
+            </div>
+        </div>
 
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
             <colgroup>
-                <col class="width-5p">
-                <col class="width-40p">
-                <col class="width-40p">
-                <col class="width-10p">
-                <col class="width-5p">
+                <col class="w-[5%]">
+                <col class="w-2/5">
+                <col class="w-2/5">
+                <col class="w-[10%]">
+                <col class="w-[5%]">
             </colgroup>
 
             <thead>
@@ -164,7 +165,7 @@
                             </i>
                         {% endif %}
                         <label
-                            class="lbl--text inline-block u-mb-0 o-hellip max-width-90p align-middle"
+                            class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] align-middle"
                             for="boilerplateGroupSelectAll:{{ boilerplateGroup.id|default }}">
                             {{ boilerplateGroup.title }}
                         </label>

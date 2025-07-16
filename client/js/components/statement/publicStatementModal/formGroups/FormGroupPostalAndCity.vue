@@ -15,7 +15,7 @@
         autocomplete="postal-code"
         data-cy="postalCode"
         :class="prefixClass('layout__item')"
-        data-dp-validate-if="#r_useName_1"
+        data-dp-validate-if="#r_getEvaluation_snailmail, #r_useName_1"
         :disabled="disabled"
         :label="{
           text: Translator.trans('postalcode')

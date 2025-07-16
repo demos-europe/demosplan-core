@@ -28,7 +28,10 @@
     </div>
 
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
-    <v-popover v-else>
+    <v-popover
+      v-else
+      placement="top"
+      trigger="hover focus">
       <!-- Target/Trigger (for the events and position) -->
       <div>
         <slot name="title" />
@@ -151,7 +154,7 @@ export default {
     },
 
     adviceValues () {
-      return this.$store.getters['assessmentTable/adviceValues']
+      return this.$store.getters['AssessmentTable/adviceValues']
     },
 
     voteString () {

@@ -68,7 +68,7 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="role")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="role")
      */
     protected $userRoleInCustomers;
 
@@ -192,5 +192,10 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     public function getGroupName()
     {
         return $this->groupName;
+    }
+
+    public function removeUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer)
+    {
+        $this->userRoleInCustomers->removeElement($userRoleInCustomer);
     }
 }

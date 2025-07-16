@@ -11,6 +11,7 @@
 
             <form name="newEntryForUserStory" action="{{ path('DemosPlan_forum_development_userstory_threadentry_new',{"storyId": templateVars.story.ident}) }}" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="r_threadId" value = {{ templateVars.story.threadId }}>
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {{ uiComponent('form.row', {
                     elements: [

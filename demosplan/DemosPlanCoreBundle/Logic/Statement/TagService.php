@@ -10,10 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -26,6 +28,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class TagService extends CoreService
 {
@@ -33,7 +36,8 @@ class TagService extends CoreService
         private readonly BoilerplateRepository $boilerplateRepository,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly TagRepository $tagRepository,
-        private readonly TagTopicRepository $tagTopicRepository
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -109,11 +113,7 @@ class TagService extends CoreService
      */
     public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
     {
-        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
-        if (0 !== $titleCount) {
-            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
-        }
-
+        $this->assertTitleNotDuplicated($title, $procedure);
         $toCreate = new TagTopic($title, $procedure);
 
         if (!$persistAndFlush) {
@@ -121,6 +121,19 @@ class TagService extends CoreService
         }
 
         return $this->tagTopicRepository->addObject($toCreate);
+    }
+
+    /**
+     * @param string $title
+     *
+     * @throws DuplicatedTagTopicTitleException
+     */
+    public function assertTitleNotDuplicated($title, Procedure $procedure): void
+    {
+        $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
+        if (0 !== $titleCount) {
+            throw DuplicatedTagTopicTitleException::createFromTitleAndProcedureId($title, $procedure->getId());
+        }
     }
 
     /**
@@ -139,6 +152,10 @@ class TagService extends CoreService
         $tagUpdated = $this->tagRepository->updateObject($tag);
 
         $topicUpdated = $this->tagTopicRepository->updateObject($newTopic);
+        $this->eventDispatcher->dispatch(
+            new UpdateTagEvent($tag->getId()),
+            UpdateTagEventInterface::class
+        );
 
         return $tagUpdated instanceof Tag && $topicUpdated instanceof TagTopic;
     }

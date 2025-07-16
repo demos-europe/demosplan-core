@@ -12,10 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<GisLayerCategory>
@@ -28,6 +28,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $hasDefaultVisibility
  * @property-read End $parentId @deprecated use {@link GisLayerCategoryResourceType::$parent} instead
  * @property-read GisLayerCategoryResourceType $parent
+ * @property-read GisLayerCategoryResourceType $parentCategory
  * @property-read GisLayerCategoryResourceType $categories
  * @property-read GisLayerCategoryResourceType $children
  * @property-read GisLayerResourceType $gisLayers
@@ -49,42 +50,89 @@ final class GisLayerCategoryResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return $this->hasManagementPermission();
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
+    public function isDeleteAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
+    protected function hasManagementPermission(): bool
     {
         return $this->currentUser->hasPermission('area_map_participation_area');
     }
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (null === $currentProcedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        $procedureId = $currentProcedure->getId();
+
+        return [
+            $this->conditionFactory->propertyHasValue($procedureId, Paths::gisLayerCategory()->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, Paths::gisLayerCategory()->procedure->deleted),
+        ];
     }
 
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
+            $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->name)->readable(true)->sortable()->filterable(),
             $this->createAttribute($this->layerWithChildrenHidden)->readable(true)->sortable()->filterable(),
-            $this->createAttribute($this->treeOrder)->readable(true)->sortable()->filterable(),
+            $this->createAttribute($this->treeOrder)
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable(),
             $this->createAttribute($this->isVisible)
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
             $this->createAttribute($this->hasDefaultVisibility)
-                ->readable(true)->sortable()->filterable()->aliasedPath($this->visible),
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->visible),
             $this->createAttribute($this->parentId)
+                ->updatable()
                 ->readable(true)->sortable()->filterable()->aliasedPath($this->parent->id),
+
+            $this->createToOneRelationship($this->parentCategory)
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->parent),
 
             /*
              * Keep these as a default include because these relationships are recursive and currently not easily
              * manageable in the FE with the actual - correct - available includes syntax.
              */
-            $this->createToManyRelationship($this->categories, true)
-                ->readable(true)->sortable()->filterable()->aliasedPath($this->children),
-            $this->createToManyRelationship($this->gisLayers, true)->readable(true)->sortable()->filterable(),
+            $this->createToManyRelationship($this->categories)
+                ->readable(true, null, true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->children),
+            $this->createToManyRelationship($this->gisLayers)
+                ->readable(true, null, true)
+                ->sortable()
+                ->filterable(),
         ];
     }
 }

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSubscriptionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,7 +23,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository")
  */
-class ProcedureSubscription extends CoreEntity implements UuidEntityInterface
+class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, ProcedureSubscriptionInterface
 {
     /**
      * @var string|null

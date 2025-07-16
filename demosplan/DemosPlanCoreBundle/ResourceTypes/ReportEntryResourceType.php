@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
+use EDT\Querying\Contracts\PathException;
 
 /**
  * @template-extends DplanResourceType<ReportEntry>
@@ -47,14 +47,14 @@ class ReportEntryResourceType extends DplanResourceType
 
     public function __construct(
         protected readonly UserHandler $userHandler,
-        ReportMessageConverter $messageConverter
+        ReportMessageConverter $messageConverter,
     ) {
         $this->messageConverter = $messageConverter;
     }
 
     public static function getName(): string
     {
-        return 'Report';
+        return 'report';
     }
 
     public function getEntityClass(): string
@@ -67,17 +67,9 @@ class ReportEntryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_protocol');
     }
 
-    public function isDirectlyAccessible(): bool
-    {
-        // always returning true assumes availability only with area_admin_protocol permission
-        return true;
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -89,8 +81,12 @@ class ReportEntryResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->identifier),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
-            $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
+            [] === $this->getGroups()
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getGroups(), $this->group),
+            [] === $this->getCategories()
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($this->getCategories(), $this->category),
             $this->conditionFactory->propertyHasValue($customer->getId(), $this->customer->id),
         ];
     }
@@ -121,7 +117,7 @@ class ReportEntryResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->category)->readable(true),
             $this->createAttribute($this->group)->readable(true),
             $this->createAttribute($this->level)->readable(true),
@@ -129,8 +125,8 @@ class ReportEntryResourceType extends DplanResourceType
             $this->createAttribute($this->userName)->readable(true),
             $this->createAttribute($this->identifierType)->readable(true),
             $this->createAttribute($this->identifier)->readable(true),
-            $this->createAttribute($this->message)->readable(true, fn(ReportEntry $entry): string => $this->messageConverter->convertMessage($entry)),
-            $this->createAttribute($this->created)->readable(true, fn(ReportEntry $entry): ?string => $this->formatDate($entry->getCreated())),
+            $this->createAttribute($this->message)->readable(true, fn (ReportEntry $entry): string => $this->messageConverter->convertMessage($entry)),
+            $this->createAttribute($this->created)->readable(true, fn (ReportEntry $entry): ?string => $this->formatDate($entry->getCreated())),
             $this->createAttribute($this->createdByDataInputOrga)->readable(true, function (ReportEntry $entry): bool {
                 $userWhoCratedReport = $this->userHandler->getSingleUser($entry->getUserId());
                 if ($userWhoCratedReport instanceof User) {
@@ -139,7 +135,7 @@ class ReportEntryResourceType extends DplanResourceType
 
                 return false;
             }),
-            $this->createAttribute($this->orgaName)->readable(true, fn(ReportEntry $entry): string => $this->userHandler->getSingleUser($entry->getUserId())?->getOrga()?->getName() ?? ''),
+            $this->createAttribute($this->orgaName)->readable(true, fn (ReportEntry $entry): string => $this->userHandler->getSingleUser($entry->getUserId())?->getOrga()?->getName() ?? ''),
         ];
     }
 }

@@ -16,7 +16,10 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class CustomerRepository extends FluentRepository
+/**
+ * @template-extends CoreRepository<Customer>
+ */
+class CustomerRepository extends CoreRepository
 {
     public function findCustomerById(string $id): Customer
     {

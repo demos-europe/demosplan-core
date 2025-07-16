@@ -102,7 +102,7 @@ final class RpcElementsListReorderer implements RpcMethodSolverInterface
         }
         $this->jsonSchemaValidator->validate(
             Json::encode($rpcRequest),
-            DemosPlanPath::getConfigPath('config/json-schema/rpc-elements-list-reorder-schema.json')
+            DemosPlanPath::getConfigPath('json-schema/rpc-elements-list-reorder-schema.json')
         );
     }
 

@@ -20,11 +20,17 @@
       v-else
       :action="formAction"
       method="POST">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <dp-tree-list
-        @node-selection-change="nodeSelectionChange"
-        :tree-data="recursiveElements"
         :branch-identifier="isBranch()"
-        :options="treeListOptions">
+        :draggable="false"
+        :options="treeListOptions"
+        :tree-data="recursiveElements"
+        @node-selection-change="nodeSelectionChange">
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>
@@ -64,6 +70,7 @@
 <script>
 import { CleanHtml, DpLoading, DpTreeList, formatBytes, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'ElementsList',
@@ -71,11 +78,18 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: () => import('@DpJs/components/document/ElementsList/FileInfo')
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo'))
   },
 
   directives: {
     cleanhtml: CleanHtml
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
   },
 
   data () {
@@ -87,7 +101,7 @@ export default {
   },
 
   computed: {
-    ...mapState('elements', {
+    ...mapState('Elements', {
       elements: 'items'
     }),
 
@@ -128,7 +142,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('elements', {
+    ...mapActions('Elements', {
       elementList: 'list'
     }),
 
@@ -141,9 +155,9 @@ export default {
       return formatBytes(byteSize).replace(/\./g, ',')
     },
 
-    nodeSelectionChange (selected) {
-      const selectedFilesIds = selected.filter(node => node.nodeType === 'leaf').map(el => el.nodeId)
-      this.selectedFiles = this.allFiles.filter(file => selectedFilesIds.includes(file.id))
+    nodeSelectionChange (selectedNodes) {
+      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
+      this.selectedFiles = selectedSingleDocuments
     },
 
     /*
@@ -152,7 +166,7 @@ export default {
      */
     isBranch () {
       return function ({ node }) {
-        return node.type === 'elements'
+        return node.type !== 'SingleDocument' && node.type === 'Elements'
       }
     },
 
@@ -177,8 +191,8 @@ export default {
         const isTopLevel = node.attributes.parentId === null
 
         // Make documents direct children of node, if there are any
-        if (node.hasRelationship('documents')) {
-          node.children = [...node.children, ...Object.values(node.relationships.documents.list())]
+        if (node.hasRelationship('visibleDocuments')) {
+          node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
 
         // Push item to correct position in map
@@ -223,7 +237,7 @@ export default {
   mounted () {
     // Initially get data from endpoint
     this.elementList({
-      include: ['children', 'documents'].join(),
+      include: ['children', 'visibleDocuments'].join(),
       filter: {
         enabledElements: {
           condition: {
@@ -242,11 +256,11 @@ export default {
          * Initially get the files attached to all elements to calculate the size for all files.
          * However, this does not have to be reactive since does not change.
          */
-        this.allFiles = Object.values(this.elements).reduce((documents, element) => {
-          if (element.hasRelationship('documents')) {
-            return [...documents, ...Object.values(element.relationships.documents.list())]
+        this.allFiles = Object.values(this.elements).reduce((visibleDocuments, element) => {
+          if (element.hasRelationship('visibleDocuments')) {
+            return [...visibleDocuments, ...Object.values(element.relationships.visibleDocuments.list())]
           } else {
-            return documents
+            return visibleDocuments
           }
         }, [])
 

@@ -53,7 +53,7 @@ function configureBundleAnalysis (options, project, webpackConfig) {
     analyzerMode: (analysisType === 'html') ? 'static' : 'json',
     defaultSizes: 'gzip',
     openAnalyzer: true,
-    reportFilename: reportFilename,
+    reportFilename,
     logLevel: 'silent'
   })
 
@@ -224,6 +224,9 @@ function webpackConfiguration (options) {
     return 1
   }
 
+  // Drop unneeded configurations for current build config
+  webpackConfig = webpackConfig.filter(config => !(options.onlyStyles && config.name !== 'styles'))
+
   // Set build mode for all webpack configs in the webpack-multi setup
   webpackConfig.forEach(config => {
     config.mode = 'development'
@@ -231,6 +234,7 @@ function webpackConfiguration (options) {
       config.mode = 'production'
     }
   })
+
   return webpackConfig
 }
 

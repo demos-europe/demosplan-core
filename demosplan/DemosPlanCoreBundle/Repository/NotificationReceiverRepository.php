@@ -21,6 +21,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<NotificationReceiver>
+ */
 class NotificationReceiverRepository extends CoreRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -234,8 +237,6 @@ class NotificationReceiverRepository extends CoreRepository implements ArrayInte
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

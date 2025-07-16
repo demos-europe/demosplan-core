@@ -130,4 +130,9 @@ class SegmentComment implements UuidEntityInterface, SegmentCommentInterface
     {
         return $this->text;
     }
+
+    public function getSegment(): SegmentInterface
+    {
+        return $this->segment;
+    }
 }

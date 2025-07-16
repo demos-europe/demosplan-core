@@ -36,6 +36,7 @@ use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {
@@ -89,8 +90,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     protected $statementCopier;
 
-    protected readonly StatementDeleter $statementDeleter;
-
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         DqlConditionFactory $conditionFactory,
@@ -103,7 +102,8 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementService $statementService,
         StatementCopier $statementCopier,
         private readonly TransactionService $transactionService,
-        StatementDeleter $statementDeleter
+        protected readonly EventDispatcherInterface $eventDispatcher,
+        protected readonly StatementDeleter $statementDeleter,
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
@@ -115,7 +115,6 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         $this->statementResourceType = $statementResourceType;
         $this->statementService = $statementService;
         $this->statementCopier = $statementCopier;
-        $this->statementDeleter = $statementDeleter;
     }
 
     abstract protected function checkIfAuthorized(string $procedureId): bool;
@@ -169,16 +168,15 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
      */
     private function loadRequestedStatements(array $statementIds, string $procedureId): array
     {
-        $idCondition = $this->conditionFactory->propertyHasAnyOfValues(
-            $statementIds,
-            $this->statementResourceType->id
-        );
+        $idCondition = [] === $statementIds
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($statementIds, $this->statementResourceType->id);
         $procedureCondition = $this->conditionFactory->propertyHasValue(
             $procedureId,
             $this->statementResourceType->procedure->id
         );
 
-        return $this->statementResourceType->listEntities([$idCondition, $procedureCondition]);
+        return $this->statementResourceType->getEntities([$idCondition, $procedureCondition], []);
     }
 
     /**

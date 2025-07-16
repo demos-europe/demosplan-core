@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<UserFilterSet>
@@ -35,7 +34,7 @@ class UserFilterSetResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true),
+            $this->createIdentifier()->readable(),
             $this->createAttribute($this->name)->readable(true),
             $this->createToOneRelationship($this->filterSet)->readable(true),
         ];
@@ -54,16 +53,6 @@ class UserFilterSetResourceType extends DplanResourceType
         );
     }
 
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getAccessConditions(): array
     {
         $user = $this->currentUser->getUser();
@@ -74,7 +63,7 @@ class UserFilterSetResourceType extends DplanResourceType
 
         return [
             $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id)
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
         ];
     }
 }

@@ -37,49 +37,6 @@ export default function AdministrationMaster () {
 
   // *********FROM ADMINISTRATION_EDIT*********
 
-  function updatePermissionsetdescription (element) {
-    const $element = $(element)
-    const permissionset = $element.find(':selected').data('permissionset')
-    let permissionsetVerbose
-
-    switch (permissionset) {
-      case 'hidden':
-        permissionsetVerbose = Translator.trans('permissionset.hidden')
-        break
-      case 'read':
-        permissionsetVerbose = Translator.trans('permissionset.read')
-        break
-      case 'write':
-        permissionsetVerbose = Translator.trans('permissionset.write')
-        break
-      default:
-        break
-    }
-    // Update der Beschreibung der Phase
-    $element.next('div').find('[data-procedure-permission-set]').text(permissionsetVerbose)
-  }
-
-  // Ausgabe der Rechte der Institutionen in der Phase
-  const internalPermissionElement = $('select[name="r_phase"]')
-  // Ausgabe beim Laden der Seite
-  updatePermissionsetdescription(internalPermissionElement)
-  // Ausgabe beim Verändern
-  $(internalPermissionElement).on('change', function () {
-    updatePermissionsetdescription($(this))
-  })
-
-  //  Dito Phase der Öffentlichkeitsbeteiligung
-  if (hasPermission('area_public_participation')) {
-    // Ausgabe der Rechte der Öffentlichkeit in der Phase
-    const externalPermissionElement = $('select[name="r_publicParticipationPhase"]')
-    // Ausgabe beim Laden der Seite
-    updatePermissionsetdescription(externalPermissionElement)
-    // Ausgabe beim Verändern
-    $(externalPermissionElement).on('change', function () {
-      updatePermissionsetdescription($(this))
-    })
-  }
-
   // Atm broken (was not reimplemented after removing jQuery autocomplete)
   if (dplan.settings.useOpenGeoDb === true && document.querySelector('.js__locationName') !== null) {
     // Autocomplete Ort

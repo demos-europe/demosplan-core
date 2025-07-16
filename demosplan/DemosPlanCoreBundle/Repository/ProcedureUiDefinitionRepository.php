@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends FluentRepository<ProcedureUiDefinition>
+ */
 class ProcedureUiDefinitionRepository extends FluentRepository implements ObjectInterface
 {
     /**
@@ -61,7 +65,7 @@ class ProcedureUiDefinitionRepository extends FluentRepository implements Object
     public function updateObject($procedureUiDefinition): ProcedureUiDefinition
     {
         $this->getEntityManager()->persist($procedureUiDefinition);
-        $this->getEntityManager()->flush($procedureUiDefinition);
+        $this->getEntityManager()->flush();
 
         return $procedureUiDefinition;
     }

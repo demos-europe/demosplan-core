@@ -12,37 +12,38 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
 
 /**
- * @template I of object
- * @template G of object
+ * @template TItem of object
+ * @template TGroup of object
  *
- * @template-extends FacetInterface<I>
+ * @template-extends FacetInterface<TItem>
  */
 interface GroupedFacetInterface extends FacetInterface
 {
     /**
      * @return string The name of the resource type groups correspond to. Must be the name of
-     *                a resource type implementing {@link ResourceTypeInterface}&lt;G&gt;.
+     *                a resource type implementing {@link ResourceTypeInterface}&lt;TGroup&gt;.
      */
     public function getGroupsResourceType(): string;
 
     /**
-     * @param G $group
+     * @param TGroup $group
      *
-     * @return array<int,G>
+     * @return array<int,TGroup>
      */
     public function getGroupItems(object $group): array;
 
     /**
-     * @param G $group
+     * @param TGroup $group
      */
     public function getGroupIdentifier(object $group): string;
 
     /**
-     * @param G $group
+     * @param TGroup $group
      */
     public function getGroupTitle(object $group): string;
 
@@ -51,7 +52,7 @@ interface GroupedFacetInterface extends FacetInterface
      *
      * All groups are conjuncted via `AND`, meaning each one limits the result further.
      * An empty array thus means no limitations beyond the
-     * {@link TypeInterface::getAccessCondition() access restrictions} set in the
+     * {@link DplanResourceType::getAccessConditions() access restrictions} set in the
      * {@link GroupedFacetInterface::getGroupsResourceType() groups resource type}.
      *
      * @return array<int,FunctionInterface<bool>>

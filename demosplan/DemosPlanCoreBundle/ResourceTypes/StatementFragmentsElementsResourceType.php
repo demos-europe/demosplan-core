@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFragment>
@@ -42,12 +41,12 @@ final class StatementFragmentsElementsResourceType extends DplanResourceType
         return true;
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -60,7 +59,7 @@ final class StatementFragmentsElementsResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->sortable()
+            $this->createIdentifier()->readable()->sortable()
                 ->filterable(),
             $this->createAttribute($this->paragraphTitle)->readable(true)
                 ->sortable()->filterable()->aliasedPath($this->paragraph->title),

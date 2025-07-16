@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Guard\JWTTokenAuthenticator;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\ChainTokenExtractor;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\QueryParameterTokenExtractor;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
 
-class AiApiAuthenticator extends JWTTokenAuthenticator
+class AiApiAuthenticator extends JWTAuthenticator
 {
     /**
      * Jwt payload may be given as URL query parameter "jwt".

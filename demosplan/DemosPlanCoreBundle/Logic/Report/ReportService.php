@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,10 +21,8 @@ use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -31,6 +30,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Pagination\PagePagination;
 use Exception;
+use Pagerfanta\Pagerfanta;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -48,7 +48,8 @@ class ReportService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -60,18 +61,23 @@ class ReportService extends CoreService
     public function persistAndFlushReportEntries(ReportEntry ...$reportEntries): void
     {
         $this->reportRepository->executeAndFlushInTransaction(
-            function (EntityManagerInterface $em) use ($reportEntries) {
-                foreach ($reportEntries as $reportEntry) {
-                    $violations = $this->validator->validate($reportEntry);
-                    if (0 !== $violations->count()) {
-                        throw ViolationsException::fromConstraintViolationList($violations);
-                    }
-                    $em->persist($reportEntry);
-                }
+            function () use ($reportEntries) {
+                $this->persistReportEntries($reportEntries);
 
                 return null;
             }
         );
+    }
+
+    public function persistAndFlushWithoutTransaction(ReportEntry ...$reportEntries): void
+    {
+        foreach ($reportEntries as $reportEntry) {
+            $violations = $this->validator->validate($reportEntry);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+            $this->reportRepository->addObject($reportEntry);
+        }
     }
 
     /**
@@ -114,7 +120,7 @@ class ReportService extends CoreService
      *
      * @throws Exception
      */
-    public function getInvitableInstitutionShowlistChanges(): DemosPlanPaginator
+    public function getInvitableInstitutionShowlistChanges(): Pagerfanta
     {
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
         $conditions = [
@@ -335,5 +341,16 @@ class ReportService extends CoreService
         $report = $this->statementReportEntryFactory->createAnonymizationEntry($category, $event);
 
         return $this->reportRepository->addObject($report);
+    }
+
+    public function persistReportEntries(array $reportEntries): void
+    {
+        foreach ($reportEntries as $reportEntry) {
+            $violations = $this->validator->validate($reportEntry);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+            $this->entityManager->persist($reportEntry);
+        }
     }
 }

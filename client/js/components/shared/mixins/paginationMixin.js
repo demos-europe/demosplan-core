@@ -20,8 +20,8 @@ export default {
         perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
       }
       this.pagination = {
-        currentPage: currentPage,
-        perPage: perPage
+        currentPage,
+        perPage
       }
     },
 
@@ -34,9 +34,9 @@ export default {
       const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
       this.pagination = {
         count: data.count,
-        currentPage: currentPage,
+        currentPage,
         limits: this.defaultPagination.limits,
-        perPage: perPage,
+        perPage,
         total: data.total,
         totalPages: data.total_pages
       }

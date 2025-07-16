@@ -11,13 +11,20 @@
  * This is the entrypoint for administration_segments_bulk_edit.html.twig
  */
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
 
 const components = { SegmentsBulkEdit }
-const stores = {
-  boilerplates: BoilerplatesStore
+const stores = {}
+let apiStores = ['Tag', 'TagTopic']
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
 }
-const apiStores = ['tag', 'tagTopic']
+
+if (hasPermission('field_segments_custom_fields')) {
+  apiStores = [...apiStores, 'AdminProcedure', 'CustomField']
+}
 
 initialize(components, stores, apiStores)

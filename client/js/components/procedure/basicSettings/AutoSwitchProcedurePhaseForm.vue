@@ -12,6 +12,7 @@
     <dp-checkbox
       :id="checkboxId"
       v-model="autoSwitchPhase"
+      :data-cy="`autoSwitchPhase:${checkboxId}`"
       :disabled="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
       :label="{
         text: Translator.trans('procedure.public.phase.autoswitch')
@@ -27,6 +28,7 @@
         <dp-select
           class="layout__item u-1-of-3 u-1-of-1-lap-down"
           v-model="selectedPhase"
+          :data-cy="`selectedPhase:${checkboxId}`"
           :disabled="!autoSwitchPhase"
           :label="{
             text: Translator.trans('procedure.phase.autoswitch.targetphase')
@@ -36,6 +38,7 @@
 
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
           <dp-datetime-picker
+            :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
             :disabled="!autoSwitchPhase"
             hidden-input
             :id="switchDateId"
@@ -61,10 +64,7 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-            :data-cy="{
-                endDate: dataCyEndDate,
-                startDate: dataCyStartDate
-            }"
+            :data-cy="dataCyPhasePeriod"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -77,15 +77,15 @@
           mode="out-in">
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
-            class="u-mb-0"
+            class="mt-3 mb-0"
             :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
             type="warning" />
         </transition>
       </div>
 
       <dp-inline-notification
-        v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-        class="u-mb-0"
+        v-else-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
+        class="mt-3 mb-0"
         :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
         type="warning" />
     </transition>
@@ -101,6 +101,7 @@ import {
   DpSelect,
   formatDate
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'AutoSwitchProcedurePhaseForm',
@@ -109,30 +110,24 @@ export default {
     DpCheckbox,
     DpDateRangePicker,
     DpDatetimePicker,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLabel,
     DpSelect
   },
 
   props: {
-    availablePhases: {
+    availableProcedurePhases: {
       type: Object,
       default: () => ({})
     },
 
-    dataCyEndDate: {
+    dataCyPhasePeriod: {
       type: String,
       required: false,
-      default: 'endDate'
-    },
-
-    dataCyStartDate: {
-      type: String,
-      required: false,
-      default: 'startDate'
+      default: ''
     },
 
     /**
@@ -196,8 +191,10 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      const participationPhases = ['participation', 'earlyparticipation', 'anotherparticipation']
-      return participationPhases.includes(this.selectedCurrentPhase)
+      return Object.values(this.availableProcedurePhases)
+        .filter(phase => phase.permission === 'write')
+        .map(phase => phase.value)
+        .includes(this.selectedCurrentPhase)
     },
 
     endDateId () {
@@ -205,7 +202,7 @@ export default {
     },
 
     phaseOptions () {
-      return Object.values(this.availablePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
+      return Object.values(this.availableProcedurePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
     },
 
     phaseSelectId () {
@@ -213,7 +210,9 @@ export default {
     },
 
     showAutoSwitchToAnalysisHint () {
-      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && ['participation', 'earlyparticipation', 'anotherparticipation'].includes(this.selectedPhase)
+      const isInParticipation = this.phaseOptions.find(option => option.value === this.selectedPhase)?.permission === 'write'
+
+      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && isInParticipation
     },
 
     startDateId () {
@@ -226,16 +225,22 @@ export default {
   },
 
   watch: {
-    selectedCurrentPhase () {
-      this.setSelectedPhase()
+    selectedCurrentPhase: {
+      handler () {
+        this.setSelectedPhase()
 
-      if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
-        this.autoSwitchPhase = this.isParticipationPhaseSelected
-      }
+        if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
+          this.autoSwitchPhase = this.isParticipationPhaseSelected
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    switchDate (newVal) {
-      this.startDate = formatDate(newVal)
+    switchDate: {
+      handler (newVal) {
+        this.startDate = formatDate(newVal)
+      },
+      deep: true
     }
   },
 

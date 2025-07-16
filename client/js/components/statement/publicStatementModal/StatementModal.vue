@@ -13,10 +13,10 @@
       ref="statementModal"
       @modal:toggled="handleModalToggle"
       content-header-classes="border--none">
-      <template v-slot:header>
-        <span
-          :class="prefixClass('color-highlight')"
-          v-if="showHeader">
+      <template
+        v-if="showHeader"
+        v-slot:header>
+        <span :class="prefixClass('color-highlight')">
           <i
             aria-hidden="true"
             class="fa"
@@ -26,14 +26,15 @@
       </template>
       <template v-slot:closeButton>
         <button
-          type="button"
-          @click="toggleModal(false)"
-          aria-label="Stellungnahme-Formular minimieren"
           aria-describedby="statementDialogCloseTitle"
-          :class="prefixClass('c-statement__close btn-icns u-m-0 u-p-0')">
+          :aria-label="Translator.trans('statement.dialog.close')"
+          :class="prefixClass('c-statement__close btn-icns color-highlight u-m-0_25 p-0 absolute u-right-0')"
+          :title="Translator.trans('statement.dialog.close')"
+          type="button"
+          @click="toggleModal(false)">
           <span
             id="statementDialogCloseTitle"
-            :class="prefixClass('show-lap-up-i')">
+            :class="prefixClass('sr-only')">
             {{ Translator.trans('explanation.statement.autosave') }}
           </span>
           <i
@@ -43,12 +44,12 @@
       </template>
 
       <header
+        v-if="loggedIn === false && showHeader"
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
         <dp-multistep-nav
-          v-if="loggedIn === false && showHeader"
-          @change-step="val => step = val"
           :active-step="step"
+          :class="prefixClass('pb-0')"
           :steps="[{
             label: Translator.trans('statement.yours'),
             icon: commentingIcon,
@@ -61,65 +62,70 @@
             label: Translator.trans('recheck'),
             icon: 'fa-check',
             title: Translator.trans('statement.modal.step.recheck')
-          }]" />
+          }]"
+          @change-step="val => step = val" />
       </header>
+
+      <dp-inline-notification
+        :class="prefixClass('mb-2')"
+        dismissible
+        dismissible-key="statementModalCloseExplanation"
+        :message="Translator.trans('explanation.statement.autosave')"
+        type="info" />
 
       <!-- Statement form incl. documents and location -->
       <section
         v-show="step === 0"
         data-dp-validate="statementForm">
-        <div
+        <dp-inline-notification
           v-if="loggedIn === false"
-          :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')" />
-          <span
-            :class="prefixClass('block u-ml')">
-            <p v-cleanhtml="statementFormHintStatement" />
-            {{ Translator.trans('error.mandatoryfields') }}
-          </span>
-        </div>
+          :class="prefixClass('mb-2')"
+          type="info">
+          <p
+            v-if="statementFormHintStatement"
+            v-cleanhtml="statementFormHintStatement" />
+          <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
+          <p>{{ Translator.trans('error.mandatoryfields') }}</p>
+        </dp-inline-notification>
 
-        <div
-          v-show="dpValidate.statementForm === false"
+        <dp-inline-notification
+          v-if="dpValidate.statementForm === false"
+          :class="prefixClass('mb-2')"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
-          tabindex="0"
-          :class="prefixClass('c-statement__formhint flash-error u-mb-0_5')">
-          <i
-            aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
-          <div
+          tabindex="0">
+          <p
             id="statementFormErrorsContent"
-            :class="prefixClass('u-ml')"
             v-cleanhtml="createErrorMessage('statementForm')" />
-        </div>
+        </dp-inline-notification>
 
-        <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
-          <div class="flex">
-            <dp-radio
-              name="r_isNegativeReport"
-              id="negative_report_false"
-              class="u-mr-2"
-              :checked="formData.r_isNegativeReport === '0'"
-              @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-              :label="{
-                text: Translator.trans('public.participation.participate')
-              }"
-              value="0" />
-            <dp-radio
-              name="r_isNegativeReport"
-              id="negative_report_true"
-              :checked="formData.r_isNegativeReport === '1'"
-              @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
-              :label="{
-                hint: Translator.trans('link.title.indicationerror'),
-                text: Translator.trans('indicationerror')
-              }"
-              value="1" />
-          </div>
-        </template>
+        <div
+          v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
+          class="flex mt-4">
+          <dp-radio
+            name="r_isNegativeReport"
+            id="negative_report_false"
+            data-cy="statementModal:publicParticipationParticipate"
+            class="u-mr-2"
+            :checked="formData.r_isNegativeReport === '0'"
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
+            :label="{
+              text: Translator.trans('public.participation.participate')
+            }"
+            value="0" />
+          <dp-radio
+            :disabled="canNotBeNegativeReport"
+            name="r_isNegativeReport"
+            id="negative_report_true"
+            data-cy="statementModal:indicationerror"
+            :checked="formData.r_isNegativeReport === '1'"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            :label="{
+              hint: Translator.trans('link.title.indicationerror'),
+              text: Translator.trans('indicationerror')
+            }"
+            value="1" />
+        </div>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
@@ -128,15 +134,16 @@
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
             :class="prefixClass('u-mb')"
-            hidden-input="r_text"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
+            hidden-input="r_text"
             id="statementText"
+            ref="statementEditor"
+            :readonly="formData.r_isNegativeReport === '1'"
+            :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
               mark: true,
               strikethrough: true
             }"
-            ref="statementEditor"
-            :required="formData.r_isNegativeReport !== '1'"
             :value="formData.r_text || ''"
             @input="val => setStatementData({r_text: val})" />
         </div>
@@ -170,57 +177,84 @@
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
-          <p
-            aria-hidden="true"
-            :class="prefixClass('c-statement__formblock-title u-mb-0_25 weight--bold inline-block')">
-            {{ Translator.trans('element.assigned') }}
-          </p>
-          <p
-            aria-hidden="true"
-            :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
-            <template v-if="formData.r_element_id !== ''">
-              <button
-                @click="gotoTab('procedureDetailsDocumentlist')"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
-                <i
-                  aria-hidden="true"
-                  :class="prefixClass('fa fa-pencil')" />
-                {{ Translator.trans('document.reference.change') }}
-              </button>
-              <span :class="prefixClass('hide-lap-up')" />
-              <button
-                @click="removeDocumentRelation"
-                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
-                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
-                <i
-                  aria-hidden="true"
-                  :class="prefixClass('fa fa-trash')" />
-                {{ Translator.trans('document.reference.delete') }}
-              </button>
-            </template>
+          <fieldset>
+            <legend :class="prefixClass('c-statement__formblock-title')">
+              {{ Translator.trans('element.assigned') }}
+            </legend>
+
             <button
-              v-else
-              @click="gotoTab('procedureDetailsDocumentlist')"
-              :class="prefixClass('btn--blank o-link--default text-left')">
+              v-if="formData.r_element_id === ''"
+              aria-labelledby="documentReference"
+              :class="prefixClass('btn--blank o-link--default text-left')"
+              data-cy="statementModal:elementAssign"
+              :disabled="formData.r_isNegativeReport !== '0'"
+              @click="gotoTab('procedureDetailsDocumentlist')">
               <i
                 aria-hidden="true"
                 :class="prefixClass('fa fa-plus')" />
               {{ Translator.trans('element.assign') }}
             </button>
-          </p>
-          <p
-            v-if="formData.r_element_id !== ''"
-            aria-hidden="true"
-            :class="[prefixClass('u-mb-0_5 u-ph-0_5 u-pv-0_25'), highlighted.documents ? prefixClass(' animation--bg-highlight-grey--light-2') : prefixClass('bg-color--grey-light-2')]">
-            {{ Translator.trans('document') }}: {{ formData.r_element_title }}
-            <br>
-            <template v-if="formData.r_paragraph_id !== ''">
-              {{ Translator.trans('paragraph') }}: {{ formData.r_paragraph_title }}
-            </template>
-            <template v-if="formData.r_document_id !== ''">
-              {{ Translator.trans('file') }}: {{ formData.r_document_title }}
-            </template>
-          </p>
+
+            <div
+              v-if="formData.r_element_id !== ''"
+              :class="prefixClass('mb-3')">
+              <button
+                aria-labelledby="documentReference"
+                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                @click="gotoTab('procedureDetailsDocumentlist')">
+                <i
+                  aria-hidden="true"
+                  :class="prefixClass('fa fa-pencil')" />
+                {{ Translator.trans('document.reference.change') }}
+              </button>
+
+              <button
+                aria-labelledby="documentReference"
+                :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
+                @click="removeDocumentRelation">
+                <i
+                  aria-hidden="true"
+                  :class="prefixClass('fa fa-trash')" />
+                {{ Translator.trans('document.reference.delete') }}
+              </button>
+            </div>
+
+            <dl
+              v-if="formData.r_element_id !== ''"
+              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']">
+              <div :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('document') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_element_title }}
+                </dd>
+              </div>
+
+              <div
+                v-if="formData.r_paragraph_id !== ''"
+                :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('paragraph') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_paragraph_title }}
+                </dd>
+              </div>
+
+              <div
+                v-if="formData.r_document_id !== ''"
+                :class="prefixClass('md:flex')">
+                <dt :class="prefixClass('font-semibold w-1/6')">
+                  {{ Translator.trans('file') }}:
+                </dt>
+                <dd :class="prefixClass('ml-0')">
+                  {{ formData.r_document_title }}
+                </dd>
+              </div>
+            </dl>
+          </fieldset>
         </template>
 
         <!-- location reference -->
@@ -231,6 +265,7 @@
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
+            :disabled="formData.r_isNegativeReport !== '0'"
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties" />
@@ -239,7 +274,7 @@
         <template v-if="loggedIn">
           <fieldset>
             <legend
-              class="hide-visually"
+              class="sr-only"
               v-text="Translator.trans('files.upload')" />
             <div
               v-if="hasPermission('field_statement_file')"
@@ -273,13 +308,15 @@
                   </label>
                 </div>
               </div><!--
-           --><div :class="[prefixClass(initialFiles.length === 0 ? 'u-1-of-1' : 'u-1-of-2'), prefixClass('layout__item u-mt u-mb')]">
+           --><div :class="[prefixClass(initialFiles.length === 0 ? 'u-1-of-1' : 'u-1-of-2'), prefixClass('layout__item u-mb')]">
                 <dp-label
+                  :class="prefixClass('mb-2')"
                   :text="Translator.trans('upload.files')"
                   for="r_file" />
 
                 <dp-upload-files
                   id="upload_files"
+                  :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
@@ -288,7 +325,6 @@
                   ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
                   :tus-endpoint="dplan.paths.tusEndpoint"
-                  :side-by-side="initialFiles.length === 0"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
                   @upload-success="addUnsavedFile" />
@@ -299,7 +335,7 @@
               :class="prefixClass('layout')">
               <dp-input
                 id="r_represents"
-                :class="prefixClass('layout__item u-1-of-2')"
+                :class="prefixClass('layout__item md:w-1/2')"
                 :label="{
                   text: Translator.trans('statement.representation.creation')
                 }"
@@ -312,7 +348,7 @@
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text-right u-mv-0_5 flow-root u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')">
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
@@ -322,7 +358,7 @@
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
             @click="sendStatement"
             data-cy="saveChangedStatement">
             {{ Translator.trans('save.and.close') }}
@@ -331,7 +367,7 @@
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
             @click="e => sendStatement(e,false, true)"
             data-cy="saveChangedStatementWothoutClosing">
             {{ Translator.trans('save') }}
@@ -343,8 +379,9 @@
               v-if="hasPermission('feature_draft_statement_citizen_immediate_submit') && draftStatementId === ''"
               type="submit"
               :disabled="isLoading"
+              data-cy="statementModal:statementSaveImmediate"
               @click="e => sendStatement(e,true)"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')">
+              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')">
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -352,10 +389,10 @@
               :disabled="isLoading"
               :class="[
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
-                prefixClass('btn u-1-of-1-palm u-mt-0_5-palm')
+                prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
               @click="sendStatement"
-              data-cy="saveAsDraft">
+              data-cy="statementModal:saveAsDraft">
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -366,8 +403,9 @@
           </template>
           <button
             type="reset"
+            data-cy="statementModal:discardChanges"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-ml-lap-up')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.changes') }}
           </button>
@@ -375,7 +413,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right u-mt-0_5 space-inline-s')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -383,7 +421,8 @@
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm')"
+            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
+            data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
           </button>
@@ -391,7 +430,7 @@
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-mt-0_5-palm')"
+            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
             form-name="statementForm"
             @click="validateStatementStep">
             {{ Translator.trans('continue.personal_data') }}
@@ -404,75 +443,82 @@
         autocomplete="on"
         v-show="step === 1"
         data-dp-validate="submitterForm">
-        <div :class="prefixClass('c-statement__formhint flash-info u-mb-0_5')">
-          <i
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-            aria-hidden="true" />
-          <span :class="prefixClass('block u-ml')">
-            <p v-cleanhtml="statementFormHintPersonalData" />
+        <dp-inline-notification
+          :class="prefixClass('mt-3 mb-2')"
+          type="info">
+          <p
+            v-if="statementFormHintPersonalData"
+            v-cleanhtml="statementFormHintPersonalData" />
+          <p>
             {{ Translator.trans('error.mandatoryfields') }}
-          </span>
+          </p>
+          <p v-if="extraPersonalHint !== ''">
+            {{ extraPersonalHint }}
+          </p>
+        </dp-inline-notification>
 
-          <template v-if="extraPersonalHint !== ''">
-            <i
-              :class="prefixClass('c-statement__hint-icon fa fa-lg fa-info-circle')"
-              aria-hidden="true" />
-            <span :class="prefixClass('block u-ml')">
-              {{ extraPersonalHint }}
-            </span>
-          </template>
-        </div>
         <div
           v-show="dpValidate.submitterForm === false"
           id="submitterFormErrors"
           tabindex="0"
           aria-labelledby="submitterFormErrorsContent"
-          :class="prefixClass('c-statement__formhint flash-error u-mb-0_5')">
+          :class="prefixClass('c-statement__formhint flash-error mb-2')">
           <i
             aria-hidden="true"
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
           <div
             id="submitterFormErrorsContent"
-            :class="prefixClass('u-ml')"
+            :class="prefixClass('ml-4')"
             v-cleanhtml="createErrorMessage('submitterForm')" />
         </div>
 
+        <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
+          v-if="allowAnonymousStatements"
+          id="personalInfoFieldset"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-5')"
+          aria-required="true"
           role="radiogroup"
           required
-          aria-required="true"
-          id="personalInfoFieldset">
+        >
           <div
-            aria-live="polite"
-            aria-relevant="all"
             :class="[
               formData.r_useName === '1' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]"
-            aria-labelledby="statement-detail-post-publicly">
+            aria-labelledby="statement-detail-post-publicly"
+            aria-live="polite"
+            aria-relevant="all"
+          >
             <dp-radio
               id="r_useName_1"
-              name="r_useName"
-              data-cy="submitPublicly"
-              value="1"
-              @change="val => setStatementData({r_useName: '1'})"
               :checked="formData.r_useName === '1'"
+              :class="prefixClass('mb-1')"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
-              }" />
+              }"
+              data-cy="submitPublicly"
+              name="r_useName"
+              value="1"
+              @change="val => setPrivacyPreference({r_useName: '1'})"
+            />
+
             <div
               v-show="formData.r_useName === '1'"
-              :class="prefixClass('layout')">
+              :class="prefixClass('layout mb-3 ml-2')">
               <component
                 v-for="formDefinition in personalDataFormDefinitions"
-                :is="formDefinition.component"
+                :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
                 :draft-statement-id="draftStatementId"
-                :required="formDefinition.required"
                 :form-options="formOptions"
-                :class="prefixClass('layout__item u-1-of-1-palm u-mt-0_5 ' + formDefinition.width)"
-                :key="formDefinition.key" />
+                :is="formDefinition.component"
+                :key="formDefinition.key"
+                :required="formDefinition.required"
+              />
             </div>
           </div>
+
           <div
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
@@ -480,15 +526,38 @@
             ]">
             <dp-radio
               id="r_useName_0"
-              name="r_useName"
-              value="0"
-              @change="val => setStatementData({r_useName: '0'})"
               :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
               aria-labelledby="statement-detail-post-anonymously"
-              data-cy="submitAnonymously" />
+              data-cy="submitAnonymously"
+              name="r_useName"
+              value="0"
+              @change="val => setPrivacyPreference({r_useName: '0'})"
+            />
+          </div>
+        </fieldset>
+
+        <!-- Show the form directly if anonymous statements are not allowed -->
+        <fieldset
+          v-else
+          id="personalInfoFieldset"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-4')"
+          aria-required="true"
+        >
+          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <div :class="prefixClass('layout mb-3')">
+            <component
+              v-for="formDefinition in personalDataFormDefinitions"
+              :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+              :draft-statement-id="draftStatementId"
+              :form-options="formOptions"
+              :is="formDefinition.component"
+              :key="formDefinition.key"
+              :required="formDefinition.required"
+            />
           </div>
         </fieldset>
 
@@ -497,8 +566,9 @@
           :is="formDefinition.component"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text-right u-mt-0_5')">
+        <div :class="prefixClass('text-right mt-3')">
           <button
             type="button"
             data-cy="submitterForm"
@@ -516,6 +586,7 @@
         data-dp-validate="recheckForm">
         <statement-modal-recheck
           @edit-input="handleEditInput"
+          :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
@@ -587,7 +658,6 @@
             :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
-            tabindex="0"
             aria-describedby="successConfirmation">
             <i
               :class="prefixClass('fa fa-comment')"
@@ -611,6 +681,7 @@
             <a
               :class="prefixClass('btn btn--primary u-1-of-1-palm')"
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
+              data-cy="statementModal:downloadPDF"
               rel="noopener"
               target="_blank">
               <i
@@ -624,6 +695,7 @@
                 :class="prefixClass('btn btn--secondary')"
                 @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
+                data-cy="statementModal:close"
                 rel="noopener">
                 {{ Translator.trans('close') }}
               </a>
@@ -641,6 +713,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -657,6 +730,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -686,30 +760,31 @@ export default {
 
   components: {
     DpCheckbox,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
     StatementModalRecheck
   },
 
@@ -720,6 +795,12 @@ export default {
   mixins: [dpValidateMixin, prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     counties: {
       type: Array,
       required: false,
@@ -808,6 +889,12 @@ export default {
       default: false
     },
 
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     initRedirectPath: {
       type: String,
       required: false,
@@ -838,6 +925,11 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'toggle-tabs',
+    'uploader-reset'
+  ],
 
   data () {
     return {
@@ -885,7 +977,9 @@ export default {
   },
 
   computed: {
-    ...mapState('publicStatement', {
+    ...mapState('Notify', ['messages']),
+
+    ...mapState('PublicStatement', {
       initFormDataJSON: 'initForm',
       initDraftStatements: 'initDraftStatements',
       formData: 'statement',
@@ -894,6 +988,14 @@ export default {
       unsavedDrafts: 'unsavedDrafts',
       userId: 'userId'
     }),
+
+    canNotBeNegativeReport () {
+      return this.formData.r_element_id !== '' ||
+        this.formData.r_document_id !== '' ||
+        this.formData.r_text !== '' ||
+        this.formData.r_location !== '' ||
+        this.formData.uploadedFiles !== ''
+    },
 
     commentingIcon () {
       return this.continueWriting ? 'fa-commenting' : 'fa-comment'
@@ -962,7 +1064,9 @@ export default {
   },
 
   methods: {
-    ...mapMutations('publicStatement', [
+    ...mapMutations('Notify', ['remove']),
+
+    ...mapMutations('PublicStatement', [
       'addUnsavedDraft',
       'clearDraftState',
       'removeStatementProp',
@@ -987,11 +1091,11 @@ export default {
       }
 
       const invalidFields = this.dpValidate.invalidFields[formId]
-      const fieldDescriptions = invalidFields.map(field => {
+      const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
         return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
-      })
-      return `<p>${Translator.trans('error.in.fields')}</p><ul class="u-mb-0 u-ml">${fieldDescriptions.join('')}</ul>`
+      })))
+      return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
     },
 
     fieldIsActive (fieldKey) {
@@ -1018,39 +1122,12 @@ export default {
       })
         .then(checkResponse)
         .then(data => {
-          const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
-          const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
-          const statementFiles = data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : ''
-
-          const draft = {
-            r_text: data.draftStatement.text,
-            r_files_initial: statementFiles || [],
-            r_ident: this.draftStatementId,
-            r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
-            r_paragraph_id: data.draftStatement.paragraphId || '',
-            r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
-            r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
-            r_document_title: !!data.draftStatement.document && !!data.draftStatement.document.title ? data.draftStatement.document.title : '',
-            r_represents: data.draftStatement.represents !== null ? data.draftStatement.represents : '',
-            r_location: Object.keys(data.draftStatement.statementAttributes).reduce((acc, key) => {
-              acc = key
-              return acc
-            }, 'mapLocation'),
-            r_location_geometry: data.draftStatement.polygon,
-            r_location_priority_area_key: priorityAreaKey,
-            r_location_priority_area_type: priorityAreaType,
-            r_location_point: '',
-            location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
-            r_county: data.draftStatement.statementAttributes.county ? data.draftStatement.statementAttributes.county : '',
-            r_makePublic: !!data.draftStatement.publicAllowed
-          }
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
-          if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-          if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
 
           if (draftExists === false) {
+            const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
+            const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
+            const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
@@ -1168,6 +1245,75 @@ export default {
       }
     },
 
+    /**
+     * Prepare the data to be sent to the backend
+     * We have to copy the store state because deleting entries is not reactive atm.
+     *
+     * @param formData
+     *
+     * @return {*}
+     */
+    prepareDataToSend (formData) {
+      const dataToSend = { ...formData }
+
+      /*
+       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
+       * which we don't want
+       */
+      if (dataToSend.location_is_set === '') {
+        dataToSend.location_is_set = 'notLocated'
+      }
+
+      if (dataToSend.r_location !== 'county') {
+        dataToSend.r_county = ''
+      }
+
+      /*
+       * If no submitter type is selected we assume its a citizen.
+       * it can't be preset to prevent the radio options from being preselected
+       */
+      if (dataToSend.r_submitter_role === '') {
+        dataToSend.r_submitter_role = 'citizen'
+      }
+
+      if (dataToSend.r_location !== 'point') {
+        dataToSend.r_location_point = ''
+        dataToSend.r_location_priority_area_key = ''
+        dataToSend.r_location_priority_area_type = ''
+        dataToSend.r_location_geometry = ''
+      }
+
+      /*
+       * Remove not used fields
+       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
+       *
+       */
+      if (dataToSend.r_getFeedback === 'off') {
+        delete dataToSend.r_getFeedback
+      }
+      if (dataToSend.r_houseNumber === '') {
+        delete dataToSend.r_houseNumber
+      }
+      if (dataToSend.r_postalCode === '') {
+        delete dataToSend.r_postalCode
+      }
+      if (dataToSend.r_city === '') {
+        delete dataToSend.r_city
+      }
+      if (hasPermission('feature_statements_feedback_check_email') === false) {
+        delete dataToSend.r_email2
+      }
+      /*
+       * Tweak e-mail values so they fit to the update request
+       * due to the dynamic handling there can be inconsistencies
+       */
+      if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
+        delete dataToSend.r_email
+      }
+
+      return dataToSend
+    },
+
     removeDocumentRelation () {
       const elementFields = {
         r_element_id: '',
@@ -1177,13 +1323,25 @@ export default {
         r_paragraph_id: '',
         r_paragraph_title: ''
       }
+
       this.setStatementData(elementFields)
+    },
+
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
     },
 
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
+
       this.unsavedFiles.splice(indexToRemove, 1)
-      this.setStatementData({ uploadedFiles: this.unsavedFiles.map(el => el.hash).join(',') })
+      this.setStatementData({
+        uploadedFiles: this.unsavedFiles
+          .map(el => el.hash)
+          .join(',')
+      })
     },
 
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
@@ -1194,82 +1352,36 @@ export default {
       }
 
       this.isLoading = true
-
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
-      /*
-       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
-       * which we don't want
-       */
-      if (this.formData.location_is_set === '') {
-        this.setStatementData({ location_is_set: 'notLocated' })
-      }
-
-      if (this.formData.r_location !== 'county') {
-        this.setStatementData({ r_county: '' })
-      }
-
-      /*
-       * If no submitter type is selected we assume its a citizen.
-       * it can't be preset to prevent the radio options from being preselected
-       */
-      if (this.formData.r_submitter_role === '') {
-        this.setStatementData({ r_submitter_role: 'citizen' })
-      }
-
-      if (this.formData.r_location !== 'point') {
-        this.setStatementData({
-          r_location_point: '',
-          r_location_priority_area_key: '',
-          r_location_priority_area_type: '',
-          r_location_geometry: ''
-        })
-      }
-
-      /*
-       * Remove not used fields
-       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
-       *
-       */
-      if (this.formData.r_getFeedback === 'off') {
-        delete this.formData.r_getFeedback
-      }
-      if (this.formData.r_houseNumber === '') {
-        delete this.formData.r_houseNumber
-      }
-      if (this.formData.r_postalCode === '') {
-        delete this.formData.r_postalCode
-      }
-      if (this.formData.r_city === '') {
-        delete this.formData.r_city
-      }
-      if (hasPermission('feature_statements_feedback_check_email') === false) {
-        delete this.formData.r_email2
-      }
-      /*
-       * Tweak e-mail values so they fit to the update request
-       * due to the dynamic handling there can be inconsistencies
-       */
-      if ((hasOwnProp(this.formData, 'r_getFeedback') === false || this.formData.r_getEvaluation !== 'email') && this.formData.r_email === '') {
-        delete this.formData.r_email
-      }
+      const dataToSend = this.prepareDataToSend(this.formData)
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
 
       // Draft statements
       if (this.draftStatementId !== '') {
-        this.setStatementData({ action: 'statementedit' })
+        dataToSend.action = 'statementedit'
         route = Routing.generate('DemosPlan_statement_edit', { statementID: this.draftStatementId, procedure: this.procedureId })
       } else {
-        this.setStatementData({ action: 'statementpublicnew' })
+        dataToSend.action = 'statementpublicnew'
       }
 
-      return makeFormPost(this.formData, route)
+      return makeFormPost(dataToSend, route)
         .then(response => {
+          if (response.status === 429) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
+
+            return false
+          }
+          if (response.status !== 200) {
+            dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
+
+            return false
+          }
           /*
            * Handling for successful responses
-           * if its not an HTML-Response like after creating a new one
+           * if it's not an HTML-Response like after creating a new one
            */
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
@@ -1309,7 +1421,9 @@ export default {
           // @IMPROVE throw success message instead of sending it as Html with the response
           if (response.data && response.data.data && response.data.data.submitRoute) {
             // Go to confirm page to submit draft immediately
-            window.location.href = response.data.data.submitRoute
+            setTimeout(() => {
+              window.location.href = response.data.data.submitRoute
+            }, 2000)
           } else if (this.draftStatementId !== '') {
             // Go to draft statement list and highlight current draft
             this.toggleModal(false)
@@ -1344,6 +1458,40 @@ export default {
         })
     },
 
+    setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const draft = {
+        r_text: data.draftStatement.text,
+        r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
+        r_ident: this.draftStatementId,
+        r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
+        r_element_id: data.draftStatement.elementId || '',
+        r_element_title: data.draftStatement.element?.title ?? '',
+        r_paragraph_id: data.draftStatement.paragraphId ?? '',
+        r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
+        r_document_id: data.draftStatement.document?.id ?? '',
+        r_document_title: data.draftStatement.document?.title ?? '',
+        r_represents: data.draftStatement.represents ?? '',
+        r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
+        r_location_geometry: data.draftStatement.polygon,
+        r_location_priority_area_key: priorityAreaKey,
+        r_location_priority_area_type: priorityAreaType,
+        r_location_point: '',
+        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_county: data.draftStatement.statementAttributes.county ?? '',
+        r_makePublic: !!data.draftStatement.publicAllowed
+      }
+
+      if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
+
+      return draft
+    },
+
+    setPrivacyPreference (data) {
+      this.setStatementData(data)
+      this.removeNotificationsFromStore()
+    },
+
     writeDraftStatementIdToSession (draftStatementId) {
       this.draftStatementId = draftStatementId
       sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
@@ -1358,7 +1506,7 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
-    toggleModal (resetOnClose = true, data) {
+    toggleModal (resetOnClose = true, data = null) {
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1447,6 +1595,10 @@ export default {
   },
 
   mounted () {
+    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
+      this.setPrivacyPreference({ r_useName: '1' })
+    }
+
     // Set data from map
     this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
       this.setStatementData(data)
@@ -1460,6 +1612,10 @@ export default {
       }
     })
 
+    this.$root.$on('statement-modal:goto-tab', tabname => {
+      this.gotoTab(tabname)
+    })
+
     // Set draft statement Id from href
     this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
     this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
@@ -1470,8 +1626,7 @@ export default {
       const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
       const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
       if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        const existingData = sessionStorageBegunStatementParsed
-        this.setStatementData(existingData)
+        this.setStatementData(sessionStorageBegunStatementParsed)
       } else {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }

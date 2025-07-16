@@ -18,6 +18,12 @@ const components = {
   CustomerSettings
 }
 
-const apiStores = ['customerContact']
+const apiStores = [
+  'Branding',
+  'Customer',
+  'CustomerContact',
+  'CustomerLoginSupportContact',
+  'File'
+]
 
 initialize(components, {}, apiStores)

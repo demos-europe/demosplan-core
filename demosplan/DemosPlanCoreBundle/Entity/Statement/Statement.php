@@ -34,6 +34,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ClaimConstraint;
+use demosplan\DemosPlanCoreBundle\Constraint\ConsistentAnonymousOrgaConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\CorrectDateOrderConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\FormDefinitionConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
@@ -80,6 +81,8 @@ use UnexpectedValueException;
  *
  * @CorrectDateOrderConstraint(groups={StatementInterface::IMPORT_VALIDATION})
  *
+ * @ConsistentAnonymousOrgaConstraint(groups={StatementInterface::IMPORT_VALIDATION})
+ *
  * @FormDefinitionConstraint()
  *
  * @MatchingSubmitTypesConstraint(groups={StatementInterface::IMPORT_VALIDATION})
@@ -106,6 +109,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator")
      */
     protected $id;
+
+    /**
+     * This property is used inside this base Statement class only to be able to
+     * build conditions for resource types. e.g. to filter out segments.
+     *
+     * @var StatementInterface
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
+     */
+    #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
+    protected $parentStatementOfSegment;
 
     /**
      * Elternstellungnahme, von der diese kopiert wurde.
@@ -194,9 +210,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string|null
      *
-     * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
+     * @ORM\Column(name="_st_intern_id", type="string", length=255, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
      */
-    #[Assert\Length(max: 35)]
+    #[Assert\Length(max: 255)]
     protected $internId;
 
     /**
@@ -217,10 +233,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Virtuelle Eigenschaft des UserName.
-     *
-     * @var string
      */
-    protected $uName;
+    protected ?string $uName = null;
 
     /**
      * @var Orga|null
@@ -626,6 +640,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", cascade={"persist"})
      *
      * @ORM\JoinColumn(name="_st_element_id", referencedColumnName="_e_id", onDelete="SET NULL")
+     *
      **/
     protected $element;
 
@@ -765,7 +780,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Votum der Statskanzlei.
-     * Kind of vote advice.
+     * Concrete vote of this statement.
      *
      * @var string
      *
@@ -774,8 +789,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $voteStk;
 
     /**
-     * Votum des Planungsbüros
-     * Concrete vote of this statement.
+     * Votum (Empfehlung) des Planungsbüros
+     * Kind of vote advice.
      *
      * @var string
      *
@@ -809,7 +824,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * @ORM\Column(name="_st_submit_type", type="string", nullable=false)
      */
     #[Assert\NotBlank(groups: [Statement::IMPORT_VALIDATION], message: 'statement.import.invalidSubmitTypeBlank')]
-    protected $submitType = 'system';
+    #[Assert\Choice(
+        choices: StatementInterface::SUBMIT_TYPES,
+        message: 'statement.invalid.submit.type',
+        groups: ['Default', StatementInterface::IMPORT_VALIDATION]
+    )]
+    protected $submitType = StatementInterface::SUBMIT_TYPE_SYSTEM;
 
     /**
      * This field is transformed during elasticsearch populate
@@ -841,7 +861,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This is the user that is currently assigned to this statement. Assigned users are
      * exclusively permitted to change statements
      */
-    protected $assignee = null;
+    protected $assignee;
 
     /**
      * The representative Statement defines the cluster.
@@ -854,11 +874,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * This is the owning side
      *
-     * @ORM\ManyToOne(targetEntity="Statement", inversedBy="cluster")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="cluster")
      *
      * @ORM\JoinColumn(name="head_statement_id", referencedColumnName="_st_id", nullable = true, onDelete="SET NULL")
      */
-    protected $headStatement = null;
+    protected $headStatement;
 
     /**
      * @var Collection<int, Statement>
@@ -866,7 +886,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * This should not be persists automatic, because of checking the assignment in updateStatement()!
      * Doctrine-sited persists, would bypass this check!
      *
-     * @ORM\OneToMany(targetEntity="Statement", mappedBy="headStatement", cascade={"merge"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="headStatement", cascade={"merge"})
      *
      * @ORM\OrderBy({"externId" = "ASC"})
      */
@@ -892,7 +912,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * cascade={"remove"} means, that the associated placeholder will be deleted, in case of this moved statement will be deleted.
      *
-     * @var Statement
+     * @var Statement|null
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
      *
@@ -1164,7 +1184,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return Statement
+     * @return Statement|null
      */
     public function getOriginal()
     {
@@ -1327,11 +1347,20 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
-    public function getInternId(): ?string
+    /**
+     * The usual statement pair (original + non original), makes it tricky to ensure
+     * a unique internId per procedure, because these pair is a kind of a copy.
+     * To ensure the interId is actually unique per procedure, the internId will only be stored
+     * at the original statement.
+     * To reduce the mental load, on getting the internId of a statement, the internId of the related
+     * original statement wil be returned by default.
+     * But in some (technically) cases it can be necessary to get the internId of the current statement,
+     * instead of its parent. This can be done by setting the $gettingFromOriginal to false.
+     */
+    public function getInternId(bool $gettingFromOriginal = true): ?string
     {
-        $original = $this->getOriginal();
-        if (null !== $original) {
-            return $original->getInternId();
+        if ($gettingFromOriginal && null !== $this->getOriginal()) {
+            return $this->getOriginal()->getInternId();
         }
 
         return $this->internId;
@@ -1403,10 +1432,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Returns the name of the author!
-     *
-     * @return string
      */
-    public function getUserName()
+    public function getUserName(): ?string
     {
         // hole dir den Nutzernamen so, wie er bei dem Statement gespeichert ist, nicht aus
         // dem Userobjekt
@@ -2539,7 +2566,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             $this->paragraphTitle = $this->paragraph->getTitle();
         }
 
-        return trim($this->paragraphTitle);
+        return trim($this->paragraphTitle ?? '');
     }
 
     /**
@@ -2565,8 +2592,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (null === $this->paragraphParentId && $this->paragraph instanceof ParagraphVersion) {
             $parentId = null;
-            if ($this->paragraph->getParagraph() instanceof Paragraph) {
-                $parentId = $this->paragraph->getParagraph()->getId();
+            $parentParagraph = $this->paragraph->getParagraph();
+            if ($parentParagraph instanceof Paragraph) {
+                $parentId = $parentParagraph->getId();
             }
             $this->paragraphParentId = $parentId;
         }
@@ -3035,7 +3063,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * VoteStatskanzlei
+     * VoteStaatskanzlei
      * Get the StK-vote of this statement.
      *
      * @return string
@@ -3381,7 +3409,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @return user|null
+     * @return User|null
      *
      * @throws Exception
      */

@@ -35,8 +35,8 @@ class ProcedureHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get('dplan.procedure');
-        $this->mapService = self::$container->get(MapService::class);
+        $this->sut = self::getContainer()->get('dplan.procedure');
+        $this->mapService = self::getContainer()->get(MapService::class);
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }
 
@@ -76,8 +76,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        self::markSkippedForCIIntervention();
-
         $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
 
@@ -133,8 +131,6 @@ class ProcedureHandlerTest extends FunctionalTestCase
      */
     public function testDataOnSwitchToEvaluationPhasesOnEndOfParticipationPhase(): void
     {
-        self::markSkippedForCIIntervention();
-
         $internalWritePhaseKeys = $this->sut->getDemosplanConfig()->getInternalPhaseKeys('write');
         $externalWritePhaseKeys = $this->sut->getDemosplanConfig()->getExternalPhaseKeys('write');
         $internalPhaseName = $this->sut->getDemosplanConfig()->getPhaseNameWithPriorityInternal('evaluating');

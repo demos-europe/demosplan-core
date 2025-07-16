@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClaimResourceType;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
@@ -42,13 +44,14 @@ class DemosPlanClaimAPIController extends APIController
         private readonly ProcedureHandler $procedureHandler,
         private readonly StatementHandler $statementHandler,
         private readonly UserService $userService,
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
+        MessageFormatter $messageFormatter,
         SchemaPathProcessor $schemaPathProcessor
     ) {
         parent::__construct(
@@ -59,7 +62,8 @@ class DemosPlanClaimAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 

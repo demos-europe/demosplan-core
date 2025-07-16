@@ -21,7 +21,10 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 
-class ProcedureCoupleTokenRepository extends FluentRepository
+/**
+ * @template-extends CoreRepository<ProcedureCoupleToken>
+ */
+class ProcedureCoupleTokenRepository extends CoreRepository
 {
     /**
      * @throws ViolationsException

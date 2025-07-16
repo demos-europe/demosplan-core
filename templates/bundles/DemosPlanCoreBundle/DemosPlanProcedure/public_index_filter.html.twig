@@ -9,6 +9,7 @@
         class="{{ 'c-proceduresearch__filter relative flow-root u-pr'|prefixClass }}"
         action="{{ path('core_home') }}"
         method="post">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {% set shouldDisplayArsFilterHeader = templateVars.searchResultsHeader is defined and templateVars.searchResultsHeader != '' and (templateVars.ars is defined or templateVars.gkz != '') %}
 
@@ -31,7 +32,8 @@
         {% endif %}
 
         {% set filters = [] %}
-        {% for filter in templateVars.definition.interfaceFilters|default([])|filter(filter => hasPermission(filter.permission)) %}
+        {% set interfaceFilters = templateVars.definition.interfaceFilters ?? []  %}
+        {% for filter in interfaceFilters|filter(filter => hasPermission(filter.permission)) %}
             {% set options = [] %}
             {% for filterOption in filter.values|default([]) %}
                 {% set options = options|merge([{ label: filterOption.label, value: filterOption.value }]) %}

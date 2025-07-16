@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -45,13 +46,15 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\TransactionRequiredException;
+use EDT\Querying\Contracts\PaginationException;
+use EDT\Querying\Contracts\PathException;
+use EDT\Querying\Contracts\SortException;
 use EDT\Querying\FluentQueries\FluentQuery;
 use Exception;
 use Symfony\Component\Validator\Validation;
@@ -60,6 +63,9 @@ use function array_key_exists;
 use function array_merge;
 use function array_unique;
 
+/**
+ * @template-extends SluggedRepository<Procedure>
+ */
 class ProcedureRepository extends SluggedRepository implements ArrayInterface, ObjectInterface
 {
     /**
@@ -130,7 +136,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false, ?Customer $customer = null): array
     {
         try {
             $em = $this->getEntityManager();
@@ -144,6 +150,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->orderBy('o.name', 'asc')
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
+
+            if (null !== $customer) {
+                $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
+            }
 
             if (!is_null($master)) {
                 $queryBuilder->andWhere('p.master = :master')
@@ -179,12 +189,14 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
                 ->andWhere('p.closed = 0')
-                ->andWhere('p.phase IN (:allowedPhases)')
                 ->setParameter('orgaId', $orgaId)
-                ->setParameter('allowedPhases', $allowedPhases, Connection::PARAM_STR_ARRAY)
                 ->orderBy('p.name', 'ASC');
 
-            return $query->getQuery()->getResult();
+            $prefilteredProcedures = $query->getQuery()->getResult();
+
+            return collect($prefilteredProcedures)->filter(
+                static fn (Procedure $procedure): bool => collect($allowedPhases)->contains($procedure->getPhase())
+            )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
             throw $e;
@@ -237,15 +249,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setSettings($procedureSettings);
 
             $currentDate = new DateTime();
-            $procedure->setStartDate($currentDate);
-            $procedure->setEndDate($currentDate);
-            $procedure->setPublicParticipationStartDate($currentDate);
-            $procedure->setPublicParticipationEndDate($currentDate);
             $procedure->setDeletedDate($currentDate);
             $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
-            // avoid handling of customer site to, to avoid detaching customer from masterBlueprint
-            $procedure->setCustomer(null, false);
+            $procedure->setCustomer($data['customer']);
             // When a procedure is created we may get an empty string as its description
             // ('interne Notiz') from the FE. In this case we want to keep the current description
             // we already copied from the procedure template at this point.
@@ -264,10 +271,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setInitialSlug();
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
+
+            $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
+            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+            $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
+                $procedureMaster->getPublicParticipationPhaseObject()
+            );
+
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"
             // instead copy each attribute which has to be copied (allowlisting)
             $procedure->clearExportFieldsConfiguration();
+            $procedure->clearProcedureTypeDefinitions();
             // this will be filled later
 
             $this->validateProcedureLike($procedure);
@@ -491,7 +507,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         // return unique and not empty values
         return collect($filesToDelete)
             ->unique()
-            ->filter(fn($value) => !is_null($value) && 0 < mb_strlen((string) $value))
+            ->filter(fn ($value) => !is_null($value) && 0 < mb_strlen((string) $value))
             ->toArray();
     }
 
@@ -499,8 +515,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      * Delete single Procedure.
      *
      * @param string $procedureId
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -538,7 +552,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * Sets objectvalues by arraydata.
+     * Sets objectvalues by arraydata of procedures.
      *
      * @param Procedure $procedure
      *
@@ -553,7 +567,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('deleted', $data)) {
             $procedure->setDeleted($data['deleted']);
-            $procedure->setCustomer(null);
             $procedure->setProcedureCategories([]);
             $procedure->setDeletedDate(Carbon::now());
         }
@@ -632,6 +645,13 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('phase', $data)) {
             $procedure->setPhase($data['phase']);
+        }
+        if (array_key_exists('phase_iteration', $data)) {
+            $procedure->getPhaseObject()->setIteration($data['phase_iteration']);
+        }
+        if (array_key_exists('public_participation_phase_iteration', $data)) {
+            $procedure->getPublicParticipationPhaseObject()
+                ->setIteration($data['public_participation_phase_iteration']);
         }
         if (array_key_exists('shortUrl', $data)) {
             $procedure->setShortUrl($data['shortUrl']);
@@ -781,6 +801,18 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
             }
+            if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
+                $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
+            }
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
+            if (array_key_exists('pictogramCopyright', $data['settings'])) {
+                $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
+            }
+            if (array_key_exists('pictogramAltText', $data['settings'])) {
+                $procedureSettings->setPictogramAltText($data['settings']['pictogramAltText']);
+            }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
             }
@@ -820,38 +852,36 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * @param int  $exactlyDaysToGo number of day, in which the procedures ends
+     * @param int  $exactlyDaysToGo number of days, in which the procedures ends
      * @param bool $internal        check for institution phases. false checks public phases
      *
      * @return Procedure[] containing the procedures, which are ending in the given number of days
      *
      * @throws Exception
      */
-    public function getListOfSoonEnding(int $exactlyDaysToGo, $internal = true): array
+    public function getListOfSoonEnding(int $exactlyDaysToGo, bool $internal = true): array
     {
-        if (!is_numeric($exactlyDaysToGo)) {
-            $this->getLogger()->warning('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-            throw new Exception('getListIfSoonEnding needs an integer as parameter. The given parameter: '.$exactlyDaysToGo.' is not numeric.');
-        }
+        $resultProcedureList = [];
 
         try {
+            $phase = $internal ? 'phase' : 'publicParticipationPhase';
+
+            $query = $this->createFluentQuery();
+            $query->getConditionDefinition()
+                ->propertyHasValue(false, ['deleted'])
+                ->propertyHasValue(false, ['master'])
+                ->propertyHasValue(false, ['masterTemplate'])
+                ->propertyHasValueAfterNow([$phase, 'endDate']);
+
+            $query->getSortDefinition()->propertyDescending([$phase, 'endDate']);
+
+            $notEndedProcedures = $query->getEntities();
+
             $currentTime = Carbon::today();
             $destinationDate = $currentTime->addDays($exactlyDaysToGo);
-            $resultProcedureList = [];
-            $field = $internal ? 'procedure.endDate' : 'procedure.publicParticipationEndDate';
-
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('procedure')
-                ->from(Procedure::class, 'procedure')
-                ->where($field.' > :currentTime')
-                ->setParameter('currentTime', $currentTime)
-                ->orderBy($field, 'desc')
-                ->getQuery();
-            $procedures = $query->getResult();
 
             /** @var Procedure $procedure */
-            foreach ($procedures as $procedure) {
+            foreach ($notEndedProcedures as $procedure) {
                 $endDate = $procedure->getEndDate();
                 if (!$internal) {
                     $endDate = $procedure->getPublicParticipationEndDate();
@@ -863,7 +893,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             return $resultProcedureList;
         } catch (Exception $e) {
-            $this->getLogger()->warning('getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ', [$e]);
+            $this->getLogger()->warning(
+                'getListIfSoonEnding with the given parameter '.$exactlyDaysToGo.' failed Reason: ',
+                [$e]
+            );
             throw $e;
         }
     }
@@ -1158,8 +1191,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
@@ -1172,54 +1203,52 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * @param bool $internal
-     * @param bool $asArray
+     * @return array<int, Procedure>
      *
-     * @return Procedure[]|array[]
+     * @throws PaginationException
+     * @throws PathException
+     * @throws SortException
+     */
+    public function getUndeletedProcedures(): array
+    {
+        $query = $this->createFluentQuery();
+        $query->getConditionDefinition()
+            ->propertyHasValue(false, ['deleted'])
+            ->propertyHasValue(false, ['master'])
+            ->propertyHasValue(false, ['masterTemplate']);
+
+        return $query->getEntities();
+    }
+
+    /**
+     * @return array<int, Procedure>
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $phaseKeys, $internal = true, $asArray = false): array
+    public function getProceduresWithEndedParticipation(array $phaseKeys, bool $internal = true): array
     {
         try {
             $currentDate = new DateTime();
-            $endDate = $internal ? 'procedure.endDate' : 'procedure.publicParticipationEndDate';
-            $phase = $internal ? 'procedure.phase' : 'procedure.publicParticipationPhase';
+            $procedures = $this->getUndeletedProcedures();
+            $phaseKeys = collect($phaseKeys);
 
-            $query = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->select('procedure')
-                ->from(Procedure::class, 'procedure')
-                ->where('procedure.deleted = 0')
-                ->andWhere('procedure.master = 0')
-                ->andWhere($endDate.' < :currentDate')
-                ->andWhere($phase.' IN (:phaseKeys)')
-                ->setParameter('currentDate', $currentDate)
-                ->setParameter('phaseKeys', $phaseKeys, Connection::PARAM_STR_ARRAY)
-                ->orderBy($endDate, 'desc')
-                ->getQuery();
+            if ($internal) {
+                $hits = collect($procedures)->filter(
+                    static fn (Procedure $procedure): bool => $procedure->getEndDate() < $currentDate
+                        && $phaseKeys->contains($procedure->getPhase())
+                );
+            } else {
+                $hits = collect($procedures)->filter(
+                    static fn (Procedure $procedure): bool => $procedure->getPublicParticipationEndDate() < $currentDate
+                        && $phaseKeys->contains($procedure->getPublicParticipationPhase())
+                );
+            }
 
-            return $asArray ? $query->getArrayResult() : $query->getResult();
+            return $hits->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getListOfEndedYesterday failed Reason: ', [$e]);
             throw $e;
         }
-    }
-
-    public function getNumberOfProcedures(): int
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
-            ->select('procedure.id')
-            ->from(Procedure::class, 'procedure')
-            ->andWhere('procedure.deleted = :deleted')
-            ->andWhere('procedure.master = :master')
-            ->setParameter('deleted', false)
-            ->setParameter('master', false)
-            ->getQuery()
-            ->getResult();
-
-        return is_countable($queryResult) ? count($queryResult) : 0;
     }
 
     /**
@@ -1286,6 +1315,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $additionalValidationGroups[] = Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE;
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violationList = $validator->validate($procedure, null, $additionalValidationGroups);
+        $violationList->addAll($validator->validate($procedure->getPhaseObject()));
+        $violationList->addAll($validator->validate($procedure->getPublicParticipationPhaseObject()));
+
         if (0 !== $violationList->count()) {
             throw ViolationsException::fromConstraintViolationList($violationList);
         }
@@ -1305,39 +1337,46 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $additionalValidationGroups[] = Procedure::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE;
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         $violationList = $validator->validate($procedure, null, $additionalValidationGroups);
+        $violationList->addAll($validator->validate($procedure->getPhaseObject()));
+        $violationList->addAll($validator->validate($procedure->getPublicParticipationPhaseObject()));
         if (0 !== $violationList->count()) {
             throw ViolationsException::fromConstraintViolationList($violationList);
         }
     }
 
     /**
-     * Procedures to switch are defined by {@link ProcedureSettings::$designatedSwitchDate} and
-     * {@link ProcedureSettings::$designatedPublicSwitchDate}.
+     * Procedures to switch are defined by {@link ProcedurePhase::$designatedSwitchDate} and
+     * {@link ProcedurePhase::$designatedPublicSwitchDate}.
      * The needed accuracy is limited to 15 minutes, therefore a check of current timestamp will be
      * sufficient.
      *
      * The result will not contain deleted procedures.
      *
      * @return array<int, Procedure>
+     *
+     * @throws PaginationException
+     * @throws PathException
+     * @throws SortException
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
         $query = $this->createFluentQuery();
-        $orCondition = $query->getConditionDefinition()
+        $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
             ->propertyHasValue(false, ['master'])
-            ->propertyHasValue(false, ['masterTemplate'])
-            ->anyConditionApplies();
+            ->propertyHasValue(false, ['masterTemplate']);
+
+        $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['settings', 'designatedSwitchDate'])
-            ->propertyIsNotNull(['settings', 'designatedPhase'])
-            ->propertyIsNotNull(['settings', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['settings', 'designatedSwitchDate']);
+            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['phase', 'designatedPhase'])
+            ->propertyIsNotNull(['phase', 'designatedEndDate'])
+            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['settings', 'designatedPublicSwitchDate'])
-            ->propertyIsNotNull(['settings', 'designatedPublicPhase'])
-            ->propertyIsNotNull(['settings', 'designatedPublicEndDate'])
-            ->propertyHasValueBeforeNow(['settings', 'designatedPublicSwitchDate']);
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
+            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
 
         return $query->getEntities();
     }
@@ -1402,5 +1441,20 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     private function getUserRepository(): UserRepository
     {
         return $this->getEntityManager()->getRepository(User::class);
+    }
+
+    /**
+     * Extra method to get the shortUrl of a procedure by its id to avoid
+     * hydrating the whole procedure.
+     */
+    public function findShortUrlById(string $procedureId): string
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p.shortUrl')
+            ->where('p.id = :id')
+            ->setParameter('id', $procedureId)
+            ->getQuery();
+
+        return $qb->getSingleScalarResult();
     }
 }

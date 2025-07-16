@@ -9,7 +9,8 @@
                 href: path('DemosPlan_procedure_import', { 'procedureId': procedure, '_fragment': 'ExcelImport' }),
                 label: 'import.options.xls',
                 icon: 'fa-upload',
-                feature: 'feature_segments_import_excel'
+                feature: 'feature_segments_import_excel',
+                datacy: 'segmentsList:importOptionsXLS'
             }
         ]|filter(item => item.feature is not defined or hasPermission(item.feature)),
         flush: true
@@ -21,7 +22,6 @@
     </dp-slidebar>
 
     <segments-list
-        class="u-mv-0_5"
         :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ procedure }}"
         current-user-id="{{ currentUser.ident }}"

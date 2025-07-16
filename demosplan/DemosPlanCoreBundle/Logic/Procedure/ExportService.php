@@ -46,10 +46,11 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use Faker\Provider\Uuid;
 use Monolog\Logger;
-use Patchwork\Utf8;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipStream\ZipStream;
 
@@ -78,7 +79,7 @@ class ExportService
     protected $procedureOutput;
 
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput NewsOutput
+     * @var NewsOutput NewsOutput
      */
     protected $newsOutput;
 
@@ -126,7 +127,7 @@ class ExportService
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
-        private readonly string $rendererPath
+        private readonly string $rendererPath,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -156,7 +157,7 @@ class ExportService
 
         // Obtain translation strings
         foreach ($dictionary as $key => $transKey) {
-            $this->literals[$key] = Utf8::toAscii($this->getTranslator()->trans($transKey));
+            $this->literals[$key] = (new UnicodeString($this->getTranslator()->trans($transKey)))->ascii()->toString();
         }
     }
 
@@ -217,10 +218,14 @@ class ExportService
                 }
 
                 // Titelblatt
-                $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_cover_page')) {
+                    $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Aktuelles
-                $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
+                    $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
@@ -380,7 +385,7 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $rParams = [
             'filters' => [],
@@ -390,10 +395,11 @@ class ExportService
         ];
 
         $type = [
-            'anonymous'  => false,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => false,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         try {
@@ -429,13 +435,14 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $type = [
-            'anonymous'  => true,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => true,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         $rParams = [
@@ -484,8 +491,11 @@ class ExportService
         return $zip;
     }
 
-    public function addAssessmentTableOriginalToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
-    {
+    public function addAssessmentTableOriginalToZip(
+        string $procedureId,
+        string $procedureName,
+        ZipStream $zip,
+    ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
             'request' => ['limit' => 1_000_000],
@@ -534,7 +544,7 @@ class ExportService
                         }
                         $agreement = $this->paragraphExporter->generatePdf($procedureId, $elementTitle, $procedureElement->getId());
                         if (null !== $agreement) {
-                            $this->zipExportService->addStringToZipStream($procedureName.'/'.$this->literals['elements'].'/'.Utf8::toAscii($elementTitle).'.pdf', $agreement, $zip);
+                            $this->zipExportService->addStringToZipStream($procedureName.'/'.$this->literals['elements'].'/'.(new UnicodeString($elementTitle))->ascii()->toString().'.pdf', $agreement, $zip);
                             $this->logger->info('ParagraphElement created',
                                 ['elementTitle' => $elementTitle, 'id' => $procedureId, 'name' => $procedureName]);
                         } else {
@@ -734,7 +744,7 @@ class ExportService
             Settings::setPdfRendererPath($this->rendererPath);
             Settings::setPdfRendererName($this->rendererName);
             $reportInfo = $this->exportReportService->getReportInfo($procedureId, $this->permissions);
-            $pdfReport = $this->exportReportService->generateProcedureReport($reportInfo, $reportMeta);
+            $pdfReport = $this->exportReportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
             $this->zipExportService->addWriterToZipStream(
                 $pdfReport,
                 $procedureName.'/Verfahrensprotokoll.pdf',
@@ -770,7 +780,7 @@ class ExportService
 
         $procedureName = mb_substr($actualProcedureName, 0, self::MAX_PROCEDURE_NAME_LENGTH);
         $procedureName = "{$procedureName}_{$procedureIdHash}";
-        $procedureName = Utf8::toAscii($procedureName);
+        $procedureName = (new UnicodeString($procedureName))->ascii()->toString();
 
         return $slugger->slugify($procedureName);
     }
@@ -804,11 +814,25 @@ class ExportService
         string $fileFolderPath,
         ZipStream $zip,
         string $fileNamePrefix,
-        Collection $attachments
+        Collection $attachments,
     ): void {
-        collect($attachments)->filter(static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType())->map(fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo($attachment->getFile()->getId()))->each(function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
-            $this->zipExportService->addFileToZip($fileFolderPath, $fileInfo, $zip, $fileNamePrefix);
-        });
+        collect($attachments)
+            ->filter(
+                static fn (StatementAttachment $attachment): bool => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
+            )->map(
+                fn (StatementAttachment $attachment): FileInfo => $this->fileService->getFileInfo(
+                    $attachment->getFile()->getId()
+                )
+            )->each(
+                function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+                    $this->zipExportService->addFileToZip(
+                        $fileFolderPath,
+                        $fileInfo,
+                        $zip,
+                        $fileNamePrefix
+                    );
+                }
+            );
     }
 
     private function addDocxToZip(DocxExportResult $exportResult, ZipStream $zip, string $filename): void
@@ -818,6 +842,9 @@ class ExportService
         $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
         $writer->save($filepath);
         $this->zipExportService->addFileToZipStream($filepath, $filename, $zip);
+        // uses local file, no need for flysystem
+        $fs = new Filesystem();
+        $fs->remove($filepath);
     }
 
     /**

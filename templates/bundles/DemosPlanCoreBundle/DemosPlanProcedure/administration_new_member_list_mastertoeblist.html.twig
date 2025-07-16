@@ -13,11 +13,13 @@
     {# Page Header #}
     {% if hasPermission('area_report_mastertoeblist') %}
         {% set subnav = [{
+                datacy: 'administrationNewMemberList:backToList',
                 href: path('DemosPlan_procedure_member_index',{'procedure': procedure}),
                 label: 'invitable_institution.list.back'|trans,
                 icon: 'fa-arrow-circle-left'
             },
             {
+                datacy: 'administrationNewMemberList:report',
                 href: path('DemosPlan_user_mastertoeblist_report', {'procedure': procedure }),
                 label: 'invitable_institution.master.report'|trans,
                 icon: 'fa-bell'
@@ -56,6 +58,8 @@
     ] %}
 
     <form method="post" id="orgalistForm" class="flow-root" action="">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <dp-master-toeb-list
             user-id="{{ currentUser.ident|default }}"
             :fields="JSON.parse('{{ fields|json_encode|e('js', 'utf-8') }}')"

@@ -19,7 +19,7 @@ class DocumentDashboardTransformer extends BaseTransformer
 {
     protected $type = 'DocumentDashboard';
 
-    protected $availableIncludes = ['mapOptions', 'procedureMapInfo', 'documents'];
+    protected array $availableIncludes = ['mapOptions', 'procedureMapInfo', 'documents'];
 
     public function transform(array $dashboardData): array
     {

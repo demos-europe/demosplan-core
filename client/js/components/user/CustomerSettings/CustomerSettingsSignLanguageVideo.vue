@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow height-fit-content width-300"
+          class="shadow-sm h-fit w-12"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
@@ -28,10 +28,8 @@
       </div>
 
       <dp-button
-        :busy="isBusy"
         color="warning"
         :text="Translator.trans('delete')"
-        variant="outline"
         @click="deleteVideo" />
     </template>
 
@@ -39,6 +37,7 @@
       <dp-input
         id="videoTitle"
         v-model="video.title"
+        data-cy="customerSettings:videoTitle"
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoDescription!==''"
         :label="{
           text: Translator.trans('title')
@@ -57,6 +56,7 @@
         needs-hidden-input
         required
         data-dp-validate-if="#videoTitle!=='', #videoDescription!==''"
+        data-cy="customerSettings:videoUpload"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
@@ -64,6 +64,7 @@
 
       <dp-text-area
         id="videoDescription"
+        data-cy="customerSettings:videoDescription"
         :label="Translator.trans('video.description')"
         name="videoDescription"
         required
@@ -71,12 +72,14 @@
         v-model="video.description"
         reduced-height />
 
-      <dp-button
+      <dp-button-row
+        class="u-mt"
+        data-cy="customerSettings:video"
+        primary
+        secondary
         :busy="isBusy"
-        :disabled="hasNoVideoInput"
-        :text="Translator.trans('save')"
-        variant="outline"
-        @click="dpValidateAction('signLanguageVideo', createVideo, false)" />
+        :secondary-text="Translator.trans('reset')"
+        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
     </template>
   </div>
 </template>
@@ -84,31 +87,38 @@
 <script>
 import {
   dpApi,
-  DpButton,
+  DpButtonRow,
   DpInput,
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin,
   getFileIdsByHash
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
 
   components: {
-    DpButton,
+    DpButtonRow,
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: async () => {
+    DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
-    }
+    })
   },
 
   mixins: [dpValidateMixin],
 
   props: {
+    currentCustomerId: {
+      type: String,
+      required: true
+    },
+
     signLanguageOverviewVideo: {
       required: false,
       type: Object,
@@ -121,8 +131,19 @@ export default {
           title: ''
         }
       }
+    },
+
+    signLanguageOverviewDescription: {
+      required: false,
+      type: String,
+      default: ''
     }
   },
+
+  emits: [
+    'created',
+    'deleted'
+  ],
 
   data () {
     return {
@@ -132,6 +153,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Customer', {
+      customerList: 'items'
+    }),
+
     hasNoVideoInput () {
       return this.video.title === '' && this.video.file === '' && this.video.description === ''
     },
@@ -147,10 +172,23 @@ export default {
   },
 
   methods: {
-    createVideo () {
+    ...mapActions('Customer', {
+      fetchCustomer: 'list',
+      saveCustomer: 'save'
+    }),
+
+    ...mapMutations('Customer', {
+      updateCustomer: 'setItem'
+    }),
+
+    saveSignLanguageVideo () {
       this.isBusy = true
+      this.saveSignLanguageOverviewDescription()
       this.saveVideo()
-        .then(() => this.$emit('created'))
+        .then(() => {
+          this.$emit('created')
+          this.isBusy = false
+        })
     },
 
     deleteVideo () {
@@ -162,7 +200,23 @@ export default {
         .then(() => this.$emit('deleted'))
     },
 
+    saveSignLanguageOverviewDescription () {
+      const payload = {
+        id: this.currentCustomerId,
+        type: 'Customer',
+        attributes: {
+          ...this.customerList[this.currentCustomerId].attributes,
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription
+        }
+      }
+      this.updateCustomer(payload)
+      this.saveCustomer(this.currentCustomerId).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+      })
+    },
+
     async saveVideo () {
+      this.isBusy = true
       const fileIds = await getFileIdsByHash([this.video.file], Routing.generate('api_resource_list', { resourceType: 'File' }))
 
       const payload = {

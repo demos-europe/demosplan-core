@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -34,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\PathBuilding\PathBuildException;
 use EDT\Querying\Contracts\PropertyPathInterface;
@@ -50,7 +52,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DemosPlanProcedureAPIController extends APIController
 {
     public function __construct(
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         private readonly ProcedureHandler $procedureHandler,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
@@ -58,7 +60,8 @@ class DemosPlanProcedureAPIController extends APIController
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        SchemaPathProcessor $schemaPathProcessor
+        MessageFormatter $messageFormatter,
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -68,14 +71,15 @@ class DemosPlanProcedureAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 
     /**
      * @DplanPermissions("area_public_participation")
      */
-    #[Route(path: '/api/1.0/procedure/', methods: ['GET'], name: 'dplan_api_procedure_')]
+    #[Route(path: '/api/1.0/procedure', methods: ['GET'], name: 'dplan_api_procedure_')]
     public function listAction(Request $request): APIResponse
     {
         $rawData = $this->forward(
@@ -136,16 +140,11 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * Returns a JSON with the available filters for the assessment table.
      *
-     * @Route("/api/1.0/procedures/{procedureId}/statementemptyfilters",
-     *     methods={"GET"},
-     *     name="dp_api_procedure_get_statement_empty_filters",
-     *     options={"expose": true}
-     * )
-     *
      * @DplanPermissions("area_admin_assessmenttable")
      *
      * @return APIResponse
      */
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
     public function getStatementEmptyFilterAction(StatementFilterHandler $statementFilterHandler)
     {
@@ -182,7 +181,7 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = ''
+        $filterHash = '',
     ) {
         return $this->getStatementFilter(
             $assessmentHandler,
@@ -214,7 +213,7 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = ''
+        $filterHash = '',
     ) {
         return $this->getStatementFilter(
             $assessmentHandler,
@@ -238,7 +237,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function updateNonOriginalFilterSetAction(
         AssessmentHandler $assessmentHandler,
         Request $request,
-        $procedureId
+        $procedureId,
     ): APIResponse {
         return $this->updateFilterSet($assessmentHandler, $request, $procedureId, false);
     }
@@ -252,7 +251,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function updateOriginalFilterSetAction(
         AssessmentHandler $assessmentHandler,
         Request $request,
-        $procedureId
+        $procedureId,
     ): APIResponse {
         return $this->updateFilterSet($assessmentHandler, $request, $procedureId, true);
     }
@@ -309,7 +308,7 @@ class DemosPlanProcedureAPIController extends APIController
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
         $filterHash,
-        $original
+        $original,
     ) {
         // @improve T14122
         $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
@@ -448,10 +447,7 @@ class DemosPlanProcedureAPIController extends APIController
                 $requestData['name'] = str_replace('[]', '', (string) $requestData['name']);
             }
             if ($multiselect) {
-                $filter = $request->request->get($requestData['name'], []);
-                if (is_string($filter)) {
-                    $filter = [];
-                }
+                $filter = $request->request->all($requestData['name']);
                 $filter[] = $requestData['value'];
                 $request->request->set($requestData['name'], $filter);
             } else {
@@ -474,7 +470,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function addInvitedPublicAffairsAgentsAction(
         Request $request,
         ResourceLinkageFactory $linkageFactory,
-        string $procedureId
+        string $procedureId,
     ): JsonResponse {
         // Check if normalizer succeeded, even if we don't need its object here
         if (null === $this->requestData) {
@@ -505,7 +501,7 @@ class DemosPlanProcedureAPIController extends APIController
         ProcedureResourceType $procedureResourceType,
         PublicIndexProcedureLister $procedureLister,
         ProcedureService $procedureService,
-        Request $request
+        Request $request,
     ) {
         $this->fractal->parseFieldsets([
             $procedureResourceType::getName() => $this->buildSparseFieldsetString(

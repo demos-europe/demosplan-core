@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
@@ -43,7 +44,8 @@ class ReportMessageConverter
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
         private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly FileService $fileService,
     ) {
         $this->dateExtension = $dateExtension;
         $this->globalConfig = $globalConfig;
@@ -114,6 +116,28 @@ class ReportMessageConverter
                 if (ReportEntry::CATEGORY_DELETE_ATTACHMENTS === $category) {
                     $message = $this->getOriginalStatementMessage($reportEntryMessage, 'confirm.original.statement.attachment.deleted');
                 }
+            } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.element', $this->createElementMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.element', $this->createElementMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->createDeleteElementMessage($reportEntryMessage),
+                };
+            } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.paragraph', $reportEntryMessage),
+                };
+            } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.singleDocument', $reportEntryMessage),
+                };
+            } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
+                if (ReportEntry::CATEGORY_CHANGE === $category) {
+                    $message = $this->createChangePlanDrawMessage($reportEntryMessage);
+                }
             }
         } catch (Exception $e) {
             $this->logger->warning('Exception when converting protocol message', [$e]);
@@ -149,8 +173,8 @@ class ReportMessageConverter
     {
         [$procedureId, $messageId] = $this->handleAncientReportMessages($message);
 
-        if ('' === $procedureId ||
-            !$this->permissions->hasPermission('area_admin_assessmenttable')
+        if ('' === $procedureId
+            || !$this->permissions->hasPermission('area_admin_assessmenttable')
         ) {
             return $this->translator->trans($transKey.'.nolink', [
                 'externId' => $message['externId'] ?? '',
@@ -175,8 +199,10 @@ class ReportMessageConverter
      */
     protected function handleAncientReportMessages($message): array
     {
-        $procedureId = (isset($message['procedure']) && array_key_exists('id', $message['procedure'])) ? $message['procedure']['id'] :
-            $message['procedure']['ident'] ?? '';
+        $procedureId = (isset($message['procedure']) && array_key_exists('id', $message['procedure']))
+                ? $message['procedure']['id']
+                : $message['procedure']['ident'] ?? '';
+
         $messageId = array_key_exists('id', $message) ? $message['id'] :
             $message['ident'] ?? '';
 
@@ -287,20 +313,12 @@ class ReportMessageConverter
                 'oldName' => $message['oldPublicName'], 'newName' => $message['newPublicName'],
             ]);
         }
-        if (array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message) &&
-            array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
-            $visibilityMessage = $this->translator->trans('invitable_institution.participation');
-            $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
-                'oldStartDate' => $dateExtension->dateFilter($message['oldStartDate'] ?? ''),
-                'oldEndDate'   => $dateExtension->dateFilter($message['oldEndDate'] ?? ''),
-                'newStartDate' => $dateExtension->dateFilter($message['newStartDate'] ?? ''),
-                'newEndDate'   => $dateExtension->dateFilter($message['newEndDate'] ?? ''),
-            ]);
-
-            $returnMessage[] = "$visibilityMessage: $mainMessage";
+        if ($this->isPeriodMessageDataAvailable($message, false)) {
+            $returnMessage[] = $this->generatePeriodChangeMessage($message, false);
         }
-        if (!array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message) &&
-            !array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
+
+        if (!array_key_exists('oldStartDate', $message) && array_key_exists('newStartDate', $message)
+            && !array_key_exists('oldEndDate', $message) && array_key_exists('newEndDate', $message)) {
             // only required for initial report
             $agencyVisibilityMessage = $this->translator->trans('invitable_institution.participation');
             $citizenVisibilityMessage = $this->translator->trans('public.participation');
@@ -311,17 +329,9 @@ class ReportMessageConverter
             $returnMessage[] = "$agencyVisibilityMessage: $mainMessage";
             $returnMessage[] = "$citizenVisibilityMessage: $mainMessage";
         }
-        if (array_key_exists('oldPublicStartDate', $message) && array_key_exists('newPublicStartDate', $message) &&
-            array_key_exists('oldPublicEndDate', $message) && array_key_exists('newPublicEndDate', $message)) {
-            $visibilityMessage = $this->translator->trans('public.participation');
-            $mainMessage = $this->translator->trans('text.protocol.procedure.time.changed', [
-                'oldStartDate' => $dateExtension->dateFilter($message['oldPublicStartDate'] ?? ''),
-                'oldEndDate'   => $dateExtension->dateFilter($message['oldPublicEndDate'] ?? ''),
-                'newStartDate' => $dateExtension->dateFilter($message['newPublicStartDate'] ?? ''),
-                'newEndDate'   => $dateExtension->dateFilter($message['newPublicEndDate'] ?? ''),
-            ]);
 
-            $returnMessage[] = "$visibilityMessage: $mainMessage";
+        if ($this->isPeriodMessageDataAvailable($message, true)) {
+            $returnMessage[] = $this->generatePeriodChangeMessage($message, true);
         }
 
         // @improve T23803
@@ -508,11 +518,15 @@ class ReportMessageConverter
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
+            $phaseChangeMessageData = [
+                'oldPhase'     => $message['oldPhase'],
+                'newPhase'     => $message['newPhase'],
+                'oldIteration' => $message['oldPhaseIteration'] ?? 0,
+                'newIteration' => $message['newPhaseIteration'] ?? 0,
+            ];
+
             if ($createdBySystem) {
-                $returnMessage[] = $translator->trans('text.protocol.phase.system', [
-                    '%oldPhase%' => $message['oldPhase'],
-                    '%newPhase%' => $message['newPhase'],
-                ]);
+                $returnMessage[] = $translator->trans('text.protocol.phase.system', $phaseChangeMessageData);
 
                 // Only show in case of a phase change by the system, as some customers
                 // think the start and end date does not refer to a phase but the
@@ -531,17 +545,16 @@ class ReportMessageConverter
                     $returnMessage[] = "$visibilityMessage: $dateChangeMessage";
                 }
             } else {
-                $returnMessage[] = $translator->trans('text.protocol.phase', [
-                    'oldPhase' => $message['oldPhase'],
-                    'newPhase' => $message['newPhase'],
-                ]);
+                $returnMessage[] = $translator->trans('text.protocol.phase', $phaseChangeMessageData);
             }
         }
         if (array_key_exists('oldPublicPhase', $message) && array_key_exists('newPublicPhase', $message)) {
             if ($createdBySystem) {
                 $returnMessage[] = $translator->trans('text.protocol.publicphase.system', [
-                    '%oldPublicPhase%' => $message['oldPublicPhase'],
-                    '%newPublicPhase%' => $message['newPublicPhase'],
+                    'oldPublicPhase'          => $message['oldPublicPhase'],
+                    'newPublicPhase'          => $message['newPublicPhase'],
+                    'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
+                    'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
                 ]);
 
                 // Only show in case of a phase change by the system, as some customers
@@ -562,8 +575,10 @@ class ReportMessageConverter
                 }
             } else {
                 $returnMessage[] = $translator->trans('text.protocol.publicphase', [
-                    'oldPublicPhase' => $message['oldPublicPhase'],
-                    'newPublicPhase' => $message['newPublicPhase'],
+                    'oldPublicPhase'          => $message['oldPublicPhase'],
+                    'newPublicPhase'          => $message['newPublicPhase'],
+                    'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
+                    'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
                 ]);
             }
         }
@@ -630,8 +645,6 @@ class ReportMessageConverter
      * Füge Metainformationen zu dem Eintrag bei einer Phasenänderung hinzu.
      *
      * @param array $message
-     *
-     * @return mixed
      */
     protected function alterPhaseEntry($message)
     {
@@ -738,7 +751,11 @@ class ReportMessageConverter
                 $category['name'] = $elementTitle;
 
                 if (array_key_exists('hasParagraphPdf', $element)) {
-                    $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    if (array_key_exists('paragraphPdfName', $element)) {
+                        $category['existingParagraphs'][] = $element['paragraphPdfName'];
+                    } else {
+                        $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    }
                 }
                 if (array_key_exists('hasParagraphs', $element)) {
                     $category['existingParagraphs'][] = $this->translator->trans('file.as.paragraphs');
@@ -781,5 +798,161 @@ class ReportMessageConverter
     protected function getSubjectLine(string $subject): string
     {
         return $this->translator->trans('subject').': '.$subject;
+    }
+
+    private function isPeriodMessageDataAvailable(array $message, bool $isPublic): bool
+    {
+        $message = collect($message);
+        $publicKeyPart = $isPublic ? 'Public' : '';
+
+        return $message->has('old'.$publicKeyPart.'StartDate')
+            && $message->has('new'.$publicKeyPart.'StartDate')
+            && $message->has('old'.$publicKeyPart.'EndDate')
+            && $message->has('new'.$publicKeyPart.'EndDate');
+    }
+
+    private function generatePeriodChangeMessage(array $message, bool $isPublic): string
+    {
+        $dateExtension = $this->getDateExtension();
+        $mainMessageKey = 'text.protocol.procedure.time.changed';
+
+        $publicKeyPart = $isPublic ? 'Public' : '';
+        $visibilityMessage = $isPublic
+            ? $this->translator->trans('public.participation')
+            : $this->translator->trans('invitable_institution.participation');
+
+        // message variables are the same for public and internal, therefore no need to add the $publicKeyPart
+        $mainMessage = $this->translator->trans($mainMessageKey, [
+            'oldStartDate' => $dateExtension->dateFilter($message['old'.$publicKeyPart.'StartDate'] ?? ''),
+            'oldEndDate'   => $dateExtension->dateFilter($message['old'.$publicKeyPart.'EndDate'] ?? ''),
+            'newStartDate' => $dateExtension->dateFilter($message['new'.$publicKeyPart.'StartDate'] ?? ''),
+            'newEndDate'   => $dateExtension->dateFilter($message['new'.$publicKeyPart.'EndDate'] ?? ''),
+        ]);
+
+        return "$visibilityMessage: $mainMessage";
+    }
+
+    private function createElementMessageData(array $reportEntryMessage): array
+    {
+        $preparedMessageData = $reportEntryMessage;
+        $preparedMessageData['organisations'] = '' === $preparedMessageData['organisations'] ?
+            $this->translator->trans('unrestricted') : $preparedMessageData['organisations'];
+
+        $preparedMessageData['text'] = $this->shortenText($preparedMessageData['text']);
+
+        $translationKey = 'file' === $preparedMessageData['category'] ? 'file.related' : 'paragraph.related';
+        $preparedMessageData['category'] = $this->translator->trans($translationKey);
+
+        $preparedMessageData['enabled'] = $preparedMessageData['enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        return $preparedMessageData;
+    }
+
+    private function createParagraphMessageData(array $reportEntryMessage): array
+    {
+        $preparedMessageData = $reportEntryMessage;
+        $preparedMessageData['visible'] = $preparedMessageData['visible'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+        $preparedMessageData['text'] = $this->shortenText($preparedMessageData['text']);
+
+        return $preparedMessageData;
+    }
+
+    private function createSingleDocumentMessageData(array $reportEntryMessage): array
+    {
+        $preparedMessageData = $reportEntryMessage;
+
+        $preparedMessageData['visible'] = $preparedMessageData['visible'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+        $preparedMessageData['statement_enabled'] = $preparedMessageData['statement_enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        return $preparedMessageData;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function createChangePlanDrawMessage(array $reportEntryMessage): string
+    {
+        $planDrawMessage = '';
+
+        if (array_key_exists('planDrawFile', $reportEntryMessage)) {
+            if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingFile', [
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingFile', [
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingFile', [
+                    'oldFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                    'newFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                ]
+                );
+            }
+        }
+
+        if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
+            if ('' === $reportEntryMessage['planDrawingExplanation']['old'] && '' !== $reportEntryMessage['planDrawingExplanation']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingExplanation', [
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawingExplanation']['old'] && '' === $reportEntryMessage['planDrawingExplanation']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingExplanation', [
+                    'oldFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                    'newFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                ]
+                );
+            }
+        }
+
+        return $planDrawMessage;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getFileName($fileString): string
+    {
+        return $this->fileService->getFileInfoFromFileString($fileString)->getFileName();
+    }
+
+    /**
+     * @param array<string, string> $reportEntryMessage
+     */
+    private function createDeleteElementMessage(array $reportEntryMessage): string
+    {
+        $translationKey = 'file' === $reportEntryMessage['category'] ? 'file.related' : 'paragraph.related';
+        $elementCategory = $this->translator->trans($translationKey);
+
+        return $this->translator->trans('report.delete.element',
+            [
+                'title'               => $reportEntryMessage['title'],
+                'category'            => $elementCategory,
+                'nameOfInternalPhase' => $reportEntryMessage['nameOfInternalPhase'],
+                'nameOfExternalPhase' => $reportEntryMessage['nameOfExternalPhase'],
+            ]
+        );
+    }
+
+    private function shortenText(string $text, int $length = 50): string
+    {
+        if ('' === $text) {
+            return '';
+        }
+
+        return substr($text, 0, $length).'...';
     }
 }

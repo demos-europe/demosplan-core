@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\Report;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ReportEntryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -35,9 +36,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ReportRepository")
  */
-class ReportEntry extends CoreEntity implements UuidEntityInterface
+class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_SINGLE_DOCUMENT = 'singleDocument';
+    final public const GROUP_PLAN_DRAW = 'planDraw';
+    final public const GROUP_PARAGRAPH = 'paragraph';
+    final public const GROUP_ELEMENT = 'element';
     final public const GROUP_STATEMENT = 'statement';
     final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
     final public const GROUP_ORGA = 'orga';
@@ -45,6 +50,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface
     final public const CATEGORY_ADD = 'add';
     final public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
     final public const CATEGORY_ANONYMIZE_TEXT = 'anonymizeText';
+    final public const CATEGORY_CHANGE = 'change';
     final public const CATEGORY_CHANGE_PHASES = 'changePhases';
     final public const CATEGORY_COPY = 'copy';
     final public const CATEGORY_DELETE = 'delete';

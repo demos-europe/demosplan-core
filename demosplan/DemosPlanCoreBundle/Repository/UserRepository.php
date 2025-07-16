@@ -11,6 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -27,20 +29,23 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use Tightenco\Collect\Support\Collection;
 
-class UserRepository extends FluentRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface
+/**
+ * @template-extends CoreRepository<User>
+ */
+class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface, UserRepositoryInterface
 {
     /**
      * Number of seconds to cache the login list in dev mode.
@@ -52,9 +57,10 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
+        Reindexer $reindexer,
         string $entityClass
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $sortMethodFactory, $entityClass);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
 
     /**
@@ -77,11 +83,27 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
     }
 
     /**
+     * Get Entity by Id (UserRepositoryInterface implementation).
+     *
+     * @param string $userId the user ID as UUID v4
+     *
+     * @return User|null
+     */
+    public function getUser(string $userId): ?User
+    {
+        try {
+            return $this->get($userId);
+        } catch (NoResultException) {
+            return null;
+        }
+    }
+
+    /**
      * Get Users by role code.
      *
      * @return User[]
      */
-    public function getUsersByRole(string $code, Customer $customer): array
+    public function getUsersByRole(string $code, CustomerInterface $customer): array
     {
         $builder = $this->getEntityManager()->createQueryBuilder();
 
@@ -164,6 +186,20 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
     }
 
     /**
+     * Add Entity to database (UserRepositoryInterface implementation).
+     *
+     * @param array $data User data array
+     *
+     * @return User
+     *
+     * @throws Exception
+     */
+    public function createUser(array $data): User
+    {
+        return $this->add($data);
+    }
+
+    /**
      * Update Entity.
      *
      * @param string $entityId
@@ -202,6 +238,43 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
             $this->logger->warning('Update User failed Reason: ', [$e]);
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    /**
+     * Update Entity (UserRepositoryInterface implementation).
+     *
+     * @param string $userId
+     * @param array $data
+     *
+     * @return User|null
+     *
+     * @throws Exception
+     */
+    public function updateUser(string $userId, array $data): ?User
+    {
+        try {
+            return $this->update($userId, $data);
+        } catch (Exception $e) {
+            // If user not found, return null instead of throwing exception
+            if ($e->getPrevious() instanceof NoResultException) {
+                return null;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Update user object directly (UserRepositoryInterface implementation).
+     *
+     * @param User $entity
+     *
+     * @return User
+     *
+     * @throws Exception
+     */
+    public function updateUserObject(UserInterface $entity): User
+    {
+        return $this->updateObject($entity);
     }
 
     /**
@@ -304,23 +377,23 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
 
     protected function generateObjectValuesForUserFlagFields(User $user, array $data)
     {
-        $userFlagFields = collect(UserFlagKey::values());
+        $userFlagFields = collect(UserFlagKey::cases());
 
         $userFlagFields->each(
             static function (UserFlagKey $userFlagKey) use ($user, $data) {
-                if (array_key_exists($userFlagKey->getValue(), $data)) {
-                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->getValue()));
+                if (array_key_exists($userFlagKey->value, $data)) {
+                    $fieldSetterMethod = sprintf('set%s', ucfirst($userFlagKey->value));
 
                     // todo: change this field name so that we can use setEntityFlagField...
-                    if (UserFlagKey::ACCESS_CONFIRMED === $userFlagKey->getValue()) {
+                    if (UserFlagKey::ACCESS_CONFIRMED->value === $userFlagKey->value) {
                         $fieldSetterMethod = 'setAccessConfirmed';
                     }
 
                     if (!method_exists($user, $fieldSetterMethod)) {
-                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->getValue()}");
+                        throw new LogicException("Cannot set field value on unknown field {$userFlagKey->value}");
                     }
 
-                    $user->$fieldSetterMethod((int) $data[$userFlagKey->getValue()]);
+                    $user->$fieldSetterMethod((int) $data[$userFlagKey->value]);
                 }
             }
         );
@@ -421,8 +494,6 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * **User deletion is not yet supported**, instead use `UserRepository::wipe()`
      * to clear personally identifiable information from users.
-     *
-     * @return bool
      */
     public function delete($userId): never
     {
@@ -436,8 +507,6 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
      * to clear personally identifiable information from users.
      *
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {
@@ -451,7 +520,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * @return User|bool
      */
-    public function wipe($userId)
+    public function wipe($userId): bool|User
     {
         try {
             $em = $this->getEntityManager();
@@ -461,7 +530,7 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
             /** @var User $user */
             $user = $this->find($userId);
 
-//          wipeData:
+            //          wipeData:
             $user->setGender(null);
             $user->setTitle(null);
             $user->setFirstname(null);
@@ -512,6 +581,18 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
     }
 
     /**
+     * Get user by login (UserRepositoryInterface implementation).
+     *
+     * @param string $login User login
+     *
+     * @return User|null
+     */
+    public function getUserByLogin(string $login): ?User
+    {
+        return $this->getFirstUserByCaseInsensitiveLogin($login);
+    }
+
+    /**
      * Get a {@link User} in the FHHNET domain by its {@link User::$login login} string.
      * At least one matching entity must exist, otherwise an exception will be thrown.
      *
@@ -532,9 +613,53 @@ class UserRepository extends FluentRepository implements ArrayInterface, ObjectI
     }
 
     /**
+     * Get users with pagination and optional criteria filtering (UserRepositoryInterface implementation).
+     *
+     * @param int   $startIndex Starting index (1-based)
+     * @param int   $count      Number of users to return
+     * @param array $criteria   Optional filtering criteria
+     *
+     * @return array Array containing users and pagination info
+     */
+    public function getUsers(int $startIndex, int $count, array $criteria = []): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->setFirstResult($startIndex - 1)
+            ->setMaxResults($count);
+
+        // Apply criteria filters
+        foreach ($criteria as $field => $value) {
+            if (null !== $value) {
+                if (is_array($value)) {
+                    $qb->andWhere("u.{$field} IN (:{$field})")
+                       ->setParameter($field, $value);
+                } else {
+                    $qb->andWhere("u.{$field} = :{$field}")
+                       ->setParameter($field, $value);
+                }
+            }
+        }
+
+        $users = $qb->getQuery()->getResult();
+
+        // Get total count for pagination
+        $totalCount = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'users' => $users,
+            'totalResults' => (int) $totalCount,
+            'startIndex' => $startIndex,
+            'itemsPerPage' => $count,
+        ];
+    }
+
+    /**
      * @param User $user
      */
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         // set the new encoded password on the User object
         $user->setPassword($newHashedPassword);

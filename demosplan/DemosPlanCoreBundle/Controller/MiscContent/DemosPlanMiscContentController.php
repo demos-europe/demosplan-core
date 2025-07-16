@@ -30,12 +30,12 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use UnexpectedValueException;
 
 /**
@@ -96,7 +96,7 @@ class DemosPlanMiscContentController extends BaseController
     #[Route(name: 'DemosPlan_misccontent_static_imprint', path: '/impressum', options: ['expose' => true])]
     public function imprintAction(
         CustomerService $customerService,
-        OrgaHandler $orgaHandler
+        OrgaHandler $orgaHandler,
     ) {
         // get customer imprint
         $customer = $customerService->getCurrentCustomer();
@@ -188,7 +188,7 @@ class DemosPlanMiscContentController extends BaseController
         MessageBagInterface $messageBag,
         Request $request,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $templateVars = [];
 
@@ -279,6 +279,7 @@ class DemosPlanMiscContentController extends BaseController
     public function softwareComponentsAction()
     {
         $templateVars = [];
+        // uses local file, no need for flysystem
         $templateVars['components'] = collect(
             Json::decodeToArray(
                 file_get_contents(
@@ -293,19 +294,19 @@ class DemosPlanMiscContentController extends BaseController
             )
         )
             ->merge([
-            [
-                'license' => '2-Clause BSD',
-                'package' => 'leaflet',
-                'version' => '',
-                'website' => 'https://leafletjs.com',
-            ],
-            [
-                'license' => '2-Clause BSD',
-                'package' => 'openlayers',
-                'version' => '',
-                'website' => 'https://openlayers.org',
-            ],
-        ])
+                [
+                    'license' => '2-Clause BSD',
+                    'package' => 'leaflet',
+                    'version' => '',
+                    'website' => 'https://leafletjs.com',
+                ],
+                [
+                    'license' => '2-Clause BSD',
+                    'package' => 'openlayers',
+                    'version' => '',
+                    'website' => 'https://openlayers.org',
+                ],
+            ])
         ->sortBy('package')
         ->toArray();
 

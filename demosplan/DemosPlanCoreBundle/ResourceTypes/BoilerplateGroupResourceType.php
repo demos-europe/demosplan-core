@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<BoilerplateGroup>
@@ -41,14 +40,14 @@ final class BoilerplateGroupResourceType extends DplanResourceType
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array
@@ -59,7 +58,7 @@ final class BoilerplateGroupResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createAttribute($this->title)->readable(true)->filterable()->sortable(),
             $this->createAttribute($this->procedureId)->readable(true)->filterable()->sortable()
                 ->aliasedPath($this->procedure->id),

@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends FluentRepository<UserFilterSet>
+ */
 class UserFilterSetRepository extends FluentRepository
 {
     use RepositoryLegacyShizzle;

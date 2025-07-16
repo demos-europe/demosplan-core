@@ -1,10 +1,10 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
@@ -20,8 +20,7 @@
     <dp-bulk-edit-header
       class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
-      :selected-items-count="selectedItems.length"
-      :selection-text="Translator.trans('news.notes')"
+      :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
       @reset-selection="resetSelection">
       <button
         class="btn-icns u-m-0"
@@ -56,7 +55,7 @@
       </template>
       <template v-slot:enabled="rowData">
         <dp-news-item-status
-          class="flex space-inline-xs u-mt-0_125"
+          class="flex space-inline-xs u-mt-0_125 items-center"
           :switch-date="rowData.designatedSwitchDate || ''"
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
@@ -74,7 +73,7 @@
 </template>
 
 <script>
-import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {
@@ -136,17 +135,19 @@ export default {
   },
 
   methods: {
-    changeManualsort (val) {
+    changeManualsort (event) {
       const listBackup = [...this.list]
-      this.list.splice(val.moved.newIndex, 0, this.list.splice(val.moved.oldIndex, 1)[0])
+      const removedItem = this.list.splice(event.oldIndex, 1)[0]
+      this.list.splice(event.newIndex, 0, removedItem)
 
       this.updateList()
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
-        .catch(() => {
+        .catch(error => {
           // Reset optimistically triggered sort on error
           this.list = listBackup
+          console.error(error)
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
@@ -186,6 +187,7 @@ export default {
       })
 
       this.updateList()
+        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
@@ -195,8 +197,10 @@ export default {
             if (item.id === id) {
               item.enabled = !value
             }
+
             return item
           })
+
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
@@ -206,6 +210,7 @@ export default {
         manualsort: this.list.map(el => el.ident).toString(', '),
         r_enable: this.list.filter(el => el.enabled).map(el => el.ident)
       }
+
       return makeFormPost(payload, this.updateRoute)
     },
 

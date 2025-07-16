@@ -8,7 +8,9 @@
 </license>
 
 <template>
-  <li class="c-publicindex__list-item">
+  <li
+    class="c-publicindex__list-item"
+    data-cy="procedureListItem">
     <a
       @click.prevent="showDetailView(procedure.id)"
       class="block o-link--default cursor-pointer o-hellip"
@@ -76,7 +78,7 @@ export default {
   },
 
   methods: Object.assign({
-    ...mapActions('procedure', [
+    ...mapActions('Procedure', [
       'setProperty',
       'showDetailView'
     ])

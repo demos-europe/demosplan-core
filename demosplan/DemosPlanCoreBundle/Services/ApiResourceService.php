@@ -25,6 +25,7 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
 use LogicException;
+use Webmozart\Assert\Assert;
 
 class ApiResourceService implements ApiResourceServiceInterface
 {
@@ -104,15 +105,14 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeCollectionOfResources($data, string $resourceTypeName): Collection
     {
-        $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
+        $resourceType = $this->resourceTypeProvider->getTypeByIdentifier($resourceTypeName);
+        Assert::isInstanceOf($resourceType, ResourceTypeInterface::class);
 
         if (!$resourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($resourceType);
         }
 
-        return new Collection($data, $resourceType->getTransformer(), $resourceType::getName());
+        return new Collection($data, $resourceType->getTransformer(), $resourceType->getTypeName());
     }
 
     /**
@@ -137,14 +137,13 @@ class ApiResourceService implements ApiResourceServiceInterface
      */
     public function makeItemOfResource($data, string $resourceTypeName): Item
     {
-        $resourceType = $this->resourceTypeProvider->requestType($resourceTypeName)
-            ->instanceOf(ResourceTypeInterface::class)
-            ->getInstanceOrThrow();
+        $resourceType = $this->resourceTypeProvider->getTypeByIdentifier($resourceTypeName);
+        Assert::isInstanceOf($resourceType, ResourceTypeInterface::class);
 
         if (!$resourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($resourceType);
         }
 
-        return new Item($data, $resourceType->getTransformer(), $resourceType::getName());
+        return new Item($data, $resourceType->getTransformer(), $resourceType->getTypeName());
     }
 }

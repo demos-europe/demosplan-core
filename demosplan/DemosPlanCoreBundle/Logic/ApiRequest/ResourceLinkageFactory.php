@@ -14,9 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use EDT\JsonApi\Schema\ContentField;
-use EDT\JsonApi\Schema\ToManyResourceLinkage;
+use EDT\Wrapping\Contracts\ContentField;
 use Exception;
+
+use function array_key_exists;
+use function is_array;
+use function is_string;
 
 class ResourceLinkageFactory
 {
@@ -32,18 +35,40 @@ class ResourceLinkageFactory
      * }'
      * ```
      *
+     * @return array{data: list<array{type: non-empty-string, id: non-empty-string}>}
+     *
      * @throws Exception
      */
-    public function createFromJsonRequestString(string $jsonString): ToManyResourceLinkage
+    public function createFromJsonRequestString(string $jsonString): array
     {
         $requestJson = Json::decodeToArray($jsonString);
-        if (!is_array($requestJson)
-            || !array_key_exists(ContentField::DATA, $requestJson)
+        if (!array_key_exists(ContentField::DATA, $requestJson)
             || 1 !== count($requestJson)
             || !is_array($requestJson[ContentField::DATA])) {
             throw new InvalidArgumentException('expected JSON object with \'data\' as only field containing an array');
         }
 
-        return ToManyResourceLinkage::createFromArray($requestJson[ContentField::DATA]);
+        array_map($this->validateItem(...), $requestJson[ContentField::DATA]);
+
+        return $requestJson;
+    }
+
+    protected function validateItem(array $content): void
+    {
+        if (!array_key_exists(ContentField::ID, $content) || !array_key_exists(ContentField::TYPE, $content)) {
+            $providedKeys = implode(',', array_keys($content));
+            throw new InvalidArgumentException("\$content MUST provide 'type' and 'id', found the following keys: {$providedKeys}");
+        }
+        if (array_key_exists(ContentField::META, $content)) {
+            throw new InvalidArgumentException('meta can not be validated yet hence it is not accepted at all');
+        }
+        $id = $content[ContentField::ID];
+        if (!is_string($id)) {
+            throw new InvalidArgumentException('id is not given as string');
+        }
+        $type = $content[ContentField::TYPE];
+        if (!is_string($type)) {
+            throw new InvalidArgumentException('type is not given as string');
+        }
     }
 }

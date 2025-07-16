@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityContentChangeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -20,7 +21,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository")
  */
-class EntityContentChange extends CoreEntity implements UuidEntityInterface
+class EntityContentChange extends CoreEntity implements UuidEntityInterface, EntityContentChangeInterface
 {
     /**
      * @var string|null
@@ -107,11 +108,23 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
     protected $postUpdate;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(type="text", nullable=true, length=15000000)
      */
     protected $contentChange;
+
+    /**
+     * @ORM\Column(
+     *     type="boolean",
+     *     nullable=false,
+     *     options={
+     *      "default":false,
+     *      "comment":"Determines if this change was made on a custom field."
+     *     }
+     * )
+     */
+    protected bool $customFieldChange = false;
 
     public function getId(): ?string
     {
@@ -219,6 +232,12 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
      */
     public function getPreUpdate()
     {
+        if (null === $this->preUpdate) {
+            $preUpdate = json_decode($this->getContentChange())[0][0]->old->lines[0] ?? null;
+
+            return strip_tags($preUpdate);
+        }
+
         return $this->preUpdate;
     }
 
@@ -235,6 +254,12 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
      */
     public function getPostUpdate()
     {
+        if (null === $this->postUpdate) {
+            $postUpdate = json_decode($this->getContentChange())[0][0]->new->lines[0] ?? null;
+
+            return strip_tags($postUpdate);
+        }
+
         return $this->postUpdate;
     }
 
@@ -270,5 +295,15 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface
     public function setUserName($userName)
     {
         $this->userName = $userName;
+    }
+
+    public function isCustomFieldChange(): bool
+    {
+        return $this->customFieldChange;
+    }
+
+    public function setCustomFieldChange(bool $customFieldChange): void
+    {
+        $this->customFieldChange = $customFieldChange;
     }
 }

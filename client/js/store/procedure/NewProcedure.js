@@ -10,7 +10,7 @@
 const NewProcedure = {
   namespaced: true,
 
-  name: 'newProcedure',
+  name: 'NewProcedure',
 
   state: {
     requireField: true
@@ -25,6 +25,6 @@ const NewProcedure = {
     setRequiredField (state, value) {
       state.requireField = value
     }
-  },
+  }
 }
 export default NewProcedure

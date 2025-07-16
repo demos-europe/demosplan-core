@@ -34,6 +34,7 @@
       v-model="selected"
       :allow-empty="false"
       class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
+      data-cy="clustersSingleSelect"
       :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
       ref="multiselect"
@@ -77,8 +78,8 @@
 </template>
 
 <script>
-import DpClaim from '../DpClaim'
 import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import DpClaim from '../DpClaim'
 import { mapActions } from 'vuex'
 
 export default {
@@ -151,6 +152,10 @@ export default {
     }
   },
 
+  emits: [
+    'selected-cluster'
+  ],
+
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,
@@ -173,7 +178,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', ['setAssigneeAction']),
+    ...mapActions('Statement', ['setAssigneeAction']),
 
     /**
      * Force-close multiselect dropdown on selection - because of the bug the menu stays opened
@@ -253,7 +258,7 @@ export default {
       this.updatingClaimState = false
       data.organisation = data.orgaName
       delete data.orgaName
-      Vue.set(this.selected, 'assignee', data)
+      this.selected.assignee = data
     }
   }
 }

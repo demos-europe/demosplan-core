@@ -13,12 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface;
-use DemosEurope\DemosplanAddon\Logic\ResourceChange;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\ORMInvalidArgumentException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
@@ -63,37 +61,5 @@ class TransactionService implements TransactionServiceInterface
             $this->entityManager->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * @throws ConnectionException
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function persistResourceChange(ResourceChange $resourceChange): void
-    {
-        $connection = $this->entityManager->getConnection();
-        $connection->beginTransaction();
-        try {
-            $this->handleEntities($resourceChange);
-            $this->entityManager->flush();
-            $connection->commit();
-        } catch (Exception $e) {
-            $this->entityManager->rollback();
-
-            throw $e;
-        }
-    }
-
-    /**
-     * @throws ORMInvalidArgumentException
-     * @throws ORMException
-     */
-    private function handleEntities(ResourceChange $resourceChange): void
-    {
-        $entitiesToPersist = $resourceChange->getEntitiesToPersist();
-        $entitiesToDelete = $resourceChange->getEntitiesToDelete();
-        array_map($this->entityManager->persist(...), $entitiesToPersist);
-        array_map($this->entityManager->remove(...), $entitiesToDelete);
     }
 }

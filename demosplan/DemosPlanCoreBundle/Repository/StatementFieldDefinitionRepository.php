@@ -10,6 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
+
+/**
+ * @template-extends FluentRepository<StatementFieldDefinition>
+ */
 class StatementFieldDefinitionRepository extends FluentRepository
 {
 }

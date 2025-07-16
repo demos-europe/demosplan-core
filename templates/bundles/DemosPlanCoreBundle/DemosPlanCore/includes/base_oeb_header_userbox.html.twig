@@ -221,7 +221,7 @@
 
                 <a
                     class="{{ 'c-flyout__trigger'|prefixClass }}"
-                    href="{{ getStaticVariable('login_path') }}"
+                    href="{{ getLoginPath() }}"
                     aria-haspopup="{{ loggedout_simple is not defined and hasPermission('area_login_dialog') ? 'true' : 'false' }}"
                     aria-label="{{ 'login'|trans }}. {{ "explanation.login.gateway"|trans }}"
                     data-cy="headerNav:login"

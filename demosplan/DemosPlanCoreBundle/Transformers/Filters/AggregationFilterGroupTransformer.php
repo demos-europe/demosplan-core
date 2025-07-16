@@ -18,7 +18,7 @@ class AggregationFilterGroupTransformer extends BaseTransformer
 {
     protected $type = 'AggregationFilterGroup';
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'aggregationFilterItems',
     ];
 

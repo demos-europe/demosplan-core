@@ -17,6 +17,9 @@ use Exception;
 use InvalidArgumentException;
 use RuntimeException;
 
+/**
+ * @template-extends CoreRepository<ProcedureProposal>
+ */
 class ProcedureProposalRepository extends CoreRepository
 {
     /**

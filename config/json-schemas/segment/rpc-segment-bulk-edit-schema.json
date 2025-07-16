@@ -55,9 +55,10 @@
         },
         "assigneeId": {
           "$id": "#/properties/userId",
-          "type": "string",
-          "minLength": 36,
-          "maxLength": 36
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+          ]
         },
         "placeId": {
           "$id": "#/properties/PlaceId",

@@ -10,10 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\TransactionRequiredException;
-use Doctrine\ORM\NonUniqueResultException;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread;
@@ -21,9 +17,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
 
+/**
+ * @template-extends CoreRepository<ForumEntry>
+ */
 class ForumEntryRepository extends CoreRepository implements ArrayInterface
 {
     /**
@@ -128,10 +131,10 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
      */
     public function add(array $data)
     {
-        if (!(array_key_exists('threadId', $data) &&
-            array_key_exists('userId', $data) &&
-            array_key_exists('roles', $data) &&
-            array_key_exists('text', $data))
+        if (!(array_key_exists('threadId', $data)
+            && array_key_exists('userId', $data)
+            && array_key_exists('roles', $data)
+            && array_key_exists('text', $data))
         ) {
             $this->logger->error(
                 'Add Entry failed: Missing one of the following keys in the given data: threadId, userId, roles'

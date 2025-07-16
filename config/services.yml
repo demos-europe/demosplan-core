@@ -11,7 +11,6 @@ services:
     Cocur\Slugify\Slugify: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
-        lazy: true
         tags:
             - name: dplan.json_api_transformer
 
@@ -25,10 +24,14 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceStorageInterface:
+    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
@@ -44,6 +47,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
+
+    DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
@@ -85,8 +90,14 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
 
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
+
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\ParagraphServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService
 
     DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
@@ -102,8 +113,16 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
@@ -151,20 +170,18 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\DailyMaintenanceEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\DailyMaintenanceEvent
 
-    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceCreationEventInterface:
-        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceCreationEvent
-
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent
-
-    DemosEurope\DemosplanAddon\Contracts\Events\AfterResourceUpdateEventInterface:
-        class: demosplan\DemosPlanCoreBundle\Event\AfterResourceUpdateEvent
 
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
 
+    DemosEurope\DemosplanAddon\Contracts\Services\MapProjectionConverterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter'
+
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
+
+    DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'
@@ -187,6 +204,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\User\Orga
 
     DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
@@ -222,6 +242,13 @@ services:
                 id: 'app.geo_json_data_collector'
                 priority: -101
 
+    demosplan\DemosPlanCoreBundle\DataCollector\AddonInfoDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/addon_info.html.twig'
+                id: 'app.addon_info_collector'
+                priority: -99
+
     demosplan\DemosPlanCoreBundle\DataCollector\UserInfoDataCollector:
         tags:
             -   name: data_collector
@@ -233,10 +260,11 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
-        autowire: true
-        public: false
-        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
@@ -257,7 +285,7 @@ services:
     # which needs the permission-settings to execute its logic.
     demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 5 }
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 4 }
 
     demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
         tags:
@@ -303,6 +331,8 @@ services:
     demosplan\DemosPlanCoreBundle\EventSubscriber\LocaleSubscriber:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
+
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
@@ -354,11 +384,7 @@ services:
         calls:
             - [ 'loadFieldMapping' ]
 
-    demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory:
-        arguments:
-            $propertyReader: '@EDT\Wrapping\Utilities\CachingPropertyReader'
-            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
+    demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory: ~
 
     DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler'
@@ -379,12 +405,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
-    demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService:
-        arguments:
-            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
-            $sortingParser: '@EDT\JsonApi\RequestHandling\JsonApiSortingParser'
-            $paginatorFactory: '@EDT\JsonApi\RequestHandling\PaginatorFactory'
-            $propertyValuesGenerator: '@EDT\JsonApi\RequestHandling\PropertyValuesGenerator'
+    demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService: ~
 
     # as long at this service is used in commands and symfony < 4.1 this needs to be public
     demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService:
@@ -396,7 +417,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\MailService:
         arguments:
-            $logger: '@monolog.logger.dplan_mail'
             $mailer: '@demosplan\DemosPlanCoreBundle\Logic\TestMailer'
         lazy: true
 
@@ -419,12 +439,32 @@ services:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $entityManager: '@doctrine.orm.entity_manager'
 
+    # RequestId processor for logs
+    demosplan\DemosPlanCoreBundle\Monolog\Processor\RequestIdProcessor:
+        tags:
+            - { name: monolog.processor, priority: 100 }
+
     Doctrine\ORM\EntityManager:
         arguments:
             $config: '@doctrine.orm.default_configuration'
 
     EDT\JsonApi\RequestHandling\EntityFetcherInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher
+
+    EDT\JsonApi\RequestHandling\FilterParserInterface: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+
+    EDT\JsonApi\Pagination\PagePaginationParser:
+        arguments:
+            $defaultSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
+
+    EDT\JsonApi\RequestHandling\RequestTransformer: ~
+
+    EDT\JsonApi\RequestHandling\RequestConstraintFactory:
+        arguments:
+            $attributeValidationDepth: 20
+            $attributeAllowAnythingBelowValidationDepth: true
+
+    DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -435,11 +475,11 @@ services:
         public: true
 
     demosplan\DemosPlanCoreBundle\Logic\MenuBuilder\MenuBuilder:
-            arguments:
-                $eventDispatcher: '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface'
-                $factory: '@knp_menu.factory'
-            tags:
-                - { name: knp_menu.menu_builder, method: createSideMenu, alias: sidemenu } # The alias is what is used to retrieve the menu
+        arguments:
+            $eventDispatcher: '@Symfony\Contracts\EventDispatcher\EventDispatcherInterface'
+            $factory: '@knp_menu.factory'
+        tags:
+            - { name: knp_menu.menu_builder, method: createSideMenu, alias: sidemenu } # The alias is what is used to retrieve the menu
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
@@ -447,9 +487,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
         tags:
             - { name: monolog.logger, channel: session }
-
-    demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService:
-        arguments: ['@phpoffice.spreadsheet']
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
@@ -472,6 +509,7 @@ services:
     # when $jwtRouter is injected via DI JwtRouter is used
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
+    Symfony\Component\HttpFoundation\Request: ~
 
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
@@ -533,13 +571,11 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\FaqCategoryTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -563,14 +599,9 @@ services:
             - { name: "dplan.drafts.info.transformer" }
 
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory:
-        arguments:
-            $logger: '@demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger'
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\TransformerLoader:
         lazy: true
@@ -670,6 +701,11 @@ services:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
     demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface: '@demosplan\DemosPlanCoreBundle\Tools\PdfCreatorRabbitmq'
+
+    demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq:
+        calls:
+            - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
+
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
@@ -680,7 +716,6 @@ services:
     ########## Transformers
 
     demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -736,7 +771,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -826,13 +860,11 @@ services:
             $rendererName: '%pdf_renderer_name%'
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -861,6 +893,10 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
@@ -869,7 +905,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
-            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
@@ -941,19 +976,16 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryTimeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -1005,6 +1037,12 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Zip Exporter
+    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter:
+        lazy: true
+        tags:
+            - { name: "dplan.assessment.table.exporter" }
+
     # DOCX Exporter
     demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableDocxExporter:
         lazy: true
@@ -1032,6 +1070,14 @@ services:
         tags:
             - { name: "dplan.file.response.generator" }
 
+    # ZIP Response Generator
+    demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
+        arguments:
+            $logger: '@monolog.logger.dplan'
+            $supportedTypes: "%file.formats.zip%"
+        tags:
+            - { name: "dplan.file.response.generator" }
+
     # DOCX Response Generator
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\DocxResponseGenerator:
         arguments:
@@ -1049,7 +1095,6 @@ services:
 
     # Segment Service
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
-    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
 
     # Drafts Info Handler
@@ -1067,7 +1112,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentFacetsProvider:
         lazy: true
         arguments:
-            $drupalFilterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
+            $filterParser: '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser'
 
     demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment:
         parent: demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery
@@ -1075,61 +1120,19 @@ services:
         autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterGroupTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
-
-    # Survey Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler:
-        $surveyStatuses: '%survey.statuses%'
-
-    # Survey New Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler:
-        $defaultStatus: '%survey.status.default%'
-
-    # Survey Update Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler:
-        $schemaFilePath: '%survey.schema_path_update%'
-
-    # Survey Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler:
-        $schemaFilePath: '%survey.schema_path_create%'
-
-    # Survey Show Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler: ~
-
-    # Survey Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService: ~
-
-    # Survey Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyValidator: ~
-
-    # SurveyVote Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
-
-    # SurveyVote Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
-
-    # SurveyVote Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService: ~
-
-    # SurveyVote Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
-        $schemaFilePath: '%surveyvote.schema_path_create%'
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
@@ -1143,6 +1146,8 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
@@ -1169,6 +1174,24 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\UserHasher:
         lazy: true
 
+    # User Activity Infrastructure
+    demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_last_login_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Logic\User\ClaimedStatementsActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_claimed_statements_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Authorization\Voter\UserActivityVoter:
+        arguments:
+            $activityCheckers: !tagged_iterator 'user_activity_checker'
+        tags:
+            - { name: security.voter }
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleService:
         lazy: true
@@ -1181,10 +1204,7 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapper: ~
 
-    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway:
-        lazy: true
-        arguments:
-            $logger: '@monolog.logger.dplan_gateway'
+    demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGateway: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH:
         lazy: true
@@ -1222,6 +1242,8 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
 
+    EDT\ConditionFactory\ConditionFactoryInterface:
+        alias: 'EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
     EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
@@ -1234,9 +1256,11 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+    EDT\JsonApi\Manager: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
-    EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor:
+    EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
         arguments:
             $objectManager: '@doctrine.orm.entity_manager'
 
@@ -1244,14 +1268,11 @@ services:
 
     EDT\JsonApi\ApiDocumentation\AttributeTypeResolver: ~
 
-    EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
-        arguments:
-            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-            $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
-            $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
+    EDT\Wrapping\Utilities\AttributeTypeResolverInterface: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
 
     EDT\JsonApi\ApiDocumentation\SchemaStore: ~
+
+    EDT\JsonApi\ApiDocumentation\TagStore: ~
 
     EDT\JsonApi\RequestHandling\JsonApiSortingParser:
         arguments:
@@ -1259,16 +1280,15 @@ services:
 
     EDT\JsonApi\RequestHandling\PaginatorFactory: ~
 
-    EDT\JsonApi\RequestHandling\PropertyValuesGenerator:
-        arguments:
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
-            $entityFetcher: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher'
-
     EDT\JsonApi\Validation\FieldsValidator: ~
 
     EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+
+    EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+        arguments:
+            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
@@ -1279,11 +1299,7 @@ services:
 
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory'
-
-    demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanDrupalConditionFactory:
-        arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:
@@ -1295,20 +1311,60 @@ services:
 
     EDT\Querying\Utilities\TableJoiner:
         arguments:
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\ProxyPropertyAccessor'
-
-    EDT\Wrapping\Utilities\CachingPropertyReader:
-        arguments:
-            $schemaPathProcessor: '@EDT\Wrapping\Utilities\SchemaPathProcessor'
-            $conditionEvaluator: '@EDT\Querying\Utilities\ConditionEvaluator'
-            $sorter: '@EDT\Querying\Utilities\Sorter'
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
 
     EDT\Wrapping\Utilities\SchemaPathProcessor:
         arguments:
-            $propertyPathProcessorFactory: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\DplanPropertyPathProcessorFactory'
-            $typeProvider: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
+            $propertyPathProcessorFactory: '@EDT\Wrapping\Utilities\PropertyPathProcessorFactory'
+
+    EDT\Wrapping\Utilities\PropertyPathProcessorFactory: ~
+
+    EDT\JsonApi\RequestHandling\MessageFormatter: ~
+
+    EDT\Querying\Utilities\Reindexer: ~
+
+    EDT\JsonApi\Utilities\PropertyBuilderFactory:
+        arguments:
+            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $identifierByDefaultSortable: true
+            $attributesByDefaultSortable: true
+            $toOneRelationshipsByDefaultSortable: true
+            # logically problematic, understand the implications before setting this to true (https://github.com/demos-europe/edt/issues/45)
+            $toManyRelationshipsByDefaultSortable: false
+
+    EDT\PathBuilding\DocblockPropertyByTraitEvaluator:
+        arguments:
+            $targetTraits: []
+            $targetTags: [!php/const 'EDT\PathBuilding\PropertyTag::PROPERTY_READ']
+
+    EDT\PathBuilding\TraitEvaluator: ~
+
+    EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator: ~
+
+    EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator: ~
+
+    EDT\JsonApi\Requests\GetRequest: ~
+    EDT\JsonApi\Requests\CreationRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
+    EDT\JsonApi\Requests\UpdateRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
+    EDT\JsonApi\Requests\DeletionRequest: ~
+    EDT\JsonApi\Validation\SortValidator: ~
+
+    EDT\Querying\Contracts\PropertyAccessorInterface: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+
+    demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityCompanionGeneratorCommand:
+        arguments:
+            $resourceTypes: !tagged dplan.resourceType
+
+    demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
 
     Intervention\Image\ImageManager: ~
+
+    Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
 
     Pagerfanta\View\ViewFactory: '@white_october_pagerfanta.view_factory'
 
@@ -1321,11 +1377,8 @@ services:
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
 
-    # TODO: This line needs to be removed when the fix is implemented, for now this enables the usage of addons.
     DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
-
-    EDT\Wrapping\WrapperFactories\WrapperObjectFactory: '@demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory'

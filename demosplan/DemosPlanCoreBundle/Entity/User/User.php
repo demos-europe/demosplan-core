@@ -26,13 +26,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -49,8 +51,12 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface
 {
+    public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
+    public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
+    public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
+    public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
      *
@@ -275,7 +281,7 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * @var Collection<int, UserRoleInCustomerInterface>
      *
-     * @ORM\OneToMany(targetEntity="UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer", mappedBy="user", cascade={"persist", "remove"})
      */
     #[Assert\All([new Assert\NotNull(), new RoleAllowedConstraint()])]
     #[Assert\NotNull]
@@ -295,15 +301,7 @@ class User implements SamlUserInterface, AddonUserInterface
     protected $addresses;
 
     /** @var CustomerInterface */
-    protected $currentCustomer = null;
-
-    /**
-     * @var Collection<int, SurveyVoteInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
-     *      mappedBy="user", cascade={"persist", "remove"})
-     */
-    protected $surveyVotes;
+    protected $currentCustomer;
 
     /**
      * List of Role codes that are allowed in current project.
@@ -349,6 +347,30 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     private $providedByIdentityProvider = false;
 
+    /**
+     * Value used for two factor authentication via totp.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $totpSecret;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $totpEnabled = false;
+
+    /**
+     * Value used for two factor authentication via email.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $authCode;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $authCodeEmailEnabled = false;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
@@ -357,7 +379,6 @@ class User implements SamlUserInterface, AddonUserInterface
         $this->orga = new ArrayCollection();
         $this->roleInCustomers = new ArrayCollection();
         $this->rolesAllowed = [];
-        $this->surveyVotes = new ArrayCollection();
         $this->authorizedProcedures = new ArrayCollection();
     }
 
@@ -537,9 +558,9 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * Symfony > 6 needs getUserIdentifier() for auth system.
      */
-    public function getUserIdentifier(): ?string
+    public function getUserIdentifier(): string
     {
-        return $this->getLogin();
+        return $this->getLogin() ?? '';
     }
 
     public function setPassword(?string $password): void
@@ -698,7 +719,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function getNoPiwik(): bool
     {
-        return $this->getFlagValue(UserFlagKey::NO_USER_TRACKING);
+        return $this->getFlagValue(UserFlagKey::NO_USER_TRACKING->value);
     }
 
     /**
@@ -707,22 +728,22 @@ class User implements SamlUserInterface, AddonUserInterface
     public function setNoPiwik($noPiwik)
     {
         // set Piwikflag
-        $this->setFlagValue(UserFlagKey::NO_USER_TRACKING, $noPiwik);
+        $this->setFlagValue(UserFlagKey::NO_USER_TRACKING->value, $noPiwik);
     }
 
     public function getAssignedTaskNotification(): bool
     {
-        return $this->getFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION);
+        return $this->getFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value);
     }
 
     public function setAssignedTaskNotification(bool $assignedTaskNotification)
     {
-        $this->setFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION, $assignedTaskNotification);
+        $this->setFlagValue(UserFlagKey::ASSIGNED_TASK_NOTIFICATION->value, $assignedTaskNotification);
     }
 
     public function getNewsletter(): bool
     {
-        return $this->getFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER);
+        return $this->getFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value);
     }
 
     /**
@@ -730,12 +751,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setNewsletter($newsletter)
     {
-        $this->setFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER, $newsletter);
+        $this->setFlagValue(UserFlagKey::SUBSCRIBED_TO_NEWSLETTER->value, $newsletter);
     }
 
     public function isNewUser(): bool
     {
-        return $this->getFlagValue(UserFlagKey::IS_NEW_USER);
+        return $this->getFlagValue(UserFlagKey::IS_NEW_USER->value);
     }
 
     /**
@@ -743,7 +764,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setNewUser($newUser)
     {
-        $this->setFlagValue(UserFlagKey::IS_NEW_USER, $newUser);
+        $this->setFlagValue(UserFlagKey::IS_NEW_USER->value, $newUser);
     }
 
     public function isIntranet(): bool
@@ -761,7 +782,7 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function isProfileCompleted(): bool
     {
-        return $this->getFlagValue(UserFlagKey::PROFILE_COMPLETED);
+        return $this->getFlagValue(UserFlagKey::PROFILE_COMPLETED->value);
     }
 
     /**
@@ -769,7 +790,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setProfileCompleted($profileCompleted)
     {
-        $this->setFlagValue(UserFlagKey::PROFILE_COMPLETED, $profileCompleted);
+        $this->setFlagValue(UserFlagKey::PROFILE_COMPLETED->value, $profileCompleted);
     }
 
     /**
@@ -801,9 +822,9 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles($plannerRoles);
     }
 
-    public function isHearingAuthority(): bool
+    public function isHearingAuthority(?CustomerInterface $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER]);
+        return $this->hasAnyOfRoles(self::HEARING_AUTHORITY_ROLES, $customer);
     }
 
     /**
@@ -814,19 +835,14 @@ class User implements SamlUserInterface, AddonUserInterface
         return $this->hasAnyOfRoles([RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::PLANNING_AGENCY_ADMIN]);
     }
 
-    public function isPlanningAgency(): bool
+    public function isPlanningAgency(?CustomerInterface $customer = null): bool
     {
-        return $this->hasAnyOfRoles([RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER]);
+        return $this->hasAnyOfRoles(self::PLANNING_AGENCY_ROLES, $customer);
     }
 
     public function isPublicAgency(): bool
     {
-        $publicAgencyRoles = [
-            RoleInterface::PUBLIC_AGENCY_COORDINATION,
-            RoleInterface::PUBLIC_AGENCY_WORKER,
-        ];
-
-        return $this->hasAnyOfRoles($publicAgencyRoles);
+        return $this->hasAnyOfRoles(self::PUBLIC_AGENCY_ROLES);
     }
 
     /**
@@ -839,7 +855,7 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function getForumNotification(): bool
     {
-        return $this->getFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS);
+        return $this->getFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value);
     }
 
     /**
@@ -847,12 +863,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setForumNotification($forumNotification)
     {
-        $this->setFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS, $forumNotification);
+        $this->setFlagValue(UserFlagKey::WANTS_FORUM_NOTIFICATIONS->value, $forumNotification);
     }
 
     public function isAccessConfirmed(): bool
     {
-        return $this->getFlagValue(UserFlagKey::ACCESS_CONFIRMED);
+        return $this->getFlagValue(UserFlagKey::ACCESS_CONFIRMED->value);
     }
 
     /**
@@ -860,12 +876,12 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setAccessConfirmed($accessConfirmed)
     {
-        $this->setFlagValue(UserFlagKey::ACCESS_CONFIRMED, $accessConfirmed);
+        $this->setFlagValue(UserFlagKey::ACCESS_CONFIRMED->value, $accessConfirmed);
     }
 
     public function isInvited(): bool
     {
-        return $this->getFlagValue(UserFlagKey::INVITED);
+        return $this->getFlagValue(UserFlagKey::INVITED->value);
     }
 
     /**
@@ -873,7 +889,7 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     public function setInvited($invited)
     {
-        $this->setFlagValue(UserFlagKey::INVITED, $invited);
+        $this->setFlagValue(UserFlagKey::INVITED->value, $invited);
     }
 
     /**
@@ -919,7 +935,6 @@ class User implements SamlUserInterface, AddonUserInterface
      * Setzt eine Userflag. Wenn nicht vorhanden, wird sie neu generiert.
      *
      * @param string $flagKey
-     * @param mixed  $flagValue
      */
     protected function setFlagValue($flagKey, $flagValue)
     {
@@ -1086,6 +1101,19 @@ class User implements SamlUserInterface, AddonUserInterface
         if ($this->departments instanceof Collection && $this->departments->contains($department)) {
             $this->departments->removeElement($department);
         }
+    }
+
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+            }
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+
+        return $roleInCustomer;
     }
 
     /**
@@ -1300,7 +1328,7 @@ class User implements SamlUserInterface, AddonUserInterface
      *
      * @return Collection<int, RoleInterface>
      */
-    public function getDplanroles(CustomerInterface $customer = null): Collection
+    public function getDplanroles(?CustomerInterface $customer = null): Collection
     {
         $roles = new ArrayCollection();
         $relations = $this->roleInCustomers->toArray();
@@ -1330,7 +1358,7 @@ class User implements SamlUserInterface, AddonUserInterface
      *
      * @return string[]
      */
-    public function getDplanRolesArray(CustomerInterface $customer = null): array
+    public function getDplanRolesArray(?CustomerInterface $customer = null): array
     {
         if ($this->hasInvalidRoleCache()) {
             $this->rolesArrayCache = [];
@@ -1461,17 +1489,17 @@ class User implements SamlUserInterface, AddonUserInterface
      *
      * @param string $role
      */
-    public function hasRole($role, CustomerInterface $customer = null): bool
+    public function hasRole($role, ?CustomerInterface $customer = null): bool
     {
         $customer ??= $this->getCurrentCustomer();
 
         return in_array($role, $this->getDplanRolesArray($customer));
     }
 
-    public function hasAnyOfRoles(array $roles): bool
+    public function hasAnyOfRoles(array $roles, ?CustomerInterface $customer = null): bool
     {
         foreach ($roles as $role) {
-            if ($this->hasRole($role)) {
+            if ($this->hasRole($role, $customer)) {
                 return true;
             }
         }
@@ -1533,12 +1561,12 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function getDraftStatementSubmissionReminderEnabled(): bool
     {
-        return $this->getFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED);
+        return $this->getFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value);
     }
 
     public function setDraftStatementSubmissionReminderEnabled(bool $draftStatementSubmissionReminderEnabled)
     {
-        $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED, $draftStatementSubmissionReminderEnabled);
+        $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $draftStatementSubmissionReminderEnabled);
     }
 
     /**
@@ -1550,6 +1578,13 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         return $this->roleInCustomers
             ->map(static fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getCustomer())->toArray();
+    }
+
+    public function isConnectedToCustomerId(string $customerId): bool
+    {
+        return $this->roleInCustomers
+            ->map(static fn (UserRoleInCustomerInterface $roleInCustomer): ?string => $roleInCustomer->getCustomer()?->getId())
+            ->contains($customerId);
     }
 
     /**
@@ -1683,34 +1718,19 @@ class User implements SamlUserInterface, AddonUserInterface
         return '';
     }
 
-    /**
-     * @return Collection<int, SurveyVoteInterface>
-     */
     public function getSurveyVotes(): Collection
     {
-        return $this->surveyVotes;
+        return new ArrayCollection();
     }
 
-    /**
-     * Returns SurveyVote with the given id or null if none exists.
-     *
-     * @param string $surveyVoteId
-     */
     public function getSurveyVote($surveyVoteId): ?SurveyVoteInterface
     {
-        /** @var SurveyVoteInterface $surveyVote */
-        foreach ($this->surveyVotes as $surveyVote) {
-            if ($surveyVote->getId() === $surveyVoteId) {
-                return $surveyVote;
-            }
-        }
-
         return null;
     }
 
     public function addSurveyVote(SurveyVoteInterface $surveyVote): void
     {
-        $this->surveyVotes[] = $surveyVote;
+        // removed
     }
 
     /**
@@ -1719,17 +1739,6 @@ class User implements SamlUserInterface, AddonUserInterface
     public function shouldBeIndexed(): bool
     {
         return !$this->deleted;
-    }
-
-    /**
-     * This method will be used to fill user properties from saml providers.
-     */
-    public function setSamlAttributes(array $attributes): void
-    {
-        // later on this could be a factory e.g to distinguish between akdb and osi
-        // identity provider
-        $parser = new SamlAttributesParser($this, $attributes);
-        $parser->parse();
     }
 
     public function isDefaultGuestUser(): bool
@@ -1750,5 +1759,66 @@ class User implements SamlUserInterface, AddonUserInterface
     private function hasInvalidRoleCache(): bool
     {
         return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->isTotpEnabled();
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        // period and digits are chosen to be compatible with Google Authenticator
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    public function isTotpEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function setTotpEnabled(bool $totpEnabled): void
+    {
+        $this->totpEnabled = $totpEnabled;
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->authCodeEmailEnabled;
+    }
+
+    public function setAuthCodeEmailEnabled(bool $authCodeEmailEnabled): void
+    {
+        $this->authCodeEmailEnabled = $authCodeEmailEnabled;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->getEmail();
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        return $this->authCode ?? '';
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->authCode = $authCode;
     }
 }

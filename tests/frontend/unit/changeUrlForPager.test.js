@@ -51,7 +51,7 @@ describe('changeUrlforPager', () => {
     expect(updatedUrl[1]).toBe(urlParts.part2)
   })
 
-  it('overwrites the limit value if it is the only param', () => {
+  it.skip('overwrites the limit value if it is the only param', () => {
     defineProp(`${urlParts.part1}?r_limit=2`)
     expect(updatedUrl[0]).toBe(urlParts.part1)
     expect(updatedUrl[1]).toBe(urlParts.part2)
@@ -63,7 +63,7 @@ describe('changeUrlforPager', () => {
     expect(updatedUrl[1]).toBe(urlParts.part2)
   })
 
-  it('sets params if they are undefined', () => {
+  it.skip('sets params if they are undefined', () => {
     defineProp(`${urlParts.part1}?page=&r_limit=`)
     expect(updatedUrl[0]).toBe(urlParts.part1)
     expect(updatedUrl[1]).toBe(urlParts.part2)

@@ -25,7 +25,7 @@ function projectConfig (mode, project) {
 
   let beConfigOutput = null
   try {
-    beConfigOutput = spawnSync('php', frontendIntegratorCommand, {
+    beConfigOutput = spawnSync('/usr/bin/php', frontendIntegratorCommand, {
       env: {
         ...process.env,
         ACTIVE_PROJECT: project
@@ -52,7 +52,7 @@ function projectConfig (mode, project) {
   return {
     // Prefix must be class-ified for postcss, but as the BE uses it in `class` attributes it is dotless there.
     cssPrefix: '.' + beConfig['cssPrefix'],
-    project: project,
+    project,
     projectRoot: beConfig['projectDir'],
     publicPath: beConfig['projectDir'] + '/web/',
     stylesEntryPoint: beConfig['projectDir'] + '/app/Resources/DemosPlanCoreBundle/client/scss/style.scss',

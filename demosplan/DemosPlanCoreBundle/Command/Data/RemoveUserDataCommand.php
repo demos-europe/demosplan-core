@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
@@ -116,7 +117,7 @@ class RemoveUserDataCommand extends CoreCommand
         StatementService $statementService,
         DraftStatementService $draftStatementService,
         ManagerRegistry $doctrine,
-        string $name = null
+        ?string $name = null,
     ) {
         $this->userService = $userService;
         $this->statementService = $statementService;
@@ -138,7 +139,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->map('Fehlanzeige', 'Fehlanzeige');
 
         $this->currentGwId = $this->faker->numberBetween(1, 99999);
-        $this->mockTexts[50] = $this->faker->textCloseToLength(50);
+        $this->mockTexts[50] = $this->faker->text(50);
 
         parent::__construct($parameterBag, $name);
     }
@@ -156,6 +157,7 @@ class RemoveUserDataCommand extends CoreCommand
         $projectName = strtoupper($this->parameterBag->get('project_name'));
         if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
             $this->output->writeln('This command is not supported for the current project');
+
             // in case of this command should be workable for HH too.
             // _master_toeb
             // _master_toeb_versions
@@ -477,6 +479,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->checkForAlreadyProcessedUsers();
 
         $reportEntryUsers = [];
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(ReportEntry::class);
 
         /** @var ReportEntry[] $allReports */
@@ -488,7 +491,7 @@ class RemoveUserDataCommand extends CoreCommand
                 $user = $this->userService->getSingleUser($report->getUserId());
                 $reportEntryUsers[$report->getUserId()] = null === $user ? '' : $user->getName();
             }
-            $em->getConnection()->executeUpdate(
+            $em->getConnection()->executeStatement(
                 'UPDATE _report_entries re SET
                 re._u_name = :name,
                 re._re_message = :message,
@@ -511,6 +514,7 @@ class RemoveUserDataCommand extends CoreCommand
     protected function removeUserDataFromStatementMetas(): void
     {
         $this->checkForAlreadyProcessedUsers();
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(StatementMeta::class);
 
         /** @var StatementMeta[] $allStatementMetas */
@@ -616,6 +620,7 @@ class RemoveUserDataCommand extends CoreCommand
     {
         $this->checkForAlreadyProcessedUsers();
 
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(StatementVote::class);
         /** @var StatementVote[] $allStatementVotes */
         $allStatementVotes = $this->initializeRemovingDataForEntity(StatementVote::class, true);
@@ -721,7 +726,7 @@ class RemoveUserDataCommand extends CoreCommand
             if (null !== $entityContentChange->getUserId()) {
                 $userOfChange = $this->userService->getSingleUser($entityContentChange->getUserId());
                 if ($userOfChange instanceof User) {
-                    $nameToUse = $userOfChange->getUsername();
+                    $nameToUse = $userOfChange->getUserIdentifier();
                 }
             }
 
@@ -1082,7 +1087,7 @@ class RemoveUserDataCommand extends CoreCommand
         $roundedLength = (int) round($length, -2);
 
         if (!array_key_exists($roundedLength, $this->mockTexts)) {
-            $this->mockTexts[$roundedLength] = $this->faker->textCloseToLength($length < 10 ? 10 : $length);
+            $this->mockTexts[$roundedLength] = $this->faker->text($length < 10 ? 10 : $length);
         }
 
         return $this->mockTexts[$roundedLength];

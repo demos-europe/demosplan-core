@@ -11,8 +11,8 @@
         'street.number': templateVars.statement.meta.houseNumber|default,
         'street': templateVars.statement.meta.orgaStreet|default,
         'email.address.type.fulladdress': templateVars.statement.meta.orgaEmail|default,
-        'postalcode': templateVars.statement.meta.initialOrganisationPostalCode|default,
-        'city': templateVars.statement.meta.initialOrganisationCity|default
+        'postalcode': templateVars.statement.meta.orgaPostalCode|default,
+        'city': templateVars.statement.meta.orgaCity|default
     } %}
 
     {%  set children = [] %}

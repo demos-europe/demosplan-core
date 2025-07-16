@@ -14,6 +14,8 @@
                 action="{{ path('DemosPlan_orga_branding_edit', {'orgaId': organisation.ident|default}) }}"
                 method="post"
                 enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                 <div class="layout__item u-1-of-2 u-pr">
                     {{ fileupload(
                         'r_orgaLogo',

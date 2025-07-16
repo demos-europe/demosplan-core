@@ -69,7 +69,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
      * @var Collection<int, ProcedureInterface>
      *                                          One procedureType has many procedures. This is the inverse side.
      *
-     * @ORM\OneToMany(targetEntity="Procedure", mappedBy="procedureType", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="procedureType", cascade={"persist"})
      *
      * @ORM\OrderBy({"name" = "ASC"})
      */
@@ -91,19 +91,19 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
          */
         private string $description,
         /**
-         * @ORM\OneToOne(targetEntity="StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
          *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
         private StatementFormDefinition $statementFormDefinition,
         /**
-         * @ORM\OneToOne(targetEntity="ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
          *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
         private ProcedureBehaviorDefinition $procedureBehaviorDefinition,
         /**
-         * @ORM\OneToOne(targetEntity="ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
+         * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition", inversedBy="procedureType", cascade={"persist", "remove"})
          *
          * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
          */
@@ -119,6 +119,11 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getName(): string

@@ -5,7 +5,7 @@
     action="{{ path('DemosPlan_statement_fragment_add', {'procedure': procedure, 'statementId': templateVars.statement.id|default(0)} ) }}"
     method="post">
     <input name="action" type="hidden" value="save">
-
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
     {# fragment text #}
     <label class="u-mb-0" for="r_text">

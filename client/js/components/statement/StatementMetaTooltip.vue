@@ -12,6 +12,7 @@
     <button
       v-if="toggleButton"
       class="btn--blank o-link--default float-right"
+      data-cy="pinInformation"
       @click="$emit('toggle')">
       {{ Translator.trans('information.pin') }}
     </button>
@@ -80,7 +81,7 @@
           class="description-list"
           v-if="hasPermission('field_statement_memo')">
           <dt>{{ Translator.trans('memo') }}:</dt>
-          <dd class="max-height-300 overflow-auto">
+          <dd class="max-h-12 overflow-auto">
             {{ memo }}
           </dd>
         </dl>
@@ -137,6 +138,10 @@ export default {
       default: false
     }
   },
+
+  emits: [
+    'toggle'
+  ],
 
   computed: {
     isSegmentWithAssignee () {

@@ -17,7 +17,10 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 
-class TagTopicRepository extends FluentRepository implements ObjectInterface
+/**
+ * @template-extends CoreRepository<TagTopic>
+ */
+class TagTopicRepository extends CoreRepository implements ObjectInterface
 {
     /**
      * Get Entity by Id.
@@ -51,7 +54,7 @@ class TagTopicRepository extends FluentRepository implements ObjectInterface
         try {
             $em = $this->getEntityManager();
             $em->persist($tagTopic);
-            $em->flush($tagTopic);
+            $em->flush();
         } catch (Exception $e) {
             $this->logger->error('Add TagTopic failed: ', [$e]);
 
@@ -172,6 +175,7 @@ class TagTopicRepository extends FluentRepository implements ObjectInterface
             $topics = $this->findBy(['procedure' => $sourceProcedureId]);
 
             if (0 < sizeof($topics)) {
+                $newProcedure->detachAllTopics();
                 /** @var TagTopic $singletopic */
                 foreach ($topics as $singletopic) {
                     $newTopic = new TagTopic($singletopic->getTitle(), $newProcedure);
@@ -185,6 +189,7 @@ class TagTopicRepository extends FluentRepository implements ObjectInterface
                     }
 
                     $this->getEntityManager()->persist($newTopic);
+                    $newProcedure->addTagTopic($newTopic);
                 }
             }
 

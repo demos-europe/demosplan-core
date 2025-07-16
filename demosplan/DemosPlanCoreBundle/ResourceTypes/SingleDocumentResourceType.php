@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<SingleDocument>
@@ -29,6 +28,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
  * @property-read End $order
  * @property-read End $index
  * @property-read End $fileInfo improve T22479
+ * @property-read End $deleted
  */
 final class SingleDocumentResourceType extends DplanResourceType
 {
@@ -51,23 +51,26 @@ final class SingleDocumentResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('field_procedure_documents');
     }
 
-    public function isReferencable(): bool
+    public function isGetAllowed(): bool
     {
-        return true;
+        return false;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
 
     protected function getAccessConditions(): array
     {
+        // SingleDocuments get soft-deleted only if a statement references it SingleDocumentRepository::delete
+        $accessConditions = [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
         if ($this->currentUser->hasPermission('area_admin_single_document')) {
-            return [];
+            return $accessConditions;
         }
+        $accessConditions[] = $this->conditionFactory->propertyHasValue(true, $this->visible);
 
-        return [$this->conditionFactory->propertyHasValue(true, $this->visible)];
+        return $accessConditions;
     }
 
     protected function getProperties(): array
@@ -76,13 +79,13 @@ final class SingleDocumentResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('field_procedure_documents')) {
             $properties = array_merge($properties, [
-                $this->createAttribute($this->id)->readable(true)->filterable(),
+                $this->createIdentifier()->readable()->filterable(),
                 $this->createAttribute($this->parentId)
                     ->readable(true)->filterable()->sortable()->aliasedPath($this->element->id),
                 $this->createAttribute($this->title)
                     ->readable(true)->filterable()->sortable(),
                 $this->createAttribute($this->fileInfo)
-                    ->readable(true, fn(SingleDocument $document): array => $this->singleDocumentService->getSingleDocumentInfo($document)),
+                    ->readable(true, fn (SingleDocument $document): array => $document->getSingleDocumentInfo()),
                 $this->createAttribute($this->index)->readable(true)->aliasedPath($this->order),
             ]);
         }

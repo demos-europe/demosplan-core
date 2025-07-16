@@ -13,7 +13,10 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 
-class EmailAddressRepository extends FluentRepository implements EmailAddressRepositoryInterface
+/**
+ * @template-extends CoreRepository<EmailAddress>
+ */
+class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
 {
     /**
      * @param string[] $inputEmailAddressStrings
@@ -26,7 +29,16 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
         $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
-        $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
+        // Case-insensitive email address comparison
+        $lowercaseFoundEmails = array_map('strtolower', $foundEmailAddressStrings);
+        $newEmailAddressStrings = [];
+
+        foreach ($inputEmailAddressStrings as $emailString) {
+            if (!in_array(strtolower($emailString), $lowercaseFoundEmails, true)) {
+                $newEmailAddressStrings[] = $emailString;
+            }
+        }
+
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {
             $emailAddressEntity = new EmailAddress();
             $emailAddressEntity->setFullAddress($emailAddressString);
@@ -52,25 +64,30 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
         return $foundEmailAddressEntity;
     }
 
-    /**
-     * Checks if any EmailAddress entities are not referenced anymore and if so deletes them.
-     *
-     * @return int the number of deletions
-     */
-    public function deleteOrphanEmailAddresses(): int
+    public function deleteOrphanEmailAddresses(array $emailIds): int
     {
         $connection = $this->getEntityManager()->getConnection();
 
-        return $connection->exec(
-            'DELETE e'
-            .' FROM email_address AS e'
-            .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
-            .' LEFT JOIN maillane_allowed_sender_email_address AS m  ON m.email_address_id = e.id'
-            .' LEFT JOIN support_contact                      AS sc ON sc.email_address = e.id'
-            .' WHERE p.procedure_id   IS NULL'
-            .' AND   m.procedure_id   IS NULL'
-            .' AND   sc.email_address IS NULL'
-        );
+        $emailIdsCount = count($emailIds);
+        if (0 === $emailIdsCount) {
+            return $connection->exec(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+            );
+        } else {
+            $emailIdsString = array_fill(0, $emailIdsCount, '?');
+            $emailIdsString = implode(',', $emailIdsString);
+
+            return $connection->executeStatement(
+                'DELETE e'
+                .' FROM email_address AS e'
+                .' LEFT JOIN procedure_agency_extra_email_address  AS p  ON p.email_address_id = e.id'
+                .' WHERE p.procedure_id   IS NULL'
+                .' AND e.id NOT IN ('.$emailIdsString.')', $emailIds
+            );
+        }
     }
 
     /**
@@ -89,10 +106,15 @@ class EmailAddressRepository extends FluentRepository implements EmailAddressRep
      */
     protected function sortByGivenArray(array $sortedStrings, array $unsortedEntities): array
     {
-        $sortedEmailAddresses = array_fill_keys($sortedStrings, null);
-        foreach ($unsortedEntities as $emailAddressEntity) {
-            $fullAddress = $emailAddressEntity->getFullAddress();
-            $sortedEmailAddresses[$fullAddress] = $emailAddressEntity;
+        $sortedEmailAddresses = [];
+        foreach ($sortedStrings as $sortedEmailAddressString) {
+            foreach ($unsortedEntities as $unsortedEmailAddressEntity) {
+                $fullAddress = $unsortedEmailAddressEntity->getFullAddress();
+                if (0 === strcasecmp($sortedEmailAddressString, $fullAddress)) {
+                    $sortedEmailAddresses[$sortedEmailAddressString] = $unsortedEmailAddressEntity;
+                    break;
+                }
+            }
         }
 
         return $sortedEmailAddresses;

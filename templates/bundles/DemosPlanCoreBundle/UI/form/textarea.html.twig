@@ -9,8 +9,8 @@
 {# set default classes #}
 {% set class = 'o-form__control-textarea' %}
 
-{% if height is defined and height in [60, 90, 130, 220, 500] %}
-    {% set class = class ~ " height-#{height}" %}
+{% if height is defined and height in [8, 9, 10, 11, 12, 13, 14] %}
+    {% set class = class ~ " h-#{height}" %}
 {% endif %}
 
 {% if props is defined %}

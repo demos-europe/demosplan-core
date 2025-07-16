@@ -17,7 +17,7 @@ interface SubdomainHandlerInterface
     public function setSubdomainParameter(Request $request): void;
 
     /**
-     * Returns the url's subdomain if it exists and it is in allowedSubdomains' array.
+     * Returns the url's subdomain if a customer could be found.
      * Otherwise returns the Config Parameter 'subdomain'.
      */
     public function getSubdomain(Request $request): string;

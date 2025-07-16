@@ -11,12 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -31,7 +31,7 @@ class ElementHandler extends CoreHandler
      */
     protected $elementsWitchChildrenFlat;
 
-    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ElementsService $elementService, private readonly FlashMessageHandler $flashMessageHandler, MessageBag $messageBag, private readonly PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
+    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ElementsService $elementService, private readonly FlashMessageHandler $flashMessageHandler, MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
     }
@@ -303,8 +303,6 @@ class ElementHandler extends CoreHandler
      * Kategorie löschen.
      *
      * @param array|string $idents
-     *
-     * @return mixed
      */
     public function administrationElementDeleteHandler($idents)
     {

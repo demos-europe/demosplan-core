@@ -10,22 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Types;
 
-use MyCLabs\Enum\Enum;
-
-/**
- * Class UserFlagKeyType.
- *
- * @psalm-immutable
- */
-final class UserFlagKey extends Enum
+enum UserFlagKey: string
 {
-    public const ASSIGNED_TASK_NOTIFICATION = 'assignedTaskNotification';
-    public const DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED = 'draftStatementSubmissionReminderEnabled';
-    public const NO_USER_TRACKING = 'noPiwik';
-    public const SUBSCRIBED_TO_NEWSLETTER = 'newsletter';
-    public const WANTS_FORUM_NOTIFICATIONS = 'forumNotification';
-    public const IS_NEW_USER = 'newUser';
-    public const PROFILE_COMPLETED = 'profileCompleted';
-    public const ACCESS_CONFIRMED = 'access_confirmed';
-    public const INVITED = 'invited';
+    case ASSIGNED_TASK_NOTIFICATION = 'assignedTaskNotification';
+    case DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED = 'draftStatementSubmissionReminderEnabled';
+    case NO_USER_TRACKING = 'noPiwik';
+    case SUBSCRIBED_TO_NEWSLETTER = 'newsletter';
+    case WANTS_FORUM_NOTIFICATIONS = 'forumNotification';
+    case IS_NEW_USER = 'newUser';
+    case PROFILE_COMPLETED = 'profileCompleted';
+    case ACCESS_CONFIRMED = 'access_confirmed';
+    case INVITED = 'invited';
 }

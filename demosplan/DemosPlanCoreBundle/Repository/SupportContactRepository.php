@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-class SupportContactRepository extends FluentRepository
+use demosplan\DemosPlanCoreBundle\Entity\User\SupportContact;
+
+/**
+ * @template-extends CoreRepository<SupportContact>
+ */
+class SupportContactRepository extends CoreRepository
 {
 }

@@ -8,110 +8,84 @@
 </license>
 
 <template>
-  <div
-    ref="contentArea"
-    class="u-mt-0_5">
-    <dp-data-table-extended
-      ref="dataTable"
-      class="u-mt-0_5"
-      :header-fields="headerFields"
-      :table-items="rowItems"
-      is-selectable
-      :items-per-page-options="itemsPerPageOptions"
-      :default-sort-order="sortOrder"
-      @items-selected="setSelectedItems"
-      :init-items-per-page="itemsPerPage">
-      <template v-slot:footer>
-        <div class="u-pt-0_5">
-          <div class="u-1-of-3 inline-block">
-            <span
-              class="weight--bold line-height--1_6"
-              v-if="selectedItems.length">
-              {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
-            </span>
-          </div><!--
-       --><div class="u-2-of-3 text-right inline-block space-inline-s">
-            <dp-button
-              data-cy="addPublicAgency"
-              :text="Translator.trans('invitable_institution.add')"
-              @click="addPublicInterestBodies(selectedItems)" />
-            <a
-              :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
-              class="btn btn--secondary">
-              {{ Translator.trans('abort.and.back') }}
-            </a>
-        </div>
-        </div>
-      </template>
-    </dp-data-table-extended>
+  <organisation-table
+    :header-fields="headerFields"
+    ref="organisationTable"
+    resource-type="InvitableToeb"
+    :procedure-id="procedureId"
+    @selected-items="setSelectedItems" />
+
+  <div class="mt-2 pt-2 flex">
+    <div class="w-1/3 inline-block">
+      <span
+        v-if="selectedItems.length"
+        class="weight--bold line-height--1_6">
+        {{ selectedItemsText }}
+      </span>
+    </div>
+    <div class="w-2/3 text-right inline-block space-x-2">
+      <dp-button
+        :text="Translator.trans('invitable_institution.add')"
+        data-cy="addPublicAgency"
+        @click="addPublicInterestBodies(selectedItems)" />
+      <a
+        :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+        data-cy="organisationList:abortAndBack"
+        class="btn btn--secondary">
+        {{ Translator.trans('abort.and.back') }}
+      </a>
+    </div>
   </div>
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { dpApi, DpButton } from '@demos-europe/demosplan-ui'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
-    DpDataTableExtended,
-    DpButton
+    dpApi, // eslint-disable-line vue/no-unused-components
+    DpButton,
+    OrganisationTable
   },
 
   props: {
     procedureId: {
       type: String,
       required: true
-    },
-
-    headerFields: {
-      type: Array,
-      required: false,
-      default: () => [
-        { field: 'legalName', label: Translator.trans('invitable_institution') },
-        { field: 'competenceDescription', label: Translator.trans('competence.explanation') }
-      ]
     }
   },
 
   data () {
     return {
-      isLoading: true,
-      itemsPerPageOptions: [10, 50, 100, 200],
-      itemsPerPage: 50,
-      sortOrder: { key: 'legalName', direction: 1 },
-      selectedItems: []
+      selectedItems: [],
+      searchTerm: '',
+      headerFields: [
+        {
+          field: 'legalName',
+          label: Translator.trans('invitable_institution')
+        },
+        ...(hasPermission('field_organisation_competence')
+          ? [{
+              field: 'competenceDescription',
+              label: Translator.trans('competence.explanation')
+            }]
+          : [])
+      ]
     }
   },
 
   computed: {
-    ...mapState('invitableToeb', ['items']),
-
-    rowItems () {
-      return Object.values(this.items).reduce((acc, item) => {
-        return [
-          ...acc,
-          ...[
-            {
-              id: item.id,
-              ...item.attributes
-            }
-          ]
-        ]
-      }, []) || []
+    selectedItemsText () {
+      return this.selectedItems.length === 1
+        ? Translator.trans('entry.selected')
+        : Translator.trans('entries.selected', { count: this.selectedItems.length })
     }
   },
 
   methods: {
-    ...mapActions('invitableToeb', {
-      getInstitutions: 'list'
-    }),
-
-    setSelectedItems (selectedItems) {
-      this.selectedItems = selectedItems
-    },
-
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
         return dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
@@ -126,33 +100,29 @@ export default {
           data: publicAgenciesIds.map(id => {
             return {
               type: 'publicAffairsAgent',
-              id: id
+              id
             }
           })
         }
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutions({ procedureId: this.procedureId })
+          this.$refs.organisationTable.getInstitutionsWithContacts()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
-              this.$refs.dataTable.updateFields()
 
               // Reset selected items so that the footer updates accordingly
-              this.selectedItems = []
-              // Also reset selection in DpDataTableExtended as this.selectedItems resets only local variable
-              this.$refs.dataTable.resetSelection()
+              this.$refs.organisationTable.setSelectedItems([])
             })
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('warning.invitable_institution.not.added'))
         })
-    }
-  },
+    },
 
-  mounted () {
-    this.getInstitutions({ procedureId: this.procedureId })
-      .then(() => { this.isLoading = false })
+    setSelectedItems (selectedItems) {
+      this.selectedItems = selectedItems
+    }
   }
 }
 </script>

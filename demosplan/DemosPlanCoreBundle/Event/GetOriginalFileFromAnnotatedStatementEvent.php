@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 class GetOriginalFileFromAnnotatedStatementEvent
 {
     /**
-     * @param File
+     * @var File
      */
-    private $file = null;
+    private $file;
 
     public function __construct(
         /**

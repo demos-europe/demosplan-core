@@ -61,7 +61,7 @@
             ref="newAssignee"
             v-model="options.newAssignee.value"
             :allow-empty="false"
-            class="u-mb width-450"
+            class="u-mb w-13"
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
@@ -100,6 +100,7 @@
             @input="updateConsiderationText">
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
+                v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
@@ -107,6 +108,7 @@
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
                 :class="prefixClass('menubar__button')"
                 type="button"
                 v-tooltip="Translator.trans('boilerplate.insert')"
@@ -163,7 +165,7 @@
         </p>
 
         <div class="u-mt-0_5 u-mb border u-p-0_75">
-          <dp-text-wrapper :text="options.consideration.value" />
+          <text-content-renderer :text="options.consideration.value" />
         </div>
       </div>
 
@@ -220,9 +222,11 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, DpTextWrapper, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -231,12 +235,12 @@ export default {
   components: {
     DpBoilerPlateModal,
     DpButton,
-    DpTextWrapper,
+    TextContentRenderer,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -295,7 +299,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['selectedFragments']),
+    ...mapGetters('Fragment', ['selectedFragments']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -336,7 +340,9 @@ export default {
 
   methods: {
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     toggleMode (mode) {
@@ -419,8 +425,8 @@ export default {
         })
     },
 
-    ...mapActions('fragment', ['setSelectedFragmentsAction']),
-    ...mapMutations('fragment', ['setProcedureId'])
+    ...mapActions('Fragment', ['setSelectedFragmentsAction']),
+    ...mapMutations('Fragment', ['setProcedureId'])
   },
 
   created () {

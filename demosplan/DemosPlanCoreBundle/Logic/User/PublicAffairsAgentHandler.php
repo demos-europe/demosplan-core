@@ -10,14 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PublicAffairsAgentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
-use EDT\JsonApi\Schema\ResourceIdentifierObject;
-use EDT\JsonApi\Schema\ToManyResourceLinkage;
 use Exception;
 
 class PublicAffairsAgentHandler extends CoreHandler
@@ -27,44 +25,48 @@ class PublicAffairsAgentHandler extends CoreHandler
         return $this->orgaHandler;
     }
 
-    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBag $messageBag)
+    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBagInterface $messageBag)
     {
         parent::__construct($messageBag);
     }
 
     /**
+     * @param list<array{type: non-empty-string, id: non-empty-string}> $resourceLinkage
+     *
      * @return Orga[]
      *
-     * @throws InvalidArgumentException            thrown if at least one {@link EDT\JsonApi\SchemaResourceIdentifierObject} retrieved from the given
-     *                                             {@link ToManyResourceLinkage} object is not of type 'publicAffairsAgent'
+     * @throws InvalidArgumentException            thrown if at least one item in the given
+     *                                             linkage object is not of type 'publicAffairsAgent'
      * @throws PublicAffairsAgentNotFoundException thrown if at least one PublicAffairsAgent with the given ID was not
      *                                             found
      * @throws Exception
      */
-    public function getFromResourceLinkage(ToManyResourceLinkage $resourceLinkage): array
+    public function getFromResourceLinkage(array $resourceLinkage): array
     {
         return array_map(
-            fn(ResourceIdentifierObject $resourceIdentifierObject): Orga => $this->getFromResourceIdentifierObject($resourceIdentifierObject),
-            $resourceLinkage->getResourceIdentifierObjects()
+            fn (array $resourceIdentifierObject): Orga => $this->getFromResourceIdentifierObject($resourceIdentifierObject['id'], $resourceIdentifierObject['type']),
+            $resourceLinkage
         );
     }
 
     /**
+     * @param non-empty-string $id
+     * @param non-empty-string $actualType
+     *
      * @return Orga PublicAffairsAgent
      *
      * @throws InvalidArgumentException            Thrown if the given ResourceIdentifierObject is not of type 'publicAffairsAgent'
      * @throws PublicAffairsAgentNotFoundException thrown if no PublicAffairsAgent with the given ID was found
      * @throws Exception
      */
-    public function getFromResourceIdentifierObject(ResourceIdentifierObject $resourceIdentifierObject): Orga
+    public function getFromResourceIdentifierObject(string $id, string $actualType): Orga
     {
         $expectedType = 'publicAffairsAgent';
-        $actualType = $resourceIdentifierObject->getType();
         if ($expectedType !== $actualType) {
-            throw new InvalidArgumentException("expected {$expectedType} for all resourceIdentifierObjects, got {$actualType}");
+            throw new InvalidArgumentException("expected '$expectedType' for all resourceIdentifierObjects, got '$actualType'");
         }
 
-        return $this->getFromId($resourceIdentifierObject->getId());
+        return $this->getFromId($id);
     }
 
     /**
@@ -94,7 +96,7 @@ class PublicAffairsAgentHandler extends CoreHandler
         // using collect we retrieve all elements before using
         // laravels Collection::contains.
         return collect($orga->getAllUsers())->contains(
-            static fn(User $user) => $user->isPublicAgency()
+            static fn (User $user) => $user->isPublicAgency()
         );
     }
 }

@@ -28,26 +28,27 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 
     final public const NOT_SIZE = 'NOT SIZE';
 
-    protected PathsBasedConditionFactoryInterface $conditionFactory;
-
     public function __construct(PathsBasedConditionFactoryInterface $conditionFactory)
     {
         parent::__construct($conditionFactory);
-        $this->conditionFactory = $conditionFactory;
     }
 
-    protected function getOperatorFunctions(): array
+    protected function getOperatorFunctionsWithoutValue(): array
     {
-        $operators = parent::getOperatorFunctions();
-        $operators['IS NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNull($path);
-        $operators['IS NOT NULL'] = fn ($conditionValue, array $path): PathsBasedInterface => $this->conditionFactory->propertyIsNotNull($path);
+        $operators = parent::getOperatorFunctionsWithoutValue();
 
-        $operators[self::FALSE] = fn (
-             $conditionValue, array $path
-        ): PathsBasedInterface => $this->conditionFactory->false();
+        $operators[self::FALSE] = fn (array $path): PathsBasedInterface => $this->conditionFactory->false();
+
+        return $operators;
+    }
+
+    protected function getOperatorFunctionsWithValue(): array
+    {
+        $operators = parent::getOperatorFunctionsWithValue();
+
         $operators[self::NOT_SIZE] = fn (
-             $conditionValue, array $path
-        ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($conditionValue, $path);
+            $conditionValue, array $path
+        ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($this->assertPrimitiveNonNull($conditionValue), $this->assertPath($path));
 
         return $operators;
     }

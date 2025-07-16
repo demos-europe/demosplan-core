@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ConsultationTokenInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ConsistentOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\IsNotOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\IsOriginalStatementConstraint;
@@ -47,7 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ConsistentOriginalStatementConstraint
  */
-class ConsultationToken
+class ConsultationToken implements UuidEntityInterface, ConsultationTokenInterface
 {
     /**
      * The value of this property should be considered final.
@@ -110,7 +112,7 @@ class ConsultationToken
      *
      * @ORM\JoinColumn(referencedColumnName="_ms_id", nullable=true)
      */
-    private $sentEmail = null;
+    private $sentEmail;
 
     /**
      * @var DateTime
@@ -130,44 +132,47 @@ class ConsultationToken
      */
     private $modificationDate;
 
-    public function __construct(/**
-     * The human readable token given to users to submit statements during the special
-     * {@link Procedure::$phase}.
-     *
-     * The value of this property should be considered final.
-     *
-     * @ORM\Column(type="string", length=8, nullable=false)
-     */
-    #[Assert\NotBlank]
-    #[Assert\Regex('/^\w{8}$/')]
-    private string $token, /**
-     * The connection to the statement the token was created for.
-     *
-     * The value of this property should be considered final.
-     *
-     * We need the reference to the {@link Statement} in the assessment table to provide
-     * the user with a link to its detail view.
-     *
-     * @var Statement|null the source statement or `null` if the statement was deleted
-     *
-     * @IsNotOriginalStatementConstraint
-     *
-     * @ORM\OneToOne(targetEntity=Statement::class)
-     *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
-     */
-    private Statement $statement, /**
-     * Determines if this token entry was created manually by the user in the UI, in which
-     * case it is `true`. The alternative would be that this instance was created automatically
-     * via an {@link DPlanEvent} when a statement was submitted.
-     *
-     * The value of this property should be considered final.
-     *
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
-    private bool $manuallyCreated)
-    {
-        $this->originalStatement = $statement->getOriginal();
+    public function __construct(
+        /**
+         * The human readable token given to users to submit statements during the special
+         * {@link Procedure::$phase}.
+         *
+         * The value of this property should be considered final.
+         *
+         * @ORM\Column(type="string", length=8, nullable=false)
+         */
+        #[Assert\NotBlank]
+        #[Assert\Regex('/^\w{8}$/')]
+        private string $token,
+        /**
+         * The connection to the statement the token was created for.
+         *
+         * The value of this property should be considered final.
+         *
+         * We need the reference to the {@link Statement} in the assessment table to provide
+         * the user with a link to its detail view.
+         *
+         * @var Statement|null the source statement or `null` if the statement was deleted
+         *
+         * @IsNotOriginalStatementConstraint
+         *
+         * @ORM\OneToOne(targetEntity=Statement::class)
+         *
+         * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=true)
+         */
+        private ?Statement $statement,
+        /**
+         * Determines if this token entry was created manually by the user in the UI, in which
+         * case it is `true`. The alternative would be that this instance was created automatically
+         * via an {@link DPlanEvent} when a statement was submitted.
+         *
+         * The value of this property should be considered final.
+         *
+         * @ORM\Column(type="boolean", nullable=false, options={"default":false})
+         */
+        private bool $manuallyCreated
+    ) {
+        $this->originalStatement = $this->statement->getOriginal();
     }
 
     public function getId(): ?string

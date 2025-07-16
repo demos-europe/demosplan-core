@@ -20,18 +20,25 @@ statements and fragments is now in DpAssessmentTableCard.vue
 
 <template>
   <div>
-    <dp-switcher
-      :input-id="'switcher' + statementId"
-      :active="statementTabVisible"
-      @input="(tab) => $emit('toggletabs', tab)"
-      ref="switcher">
-      <template v-slot:option1>
-        {{ Translator.trans('statement') }}
-      </template>
-      <template v-slot:option2>
-        {{ fragmentsButtonText }}
-      </template>
-    </dp-switcher>
+    <div class="o-switcher">
+      <input
+        type="checkbox"
+        :id="'switcher' + statementId"
+        @change="toggle">
+      <label :for="'switcher' + statementId">
+        <span
+          class="o-switcher__option float-left"
+          :class="{'o-switcher__option--checked': statementTabVisible}">
+          {{ Translator.trans('statement') }}
+        </span>
+        <span
+          class="o-switcher__option float-right"
+          :class="{'o-switcher__option--checked': !statementTabVisible}"
+          data-cy="fragmentTab">
+          {{ fragmentsButtonText }}
+        </span>
+      </label>
+    </div>
     <div
       v-if="isFiltered && showFragmentResults"
       class="inline-block align-top u-pv-0_25 float-right">
@@ -54,14 +61,9 @@ statements and fragments is now in DpAssessmentTableCard.vue
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import { DpSwitcher } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentsSwitcher',
-
-  components: {
-    DpSwitcher
-  },
 
   props: {
     statementId: {
@@ -94,6 +96,11 @@ export default {
     }
   },
 
+  emits: [
+    'fragments:showall',
+    'toggletabs'
+  ],
+
   data () {
     return {
       allFragmentsShown: false
@@ -101,15 +108,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['fragmentsByStatement', 'selectedFragments']),
+    ...mapGetters('Fragment', ['fragmentsByStatement', 'selectedFragments']),
 
-    ...mapGetters('filter', ['selectedFilterOptions']),
+    ...mapGetters('Filter', ['selectedFilterOptions']),
 
-    ...mapState('assessmentTable', ['assessmentBase']),
+    ...mapState('AssessmentTable', ['assessmentBase']),
 
-    ...mapState('filter', ['currentSearch']),
+    ...mapState('Filter', ['currentSearch']),
 
-    ...mapState('fragment', ['fragments']),
+    ...mapState('Fragment', ['fragments']),
 
     filteredFragmentsLength () {
       if (!this.fragments[this.statementId]) {
@@ -168,6 +175,10 @@ export default {
     showAllFragments () {
       this.allFragmentsShown = !this.allFragmentsShown
       this.$emit('fragments:showall', this.allFragmentsShown)
+    },
+
+    toggle () {
+      this.$emit('toggletabs', (this.statementTabVisible === false))
     }
   }
 }

@@ -20,6 +20,9 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends CoreRepository<GdprConsent>
+ */
 class GdprConsentRepository extends CoreRepository implements ObjectInterface
 {
     /**
@@ -99,8 +102,6 @@ class GdprConsentRepository extends CoreRepository implements ObjectInterface
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -31,7 +32,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository")
  */
-class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
+class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, DraftStatementVersionInterface
 {
     /**
      * @var string|null
@@ -166,10 +167,10 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
 
     /**
      * @var FileContainer
-     *                                                          No doctrine connection because of multiple inheritance. Real inheritance mapping as described in
-     *                                                          http://doctrine-orm.readthedocs.io/en/latest/reference/inheritance-mapping.html
-     *                                                          is not possible atm, because primary keys are named differently across entities
-     *                                                          Files have to be get via Repository
+     *                    No doctrine connection because of multiple inheritance. Real inheritance mapping as described in
+     *                    http://doctrine-orm.readthedocs.io/en/latest/reference/inheritance-mapping.html
+     *                    is not possible atm, because primary keys are named differently across entities
+     *                    Files have to be get via Repository
      */
     protected $files;
 
@@ -674,9 +675,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
         return $this->element;
     }
 
-    /**
-     * @param mixed $element
-     */
     public function setElement($element)
     {
         $this->element = $element;
@@ -856,9 +854,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
         return $this->dName;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDepartment()
     {
         return $this->department;
@@ -965,9 +960,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
         return $this->uStreet;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {
@@ -977,9 +969,6 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface
         return [];
     }
 
-    /**
-     * @param mixed $categories
-     */
     public function setCategories($categories)
     {
         $this->categories = $categories;

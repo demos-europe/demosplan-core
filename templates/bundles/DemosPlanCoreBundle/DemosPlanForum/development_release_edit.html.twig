@@ -10,6 +10,7 @@
         {% block content %}
 
             <form name="updateRelease" action="{{ path('DemosPlan_forum_development_release_edit', {'releaseId': templateVars.release.ident}) }}" method="post" enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label>
                     {{ "title"|trans }}

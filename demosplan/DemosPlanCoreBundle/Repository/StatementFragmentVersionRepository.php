@@ -16,6 +16,9 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
+/**
+ * @template-extends CoreRepository<StatementFragmentVersion>
+ */
 class StatementFragmentVersionRepository extends CoreRepository implements ObjectInterface
 {
     /**

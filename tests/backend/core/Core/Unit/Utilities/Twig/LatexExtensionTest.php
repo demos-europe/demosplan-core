@@ -12,6 +12,7 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension;
+use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
@@ -36,11 +37,14 @@ class LatexExtensionTest extends UnitTestCase
 
         $containerStub = $this->getMockForAbstractClass(ContainerInterface::class);
 
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
 
         // Stubbe den Logger
         $stub = $this->getMockForAbstractClass(LoggerInterface::class);
-        $this->sut = new LatexExtension($containerStub, $fileService, $stub);
+        $flysystem = $this->createMock(FilesystemOperator::class);
+        $this->sut = new LatexExtension(
+            $containerStub, $fileService, $flysystem, $stub
+        );
     }
 
     public function testGetFilters()
@@ -64,46 +68,46 @@ class LatexExtensionTest extends UnitTestCase
     public function getLatexDataValues(): array
     {
         return [
-                ['<p>gr&ouml;&szlig;er &gt;</p>', 'größer \textgreater~\\\\'],
-                ['<p>kleiner &lt;</p>', 'kleiner \textless~\\\\'],
-                ['<p>und &amp;</p>', 'und \&\\\\'],
-                ['<p>Prozent %</p>', 'Prozent \%\\\\'],
-                ['<p>Dollar $</p>', 'Dollar \$\\\\'],
-                ['<p>Paragraph &sect;</p>', 'Paragraph \S~\\\\'],
-                ['<p>Dingsi &deg;</p>', 'Dingsi °\\\\'],
-                ['<p>Dach ^</p>', 'Dach \textasciicircum~\\\\'],
-                ['<p>#</p>', '\#\\\\'],
-                ['<p>-</p>', '-\\\\'],
-                ['<p>.</p>', '.\\\\'],
-                ['<p>,</p>', ',\\\\'],
-                ['<p>|</p>', '|\\\\'],
-                ['<p>!</p>', '!\\\\'],
-                ['<p>"</p>', '\dq \\\\'],
-                ['<p>/</p>', '/\\\\'],
-                ['<p>(</p>', '(\\\\'],
-                ['<p>)</p>', ')\\\\'],
-                ['<p>=</p>', '=\\\\'],
-                ['<p>?</p>', '?\\\\'],
-                ['<p>`</p>', '\textquoteleft \\\\'],
-                ['<p>&acute;</p>', '\textquoteright \\\\'],
-                ['<p>/</p>', '/\\\\'],
-                ['<p>*</p>', '*\\\\'],
-                ['<p>-</p>', '-\\\\'],
-                ['<p>+</p>', '+\\\\'],
-                ['<p>{</p>', '\{\\\\'],
-                ['<p>[</p>', '\lbrack~\\\\'],
-                ['<p>]</p>', '\rbrack~\\\\'],
-                ['<p>}</p>', '\}\\\\'],
-                ['<p>~</p>', '\textasciitilde\\\\'],
-                ['<p>\</p>', '\textbackslash~\\\\'],
-                ['<p>http://www.google.de</p>', '\footnote{\protect\url{http://www.google.de}}\\\\'],
-                ['<p>http://www.google.de?q=abc&d=fgh</p>', '\footnote{\protect\url{http://www.google.de?q=abc&d=fgh}}\\\\'],
-                ['<u>http://www.google.de</u>', '\uline{\footnote{\protect\url{http://www.google.de}}}'],
-                ['<p>http://robob-dev.demos-europe.eu</p>', '\footnote{\protect\url{http://robob-dev.demos-europe.eu}}\\\\'],
-                ['<p>https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L%C3%A4rm</p>', '\footnote{\protect\url{https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L\%C3\%A4rm}}\\\\'],
-                ['<p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p><p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p>',
-                    '\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\', ],
-            ];
+            ['<p>gr&ouml;&szlig;er &gt;</p>', 'größer \textgreater~\\\\'],
+            ['<p>kleiner &lt;</p>', 'kleiner \textless~\\\\'],
+            ['<p>und &amp;</p>', 'und \&\\\\'],
+            ['<p>Prozent %</p>', 'Prozent \%\\\\'],
+            ['<p>Dollar $</p>', 'Dollar \$\\\\'],
+            ['<p>Paragraph &sect;</p>', 'Paragraph \S~\\\\'],
+            ['<p>Dingsi &deg;</p>', 'Dingsi °\\\\'],
+            ['<p>Dach ^</p>', 'Dach \textasciicircum~\\\\'],
+            ['<p>#</p>', '\#\\\\'],
+            ['<p>-</p>', '-\\\\'],
+            ['<p>.</p>', '.\\\\'],
+            ['<p>,</p>', ',\\\\'],
+            ['<p>|</p>', '|\\\\'],
+            ['<p>!</p>', '!\\\\'],
+            ['<p>"</p>', '\dq \\\\'],
+            ['<p>/</p>', '/\\\\'],
+            ['<p>(</p>', '(\\\\'],
+            ['<p>)</p>', ')\\\\'],
+            ['<p>=</p>', '=\\\\'],
+            ['<p>?</p>', '?\\\\'],
+            ['<p>`</p>', '\textquoteleft \\\\'],
+            ['<p>&acute;</p>', '\textquoteright \\\\'],
+            ['<p>/</p>', '/\\\\'],
+            ['<p>*</p>', '*\\\\'],
+            ['<p>-</p>', '-\\\\'],
+            ['<p>+</p>', '+\\\\'],
+            ['<p>{</p>', '\{\\\\'],
+            ['<p>[</p>', '\lbrack~\\\\'],
+            ['<p>]</p>', '\rbrack~\\\\'],
+            ['<p>}</p>', '\}\\\\'],
+            ['<p>~</p>', '\textasciitilde\\\\'],
+            ['<p>\</p>', '\textbackslash~\\\\'],
+            ['<p>http://www.google.de</p>', '\footnote{\protect\url{http://www.google.de}}\\\\'],
+            ['<p>http://www.google.de?q=abc&d=fgh</p>', '\footnote{\protect\url{http://www.google.de?q=abc&d=fgh}}\\\\'],
+            ['<u>http://www.google.de</u>', '\uline{\footnote{\protect\url{http://www.google.de}}}'],
+            ['<p>http://robob-dev.demos-europe.eu</p>', '\footnote{\protect\url{http://robob-dev.demos-europe.eu}}\\\\'],
+            ['<p>https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L%C3%A4rm</p>', '\footnote{\protect\url{https://de.wikipedia.org/wiki/Technische_Anleitung_zum_Schutz_gegen_L\%C3\%A4rm}}\\\\'],
+            ['<p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p><p>http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/</p>',
+                '\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\\footnote{\protect\url{http://ad.ad.berlin.demos-europe.eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/ad-ad-berlin-demos-europe-eu/brainstorming/2022/02/planung-und-priorisierung-von-weiterentwicklungen/}}\\\\', ],
+        ];
     }
 
     public function testNewlineEliminationNewline()
@@ -311,6 +315,11 @@ class LatexExtensionTest extends UnitTestCase
         $resultString = $this->sut->prepareImage($textToTest);
         $this->assertSame($expected, $resultString);
 
+        $textToTest = "<img src='/file/baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9' >";
+        $expected = 'IMAGEPLACEHOLDER-baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9IMAGEPLACEHOLDEREND';
+        $resultString = $this->sut->prepareImage($textToTest);
+        $this->assertSame($expected, $resultString);
+
         $textToTest = "<img src='/app_dev.php/file/6e5f465d-0400-4d1f-8768-703990a358d9' >";
         $expected = 'IMAGEPLACEHOLDER-6e5f465d-0400-4d1f-8768-703990a358d9IMAGEPLACEHOLDEREND';
         $resultString = $this->sut->prepareImage($textToTest);
@@ -363,6 +372,13 @@ class LatexExtensionTest extends UnitTestCase
         $expected = '\includegraphics{6e5f465d-0400-4d1f-8768-703990a358d9}';
         $this->assertSame($expected, $res[3]);
 
+        $textToTest = "<img src='/file/baf2cdc3-675b-4213-badb-686c13eeaf97/6e5f465d-0400-4d1f-8768-703990a358d9' >";
+        $preparedString = $this->sut->prepareImage($textToTest);
+        $resultString = $this->sut->outputImage($this->sut->latexFilter($preparedString));
+        $res = explode("\n", $resultString);
+        $expected = '\includegraphics{6e5f465d-0400-4d1f-8768-703990a358d9}';
+        $this->assertSame($expected, $res[3]);
+
         $textToTest = "<img src='/file/6e5f465d-0400-4d1f-8768-703990a358d9' width='337' >";
         $preparedString = $this->sut->prepareImage($textToTest);
         $resultString = $this->sut->outputImage($this->sut->latexFilter($preparedString));
@@ -400,13 +416,20 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testTable()
     {
-        self::markSkippedForCIIntervention();
         // table-structure needs to be checked more closely
 
         $textToTest = '<table><tr><th></th><th>test</th></tr><tr><td></td><td>test</td></tr></table>';
         $resultString = $this->sut->latexFilter($textToTest);
 
-        $expected = '<table><tr><td></td><td>test</td></tr><tr><td></td><td>test</td></tr></table>';
+        $expected = '
+\begin{longtable}{|p{7cm}|p{7cm}|}
+\hline
+\textless~/th\textgreater~test\textless~/th\textgreater~\\\
+\hline
+&test\\\
+\hline
+
+\end{longtable}';
         $this->assertEquals($expected, $resultString);
     }
 
@@ -431,8 +454,8 @@ class LatexExtensionTest extends UnitTestCase
 
     public function testKeyWordReplacement(): void
     {
-        $html = LatexExtension::HTMLTOREPLACE;
-        $latex = LatexExtension::REPLACEBYLATEX;
+        $html = array_keys(LatexExtension::HTML_TO_LATEX);
+        $latex = LatexExtension::HTML_TO_LATEX;
 
         self::assertCount(count($html), $latex);
 
@@ -450,5 +473,62 @@ class LatexExtensionTest extends UnitTestCase
         $partsExpectedToBeEqual = preg_replace($pattern, '', [$ul, $ol]);
         self::assertCount(2, $partsExpectedToBeEqual);
         self::assertSame($partsExpectedToBeEqual[0], $partsExpectedToBeEqual[1]);
+    }
+
+    public function testListWidthUlOl(): void
+    {
+        // Test the default list width value
+        $ul = $this->sut->latexFilter('<ul>');
+        $ol = $this->sut->latexFilter('<ol>');
+        self::assertStringContainsString('linewidth-7cm-', $ul);
+        self::assertStringContainsString('linewidth-7cm-', $ol);
+
+        // Test with custome list width
+        $ul = $this->sut->latexFilter('<ul>', 12);
+        $ol = $this->sut->latexFilter('<ol>', 12);
+        self::assertStringContainsString('linewidth-12cm-', $ul);
+        self::assertStringContainsString('linewidth-12cm-', $ol);
+        self::assertStringNotContainsString('linewidth-7cm-', $ul);
+        self::assertStringNotContainsString('linewidth-7cm-', $ol);
+    }
+
+    public function testStrikeTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><s>durchgestrichen</s></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringContainsString('<s>', $text);
+        self::assertStringContainsString('</s>', $text);
+        self::assertStringNotContainsString('<del>', $text);
+        self::assertStringNotContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
+    }
+
+    public function testDeletionTagReplacement(): void
+    {
+        $text = '<p>test</p><p></p><p><strong>bold</strong></p><p><em>kursiv</em></p><p><u>unterstrichen</u></p><p><del>durchgestrichen</del></p><p><mark title="markierter Text">markiert</mark></p><p><dp-obscure>geschwärzt</dp-obscure></p>';
+
+        self::assertStringNotContainsString('<s>', $text);
+        self::assertStringNotContainsString('</s>', $text);
+        self::assertStringContainsString('<del>', $text);
+        self::assertStringContainsString('</del>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\sout{', $handledText);
+    }
+
+    public function testHighlightTagReplacement(): void
+    {
+        $text = '<p><strong>bold</strong></p> <p><em>kursiv</em></p> <p><em><u>kusrivunterstrichen</u></em></p> <p><u>unterstrichen</u></p> <p><s>durchgestrichen</s></p> <p><mark title="markierter Text">markiert</mark></p> <p><mark title="markierter Text"><strong>boldmarkiert</strong></mark></p> <p><dp-obscure>geschwärzt</dp-obscure></p> ';
+
+        self::assertStringContainsString('<mark title="markierter Text">', $text);
+        self::assertStringContainsString('</mark>', $text);
+
+        $handledText = $this->sut->latexFilter($text);
+
+        self::assertStringContainsString('\colorbox{yellow}{', $handledText);
     }
 }

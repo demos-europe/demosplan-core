@@ -30,7 +30,7 @@ export default function DeleteFragmentButton () {
 
         //  Post to delete route
         dpApi({
-          method: 'post',
+          method: 'POST',
           url: elem.getAttribute('data-post-delete'),
           data: formData
         })

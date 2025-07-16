@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementFragment>
@@ -69,9 +68,9 @@ final class StatementFragmentResourceType extends DplanResourceType
     protected function getProperties(): array
     {
         $properties = [
-            $this->createAttribute($this->id)->readable(true),
-            $this->createAttribute($this->displayId)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getDisplayId()),
-            $this->createAttribute($this->text)->readable(true, fn(StatementFragment $fragment): string => $this->htmlSanitizer->purify($fragment->getText())),
+            $this->createIdentifier()->readable(),
+            $this->createAttribute($this->displayId)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getDisplayId()),
+            $this->createAttribute($this->text)->readable(true, fn (StatementFragment $fragment): string => $this->htmlSanitizer->purify($fragment->getText())),
             $this->createAttribute($this->created)->readable(true),
             $this->createAttribute($this->modified)->readable(true),
             $this->createAttribute($this->assignedToFbDate)->readable(true),
@@ -82,14 +81,14 @@ final class StatementFragmentResourceType extends DplanResourceType
                 ->aliasedPath($this->element->title),
             $this->createAttribute($this->elementId)->readable(true)
                 ->aliasedPath($this->element->id),
-            $this->createAttribute($this->paragraphTitle)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getParagraphTitle()),
+            $this->createAttribute($this->paragraphTitle)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getParagraphTitle()),
             $this->createAttribute($this->paragraphId)->readable(true)
                 ->aliasedPath($this->paragraph->id),
-            $this->createAttribute($this->paragraphParentTitle)->readable(true, static fn(StatementFragment $fragment): string => $fragment->getParagraphParentTitle()),
+            $this->createAttribute($this->paragraphParentTitle)->readable(true, static fn (StatementFragment $fragment): string => $fragment->getParagraphParentTitle()),
             $this->createAttribute($this->paragraphParentId)->readable(true)
                 ->aliasedPath($this->paragraph->paragraph->id),
-            $this->createAttribute($this->documentParentTitle)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getDocumentParentTitle()),
-            $this->createAttribute($this->documentParentId)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getDocumentParentId()),
+            $this->createAttribute($this->documentParentTitle)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getDocumentParentTitle()),
+            $this->createAttribute($this->documentParentId)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getDocumentParentId()),
         ];
 
         // Only include fields if allowed by permissions. see function cleanFragments()
@@ -103,7 +102,7 @@ final class StatementFragmentResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_statements_fragment_vote')) {
-            $properties[] = $this->createAttribute($this->vote)->readable(true, static fn(StatementFragment $fragment): ?string => $fragment->getVote());
+            $properties[] = $this->createAttribute($this->vote)->readable(true, static fn (StatementFragment $fragment): ?string => $fragment->getVote());
         }
 
         if ($this->currentUser->hasPermission('feature_statements_fragment_advice')) {
@@ -122,7 +121,9 @@ final class StatementFragmentResourceType extends DplanResourceType
         $properties[] = $this->createToOneRelationship($this->statement)->readable(true);
         $properties[] = $this->createToManyRelationship($this->tags)->readable(true);
         $properties[] = $this->createToOneRelationship($this->department)->readable(true);
-        $properties[] = $this->createToOneRelationship($this->element)->readable(true);
+        if ($this->currentUser->hasPermission('field_procedure_elements')) {
+            $properties[] = $this->createToOneRelationship($this->element)->readable(true);
+        }
         $properties[] = $this->createToOneRelationship($this->assignee)->readable(true);
         $properties[] = $this->createToOneRelationship($this->lastClaimedUser)->readable(true)->aliasedPath($this->lastClaimed);
 
@@ -149,12 +150,12 @@ final class StatementFragmentResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_statements_fragment_edit');
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
         return false;
     }
@@ -169,7 +170,7 @@ final class StatementFragmentResourceType extends DplanResourceType
         return [
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->statement->procedure->id),
-            $this->conditionFactory->propertyHasValue(false, $this->statement->deleted)
+            $this->conditionFactory->propertyHasValue(false, $this->statement->deleted),
         ];
     }
 }

@@ -20,120 +20,114 @@
           :labels="selectElementLabels"
           @set-label="setLabel" />
         <dp-sticky-element>
-          <template>
-            <div class="u-ml width-300">
+          <div class="u-ml w-12">
+            <p
+              class="weight--bold">
+              {{ Translator.trans('tool.active') }}
+            </p>
+            <div>
+              <div class="annotator__button-wrapper is-first">
+                <button
+                  @click="setInteraction('select')"
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'select'}"
+                  aria-labelledby="elementSelectLabel">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 10 17"
+                    style="width: 20px; height: 20px;">
+                    <defs>
+                      <clipPath id="selectIcon">
+                        <path d="M0 0h12v17H0z" />
+                      </clipPath>
+                    </defs>
+                    <g :clip-path="`url(#selectIcon)`">
+                      <path
+                        d="M0 0v17l4.849-4.973H12z"
+                        :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              <span
+                class="align-middle u-ml-0_5"
+                id="elementSelectLabel">
+                {{ Translator.trans('select.or.edit') }}
+              </span>
+            </div>
+            <div>
+              <div class="annotator__button-wrapper is-last">
+                <button
+                  @click="setInteraction('draw')"
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'draw'}"
+                  aria-labelledby="elementDrawLabel">
+                  <i class="fa fa-plus" />
+                </button>
+              </div>
+              <span
+                class="align-middle u-ml-0_5"
+                id="elementDrawLabel">
+                {{ Translator.trans('element.add') }}
+              </span>
+            </div>
+            <div class="u-mt-2">
               <p
-                class="weight--bold">
-                {{ Translator.trans('tool.active') }}
+                class="weight--bold"
+                :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
+                {{ Translator.trans('element.selected') }}
+                <dp-contextual-help
+                  class="float-right u-mt-0_12"
+                  :text="Translator.trans('annotator.modify.explanation')" />
               </p>
               <div>
-                <div class="annotator__button-wrapper is-first">
-                  <button
-                    @click="setInteraction('select')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'select'}"
-                    aria-labelledby="elementSelectLabel">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 10 17"
-                      style="width: 20px; height: 20px;">
-                      <defs>
-                        <clipPath id="selectIcon">
-                          <path d="M0 0h12v17H0z" />
-                        </clipPath>
-                      </defs>
-                      <g :clip-path="`url(#selectIcon)`">
-                        <path
-                          d="M0 0v17l4.849-4.973H12z"
-                          :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
-                      </g>
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  @click="deleteFeature(editingFeature)"
+                  class="annotator__button btn btn--warning btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="elementDeleteLabel">
+                  <i class="fa fa-trash" />
+                </button>
                 <span
                   class="align-middle u-ml-0_5"
-                  id="elementSelectLabel">
-                  {{ Translator.trans('select.or.edit') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                  id="elementDeleteLabel">
+                  {{ Translator.trans('element.delete') }}
                 </span>
               </div>
               <div>
-                <div class="annotator__button-wrapper is-last">
-                  <button
-                    @click="setInteraction('draw')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'draw'}"
-                    aria-labelledby="elementDrawLabel">
-                    <i class="fa fa-plus" />
-                  </button>
-                </div>
+                <button
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
+                  class="annotator__button btn btn--primary btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="formatChangeLabel">
+                  <i class="fa fa-tag" />
+                </button>
                 <span
                   class="align-middle u-ml-0_5"
-                  id="elementDrawLabel">
-                  {{ Translator.trans('element.add') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                  id="formatChangeLabel">
+                  {{ Translator.trans('format.change') }}
                 </span>
               </div>
-              <div class="u-mt-2">
-                <p
-                  class="weight--bold"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
-                  {{ Translator.trans('element.selected') }}
-                  <i
-                    :aria-label="Translator.trans('contextual.help')"
-                    v-tooltip="{
-                      content: Translator.trans('annotator.modify.explanation'),
-                      classes: 'z-ultimate'
-                    }"
-                    class="fa fa-question-circle float-right u-mt-0_125" />
-                </p>
-                <div>
-                  <button
-                    @click="deleteFeature(editingFeature)"
-                    class="annotator__button btn btn--warning btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="elementDeleteLabel">
-                    <i class="fa fa-trash" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="elementDeleteLabel">
-                    {{ Translator.trans('element.delete') }}
-                  </span>
-                </div>
-                <div>
-                  <button
-                    @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
-                    class="annotator__button btn btn--primary btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="formatChangeLabel">
-                    <i class="fa fa-tag" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="formatChangeLabel">
-                    {{ Translator.trans('format.change') }}
-                  </span>
-                </div>
-              </div>
-              <div class="u-mt-2">
-                <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
-                <div>
-                  <dp-button
-                    :busy="isSaving"
-                    class="width-250 u-mb-0_25"
-                    :disabled="documentLengthTotal === 0"
-                    :text="buttonText"
-                    @click="save" />
-                  <dp-button
-                    class="width-250"
-                    color="secondary"
-                    :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
-                    :text="Translator.trans('abort')" />
-                </div>
+            </div>
+            <div class="u-mt-2">
+              <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
+              <div>
+                <dp-button
+                  :busy="isSaving"
+                  class="w-11 u-mb-0_25"
+                  :disabled="documentLengthTotal === 0"
+                  :text="buttonText"
+                  @click="save" />
+                <dp-button
+                  class="w-11"
+                  color="secondary"
+                  :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
+                  :text="Translator.trans('abort')" />
               </div>
             </div>
-          </template>
+          </div>
         </dp-sticky-element>
       </div>
     </template>
@@ -149,13 +143,14 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style'
 import { containsExtent, getCenter } from 'ol/extent'
 import { defaults as defaultInteractions, Draw, Modify, Select, Snap } from 'ol/interaction'
-import { dpApi, DpButton, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpContextualHelp, DpLoading, DpStickyElement, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { createBox } from 'ol/interaction/Draw'
 import DpLabelModal from './DpLabelModal'
 import DpSendBeacon from './DpSendBeacon'
 import GeoJSON from 'ol/format/GeoJSON'
 import ImageLayer from 'ol/layer/Image'
 import Map from 'ol/Map'
+import { markRaw } from 'vue'
 import { MultiPoint } from 'ol/geom'
 import Projection from 'ol/proj/Projection'
 import Static from 'ol/source/ImageStatic'
@@ -168,6 +163,7 @@ export default {
   name: 'DpImageAnnotator',
 
   components: {
+    DpContextualHelp,
     DpButton,
     DpLabelModal,
     DpLoading,
@@ -464,7 +460,7 @@ export default {
       this.isLoading = true
 
       // Step 1: get first page to be annotated
-      const url = Routing.generate('api_resource_list', { procedureId: window.dplan.procedureId, resourceType: 'AnnotatedStatementPdfPage' })
+      const url = Routing.generate('api_resource_list', { resourceType: 'AnnotatedStatementPdfPage' })
       const params = {
         filter: {
           annotatedStatementPdf: {
@@ -480,6 +476,7 @@ export default {
             }
           }
         },
+        procedureId: window.dplan.procedureId,
         page: {
           size: 1
         },
@@ -504,7 +501,7 @@ export default {
         },
         include: ['annotatedStatementPdf'].join()
       }
-      const pageResponse = await dpApi.get(url, params, { serialize: true })
+      const pageResponse = await dpApi.get(url, params)
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
         const pageAttrs = pageResponse.data.data[0].attributes
         this.geoJson = pageAttrs.geoJson
@@ -535,8 +532,15 @@ export default {
     },
 
     initInteractions () {
+      /*
+       * Wrap OpenLayers interactions in markRaw so that:
+       * 1) Vue won’t convert them into Proxies,
+       * 2) OL’s instanceof checks and internal state stay intact,
+       * otherwise map.addInteraction(this.currentInteraction) silently fails.
+       */
+
       // SELECT INTERACTION
-      this.selectInteraction = new Select({ layers: [this.boxLayer] })
+      this.selectInteraction = markRaw(new Select({ layers: [this.boxLayer] }))
 
       this.selectInteraction.on('select', e => {
         if (e.deselected.length === 1) {
@@ -555,11 +559,11 @@ export default {
       })
 
       // MODIFY INTERACTION
-      this.modifyInteraction = new Modify({
+      this.modifyInteraction = markRaw(new Modify({
         insertVertexCondition: () => false,
         pixelTolerance: 1,
         features: this.selectInteraction.getFeatures()
-      })
+      }))
 
       this.modifyInteraction.on('modifystart', (e) => {
         // Remove snap during modify action because it tries to snap to invisible features/vertices
@@ -586,7 +590,7 @@ export default {
       })
 
       // DRAW INTERACTION
-      this.drawInteraction = new Draw({
+      this.drawInteraction = markRaw(new Draw({
         source: this.boxLayerSource,
         type: 'Circle',
         geometryFunction: createBox(),
@@ -602,7 +606,7 @@ export default {
             })
           })
         })
-      })
+      }))
       this.drawInteraction.on('drawend', (e) => {
         const newFeature = e.feature
         newFeature.setId(uuid())
@@ -612,7 +616,7 @@ export default {
       })
 
       // SNAP INTERACTION
-      this.snapInteraction = new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 })
+      this.snapInteraction = markRaw(new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 }))
 
       // Set select as initial interaction
       this.setInteraction('select')
@@ -664,23 +668,21 @@ export default {
           dragPan: true,
           keyboardPan: false,
           keyboardZoom: false,
-          mouseWheelZoom: true,
-          pointer: false,
-          select: true
+          mouseWheelZoom: true
         }),
         controls: [],
         layers: [
           new ImageLayer({
             source: new Static({
               url: this.imageUrl,
-              projection: projection,
+              projection,
               imageExtent: this.imageLayerExtent
             })
           }), this.boxLayer
         ],
         target: 'map',
         view: new View({
-          projection: projection,
+          projection,
           center: getCenter(this.imageLayerExtent),
           zoom: 2
         })
@@ -706,10 +708,10 @@ export default {
     },
 
     redirect () {
-      if (hasPermission('area_admin_dashboard')) {
-        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
-      } else {
+      if (hasPermission('area_admin_import')) {
         window.location.href = Routing.generate('DemosPlan_procedure_import', { procedureId: window.dplan.procedureId })
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: window.dplan.procedureId })
       }
     },
 
@@ -790,6 +792,50 @@ export default {
 
   mounted () {
     this.getInitialData()
+
+    /*
+     * Display a warning for firefox if "privacy.resistFingerprinting" is enabled,
+     * because openLayers' getFeaturesAtPixel() will not behave correctly then.
+     */
+    useResistFingerprintingDuckTest((isEnabled) => {
+      if (isEnabled) {
+        dplan.notify.notify('error', Translator.trans('warning.resistFingerPrinting'))
+      }
+    })
   }
+}
+
+const useResistFingerprintingDuckTest = (callback) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // Draw something on the canvas
+  ctx.fillStyle = 'rgb(0,0,0)'
+  ctx.fillRect(0, 0, 10, 10)
+
+  // Convert canvas to data URL
+  const dataUrl = canvas.toDataURL()
+
+  // Check if the produced data URL corresponds to the expected black square
+  const image = new Image()
+
+  image.onload = function () {
+    // Draw the image onto a new canvas to read the pixel values
+    const testCanvas = document.createElement('canvas')
+    const testCtx = testCanvas.getContext('2d')
+    testCanvas.width = image.width
+    testCanvas.height = image.height
+    testCtx.drawImage(image, 0, 0)
+
+    // Check the first pixel
+    const pixelData = testCtx.getImageData(0, 0, 1, 1).data
+
+    // If the pixel is black, we assume that resistFingerprinting is disabled
+    const resistFingerprintingEnabled = !(pixelData[0] === 0 && pixelData[1] === 0 && pixelData[2] === 0)
+
+    callback(resistFingerprintingEnabled)
+  }
+
+  image.src = dataUrl
 }
 </script>

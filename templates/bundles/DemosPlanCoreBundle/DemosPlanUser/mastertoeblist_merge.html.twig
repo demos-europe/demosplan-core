@@ -14,6 +14,8 @@
     </p>
 
     <form action="{{ path('DemosPlan_user_mastertoeblist_merge') }}" method="POST">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
         <master-toeb-list-merge
             :organisations="JSON.parse('{{ templateVars.organisations|default([])|json_encode|e('js', 'utf-8') }}')"
             :organisations-master-toeb="JSON.parse('{{ templateVars.orgasMasterToeb|default([])|json_encode|e('js', 'utf-8') }}')">

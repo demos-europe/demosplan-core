@@ -60,16 +60,16 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
     /**
      * @var ProcedureInterface
      *
-     * @ORM\ManyToOne(targetEntity="Procedure")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
     protected $procedure;
 
     /**
-     * @var Collection<int, BoilerplateInterface
+     * @var Collection<int, BoilerplateInterface>
      *
-     * @ORM\OneToMany(targetEntity = "Boilerplate", mappedBy = "group")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate", mappedBy = "group")
      *
      * @ORM\OrderBy({"title" = "ASC"})
      */

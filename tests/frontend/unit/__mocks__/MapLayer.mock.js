@@ -7,25 +7,25 @@
  * All rights reserved
  */
 
+import Vuex from 'vuex'
+
 export default function () {
   return {
-    actions: {
-      get: jest.fn()
-    },
-    getters: {
-      selectedElementsLength: jest.fn()
-    },
     store: new Vuex.Store({
       modules: {
-        statement: {
+        Statement: {
           namespaced: true,
           state: {
             procedureId: '',
             selectedElements: {},
             statements: {}
           },
-          actions,
-          getters
+          actions: {
+            get: jest.fn()
+          },
+          getters: {
+            selectedElementsLength: jest.fn()
+          }
         }
       }
     })

@@ -44,9 +44,11 @@ class FunctionalUser extends User
             self::FUNCTIONAL_USER_CUSTOMER_NAME,
             self::FUNCTIONAL_USER_CUSTOMER_SUBDOMAIN
         );
+        $this->setDefaultOrgaDepartment();
 
         parent::__construct();
     }
+
     protected function setDefaultOrgaDepartment(): void
     {
         $this->functionalOrga = new Orga();
@@ -58,33 +60,22 @@ class FunctionalUser extends User
         $this->department->setName(self::ANONYMOUS_USER_DEPARTMENT_NAME);
         $this->functionalOrga->setDepartments([$this->department]);
     }
-    /**
-     * {@inheritDoc}
-     */
+
     public function isNewUser(): bool
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isProfileCompleted(): bool
     {
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRoleBySubdomain(string $subdomain): string
     {
         return Role::GUEST;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getOrga(): Orga
     {
         return $this->functionalOrga;
@@ -93,7 +84,7 @@ class FunctionalUser extends User
     /**
      * Has to be overridden to ignore the customer.
      */
-    public function getDplanroles(CustomerInterface $customer = null): Collection
+    public function getDplanroles(?CustomerInterface $customer = null): Collection
     {
         return $this->dplanRoles;
     }
@@ -106,13 +97,18 @@ class FunctionalUser extends User
      */
     public function setDplanroles(
         array $roles,
-        $customer = null
+        $customer = null,
     ): void {
         $this->dplanRoles = new ArrayCollection();
 
         foreach ($roles as $role) {
             if ($role instanceof Role) {
                 $this->dplanRoles->add($role);
+            }
+            if (is_string($role)) {
+                $roleEntity = new Role();
+                $roleEntity->setCode($role);
+                $this->dplanRoles->add($roleEntity);
             }
         }
     }

@@ -6,6 +6,8 @@
         <form class="u-mt" id="changeemail" action="{{ path('DemosPlan_user_change_email_request') }}" method="POST" data-dp-validate>
 
             <input type="hidden" name="userId" value="{{ user.id|default }}" required>
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
             <label class="weight--bold">
                 {{ "email.new"|trans }}*
                 <input class="layout__item u-pt-0_25" id="newEmail" type="email" name="newEmail" required>

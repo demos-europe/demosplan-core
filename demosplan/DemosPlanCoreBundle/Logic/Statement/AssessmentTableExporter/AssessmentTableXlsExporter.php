@@ -41,8 +41,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected $serviceImport;
     /** @var SimpleSpreadsheetService */
     protected $simpleSpreadsheetService;
-    /** @var array */
-    private $supportedTypes = ['xls', 'xlsx'];
+
+    protected array $supportedTypes = ['xls', 'xlsx'];
 
     public function __construct(
         AssessmentHandler $assessmentHandler,
@@ -57,7 +57,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -93,6 +93,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
 
         $statements = $outputResult->getStatements();
+        $statementIds = array_column($statements, 'id');
         $columnsDefinition = $this->selectFormat($parameters['exportType']);
 
         try {
@@ -105,9 +106,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return [
             'filename' => sprintf(
                 $this->translator->trans('considerationtable').'-%s.xlsx',
-                Carbon::now()->format('d-m-Y-H:i')
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             ),
-            'writer'   => $objWriter,
+            'writer'       => $objWriter,
+            'statementIds' => $statementIds,
         ];
     }
 
@@ -185,15 +187,14 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      */
     public function selectFormat(string $formatIdentifier): array
     {
-        $columnsDefinition = match ($formatIdentifier) {
-            'topicsAndTags' => $this->createColumnsDefinitionForTopicsAndTags(),
-            'potentialAreas' => $this->createColumnsDefinitionForPotentialAreas(),
-            'statements' => $this->createColumnsDefinitionForStatementsOrSegments(true),
-            'segments' => $this->createColumnsDefinitionForStatementsOrSegments(false),
-            default => $this->createColumnsDefinitionDefault(),
+        return match ($formatIdentifier) {
+            'topicsAndTags'             => $this->createColumnsDefinitionForTopicsAndTags(),
+            'potentialAreas'            => $this->createColumnsDefinitionForPotentialAreas(),
+            'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), // WithAttachments
+            'statements'                => $this->createColumnsDefinitionForStatementsOrSegments(true),
+            'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            default                     => $this->createColumnsDefinitionDefault(),
         };
-
-        return $columnsDefinition;
     }
 
     /**
@@ -215,7 +216,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         return [
             $this->createColumnDefinition('externId', 'id'),
-            $this->createColumnDefinition('name', 'name'),
+            $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
             $this->createColumnDefinition('recommendation', 'recommendation', 200),
@@ -229,7 +230,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         return [
             $this->createColumnDefinition('externId', 'id'),
-            $this->createColumnDefinition('name', 'name'),
+            $this->createColumnDefinition('uName', 'name'),
             $this->createColumnDefinition('priorityAreaKeys', 'potential.area'),
             $this->createColumnDefinition('recommendation', 'recommendation', 200),
         ];
@@ -245,7 +246,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $this->addColumnDefinition($columnsDefinition, 'externId', 'field_statement_extern_id', 'id');
 
-        if ($isStatement) {
+        if ($isStatement && $this->permissions->hasPermission('feature_statement_cluster')) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
 
@@ -258,8 +259,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
-        $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'tag');
-        $columnsDefinition[] = $this->createColumnDefinition('topicNames', 'tag.category');
+        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'feature_statements_tag', 'tag');
+        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'feature_statements_tag', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
@@ -332,6 +333,21 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     }
 
     /**
+     * Creates an array with column definitions for statements
+     * and adds a column for attachments.
+     */
+    protected function createColumnsDefinitionForStatementAttachments(): array
+    {
+        $columnsDefinition = $this->createColumnsDefinitionForStatementsOrSegments(true);
+        $columnsDefinition[] =
+            $this->createColumnDefinition('statementAttachments', 'statement.attachments.reference');
+        $columnsDefinition[] =
+            $this->createColumnDefinition('statementOriginalAttachment', 'statement.original.attachment.reference');
+
+        return $columnsDefinition;
+    }
+
+    /**
      * Creates a definition for a column.
      */
     protected function createColumnDefinition(string $key, string $title, int $width = 20): array
@@ -357,7 +373,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         string $key,
         string $permission,
         string $columnTitle,
-        int $width = 20
+        int $width = 20,
     ): void {
         if ($this->permissions->hasPermission($permission)) {
             $columnsDefinition[] = $this->createColumnDefinition($key, $columnTitle, $width);
@@ -369,10 +385,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      *
      * @internal param $exportType
      */
-    protected function prepareDataForExcelExport(
+    public function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport
+        array $keysOfAttributesToExport,
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
@@ -423,7 +439,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 }
 
                 $formattedStatement[$attributeKey] =
-                    $this->editorService->handleObscureTags($formattedStatement[$attributeKey], $anonymous);
+                    $this->editorService->handleObscureTags((string) $formattedStatement[$attributeKey], $anonymous);
             }
 
             if (!$pushed) {
@@ -434,10 +450,38 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $formattedStatements->toArray();
     }
 
+    /**
+     * Preserves underlined, strikethrough, and mark text when converting HTML to markdown
+     * Replaces <u>, <s>, and <mark> tags with markers before conversion and then back after conversion.
+     */
+    protected function preserveUnderlinedAndStrikethroughText(string $text): string
+    {
+        // Replace <u> tags with |underline| markers before conversion
+        $text = preg_replace('/<u>(.*?)<\/u>/s', '|underline|$1|underline|', $text);
+
+        // Replace <s> tags with ~~ markers before conversion
+        $text = preg_replace('/<s>(.*?)<\/s>/s', '~~$1~~', $text);
+
+        // Replace <mark> tags with |mark| markers before conversion
+        $text = preg_replace('/<mark(?:\s+title="[^"]*")?\s*>(.*?)<\/mark>/s', '|mark|$1|mark|', $text);
+
+        // Convert to markdown using the HTML converter
+        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
+        $convertedText = $htmlConverter->convert($text);
+
+        // Replace |underline| markers back to <u> tags after conversion
+        $convertedText = preg_replace('/\|underline\|(.*?)\|underline\|/s', '<u>$1</u>', $convertedText);
+        // Replace |underline| markers back to <u> tags after conversion
+        $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $convertedText);
+        // Replace |mark| markers back to <mark> tags after conversion
+        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1</mark>', $convertedText);
+
+        return $convertedText;
+    }
+
     protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
     {
         $formattedStatement = [];
-        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
@@ -449,7 +493,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
                     break;
                 case 3:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
+                    $formattedStatement[$attributeKey] =
+                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
                     break;
                 default:
                     break;
@@ -461,7 +506,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             }
 
             if (in_array($attributeKey, ['text', 'recommendation'])) {
-                $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] = $this->preserveUnderlinedAndStrikethroughText($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] =
+                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
             }
 
             if ('status' === $attributeKey) {

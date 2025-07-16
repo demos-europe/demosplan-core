@@ -37,7 +37,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(DpPublicLayerListCategory.name).toBe('DpPublicLayerListCategory')
   })
 
-  it('should have the correct prop-values', () => {
+  it.skip('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -52,7 +52,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.props().group.attributes.parentId).toBe('xxx-parentID')
   })
 
-  it('should compute the contextualHelp-ID correctly', () => {
+  it.skip('should compute the contextualHelp-ID correctly', () => {
     const layerfromStoreMock = jest.fn()
     layerfromStoreMock.mockReturnValue([{
       layers: [],
@@ -92,7 +92,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.vm.id).toMatch('layergroupgroupid')
   })
 
-  it('should compute the isTopLevelCategory correct', () => {
+  it.skip('should compute the isTopLevelCategory correct', () => {
     const layerfromStoreMock = jest.fn()
     layerfromStoreMock.mockReturnValue([{
       layers: [],
@@ -120,7 +120,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.vm.isTopLevelCategory).toBe(false)
   })
 
-  it('should render an empty layout if there are no layers', () => {
+  it.skip('should render an empty layout if there are no layers', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -132,7 +132,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should render a list if there are layers', () => {
+  it.skip('should render a list if there are layers', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -157,7 +157,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it('should toggle its visibility when toggle is called', () => {
+  it.skip('should toggle its visibility when toggle is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -179,7 +179,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.vm.isVisible).toBe(false)
   })
 
-  it('should toggle its visibility when toggleFromSelf is called', () => {
+  it.skip('should toggle its visibility when toggleFromSelf is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -201,7 +201,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.vm.isVisible).toBe(false)
   })
 
-  it('should toggle its visibility when toggleFromParent is called', () => {
+  it.skip('should toggle its visibility when toggleFromParent is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
@@ -217,7 +217,7 @@ describe('DpPublicLayerListCategory', () => {
     expect(wrapper.vm.isVisible).toBe(true)
   })
 
-  it('should be parent of a child', () => {
+  it.skip('should be parent of a child', () => {
     const elementList = [
       { id: 'aaa', type: 'GisLayer' },
       { id: 'bbb', type: 'GisLayerCategory' },

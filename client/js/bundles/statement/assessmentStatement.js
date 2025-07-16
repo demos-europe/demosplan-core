@@ -11,7 +11,7 @@
  * This is the entrypoint for assessment_statement.html.twig and cluster_detail.html.twig
  */
 
-import { DpEditor, DpLabel, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpLabel, DpUploadFiles, dpValidate, hasPermission } from '@demos-europe/demosplan-ui'
 import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
@@ -22,18 +22,21 @@ import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
 const stores = {
-  assessmentTable: AssessmentTableStore,
-  boilerplates: BoilerplatesStore,
-  statement: StatementStore,
-  voter: VoterStore
+  AssessmentTable: AssessmentTableStore,
+  Statement: StatementStore,
+  Voter: VoterStore
 }
 
 const components = {
   DetailView,
-  DpBoilerPlateModal,
   DpEditor,
   DpLabel,
   DpUploadFiles
+}
+
+if (hasPermission('area_admin_boilerplates')) {
+  stores.boilerplates = BoilerplatesStore
+  components.DpBoilerPlateModal = DpBoilerPlateModal
 }
 
 initialize(components, stores).then(() => {

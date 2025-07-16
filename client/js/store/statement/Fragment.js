@@ -8,11 +8,11 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
 
 export default {
   namespaced: true,
-  name: 'fragment',
+
+  name: 'Fragment',
 
   state: {
     /**
@@ -61,7 +61,7 @@ export default {
      * @param {Object} fragment
      */
     addFragmentToSelection (state, fragment) {
-      set(state.selectedFragments, [fragment.id], fragment)
+      state.selectedFragments[fragment.id] = fragment
     },
 
     /**
@@ -88,10 +88,10 @@ export default {
 
       const fragments = { ...state.fragments }
       fragments[ids.statementId] = statementObj
-      set(state, 'fragments', fragments)
+      state.fragments = fragments
 
       if (hasOwnProp(state.selectedFragments, ids.fragmentId)) {
-        del(state.selectedFragments, ids.fragmentId)
+        delete state.selectedFragments[ids.fragmentId]
         state.selectedFragments = { ...state.selectedFragments }
       }
 
@@ -117,7 +117,7 @@ export default {
           }
         }
       }
-      set(state.fragments, statementId, fragments)
+      state.fragments[statementId] = fragments
     },
 
     /**
@@ -125,7 +125,7 @@ export default {
      * @param {String} fragmentId
      */
     removeFragmentFromSelection (state, fragmentId) {
-      del(state.selectedFragments, fragmentId)
+      delete state.selectedFragments[fragmentId]
     },
 
     /**
@@ -133,7 +133,7 @@ export default {
      * @param {Array} initFragments
      */
     setInitFragments (state, initFragments) {
-      set(state, 'initFragments', initFragments)
+      state.initFragments = initFragments
     },
 
     /**
@@ -163,7 +163,7 @@ export default {
 
       // If fragment to update is selected and assignee or editableState is changed, we have to set it also in session storage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedFragments, data.fragmentId)) {
-        set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
+        state.selectedFragments[data.fragmentId].assignee = data.assignee
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
@@ -214,9 +214,9 @@ export default {
       const url = Routing.generate(
         'DemosPlan_statement_fragment_delete_ajax',
         {
-          procedureId: procedureId,
-          statementId: statementId,
-          fragmentId: fragmentId
+          procedureId,
+          statementId,
+          fragmentId
         }
       )
 
@@ -296,20 +296,18 @@ export default {
     setAssigneeAction ({ commit }, { fragmentId, statementId, ignoreLastClaimed, assigneeId, lastClaimed }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_fragments_api', {
-          entityId: fragmentId
-        }),
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        },
+        url: Routing.generate('dplan_claim_fragments_api', { entityId: fragmentId }),
         data: {
           data: {
             type: 'user',
             id: assigneeId,
-            ignoreLastClaimed: ignoreLastClaimed,
+            ignoreLastClaimed,
             ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
           }
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json'
         }
       })
         .then(this.api.checkResponse)
@@ -393,7 +391,23 @@ export default {
 
       return dpApi({
         method: 'PATCH',
-        params,
+        url: Routing.generate('dplan_api_statement_fragment_edit', {
+          statementFragmentId: data.id,
+          include: [
+            'statement',
+            'department',
+            'tags',
+            'counties',
+            'municipalities',
+            'priorityAreas',
+            'element',
+            'paragraph',
+            'document',
+            'assignee',
+            'lastClaimedUser'
+          ].join(),
+          ...params
+        }),
         data: {
           data: {
             type: 'StatementFragment',
@@ -401,26 +415,6 @@ export default {
             attributes: payload
           }
         },
-        responseType: 'json',
-        url: Routing.generate(
-          'dplan_api_statement_fragment_edit',
-          {
-            statementFragmentId: data.id,
-            include: [
-              'statement',
-              'department',
-              'tags',
-              'counties',
-              'municipalities',
-              'priorityAreas',
-              'element',
-              'paragraph',
-              'document',
-              'assignee',
-              'lastClaimedUser'
-            ].join()
-          }
-        ),
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
@@ -487,17 +481,19 @@ export default {
 
           // If the reviewer has been set, update fragment assignment
           if (hasOwnProp(data, 'departmentId')) {
-            if (hasOwnProp(data, 'lastClaimed') && hasOwnProp(responseRelationships, 'lastClaimedUser')) {
+            if (hasOwnProp(data, 'lastClaimed') && responseRelationships.lastClaimedUser?.data) {
               dataToUpdate.lastClaimedUserId = responseRelationships.lastClaimedUser.data.id
             }
 
-            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+            dataToUpdate.departmentId = responseRelationships.department?.data ? responseRelationships.department.data.id : ''
+
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE
-              if (hasOwnProp(responseRelationships, 'assignee')) {
+              if (responseRelationships.assignee?.data) {
                 const newAssigneeId = responseRelationships.assignee.data.id
                 const newAssignee = response.included.find(elem => elem.type === 'User' && elem.id === newAssigneeId)
                 const orgaId = newAssignee.relationships.orga.data.id
+
                 dataToUpdate.assignee = {
                   id: newAssigneeId,
                   uId: newAssigneeId,

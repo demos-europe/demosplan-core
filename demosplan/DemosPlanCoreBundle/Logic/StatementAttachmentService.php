@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\OptimisticLockException;
@@ -21,8 +22,10 @@ use Doctrine\ORM\ORMException;
 
 class StatementAttachmentService extends CoreService
 {
-    public function __construct(private readonly StatementAttachmentRepository $attachmentRepository)
-    {
+    public function __construct(
+        private readonly StatementAttachmentRepository $attachmentRepository,
+        private readonly StatementRepository $statementRepository
+    ) {
     }
 
     public function createOriginalAttachment(Statement $statement, File $file): StatementAttachment
@@ -65,26 +68,26 @@ class StatementAttachmentService extends CoreService
      *
      * @return Collection<int, StatementAttachment>
      */
-    public function copyAttachmentEntries(Collection $originalAttachments, Statement $targetStatement): Collection
-    {
+    public function copyAttachmentEntries(
+        Collection $originalAttachments,
+        Statement $targetStatement,
+    ): Collection {
         $copiedAttachments = new ArrayCollection();
         foreach ($originalAttachments as $originalAttachment) {
             $copiedAttachments->add($this->copyToStatement(
                 $originalAttachment,
-                $targetStatement
+                $targetStatement,
             ));
         }
 
         return $copiedAttachments;
     }
 
-    private function copyToStatement(StatementAttachment $attachment, Statement $statement): StatementAttachment
-    {
-        return $this->createAttachment(
-            $statement,
-            $attachment->getFile(),
-            $attachment->getType()
-        );
+    private function copyToStatement(
+        StatementAttachment $attachment,
+        Statement $statement,
+    ): StatementAttachment {
+        return $this->statementRepository->copyAttachment($statement, $attachment);
     }
 
     /**

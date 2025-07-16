@@ -24,6 +24,7 @@
         id="r_anonymize_statement_meta"
         v-model="actions.anonymizeStatementMeta"
         :class="{'u-mb-0_5': !actions.anonymizeStatementMeta}"
+        data-cy="statementAnonymize:meta"
         :label="{
           hint: Translator.trans('statement.anonymize.meta.hint'),
           text: Translator.trans('statement.anonymize.meta.label')
@@ -40,9 +41,11 @@
       </ul>
 
       <dp-checkbox
+        v-if="hasPermission('feature_statement_text_history_delete')"
         id="r_delete_statement_text_history"
         v-model="actions.deleteStatementTextHistory"
         class="u-mb-0_5"
+        data-cy="statementAnonymize:history"
         :label="{
           hint: Translator.trans('statement.anonymize.delete.history.hint'),
           text: Translator.trans('statement.anonymize.delete.history.label')
@@ -52,6 +55,7 @@
         id="r_anonymize_statement_text"
         v-model="actions.anonymizeStatementText"
         :class="{'u-mb-0_5': !actions.anonymizeStatementText}"
+        data-cy="statementAnonymize:text"
         :label="{
           hint: Translator.trans('statement.anonymize.text.hint'),
           text: Translator.trans('statement.anonymize.text.label')
@@ -59,14 +63,14 @@
       <div
         v-show="actions.anonymizeStatementText"
         class="u-ml">
-        <dp-tooltip-icon
-          icon="fa-question-circle float-right"
+        <dp-contextual-help
+          class="float-right"
           :text="Translator.trans('statement.anonymize.text.editor.hint')" />
         <p class="weight--bold u-mb-0_25">
           {{ Translator.trans('statement.anonymize.text.editor.title') }}
         </p>
         <dp-anonymize-text
-          class="u-mb u-p-0_25 overflow-y-auto max-height-500"
+          class="u-mb u-p-0_25 overflow-y-auto max-h-13"
           :value="anonymizeText"
           @change="text => anonymizeText = text" />
       </div>
@@ -75,6 +79,7 @@
         id="r_delete_statement_attachments"
         v-model="actions.deleteStatementAttachments"
         class="u-mb-0_5"
+        data-cy="statementAnonymize:deleteAttachments"
         :label="{
           hint: Translator.trans('statement.anonymize.delete.attachments.hint'),
           text: Translator.trans('statement.anonymize.delete.attachments.label')
@@ -83,13 +88,20 @@
       <div class="flow-root">
         <dp-button
           color="secondary"
-          :href="Routing.generate('dplan_assessmenttable_view_original_table', {
-            procedureId: procedureId,
-            filterHash: originalFilterHash
-          })"
+          data-cy="statementAnonymize:backToOriginalStatements"
+          :href="hasPermission('area_admin_original_statement_list')
+            ? Routing.generate('dplan_procedure_original_statement_list', {
+              procedureId: procedureId
+            })
+            : Routing.generate('dplan_assessmenttable_view_original_table', {
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
+
         <dp-button
           class="float-right"
+          data-cy="statementAnonymize:next"
           :disabled="isInvalid()"
           icon-after="chevron-right"
           :text="Translator.trans('continue.confirm')"
@@ -112,12 +124,13 @@
         <li v-if="actions.anonymizeStatementText">
           {{ Translator.trans('statement.anonymize.text.label') }}
           <div>
-            <template v-for="(snippet, idx) in anonymizedTextSnippets">
+            <template
+              v-for="(snippet, idx) in anonymizedTextSnippets"
+              :key="idx + 'snippet'">
+              <span v-if="idx !== 0">
+                ...
+              </span>
               <span
-                v-if="idx !== 0"
-                :key="idx + 'dots'"> ... </span>
-              <span
-                :key="idx + '_enonymized_segments'"
                 class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"
                 v-clean-html="snippet" />
             </template>
@@ -136,12 +149,14 @@
       <div class="flow-root">
         <dp-button
           color="secondary"
+          data-cy="statementAnonymize:back"
           icon="chevron-left"
           :text="Translator.trans('bulk.edit.actions.edit')"
           @click="back" />
         <dp-button
-          class="float-right"
           :busy="busy"
+          class="float-right"
+          data-cy="statementAnonymize:submit"
           icon-after="chevron-right"
           :text="Translator.trans('bulk.edit.actions.apply')"
           @click="submit" />
@@ -212,7 +227,7 @@
             {{ Translator.trans('id') }} {{ child.externId }}
           </li>
         </ul>
-        <p>
+        <p v-if="hasPermission('area_admin_assessmenttable')">
           <a :href="aTableLink">{{ Translator.trans('statement.anonymize.text.children.link.to.list') }}</a><br>
           {{ Translator.trans('statement.anonymize.text.children.version.update') }}
         </p>
@@ -220,10 +235,15 @@
 
       <div class="flow-root">
         <dp-button
-          :href="Routing.generate('dplan_assessmenttable_view_original_table', {
-            procedureId: procedureId,
-            filterHash: originalFilterHash
-          })"
+          data-cy="statementAnonymize:backToOriginalStatements"
+          :href="hasPermission('area_admin_original_statement_list')
+            ? Routing.generate('dplan_procedure_original_statement_list', {
+              procedureId: procedureId
+            })
+            : Routing.generate('dplan_assessmenttable_view_original_table', {
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
       </div>
     </template>
@@ -238,7 +258,7 @@ import {
   dpApi,
   DpButton,
   DpCheckbox,
-  DpTooltipIcon
+  DpContextualHelp
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -248,7 +268,7 @@ export default {
     DpButton,
     DpCheckbox,
     DpAnonymizeText,
-    DpTooltipIcon
+    DpContextualHelp
   },
 
   directives: {

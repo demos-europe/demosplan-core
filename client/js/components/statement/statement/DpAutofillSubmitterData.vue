@@ -27,21 +27,22 @@
       <p class="lbl u-mb-0_5">
         {{ Translator.trans('submitted.author') }}
       </p>
-      <template v-for="role in roles">
-        <span :key="role.value">
-          <input
-            type="radio"
-            name="r_role"
-            :value="role.value"
-            @change="() => $emit('role-changed', currentRole)"
-            :id="`r_role_${role.value}`"
-            v-model="currentRole"><!--
-       --><label
-            class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
-            :for="`r_role_${role.value}`">
-            {{ Translator.trans(role.label) }}
-          </label>
-        </span>
+      <template
+        v-for="role in roles"
+        :key="role.value">
+        <input
+          name="r_role"
+          type="radio"
+          v-model="currentRole"
+          :data-cy="`roleInput:${role.dataCy}`"
+          :id="`r_role_${role.value}`"
+          :value="role.value"
+          @change="() => $emit('role-changed', currentRole)"><!--
+     --><label
+          class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
+          :for="`r_role_${role.value}`">
+          {{ Translator.trans(role.label) }}
+        </label>
       </template>
     </div><!--
     Assuming t_role defaults to value=0 if feature_institution_participation is set to false:
@@ -60,31 +61,32 @@
         class="u-mb-0_25 flow-root"
         for="submitterSelect">
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
-        <i
-          class="fa fa-question-circle float-right"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="autoFillLabel" />
+        <dp-contextual-help
+          class="float-right"
+          :text="autoFillLabel" />
       </label>
 
        <!--Multiselect component-->
       <dp-multiselect
         id="submitterSelect"
+        data-cy="submitterForm:submitterSelect"
         v-model="submitter"
         :custom-label="customOption"
         :disabled="currentListIsEmpty"
         label="submitter"
         :options="submitterOptions"
         :placeholder="Translator.trans('choose.search')"
+        :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
         @input="emitSubmitterData">
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
-            <div v-cleanhtml="customOption(props.option, true)" />
+            <span v-cleanhtml="customOption(props.option, true)" />
           </template>
 
           <!-- Template for element that is visible when Multiselect is closed -->
           <template v-slot:singleLabel="{ props }">
-            {{ customSingleLabel(props.option) }}
+            <span v-cleanhtml="customSingleLabel(props.option)" />
           </template>
       </dp-multiselect>
     </div>
@@ -139,15 +141,16 @@
       :key="idx">
       <dp-input
         v-for="(element, index) in generalElements(idx)"
+        v-bind="element"
+        v-model="submitterData[element.field]"
         class="layout__item u-1-of-2 u-mb-0_75"
-        :key="`${element.id}_${index}`"
-        v-bind="element" />
+        :key="`${element.id}_${index}`" />
     </div>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -162,7 +165,9 @@ const emptySubmitterData = {
 
 export default {
   name: 'DpAutofillSubmitterData',
+
   components: {
+    DpContextualHelp,
     DpInput,
     DpMultiselect
   },
@@ -229,17 +234,24 @@ export default {
     }
   },
 
+  emits: [
+    'role-changed',
+    'submitter:chosen'
+  ],
+
   data () {
     return {
       //  Citizen vs. Institution radio buttons
       roles: [
         {
           value: '0',
-          label: 'role.citizen'
+          label: 'role.citizen',
+          dataCy: 'citizen'
         },
         {
           value: '1',
-          label: 'invitable_institution'
+          label: 'invitable_institution',
+          dataCy: 'invitableInstitution'
         }
       ],
 
@@ -398,24 +410,30 @@ export default {
   },
 
   watch: {
-    currentRole: function () {
-      //  Reset Multiselect + fields upon selection of `r_roles`-radio
-      this.submitter = {}
-      this.submitterData = emptySubmitterData
+    currentRole: {
+      handler () {
+        //  Reset Multiselect + fields upon selection of `r_roles`-radio
+        this.submitter = {}
+        this.submitterData = emptySubmitterData
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    submitter: function (submitterSelected) {
-      //  When `submitter` changes via the `currentRole` watcher, lets not trigger an update
-      if (
-        typeof submitterSelected === 'undefined' ||
-        (
-          hasOwnProp(submitterSelected, 'entityId') || hasOwnProp(submitterSelected, 'entityType')
-        ) === false
-      ) {
-        return
-      }
+    submitter: {
+      handler (submitterSelected) {
+        //  When `submitter` changes via the `currentRole` watcher, lets not trigger an update
+        if (
+          typeof submitterSelected === 'undefined' ||
+          (
+            hasOwnProp(submitterSelected, 'entityId') || hasOwnProp(submitterSelected, 'entityType')
+          ) === false
+        ) {
+          return
+        }
 
-      this.submitterData = this.submitter.submitter
+        this.submitterData = { ...this.submitter.submitter }
+      },
+      deep: true
     }
   },
 
@@ -502,7 +520,8 @@ export default {
             required: isRequiredInFormDefinition,
             type: curr.type,
             width: curr.width,
-            dataCy: curr.dataCy
+            dataCy: curr.dataCy,
+            field: curr.field
           })
         }
         return acc

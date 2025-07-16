@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use DemosEurope\DemosplanAddon\Contracts\Services\MapProjectionConverterInterface;
+use DemosEurope\DemosplanAddon\Contracts\ValueObject\CoordinatesViewportInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use Exception;
@@ -20,7 +22,7 @@ use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
 
-class MapProjectionConverter
+class MapProjectionConverter implements MapProjectionConverterInterface
 {
     final public const OBJECT_RETURN_TYPE = 'object';
     final public const ARRAY_RETURN_TYPE = 'array';
@@ -41,43 +43,36 @@ class MapProjectionConverter
      * in geojson format.
      *
      * @param string $returnType [self::OBJECT_RETURN_TYPE | self::STRING_RETURN_TYPE]
-     *
-     * @return object|string
      */
     public function convertGeoJsonPolygon(
         string $geoJson,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::OBJECT_RETURN_TYPE
-    ) {
+        string $returnType = self::OBJECT_RETURN_TYPE,
+    ): object|string {
         $geoJson = '' === $geoJson ? [] : Json::decodeToMatchingType($geoJson);
         $result = $geoJson;
         $features = data_get($geoJson, 'features') ?? [];
         $i = 0;
         foreach ($features as $feature) {
             if (null !== $geometry = data_get($feature, 'geometry')) {
-                switch ($geometry->type) {
-                    case 'Polygon':
-                        $newCoordinates = $this->convertPolygon(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                        break;
-                    case 'Point':
-                        $newCoordinates = $this->convertPoint(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                        break;
-                    default:
-                        $newCoordinates = $this->convertLinear(
-                            $geometry->coordinates,
-                            $currentProjection,
-                            $newProjection
-                        );
-                }
+                $newCoordinates = match ($geometry->type) {
+                    'Polygon' => $this->convertPolygon(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                    'Point' => $this->convertPoint(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                    default => $this->convertLinear(
+                        $geometry->coordinates,
+                        $currentProjection,
+                        $newProjection
+                    ),
+                };
                 $result->features[$i]->geometry->coordinates = $newCoordinates;
             }
             ++$i;
@@ -95,15 +90,13 @@ class MapProjectionConverter
      * (Ex: '123.456,789.012,345.678,901.234').
      *
      * @param string $returnType [self::ARRAY_RETURN_TYPE | self::STRING_RETURN_TYPE]
-     *
-     * @return array|string
      */
     public function convertViewport(
         string $viewport,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
-    ) {
+        string $returnType = self::ARRAY_RETURN_TYPE,
+    ): array|string {
         $newViewport = [];
         $viewport = explode(',', $viewport);
         if (is_array($viewport) && 4 === count($viewport)) {
@@ -130,9 +123,9 @@ class MapProjectionConverter
     }
 
     public function convertCoordinatesViewport(
-        CoordinatesViewport $coordinatesViewport,
+        CoordinatesViewportInterface $coordinatesViewport,
         string $sourceProjectionString,
-        string $targetProjectionString): CoordinatesViewport
+        string $targetProjectionString): CoordinatesViewportInterface
     {
         if ($sourceProjectionString === $targetProjectionString) {
             return $coordinatesViewport;
@@ -158,7 +151,7 @@ class MapProjectionConverter
         string $coordinate,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $coordinateArray = explode(',', $coordinate);
         if (is_array($coordinateArray) && 2 === count($coordinateArray)) {
@@ -181,7 +174,7 @@ class MapProjectionConverter
         array $coordinatesGroup,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $result = [];
         foreach ($coordinatesGroup as $coordinateSubgroup) {
@@ -204,7 +197,7 @@ class MapProjectionConverter
         array $coordinates,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $result = [];
         foreach ($coordinates as $coordinate) {
@@ -220,15 +213,13 @@ class MapProjectionConverter
 
     /**
      * @param string $returnType [self::ARRAY_RETURN_TYPE | self::STRING_RETURN_TYPE]
-     *
-     * @return array|string
      */
     public function convertPoint(
         array $coordinate,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
-    ) {
+        string $returnType = self::ARRAY_RETURN_TYPE,
+    ): array|string {
         $pointSrc = new Point($coordinate[0], $coordinate[1], $currentProjection);
         $pointDest = $this
             ->projectionTransformer

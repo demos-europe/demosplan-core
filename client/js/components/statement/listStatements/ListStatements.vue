@@ -8,64 +8,65 @@
 </license>
 
 <template>
-  <div>
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
-      class="u-pv-0_5 space-stack-s">
-      <div class="flex space-inline-xs">
-        <search-modal
-          :search-in-fields="searchFields"
-          @search="(term, selectedFields) => applySearch(term, selectedFields)"
-          ref="searchModal" />
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex">
+          <custom-search-statements
+            ref="customSearchStatements"
+            :search-in-fields="searchFields"
+            @changeFields="updateSearchFields"
+            @reset="resetSearch"
+            @search="(term) => applySearch(term)" />
+        </div>
         <dp-button
-          class="ml-auto"
+          data-cy="editorFullscreen"
+          :icon="isFullscreen ? 'compress' : 'expand'"
+          icon-size="medium"
+          hide-text
+          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
           variant="outline"
-          :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-          :disabled="searchValue === ''"
-          :text="Translator.trans('search.reset')" />
+          @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
         class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
-        :selected-items-count="selectedItemsCount"
-        :selection-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
+          data-cy="statementsBulkShare"
+          :text="Translator.trans('procedure.share_statements.bulk.share')"
           variant="outline"
-          @click.prevent="handleBulkShare"
-          :text="Translator.trans('procedure.share_statements.bulk.share')" />
+          @click.prevent="handleBulkShare" />
       </dp-bulk-edit-header>
-      <div class="flex space-inline-xs">
-        <dp-flyout :align="'left'">
-          <template v-slot:trigger>
-            {{ Translator.trans('export.verb') }}
-            <i
-              class="fa fa-angle-down"
-              aria-hidden="true" />
-          </template>
-          <a
-            :href="exportRoute('dplan_statement_segments_export')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.docx') }}
-          </a>
-          <a
-            :href="exportRoute('dplan_statement_segments_export_packaged')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.zip') }}
-          </a>
-          <a
-            v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-            :href="exportRoute('dplan_statement_xls_export')"
-            rel="noopener">
-            {{ Translator.trans('export.statements.xlsx') }}
-          </a>
-        </dp-flyout>
+      <statement-export-modal
+        data-cy="listStatements:export"
+        @export="showHintAndDoExport" />
+      <div
+        v-if="items.length > 0"
+        class="flex mt-2">
+        <dp-pager
+          v-if="pagination.currentPage"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          @page-change="getItemsByPage"
+          @size-change="handleSizeChange" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label class="u-mb-0">
+          <label
+            class="u-mb-0"
+            for="applySortSelection">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
+            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
@@ -73,11 +74,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      v-if="isLoading"
+      class="u-mt" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items.length > 0"
+        data-cy="listStatements"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -90,9 +95,9 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
-        @select-all="handleSelectAll"
+        @selectAll="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
+        <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />
@@ -114,7 +119,7 @@
             submitDate,
             submitName
           }">
-          <ul class="o-list max-width-350">
+          <ul class="o-list max-w-12">
             <li
               v-if="authorName !== '' || submitName !== ''"
               class="o-list__item o-hellip--nowrap">
@@ -130,6 +135,11 @@
             </li>
           </ul>
         </template>
+        <template v-slot:status="{ status }">
+          <status-badge
+            class="mt-0.5"
+            :status="status" />
+        </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
             <div
@@ -143,31 +153,49 @@
             class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
-        <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout>
+        <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
+          <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              class="btn--blank o-link--default"
+              :class="{
+                'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
+                'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
+              data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
               rel="noopener">
               {{ Translator.trans('split') }}
             </button>
             <a
+              data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
-              v-if="hasPermission('feature_read_source_statement_via_api')"
-              :class="{'is-disabled': originalPdf === null}"
+              v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+              :class="{'is-disabled': !originalPdf}"
+              data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
             </a>
+            <a
+              v-if="hasPermission('area_admin_original_statement_list')"
+              :class="{'is-disabled': !originalId}"
+              data-cy="listStatements:originalStatement"
+              :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
+              rel="noreferrer noopener">
+              {{ Translator.trans('statement.original') }}
+            </a>
             <button
-              :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              class="btn--blank o-link--default"
+              :class="{
+                'is-disabled': synchronized || assignee.id !== currentUserId,
+                'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
+              data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
@@ -256,24 +284,12 @@
         </template>
       </dp-data-table>
 
-      <dp-pager
-        v-if="pagination.currentPage"
-        :class="{ 'invisible': isLoading }"
-        class="u-pt-0_5 text-right u-1-of-1"
-        :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
-        :limits="pagination.limits"
-        @page-change="getItemsByPage"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+      <dp-inline-notification
+        v-else
+        :class="{ 'mx-2': isFullscreen }"
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
     </template>
-
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
   </div>
 </template>
 
@@ -293,18 +309,22 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
+  sessionStorageMixin,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
 export default {
   name: 'ListStatements',
 
   components: {
+    CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
     DpClaim,
@@ -315,15 +335,16 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    SearchModal,
-    StatementMetaData
+    StatementExportModal,
+    StatementMetaData,
+    StatusBadge
   },
 
   directives: {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin, tableSelectAllItems],
+  mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -361,9 +382,11 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10
       },
+      isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'width-100' },
+        { field: 'status', label: Translator.trans('status') },
+        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') }
@@ -399,11 +422,15 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Orga', {
+      orgaObject: 'items'
+    }),
+
+    ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
@@ -421,22 +448,41 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute) => Routing.generate(exportRoute, {
-        filter: {
-          procedureId: {
-            condition: {
-              path: 'procedure.id',
-              value: this.procedureId
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored) => {
+        const parameters = {
+          filter: {
+            procedureId: {
+              condition: {
+                path: 'procedure.id',
+                value: this.procedureId
+              }
             }
+          },
+          procedureId: this.procedureId,
+          search: {
+            value: this.searchValue,
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          },
+          sort: this.selectedSort,
+          isObscured,
+          isInstitutionDataCensored,
+          isCitizenDataCensored
+        }
+
+        if (docxHeaders) {
+          parameters.tableHeaders = {
+            col1: docxHeaders.col1,
+            col2: docxHeaders.col2,
+            col3: docxHeaders.col3
           }
-        },
-        procedureId: this.procedureId,
-        search: {
-          value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        },
-        sort: this.selectedSort
-      })
+        }
+
+        if (fileNameTemplate) {
+          parameters.fileNameTemplate = fileNameTemplate
+        }
+
+        return Routing.generate(exportRoute, parameters)
+      }
     },
 
     items () {
@@ -449,7 +495,7 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            originalPdf: originalPdf
+            originalPdf
           }
         })
     },
@@ -460,17 +506,17 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -485,7 +531,8 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? Object.values(assignee.rel('orga'))[0] : null
+        const assigneeOrga = assignee ? assignee.rel('orga') : null
+
         if (typeof assignee === 'undefined') {
           return {
             id: statement.relationships.assignee.data.id,
@@ -493,12 +540,15 @@ export default {
             orgaName: 'unbekannt'
           }
         }
+
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
           orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+
         }
       }
+
       return {
         id: '',
         name: '',
@@ -533,13 +583,13 @@ export default {
       }
 
       if (isStatementClaimedByCurrentUser) {
-        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
       }
 
-      if (!isStatementClaimed || isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+      if (!isStatementClaimed || (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic')))) {
         this.claimStatement(statementId)
           .then(() => {
-            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
           })
           .catch(err => {
             console.error(err)
@@ -547,14 +597,14 @@ export default {
       }
     },
 
-    applySearch (term, selectedFields) {
+    applySearch (term) {
       this.searchValue = term
-      this.searchFieldsSelected = selectedFields
       this.getItemsByPage(1)
     },
 
     applySort (sortValue) {
       this.selectedSort = sortValue
+      this.updateSessionStorage('selectedSort', sortValue)
       this.getItemsByPage(1)
     },
 
@@ -565,8 +615,8 @@ export default {
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       if (typeof statement !== 'undefined') {
-        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: this.currentUserId } } } } } }
-        this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+        const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
+        this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
           data: {
@@ -575,13 +625,14 @@ export default {
             relationships: {
               assignee: {
                 data: {
-                  type: 'User',
+                  type: 'Claim',
                   id: this.currentUserId
                 }
               }
             }
           }
         }
+
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
             checkResponse(response)
@@ -610,15 +661,14 @@ export default {
       if (assigneeId !== this.currentUserId) {
         this.claimStatement(statementId)
       } else {
-        console.log('unclaim')
         this.unclaimStatement(statementId)
       }
     },
 
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
-      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'User', id: null } } } } } }
-      this.setStatement({ ...dataToUpdate, id: statementId, group: null })
+      const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
+      this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
         data: {
@@ -647,6 +697,41 @@ export default {
     },
 
     getItemsByPage (page) {
+      const statementFields = [
+        // Attributes:
+        'authoredDate',
+        'authorName',
+        'externId',
+        'isSubmittedByCitizen',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isCitizen',
+        'memo',
+        'originalId',
+        'status',
+        'submitDate',
+        'submitName',
+        'submitType',
+        'submitterEmailAddress',
+        'text',
+        'textIsTruncated',
+        // Relationships:
+        'assignee',
+        'sourceAttachment',
+        'segments'
+      ]
+      if (this.isSourceAndCoupledProcedure) {
+        statementFields.push('synchronized')
+      }
+      if (hasPermission('area_statement_segmentation')) {
+        statementFields.push('segmentDraftList')
+      }
+
       this.fetchStatements({
         page: {
           number: page,
@@ -668,43 +753,13 @@ export default {
         include: [
           'segments',
           'assignee',
-          'attachments',
-          'attachments.file'
+          'sourceAttachment',
+          'sourceAttachment.file'
         ].join(),
         fields: {
-          Statement: [
-            // Attributes:
-            'authoredDate',
-            'authorName',
-            'externId',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isCitizen',
-            'memo',
-            'submitDate',
-            'submitName',
-            'submitType',
-            'submitterEmailAddress',
-            'synchronized',
-            'text',
-            'textIsTruncated',
-            // Relationships:
-            'assignee',
-            'attachments',
-            'segments'
-          ].join(),
-          File: [
-            'hash'
-          ].join(),
-          // Segments are only counted, no data needed here.
-          StatementSegment: [
-            'id'
+          Statement: statementFields.join(),
+          SourceStatementAttachment: [
+            'file'
           ].join()
         }
       }).then((data) => {
@@ -722,15 +777,18 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(el.relationships.attachments.list())
-          .filter(attachment => attachment.attributes.type === 'source_statement')
-        if (originalAttachment.length === 1) {
-          return originalAttachment[0].relationships.file.get().attributes.hash
-        }
+      if (!el.hasRelationship('sourceAttachment')) {
+        return null
       }
 
-      return null
+      const attachments = el.relationships.sourceAttachment.list()
+      const firstAttachment = Object.values(attachments)[0]
+
+      if (!firstAttachment?.relationships?.file) {
+        return null
+      }
+
+      return firstAttachment.relationships.file.get()?.attributes?.hash || null
     },
 
     /**
@@ -811,7 +869,7 @@ export default {
     },
 
     getStatementsFullText (statementId) {
-      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } }, { serialize: true })
+      return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
         .then((response) => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
@@ -843,9 +901,27 @@ export default {
       }
     },
 
+    handleFullscreenMode () {
+      this.isFullscreen = !this.isFullscreen
+      if (this.isFullscreen) {
+        document.querySelector('html').setAttribute('style', 'overflow: hidden')
+      } else {
+        document.querySelector('html').removeAttribute('style')
+      }
+    },
+
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
+      this.$refs.customSearchStatements.toggleAllFields(false)
+    },
+
+    restoreSelectedSort () {
+      const storedSort = this.getItemFromSessionStorage('selectedSort')
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+      }
     },
 
     /**
@@ -869,13 +945,23 @@ export default {
       }
     },
 
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored)
+      if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = url
+      }
+    },
+
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         this.deleteStatement(id)
           .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: 'confirm.statement.deleted' },
-            204: { type: 'confirm', text: 'confirm.statement.deleted' }
+            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
           }))
+          .then(() => {
+            this.getItemsByPage(this.pagination.currentPage)
+          })
       }
     },
 
@@ -883,6 +969,10 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    updateSearchFields (selectedFields) {
+      this.searchFieldsSelected = selectedFields
     }
   },
 
@@ -894,6 +984,7 @@ export default {
       }
     })
     this.initPagination()
+    this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   }
 }

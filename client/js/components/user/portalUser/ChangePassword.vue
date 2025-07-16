@@ -24,6 +24,10 @@
         name="userId"
         :value="userId"
         required>
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
 
       <dp-input
         id="password_old"
@@ -80,6 +84,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     userId: {
       type: String,
       required: true

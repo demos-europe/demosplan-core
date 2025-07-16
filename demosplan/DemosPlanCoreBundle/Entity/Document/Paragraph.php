@@ -66,7 +66,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     protected $parent;
 
     /**
-     * @var ParagraphInterface[]
+     * @var Collection<int, ParagraphInterface>
      *
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="parent")
      *
@@ -82,7 +82,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var ElementsInterface
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Elements", inversedBy="paragraphs")
      *
      * @ORM\JoinColumn(name="_e_id", referencedColumnName="_e_id", nullable=false, onDelete="CASCADE")
      **/

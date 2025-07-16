@@ -28,7 +28,7 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
      */
     protected $client;
 
-    public function __construct(private GlobalConfigInterface $globalConfig, private LoggerInterface $logger)
+    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly LoggerInterface $logger)
     {
     }
 

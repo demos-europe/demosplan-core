@@ -8,76 +8,60 @@
 </license>
 
 <template>
-  <div>
-    <div class="u-1-of-2 inline-block u-pr-0_5">
-      <label
-        class="push--bottom validation--fail u-mb-0_25"
-        :for="userId + ':firstName'">
-        {{ Translator.trans('name.first') }}*
-      </label>
-      <input
-        required
+  <div class="whitespace-nowrap">
+    <div class="inline-block w-1/2 pr-3 my-3">
+      <dp-input
         :id="userId + ':firstName'"
-        class="layout__item u-mb-0_5 u-pl-0_25"
-        style="height: 28px;"
-        type="text"
         v-model="localUser.attributes.firstname"
-        @input="emitUserUpdate"
-        data-cy="firstName">
-    </div><!--
-     --><div class="u-1-of-2 inline-block u-pl-0_5">
-      <label
-        class="push--bottom u-mt-0_5 u-mb-0_25"
-        :for="userId + ':lastName'">
-        {{ Translator.trans('name.last') }}*
-      </label>
-      <input
+        data-cy="firstName"
+        :label="{
+          text: Translator.trans('name.first')
+        }"
         required
+        @input="emitUserUpdate" />
+    </div>
+
+    <div class="inline-block w-1/2 pr-3 my-3">
+      <dp-input
         :id="userId + ':lastName'"
-        class="layout__item u-mb-0_5"
-        style="height: 28px;"
-        type="text"
         v-model="localUser.attributes.lastname"
-        @input="emitUserUpdate"
-        data-cy="lastName">
+        data-cy="lastName"
+        :label="{
+          text: Translator.trans('name.last')
+        }"
+        required
+        @input="emitUserUpdate" />
     </div>
 
     <!-- Email -->
-    <div class="u-1-of-2 u-pr-0_5">
-      <label
-        :for="userId + ':email'"
-        class="push--bottom u-mt-0_25 u-mb-0_25">
-        {{ Translator.trans('email') }}*
-        <p class="milli weight--normal flush--bottom">
-          {{ Translator.trans('explanation.user.email', { projectName: projectName }) }}
-        </p>
-      </label>
-      <input
-        required
+    <div class="w-1/2 pr-3 mb-3">
+      <dp-input
         :id="userId + ':email'"
-        class="layout__item u-pl-0_25"
-        style="height: 28px;"
-        type="email"
         v-model="localUser.attributes.email"
-        @input="emitUserUpdate"
-        data-cy="userEmail">
+        data-cy="userEmail"
+        :label="{
+          hint: Translator.trans('explanation.user.email', { projectName: projectName }),
+          text: Translator.trans('email')
+        }"
+        required
+        @input="emitUserUpdate" />
     </div>
 
-    <div class="u-1-of-2 u-pr-0_5 u-mt-0_25 inline-block">
+    <div class="w-1/2 pr-3 inline-block">
       <label
-        class="push--bottom u-mb-0_25 u-mt-0_5"
+        class="mb-1.5 mt-3"
         :for="userId + ':organisationId'">
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
-        v-if="hasPermission('area_organisations')"
+        v-if="hasPermission('feature_organisation_user_list')"
         :id="userId + ':organisationId'"
+        ref="orgasDropdown"
         data-cy="organisation"
         label="name"
         :loading="isLoading"
         :options="initialOrgaSuggestions"
         :placeholder="Translator.trans('search.three.signs')"
-        ref="orgasDropdown"
         required
         track-by="id"
         :value="currentUserOrga"
@@ -94,59 +78,46 @@
       <span v-else>
         {{ currentUserOrga.name || '' }}
       </span>
-    </div><!--
-    --><div class="u-1-of-2 inline-block u-pl-0_5">
-      <label
-        class="push--bottom u-mb-0_25 u-mt-0_5"
-        :for="userId + ':departmentId'">
-        {{ Translator.trans('department') }}*
-        <p
-          v-if="localUser.relationships.orga.data.id === ''"
-          class="lbl__hint">
-          {{ Translator.trans('organisation.select.first') }}
-        </p>
-      </label>
-      <select
-        required
-        class="layout__item"
-        style="height: 28px; background: white;"
+    </div>
+
+    <div class="w-1/2 pr-3 inline-block">
+      <dp-select
         :id="userId + ':departmentId'"
+        data-cy="department"
         :disabled="noOrgaSelected"
-        @change="changeUserDepartment"
-        data-cy="department">
-        <option
-          v-for="department in currentOrgaDepartments"
-          :key="department.id || null"
-          :value="department.id"
-          :selected="localUser.relationships.department.data.id === department.id">
-          {{ department.name }}
-        </option>
-      </select>
+        :label="{
+          hint: localUser.relationships.orga?.data?.id ? '' : Translator.trans('organisation.select.first'),
+          text: Translator.trans('department')
+        }"
+        :options="departmentSelectOptions"
+        required
+        :selected="localUser.relationships.department.data?.id || ''"
+        @select="changeUserDepartment" />
     </div>
 
     <!-- Role -->
     <div
       v-if="organisations[this.currentUserOrga.id]"
-      class=" u-1-of-2 u-pr-0_5">
+      class="w-1/2 pr-3 mt-3">
       <label
-        class="push--bottom u-mt-0_75 u-mb-0_25"
+        class="u-mt-0_75 mb-1.5"
         :for="userId + ':userRoles'">
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
         :id="userId + ':userRoles'"
-        class="u-mb-0_5"
+        ref="rolesDropdown"
+        class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
-        data-cy="role"
+        data-cy="roles"
         label="name"
         multiple
         :options="allowedRolesForOrga"
-        ref="rolesDropdown"
         required
         track-by="id"
         :value="localUser.relationships.roles.data"
-        @select="addRole"
-        @remove="removeRole">
+        @remove="removeRole"
+        @select="addRole">
         <template v-slot:option="{ props }">
           <span>{{ roles[props.option.id].attributes.name }}</span>
         </template>
@@ -155,8 +126,8 @@
             {{ roles[props.option.id].attributes.name }}
             <i
               aria-hidden="true"
-              tabindex="1"
               class="multiselect__tag-icon"
+              tabindex="1"
               @click="props.remove(props.option)" />
             <input
               :name="userId + ':userRoles[]'"
@@ -170,14 +141,18 @@
 </template>
 
 <script>
-import { dpApi, DpMultiselect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { dpApi, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { mapGetters, mapMutations, mapState } from 'vuex'
+import { nextTick } from 'vue'
 import qs from 'qs'
 
 export default {
   name: 'DpUserFormFields',
+
   components: {
-    DpMultiselect
+    DpInput,
+    DpMultiselect,
+    DpSelect
   },
 
   inject: [
@@ -222,6 +197,10 @@ export default {
     }
   },
 
+  emits: [
+    'user-update'
+  ],
+
   data () {
     return {
       currentUserOrga: {
@@ -235,23 +214,23 @@ export default {
   },
 
   computed: {
-    ...mapGetters('role', {
+    ...mapGetters('Role', {
       rolesInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapGetters('orga', {
+    ...mapGetters('Orga', {
       orgasInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 
-    ...mapState('department', {
+    ...mapState('Department', {
       departments: 'items'
     }),
 
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -269,7 +248,7 @@ export default {
       if (this.currentUserOrga.id === '') {
         allowedRoles = this.rolesInRelationshipFormat
       } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+        allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
       } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
@@ -289,12 +268,16 @@ export default {
       return departments
     },
 
+    departmentSelectOptions () {
+      return this.currentOrgaDepartments.map(department => ({ label: department.name, value: department.id }))
+    },
+
     isDepartmentSet () {
-      return this.localUser.relationships.department.data.id !== ''
+      return this.localUser.relationships.department.data?.id !== ''
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('area_organisations') === false && this.presetUserOrgaId
+      return !hasPermission('feature_organisation_user_list') && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -306,23 +289,27 @@ export default {
     }
   },
 
-  methods: {
-    ...mapActions('orga', {
-      organisationList: 'list'
-    }),
+  watch: {
+    user: {
+      handler () {
+        this.localUser = JSON.parse(JSON.stringify(this.user))
+      },
+      deep: true
+    }
+  },
 
-    ...mapMutations('orga', ['setItem']),
+  methods: {
+    ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
       this.emitUserUpdate('relationships.roles.data', role, 'roles', 'add')
     },
 
-    changeUserDepartment (e) {
-      const departmentId = e.target.value
+    changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
-        type: 'department'
+        type: 'Department'
       }
 
       this.$emit('user-update', this.localUser)
@@ -337,7 +324,7 @@ export default {
 
     emitUserUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
+      nextTick(() => {
         this.$emit('user-update', this.localUser)
       })
     },
@@ -346,7 +333,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga && this.user.relationships.orga.data.id
+      const orgaId = this.user.relationships?.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {
@@ -373,8 +360,8 @@ export default {
 
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
-        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
         }
       })
 
@@ -386,11 +373,21 @@ export default {
      *  @param types {Array}
      */
     handleUndefinedRelationships (types) {
+      if (!this.localUser.relationships) {
+        this.localUser.relationships = {}
+      }
+
       types.forEach(type => {
-        if (typeof this.localUser.relationships[type] === 'undefined' || this.localUser.relationships[type] === null) {
-          this.localUser.relationships[type] = {
-            data: {
-              id: ''
+        if (!this.localUser.relationships[type]) {
+          if (type === 'roles') {
+            this.localUser.relationships.roles = {
+              data: []
+            }
+          } else {
+            this.localUser.relationships[type] = {
+              data: {
+                id: ''
+              }
             }
           }
         }
@@ -403,7 +400,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('area_organisations') === false) {
+      if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships
@@ -426,7 +423,6 @@ export default {
     setCurrentUserOrganisation (organisation, rels) {
       this.currentUserOrga = { ...organisation, relationships: rels }
       this.localUser.relationships.orga.data = { id: organisation.id, type: organisation.type }
-      this.localUser.relationships.orga.relationships = rels
     },
 
     setDefaultDepartment (organisation) {
@@ -490,7 +486,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null
@@ -498,7 +494,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'slug'
+              type: 'Slug'
             }
           },
           departments: {
@@ -506,7 +502,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'department'
+                  type: 'Department'
                 }
               })
               : null
@@ -520,7 +516,7 @@ export default {
 
   created () {
     this.localUser = JSON.parse(JSON.stringify(this.user))
-    this.handleUndefinedRelationships(['orga', 'department'])
+    this.handleUndefinedRelationships(['department', 'orga', 'roles'])
   },
 
   mounted () {

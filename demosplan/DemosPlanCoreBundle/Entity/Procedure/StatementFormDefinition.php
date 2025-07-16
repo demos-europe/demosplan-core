@@ -55,7 +55,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @Gedmo\Timestampable(on="create")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $creationDate;
 
@@ -64,7 +64,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @Gedmo\Timestampable(on="update")
      *
-     * @ORM\Column(type="datetime", nullable=false)
+     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
     private $modificationDate;
 
@@ -72,7 +72,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * @var Collection<int, StatementFieldDefinition>
      *
      * @ORM\OneToMany(
-     *      targetEntity="StatementFieldDefinition",
+     *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition",
      *      mappedBy="statementFormDefinition",
      *      cascade={"persist", "remove"}
      *     )
@@ -90,7 +90,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure", mappedBy="statementFormDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="statementFormDefinition")
      *
      * @JoinColumn(referencedColumnName="_p_id")
      */
@@ -103,7 +103,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      *
      * @var ProcedureType|null
      *
-     * @ORM\OneToOne(targetEntity="ProcedureType", mappedBy="statementFormDefinition")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="statementFormDefinition")
      *
      * @JoinColumn()
      */
@@ -131,8 +131,10 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
         $orderNumber = 1;
 
         foreach ($fieldDefinitionsNames as $fieldDefinitionsName => $values) {
+            $statementFieldDefinition = new StatementFieldDefinition($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required']);
+            $statementFieldDefinition->setId('n/a');
             $this->fieldDefinitions->add(
-                new StatementFieldDefinition($fieldDefinitionsName, $this, $orderNumber, $values['enabled'], $values['required'])
+                $statementFieldDefinition
             );
             ++$orderNumber;
         }
@@ -185,6 +187,11 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     public function getProcedure(): ?Procedure

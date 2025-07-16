@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<Department>
@@ -39,7 +38,10 @@ final class DepartmentResourceType extends DplanResourceType
             // Managing users includes access to their departments
             'area_manage_users',
             // Departments are included in the response when fragments are updated
-            'feature_statements_fragment_edit'
+            'feature_statements_fragment_edit',
+            // Resource is needed for segments filtering :In the case when segments are filtered by assignee,
+            // the department resource type has to be available because user are grouped by departments
+            'field_segment_assignee_filter'
         );
     }
 
@@ -53,20 +55,10 @@ final class DepartmentResourceType extends DplanResourceType
         return [];
     }
 
-    public function isReferencable(): bool
-    {
-        return true;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return true;
-    }
-
     protected function getProperties(): array
     {
         return [
-            $this->createAttribute($this->id)->readable(true)->filterable()->sortable(),
+            $this->createIdentifier()->readable()->filterable()->sortable(),
             $this->createAttribute($this->name)->readable(true)->filterable()->sortable(),
         ];
     }

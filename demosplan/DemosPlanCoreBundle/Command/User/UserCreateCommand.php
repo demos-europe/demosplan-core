@@ -43,7 +43,7 @@ class UserCreateCommand extends CoreCommand
         private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         private readonly UserRepository $userRepository,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -58,7 +58,7 @@ class UserCreateCommand extends CoreCommand
         $customer = $this->helpers->askCustomer($input, $output);
         $orga = $this->askOrga($customer->getId(), $input, $output);
         $department = $this->askDepartment($orga->getId(), $input, $output);
-        $roles = $this->helpers->askRoles($input, $output);
+        $roles = $this->helpers->askRoles($input, $output, $this->parameterBag->get('roles_allowed'));
 
         // Create user
         $data = [

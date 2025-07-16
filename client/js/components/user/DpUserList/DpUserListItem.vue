@@ -38,7 +38,7 @@
             data-cy="editItemToggle"
             class="layout">
             <div class="layout__item u-1-of-1 weight--bold u-mb-0_5 o-hellip--nowrap">
-              {{ initialUser.attributes.firstname }} {{ initialUser.attributes.lastname }}
+              {{ user.attributes.firstname }} {{ user.attributes.lastname }}
             </div>
             <div
               class="u-1-of-2 layout__item"
@@ -116,8 +116,9 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, DpTableCard, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
 
 export default {
@@ -152,6 +153,10 @@ export default {
     }
   },
 
+  emits: [
+    'item:selected'
+  ],
+
   data () {
     return {
       isOpen: false,
@@ -161,12 +166,7 @@ export default {
   },
 
   computed: {
-    ...mapState('user', {
-      initialUser (state) {
-        return state.initial[this.user.id]
-      }
-    }),
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -175,21 +175,21 @@ export default {
     },
 
     hasDepartment () {
-      return this.initialUser.hasRelationship('department')
+      return this.user.hasRelationship('department')
     },
 
     hasOrga () {
-      return this.initialUser.hasRelationship('orga') && typeof this.initialUser.relationships.orga !== 'undefined' && this.initialUser.relationships.orga !== null
+      return this.user.hasRelationship('orga') && typeof this.user.relationships.orga !== 'undefined' && this.user.relationships.orga !== null
     },
 
     hasRoles () {
-      return this.initialUser.hasRelationship('roles')
+      return this.user.hasRelationship('roles')
     },
 
     // Check if user name, roles, organisation or department match the entered search string
     isInFilter () {
       return (this.filterValue === '' ||
-        this.initialUser.attributes.fullName.toLowerCase().includes(this.filterValue.toLowerCase()) ||
+        this.user.attributes.fullName.toLowerCase().includes(this.filterValue.toLowerCase()) ||
         /*
          * For now, we don't want to filter by email, because email is not displayed in closed user item - this might confuse users
          * this.user.attributes.email.toLowerCase().includes(this.filterValue.toLowerCase()) ||
@@ -205,15 +205,15 @@ export default {
     },
 
     userDepartment () {
-      return this.hasDepartment ? this.initialUser.relationships.department.get() : null
+      return this.hasDepartment ? this.user.relationships.department.get() : null
     },
 
     userOrga () {
-      return this.hasOrga ? this.initialUser.relationships.orga.get() : null
+      return this.hasOrga ? this.user.relationships.orga.get() : null
     },
 
     userRoles () {
-      return this.hasRoles ? this.initialUser.relationships.roles.list() : null
+      return this.hasRoles ? this.user.relationships.roles.list() : null
     },
 
     userRolesNames () {
@@ -227,12 +227,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save',
       restoreUser: 'restoreFromInitial'
     }),
 
-    ...mapMutations('user', ['setItem']),
+    ...mapMutations('AdministratableUser', ['setItem']),
 
     // Close item and reset roles multiselect
     reset () {
@@ -263,7 +263,7 @@ export default {
     },
 
     updateUser (payload) {
-      this.setItem({ group: null, ...payload })
+      this.setItem({ ...payload })
     }
   }
 }

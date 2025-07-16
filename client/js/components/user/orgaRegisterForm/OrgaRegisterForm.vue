@@ -137,11 +137,10 @@
             required
             value-to-send="on" />
 
-          <dp-input
-            id="_csrf_token"
+          <input
             name="_csrf_token"
             type="hidden"
-            :value="csrfToken" />
+            :value="csrfToken">
 
           <dp-button
             :class="prefixClass('u-mt-0_5 u-mb-0_25')"

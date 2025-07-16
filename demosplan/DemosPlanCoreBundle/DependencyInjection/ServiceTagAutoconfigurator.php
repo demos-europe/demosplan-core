@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Deployment\StrategyInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -22,13 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ServiceTagAutoconfigurator
 {
-    /**
-     * Strategies for demosplan deployment.
-     *
-     * @const string
-     */
-    public const DEPLOYMENT_STRATEGIES = 'dplan.deployment.strategy';
-
     /**
      * Method solvers for the generic RPC implementation.
      *
@@ -44,7 +36,6 @@ final class ServiceTagAutoconfigurator
     private const FAKE_DATA_GENERATOR = 'dplan.data.generator';
 
     private const CLASS_MAP = [
-        self::DEPLOYMENT_STRATEGIES => StrategyInterface::class,
         self::FAKE_DATA_GENERATOR   => DataGeneratorInterface::class,
         self::RPC_METHOD_SOLVERS    => RpcMethodSolverInterface::class,
     ];

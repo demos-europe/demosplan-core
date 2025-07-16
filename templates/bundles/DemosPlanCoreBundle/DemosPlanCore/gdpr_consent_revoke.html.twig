@@ -10,6 +10,7 @@
 
         {% block content %}
             <form id="gdprRevokeForm" name="gdprRevokeForm" action="{{ path('DemosPlan_statement_revoke_gdpr_consent_post') }}" method="post" data-dp-validate="gdprRevokeForm">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label for="emailAddress" class="u-mb-0 u-mt weight--bold">
                     {{ 'email.address'|trans }}*

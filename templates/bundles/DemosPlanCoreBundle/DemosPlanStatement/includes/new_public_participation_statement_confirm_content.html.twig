@@ -37,7 +37,9 @@
     {% block user_data_hint %}
         <p>
             {% if projectType == 'gateway' %}
-                {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% if not hasPermission('feature_show_notice_draft_statement') %}
+                    {{ "explanation.data.user.change"|trans({ href: gatewayURL, label: 'gateway'|trans })|wysiwyg }}
+                {% endif %}
             {% else %}
                 {{ "explanation.data.user.change.portal"|trans({ url: path('DemosPlan_user_portal'), label: 'profile'|trans })|wysiwyg }}
             {% endif %}
@@ -60,9 +62,9 @@
 
 <h3>{{ "statements.public.submit"|trans }}</h3>
 
-<form action="{{ path(templateVars.actionPath,{'procedure':procedure}) }}" method="post"
-      name="js__publicStatementForm">
+<form action="{{ path(templateVars.actionPath,{'procedure':procedure}) }}" method="post" name="js__publicStatementForm">
     <input name="action" type="hidden" value="confirmSubmitPublicStatement">
+    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
     {% for statementToSubmitId in templateVars.statementsToSubmitIds %}
         <input name="item_check[]" type="hidden" value="{{ statementToSubmitId }}">
     {% endfor %}
@@ -96,10 +98,10 @@
                 text: 'explanation.statement.privacy'|trans
             },
                 control: {
+                attributes: ['data-cy=statementConfirmContent:privacy'],
                 name: 'r_privacy',
                 checked: false,
-                value: 'on',
-                datacy: 'gdprCheck'
+                value: 'on'
             },
                 required: true,
                 type: 'checkbox',
@@ -124,6 +126,7 @@
                     text: label_text
                 },
                     control: {
+                    attributes: ['data-cy=statementConfirmContent:gdprConsent'],
                     name: 'r_gdpr_consent',
                     checked: false,
                     value: 'on',
@@ -157,7 +160,10 @@
 
     <div class="{{ 'text-right space-inline-s'|prefixClass }}">
         <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" name="submit_item_status" value="{{ "submit.now"|trans }}" data-cy="submitStatement">
-        <a class="{{ 'btn btn--secondary'|prefixClass }}" href="{{ path('DemosPlan_statement_list_draft', {'procedure': procedure}) }}">
+        <a
+            class="{{ 'btn btn--secondary'|prefixClass }}"
+            data-cy="submitStatement:abort"
+            href="{{ path('DemosPlan_statement_list_draft', {'procedure': procedure}) }}">
             {{ "abort"|trans }}
         </a>
     </div>

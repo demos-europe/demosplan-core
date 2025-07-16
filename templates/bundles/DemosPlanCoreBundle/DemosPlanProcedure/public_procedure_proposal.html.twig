@@ -7,6 +7,8 @@
         {% block content %}
             <div class="{{ 'layout__item u-1-of-1 u-3-of-4-lap-up u-pl-0 u-mt'|prefixClass }}">
                 <form action="{{ path('dplan_procedure_proposals_create') }}" method="POST" data-dp-validate>
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                     {{ uiComponent('form.row', {
                         omitCssPrefix: false,
                         elements: [
@@ -33,7 +35,7 @@
                                 control: {
                                     value: '',
                                     name: 'r_description',
-                                    height: '90'
+                                    height: '8'
                                 },
                                 type: 'textarea',
                                 id: 'description',

@@ -23,7 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class UserHandlerTest extends FunctionalTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\User\UserHandler
+     * @var UserHandler
      */
     protected $sut;
 
@@ -32,7 +32,7 @@ class UserHandlerTest extends FunctionalTestCase
      */
     protected $testUser;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ContentService|object|null
+     * @var ContentService|object|null
      */
     protected $contentService;
 
@@ -40,7 +40,7 @@ class UserHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UserHandler::class);
+        $this->sut = self::getContainer()->get(UserHandler::class);
         // generiere ein Stub vom GlobalConfig
         $stub = $this->getMockBuilder(
             GlobalConfig::class
@@ -50,7 +50,7 @@ class UserHandlerTest extends FunctionalTestCase
         $this->sut->setDemosplanConfig($stub);
 
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->contentService = self::$container->get(ContentService::class);
+        $this->contentService = self::getContainer()->get(ContentService::class);
     }
 
     public function testWipeUser()
@@ -91,7 +91,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertNotNull($userToWipe->getLastname());
         static::assertNotNull($userToWipe->getPassword());
 
-        static::assertEquals('myLoginString', $userToWipe->getUsername());
+        static::assertEquals('myLoginString', $userToWipe->getUserIdentifier());
 
         static::assertNotEmpty($userToWipe->getEmail());
         static::assertNotEmpty($userToWipe->getSalt());
@@ -140,7 +140,7 @@ class UserHandlerTest extends FunctionalTestCase
         static::assertTrue(is_array($wipedUser->getRoles()));
         static::assertCount(0, $wipedUser->getRoles());
 
-        static::assertEquals('', $wipedUser->getUsername());
+        static::assertEquals('', $wipedUser->getUserIdentifier());
         static::assertEquals($departmentId, $wipedUser->getDepartment()->getId());
         static::assertEquals($orgaId, $wipedUser->getOrga()->getId());
 
@@ -156,7 +156,7 @@ class UserHandlerTest extends FunctionalTestCase
         /** @var User $testUser */
         $testUser = $this->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $user = $this->sut->setAccessConfirmed($testUser);
-        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED));
+        self::assertTrue($user->getFlag(UserFlagKey::ACCESS_CONFIRMED->value));
         self::assertEquals($testUser->getId(), $user->getId());
     }
 

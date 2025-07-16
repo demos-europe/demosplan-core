@@ -12,10 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 
+/**
+ * @template-extends FluentRepository<EntitySyncLink>
+ */
 class EntitySyncLinkRepository extends FluentRepository
 {
     /**

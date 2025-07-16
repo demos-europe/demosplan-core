@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Faq;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\FaqHandlerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
@@ -23,11 +24,8 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -36,9 +34,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
 use UnexpectedValueException;
 
 class FaqHandler extends CoreHandler implements FaqHandlerInterface
@@ -49,7 +47,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     protected $contentService;
 
     public function __construct(
-        MessageBag $messageBag,
+        MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly FaqResourceType $faqResourceType,
@@ -272,40 +270,6 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     }
 
     /**
-     * @param array<string, mixed> $properties
-     *
-     * @throws ViolationsException
-     * @throws Exception
-     */
-    public function updateFaqFromProperties(Faq $faqEntity, array $properties): void
-    {
-        $updater = new PropertiesUpdater($properties);
-        $updater->ifPresent(
-            $this->faqResourceType->invitableInstitutionVisible,
-            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GPSORG)
-        );
-        $updater->ifPresent(
-            $this->faqResourceType->fpVisible,
-            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GLAUTH)
-        );
-        $updater->ifPresent(
-            $this->faqResourceType->publicVisible,
-            $this->buildAddOrRemoveRoleGroupFunction($faqEntity, Role::GGUEST)
-        );
-        $updater->ifPresent(
-            $this->faqResourceType->enabled,
-            static function (bool $enabled) use ($faqEntity): void {
-                $faqEntity->setEnabled($enabled);
-            }
-        );
-
-        $violationList = $this->validator->validate($faqEntity);
-        if (0 < $violationList->count()) {
-            throw ViolationsException::fromConstraintViolationList($violationList);
-        }
-    }
-
-    /**
      * Returns all categories.
      *
      * @return FaqCategory[]
@@ -337,6 +301,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function getCustomFaqCategoriesByNamesOrCustom(array $categoryTypeNamesToInclude): Collection
     {
         $allFaqCategories = collect($this->getAllCategoriesOfCurrentCustomer());
+
         // filter: custom categories only
         return $allFaqCategories->filter(
             static fn (FaqCategory $faqCategory) => in_array($faqCategory->getType(), $categoryTypeNamesToInclude, true) || $faqCategory->isCustom()
@@ -498,37 +463,5 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     public function orderFaqsByManualSortList(array $faqs, FaqCategoryInterface $faqCategory): array
     {
         return $this->faqService->orderFaqsByManualSortList($faqs, $faqCategory);
-    }
-
-    /**
-     * Returns a callable that accepts a boolean.
-     *
-     * If given `true` the callable will add the {@link Role}s
-     * corresponding to the `$groupCode` which are not already present to the `$faqEntity`.
-     *
-     * If given `false` the callable will remove the {@link Role}s
-     * corresponding to the `$groupCode` which are present from the `$faqEntity`.
-     *
-     * @return callable(bool):void
-     */
-    private function buildAddOrRemoveRoleGroupFunction(Faq $faqEntity, string $groupCode): callable
-    {
-        return function (bool $setVisible) use ($faqEntity, $groupCode): void {
-            $groupRoles = $this->roleRepository->findBy([
-                'groupCode' => $groupCode,
-            ]);
-            $currentRoles = $faqEntity->getRoles();
-            foreach ($groupRoles as $role) {
-                $present = $currentRoles->exists(static fn (int $index, Role $currentRole): bool => $currentRole->getId() === $role->getId());
-                if ($setVisible) {
-                    if (!$present) {
-                        $currentRoles->add($role);
-                    }
-                } elseif ($present) {
-                    $currentRoles = $currentRoles->filter(static fn (Role $currentRole): bool => $currentRole->getId() !== $role->getId());
-                }
-            }
-            $faqEntity->setRoles($currentRoles->getValues());
-        };
     }
 }

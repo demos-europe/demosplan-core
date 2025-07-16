@@ -12,6 +12,7 @@
     <div :class="prefixClass('c-map__group')">
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
+        data-cy="customLayer:layerUserDefined"
         @click="toggle">
         {{ Translator.trans('layer.userdefined') }}
       </button>
@@ -28,6 +29,7 @@
       <button
         @click="dpValidateAction('customLayer', emitAddLayer, false)"
         :class="prefixClass('btn btn--primary u-mb-0_25')"
+        data-cy="customLayer:layerShow"
         type="button"
         id="addCustomLayer">
         {{ Translator.trans('layer.show') }}
@@ -57,6 +59,11 @@ export default {
     }
   },
 
+  emits: [
+    'addCustomlayer',
+    'custom-layer:unfolded'
+  ],
+
   data () {
     return {
       isMobile: isMobile(window.navigator).any,
@@ -81,22 +88,20 @@ export default {
       }
     },
 
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.$emit('custom-layer:unfolded')
+        this.$emit('custom-layer:unfolded')
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
     }
-  },
-
-  created () {
-    this.$root.$on('layer-list:unfolded map-tools:unfolded layer-legend:unfolded', () => {
-      this.unfolded = false
-    })
   }
 }
 </script>

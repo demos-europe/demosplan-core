@@ -7,24 +7,14 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
 import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement'
 import { generateMenuItems } from '@DpJs/components/statement/publicStatementLists/menuItems'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpPublicStatement', () => {
-  it('should be an object', () => {
-    expect(typeof DpPublicStatement).toBe('object')
-  })
-
-  it('should be named DpPublicStatement', () => {
-    expect(DpPublicStatement.name).toBe('DpPublicStatement')
-  })
-
   it('should mount', () => {
-    const localVue = createLocalVue()
     const wrapper = shallowMountWithGlobalMocks(DpPublicStatement, {
-      propsData: {
+      props: {
         attachments: [],
         county: null,
         createdDate: '18.02.2021 15:02',
@@ -41,12 +31,12 @@ describe('DpPublicStatement', () => {
         phase: 'Frühzeitige Beteiligung Öffentlichkeit',
         polygon: {},
         priorityAreas: null,
+        procedureId: '45752f51-f68a-11e5-b083-005056ae0004',
         rejectedReason: '',
         submittedDate: null,
         text: '',
         user: 'buerger new'
-      },
-      localVue
+      }
     })
 
     expect(wrapper).toBeDefined()

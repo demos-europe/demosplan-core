@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementMetaResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<StatementMeta>
@@ -45,26 +46,33 @@ final class StatementMetaResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return false;
+        return true;
     }
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->false()];
-    }
-
-    public function isReferencable(): bool
-    {
-        return false;
-    }
-
-    public function isDirectlyAccessible(): bool
-    {
-        return false;
-    }
-
-    protected function getProperties(): array
-    {
         return [];
+    }
+
+    public function isGetAllowed(): bool
+    {
+        return false;
+    }
+
+    public function isListAllowed(): bool
+    {
+        return false;
+    }
+
+    protected function getProperties(): ResourceConfigBuilderInterface
+    {
+        $statementMetaConfig = $this->getConfig(BaseStatementMetaResourceConfigBuilder::class);
+        $statementMetaConfig->id->setReadableByPath();
+        $statementMetaConfig->authorName->setReadableByPath();
+        $statementMetaConfig->submitName->setReadableByPath();
+        $statementMetaConfig->orgaName->setReadableByPath();
+        $statementMetaConfig->orgaDepartmentName->setReadableByPath();
+
+        return $statementMetaConfig;
     }
 }

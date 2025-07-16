@@ -15,9 +15,9 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
@@ -89,8 +88,6 @@ class DemosPlanAssessmentTableController extends BaseController
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[Route(name: 'dplan_assessmenttable_view_table', path: '/verfahren/abwaegung/view/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => false], options: ['expose' => true])]
@@ -107,7 +104,7 @@ class DemosPlanAssessmentTableController extends BaseController
         StatementService $statementService,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -115,27 +112,31 @@ class DemosPlanAssessmentTableController extends BaseController
         $rParams = $assessmentHandler->getFormValues($request->request->all());
 
         // handle the filterHash thing → always returns FilterSet Entity, except → see next comment
-        $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
+        $findHash = $filterSetService->findHashedQueryWithHash($filterHash);
+        if ($filterHash) {
+            $storedQuery = $findHash->getStoredQuery();
+            if (
+                $rParams['search'] === $storedQuery->getSearchWord()
+            ) {
+                $filterSet = $findHash;
+            } else {
+                /*
+                * If rParams contain filters, those win against the hash in url.
+                * Doing this via redirect to same action.
+                */
+                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+                $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+            }
+        } else {
+            /*
+            * If rParams contain filters, those win against the hash in url.
+            * Doing this via redirect to same action.
+            */
+            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+            $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+        }
 
         $type = self::HASH_TYPE_ASSESSMENT;
-
-        /*
-         * If rParams contain filters, those win against the hash in url.
-         * Doing this via redirect to same action.
-         */
-        if (null === $filterSet) {
-            $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
-            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
-
-            return $this->redirectToRoute(
-                'dplan_assessmenttable_view_table',
-                [
-                    'procedureId' => $procedureId,
-                    'filterHash'  => $filterSet->getHash(),
-                    '_fragment'   => $request->query->get('fragment', ''),
-                ]
-            );
-        }
 
         // Get the AssessmentQueryValueObject → holds all we need
         /** @var AssessmentTableQuery $assessmentTableQuery */
@@ -193,7 +194,6 @@ class DemosPlanAssessmentTableController extends BaseController
         // Put viewMode and filterHash in templateVars
         /** @var AssessmentTableViewMode|null $viewMode */
         $viewMode = $original ? null : $assessmentTableQuery->getViewMode();
-
         $rParams = $statementService->integrateFilterSetIntoArray(
             $filterSet,
             $rParams,
@@ -206,7 +206,7 @@ class DemosPlanAssessmentTableController extends BaseController
             $table = $assessmentTableServiceOutput->getStatementListHandler(
                 $procedureId,
                 $rParams,
-                false,
+                true,
                 1,
                 false
             );
@@ -280,6 +280,20 @@ class DemosPlanAssessmentTableController extends BaseController
         );
     }
 
+    private function setHashforEmptyFilters(Request $request, AssessmentHandler $assessmentHandler, string $procedureId, HashedQuery $filterSet)
+    {
+        $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
+
+        return $this->redirectToRoute(
+            'dplan_assessmenttable_view_table',
+            [
+                'procedureId' => $procedureId,
+                'filterHash'  => $filterSet->getHash(),
+                '_fragment'   => $request->query->get('fragment', ''),
+            ]
+        );
+    }
+
     /**
      * Original Statements list.
      *
@@ -289,8 +303,6 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @param AssessmentExportOptions $exportOptions Object that holds logic about export options in normal and original view
      * @param string|null             $filterHash
-     *
-     * @return Response
      *
      * @throws Exception
      */
@@ -312,7 +324,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -584,18 +596,16 @@ class DemosPlanAssessmentTableController extends BaseController
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost,
         FileService $fileService,
         FileUploadService $fileUploadService,
         MapService $mapService,
         Request $request,
-        ServiceOutput $serviceOutput,
         StatementService $statementService,
         TranslatorInterface $translator,
         $procedureId,
         $statement,
         $title,
-        $isCluster = false
+        $isCluster = false,
     ) {
         $fParams = [];
         $statementId = $statement;
@@ -656,8 +666,8 @@ class DemosPlanAssessmentTableController extends BaseController
         }
 
         // ref: T7689: redirect if statement is member of cluster (after update statement)
-        if (array_key_exists('clusterStatement', $statementAsArray) &&
-            $statementAsArray['headStatement'] instanceof Statement
+        if (array_key_exists('clusterStatement', $statementAsArray)
+            && $statementAsArray['headStatement'] instanceof Statement
         ) {
             $routeParameters = ['procedure' => $procedureId, 'statementId' => $statementId];
 
@@ -813,7 +823,7 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * Get complete text of a statement to be displayed in a <dp-height-limit> component.
+     * Get complete text of a statement to be displayed in a <height-limit> component.
      *
      * @DplanPermissions("area_admin_assessmenttable")
      *
@@ -1031,8 +1041,6 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * @param mixed $filterHash
-     *
      * @throws Exception
      */
     protected function getViewSingleActionTemplateVars(
@@ -1045,7 +1053,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
         StatementService $statementService,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): array {
         $serviceVersion = $statementService->getVersionFields($statement);
 
@@ -1066,8 +1074,8 @@ class DemosPlanAssessmentTableController extends BaseController
             $templateVars['table']['paragraph'] = $resElements['paragraph'];
             // füge ggf. einen gelöschten Absatz hinzu, der dem Statement zugewiesen ist
             // Ist das Statement einem Absatz zugewiesen?
-            $hasParagraph = isset($statementAsArray['paragraph']) &&
-                0 < (is_countable($statementAsArray['paragraph']) ? count($statementAsArray['paragraph']) : 0);
+            $hasParagraph = isset($statementAsArray['paragraph'])
+                && 0 < (is_countable($statementAsArray['paragraph']) ? count($statementAsArray['paragraph']) : 0);
             if ($hasParagraph) {
                 $paragraphElementId = $statementAsArray['paragraph']['elementId'];
                 // Hat das Element Kapitel?
@@ -1097,13 +1105,13 @@ class DemosPlanAssessmentTableController extends BaseController
         // im template wieder einblendet
         $templateVars['finalEmailOnlyToVoters'] = false;
         if (array_key_exists('feedback', $templateVars['table']['statement'])) {
-            if ('snailmail' === $templateVars['table']['statement']['feedback'] &&
-                empty($templateVars['table']['statement']['votes'])
+            if ('snailmail' === $templateVars['table']['statement']['feedback']
+                && empty($templateVars['table']['statement']['votes'])
             ) {
                 $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
                 $templateVars['sendFinalEmail'] = false;
-            } elseif ('snailmail' === $templateVars['table']['statement']['feedback'] &&
-                !empty($templateVars['table']['statement']['votes'])
+            } elseif ('snailmail' === $templateVars['table']['statement']['feedback']
+                && !empty($templateVars['table']['statement']['votes'])
             ) {
                 $templateVars['table']['statement']['feedback'] = $translator->trans('via.post');
                 $templateVars['sendFinalEmail'] = true;
@@ -1121,7 +1129,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // Ersetze die Phase, in der die SN eingegangen ist
         $templateVars['table']['statement']['phase'] =
-            $statementService->getInternalOrExternalPhaseName($statementAsArray);
+            $statementService->getProcedurePhaseNameFromArray($statementAsArray);
 
         // hole Infos zu den Mitzeichnern
         foreach ($templateVars['table']['statement']['votes'] as $key => $vote) {
@@ -1141,8 +1149,8 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['email2'] = '';
         if (null !== $orgaOfSubmitter) {
             // ist es eine Bürgerstellungnahme?
-            if (Statement::EXTERNAL === $templateVars['table']['statement']['publicStatement'] &&
-                isset($templateVars['table']['statement']['meta'])
+            if (Statement::EXTERNAL === $templateVars['table']['statement']['publicStatement']
+                && isset($templateVars['table']['statement']['meta'])
             ) {
                 $templateVars['email2'] = $templateVars['table']['statement']['meta']['orgaEmail'];
             } else {
@@ -1205,8 +1213,8 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // Add map baselayers to templateVars to display map
         $currentProcedure = $currentProcedureService->getProcedureArray();
-        if ($currentProcedure['isMapEnabled'] &&
-            $this->permissions->hasPermission('area_map_participation_area')
+        if ($currentProcedure['isMapEnabled']
+            && $this->permissions->hasPermission('area_map_participation_area')
         ) {
             $gisLayers = $mapService->getGisList($procedureId, 'base');
             $templateVars['baselayers'] = [
@@ -1249,7 +1257,6 @@ class DemosPlanAssessmentTableController extends BaseController
     }
 
     /**
-     * @param mixed  $filterHash
      * @param string $procedureId
      */
     protected function addExtraItemToAssessmentTableBreadcrumbs($filterHash, $procedureId, TranslatorInterface $translator)

@@ -35,6 +35,7 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 /**
@@ -70,8 +71,19 @@ use stdClass;
  */
 class RpcStatementSynchronizer implements RpcMethodSolverInterface
 {
-    public function __construct(private readonly DqlConditionFactory $conditionFactory, private readonly DrupalFilterParser $filterParser, private readonly EntitySyncLinkRepository $entitySyncLinkRepository, private readonly JsonApiActionService $jsonApiActionService, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions, private readonly ProcedureCoupleTokenRepository $tokenRepository, private readonly RpcErrorGenerator $errorGenerator, private readonly StatementResourceType $statementResourceType, private readonly StatementSynchronizer $statementSynchronizer)
-    {
+    public function __construct(
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly DrupalFilterParser $filterParser,
+        private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
+        private readonly JsonApiActionService $jsonApiActionService,
+        private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureCoupleTokenRepository $tokenRepository,
+        private readonly RpcErrorGenerator $errorGenerator,
+        private readonly StatementResourceType $statementResourceType,
+        private readonly StatementSynchronizer $statementSynchronizer,
+    ) {
     }
 
     public function execute(?ProcedureInterface $sourceProcedure, $rpcRequests): array
@@ -122,13 +134,20 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
                     $actuallySynchronizedStatementsCount,
                     count($alreadySynchronizedStatementIds)
                 );
-            } catch (InvalidArgumentException|InvalidSchemaException) {
+            } catch (InvalidArgumentException|InvalidSchemaException $exception) {
+                $message = $exception->getMessage();
+                $this->messageBag->add('error', $message);
+                $this->logger->error($message);
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
-            } catch (AccessDeniedException|UserNotFoundException) {
+            } catch (AccessDeniedException|UserNotFoundException $exception) {
+                $message = $exception->getMessage();
+                $this->logger->error($message);
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception) {
+            } catch (Exception $exception) {
+                $message = $exception->getMessage();
+                $this->logger->error($message);
                 $this->addErrorMessage();
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
@@ -227,6 +246,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
     private function getStatements(array $filter, array $search, Procedure $sourceProcedure): array
     {
         $searchParams = SearchParams::createOptional($search);
+        $filter = $this->filterParser->validateFilter($filter);
         $conditions = $this->filterParser->parseFilter($filter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $sourceProcedure->getId(),

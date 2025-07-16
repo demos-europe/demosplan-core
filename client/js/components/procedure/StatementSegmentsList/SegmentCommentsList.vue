@@ -20,7 +20,7 @@
       <div>
         <dp-button
           v-if="segment"
-          class="width-100p u-mt u-mb"
+          class="w-full u-mt u-mb"
           data-cy="addCommentToSegment"
           @click="toggleForm"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"
@@ -49,7 +49,7 @@
     <dp-inline-notification
       v-else
       type="info"
-      class="u-mt-1_5 u-mb"
+      class="u-mt-1_5 mb-4"
       :message="Translator.trans('explanation.noentries')" />
   </div>
 </template>
@@ -58,6 +58,7 @@
 import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CreateCommentForm from './CreateCommentForm'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'SegmentCommentsList',
@@ -65,12 +66,12 @@ export default {
   components: {
     CreateCommentForm,
     DpButton,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLoading,
-    SegmentComment: () => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')
+    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment'))
   },
 
   props: {
@@ -81,15 +82,15 @@ export default {
   },
 
   computed: {
-    ...mapState('segmentSlidebar', [
+    ...mapState('SegmentSlidebar', [
       'isLoading'
     ]),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
@@ -97,11 +98,17 @@ export default {
     ]),
 
     comments () {
-      return this.segment?.hasRelationship('comments')
-        ? Object.values(this.segment.rel('comments'))
-          .filter(comment => typeof comment !== 'undefined')
-          .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
-        : []
+      const commentsData = this.segment?.relationships?.comments?.data
+
+      if (!commentsData || commentsData.length === 0) {
+        return []
+      }
+
+      const comments = this.segment.rel('comments') || {}
+
+      return Object.values(comments)
+        .filter(comment => typeof comment !== 'undefined')
+        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
     },
 
     hasComments () {
@@ -118,15 +125,15 @@ export default {
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('segmentComment', {
+    ...mapActions('SegmentComment', {
       listComments: 'list'
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent'
     ]),
 

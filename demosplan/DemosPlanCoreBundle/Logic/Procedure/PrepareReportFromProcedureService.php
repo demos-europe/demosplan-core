@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -30,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PlanDrawReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -37,13 +39,26 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementsService, private readonly GlobalConfigInterface $globalConfig, private readonly MapService $mapService, private readonly ParagraphService $paragraphDocumentService, private readonly PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly ProcedureReportEntryFactory $procedureReportEntryFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementsService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MapService $mapService,
+        private readonly ParagraphService $paragraphDocumentService,
+        private readonly PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {
     }
 
     /**
@@ -58,7 +73,7 @@ class PrepareReportFromProcedureService extends CoreService
         array $ccAddresses,
         string $procedureId,
         string $phase,
-        string $mailSubject
+        string $mailSubject,
     ): void {
         $reportEntry = $this->procedureReportEntryFactory->createRegisterInvitationEntry(
             $recipients,
@@ -137,7 +152,7 @@ class PrepareReportFromProcedureService extends CoreService
     }
 
     /**
-     * Create a Report.
+     * Detect diff and create a report for detected diffs.
      *
      * @throws Exception
      */
@@ -146,6 +161,23 @@ class PrepareReportFromProcedureService extends CoreService
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
         $update = [];
+
+        // if the procedure is deleted, only a deletion entry will be created.
+        if (true === $destinationProcedure->isDeleted()) {
+            $update = [
+                'ident'    => $destinationProcedure->getId(),
+                'customer' => null,
+                'deleted'  => true,
+            ];
+
+            $deletionEntry = $this->procedureReportEntryFactory->createProcedureDeletionEntry(
+                $update,
+                $destinationProcedure
+            );
+            $this->reportService->persistAndFlushReportEntries($deletionEntry);
+
+            return;
+        }
 
         $sourceDateOfSwitchPublicPhase = $sourceProcedure->getSettings()->getDesignatedPublicSwitchDate();
         $destinationDateOfSwitchPublicPhase = $destinationProcedure->getSettings()->getDesignatedPublicSwitchDate();
@@ -220,6 +252,23 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
         }
 
+        if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
+        || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
+            $reportEntryEvent = new ProcedureEditedEvent(
+                $sourceProcedure->getId(),
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $sourceProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $sourceProcedureSettings->getPlanDrawPDF(),
+                ],
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $destinationProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $destinationProcedureSettings->getPlanDrawPDF(),
+                ],
+                $this->currentUser->getUser()
+            );
+            $this->eventDispatcher->dispatch($reportEntryEvent);
+        }
+
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
             $sourceProcedure,
             $destinationProcedure,
@@ -267,17 +316,17 @@ class PrepareReportFromProcedureService extends CoreService
         Procedure $sourceProcedure,
         Procedure $destinationProcedure,
         User|string $user,
-        bool $createdBySystem
+        bool $createdBySystem,
     ): ?ReportEntry {
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
-            $phase = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
+            $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
 
-            if (0 !== count($phase)) {
-                $phase['createdBySystem'] = $createdBySystem;
+            if (0 !== count($phaseChangeMessage)) {
+                $phaseChangeMessage['createdBySystem'] = $createdBySystem;
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
                     $sourceProcedure,
-                    $phase,
+                    $phaseChangeMessage,
                     $user
                 );
             }
@@ -318,60 +367,73 @@ class PrepareReportFromProcedureService extends CoreService
         $this->reportService->persistAndFlushReportEntry($entry);
     }
 
-    private function createPhaseChangeMessageData(Procedure $sourceProcedure, Procedure $destinationProcedure): array
-    {
+    /**
+     * @return array<string, string|int>
+     *
+     * @throws ReflectionException
+     */
+    private function createPhaseChangeMessageData(
+        Procedure $sourceProcedure,
+        Procedure $destinationProcedure,
+    ): array {
         $procedureId = $sourceProcedure->getId();
+        $changes = [];
 
-        $phase = [];
-
-        $phaseBefore = $sourceProcedure->getPhase();
-        $phaseAfter = $destinationProcedure->getPhase();
-        if ($phaseBefore !== $phaseAfter) {
-            $phase['oldPhase'] = $phaseBefore;
-            $phase['newPhase'] = $phaseAfter;
-            $phase['oldPhaseStart'] = $sourceProcedure->getStartDate()->getTimestamp();
-            $phase['newPhaseStart'] = $destinationProcedure->getStartDate()->getTimestamp();
-            $phase['oldPhaseEnd'] = $sourceProcedure->getEndDate()->getTimestamp();
-            $phase['newPhaseEnd'] = $destinationProcedure->getEndDate()->getTimestamp();
+        $oldInternPhase = $sourceProcedure->getPhaseObject();
+        $newInternPhase = $destinationProcedure->getPhaseObject();
+        if ($oldInternPhase->getKey() !== $newInternPhase->getKey()
+            || $oldInternPhase->getIteration() !== $newInternPhase->getIteration()
+        ) {
+            $changes['oldPhase'] = $oldInternPhase->getKey();
+            $changes['newPhase'] = $newInternPhase->getKey();
+            $changes['oldPhaseStart'] = $oldInternPhase->getStartDate()->getTimestamp();
+            $changes['newPhaseStart'] = $newInternPhase->getStartDate()->getTimestamp();
+            $changes['oldPhaseEnd'] = $oldInternPhase->getEndDate()->getTimestamp();
+            $changes['newPhaseEnd'] = $newInternPhase->getEndDate()->getTimestamp();
+            $changes['oldPhaseIteration'] = $oldInternPhase->getIteration();
+            $changes['newPhaseIteration'] = $newInternPhase->getIteration();
         }
 
-        $publicParticipationPhaseBefore = $sourceProcedure->getPublicParticipationPhase();
-        $publicParticipationPhaseAfter = $destinationProcedure->getPublicParticipationPhase();
-        if ($publicParticipationPhaseBefore !== $publicParticipationPhaseAfter) {
-            $phase['oldPublicPhase'] = $publicParticipationPhaseBefore;
-            $phase['newPublicPhase'] = $publicParticipationPhaseAfter;
-            $phase['oldPublicPhaseStart'] = $sourceProcedure->getPublicParticipationStartDate()->getTimestamp();
-            $phase['newPublicPhaseStart'] = $destinationProcedure->getPublicParticipationStartDate()->getTimestamp();
-            $phase['oldPublicPhaseEnd'] = $sourceProcedure->getPublicParticipationEndDate()->getTimestamp();
-            $phase['newPublicPhaseEnd'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
+        $oldExternPhase = $sourceProcedure->getPublicParticipationPhaseObject();
+        $newExternPhase = $destinationProcedure->getPublicParticipationPhaseObject();
+        if ($oldExternPhase->getKey() !== $newExternPhase->getKey()
+            || $oldExternPhase->getIteration() !== $newExternPhase->getIteration()) {
+            $changes['oldPublicPhase'] = $oldExternPhase->getKey();
+            $changes['newPublicPhase'] = $newExternPhase->getKey();
+            $changes['oldPublicPhaseStart'] = $oldExternPhase->getStartDate()->getTimestamp();
+            $changes['newPublicPhaseStart'] = $newExternPhase->getStartDate()->getTimestamp();
+            $changes['oldPublicPhaseEnd'] = $oldExternPhase->getEndDate()->getTimestamp();
+            $changes['newPublicPhaseEnd'] = $newExternPhase->getEndDate()->getTimestamp();
+            $changes['oldPublicPhaseIteration'] = $oldExternPhase->getIteration();
+            $changes['newPublicPhaseIteration'] = $newExternPhase->getIteration();
         }
 
         $planText = $destinationProcedure->getSettings()->getPlanText();
         if ('' !== $planText) {
-            $phase['planText'] = $planText;
+            $changes['planText'] = $planText;
         }
         $planPdf = $destinationProcedure->getSettings()->getPlanPDF();
         if ('' !== $planPdf) {
-            $phase['planPDF'] = $planPdf;
+            $changes['planPDF'] = $planPdf;
         }
         $planDrawPdf = $destinationProcedure->getSettings()->getPlanDrawPDF();
         if ('' !== $planDrawPdf) {
-            $phase['planDrawPDF'] = $planDrawPdf;
+            $changes['planDrawPDF'] = $planDrawPdf;
         }
         $planPara1Pdf = $destinationProcedure->getSettings()->getPlanPara1PDF();
         if ('' !== $planPara1Pdf) {
-            $phase['begruendungPDF'] = $planPara1Pdf;
+            $changes['begruendungPDF'] = $planPara1Pdf;
         }
         $planPara2Pdf = $destinationProcedure->getSettings()->getPlanPara2PDF();
         if ('' !== $planPara2Pdf) {
-            $phase['verordnungPDF'] = $planPara2Pdf;
+            $changes['verordnungPDF'] = $planPara2Pdf;
         }
 
         $gisList = $this->mapService->getGisList($procedureId, null);
         foreach ($gisList as $gis) {
             if ($gis['bplan'] && !$gis['deleted']) {
-                $phase['planGisName'] = $gis['name'];
-                $phase['planGisVisible'] = $gis['visible'];
+                $changes['planGisName'] = $gis['name'];
+                $changes['planGisVisible'] = $gis['visible'];
             }
         }
 
@@ -381,10 +443,10 @@ class PrepareReportFromProcedureService extends CoreService
 
         foreach ($elementsList as $element) {
             switch ($element->getCategory()) {
-                case ElementsInterface::ELEMENTS_CATEGORY_PARAGRAPH:
+                case ElementsInterface::ELEMENT_CATEGORIES['paragraph']:
                     $paragraphs = $this->addParagraphReportToMessage($element, $paragraphs);
                     break;
-                case ElementsInterface::ELEMENTS_CATEGORY_FILE:
+                case ElementsInterface::ELEMENT_CATEGORIES['file']:
                     $elements = $this->addFileReportToMessage($element, $elements);
                     break;
                 default:
@@ -393,20 +455,29 @@ class PrepareReportFromProcedureService extends CoreService
         }
 
         if (0 !== count($elements)) {
-            $phase['elements'] = $elements;
+            $changes['elements'] = $elements;
         }
 
         if (0 !== count($paragraphs)) {
-            $phase['paragraphs'] = $paragraphs;
+            $changes['paragraphs'] = $paragraphs;
         }
 
-        return $phase;
+        return $changes;
     }
 
     private function hasPhaseChanged(Procedure $sourceProcedure, Procedure $destinationProcedure): bool
     {
-        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase()) ||
-            0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
+        $oldPhase = $sourceProcedure->getPhaseObject();
+        $newPhase = $destinationProcedure->getPhaseObject();
+        $oldPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
+        $newPublicPhase = $destinationProcedure->getPublicParticipationPhaseObject();
+
+        $internKeyHasChanged = 0 !== strcmp($oldPhase->getKey(), $newPhase->getKey());
+        $externKeyHasChanged = 0 !== strcmp($oldPublicPhase->getKey(), $newPublicPhase->getKey());
+        $internIterationHasChanged = $oldPhase->getIteration() !== $newPhase->getIteration();
+        $externIterationHasChanged = $oldPublicPhase->getIteration() !== $newPublicPhase->getIteration();
+
+        return $internKeyHasChanged || $externKeyHasChanged || $internIterationHasChanged || $externIterationHasChanged;
     }
 
     /**
@@ -416,7 +487,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     private function hasPublicParticipationDateChanged(
         Procedure $sourceProcedure,
-        Procedure $destinationProcedure
+        Procedure $destinationProcedure,
     ): bool {
         $currentStartDate = new Carbon($sourceProcedure->getPublicParticipationStartDate());
         $newStartDate = new Carbon($destinationProcedure->getPublicParticipationStartDate());
@@ -433,7 +504,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     private function hasPublicAgencyParticipationDateChanged(
         Procedure $sourceProcedure,
-        Procedure $destinationProcedure
+        Procedure $destinationProcedure,
     ): bool {
         $currentStartDate = new Carbon($sourceProcedure->getStartDate());
         $newStartDate = new Carbon($destinationProcedure->getStartDate());
@@ -471,6 +542,7 @@ class PrepareReportFromProcedureService extends CoreService
         $elementEntry = [];
         // category has uploaded pdf file
         if ('' !== $element->getFile()) {
+            $elementEntry['paragraphPdfName'] = $element->getFileInfo()->getFileName();
             $elementEntry['hasParagraphPdf'] = true;
         }
 

@@ -11,9 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -23,14 +26,18 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
 {
@@ -65,8 +72,11 @@ class SegmentController extends BaseController
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
         string $procedureId,
-        string $statementId
+        string $statementId,
+        ProcedureCoupleTokenFetcher $tokenFetcher,
+        EventDispatcherInterface $eventDispatcher,
     ): Response {
+        $procedure = $procedureService->getProcedure($procedureId);
         $sessionProcedureId = $currentProcedureService->getProcedureIdWithCertainty();
         if ($sessionProcedureId !== $procedureId) {
             throw new BadRequestException('Conflicting procedure IDs in request');
@@ -86,15 +96,29 @@ class SegmentController extends BaseController
         }
 
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
+        $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
+        $statementFormDefinition = $procedure->getStatementFormDefinition();
+        $eventDispatcher->dispatch(
+            new RecommendationRequestEvent($statement, $procedure),
+            RecommendationRequestEventInterface::class
+        );
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
-                'procedure'                  => $procedureId,
+                'procedure'                  => [
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
+                    'orgaName' => $procedure->getOrgaName(),
+                ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
+                'templateVars'               => [
+                    'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                    'statementFormDefinition'     => $statementFormDefinition,
+                ],
             ]
         );
     }
@@ -112,7 +136,8 @@ class SegmentController extends BaseController
         PermissionsInterface $permissions,
         Request $request,
         XlsxSegmentImport $importer,
-        string $procedureId
+        TranslatorInterface $translator,
+        string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
@@ -128,7 +153,17 @@ class SegmentController extends BaseController
             $file = $fileService->getFileInfo($uploadHash);
             $fileName = $file->getFileName();
             try {
-                $result = $importer->importFromFile($file);
+                $localPath = $fileService->ensureLocalFile($file->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $file->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $result = $importer->importFromFile($localFileInfo);
 
                 if ($result->hasErrors()) {
                     return $this->renderTemplate(
@@ -157,14 +192,28 @@ class SegmentController extends BaseController
                     $route = 'DemosPlan_statement_orga_list';
                 }
 
+                // cleanup import files
+                $fileService->deleteFile($file->getHash());
+                $fileService->deleteLocalFile($localPath);
+
                 return $this->redirectToRoute(
                     $route,
                     compact('procedureId')
                 );
-            } catch (MissingDataException $e) {
+            } catch (AddonResourceNotFoundException) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.import_segment.no_place',
+                    [],
+                    'messages',
+                    'DemosPlan_procedure_places_list',
+                    ['procedureId' => $procedureId],
+                    $translator->trans('places.addPlace')
+                );
+            } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',
@@ -188,7 +237,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
-        FilterUiDataProvider $filterUiDataProvider
+        FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
         $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -199,7 +200,7 @@ class MapHandler extends CoreHandler
         // in case of GisLayer is member of visibilityGroup, set incoming defaultVisibility
         // to all member of visibilityGroup
         if (array_key_exists('defaultVisibility', $gisLayerData) && $isMemberOfVisibilityGroup) {
-            $this->setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData['defaultVisibility']);
+            $this->setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData);
         }
 
         // in case of GisLayer is member of visibilityGroup, do not allow to unset userToggleVisibility
@@ -218,8 +219,9 @@ class MapHandler extends CoreHandler
 
         // logic from service:
         try {
-            $updatedGis = $this->entityManager->getRepository(GisLayer::class)
-                ->updateByArray($gisLayerData);
+            /** @var MapRepository $gisLayerRepository */
+            $gisLayerRepository = $this->entityManager->getRepository(GisLayer::class);
+            $updatedGis = $gisLayerRepository->updateByArray($gisLayerData);
 
             return $convertToLegacy ? $this->mapService->convertToLegacy($updatedGis) : $updatedGis;
         } catch (Exception $e) {
@@ -234,16 +236,17 @@ class MapHandler extends CoreHandler
      * while they are in a visibilityGroup. (change entire defaultVisibility).
      *
      * @param string $visibilityGroupId
-     * @param bool   $visibility
      *
      * @return bool
      *
      * @throws Exception
      */
-    public function setVisibilityOfVisibilityGroup($visibilityGroupId, $visibility)
+    public function setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData)
     {
+        $visibility = $gisLayerData['defaultVisibility'];
+        $procedureId = $gisLayerData['procedureId'];
         try {
-            $visibilityGroup = $this->getVisibilityGroup($visibilityGroupId);
+            $visibilityGroup = $this->getVisibilityGroup($visibilityGroupId, $procedureId);
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
@@ -342,9 +345,9 @@ class MapHandler extends CoreHandler
      *
      * @throws Exception
      */
-    public function getVisibilityGroup($visibilityGroupId)
+    public function getVisibilityGroup($visibilityGroupId, $procedureId)
     {
-        return $this->mapService->getVisibilityGroup($visibilityGroupId);
+        return $this->mapService->getVisibilityGroup($visibilityGroupId, $procedureId);
     }
 
     /**

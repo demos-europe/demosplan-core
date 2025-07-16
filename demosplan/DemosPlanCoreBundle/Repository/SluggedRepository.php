@@ -11,11 +11,17 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\SluggedEntity;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateSlugException;
 
-abstract class SluggedRepository extends FluentRepository
+/**
+ * @template TEntity of EntityInterface
+ *
+ * @template-extends CoreRepository<TEntity>
+ */
+abstract class SluggedRepository extends CoreRepository
 {
     /**
      * If $sluggedEntity already had the slug, we set it to current slug.

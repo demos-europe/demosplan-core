@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCoupleTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureInCoupleAlreadyUsedConstraint;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -23,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ProcedureInCoupleAlreadyUsedConstraint()
  */
-class ProcedureCoupleToken implements UuidEntityInterface
+class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenInterface
 {
     final public const TOKEN_LENGTH = 12;
 
@@ -58,7 +59,7 @@ class ProcedureCoupleToken implements UuidEntityInterface
      *
      * @var Procedure|null
      *
-     * @ORM\OneToOne(targetEntity="Procedure")
+     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=true, unique=true)
      */

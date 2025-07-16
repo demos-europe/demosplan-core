@@ -21,7 +21,7 @@
           class="o-list o-list--csv"
           v-if="0 < selected.length">
           <li
-            class="o-list__item o-hellip max-width-100p"
+            class="o-list__item o-hellip max-w-full"
             v-for="item in selected"
             :key="item.id"
             v-text="item.name" />
@@ -155,6 +155,12 @@ export default {
     }
   },
 
+  emits: [
+    'field:input',
+    'field:save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       //  Current value
@@ -166,8 +172,11 @@ export default {
   },
 
   watch: {
-    value (newValue) {
-      this.setInitialValues()
+    value: {
+      handler () {
+        this.setInitialValues()
+      },
+      deep: true
     }
   },
 
@@ -227,10 +236,6 @@ export default {
   created () {
     // This.function has to be called if assessmentBase loads because of the ajax call, but also on mounted because of the paragraph inline edit
     this.setInitialValues()
-  },
-
-  mounted () {
-    this.$root.$on('reset', () => this.reset())
   }
 }
 </script>

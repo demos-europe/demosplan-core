@@ -14,7 +14,7 @@
             {% if hasPermission('feature_forum_dev_story_edit') %}
                 <div class="relative float-right z-above-zero">
                     <dp-accordion title="Moderieren">
-                        <p class="border border-radius-medium shadow-md absolute width-350 u-right-0_25 bg-color--white space-inset-s">
+                        <p class="border rounded-md shadow-md absolute w-12 u-right-0_25 bg-color--white space-inset-s">
                             <a class="btn-icns block" href="{{ path('DemosPlan_forum_development_release_list') }}">
                                 Übersicht Releases
                                 <i class="btn-icns-icon fa fa-long-arrow-right"></i>
@@ -47,6 +47,8 @@
 
             {% if templateVars.userStoryList is defined and templateVars.userStoryList != false %}
                 <form action="{{ path('DemosPlan_forum_development_release_voting', {'releaseId': templateVars.release.ident}) }}" method="post" enctype="multipart/form-data">
+                    {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
                     {% if templateVars.release.phase == 'configuration' %}
                         <p class="u-mb">
                             <i class="fa fa-exclamation-circle"></i>

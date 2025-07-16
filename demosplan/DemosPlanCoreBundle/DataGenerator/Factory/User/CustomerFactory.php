@@ -42,17 +42,30 @@ final class CustomerFactory extends ModelFactory
         parent::__construct();
     }
 
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
+     */
     protected function getDefaults(): array
     {
-        $name = self::faker()->country();
-
         return [
-            'accessibilityExplanation' => self::faker()->text(2000),
-            'name'                     => $name,
-            'subdomain'                => $name,
+            'accessibilityExplanation'            => self::faker()->text(),
+            'baseLayerLayers'                     => self::faker()->text(4096),
+            'baseLayerUrl'                        => self::faker()->text(4096),
+            'dataProtection'                      => self::faker()->text(65535),
+            'imprint'                             => self::faker()->text(65535),
+            'mapAttribution'                      => self::faker()->text(4096),
+            'name'                                => self::faker()->text(50),
+            'overviewDescriptionInSimpleLanguage' => self::faker()->text(),
+            'signLanguageOverviewDescription'     => self::faker()->text(),
+            'subdomain'                           => self::faker()->text(50),
+            'termsOfUse'                          => self::faker()->text(65535),
+            'xplanning'                           => self::faker()->text(65535),
         ];
     }
 
+    /**
+     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
+     */
     protected function initialize(): self
     {
         return $this;

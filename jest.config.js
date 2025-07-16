@@ -23,6 +23,7 @@ for (const alias in aliases) {
 }
 
 module.exports = {
+  // Verbose: true, // enable to see result of each test case
   testEnvironment: 'jsdom',
   testRegex: '/tests/.*(test|spec)\\.js?$',
   rootDir: config.absoluteRoot,
@@ -37,13 +38,16 @@ module.exports = {
     'json',
     'vue'
   ],
-  moduleNameMapper: roots,
+  moduleNameMapper: {
+    ...roots,
+    '^@vue/test-utils': '<rootDir>/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js'
+  },
   modulePaths: [
     '<rootDir>'
   ],
   transform: {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
-    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue2-jest'
+    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue3-jest'
   },
   transformIgnorePatterns: [
     '/node_modules/demosplan-ui'
@@ -62,11 +66,10 @@ module.exports = {
     ]
   ],
   globals: {
-    '@vue/vue2-jest': {
+    '@vue/vue3-jest': {
       babelConfig: {
         plugins: ['dynamic-import-node']
       }
     }
-  },
-  setupFiles: ['./client/setup/jest/setup.js']
+  }
 }

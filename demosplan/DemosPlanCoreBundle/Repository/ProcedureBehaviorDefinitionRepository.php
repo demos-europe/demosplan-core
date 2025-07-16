@@ -10,11 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
+/**
+ * @template-extends FluentRepository<ProcedureBehaviorDefinition>
+ */
 class ProcedureBehaviorDefinitionRepository extends FluentRepository implements ObjectInterface
 {
     /**
@@ -61,7 +65,7 @@ class ProcedureBehaviorDefinitionRepository extends FluentRepository implements 
     public function updateObject($procedureBehaviorDefinition): ProcedureBehaviorDefinition
     {
         $this->getEntityManager()->persist($procedureBehaviorDefinition);
-        $this->getEntityManager()->flush($procedureBehaviorDefinition);
+        $this->getEntityManager()->flush();
 
         return $procedureBehaviorDefinition;
     }

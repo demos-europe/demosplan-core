@@ -21,6 +21,7 @@
     </component>
     <ul class="o-list o-list--card">
       <dp-assessment-table-card
+        :csrf-token="csrfToken"
         v-for="(statement, idx) in statementsInOrder(statementIds)"
         :key="idx"
         class="o-list__item"
@@ -57,8 +58,15 @@ export default {
 
   mixins: [tocViewGroupMixin],
 
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
+  },
+
   computed: {
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById',
       'statementsInOrder'
     ]),
@@ -89,7 +97,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'removeFromSelectionAction'
     ])

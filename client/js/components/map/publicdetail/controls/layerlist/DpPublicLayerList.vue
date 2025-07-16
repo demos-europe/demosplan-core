@@ -12,17 +12,18 @@
     :class="prefixClass('c-map__group')"
     v-if="layers.length"
     v-show="unfolded">
-    <template v-for="layer in attributedLayers">
+    <template v-for="(layer, idx) in attributedLayers">
       <dp-public-layer-list-layer
         v-if="layer.type === 'GisLayer' && (layerType === 'overlay' || showBaseLayers)"
+        :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
         :layer-type="layerType"
-        :visible="layer.attributes.type === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
       <dp-public-layer-list-category
         v-else
-        :key="layer.id"
+        :key="`category:${layer.id}`"
         :group="layer"
         :layer-type="layerType"
         :visible="true"
@@ -41,6 +42,7 @@ export default {
   name: 'DpPublicLayerList',
 
   components: {
+    DpPublicLayerListCategory,
     DpPublicLayerListLayer
   },
 
@@ -70,6 +72,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer:toggleLayer'
+  ],
+
   computed: {
     showBaseLayers () {
       return hasPermission('feature_participation_area_procedure_detail_map_use_baselayerbox')
@@ -89,7 +95,7 @@ export default {
       let layer
       for (; i < l; i++) {
         layer = layers[i]
-        if (layer.attributes.hasDefaultVisibility && layer.attributes.type === 'base') {
+        if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }
       }
@@ -100,15 +106,18 @@ export default {
       return this.layers.length > 0 && this.isMapLoaded
     },
 
-    ...mapState('layers', ['isMapLoaded']),
-    ...mapGetters('layers', ['element'])
+    ...mapState('Layers', ['isMapLoaded']),
+    ...mapGetters('Layers', ['element'])
   },
 
   watch: {
-    isMapAndLayersReady () {
-      if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
-        this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
-      }
+    isMapAndLayersReady: {
+      handler () {
+        if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
+          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

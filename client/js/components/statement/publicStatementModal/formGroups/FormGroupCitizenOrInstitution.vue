@@ -27,7 +27,7 @@
             aria-labelledby="submitterRoleLabel"
             aria-required="true">
             <legend
-              class="hide-visually"
+              class="sr-only"
               v-text="Translator.trans('submitter')" />
             <div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio

@@ -28,7 +28,7 @@ trait RepositoryLegacyShizzle
     /**
      * @param string $entityId
      *
-     * @throws
+     * @throws BadMethodCallException
      */
     public function update($entityId, array $data): never
     {
@@ -36,7 +36,7 @@ trait RepositoryLegacyShizzle
     }
 
     /**
-     * @throws
+     * @throws BadMethodCallException
      */
     public function add(array $data): never
     {
@@ -46,7 +46,7 @@ trait RepositoryLegacyShizzle
     /**
      * @param string $entityId
      *
-     * @throws
+     * @throws BadMethodCallException
      */
     public function delete($entityId): never
     {
@@ -59,7 +59,7 @@ trait RepositoryLegacyShizzle
     /**
      * @param CoreEntity $entity
      *
-     * @throws
+     * @throws BadMethodCallException
      */
     public function generateObjectValues($entity, array $data): never
     {
@@ -72,9 +72,7 @@ trait RepositoryLegacyShizzle
     /**
      * @param string $entityId
      *
-     * @return CoreEntity|void
-     *
-     * @throws
+     * @throws BadMethodCallException
      */
     public function get($entityId): never
     {

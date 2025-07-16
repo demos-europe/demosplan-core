@@ -11,10 +11,11 @@
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
     id="start"
-    name="bpform"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
-    method="post"
     :data-statement-admin-container="procedureId"
+    name="bpform"
+    method="post"
+    ref="root"
     v-cloak>
     <input
       type="hidden"
@@ -72,14 +73,15 @@
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
     <!-- Export modal -->
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
       ref="exportModal"
-      :procedure-id="procedureId"
+      :current-table-sort="sort.value || ''"
+      :has-selected-elements="selectedElementsLength > 0"
       :options="assessmentExportOptions"
+      :procedure-id="procedureId"
       view="assessment_table"
       :view-mode="viewMode"
-      :current-table-sort="sort.value || ''"
       @submit="resetStatementSelection" />
 
     <consolidate-modal
@@ -116,6 +118,7 @@
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
       ref="filter"
+      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
       @handle-sort-change="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
@@ -138,7 +141,7 @@
         v-for="element in selectedElements"
         :key="`selectedElement:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :id="element.id + ':item_check[]'"
@@ -152,7 +155,7 @@
         v-for="element in selectedFragments"
         :key="`selectedFragment:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :key="`selectedFragmentInput:${element.id}`"
@@ -164,23 +167,24 @@
 
       <assessment-table-group-list
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
+        :csrf-token="csrfToken"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
-      <template
+      <dp-assessment-table-card
         v-else
-        v-for="statement in statements">
-        <dp-assessment-table-card
-          :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
-          class="o-list__item"
-          :init-statement="{}"
-          :statement-procedure-id="statement.procedureId"
-          :statement-id="statement.id"
-          :is-selected="getSelectionStateById(statement.id)"
-          @statement:updated="hasChangedStatements = true"
-          @statement:addToSelection="addToSelectionAction"
-          @statement:removeFromSelection="removeFromSelectionAction" />
-      </template>
+        v-for="statement in statements"
+        :ref="'itemdisplay_' + statement.id"
+        :key="`statement:${statement.id}`"
+        class="o-list__item"
+        :csrf-token="csrfToken"
+        :data-cy="`statementCard:index:${index}`"
+        :init-statement="{}"
+        :statement-procedure-id="statement.procedureId"
+        :statement-id="statement.id"
+        :is-selected="getSelectionStateById(statement.id)"
+        @statement:updated="hasChangedStatements = true"
+        @statement:addToSelection="addToSelectionAction"
+        @statement:removeFromSelection="removeFromSelectionAction" />
     </ul>
 
     <!-- If there are no statements: -->
@@ -236,8 +240,9 @@ import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from 
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import { scrollTo } from 'vue-scrollto'
 
 /*
@@ -249,22 +254,22 @@ export default {
   name: 'DpTable',
 
   components: {
-    AssessmentTableGroupList: () => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList'),
+    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList')),
     AssessmentTableFilter,
-    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
-    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
-    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
-    DpExportModal,
+    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
+    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
+    ExportModal,
     DpLoading,
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     DpPager,
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
-    },
+    }),
     DpAssessmentTableCard,
-    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'))
   },
 
   directives: {
@@ -294,6 +299,11 @@ export default {
       required: false,
       type: Array,
       default: () => ([])
+    },
+
+    csrfToken: {
+      type: String,
+      required: true
     },
 
     currentUserId: {
@@ -389,6 +399,10 @@ export default {
     }
   },
 
+  emits: [
+    'assessment-table-loaded'
+  ],
+
   data () {
     return {
       filterHash: this.initFilterHash,
@@ -399,26 +413,26 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
       'sort'
     ]),
 
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
       'isLoading'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById',
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
@@ -426,7 +440,7 @@ export default {
       'statementsInOrder'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
@@ -465,36 +479,36 @@ export default {
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
+    ...mapActions('AssessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
       'updateStatementAction'
     ]),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
       setSelectedStatements: 'setSelectedElementsAction'
     }),
 
-    ...mapActions('fragment', {
+    ...mapActions('Fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
       setSelectedFragments: 'setSelectedFragmentsAction'
     }),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination'
     ]),
 
@@ -648,7 +662,7 @@ export default {
         this.resetFragmentSelection()
       }
       if (hasPermission('area_statements_fragment')) {
-        this.$store.commit('fragment/setInitFragments', response.meta.fragmentAssignments)
+        this.$store.commit('Fragment/setInitFragments', response.meta.fragmentAssignments)
         this.setSelectedFragments(response.meta.fragmentAssignments)
           .then(() => {
             // And we do the same with statements (making sure not to have statements and fragments checked)
@@ -772,7 +786,7 @@ export default {
              * Initialize fixed header after all data has been processed (a.k.a. pager has been rendered)
              * to ensure dom manipulation of Stickier is executed last.
              */
-            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$el, 0)
+            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
             this.$root.$emit('assessment-table-loaded')
           })
@@ -787,7 +801,7 @@ export default {
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.stickyHeader.destroy()
   }
 }

@@ -41,6 +41,12 @@ const setSelectedOption = function () {
   const combinedParticipationPreparation = document.getElementById('combinedParticipationPreparation')
   const combinedFilterOption = document.getElementById('combinedFilter')
   const allOption = document.getElementById('all-option')
+  const filterPhasesSelectEl = document.getElementById('filterPhases')
+
+  // Allow projects to opt out of default filtering
+  if (filterPhasesSelectEl?.dataset?.defaultSelected === 'all') {
+    return
+  }
 
   //  If there are results for any of the filters in the 'all in participation and preparation' option
   if ((combinedParticipationPreparation.value === allInParticipationPreparationInternal &&
@@ -181,7 +187,6 @@ const filterProceduresByPhase = function () {
 }
 
 initialize().then(() => {
-  filterProceduresByPhase()
   setSelectedOption()
   document.getElementById('filterPhases').addEventListener('change', filterProceduresByPhase)
 })

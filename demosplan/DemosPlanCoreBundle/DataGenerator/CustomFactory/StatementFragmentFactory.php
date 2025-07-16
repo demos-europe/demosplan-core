@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Persistence\ManagerRegistry;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class StatementFragmentFactory extends FactoryBase
 {

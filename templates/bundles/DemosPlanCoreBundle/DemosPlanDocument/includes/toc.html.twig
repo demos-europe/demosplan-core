@@ -12,7 +12,7 @@
             {% for node in tree %}
 
                 {# Save displayOrder to be able to use it in recursive loop #}
-                {{ setStaticVariable('displayOrder', getStaticVariable('displayOrder') + 1) }}
+                {{ setDisplayOrder(getDisplayOrder() + 1) }}
 
                 <li
                     id="toc{{ node.id }}"
@@ -21,7 +21,7 @@
                     {# Bei einer paginierten Liste muss der Verweis auf die Seite springen, auf der sich das Kapitel befindet.
                        node order starts with 0, we have to add 1 for calculation reasons
                     #}
-                    <a href="?page={{ (getStaticVariable('displayOrder')|default(0)/templateVars.pager.getMaxPerPage|default(1))|round(0, 'ceil') }}&r_limit={{ templateVars.limitResults|default(3) }}&draftStatementId={{ templateVars.draftStatementId|default() }}#{{ node.id }}">
+                    <a href="?page={{ (getDisplayOrder()|default(0)/templateVars.pager.getMaxPerPage|default(1))|round(0, 'ceil') }}&r_limit={{ templateVars.limitResults|default(3) }}&draftStatementId={{ templateVars.draftStatementId|default() }}#{{ node.id }}">
                         {{ node.title|wysiwyg }}
                     </a>
                     {# if there is a submenu, output toggler + include self with data of submenu structure #}

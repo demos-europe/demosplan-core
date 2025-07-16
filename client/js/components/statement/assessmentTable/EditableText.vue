@@ -28,6 +28,7 @@
     <div v-if="isEditing">
       <dp-editor
         ref="editor"
+        v-model="fullText"
         class="u-mb-0_5"
         :editor-id="editorId"
         :entity-id="entityId"
@@ -38,7 +39,7 @@
           obscure: obscure,
           strikethrough: strikethrough
         }"
-        v-model="fullText">
+        @transformObscureTag="transformObscureTag">
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
@@ -78,14 +79,14 @@
       class="relative u-pr"
       v-else>
       <template v-if="shortText !== ''">
-        <dp-height-limit
+        <height-limit
           class="c-styled-html"
           :short-text="shortText"
           :full-text="fullText"
           :element="editLabel"
           :is-shortened="isShortened"
           @heightLimit:toggle="update"
-          @click.native="toggleEditMode" />
+          @click="toggleEditMode" />
         <button
           type="button"
           :disabled="!editable"
@@ -117,9 +118,11 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpHeightLimit, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
 export default {
   name: 'EditableText',
@@ -127,12 +130,12 @@ export default {
   components: {
     DpBoilerPlateModal,
     DpButton,
-    DpHeightLimit,
+    HeightLimit,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -239,6 +242,10 @@ export default {
     }
   },
 
+  emits: [
+    'field:save'
+  ],
+
   data () {
     return {
       fullText: '',
@@ -248,13 +255,16 @@ export default {
       isShortened: false,
       loading: false,
       shortText: '',
+      transformedText: '',
       uneditedFullText: ''
     }
   },
 
   methods: {
     openBoilerPlate () {
-      this.$refs.boilerPlateModal.toggleModal()
+      if (hasPermission('area_admin_boilerplates')) {
+        this.$refs.boilerPlateModal.toggleModal()
+      }
     },
 
     reset () {
@@ -264,6 +274,15 @@ export default {
     },
 
     save () {
+      /**
+       * TransformedText contains the text with the obscure tag applied.
+       * To avoid the cursor jumping to the end, we update the fullText with transformedText only when the save action is triggered.
+       *
+       */
+      if (this.transformedText && this.transformedText !== this.fullText) {
+        this.fullText = this.transformedText
+      }
+
       // If there are no changes, no need to save something.
       if (this.uneditedFullText === this.fullText) {
         this.isEditing = false
@@ -284,6 +303,10 @@ export default {
       this.$emit('field:save', emitData)
 
       this.fullTextLoaded = false
+    },
+
+    transformObscureTag (value) {
+      this.transformedText = value
     },
 
     toggleEditMode () {
@@ -329,7 +352,9 @@ export default {
        *
        */
       dpApi.get(
-        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }), params
+        Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
+        params,
+        { serialize: true }
       ).then(response => {
         this.fullTextLoaded = true
 

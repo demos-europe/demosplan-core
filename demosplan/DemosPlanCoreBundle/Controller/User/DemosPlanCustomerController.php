@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerFormInput;
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
 class DemosPlanCustomerController extends BaseController
 {
@@ -47,15 +47,14 @@ class DemosPlanCustomerController extends BaseController
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        RouterInterface $router
+        RouterInterface $router,
     ): Response {
         try {
             // Using a resource instead of the unrestricted entity is done here to easily notice
             // missing authorizations in the API contract until the page is migrated to an API
             // approach completely.
-            $customerResourceType = $resourceTypeProvider->requestType(CustomerResourceType::getName())
-                ->instanceOf(ResourceTypeInterface::class)
-                ->getInstanceOrThrow();
+            $customerResourceType = $resourceTypeProvider->getTypeByIdentifier(CustomerResourceType::getName());
+            Assert::isInstanceOf($customerResourceType, CustomerResourceType::class);
             $currentCustomer = $customerHandler->getCurrentCustomer();
             if (!$customerResourceType->isAvailable()) {
                 throw AccessException::typeNotAvailable($customerResourceType);
@@ -95,7 +94,7 @@ class DemosPlanCustomerController extends BaseController
         CustomerHandler $customerHandler,
         Request $request,
         FileUploadService $fileUploadService,
-        FileService $fileService
+        FileService $fileService,
     ): Response {
         try {
             $messageBag = $this->getMessageBag();
@@ -130,14 +129,14 @@ class DemosPlanCustomerController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users')]
+    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users', options: ['expose' => true])]
     public function sendMailToAllCustomersAction(
         CustomerHandler $customerHandler,
         HTMLSanitizer $HTMLSanitizer,
         MailService $mailService,
         Request $request,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ): Response {
         $templateVars = [];
         $vars = [];

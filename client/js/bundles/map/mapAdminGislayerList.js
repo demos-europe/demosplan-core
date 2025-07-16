@@ -12,13 +12,13 @@
  */
 
 import { DpSplitButton, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
-import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
+import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
 
 const stores = { layers }
 const components = {
-  DpAdminLayerList,
+  AdminLayerList,
   DpSplitButton,
   DpUploadFiles
 }

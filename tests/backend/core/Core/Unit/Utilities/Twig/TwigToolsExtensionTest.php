@@ -13,13 +13,12 @@ namespace Tests\Core\Core\Unit\Utilities\Twig;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\TwigToolsExtension;
 use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
- * Teste TwigToolsExtension.
+ * Test TwigToolsExtension.
  *
  * @group UnitTest
  */
@@ -35,62 +34,73 @@ class TwigToolsExtensionTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = new TwigToolsExtension(
-            self::$container,
-            self::$container->get(ParameterBagInterface::class),
-            self::$container->get(TranslatorInterface::class)
+            $this->getContainer(),
+            $this->getContainer()->get(ParameterBagInterface::class),
+            $this->getContainer()->get(TranslatorInterface::class)
         );
     }
 
-    public function testGetFilters()
+    public function testGetFilters(): void
+    {
+        $result = $this->sut->getFunctions();
+        self::assertTrue(is_array($result) && isset($result[0]));
+        self::assertInstanceOf(TwigFunction::class, $result[0]);
+        self::assertSame('getFormOption', $result[0]->getName());
+    }
+
+    public function testSaveLoginPath(): void
     {
         try {
-            $result = $this->sut->getFunctions();
-            static::assertTrue(is_array($result) && isset($result[0]));
-            static::assertInstanceOf(TwigFilter::class, $result[0]);
-            static::assertSame('getFormOption', $result[0]->getName());
+            $loginPath = 'testValue';
+
+            $result = $this->sut->getLoginPath();
+            self::assertSame('', $result);
+
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            self::assertEquals($loginPath, $result);
+
+            $this->sut->setLoginPath($loginPath);
+            $result = $this->sut->getLoginPath();
+            self::assertEquals($loginPath, $result);
         } catch (Exception $e) {
-            $this->fail(false);
+            $this->fail($e->getMessage());
         }
     }
 
-    public function testSaveStatic()
+    public function testSaveDisplayOrder(): void
     {
         try {
-            $variableKey = 'testKey';
-            $variableValue = 'testValue';
+            $displayOrder = 2;
 
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertNull($result);
+            $result = $this->sut->getDisplayOrder();
+            self::assertSame(0, $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            self::assertEquals($displayOrder, $result);
 
-            $this->sut->setStaticVariable($variableKey, $variableValue);
-            $result = $this->sut->getStaticVariable($variableKey);
-            static::assertEquals($variableValue, $result);
+            $this->sut->setDisplayOrder($displayOrder);
+            $result = $this->sut->getDisplayOrder();
+            self::assertEquals($displayOrder, $result);
         } catch (Exception $e) {
-            $this->fail();
+            $this->fail($e->getMessage());
         }
     }
 
-    public function testName()
+    public function testName(): void
     {
         $result = $this->sut->getName();
-        static::assertEquals('twigTools_extension', $result);
+        self::assertEquals('twigTools_extension', $result);
     }
 
-    public function testGetFormOption()
+    public function testGetFormOption(): void
     {
-        self::markSkippedForCIIntervention();
-        // This test fails yet depending on which project config is used as form_options may be overridden
+        $parameterBag = $this->getContainer()->get(ParameterBagInterface::class);
+        $options = $parameterBag->get('form_options');
 
-        $yaml = Yaml::parseFile(__DIR__.'/../../../../config/form_options.yml');
-        $options = $yaml['parameters']['form_options'];
-
-        static::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
-
-        static::assertStringNotMatchesFormat('/.+\./', $this->sut->getFormOption('statement_submit_types.values', false)['email']);
-        static::assertNull($this->sut->getFormOption('i.don.t.exist.nor.will.i.ever.because.i.am.the.weirdest'));
+        self::assertEquals($options, $this->sut->getFormOption(null, false, 'KEEP'));
+        self::assertStringNotMatchesFormat('/.+\./', $this->sut->getFormOption('statement_submit_types.values', false)['email']);
+        self::assertNull($this->sut->getFormOption('i.don.t.exist.nor.will.i.ever.because.i.am.the.weirdest'));
     }
 }

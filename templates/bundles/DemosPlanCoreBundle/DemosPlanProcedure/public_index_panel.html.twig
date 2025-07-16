@@ -64,7 +64,7 @@
             <p>
                 <span>{{ 'public.participation.panel.citizen.description_1'|trans }}</span>
                 <span class="{{ 'u-ml-0_25'|prefixClass }}">
-                    {{ 'public.participation.panel.citizen.description_2'|trans({ url: getStaticVariable('login_path'), css: 'o-link--on-alt weight--bold' })|wysiwyg }}
+                    {{ 'public.participation.panel.citizen.description_2'|trans({ url: getLoginPath(), css: 'o-link--on-alt weight--bold' })|wysiwyg }}
                 </span>
             </p>
         </div>
@@ -77,7 +77,7 @@
             <p>
                 <span>{{ 'public.participation.panel.institution.description_1'|trans }}</span>
                 <span class="{{ 'u-ml-0_25'|prefixClass }}">
-                    {{ 'public.participation.panel.institution.description_2'|trans({ url: getStaticVariable('login_path'), css: 'o-link--on-alt weight--bold' })|wysiwyg }}
+                    {{ 'public.participation.panel.institution.description_2'|trans({ url: getLoginPath(), css: 'o-link--on-alt weight--bold' })|wysiwyg }}
                 </span>
             </p>
             {# Additional FHH info #}

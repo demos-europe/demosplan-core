@@ -8,23 +8,25 @@
 </license>
 
 <script>
+import { DpContextualHelp, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMasterBasicSettings',
 
   components: {
+    DpContextualHelp,
     DpEmailList,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpUploadFiles: async () => {
+    }),
+    DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    }
+    })
   },
 
   props: {

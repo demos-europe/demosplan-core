@@ -170,11 +170,6 @@
         "website": "Unknown"
     },
     {
-        "package": "clean-webpack-plugin",
-        "license": "MIT",
-        "website": "https://github.com/johnagan/clean-webpack-plugin"
-    },
-    {
         "package": "cli-progress",
         "license": "MIT",
         "website": "https://github.com/npkgz/cli-progress"
@@ -317,7 +312,7 @@
     {
         "package": "glob",
         "license": "ISC",
-        "website": "http://blog.izs.me/"
+        "website": "https://blog.izs.me/"
     },
     {
         "package": "glob-all",
@@ -543,11 +538,6 @@
         "package": "vue-loader",
         "license": "MIT",
         "website": "https://github.com/vuejs/vue-loader"
-    },
-    {
-        "package": "vue-multiselect",
-        "license": "MIT",
-        "website": "https://shentao.github.io/vue-multiselect/"
     },
     {
         "package": "vue-scrollto",

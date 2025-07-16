@@ -32,6 +32,7 @@
 
     &-highlight {
         color: $dp-color-highlight;
+        fill: $dp-color-highlight;
     }
 
     &-cta-dark {
@@ -62,6 +63,7 @@
         &-text {
             color: $dp-color-message-info-text;
         }
+
         &-fill {
             color: $dp-color-message-info-fill;
         }
@@ -75,6 +77,7 @@
         &-text {
             color: $dp-color-message-severe-text;
         }
+
         &-fill {
             color: $dp-color-message-severe-fill;
         }
@@ -88,6 +91,7 @@
         &-text {
             color: $dp-color-status-failed-text;
         }
+
         &-fill {
             color: $dp-color-status-failed-fill;
         }
@@ -101,6 +105,7 @@
         &-fill {
             color: $dp-color-status-complete-fill;
         }
+
         &-text {
             color: $dp-color-status-complete-text;
         }
@@ -217,5 +222,9 @@
 
     &--white {
         background-color: $dp-color-white !important;
+    }
+
+    &--blue-light-3 {
+        background-color: $dp-color-blue-light-3;
     }
 }

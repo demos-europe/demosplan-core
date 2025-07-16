@@ -11,6 +11,7 @@
   <div>
     <dp-simplified-new-statement-form
       allow-file-upload
+      :csrf-token="csrfToken"
       expand-all
       :newest-intern-id="newestInternId"
       :procedure-id="procedureId"
@@ -31,6 +32,13 @@ export default {
 
   components: {
     DpSimplifiedNewStatementForm
+  },
+
+  props: {
+    csrfToken: {
+      type: String,
+      required: true
+    }
   }
 }
 </script>

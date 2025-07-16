@@ -18,6 +18,11 @@
       data-dp-validate="changePasswordForm"
       method="POST"
       ref="changePasswordForm">
+      <input
+        name="_token"
+        type="hidden"
+        :value="csrfToken">
+
       <dp-input
         id="password_new"
         v-model="passwordNew"
@@ -67,6 +72,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     userId: {
       type: String,
       required: true

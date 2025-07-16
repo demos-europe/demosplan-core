@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { del, set } from 'vue'
 import { dpApi, handleResponseMessages, hasAnyPermissions, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 /**
@@ -91,6 +89,39 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
+function extractFileAttachments (attachments, includes) {
+  const results = attachments
+    .map(att => {
+      const fileId = att?.relationships?.file?.data?.id
+      const file = includes.find(include => include.type === 'File' && include.id === fileId)
+
+      return file ? { id: file.id, ...file.attributes } : null
+    })
+    .filter(Boolean)
+
+  return results
+}
+
+function mapRelations (data, includes) {
+  const ids = data.map(el => el.id)
+  const type = data[0].type
+
+  return includes
+    .filter(item => item.type === type && ids.includes(item.id))
+    .map(item => ({
+      id: item.id,
+      ...item.attributes,
+      ...(item.relationships && { relationships: item.relationships })
+    }))
+}
+
+function mapSingleRelation ({ id, type }, includes) {
+  if (!id) return null
+  const item = includes.find(incl => incl.id === id && incl.type === type)
+
+  return item ? { id: item.id, ...item.attributes } : null
+}
+
 function setUpdatedProps (data) {
   // If we update element/paragraph/document we want to update title too, so we set it as attribute to get the value from response in the loop below
   data.data.attributes = {
@@ -125,19 +156,19 @@ function setUpdatedProps (data) {
 function transformStatementStructure ({ el, includes, meta }) {
   // Map attributes to match the old structure/naming
   const statement = el.attributes
-  statement.id = el.id
   statement.clusterName = statement.name || ''
+  statement.files = statement.files || []
   statement.fragments = statement.fragments || []
   statement.fragmentsElements = statement.fragmentsElements || []
   statement.fragmentsTotal = statement.fragmentsCount || 0
-  statement.files = statement.files || []
-  statement.attachments = statement.attachments || []
-  statement.sourceAttachment = statement.sourceAttachment || ''
+  statement.genericAttachments = statement.genericAttachments || []
+  statement.id = el.id
   statement.initialFilteredFragmentsCount = statement.filteredFragmentsCount || 0 // This Information is missing from BE-Side by now
-  statement.phase = Translator.trans(statement.phase)
   statement.isFiltered = meta.isFiltered || false
-  statement.orgaName = statement.organisationName
   statement.orgaDepartmentName = statement.organisationDepartmentName
+  statement.orgaName = statement.organisationName
+  statement.phase = Translator.trans(statement.phase)
+  statement.sourceAttachment = statement.sourceAttachment || ''
 
   if (hasOwnProp(el, 'relationships')) {
     const relationships = Object.keys(el.relationships)
@@ -145,47 +176,27 @@ function transformStatementStructure ({ el, includes, meta }) {
     // Get the data for the relationships and put it into the statement-element
     relationships.forEach(relationKey => {
       const relation = el.relationships[relationKey]
+      const data = relation?.data
+
       // For 1-n Relations
-      if (relation.data instanceof Array) {
-        if (relation.data.length > 0) {
-          const ids = relation.data.map(id => id.id)
-          const type = relation.data[0].type
+      if (Array.isArray(data)) {
+        const items = data.length ? mapRelations(data, includes) : []
+        statement[relationKey] = items
 
-          statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
+        if (relationKey === 'genericAttachments') {
+          statement.genericAttachments = extractFileAttachments(items, includes)
+        }
 
-          if (type === 'StatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
-            const attachment = includes
-              .filter(incl => incl.type === 'StatementAttachment')
-              .filter(incl => statement[relationKey][0].id === incl.id)
-
-            if (hasOwnProp(attachment[0], 'relationships')) {
-              const sourceAttachment = includes
-                .filter(incl => incl.type === 'File')
-                .filter(incl => attachment[0].relationships.file.data.id === incl.id)
-                .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
-
-              statement.sourceAttachment = sourceAttachment[0]
-            } else {
-              statement.sourceAttachment = undefined
-            }
-          }
-        } else {
-          statement[relationKey] = []
+        if (relationKey === 'sourceAttachment') {
+          statement.sourceAttachment = extractFileAttachments(items, includes)[0] ?? ''
         }
 
         return
       }
+
       // For 1-1 relations
-      if (relation.data instanceof Object) {
-        if (hasOwnProp(relation.data, 'id')) {
-          const id = relation.data.id
-          const type = relation.data.type
-          statement[relationKey] = includes.find(incl => id === incl.id && type === incl.type)
-          statement[relationKey] = Object.assign(statement[relationKey].attributes, { id: statement[relationKey].id })
-        } else {
-          statement[relationKey] = null
-        }
+      if (data?.id) {
+        statement[relationKey] = mapSingleRelation(data, includes)
       }
     })
   }
@@ -211,11 +222,12 @@ function setStatementAssignee (statement) {
   return statement
 }
 export default {
-
   namespaced: true,
-  name: 'statement',
+
+  name: 'Statement',
 
   state: {
+    filterHash: '',
     statements: {},
     procedureId: '',
     selectedElements: {},
@@ -227,10 +239,10 @@ export default {
 
   mutations: {
     /**
-     * @param {Object} element
+     * @param {Object} elementId
      */
-    addElementToSelection (state, element) {
-      set(state.selectedElements, [element.id], element)
+    addElementToSelection (state, elementId) {
+      state.selectedElements[elementId] = true
     },
 
     /**
@@ -260,7 +272,7 @@ export default {
      * @param {String} elementId
      */
     removeElementFromSelection (state, elementId) {
-      del(state.selectedElements, elementId)
+      delete state.selectedElements[elementId]
     },
 
     /**
@@ -268,7 +280,7 @@ export default {
      * @param {String} statementId
      */
     removeStatement (state, statementId) {
-      del(state.statements, statementId)
+      delete state.statements[statementId]
     },
 
     /**
@@ -276,7 +288,7 @@ export default {
      * @param {Object} elements
      */
     replaceElementSelection (state, elements) {
-      set(state, 'selectedElements', elements)
+      state.selectedElements = elements
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements'))
 
       if (hasOwnProp(selectedEntries, state.procedureId) && state.persistStatementSelection) {
@@ -291,7 +303,7 @@ export default {
      * @param {Object} newStatement
      */
     replaceStatement (state, oldStatementId, newStatement) {
-      set(state.statements, oldStatementId, newStatement)
+      state.statements[oldStatementId] = newStatement
     },
 
     resetSelection (state) {
@@ -299,28 +311,28 @@ export default {
     },
 
     resetStatements (state) {
-      set(state, 'statements', {})
+      state.statements = {}
     },
 
     /**
      * @param value
      */
     setFilteredState (state, value) {
-      set(state, 'isFiltered', value)
+      state.isFiltered = value
     },
 
     /**
      * @param {Object} data
      */
     setInitStatements (state, data) {
-      set(state, 'initStatements', data)
+      state.initStatements = data
     },
 
     /**
      * @param {String} value
      */
     setProcedureId (state, value) {
-      set(state, 'procedureId', value)
+      state.procedureId = value
     },
 
     setSelectedElements (state, elements) {
@@ -331,7 +343,7 @@ export default {
      * Set grouping of statements as displayed in the TOC
      */
     setStatementGrouping (state, grouping) {
-      set(state, 'statementGrouping', grouping)
+      state.statementGrouping = grouping
     },
 
     setStatements (state, statements) {
@@ -341,12 +353,17 @@ export default {
     /**
      * @param value
      */
+
+    updateFilterHash (state, value) {
+      state.filterHash = value
+    },
+
     updatePagination (state, value) {
-      set(state, 'pagination', Object.assign(state.pagination, value))
+      state.pagination = Object.assign(state.pagination, value)
     },
 
     updatePersistStatementSelection (state, value) {
-      set(state, 'persistStatementSelection', value)
+      state.persistStatementSelection = value
     },
 
     /**
@@ -361,12 +378,12 @@ export default {
 
       // If assignee was changed and statement is selected, we have to update selectedElements in store and sessionStorage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedElements, data.id)) {
-        set(state.selectedElements[data.id], 'assignee', data.assignee)
+        state.selectedElements[data.id].assignee = data.assignee
         state.selectedElements = { ...state.selectedElements }
 
         if (state.persistStatementSelection) {
           const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
-          selectedEntries[state.procedureId][data.id].assignee = data.assignee
+          selectedEntries[state.procedureId][data.id].assignee = data.assigne
           sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
         }
       }
@@ -387,9 +404,9 @@ export default {
   actions: {
     /**
      * Add an element to selectedElements and the sessionStorage
-     * @param data : {Object} contains id, editable
+     * @param id : {elementId} contains id, editable
      */
-    addToSelectionAction ({ state, commit }, data) {
+    addToSelectionAction ({ state, commit }, id) {
       performance.mark('selection-start')
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
 
@@ -397,12 +414,12 @@ export default {
         selectedEntries[state.procedureId] = {}
       }
 
-      selectedEntries[state.procedureId][data.id] = { ...data }
+      selectedEntries[state.procedureId][id] = true
 
       if (state.persistStatementSelection) {
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
-      commit('addElementToSelection', data)
+      commit('addElementToSelection', id)
       performance.mark('selection-end')
       performance.measure('selection-duration', 'selection-start', 'selection-end')
       return Promise.resolve(true)
@@ -415,7 +432,6 @@ export default {
     copyStatementAction ({ state }, data) {
       return dpApi({
         method: 'POST',
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_copy_to_procedure', {
           procedureId: state.procedureId,
           statementId: data.statementId,
@@ -436,11 +452,11 @@ export default {
         url: Routing.generate('dplan_api_create_group_statement', {
           procedureId: state.procedureId
         }),
+        data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
-        },
-        data: { data }
+        }
       })
         .then(this.api.checkResponse)
         .then(response => {
@@ -467,8 +483,8 @@ export default {
 
     /**
      * Get statements
-     * attachments are `Originalstellungnahme-Anhang` and can be only one file
-     * files are `weitere Anhänge`
+     * sourceAttachment are `Originalstellungnahme-Anhang` and can be only one file
+     * genericAttachments are `weitere Anhänge`
      * @param {Object} data
      */
     getStatementAction ({ commit, state, rootState }, data) {
@@ -477,9 +493,9 @@ export default {
         'paragraph',
         'document',
         'assignee',
-        'attachments',
-        'attachments.file',
-        'files'
+        'sourceAttachment',
+        'sourceAttachment.file',
+        'genericAttachments.file'
       ]
 
       /*
@@ -505,7 +521,7 @@ export default {
         fields.County = 'name'
       }
 
-      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+      if (hasPermission('field_statement_municipality')) {
         includes.push('municipalities')
         statementFields.push('municipalities')
         fields.Municipality = 'name'
@@ -514,12 +530,11 @@ export default {
       if (hasAnyPermissions(['feature_json_api_tag', 'area_statement_segmentation', 'feature_statements_tag'])) {
         includes.push('tags')
         statementFields.push('tags')
-        fields.Tag = 'name'
+        fields.Tag = 'title'
       }
 
       return dpApi({
         method: 'GET',
-        responseType: 'json',
         // @improve T12984
         url: Routing.generate('dplan_assessmentqueryhash_get_procedure_statement_list', {
           procedureId: data.procedureId,
@@ -528,7 +543,7 @@ export default {
             number: data.pagination.current_page,
             size: data.pagination.count
           },
-          view_mode: rootState.assessmentTable.viewMode,
+          view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {
@@ -537,7 +552,6 @@ export default {
               ...statementFields,
               'anonymous',
               'assignee',
-              'attachments',
               'authoredDate',
               'authorName',
               'document',
@@ -545,7 +559,7 @@ export default {
               'elementId',
               'elements',
               'externId',
-              'files',
+              'genericAttachments',
               'filteredFragmentsCount',
               'formerExternId',
               'fragmentsCount',
@@ -572,6 +586,7 @@ export default {
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
+              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
@@ -602,9 +617,9 @@ export default {
               'parentId',
               'title'
             ].join(),
-            StatementAttachment: [
+            SourceStatementAttachment: [
               'file',
-              'type'
+              'attachmentType'
             ].join()
           },
           include: includes.join(',')
@@ -618,6 +633,7 @@ export default {
           commit('setFilteredState', response.meta.isFiltered)
           commit('setInitStatements', response.meta.statementAssignments)
           commit('setStatementGrouping', response.meta.grouping)
+          commit('updateFilterHash', response.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
@@ -658,7 +674,6 @@ export default {
     moveStatementAction ({ state }, data) {
       return dpApi({
         method: 'POST',
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_move', {
           procedureId: state.procedureId,
           statementId: data.statementId,
@@ -730,18 +745,16 @@ export default {
     setAssigneeAction ({ commit }, { statementId, assigneeId }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_statements_api', {
-          statementId: statementId
-        }),
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        },
+        url: Routing.generate('dplan_claim_statements_api', { statementId }),
         data: {
           data: {
             type: 'user',
             id: assigneeId
           }
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json'
         }
       })
         .then(this.api.checkResponse)
@@ -851,26 +864,24 @@ export default {
 
       return dpApi({
         method: 'POST',
-        data: payload,
-        responseType: 'json',
         url: Routing.generate('dplan_api_statement_edit', {
           statementId: data.data.id,
           procedureId: state.procedureId,
           include: [
-            'elements',
-            'paragraph',
-            'documents',
-            'counties',
-            'municipalities',
-            'priorityAreas',
-            'tags',
             'assignee',
-            'attachments',
-            'attachments.file',
-            'files',
-            'fragmentsElements'
+            'sourceAttachment',
+            'sourceAttachment.file',
+            'counties',
+            'document',
+            'elements',
+            'genericAttachments.file',
+            'fragmentsElements',
+            'paragraph',
+            'priorityAreas',
+            'tags'
           ].join(',')
         }),
+        data: payload,
         headers: {
           'Content-type': 'application/json'
         }
@@ -916,11 +927,11 @@ export default {
         url: Routing.generate('dplan_api_update_group_statement', {
           procedureId: state.procedureId
         }),
+        data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
           Accept: 'application/vnd.api+json'
-        },
-        data: { data }
+        }
       })
         .then(this.api.checkResponse)
         .then(response => {

@@ -24,10 +24,11 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         @consolidateStatements="$root.$emit('consolidateStatements')"
-      />
+        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
 
       <dp-button
         class="float-right"
+        data-cy="editSelectedItemsMenu:unselect"
         :text="Translator.trans('unselect')"
         variant="outline"
         @click="resetSelection" />
@@ -71,6 +72,11 @@ export default {
     }
   },
 
+  emits: [
+    'consolidateStatements',
+    'exportModal:toggle'
+  ],
+
   data () {
     return {
       loading: false
@@ -78,15 +84,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', {
+    ...mapGetters('Statement', {
       selectedStatementsLength: 'selectedElementsLength'
     }),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragmentsLength'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements'
     ]),
 
@@ -128,10 +134,14 @@ export default {
   },
 
   methods: {
-    resetSelection () {
-      this.$store.dispatch(`${this.visibleEntityType}/resetSelection`)
+    capitalizeFirstLetter (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
     },
-    ...mapMutations('statement', ['updateStatement'])
+
+    resetSelection () {
+      this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
+    },
+    ...mapMutations('Statement', ['updateStatement'])
   }
 }
 </script>

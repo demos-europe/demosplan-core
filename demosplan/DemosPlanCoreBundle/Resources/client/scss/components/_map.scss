@@ -141,11 +141,11 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  left sidebar with map tools
         &__toolbar {
+
             @extend %map-width-toolbar;
 
             @include media-query('lap-up') {
                 float: left;
-
                 height: $map-height;
             }
 
@@ -160,6 +160,15 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 > ul.c-map__group {
                     display: none;
                 }
+            }
+        }
+
+        &__toolbar-content {
+            overflow-x: hidden;
+            @include media-query('lap-up') {
+                overflow-y: auto;
+                height: $map-height;
+                padding-right: 6px;
             }
         }
 
@@ -182,10 +191,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             margin: 0;
 
-            @include media-query('lap-up') {
-                margin: 0 $inuit-base-spacing-unit--small 0 0;
-            }
-
             .js & {
                 &--toggleable {
                     display: none;
@@ -198,10 +203,6 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             //  extra positioning to attach layer box to the bottom of toolbar
             &--bottom {
-
-                overflow-x: hidden;
-                overflow-y: auto;
-
                 @include media-query('lap-up') {
                     bottom: 0;
                     left: 0;
@@ -333,13 +334,14 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             left: 10px;
             position: absolute;
             right: 30px;
-            top: 5px;
+            top: 9px;
 
             display: inline-block;
             padding-left: 10px;
 
             input[type='range'] {
                 width: 100%;
+                height: 15px;
 
                 &:focus {
                     @include keyboard-focus;
@@ -366,6 +368,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 @extend .fa;
                 @extend .fa-plus-circle;
                 padding-right: 1px;
+                margin-right: $inuit-base-spacing-unit--tiny;
             }
 
             &:hover {
@@ -381,6 +384,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         &__layer {
             padding: 4px 8px;
             line-height: 20px;
+            height: 33px;
 
             img {
                 max-width: none;
@@ -439,7 +443,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             margin-left: 44px;
 
-            @media only screen and (max-width: 620px) {
+            @media only screen and (width <= 620px) {
                 right: 44px;
                 top: 53px;
                 z-index: 1003;
@@ -563,11 +567,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  overlay with hints
         &__hint {
-            bottom: 0;
-            left: 0;
+            inset: 0;
             position: absolute;
-            right: 0;
-            top: 0;
             z-index: $z-map-hint;
 
             transition: all #{$transition-speed-style-delay};
@@ -646,11 +647,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             //  set popover fixed for mobile devices and handle long text-overflow
             @include media-query('palm') {
-                bottom: auto;
-                left: 2%;
+                inset: 2% 2% auto;
                 position: fixed;
-                right: 2%;
-                top: 2%;
                 z-index: 1040;
 
                 max-height: 96%;

@@ -11,6 +11,7 @@
         {% block content %}
 
             <form name="updateStoryEntry" action="{{ path('DemosPlan_forum_development_userstory_threadentry_edit',{ "storyId": templateVars.storyId, "threadEntryId": templateVars.threadEntry.ident}) }}" method="post" enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 {{ uiComponent('form.row', {
                     elements: [

@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseParagraphVersionResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathsBasedInterface;
 
 /**
  * @template-extends DplanResourceType<ParagraphVersion>
@@ -40,14 +41,14 @@ final class ParagraphVersionResourceType extends DplanResourceType
         return true;
     }
 
-    public function isDirectlyAccessible(): bool
+    public function isGetAllowed(): bool
     {
         return false;
     }
 
-    public function isReferencable(): bool
+    public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     protected function getAccessConditions(): array
@@ -55,10 +56,15 @@ final class ParagraphVersionResourceType extends DplanResourceType
         return [];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createAttribute($this->id)->readable(true)->sortable()->filterable(),
-        ];
+        $paragraphVersionConfig = $this->getConfig(BaseParagraphVersionResourceConfigBuilder::class);
+        $paragraphVersionConfig->id->setReadableByPath()->setSortable()->setFilterable();
+        $paragraphVersionConfig->paragraph
+            ->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
+            ->setReadableByPath();
+        $paragraphVersionConfig->title->setReadableByPath();
+
+        return $paragraphVersionConfig;
     }
 }

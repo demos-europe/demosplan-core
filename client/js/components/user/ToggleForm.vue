@@ -1,6 +1,7 @@
 <template>
   <dp-accordion
     ref="accordion"
+    data-cy="toggleForm:toggle"
     :title="title">
     <!-- this is where the form fields go -->
     <slot />
@@ -9,6 +10,7 @@
       <dp-button-row
         primary
         secondary
+        data-cy="toggleForm"
         @primary-action="dpValidateAction(formId, save, false)"
         @secondary-action="abort" />
     </slot>
@@ -44,17 +46,14 @@ export default {
     abort () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).reset()
-      } else {
-        this.$emit('form-abort')
       }
+
       this.$refs.accordion.toggle()
     },
 
     save () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).submit()
-      } else {
-        this.$emit('form-save')
       }
     }
   }

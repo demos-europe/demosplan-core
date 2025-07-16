@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
+use function Symfony\Component\String\u;
 
 /**
  * @method array|string|null          getProcedure()
@@ -123,7 +124,7 @@ class StatementHandlingResult extends ValueObject
             'searchFields' => $this->searchFields,
             'entries'      => [
                 'total'      => $this->total,
-                'statements' => $this->statements,
+                'statements' => array_map($this->normalizeUnicode(...), $this->statements),
             ],
             'pager'        => $this->pager,
         ];
@@ -133,5 +134,12 @@ class StatementHandlingResult extends ValueObject
         }
 
         return $array;
+    }
+
+    private function normalizeUnicode(array $statement): array
+    {
+        $statement['text'] = u($statement['text'])->normalize()->toString();
+        return $statement;
+
     }
 }

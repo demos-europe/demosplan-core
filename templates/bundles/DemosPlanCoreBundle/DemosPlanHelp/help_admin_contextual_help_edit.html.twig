@@ -13,6 +13,7 @@
     <form class="u-mb flow-root" action="{{ path(formAction, formParameters)  }}" method="post" >
         <input type="hidden" value="{{ contextualHelp.ident|default }}" name="r_ident">
         <input type="hidden" value="save" name="r_action">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         {{ uiComponent('form.row', {
             elements: [{
@@ -29,7 +30,7 @@
         {{ uiComponent('form.row', {
             elements: [{
                 label: { text: 'contextual.help.text'|trans },
-                control: { name: 'r_text', height: '90', attributes: ['data-cy=contextualHelpText'] },
+                control: { name: 'r_text', height: '8', attributes: ['data-cy=contextualHelpText'] },
                 id: 'r_text',
                 type: 'textarea',
                 required: true,

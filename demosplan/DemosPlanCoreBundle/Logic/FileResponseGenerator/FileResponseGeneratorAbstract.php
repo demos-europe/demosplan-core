@@ -18,11 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 abstract class FileResponseGeneratorAbstract
 {
-    protected NameGenerator $nameGenerator;
-
-    public function __construct(NameGenerator $nameGenerator)
+    public function __construct(protected NameGenerator $nameGenerator)
     {
-        $this->nameGenerator = $nameGenerator;
     }
 
     protected $supportedTypes = [];

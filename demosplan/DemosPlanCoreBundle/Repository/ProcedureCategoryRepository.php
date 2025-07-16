@@ -15,6 +15,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 
+/**
+ * @template-extends CoreRepository<ProcedureCategory>
+ */
 class ProcedureCategoryRepository extends CoreRepository
 {
     /**

@@ -81,9 +81,11 @@ class PsalmCommand extends CoreCommand
                 $this->parameterBag->get('project_folder'),
                 DemosPlanPath::getRootPath(),
             ],
+            // uses local file, no need for flysystem
             file_get_contents(DemosPlanPath::getRootPath(self::PSALM_CONFIG_PATH))
         );
 
+        // local file is valid, no need for flysystem
         file_put_contents($configFilePath, $config);
 
         $command = ['vendor/bin/psalm', '-c', $configFilePath];

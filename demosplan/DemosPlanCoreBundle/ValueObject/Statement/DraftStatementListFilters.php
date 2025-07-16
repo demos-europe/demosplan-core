@@ -10,12 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject\Statement;
 
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\ValueObjectException;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class DraftStatementListFilters extends ValueObject implements ParameterBagInterface
+class DraftStatementListFilters extends ValueObject
 {
     protected $organisationId = '';
     protected $departmentId = '';
@@ -98,8 +96,6 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
     /**
      * Ignore that ValueObject is not locked.
      * We need to modify on filter change.
-     *
-     * @return mixed
      */
     protected function getProperty(?string $name)
     {
@@ -110,21 +106,6 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
         return $this->{$name};
     }
 
-    public function clear()
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    public function add(array $parameters)
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    public function all(): array
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
     public function get($name)
     {
         $fieldMapping = $this->getFieldMapping();
@@ -133,42 +114,9 @@ class DraftStatementListFilters extends ValueObject implements ParameterBagInter
         return $this->getProperty($property);
     }
 
-    public function remove($name)
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    public function set($name, $value)
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
     public function has($name): bool
     {
         return array_key_exists($name, $this->getFieldMapping());
-    }
-
-    public function resolve()
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    public function resolveValue($value)
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function escapeValue($value)
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
-    }
-
-    public function unescapeValue($value): mixed
-    {
-        throw new NotYetImplementedException('Not implemented yet.');
     }
 
     protected function getFieldMapping()

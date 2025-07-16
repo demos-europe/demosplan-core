@@ -39,13 +39,13 @@ class StatementExcelImporterTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ExcelImporter::class);
+        $this->sut = self::getContainer()->get(ExcelImporter::class);
     }
 
     private function setProcedureAndLogin()
     {
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($this->getProcedureReference(LoadProcedureData::TESTPROCEDURE));
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
     }
@@ -128,13 +128,26 @@ class StatementExcelImporterTest extends FunctionalTestCase
             'publicStatement'     => Statement::EXTERNAL,
         ];
 
-        $this->sut->generateStatement($statementData, 0, 0, 'Öffentlichkeit');
+        $generatedOriginalStatement = $this->sut->createNewOriginalStatement($statementData, 0, 0, 'Öffentlichkeit');
+        $this->sut->createCopy($generatedOriginalStatement);
         static::assertTrue($this->sut->hasErrors());
         static::assertCount(1, $this->sut->getErrors());
         static::assertInstanceOf(
             DateStringConstraint::class,
             $this->sut->getErrors()[0]->getViolation()->getConstraint()
         );
+    }
+
+    public function testInvalidStatementText(): void
+    {
+        $this->setProcedureAndLogin();
+        $statementData = [
+            'Stellungnahmetext'   => '',
+            'publicStatement'     => Statement::EXTERNAL,
+        ];
+        $this->sut->createNewOriginalStatement($statementData, 0, 0, 'Öffentlichkeit');
+        // in case of an error an exception would be thrown
+        static::asserttrue(true);
     }
 
     public function testGenerateStatementsFromExcel(): void
@@ -176,7 +189,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
     public function testMappingOfSubmitType(): void
     {
         /** @var GlobalConfigInterface|GlobalConfig $globalConfig */
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         $submitTypes = $globalConfig->getFormOptions()['statement_submit_types']['values'];
         $allowedValues = array_combine(array_keys($submitTypes), array_keys($submitTypes));
 

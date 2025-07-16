@@ -10,6 +10,7 @@
         {% block content %}
 
             <form name="editUserStory" action="{{ path('DemosPlan_forum_development_userstory_edit', {'releaseId': templateVars.userStory.releaseId, 'storyId': templateVars.userStory.ident }) }}" method="post" enctype="multipart/form-data">
+                {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
                 <label>
                     {{ "user.story"|trans }}

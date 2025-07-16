@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInt
 class IsFileDirectlyAccessibleEvent extends DPlanEvent implements IsFileDirectlyAccessibleEventInterface
 {
     /**
-     * @param bool
+     * @var bool
      */
     private $isDirectlyAccessible = false;
 

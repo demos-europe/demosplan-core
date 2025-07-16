@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -44,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use EDT\JsonApi\Validation\FieldsValidator;
 use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
@@ -67,14 +69,15 @@ class DemosPlanStatementAPIController extends APIController
 {
     public function __construct(
         private readonly PermissionsInterface $permissions,
-        LoggerInterface $apiLogger,
+        ApiLoggerInterface $apiLogger,
         FieldsValidator $fieldsValidator,
         PrefilledTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         LoggerInterface $logger,
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
-        SchemaPathProcessor $schemaPathProcessor
+        MessageFormatter $messageFormatter,
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -84,7 +87,8 @@ class DemosPlanStatementAPIController extends APIController
             $logger,
             $globalConfig,
             $messageBag,
-            $schemaPathProcessor
+            $schemaPathProcessor,
+            $messageFormatter
         );
     }
 
@@ -382,7 +386,7 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * @DplanPermissions("area_admin_assessmenttable")
      */
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
     public function listAction(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -394,7 +398,7 @@ class DemosPlanStatementAPIController extends APIController
         StatementService $statementService,
         UserService $userService,
         string $filterSetHash,
-        string $procedureId
+        string $procedureId,
     ): APIResponse {
         try {
             // @improve T14024
@@ -402,7 +406,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );
@@ -439,6 +443,7 @@ class DemosPlanStatementAPIController extends APIController
                 $procedureId,
                 100000
             );
+
             $meta['fragmentAssignments'] = $userService->getAssigneeIds($allStatementFragments->getResult());
             $meta['filterHash'] = $filterSetHash;
 
@@ -450,7 +455,7 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             $collection = new Collection($paginator, $statementResourceType->getTransformer(), $statementResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
             $collection->setMeta($meta);
 

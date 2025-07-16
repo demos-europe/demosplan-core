@@ -18,7 +18,7 @@
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
         class="cursor-pointer"
         @click="handleToggle">
-        <div class="width-20 u-pv-0_25 inline-block">
+        <div class="w-[20px] u-pv-0_25 inline-block">
           <input
             type="checkbox"
             :id="`selected` + user.id"
@@ -29,15 +29,15 @@
         </div><!--
      --><div
           class="layout__item u-1-of-4 u-pv-0_25">
-          {{ user.attributes.firstname }} {{ user.attributes.lastname }}
+          {{ user.attributes?.firstname }} {{ user.attributes?.lastname }}
         </div><!--
      --><div
           class="break-words layout__item u-1-of-4 u-pv-0_25">
-          {{ user.attributes.login }}
+          {{ user.attributes?.login }}
         </div><!--
      --><div
         class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
-          {{ user.attributes.email }}
+          {{ user.attributes?.email }}
         </div><!--
       --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
             <button
@@ -69,23 +69,25 @@
       class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
       <dd class="layout__item u-pr u-1-of-2">
         <dp-edit-field-single-select
-          label="Organisation"
-          field-key="organisation"
           :entity-id="user.id"
+          field-key="organisation"
+          label="Organisation"
           :label-grid-cols="4"
           :options="availableOrganisations"
+          :readonly="!hasPermission('feature_user_edit')"
           :value="currentOrganisation"
           @field:input="(val) => updateRelationship('currentOrganisation', val)"
           @field:save="saveUser" />
       </dd><!--
    --><dd class="layout__item u-1-of-2">
         <dp-edit-field-single-select
-          label="Abteilung"
           ref="departmentSelect"
-          field-key="department"
           :entity-id="user.id"
+          field-key="department"
+          label="Abteilung"
           :label-grid-cols="4"
           :options="availableDepartments"
+          :readonly="!hasPermission('feature_user_edit')"
           :value="currentDepartment"
           @field:input="(val) => updateRelationship('currentDepartment', val)"
           @field:save="saveUser" />
@@ -95,8 +97,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpTableCard } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
 export default {
   name: 'DpUserListExtendedItem',
@@ -129,6 +132,15 @@ export default {
     }
   },
 
+  emits: [
+    'card:toggle',
+    'change',
+    'delete',
+    'item:selected',
+    'reset',
+    'save-success'
+  ],
+
   data () {
     return {
       currentDepartment: {},
@@ -141,44 +153,38 @@ export default {
   },
 
   computed: {
-    ...mapState('department', {
+    ...mapState('Department', {
       departmentsList: 'items'
     }),
 
-    initialUserDepartment () {
-      const dep = this.user.relationships.department.get()
-      if (Object.keys(dep).length > 0) {
-        return {
-          id: dep.id,
-          title: dep.attributes.name
-        }
-      }
-      return {}
-    },
-
-    initialUserOrganisation () {
-      const orga = this.user.relationships.orga.get()
-
-      if (Object.keys(orga).length > 0) {
-        return {
-          id: orga.id,
-          title: orga.attributes.name
-        }
-      }
-
-      return {}
+    getOrgaId () {
+      return this.user?.relationships?.orga.data?.id
     },
 
     isInstitution () {
       const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
-      return currentOrg ? currentOrg.relationships.masterToeb.data !== null : false
+      return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
     }
   },
 
   methods: {
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save'
     }),
+
+    initialUserDepartment () {
+      return {
+        id: this.user?.relationships?.orga.data?.id,
+        title: this.getDepartmentName()
+      }
+    },
+
+    initialUserOrganisation () {
+      return {
+        id: this.user?.relationships?.orga.data?.id,
+        title: this.getOrgaName()
+      }
+    },
 
     /**
      * - add departments to organisations
@@ -195,7 +201,7 @@ export default {
       return organisations.map(org => {
         org.departments = org.relationships.departments.data
           .filter(dep => typeof departments.find(el => el.id === dep.id) !== 'undefined')
-          .map(dep => ({ id: dep.id, title: departments.find(el => el.id === dep.id).attributes.name }))
+          .map(dep => ({ id: dep.id, title: departments.find(el => el.id === dep.id).attributes?.name }))
           .sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }))
         // Set component state for current org
         if (org.id === this.currentOrganisation.id) {
@@ -205,20 +211,21 @@ export default {
           }
         }
         // Convert to required format
-        return { id: org.id, title: org.attributes.name, departments: org.departments }
+        return { id: org.id, title: org.attributes?.name, departments: org.departments }
       })
         .sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }))
     },
 
     /**
      * Find options for organisation select
+     * filteredOrgas returns an array which are institutions and which belongs to masterToeb
      */
     findAvailableOrganisations () {
       const filteredOrgas = this.allOrganisations.filter(org => {
         if (this.isInstitution) {
-          return org.relationships.masterToeb.data !== null
+          return org.relationships?.masterToeb?.data !== null
         } else {
-          return org.relationships.masterToeb.data === null
+          return org.relationships?.masterToeb?.data === null
         }
       })
       const allDeps = Object.values(this.departmentsList)
@@ -229,6 +236,16 @@ export default {
       // Set component state
       this.setAvailableOrganisations(convertedOrgs)
       this.setAvailableDepartments()
+    },
+
+    getDepartmentName () {
+      const department = Object.values(this.departmentsList).find(el => el.id === this.user?.relationships?.department.data?.id)
+      return department?.attributes?.name ?? ''
+    },
+
+    getOrgaName () {
+      const orga = this.allOrganisations.find(el => el.id === this.user?.relationships?.orga?.data?.id)
+      return orga?.attributes?.name ?? ''
     },
 
     handleToggle () {
@@ -250,7 +267,12 @@ export default {
     },
 
     saveUser () {
-      const url = Routing.generate('api_resource_update', { resourceType: 'User', resourceId: this.user.id })
+      // If currently selected department doesn't match current orga, reset to 'Keine Abteilung' or first option of current orga
+      if (typeof this.currentOrganisation.departments.find(dep => dep.id === this.currentDepartment.id) === 'undefined') {
+        this.resetCurrentDepartment()
+      }
+
+      const url = Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id })
       const payload = {
         data: {
           id: this.user.id,
@@ -268,20 +290,15 @@ export default {
               }
             }
           },
-          type: 'User'
+          type: 'AdministratableUser'
         }
       }
 
-      // If currently selected department doesn't match current orga, reset to 'Keine Abteilung' or first option of current orga
-      if (typeof this.currentOrganisation.departments.find(dep => dep.id === this.currentDepartment.id) === 'undefined') {
-        this.resetCurrentDepartment()
-      }
-
       return dpApi.patch(url, {}, payload)
-        .then(response => checkResponse(response, {
+        .then(checkResponse, {
           200: { type: 'confirm', text: 'info.user.updated' },
           204: { type: 'confirm', text: 'info.user.updated' }
-        }))
+        })
         .then(() => {
           this.$root.$emit('save-success')
           // Update department options
@@ -294,7 +311,7 @@ export default {
      * @param deps {Array}
      */
     setAvailableDepartments () {
-      this.availableDepartments = this.currentOrganisation.departments.length > 0 ? this.currentOrganisation.departments : []
+      this.availableDepartments = this.currentOrganisation?.departments?.length > 0 ? this.currentOrganisation?.departments : []
     },
 
     /**
@@ -306,8 +323,8 @@ export default {
     },
 
     setInitialUserData () {
-      this.currentOrganisation = this.initialUserOrganisation
-      this.currentDepartment = this.initialUserDepartment
+      this.currentOrganisation = this.initialUserOrganisation()
+      this.currentDepartment = this.initialUserDepartment()
     },
 
     /**

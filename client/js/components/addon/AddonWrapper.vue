@@ -1,27 +1,32 @@
 <template>
   <div>
     <component
-      :is="component"
-      :ref="refComponent"
-      v-bind="addonProps"
-    />
+      v-for="addon in loadedAddons"
+      :is="addon.component"
+      :key="`addon:${addon.name}`"
+      :data-cy="`addon:${addon.name}`"
+      :ref="`${addon.name}${refComponent}`"
+      v-bind="{ demosplanUi, ...addonProps }"
+      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
 </template>
 
 <script>
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import * as demosplanUi from '@demos-europe/demosplan-ui'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import { shallowRef } from 'vue'
 
 export default {
   name: 'AddonWrapper',
 
   props: {
     /**
-     * The addonProps prop will be bound to the addon component to add props dynamically.
+     * The addonProps prop will be bound to the addon components to add props dynamically.
      */
     addonProps: {
       type: Object,
       required: false,
-      default: () => {}
+      default: () => ({})
     },
 
     /**
@@ -36,52 +41,33 @@ export default {
     refComponent: {
       type: String,
       required: false,
-      default: ''
+      default: 'Addon'
     }
   },
+
+  emits: [
+    'addons:loaded'
+  ],
 
   data () {
     return {
-      component: ''
-    }
-  },
-
-  methods: {
-    loadComponents () {
-      dpRpc('addons.assets.load', { hookName: this.hookName })
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = response[0].result
-
-          for (const key of Object.keys(result)) {
-            const addon = result[key]
-            if (addon === undefined) {
-              /*
-               * If for some reason we don't receive a valid response object from the backend
-               * we'll just skip it.
-               */
-              console.debug('Skipping addon hook response evaluation for ' + key)
-              continue
-            }
-
-            const contentKey = addon.entry + '.umd.js'
-            const content = addon.content[contentKey]
-
-            /*
-             * While eval is generally a BAD IDEA, we really need to evaluate the code
-             * we're adding dynamically to use the provided addon's script from now on.
-             */
-            eval(content)
-            this.$options.components[addon.entry] = window[addon.entry].default
-
-            this.component = window[addon.entry].default
-          }
-        })
+      demosplanUi: shallowRef(demosplanUi),
+      loadedAddons: []
     }
   },
 
   mounted () {
-    this.loadComponents()
+    loadAddonComponents(this.hookName)
+      .then(addons => {
+        addons.forEach(addon => {
+          this.loadedAddons.push({
+            component: shallowRef(window[addon.name].default),
+            name: addon.name
+          })
+        })
+
+        this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
+      })
   }
 }
 </script>

@@ -20,7 +20,7 @@ class HistoryDayTransformer extends BaseTransformer
 {
     protected $type = 'HistoryDay';
 
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
         'historyTimes',
     ];
 

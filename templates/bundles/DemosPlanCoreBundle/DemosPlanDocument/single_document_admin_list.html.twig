@@ -2,7 +2,7 @@
 
 {% block elements_documentlist %}
 
-    <hr class="u-mv border--top width-100p">
+    <hr class="u-mv border--top w-full">
 
     <form class="flow-root" name="singleDocumentForm" action="{{ path('DemosPlan_elements_administration_edit', {'procedure':procedure, 'elementId':element.ident }) }}" method="post">
 
@@ -10,6 +10,7 @@
         <input type="hidden" value="{{ element.ident }}" name="r_elementIdent">
         <input type="hidden" value="{{ category }}" name="r_category">
         <input type="hidden" name="r_sorting" value="">
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <fieldset class="u-pb-0">
 
