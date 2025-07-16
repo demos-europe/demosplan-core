@@ -3400,6 +3400,7 @@ statement.detail.form.personal.post_anonymously: "Ich möchte anonym Stellung ne
 statement.detail.form.personal.post_publicly: "Ich möchte namentlich Stellung nehmen."
 statement.detail.form.personal.publish: "Ich möchte, dass meine Stellungnahme (nach Freigabe durch die Verwaltung) <em>bei {projectName} einsehbar</em> ist."
 statement.detail.form.personal.require_information_mail: "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist."
+statement.detail.form.personal.submit: "Ich möchte die Stellungnahme mit diesen persönlichen Daten einreichen:"
 statement.detail.form.statement_text: "Bitte verfassen Sie Ihre Stellungnahme"
 statement.dialog.close: "Stellungnahme-Formular minimieren"
 statement.do.fragment: "Stellungnahme aufteilen"
@@ -3581,6 +3582,11 @@ statement.send.email.label: "Sende unten stehende Stellungnahme an"
 statement.send: "Stellungnahme versenden"
 statement.similarStatementSubmitters: "Weitere Einreichende der gleichen Stellungnahme"
 statement.similarStatementSubmitters.add: "Einreicher*in hinzufügen"
+statement.similarStatementSubmitters.delete: |
+    {name, select,
+            false { Möchten Sie die weitere einreichende Person wirklich löschen? }
+            other { Möchten Sie die weitere einreichende Person "{name}" wirklich löschen? }
+        }
 statement.similarStatementSubmitters.hint: "Falls von weiteren Einreichenden inhaltlich identische Stellungnahmen eingegangen sind, können diese Personen hier angegeben werden."
 statement.solved.description: "Wenn sich alle Abschnitte einer Stellungnahme in einem solchen Bearbeitungsschritt befinden, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
 statement.solved.hint: "Wenn sich alle Abschnitte einer Stellungnahme in Bearbeitungsschritten befinden, bei denen diese Checkbox aktiviert ist, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
