@@ -42,14 +42,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        static::ensureKernelShutdown();
-        // the createClient() method cannot be used when kernel is booted
-        $this->client = static::createClient();
-        $serverParameters = $this->getServerParameters();
-        $this->client->setServerParameters($serverParameters);
-
-        $this->router = $this->getContainer()->get(RouterInterface::class);
-        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+        $this->setUpHttpClient();
     }
 
     /**
@@ -102,4 +95,16 @@ abstract class AbstractApiTest extends FunctionalTestCase
     }
 
     abstract protected function getServerParameters(): array;
+
+    public function setUpHttpClient(): void
+    {
+        static::ensureKernelShutdown();
+
+        $this->client = static::createClient();
+        $serverParameters = $this->getServerParameters();
+        $this->client->setServerParameters($serverParameters);
+
+        $this->router = $this->getContainer()->get(RouterInterface::class);
+        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+    }
 }
