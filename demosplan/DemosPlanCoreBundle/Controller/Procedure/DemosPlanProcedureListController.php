@@ -495,7 +495,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
 
             $result = $locationResponse['body'];
 
-            $maxSuggestions = $requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0);
+            $maxSuggestions = (int)($requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0));
             // Es gibt Ergebnisse, aber weniger als maxResults
             if ((is_countable($result) ? count($result) : 0) < $maxSuggestions) {
                 $maxSuggestions = is_countable($result) ? count($result) : 0;
