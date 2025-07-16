@@ -244,7 +244,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
+        private readonly StatementDeleter $statementDeleter,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;

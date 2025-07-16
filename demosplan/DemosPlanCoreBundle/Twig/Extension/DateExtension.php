@@ -87,7 +87,7 @@ class DateExtension extends ExtensionBase
         } else {
             $isoDate = Carbon::parse($timestamp);
         }
-
+        // Markiert - unwichtig
         $isoDate = $isoDate->toIso8601String();
 
         return sprintf('<time datetime="%s">%s</time>', $isoDate, $formattedDate);

@@ -59,7 +59,7 @@
                             </a>
                         </td>
                         <td>
-                            {{ statement.created|default|dplanDate('d.m.Y H:i') }} Uhr
+                            {{ statement.created|date("d.m.Y H:i \\U\\h\\r \(T e\)", "Europe/Berlin") }}
                         </td>
                     </tr>
 

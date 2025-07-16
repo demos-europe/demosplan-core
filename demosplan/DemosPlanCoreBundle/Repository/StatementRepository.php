@@ -1164,7 +1164,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        return $this->getEntityManager()->createQueryBuilder()
+        $results = $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.original', 'original')
@@ -1182,6 +1182,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->orderBy('original.created', 'DESC')
             ->getQuery()
             ->getArrayResult();
+
+        // kann weg
+        foreach ($results as &$result) {
+            if (isset($result['created'])) {
+                $datetime = $result['created'];
+                $datetime->setTimezone(new \DateTimeZone('Pacific/Chatham'));
+            }
+        }
+
+        return $results;
+
     }
 
     /**
