@@ -251,9 +251,9 @@ const LayersStore = {
           }
 
           /*
-           * We want only Layer from the same kind as the current element in the List.
+           * We want only layers from the same kind as the current element in the list.
            * And Categories are always for the overlay layers
-           * This is necessary because both base and overlay layers have the same root Category
+           * This is necessary because both base and overlay layers have the same root category
            */
           if (isBaseLayer === (el.attributes.layerType === 'base') || (!isBaseLayer && el.attributes.layerType === undefined)) {
             isInList++
