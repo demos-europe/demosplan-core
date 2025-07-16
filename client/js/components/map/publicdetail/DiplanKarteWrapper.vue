@@ -66,8 +66,6 @@ const drawing = computed(() => {
 })
 const emit = defineEmits(['locationDrawing'])
 
-const store = useStore()
-
 const instance = getCurrentInstance()
 const store = useStore()
 
