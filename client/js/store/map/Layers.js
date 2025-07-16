@@ -304,7 +304,7 @@ const LayersStore = {
      * @returns {void}
      */
     resetOrder (state) {
-      // We have to clone the original state because otherwise after the first reset the reactivity will bound these two objects and will cause changing of originalApiData anytime state.apiData changes
+      // Create copy to avoid mutating originalApiData
       state.apiData = JSON.parse(JSON.stringify(state.originalApiData))
       state.apiData.included.sort((a, b) => ('' + a.attributes.mapOrder).padEnd(21, 0) - ('' + b.attributes.mapOrder).padEnd(21, 0))
     },
