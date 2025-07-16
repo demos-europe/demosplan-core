@@ -83,7 +83,7 @@ All rights reserved
           <div
             data-dp-validate="newVoterForm"
             v-if="editable && statement.attributes.isManual"
-            class="space-stack-s border-t py-3">
+            class="space-stack-s border-t border-neutral py-3">
             <!-- Role -->
             <div class="flex">
               <dp-radio
