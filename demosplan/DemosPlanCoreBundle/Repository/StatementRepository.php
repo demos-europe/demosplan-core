@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
-use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -1165,7 +1164,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        $results = $this->getEntityManager()->createQueryBuilder()
+        return $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.original', 'original')
@@ -1184,15 +1183,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->getQuery()
             ->getArrayResult();
 
-        // kann weg
-        foreach ($results as &$result) {
-            if (isset($result['created'])) {
-                $datetime = $result['created'];
-                $datetime->setTimezone(new DateTimeZone('Pacific/Chatham'));
-            }
-        }
-
-        return $results;
     }
 
     /**
