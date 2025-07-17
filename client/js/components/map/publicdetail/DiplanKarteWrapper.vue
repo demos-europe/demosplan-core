@@ -27,8 +27,8 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted } from 'vue'
-import { DpButton, prefixClassMixin, DpNotification } from '@demos-europe/demosplan-ui'
+import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
@@ -82,7 +82,7 @@ const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
 })
 
-let isLocationInfoClosed = ref(false)
+const isLocationInfoClosed = ref(false)
 
 const isLocationToolSelected = computed(() => {
   return store.state.PublicStatement.activeActionBoxTab === 'draw'
