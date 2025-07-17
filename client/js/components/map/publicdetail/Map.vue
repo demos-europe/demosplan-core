@@ -42,6 +42,7 @@ import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
 import { TileWMS, WMTS } from 'ol/source'
+import DomPurify from 'dompurify'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -865,12 +866,7 @@ export default {
             $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
             // Make direct request to featureInfoUrl using externalApi
-            externalApi(featureInfoUrl, {
-              headers: {
-                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Cache-Control': 'no-cache'
-              }
-            })
+            externalApi(featureInfoUrl)
               .then(async response => {
                 let popupContent = await response.text()
 
@@ -878,7 +874,7 @@ export default {
                   popupContent = Translator.trans('map.getfeatureinfo.none')
                 } else {
                   // Sanitize HTML content to prevent XSS
-                  popupContent = this.sanitizeHtmlContent(popupContent)
+                  popupContent = DomPurify.sanitize(popupContent)
                 }
 
                 this.showPopup('criteriaPopup', popupContent, coordinate)
@@ -1801,54 +1797,6 @@ export default {
     resetPopup () {
       $(this.popupoverlay.getElement()).removeClass(this.prefixClass('c-map__popup--small c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
       this.popupoverlay.setPosition(undefined)
-    },
-
-    sanitizeHtmlContent (htmlContent) {
-      // Create a temporary DOM element to parse HTML safely
-      const tempDiv = document.createElement('div')
-      tempDiv.innerHTML = htmlContent
-
-      // Remove potentially dangerous elements
-      const dangerousElements = tempDiv.querySelectorAll('script, object, embed, iframe, form, link[rel="stylesheet"], style')
-      dangerousElements.forEach(el => el.remove())
-
-      // Remove dangerous attributes from all elements
-      const allElements = tempDiv.querySelectorAll('*')
-      allElements.forEach(el => {
-        // List of potentially dangerous attributes
-        const dangerousAttrs = [
-          'onclick', 'onload', 'onerror', 'onmouseover', 'onmouseout', 'onmousedown', 'onmouseup',
-          'onkeydown', 'onkeyup', 'onkeypress', 'onfocus', 'onblur', 'onchange', 'onsubmit',
-          'onreset', 'onselect', 'onabort', 'oncanplay', 'oncanplaythrough', 'ondurationchange',
-          'onemptied', 'onended', 'onerror', 'onloadeddata', 'onloadedmetadata', 'onloadstart',
-          'onpause', 'onplay', 'onplaying', 'onprogress', 'onratechange', 'onseeked', 'onseeking',
-          'onstalled', 'onsuspend', 'ontimeupdate', 'onvolumechange', 'onwaiting'
-        ]
-
-        // Remove dangerous attributes
-        dangerousAttrs.forEach(attr => {
-          if (el.hasAttribute(attr)) {
-            el.removeAttribute(attr)
-          }
-        })
-
-        // Check href and src attributes for javascript: protocol
-        if (el.hasAttribute('href') && el.getAttribute('href').includes('javascript:')) {
-          el.removeAttribute('href')
-        }
-        if (el.hasAttribute('src') && el.getAttribute('src').includes('javascript:')) {
-          el.removeAttribute('src')
-        }
-
-        // Remove data attributes that might contain executable code
-        Array.from(el.attributes).forEach(attr => {
-          if (attr.name.startsWith('data-') && attr.value.includes('javascript:')) {
-            el.removeAttribute(attr.name)
-          }
-        })
-      })
-
-      return tempDiv.innerHTML
     },
 
     resizeOnDrag () {
