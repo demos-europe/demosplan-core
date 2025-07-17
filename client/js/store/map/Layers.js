@@ -364,48 +364,17 @@ const LayersStore = {
      * Fetches layer data from the API for a specific procedure
      *
      * @param {string} procedureId - Procedure ID to fetch layers for
+     * @param {object} fields - Fields to include in the API request
      *
      * @returns {Promise} API response promise
      */
-    get ({ commit, dispatch }, procedureId) {
+    get ({ commit, dispatch }, { procedureId, fields = {} }) {
       commit('setProcedureId', procedureId)
 
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'GisLayerCategory',
         include: 'gisLayers',
-        fields: {
-          GisLayerCategory: [
-            'categories',
-            'gisLayers',
-            'hasDefaultVisibility',
-            'isVisible',
-            'name',
-            'layerWithChildrenHidden',
-            'parentId',
-            'treeOrder'
-          ].join(),
-          GisLayer: [
-            'canUserToggleVisibility',
-            'categoryId',
-            'contextualHelp',
-            'hasDefaultVisibility',
-            'isBaseLayer',
-            'isBplan',
-            'isEnabled',
-            'isMinimap',
-            'isPrint',
-            'isScope',
-            'layers',
-            'layerType',
-            'mapOrder',
-            'name',
-            'opacity',
-            'projectionLabel',
-            'treeOrder',
-            'url',
-            'visibilityGroupId'
-          ].join()
-        },
+        fields,
         filter: {
           name: {
             condition: {
@@ -542,17 +511,11 @@ const LayersStore = {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
         .then(checkResponse)
-        .then(() => {
-          dispatch('get', state.procedureId)
-            .then(() => {
-              commit('setActiveLayerId', '')
-            })
-            .catch(err => {
-              console.error('Error: save layer', err)
-            })
-        })
         .catch(err => {
           console.error('Error: save layer', err)
+        })
+        .finally(() => {
+          commit('setActiveLayerId', '')
         })
     },
 
