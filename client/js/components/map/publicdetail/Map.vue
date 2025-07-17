@@ -857,7 +857,7 @@ export default {
                     this.showPopupError('empty', coordinate)
                   }
                 } else {
-                  this.showPopupError('empty', coordinate)
+                  this.showPopupError('failed', coordinate)
                 }
               })
           }
