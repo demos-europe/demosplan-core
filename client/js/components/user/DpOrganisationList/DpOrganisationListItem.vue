@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -215,7 +215,7 @@ export default {
         }
       })
 
-      return addonRequest.then(checkResponse)
+      return addonRequest
     },
 
     reset () {
@@ -248,7 +248,6 @@ export default {
 
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*

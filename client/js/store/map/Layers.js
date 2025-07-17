@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const LayersStore = {
 
@@ -415,8 +415,7 @@ const LayersStore = {
           }
         }
       }))
-        .then(checkResponse)
-        .then(data => {
+        .then(({ data }) => {
           commit('updateApiData', data)
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')
@@ -541,7 +540,6 @@ const LayersStore = {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           dispatch('get', state.procedureId)
             .then(() => {
@@ -574,16 +572,17 @@ const LayersStore = {
         id = element.categoryId
       }
 
-      return dpApi.delete(Routing.generate('api_resource_delete', {
-        resourceType: currentType,
-        resourceId: id
-      }))
-        .then(response => this.api.checkResponse(response, {
-          204: {
-            text: Translator.trans('confirm.gislayer.delete'),
-            type: 'confirm'
+      return dpApi.delete(
+        Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }),
+        {},
+        {
+          messages: {
+            204: {
+              text: Translator.trans('confirm.gislayer.delete'),
+              type: 'confirm'
+            }
           }
-        }))
+        })
         .then(() => {
           commit('removeElement', {
             id: element.id,

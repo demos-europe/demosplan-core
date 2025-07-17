@@ -436,17 +436,20 @@ export default {
       dragClass: 'o-sortablelist__drag' // Class name for the dragging item
     }
 
-    this.updateState({ key: 'draggableOptions', value: {
-      ...basicOptions,
-      ...{
-        group: {
-          name: 'treeList',
-          revertClone: false,
-          pull: ['treeList'],
-          push: ['treeList']
+    this.updateState({
+      key: 'draggableOptions',
+      value: {
+        ...basicOptions,
+        ...{
+          group: {
+            name: 'treeList',
+            revertClone: false,
+            pull: ['treeList'],
+            push: ['treeList']
+          }
         }
       }
-    }})
+    })
 
     this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
   }

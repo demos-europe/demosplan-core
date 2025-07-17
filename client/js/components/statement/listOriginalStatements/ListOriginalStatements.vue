@@ -264,7 +264,6 @@
 <script>
 import {
   formatDate as _formatDate,
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -550,7 +549,6 @@ export default {
           }
         }
       })
-        .then(response => checkResponse(response))
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
           this.allItemsCount = this.allOriginalStatementIds.length

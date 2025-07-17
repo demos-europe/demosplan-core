@@ -222,7 +222,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
@@ -403,7 +403,6 @@ export default {
       }
       return dpApi.post(Routing.generate('dplan_api_assessment_table_statement_fragment_update_create'),
         {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false

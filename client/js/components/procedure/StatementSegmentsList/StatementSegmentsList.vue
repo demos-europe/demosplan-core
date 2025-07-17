@@ -174,7 +174,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpFlyout,
   DpSlidebar,
@@ -533,7 +532,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => { checkResponse(response) })
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
@@ -855,7 +853,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => checkResponse(response))
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
