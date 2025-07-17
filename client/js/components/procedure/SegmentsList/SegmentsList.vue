@@ -702,7 +702,7 @@ export default {
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
         .then(({ data }) => {
-          const allSegments = data[0].result ?? []
+          const allSegments = data[0]?.result ?? []
 
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
