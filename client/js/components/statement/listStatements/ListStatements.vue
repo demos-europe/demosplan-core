@@ -157,7 +157,7 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              class="btn--blank o-link--default"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
@@ -168,6 +168,7 @@
               {{ Translator.trans('split') }}
             </button>
             <a
+              class="block leading-[2] whitespace-nowrap"
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
@@ -175,6 +176,7 @@
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalPdf}"
               data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
@@ -184,6 +186,7 @@
             </a>
             <a
               v-if="hasPermission('area_admin_original_statement_list')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalId}"
               data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
@@ -191,7 +194,7 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              class="btn--blank o-link--default"
+              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
@@ -722,7 +725,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'genericAttachments',
+        'sourceAttachment',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -753,13 +756,13 @@ export default {
         include: [
           'segments',
           'assignee',
-          'genericAttachments',
-          'genericAttachments.file'
+          'sourceAttachment',
+          'sourceAttachment.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
-          File: [
-            'hash'
+          SourceStatementAttachment: [
+            'file'
           ].join()
         }
       }).then((data) => {
@@ -777,15 +780,18 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('genericAttachments')) {
-        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
-          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
-        if (originalAttachment.length === 1) {
-          return originalAttachment[0].relationships.file.get().attributes.hash
-        }
+      if (!el.hasRelationship('sourceAttachment')) {
+        return null
       }
 
-      return null
+      const attachments = el.relationships.sourceAttachment.list()
+      const firstAttachment = Object.values(attachments)[0]
+
+      if (!firstAttachment?.relationships?.file) {
+        return null
+      }
+
+      return firstAttachment.relationships.file.get()?.attributes?.hash || null
     },
 
     /**

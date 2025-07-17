@@ -21,7 +21,7 @@
         <button
           :class="prefixClass('btn--blank btn--focus w-3 text-left')"
           :aria-label="group.attributes.name + ' ' + (isVisible ? Translator.trans('maplayer.category.hide') : Translator.trans('maplayer.category.show'))"
-          @click="toggleFromSelf">
+          @click="toggle">
           <i
             :class="[isVisible ? prefixClass('fa-eye') : prefixClass('fa-eye-slash'), prefixClass('fa')]"
             aria-hidden="true" />
@@ -38,7 +38,7 @@
 
       </span>
       <span
-        @click="appearsAsLayer ? toggleFromSelf() : fold()"
+        @click="appearsAsLayer ? toggle : fold"
         :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
         {{ group.attributes.name }}
       </span>
@@ -50,6 +50,7 @@
     <dp-public-layer-list
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="layers"
+      :parent-is-visible="isVisible"
       :unfolded="unfolded"
       :class="[appearsAsLayer ? prefixClass('sr-only') : prefixClass('c-map__group-item-child u-mr-0')]" />
   </li>
@@ -57,8 +58,8 @@
 
 <script>
 import { DpContextualHelp, hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpPublicLayerList from './DpPublicLayerList'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'DpPublicLayerListCategory',
@@ -93,6 +94,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters('Layers', ['isLayerVisible', 'element', 'elementListForLayerSidebar', 'rootId']),
+
     contextualHelpId () {
       return 'contextualHelp' + this.group.id
     },
@@ -102,17 +105,21 @@ export default {
     },
 
     isVisible () {
-      return this.$store.state.Layers.layerStates[this.group.id]?.isVisible
+      return this.isLayerVisible(this.group.id)
     },
 
     layers () {
       return this.elementListForLayerSidebar(this.group.id, 'overlay', true)
-    },
-
-    ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])
+    }
   },
 
   methods: {
+    ...mapMutations('Layers', [
+      'setLayerState'
+    ]),
+
+    ...mapActions('Layers', ['toggleCategoryAndItsChildren']),
+
     fold () {
       this.unfolded = (this.unfolded === false)
     },
@@ -122,7 +129,7 @@ export default {
     },
 
     // Toggle self and children
-    toggleFromSelf () {
+    toggle () {
       this.$store.dispatch('Layers/updateLayerVisibility', {
         id: this.group.id,
         isVisible: !this.isVisible,

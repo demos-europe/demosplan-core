@@ -63,6 +63,7 @@
 
 <script>
 import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpPublicLayerListLayer',
@@ -107,6 +108,15 @@ export default {
   },
 
   computed: {
+    ...mapState('Layers', [
+      'layerStates'
+    ]),
+
+    ...mapGetters('Layers', [
+      'isLayerVisible',
+      'isVisibilityGroupVisible'
+    ]),
+
     contextualHelpText () {
       const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
@@ -114,7 +124,7 @@ export default {
     },
 
     isVisible () {
-      return this.$store.state.Layers.layerStates[this.layer.id]?.isVisible
+      return this.isLayerVisible(this.layer.id)
     },
 
     layerTitle () {
@@ -123,8 +133,7 @@ export default {
     },
 
     opacity () {
-      console.log('opacity', this.layer.attributes.name, this.$store.state.Layers.layerStates[this.layer.id]?.opacity)
-      return this.$store.state.Layers.layerStates[this.layer.id]?.opacity
+      return this.layerStates[this.layer.id]?.opacity
     },
 
     statusIcon () {
@@ -133,6 +142,10 @@ export default {
 
     prefixedStatusIcon () {
       return this.prefixClass('fa ' + this.setStatusIcon())
+    },
+
+    showVisibilityGroup () {
+      this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
     },
 
     statusAriaText () {
@@ -157,12 +170,24 @@ export default {
   },
 
   methods: {
+    ...mapActions('Layers', [
+      'updateLayerVisibility'
+    ]),
+
+    ...mapMutations('Layers', [
+      'removeVisibleLayer',
+      'removeVisibleVisibilityGroup',
+      'setLayerState',
+      'setVisibleVisibilityGroup',
+      'updateState'
+    ]),
+
     setStatusIcon () {
-      if (this.layer.attributes.canUserToggleVisibility === false) {
+      if (!this.layer.attributes.canUserToggleVisibility) {
         return 'fa-lock'
       } else if (this.showVisibilityGroup) {
         return 'fa-link'
-      } else if (this.isVisible === false && this.showVisibilityGroup === false) {
+      } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
         // If(this.isVisible && false === this.showVisibilityGroup)
@@ -171,7 +196,7 @@ export default {
     },
 
     toggle (isVisible) {
-      if (this.layer.attributes.canUserToggleVisibility === false) {
+      if (!this.layer.attributes.canUserToggleVisibility) {
         return
       }
 
@@ -184,14 +209,13 @@ export default {
     },
 
     toggleFromSelf (showOpacityControl) {
-      console.log('toggleFromSelf', showOpacityControl, this.tooltipExpanded, this.layer.attributes.canUserToggleVisibility)
-      if (this.tooltipExpanded === true || this.layer.attributes.canUserToggleVisibility === false) {
+      if (this.tooltipExpanded || !this.layer.attributes.canUserToggleVisibility) {
         return
       }
 
       this.toggle()
 
-      if (showOpacityControl === true) {
+      if (showOpacityControl) {
         this.isVisible ? this.toggleOpacityControl(true) : this.toggleOpacityControl(false)
       }
     },
@@ -210,9 +234,11 @@ export default {
     },
 
     toggleOpacityControl (overObject) {
-      /* Show only if layer is visible / hide should always be possible */
-      /* mouseover -> overObject = true */
-      /* mouseout -> overObject = false */
+      /*
+       * Show only if layer is visible / hide should always be possible:
+       * mouseover -> overObject = true
+       * mouseout -> overObject = false
+       */
       if (this.isVisible || overObject === false) {
         this.showOpacityControl = overObject && this.layer.attributes.canUserToggleVisibility === true
       }

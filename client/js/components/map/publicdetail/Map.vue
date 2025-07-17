@@ -41,7 +41,7 @@ import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } fro
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
@@ -65,7 +65,7 @@ export default {
   name: 'DpMap',
 
   components: {
-    DpAutocomplete
+    DpAutocomplete,
   },
 
   mixins: [prefixClassMixin],
@@ -87,6 +87,11 @@ export default {
       default: ''
     },
 
+    layerGroupsAlternateVisibility: {
+      type: Boolean,
+      default: false
+    },
+
     mapDanmarkLayer: {
       type: String,
       default: ''
@@ -99,33 +104,33 @@ export default {
 
     procedureDefaultMaxExtent: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     procedureId: {
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureInitialExtent: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     procedureMaxExtent: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     procedureSettings: {
       type: Object,
-      required: true
+      required: true,
     },
 
     projectMapSettings: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
@@ -133,7 +138,7 @@ export default {
     'fullscreen-toggle',
     'layer:toggleLayer',
     'layer:toggleVisibiltyGroup',
-    'update-statement-form-map-data'
+    'update-statement-form-map-data',
   ],
 
   data () {
@@ -151,20 +156,20 @@ export default {
           button: '#measureLineButton',
           active: 'measureline',
           interaction: 'LineString',
-          measuretype: 'length'
+          measuretype: 'length',
         },
         {
           button: '#measurePolygonButton',
           active: 'measurepolygon',
           interaction: 'Polygon',
-          measuretype: 'area'
+          measuretype: 'area',
         },
         {
           button: '#measureRadiusButton',
           active: 'measureradius',
           interaction: 'Circle',
-          measuretype: 'radius'
-        }
+          measuretype: 'radius',
+        },
       ],
       measureTooltip: null,
       measureTooltipCoord: null,
@@ -176,11 +181,13 @@ export default {
       projectionUnits: 'm',
       scope: {},
       statementActionFields: {},
-      selectedValue: ''
+      selectedValue: '',
     }
   },
 
   computed: {
+    ...mapState('Layers', ['layerStates']),
+
     ...mapGetters('Layers', {
       layers: 'gisLayerList'
     }),
@@ -209,12 +216,8 @@ export default {
       return typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
     },
 
-    // layers () {
-    //   return this.$store.getters['Layers/gisLayerList']()
-    // },
-
-    layerStates () {
-      return this.$store.state.Layers.layerStates
+    layers () {
+      return this.$store.getters['Layers/gisLayerList']()
     },
 
     mapx () {
@@ -269,7 +272,7 @@ export default {
           visible: visiblility,
           source,
           opacity: 1,
-          preload: 0
+          preload: 0,
         })
       })
     },
@@ -294,13 +297,12 @@ export default {
       }
 
       return getResolutionsFromScales(procedureScales, this.projectionUnits)
-    }
+    },
   },
 
   watch: {
     layerStates: {
       handler (updatedLayerState, oldVal) {
-        console.log('watch layerState update', updatedLayerState)
         Object.entries(updatedLayerState).forEach(([id, { opacity, isVisible }]) => {
           const layerId = id.replace(/-/g, '')
           const layer = this.findLayerById(layerId)
@@ -315,7 +317,6 @@ export default {
           }
 
           if (isVisible !== layer.getVisible()) {
-            console.log(`Layer ${id} visibility changed to ${isVisible}`)
             if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
               const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
               // Only toggle baselayer
@@ -363,8 +364,8 @@ export default {
         this.handleZoom(1, duration)
       })
 
-      for (let i = 0; i < mapCustomZoomReset.length; i++) {
-        mapCustomZoomReset[i].addEventListener('click', () => {
+      for (const element of mapCustomZoomReset) {
+        element.addEventListener('click', () => {
           this.map.getView().fit(this.initialExtent, { duration })
         })
       }
@@ -395,7 +396,7 @@ export default {
       const measureLayer = new VectorLayer({
         name: 'measureLayer',
         source: this.measureSource,
-        style: this.drawStyle()
+        style: this.drawStyle(),
       })
 
       this.map.addLayer(measureLayer)
@@ -455,15 +456,15 @@ export default {
           name: 'territory',
           source: new VectorSource({
             projection: this.mapprojection,
-            features
+            features,
           }),
           style: new Style({
             stroke: new Stroke({
               color: '#000000',
               width: 3,
-              lineDash: [4, 4]
-            })
-          })
+              lineDash: [4, 4],
+            }),
+          }),
         })
         territoryLayer.id = 'territoryLayer'
         this.map.addLayer(territoryLayer)
@@ -474,7 +475,7 @@ export default {
         this.addCustomLayerToggleButton({
           id: 'territorySwitcher',
           layerName: 'territory',
-          activated: true
+          activated: true,
         })
       }
     },
@@ -533,13 +534,13 @@ export default {
             password: 'dataport_wms_dk',
             client: 'arcGIS',
             servicename: 'topo_skaermkort',
-            transparent: 'TRUE'
+            transparent: 'TRUE',
           },
           projection: this.mapprojection,
           tileGrid: new TileGrid({
             origin: getTopLeft(this.mapProjectionExtent),
-            resolutions: this.resolutions
-          })
+            resolutions: this.resolutions,
+          }),
         })
 
         // Add custom Baselayer for danmark
@@ -548,7 +549,7 @@ export default {
           preload: 10,
           visible: true,
           source: danmarkSource,
-          doNotToggleLayer: true
+          doNotToggleLayer: true,
         }))
 
         this.bindLoadingEvents(danmarkSource)
@@ -576,7 +577,7 @@ export default {
 
       this.baseLayerGroup = new LayerGroup({
         layers: this.baseLayers,
-        name: 'baseLayerGroup'
+        name: 'baseLayerGroup',
       })
 
       //  If no baseLayer has defaultVisibility, show first toggleable baseLayer
@@ -594,7 +595,7 @@ export default {
       this.measureTooltip = new Overlay({
         element: this.measureTooltipElement,
         offset: [0, -15],
-        positioning: 'bottom-center'
+        positioning: 'bottom-center',
       })
       this.map.addOverlay(this.measureTooltip)
       this.measureTooltipElement.parentNode.classList.add(this.prefixClass('pointer-events-none'))
@@ -625,7 +626,7 @@ export default {
         treeOrder: layer.attributes.treeOrder,
         mapOrder: layer.attributes.mapOrder,
         isBaseLayer: layer.attributes.isBaseLayer,
-        projection: layer.attributes.projectionLabel
+        projection: layer.attributes.projectionLabel,
       })
     },
 
@@ -647,7 +648,6 @@ export default {
       let hasBplan = false
       let hasScope = false
       let i = 0
-      const tempLayers = []
       let layer
       let layerId
       let overlayLayer
@@ -662,7 +662,7 @@ export default {
 
         const isHiddenPrintLayer = layer.attributes.isEnabled === false && layer.attributes.isPrint
 
-        layerId = layer.id.replace(/-/g, '')
+        layerId = layer.id
         opacity = this.opacities['GisLayerlayer' + layerId] / 100
 
         overlayLayer = this.createLayer({ layer, opacity, visibility: !isHiddenPrintLayer })
@@ -672,7 +672,7 @@ export default {
           this.addCustomLayerToggleButton({
             id: 'bplanSwitcher',
             layerName: layerId,
-            activated: layer.attributes.hasDefaultVisibility
+            activated: layer.attributes.hasDefaultVisibility,
           })
           hasBplan = true
           this.bPlan = layer
@@ -685,22 +685,14 @@ export default {
           this.addCustomLayerToggleButton({
             id: 'territorySwitcher',
             layerName: layerId,
-            activated: layer.attributes.hasDefaultVisibility
+            activated: layer.attributes.hasDefaultVisibility,
           })
           hasScope = true
           this.scope = layer
         }
 
         this.overlayLayers.push(overlayLayer)
-
-        tempLayers.push({
-          id: layer.id,
-          treeOrder: layer.attributes.treeOrder,
-          mapOrder: layer.attributes.mapOrder,
-          defaultVisibility: layer.attributes.hasDefaultVisibility
-        })
       }
-      tempLayers.sort((a, b) => a.treeOrder - b.treeOrder)
 
       this.overlayLayerGroup = new LayerGroup({
         layers: this.overlayLayers.reverse(),
@@ -728,7 +720,7 @@ export default {
         element: popupContainer,
         title: 'popup',
         autoPan: true,
-        autoPanAnimation: { duration: 250 }
+        autoPanAnimation: { duration: 250 },
       }))
     },
 
@@ -785,13 +777,13 @@ export default {
           projection: this.mapprojection,
           resolution: 1000,
           minResolution: 1000,
-          maxResolution: 1000
+          maxResolution: 1000,
         })
       } else {
         overviewMapControlView = new View({
           center: [this.mapx, this.mapy],
           projection: this.mapprojection,
-          resolutions: this.resolutions
+          resolutions: this.resolutions,
         })
       }
 
@@ -803,7 +795,7 @@ export default {
         label: '\u00AB',
         tipLabel: 'Übersichtskarte',
         collapsed: false,
-        view: overviewMapControlView
+        view: overviewMapControlView,
       })
 
       this.map.addControl(overviewMapControl)
@@ -832,16 +824,16 @@ export default {
             tileGrid: new TileGrid({
               origin: getTopLeft(this.mapProjectionExtent),
               resolutions: this.resolutions,
-              tileSize: [1, 1]
-            })
-          })
+              tileSize: [1, 1],
+            }),
+          }),
         })
       } else {
         getFeatureinfoSource = new TileLayer({
           title: 'GetFeatureInfo',
           source: new TileWMS({
-            url: this.featureInfoUrl
-          })
+            url: this.featureInfoUrl,
+          }),
         })
       }
 
@@ -881,7 +873,7 @@ export default {
                   let popupContent = ''
                   popupContent = parsedData.body
 
-                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
+                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
                     popupContent = Translator.trans('map.getfeatureinfo.none')
                   }
 
@@ -921,8 +913,8 @@ export default {
           opacity: 1,
           type: 'overlay',
           source: new TileWMS({
-            url: 'http://temporary.de'
-          })
+            url: 'https://temporary.de',
+          }),
         })
 
         const getFeatureinfoSourcePlanungsraum = new TileLayer({
@@ -934,9 +926,9 @@ export default {
             params: { LAYERS: 'planungsraeume', QUERY_LAYERS: 'planungsraeume' },
             tileGrid: new TileGrid({
               origin: getTopLeft(this.mapProjectionExtent),
-              resolutions: this.resolutions
-            })
-          })
+              resolutions: this.resolutions,
+            }),
+          }),
         })
 
         queryArea = evt => {
@@ -950,11 +942,11 @@ export default {
           if (vorrangGebiete.getVisible() === true) {
             /* URL for FeatureInfo */
             const vorrangurl = vorrangGebiete.getSource().getFeatureInfoUrl(
-              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
             )
             /* URL to check if we are in the correct procedure */
             const planungsraumUrl = getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
-              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
             )
             const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
             const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
@@ -964,7 +956,7 @@ export default {
                 // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
                 dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
                   params: remappedPrUrl,
-                  url: this.getFeatureInfoUrlPlanningArea
+                  url: this.getFeatureInfoUrlPlanningArea,
                 })
                   .then(responsePr => {
                     /*
@@ -983,12 +975,12 @@ export default {
 
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
-                        text: popUpContent
+                        text: popUpContent,
                       }, coordinate)
                     } else {
                       this.showPopup('contentPopup', {
                         title: Translator.trans('error.generic'),
-                        text: popUpContent
+                        text: popUpContent,
                       }, coordinate)
                     }
                   })
@@ -1024,14 +1016,14 @@ export default {
       const mapdrawsource = new VectorSource({
         format: geoJSONFormat,
         projection: this.mapprojection,
-        features: this.draftStatement && this.draftStatement.polygon ? geoJSONFormat.readFeatures(this.draftStatement.polygon) : null
+        features: this.draftStatement && this.draftStatement.polygon ? geoJSONFormat.readFeatures(this.draftStatement.polygon) : null,
       })
       const mapdrawvector = new VectorLayer({
         source: mapdrawsource,
         name: 'drawVector',
         title: 'draw',
         type: 'draw',
-        style: this.drawDoneStyle()
+        style: this.drawDoneStyle(),
       })
       this.map.addLayer(mapdrawvector)
 
@@ -1041,18 +1033,18 @@ export default {
         {
           button: '#drawPointButton',
           active: 'drawpoint',
-          interaction: 'Point'
+          interaction: 'Point',
         },
         {
           button: '#drawLineButton',
           active: 'drawline',
-          interaction: 'LineString'
+          interaction: 'LineString',
         },
         {
           button: '#drawPolygonButton',
           active: 'drawpolygon',
-          interaction: 'Polygon'
-        }
+          interaction: 'Polygon',
+        },
 
       ]
 
@@ -1088,7 +1080,7 @@ export default {
           r_location: 'notLocated',
           r_location_geometry: '',
           r_location_point: '',
-          location_is_set: ''
+          location_is_set: '',
         }
         this.$root.$emit('update-statement-form-map-data', resetData, false)
       })
@@ -1102,7 +1094,7 @@ export default {
           .html(window.dplan.statement.labels.saveStatementButton.states.visible.button)
           .prop(
             'title',
-            window.dplan.statement.labels.saveStatementButton.states.visible.title
+            window.dplan.statement.labels.saveStatementButton.states.visible.title,
           )
       }
 
@@ -1124,7 +1116,7 @@ export default {
         if (allPrintLayers.length > 0) {
           const featureMeta = {
             featureLayerExtent: extent,
-            printLayers: []
+            printLayers: [],
           }
 
           allPrintLayers.forEach(printLayer => {
@@ -1165,12 +1157,12 @@ export default {
                 position: {
                   z: isWmts ? tileCoord[0] : 0,
                   x: isWmts ? tileCoord[1] : 0,
-                  y: isWmts ? tileCoord[2] : 0
+                  y: isWmts ? tileCoord[2] : 0,
                 },
                 projection: layerProjection,
                 url,
                 tileSize,
-                tileExtent: tileGrid.getTileCoordExtent(tileCoord)
+                tileExtent: tileGrid.getTileCoordExtent(tileCoord),
               })
             })
 
@@ -1180,7 +1172,7 @@ export default {
               layerMapOrder: printLayer.getProperties().mapOrder,
               isBaseLayer: printLayer.getProperties().isBaseLayer,
               layerProjection,
-              tiles: tilesInfo
+              tiles: tilesInfo,
             })
           })
 
@@ -1208,7 +1200,7 @@ export default {
           r_location_priority_area_key: '',
           r_location_priority_area_type: '',
           r_location_point: '',
-          location_is_set: 'geometry'
+          location_is_set: 'geometry',
         }
         this.$root.$emit('update-statement-form-map-data', statementFormGeometryData, false)
 
@@ -1217,7 +1209,7 @@ export default {
           .html(window.dplan.statement.labels.saveStatementButton.states.active.button)
           .prop(
             'title',
-            window.dplan.statement.labels.saveStatementButton.states.active.title
+            window.dplan.statement.labels.saveStatementButton.states.active.title,
           )
 
         setTimeout(() => {
@@ -1238,7 +1230,7 @@ export default {
             r_location_priority_area_key: '',
             r_location_priority_area_type: '',
             r_location_point: '',
-            location_is_set: 'geometry'
+            location_is_set: 'geometry',
           }
           this.$root.$emit('update-statement-form-map-data', statementFormGeometryData)
         } else {
@@ -1260,7 +1252,7 @@ export default {
           r_location_priority_area_key: '',
           r_location_priority_area_type: '',
           r_location_geometry: '',
-          location_is_set: 'point'
+          location_is_set: 'point',
         }
         window.statementActionState = 'locationPointAdded'
         this.showPopup('markLocationPopup', '', coordinate)
@@ -1284,13 +1276,13 @@ export default {
               params: { LAYERS: 'planungsraeume', QUERY_LAYERS: 'planungsraeume' },
               tileGrid: new TileGrid({
                 origin: getTopLeft(this.mapProjectionExtent),
-                resolutions: this.resolutions
-              })
-            })
+                resolutions: this.resolutions,
+              }),
+            }),
           })
           // URL to check if we are in the correct procedure
           const planungsraumUrlMarkLocation = getFeatureinfoSourcePlanningAreaMarkLocation.getSource().getFeatureInfoUrl(
-            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
           )
           const remappedPrUrlMarkLocation = planungsraumUrlMarkLocation.split('?')[1] // Get only the parameter part of the generated URL.
 
@@ -1302,7 +1294,7 @@ export default {
               // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
               dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
                 params: remappedPrUrlMarkLocation,
-                url: this.getFeatureInfoUrlPlanningArea
+                url: this.getFeatureInfoUrlPlanningArea,
               })
                 .then(responsePr => {
                   // If we can't check the procedure we want to get the featureInfos anyway
@@ -1322,7 +1314,7 @@ export default {
                       '</a>'
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
-                        text: popUpContent
+                        text: popUpContent,
                       }, coordinate)
                     } else {
                       mapMarkLocationDisplayPopup(coordinate)
@@ -1396,14 +1388,14 @@ export default {
             url,
             params: {
               LAYERS: layers || '',
-              FORMAT: 'image/png'
+              FORMAT: 'image/png',
             },
-            projection
+            projection,
           })
         } else {
           const options = optionsFromCapabilities(currentCapabilities, {
             layer: layers[0] || '',
-            matrixSet: tileMatrixSet
+            matrixSet: tileMatrixSet,
           })
           source = new WMTS({ ...options, layers })
         }
@@ -1413,7 +1405,7 @@ export default {
           title: name,
           name: layerId,
           type: 'overlay',
-          source
+          source,
         })
 
         this.map.addLayer(customLayer)
@@ -1444,9 +1436,9 @@ export default {
         image: new Circle({
           radius: 5,
           fill: new Fill({
-            color: this.drawFillSelector('.c-map__draw-image')
-          })
-        })
+            color: this.drawFillSelector('.c-map__draw-image'),
+          }),
+        }),
       })
     },
 
@@ -1455,7 +1447,7 @@ export default {
       return new Draw({
         source,
         type,
-        style: this.drawStyle()
+        style: this.drawStyle(),
       })
     },
 
@@ -1467,16 +1459,16 @@ export default {
         image: new Circle({
           radius: 5,
           fill: new Fill({
-            color: this.drawFillSelector('.c-map__draw-fill')
+            color: this.drawFillSelector('.c-map__draw-fill'),
           }),
-          stroke: this.stroke()
-        })
+          stroke: this.stroke(),
+        }),
       })
     },
 
     fill () {
       return new Fill({
-        color: this.drawFillSelector('.c-map__draw-fill')
+        color: this.drawFillSelector('.c-map__draw-fill'),
       })
     },
 
@@ -1560,7 +1552,7 @@ export default {
       const result = this.parser.read(xml)
       const options = optionsFromCapabilities(result, {
         layer: layerArray[0] || '',
-        matrixSet: layer.attributes.tileMatrixSet
+        matrixSet: layer.attributes.tileMatrixSet,
       })
 
       return new WMTS({ ...options, layers: layerArray })
@@ -1582,7 +1574,7 @@ export default {
       const projection = new Projection({
         code: projectionLabel,
         units: this.projectionUnits,
-        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel)
+        extent: transform(this.mapProjectionExtent, 'EPSG:3857', projectionLabel),
       })
 
       return new TileWMS({
@@ -1590,13 +1582,13 @@ export default {
         params: {
           LAYERS: layer.attributes.layers || '',
           FORMAT: 'image/png',
-          VERSION: layer.attributes.layerVersion || '1.3.0'
+          VERSION: layer.attributes.layerVersion || '1.3.0',
         },
         projection: layer.attributes.projectionLabel || window.dplan.defaultProjectionLabel,
         tileGrid: new TileGrid({
           origin: getTopLeft(projection.getExtent()),
-          resolutions: this.resolutions
-        })
+          resolutions: this.resolutions,
+        }),
       })
     },
 
@@ -1709,7 +1701,7 @@ export default {
           view.animate({
             zoom: newZoom,
             duration,
-            easing: easeOut
+            easing: easeOut,
           })
         } else {
           view.setZoom(newZoom)
@@ -1720,7 +1712,7 @@ export default {
     initializeMap () {
       const controls = [
         new FullScreen({ className: this.prefixClass('c-map__fullscreen'), source: 'procedureDetailsMap' }),
-        new ScaleLine({ className: this.prefixClass('c-map__scale-line') + ' ol-scale-line' })
+        new ScaleLine({ className: this.prefixClass('c-map__scale-line') + ' ol-scale-line' }),
       ]
       if (PROJECT && PROJECT !== 'robobsh') {
         controls.push(new MousePosition({ className: this.prefixClass('c-map__mouseposition') }))
@@ -1735,7 +1727,7 @@ export default {
       } else {
         label = Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
-          currentYear
+          currentYear,
         })
       }
 
@@ -1743,17 +1735,17 @@ export default {
         collapsed: false,
         collapsible: false,
         label,
-        tipLabel: label
+        tipLabel: label,
       }))
 
       this.map = new Map({
         controls,
         interactions: defaultInteractions().extend([
-          new DragZoom()
+          new DragZoom(),
         ]),
         target: 'dp-map',
         view: this.mapview,
-        resolutions: this.resolutions
+        resolutions: this.resolutions,
       })
     },
 
@@ -1761,7 +1753,7 @@ export default {
       this.map.getView().animate({
         center: coordinate,
         duration: 800,
-        resolution: this.panToResolution
+        resolution: this.panToResolution,
       })
     },
 
@@ -1787,7 +1779,7 @@ export default {
           this.mapprojection = new Projection({
             code: this.projectionName,
             units: this.projectionUnits,
-            extent: this.maxExtent
+            extent: this.maxExtent,
           })
           this.mapProjectionExtent = this.mapprojection.getExtent()
           projToAdd = this.mapprojection
@@ -1796,7 +1788,7 @@ export default {
           projToAdd = new Projection({
             code: projection.label,
             units: this.projectionUnits,
-            extent: projectionExtent
+            extent: projectionExtent,
           })
         }
         addProjection(projToAdd)
@@ -1853,24 +1845,19 @@ export default {
 
       while (l--) {
         layer = layers[l]
-        id = layer.type + 'layer' + layer.id.replaceAll('-', '')
+        id = layer.type + 'layer' + layer.id // .replaceAll('-', '')
         this.opacities[id] = layer.attributes.opacity && typeof layer.attributes.opacity === 'number' ? layer.attributes.opacity : 100
       }
     },
 
     createParser () {
-      /*
-       * Von SH festgelegte Scales #11229. Berechnet via OL2 OpenLayers.Util.getResolutionFromScale(scales[i],'m');
-       * List der zur Verfügung stehenden Resolutions
-       */
-
       this.parser = new WMTSCapabilities()
     },
 
     setLayerSource (layer) {
       console.log(`Setting source for layer ${layer.get('name')}`)
       if (layer.getSource() === null) {
-        const layerObj = this.layers().find(el => el.id.replace(/-/g, '') === layer.get('name'))
+        const layerObj = this.layers().find(el => el.id === layer.get('name'))
         const source = this.createLayerSource(layerObj)
         layer.setSource(source)
       }
@@ -1909,7 +1896,7 @@ export default {
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
-        constrainResolution: true
+        constrainResolution: true,
       })
     },
 
@@ -1952,7 +1939,7 @@ export default {
     showPopupError (result, coordinate) {
       const messageKeys = {
         failed: 'error.featureinfo.failed',
-        empty: 'warning.featureinfo.empty'
+        empty: 'warning.featureinfo.empty',
       }
       const errorMessage = '<span>' + Translator.trans(messageKeys[result]) + '</span>'
       this.showPopup('errorPopup', errorMessage, coordinate)
@@ -1983,7 +1970,7 @@ export default {
       return new Stroke({
         color: this.drawFillSelector('.c-map__draw-stroke'),
         width: 1,
-        lineDash: lineDash || 0
+        lineDash: lineDash || 0,
       })
     },
 
@@ -1991,6 +1978,7 @@ export default {
       if (typeof element === 'undefined') {
         return
       }
+
       if (visible === true) {
         element.classList.add(this.prefixClass('is-active'))
       } else if (visible === false) {
@@ -2012,8 +2000,8 @@ export default {
      * @param layerId
      * @param newState
      */
-    toggleLayer (layerId, newState) {
-      if (typeof this.map === 'undefined') return
+    toggleLayer (layerId, toggleExclusive, newVisibilityState) {
+      if (!this.map) return
 
       const layerGroup = this.map.getLayerGroup()
       const layer = this.findBy(layerGroup, 'name', layerId)
@@ -2055,6 +2043,6 @@ export default {
 
       this.$root.$on('toolbar:drag', () => this.resizeOnDrag())
     })
-  }
+  },
 }
 </script>

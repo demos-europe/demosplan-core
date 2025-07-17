@@ -18,12 +18,18 @@
         :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
+        :layer-type="layerType"
+        :parent-is-visible="parentIsVisible"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)" />
       <dp-public-layer-list-category
         v-else
-        :key="`category:${layer.id}`"
         :group="layer"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :key="`category:${layer.id}`"
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
+        :layer-type="layerType"
+        :parent-is-visible="parentIsVisible"
+        :visible="true" />
     </template>
   </ul>
 </template>
@@ -65,6 +71,12 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    parentIsVisible: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
 

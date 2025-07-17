@@ -8,7 +8,9 @@
 </license>
 
 <template>
-  <div :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
+  <div 
+    v-if="publicParticipationFeedbackEnabled"
+    :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
     <dp-checkbox
       id="r_getFeedback"
       data-cy="personalInformationMail"
@@ -122,6 +124,14 @@ export default {
     DpRadio
   },
 
-  mixins: [formGroupMixin, prefixClassMixin]
+  mixins: [formGroupMixin, prefixClassMixin],
+
+  props: {
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
+  }
 }
 </script>

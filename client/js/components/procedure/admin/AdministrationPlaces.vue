@@ -30,7 +30,7 @@
       <dp-loading
         v-if="isLoading"
         overlay />
-      <div class="border rounded space-stack-m space-inset-m">
+      <div class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
           data-cy="places:newPlaceName"
