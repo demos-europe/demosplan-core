@@ -103,10 +103,10 @@
 
         <!-- Layer from outside -->
         <dp-ol-map-layer
-          v-for="layer in layers"
+          v-for="(layer, idx) in sortedLayers"
           :key="layer.name"
           :attributions="layer.attribution || ''"
-          :order="layer.mapOrder + 1"
+          :order="idx"
           :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
@@ -260,6 +260,15 @@ export default {
       const resolutions = this.resolutions.slice()
       const compareToResolution = this.publicSearchAutozoom
       return resolutions.sort((a, b) => Math.abs(compareToResolution - a) - Math.abs(compareToResolution - b))[0]
+    },
+
+    /**
+     * Sorted layers by mapOrder
+     *
+     * @return {layer[]}
+     */
+    sortedLayers () {
+      return [...this.layers].sort((a, b) => a.mapOrder - b.mapOrder)
     },
 
     /**

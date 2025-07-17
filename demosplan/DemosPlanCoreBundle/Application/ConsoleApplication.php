@@ -27,7 +27,7 @@ class ConsoleApplication extends Application
 
     public function doRun(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $this->addProjectFolderConsoleDeprecationNotice($output);
 
