@@ -19,7 +19,6 @@
           align="left"
           data-cy="customSearch:searchCustomLimitFields"
           class="top-px right-0 absolute"
-          :has-menu="false"
           :padded="false">
           <template v-slot:trigger>
             <dp-icon
