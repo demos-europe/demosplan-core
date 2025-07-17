@@ -299,6 +299,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 'gwId',
                 'lastname',
                 'password',
+                'providedByIdentityProvider',
             ]
         );
 
