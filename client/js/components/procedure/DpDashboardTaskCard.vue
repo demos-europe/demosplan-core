@@ -99,9 +99,9 @@ export default {
         // Get the actual filter hash
         const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash })
         dpApi.patch(url, {}, filterData)
-          .then(response => {
-            if (response) {
-              this.userHash = response
+          .then(({ data }) => {
+            if (data) {
+              this.userHash = data
             }
           })
       })
