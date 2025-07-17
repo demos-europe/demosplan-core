@@ -838,7 +838,7 @@ export default {
             $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
             this.showPopup('criteriaPopup', '', coordinate)
             //  Add progress indicator (.o-spinner on same element required)
-            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress')
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
             dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
               .then(response => {
