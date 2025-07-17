@@ -840,8 +840,6 @@ export default {
             //  Add progress indicator (.o-spinner on same element required)
             $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress')
 
-            getData.infotype = 'criteria'
-
             dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
               .then(response => {
                 const parsedData = JSON.parse(response.data)
@@ -859,7 +857,7 @@ export default {
                     this.showPopupError('empty', coordinate)
                   }
                 } else {
-                  this.showPopupError('failed', coordinate)
+                  this.showPopupError('empty', coordinate)
                 }
               })
           }
