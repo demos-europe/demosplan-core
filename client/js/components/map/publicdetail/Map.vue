@@ -823,29 +823,46 @@ export default {
         const infoFormat = 'text/html'
 
         if (PROJECT && PROJECT === 'robobsh') {
-          getData.infotype = 'criteria'
+          const remappedUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
+            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat },
+          ).split('?')[1]
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
-            .then(response => {
-              const parsedData = JSON.parse(response.data)
-              if (parsedData.code === 100 && parsedData.success) {
-                if (parsedData.body !== null) {
-                  let popupContent = this.processFeatureInfoResponse(responseText)
+          if (remappedUrl) {
+            const getData = { params: remappedUrl }
 
-                  console.log('Feature info response:', responseText)
+            //  This triggers getFeatureInfoByType() in GetFeatureInfo service
+            getData.infotype = 'criteria'
 
-                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
-                    popupContent = Translator.trans('map.getfeatureinfo.none')
+            //  Open Popup with loading state
+            this.resetPopup()
+            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+            this.showPopup('criteriaPopup', '', coordinate)
+            //  Add progress indicator (.o-spinner on same element required)
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress')
+
+            getData.infotype = 'criteria'
+
+            dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
+              .then(response => {
+                const parsedData = JSON.parse(response.data)
+                if (parsedData.code === 100 && parsedData.success) {
+                  if (parsedData.body !== null) {
+                    let popupContent = ''
+                    popupContent = parsedData.body
+
+                    if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
+                      popupContent = Translator.trans('map.getfeatureinfo.none')
+                    }
+
+                    this.showPopup('criteriaPopup', popupContent, coordinate)
+                  } else {
+                    this.showPopupError('empty', coordinate)
                   }
-
-                  this.showPopup('criteriaPopup', popupContent, coordinate)
+                } else {
+                  this.showPopupError('failed', coordinate)
                 }
-              }
-            })
-            .catch(error => {
-              console.error('Feature info request failed:', error)
-              this.showPopupError('failed', coordinate)
-            })
+              })
+          }
         } else {
           const featureInfoUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
             coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
@@ -1936,66 +1953,6 @@ export default {
       }
       const errorMessage = '<span>' + Translator.trans(messageKeys[result]) + '</span>'
       this.showPopup('errorPopup', errorMessage, coordinate)
-    },
-
-    //  Process feature info response similar to backend processing
-    processFeatureInfoResponse (htmlContent) {
-      let processedContent = htmlContent
-
-
-      console.log('Processing feature info response:', htmlContent)
-      // Extract content from body tag (similar to backend regex)
-      const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
-      if (bodyMatch && bodyMatch[1]) {
-        processedContent = bodyMatch[1]
-      }
-
-      // Remove style attributes
-      processedContent = processedContent.replace(/style="[^"]*"/gi, '')
-
-      // Remove valign attributes
-      processedContent = processedContent.replace(/valign="[^"]*"/gi, '')
-
-      // Remove script tags
-      processedContent = processedContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gmi, '')
-
-      // Replace h2 with h4
-      processedContent = processedContent.replace(/<\/?h2>/gi, (match) => {
-        return match.replace('h2', 'h4')
-      })
-
-      // Create a temporary div to parse HTML and filter allowed tags
-      const tempDiv = document.createElement('div')
-      tempDiv.innerHTML = processedContent
-
-      // Filter allowed tags similar to backend strip_tags
-      const allowedTags = ['H4', 'TABLE', 'TR', 'TH', 'TD', 'STRONG', 'B', 'A']
-      const walker = document.createTreeWalker(
-        tempDiv,
-        NodeFilter.SHOW_ELEMENT,
-        {
-          acceptNode: (node) => {
-            return allowedTags.includes(node.tagName)
-              ? NodeFilter.FILTER_ACCEPT
-              : NodeFilter.FILTER_REJECT
-          }
-        }
-      )
-
-      const allowedElements = []
-      let node
-      while (node = walker.nextNode()) {
-        allowedElements.push(node)
-      }
-
-      // Keep only allowed elements and their text content
-      // const filteredDiv = document.createElement('div')
-      // allowedElements.forEach(element => {
-      //   const clonedElement = element.cloneNode(true)
-      //   filteredDiv.appendChild(clonedElement)
-      // })
-
-      return htmlContent
     },
 
     /**
