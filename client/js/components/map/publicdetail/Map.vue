@@ -1518,7 +1518,7 @@ export default {
     },
 
     getLayersOfType (type) {
-      const allLayers = this.layers()
+      const allLayers = this.layers
       const l = allLayers.length
       const layers = []
       let i = 0
@@ -1840,7 +1840,7 @@ export default {
     },
 
     setOpacities () {
-      const layers = this.layers()
+      const layers = this.layers
       let l = layers.length; let layer; let id
 
       while (l--) {
@@ -1855,9 +1855,8 @@ export default {
     },
 
     setLayerSource (layer) {
-      console.log(`Setting source for layer ${layer.get('name')}`)
       if (layer.getSource() === null) {
-        const layerObj = this.layers().find(el => el.id === layer.get('name'))
+        const layerObj = this.layers.find(el => el.id === layer.get('name'))
         const source = this.createLayerSource(layerObj)
         layer.setSource(source)
       }
