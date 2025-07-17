@@ -438,7 +438,7 @@ export default {
           }
         }
       })
-        .then((response) => {
+        .then(() => {
           this.previousValues.isMapEnabled = this.isMapEnabled
           this.isMapStatusEditing = false
         })
@@ -461,7 +461,7 @@ export default {
           }
         }
       })
-        .then((response) => {
+        .then(() => {
           this.previousValues.planningArea = this.planningArea
           this.isPlanningAreaEditing = false
         })
