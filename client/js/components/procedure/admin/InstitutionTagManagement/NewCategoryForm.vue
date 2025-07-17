@@ -12,7 +12,7 @@ All rights reserved
     <dp-loading
       v-if="isLoading"
       overlay />
-    <div class="border rounded space-stack-m space-inset-m">
+    <div class="border rounded-sm space-stack-m space-inset-m">
       <div class="relative u-pb-0_5 font-size-large">
         {{ Translator.trans('tag.category.new.create') }}
         <button

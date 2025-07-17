@@ -109,6 +109,8 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
+        init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
         procedure-id="{{ proceduresettings.id|default }}">
         <form
             ref="configForm"
@@ -198,13 +200,15 @@
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
-                                <input id="{{ form.agencyMainEmailAddress.vars.id }}"
-                                       name="agencyMainEmailAddress[fullAddress]"
-                                       value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                                       data-cy="internal:agencyMainEmailAddress"
-                                       class="o-form__control-input w-full"
-                                       type="email"
-                                       required>
+                                <dp-input
+                                    id="{{ form.agencyMainEmailAddress.vars.id }}"
+                                    data-cy="agencyMainEmailAddress"
+                                    data-dp-validate-error-fieldname="{{ 'email.procedure.agency'|trans }}"
+                                    name="agencyMainEmailAddress[fullAddress]"
+                                    required
+                                    type="email"
+                                    value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
+                                </dp-input>
                             </div>
 
                             <div class="u-mb">
@@ -291,8 +295,8 @@
                                         :options="authUsersOptions"
                                         selection-controls
                                         track-by="id"
-                                        @select-all="selectAllAuthUsers"
-                                        @unselect-all="unselectAllAuthUsers">
+                                        @selectAll="selectAllAuthUsers"
+                                        @deselectAll="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
@@ -382,6 +386,7 @@
                         name="infoForm"
                         {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.info'|trans }}"
                         class="o-wizard"
                         data-dp-validate="infoForm">
 
@@ -458,7 +463,10 @@
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
-                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                                            <img
+                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
+                                                alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
                                          --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
@@ -486,26 +494,26 @@
 
                                         <dp-input
                                             id="r_pictogramCopyright"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
+                                            v-model="pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
                                             }"
-                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
                                             required>
                                         </dp-input>
 
                                         <dp-input
                                             id="r_pictogramAltText"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
+                                            v-model="pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText'),
                                                 tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
                                             }"
-                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
                                             required>
                                         </dp-input>
                                     </div>
@@ -964,6 +972,36 @@
                                 {% else %}
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('feature_feedback_on_statement_controllable') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" {#  #}{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'checked' : '' }}>
+                                        {{ "public.participation.feedback"|trans }}
+                                    </label>
+                                {% else %}
+                                    {# allow publishing the possibility of Feedback by default #}
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1"> }
+                                {% endif %}
+
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <dp-checkbox
+                                        id="allowAnonymousStatements"
+                                        :checked="{{ proceduresettings.allowAnonymousStatements ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
+                                        class="mb-4"
+                                        data-cy="procedure:publicParticipationPublicationEnabled"
+                                        name="allowAnonymousStatements"
+                                    >
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <dp-input
+                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        name="allowAnonymousStatements"
+                                        type="hidden"
+                                    >
+                                    </dp-input>
                                 {% endif %}
                             </div>
 

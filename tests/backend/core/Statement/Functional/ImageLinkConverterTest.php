@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
+use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
 
 class ImageLinkConverterTest extends FunctionalTestCase
@@ -39,10 +40,11 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
         /** @var HtmlHelper $htmlHelper */
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
+        $logger = $this->getContainer()->get(LoggerInterface::class);
 
         /** @var EditorService $editorService */
         $editorService = $this->getContainer()->get(EditorService::class);
-        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService);
+        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService, $logger);
     }
 
     public function testObscureSegmentText()

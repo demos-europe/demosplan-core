@@ -662,7 +662,6 @@ export default {
       if (hasPermission('feature_statements_vote')) {
         allFields.StatementVote = [
           'city',
-          'createdDate',
           'createdByCitizen',
           'departmentName',
           'email',
@@ -696,7 +695,6 @@ export default {
         'genericAttachments',
         'genericAttachments.file',
         'paragraph',
-        'paragraphs',
         'paragraphVersion.paragraph',
         'sourceAttachment',
         'sourceAttachment.file',

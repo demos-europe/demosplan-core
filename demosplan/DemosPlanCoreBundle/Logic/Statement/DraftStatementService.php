@@ -66,6 +66,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -893,16 +894,13 @@ class DraftStatementService extends CoreService
 
         $filenameSuffix .= '.pdf';
 
-        $selectedStatementsToExport = isset($itemsToExport)
-            ? explode(',', $itemsToExport)
-            : null;
-
-        $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
-            $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
-            $statement = $this->checkMapScreenshotFile($statement, $procedureId);
-
-            return $statement;
-        })->all();
+        $selectedStatementsToExport = $this->parseItemsToExport($itemsToExport);
+        $filteredStatementList = $this->filterDraftStatementsBySelectedIds(
+            $draftStatementList,
+            $selectedStatementsToExport
+        );
+        $filteredStatementList = $this->addContentToStatementsArrayForPdfProcess($filteredStatementList, $procedureId);
+        $filteredStatementList = $filteredStatementList->all();
 
         $firstOrganisationId = $filteredStatementList[0]['oId'] ?? '';
 
@@ -2088,6 +2086,57 @@ class DraftStatementService extends CoreService
                 'user'      => $this->currentUser->getUser()->getId(),
                 'procedure' => $procedureId,
             ]
+        );
+    }
+
+    /**
+     * Parses itemsToExport parameter into Collection of statement IDs.
+     * Returns null if no items specified (indicates all statements should be exported).
+     *
+     * @param string|array|null $itemsToExport Comma-separated string or array of statement IDs
+     */
+    public function parseItemsToExport($itemsToExport): ?IlluminateCollection
+    {
+        if (is_string($itemsToExport)) {
+            return collect(explode(',', $itemsToExport));
+        }
+        if (is_array($itemsToExport) && !empty($itemsToExport)) {
+            return collect($itemsToExport);
+        }
+
+        return null;
+    }
+
+    /**
+     * Filters statements by selected IDs. Returns all statements if no selection provided.
+     */
+    public function filterDraftStatementsBySelectedIds(
+        array $draftStatementList,
+        ?IlluminateCollection $selectedStatementsToExport,
+    ): IlluminateCollection {
+        if (null === $selectedStatementsToExport) {
+            return collect($draftStatementList);
+        }
+
+        return collect($draftStatementList)->filter(
+            fn (array $statementArray) => $selectedStatementsToExport->contains(
+                $this->entityHelper->extractId($statementArray)
+            )
+        );
+    }
+
+    /**
+     * Enriches statement arrays with documentlist and map screenshots for PDF processing.
+     */
+    public function addContentToStatementsArrayForPdfProcess(IlluminateCollection $filteredStatementList, string $procedureId): IlluminateCollection
+    {
+        return $filteredStatementList->map(
+            function (array $statementArray) use ($procedureId) {
+                $statementArray['documentlist'] = $this->paragraphService
+                    ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
+
+                return $this->checkMapScreenshotFile($statementArray, $procedureId);
+            }
         );
     }
 }

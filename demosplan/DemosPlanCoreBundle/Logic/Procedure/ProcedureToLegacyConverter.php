@@ -69,6 +69,8 @@ class ProcedureToLegacyConverter extends CoreService
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
+            $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
+            $procedureArray['publicParticipationFeedbackEnabled'] = $procedureArray['settings']['publicParticipationFeedbackEnabled'];
         }
 
         $procedureArray['isMapEnabled'] = false;
@@ -189,7 +191,6 @@ class ProcedureToLegacyConverter extends CoreService
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
             'step'                                  => $procedure->getStep(),
-            'surveys'                               => $procedure->getSurveys(),
             'topics'                                => $procedure->getTopics(),
         ];
     }
