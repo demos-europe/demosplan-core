@@ -9,6 +9,8 @@
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements
 - Migrate to Tailwind CSS v4
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements
 
 
 ## v4.5.0 (2025-06-25)

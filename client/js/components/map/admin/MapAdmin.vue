@@ -29,6 +29,7 @@
         }" />
     </div>
     <map-view
+      v-if="mapSettingsLoaded"
       ref="mapView"
       :bounding-box="boundingBoxAsPolygon"
       class="layout__item w-1/1 u-pb"
@@ -159,6 +160,7 @@ export default {
           strokeLineWidth: 3
         })
       },
+      mapSettingsLoaded: false,
       procedureMapSettings: {
         id: '',
         type: 'ProcedureMapSetting',
@@ -301,6 +303,7 @@ export default {
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
+    this.mapSettingsLoaded = true
   }
 }
 </script>
