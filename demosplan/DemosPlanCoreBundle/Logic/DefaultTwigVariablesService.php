@@ -177,6 +177,7 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
+            'accessTokenExpirationTimestamp'   => $request->getSession()->get('accessTokenExpirationTimestamp'),
         ];
     }
 
