@@ -439,8 +439,6 @@ export default {
           'layerType',
           'mapOrder',
           'name',
-          'opacity',
-          'projectionLabel',
           'treeOrder',
           'url',
           'visibilityGroupId'
