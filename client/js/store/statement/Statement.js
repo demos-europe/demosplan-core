@@ -758,7 +758,12 @@ export default {
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           } else {
-            assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            assignee = {
+              id: response.data.data.id,
+              uId: response.data.data.id,
+              name: response.data.data.attributes.name,
+              orgaName: response.data.data.attributes.orgaName
+            }
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           }
