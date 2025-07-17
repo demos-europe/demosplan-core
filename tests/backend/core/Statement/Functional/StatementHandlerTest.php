@@ -84,7 +84,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $requestStack->push($request);
 
         /* @var StatementHandler sut */
-        $this->sut = self::$container->get(StatementHandler::class);
+        $this->sut = self::getContainer()->get(StatementHandler::class);
 
         // generiere ein Stub vom GlobalConfig
         /** @var GlobalConfigInterface $stub */
@@ -1265,7 +1265,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $createdStatement = $this->sut->newStatement($data);
         static::assertInstanceOf(Statement::class, $createdStatement);
 
-        $repository = self::$container->get(StatementRepository::class);
+        $repository = self::getContainer()->get(StatementRepository::class);
         $copiedStatements = $repository->findBy([
             'original' => $createdStatement->getId(),
         ]);
@@ -2935,7 +2935,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testCopyStatementWithFileToProcedure()
     {
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
         // add file first
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
@@ -2945,7 +2945,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatementWithFile');
-        $statementService = self::$container->get(StatementService::class);
+        $statementService = self::getContainer()->get(StatementService::class);
         $sourceProcedure = $testStatement->getProcedure();
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
@@ -2968,7 +2968,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testCopyStatementWithMapFileToProcedure()
     {
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
         // add file first
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
@@ -2978,7 +2978,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatementWithFile');
-        $statementService = self::$container->get(StatementService::class);
+        $statementService = self::getContainer()->get(StatementService::class);
         $sourceProcedure = $testStatement->getProcedure();
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');

@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import DpDrawer from './drawer/Drawer'
 import { mapActions } from 'vuex'
 
@@ -29,7 +30,7 @@ export default {
   name: 'DpProcedures',
 
   components: {
-    DpMap: () => import('./map/Map'),
+    DpMap: defineAsyncComponent(() => import('./map/Map')),
     DpDrawer
   },
 

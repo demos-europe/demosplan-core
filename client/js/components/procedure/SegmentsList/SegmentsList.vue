@@ -114,7 +114,7 @@
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
-          :header-fields="headerFields"
+          :header-fields="availableHeaderFields"
           is-resizable
           is-selectable
           :items="items"
@@ -123,7 +123,7 @@
           :multi-page-selection-items-toggled="toggledItems.length"
           :should-be-selected-items="currentlySelectedItems"
           track-by="id"
-          @select-all="handleSelectAll"
+          @selectAll="handleSelectAll"
           @items-toggled="handleToggleItem">
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
@@ -193,25 +193,32 @@
             {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
           </template>
           <template v-slot:text="rowData">
-            <div
-              v-cleanhtml="rowData.attributes.text"
-              class="overflow-word-break c-styled-html" />
+            <text-content-renderer
+              class="overflow-word-break c-styled-html"
+              :text="rowData.attributes.text" />
           </template>
           <template v-slot:recommendation="rowData">
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
           </template>
           <template v-slot:tags="rowData">
             <span
+              v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
               class="rounded-md"
-              v-for="tag in getTagsBySegment(rowData.id)"
               style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
               {{ tag.attributes.title }}
             </span>
           </template>
+          <template
+            v-for="customField in selectedCustomFields"
+            :key="customField.field"
+            v-slot:[customField.field]="rowData">
+            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
+          </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   action: 'editText',
                   procedureId: procedureId,
@@ -224,6 +231,7 @@
               </a>
               <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   procedureId: procedureId,
                   segment: rowData.id,
@@ -236,13 +244,14 @@
               <!-- Version history view -->
               <button
                 type="button"
-                class="btn--blank o-link--default"
+                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
                 @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
                 {{ Translator.trans('history') }}
               </button>
               <a
                 v-if="hasPermission('feature_read_source_statement_via_api')"
+                class="block leading-[2] whitespace-nowrap"
                 :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
@@ -273,7 +282,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -300,6 +308,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'SegmentsList',
@@ -319,6 +328,7 @@ export default {
     ImageModal,
     StatementMetaTooltip,
     StatusBadge,
+    TextContentRenderer,
     VPopover
   },
 
@@ -418,6 +428,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('CustomField', {
+      customFields: 'items'
+    }),
+
     ...mapState('Orga', {
       orgaObject: 'items'
     }),
@@ -446,6 +460,25 @@ export default {
             id: user.id
           }))
         : []
+    },
+
+    availableHeaderFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return this.headerFields
+      }
+
+      const customFields = Object.values(this.customFields)
+      const selectedCustomFields = customFields
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => ({
+          field: `customField_${customField.id}`,
+          label: customField.attributes.name
+        }))
+
+      return [
+        ...this.headerFields,
+        ...selectedCustomFields
+      ]
     },
 
     headerFields () {
@@ -486,8 +519,38 @@ export default {
       return ids
     },
 
+    /**
+     * Returns both static and custom headerFields that can be selected in the ColumnSelector
+     * @return {[string, string][]}
+     */
     selectableColumns () {
-      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+
+      if (!hasPermission('field_segments_custom_fields')) {
+        return staticColumns
+      }
+
+      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+
+      return [
+        ...staticColumns,
+        ...customFields
+      ]
+    },
+
+    selectedCustomFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return []
+      }
+
+      return Object.values(this.customFields)
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => {
+          return {
+            field: `customField_${customField.id}`,
+            fieldId: customField.id
+          }
+        })
     },
 
     storageKeyPagination () {
@@ -500,6 +563,10 @@ export default {
       fetchAssignableUsers: 'list'
     }),
 
+    ...mapActions('AdminProcedure', {
+      getCustomFieldsForProcedure: 'get'
+    }),
+
     ...mapActions('FilterFlyout', [
       'updateFilterQuery'
     ]),
@@ -509,7 +576,7 @@ export default {
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      fetchSegments: 'list'
     }),
 
     ...mapMutations('FilterFlyout', {
@@ -533,6 +600,21 @@ export default {
           }
         }
       }
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       const payload = {
         include: [
           'assignee',
@@ -577,16 +659,7 @@ export default {
             'submitName',
             'submitType'
           ].join(),
-          StatementSegment: [
-            'assignee',
-            'externId',
-            'orderInProcedure',
-            'parentStatement',
-            'place',
-            'tags',
-            'text',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           Tag: [
             'title'
           ].join()
@@ -599,7 +672,7 @@ export default {
         }
       }
       this.isLoading = true
-      this.listSegments(payload)
+      this.fetchSegments(payload)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
@@ -631,12 +704,33 @@ export default {
 
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
-        .then(response => checkResponse(response))
-        .then(response => {
-          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+        .then(({ data }) => {
+          const allSegments = data[0]?.result ?? []
+
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: [
+          'segmentCustomFields'
+        ].join()
+      }
+
+      this.getCustomFieldsForProcedure(payload)
     },
 
     getTagsBySegment (id) {
@@ -682,8 +776,8 @@ export default {
     resetQuery () {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
-      Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+      this.$refs.filterFlyout?.forEach(flyout => {
+        flyout.reset()
       })
       this.updateQueryHash()
       this.resetSelection()
@@ -727,15 +821,14 @@ export default {
       }
 
       dpRpc('segments.facets.list', requestParams, 'filterList')
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
             const groupedOptions = []
             const ungroupedOptions = []
 
-            result.included.forEach(resource => {
+            result.included?.forEach(resource => {
               const filter = result.data.find(type => type.attributes.path === path)
               const resourceIsGroup = resource.type === 'AggregationFilterGroup'
               const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
@@ -887,11 +980,10 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
-        .then(response => {
-          if (response) {
-            this.updateQueryHashInURL(oldQueryHash, response)
-            this.currentQueryHash = response
+        .then(({ data }) => {
+          if (data) {
+            this.updateQueryHashInURL(oldQueryHash, data)
+            this.currentQueryHash = data
           }
         })
         .catch(err => console.log(err))
@@ -929,6 +1021,7 @@ export default {
       })
     }
     this.initPagination()
+    this.getCustomFields()
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

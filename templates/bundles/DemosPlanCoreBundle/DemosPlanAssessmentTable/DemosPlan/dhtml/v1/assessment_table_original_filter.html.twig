@@ -51,9 +51,10 @@
         </label>
 
         <button
-            type="submit"
-            data-cy="copyStatement"
             class="o-link--default btn--blank weight--normal line-height--2 u-ph-0_25"
+            data-cy="copyStatement"
+            type="submit"
+            :disabled="isNoItemSelected"
             @click.stop.prevent="copyStatements">
             <i class="fa fa-files-o" aria-hidden="true"></i>
             {{ "copy"|trans }}
@@ -82,7 +83,7 @@
                     tabindex="-1"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    @click.prevent="$root.$emit('exportModal:toggle', '{{tab}}')"
+                    @click.prevent="toggleExportModal('{{tab}}')"
                 >
                     <i class="fa fa-share-square u-mr-0_125" aria-hidden="true"></i>
                     {{ buttonLabelSingle|trans }}

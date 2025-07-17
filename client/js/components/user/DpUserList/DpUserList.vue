@@ -99,6 +99,7 @@
 <script>
 import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpUserList',
@@ -107,11 +108,11 @@ export default {
     DpContextualHelp,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination: async () => {
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
-    DpUserListItem: () => import(/* webpackChunkName: "user-list-item" */ './DpUserListItem')
+    }),
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem'))
   },
 
   mixins: [dpSelectAllMixin],
@@ -201,7 +202,8 @@ export default {
 
       if (!isConfirmed) return
 
-      const deleteResults = await Promise.allSettled( /* ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      const deleteResults = await Promise.allSettled(
         ids.map(async id => {
           try {
             await this.deleteAdministratableUser(id)

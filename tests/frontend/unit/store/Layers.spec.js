@@ -7,13 +7,10 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
 import { apiData } from '../__mocks__/layer_json.mock'
-import { createLocalVue } from '@vue/test-utils'
 import Layers from '@DpJs/store/map/Layers'
-import Vuex from 'vuex'
 
-const LocalVue = createLocalVue()
-LocalVue.use(Vuex)
 let StubStore
 
 // Non-instance tests
@@ -41,18 +38,18 @@ describe('Layer-Store', () => {
 // Active tests
 describe('Layers', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
+    StubStore = createStore({})
     StubStore.registerModule('Layers', Layers)
   })
 
   it('can store data', () => {
     expect(StubStore.state.Layers.apiData).toEqual({})
-    StubStore.commit('Layers/updateApiData', apiData)
+    StubStore.commit('Layers/updateState', { key: 'apiData', value: apiData })
     expect(typeof StubStore.state.Layers.apiData.data).toBe('object')
   })
 
   it('can store the original data to restore the loaded state which is a real clone of the data which gets manipulated', () => {
-    StubStore.commit('Layers/updateApiData', apiData)
+    StubStore.commit('Layers/updateState', { key: 'apiData', value: apiData })
     StubStore.commit('Layers/saveOriginalState', JSON.parse(JSON.stringify(apiData)))
     expect(StubStore.state.Layers.apiData).toEqual(StubStore.state.Layers.originalApiData)
 

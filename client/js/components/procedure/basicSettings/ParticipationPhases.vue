@@ -136,6 +136,10 @@ export default {
     }
   },
 
+  emits: [
+    'phase:select'
+  ],
+
   data () {
     return {
       selectedPhase: this.initSelectedPhase

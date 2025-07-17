@@ -57,7 +57,7 @@
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent mb-px"
+          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
           v-if="appliedQuery.length > 0">
           {{ appliedQuery.length }}
         </span>
@@ -69,7 +69,7 @@
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5">
+      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap">
       <dp-resettable-input
         :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
@@ -247,6 +247,11 @@ export default {
       }
     }
   },
+
+  emits: [
+    'filterApply',
+    'filterOptions:request'
+  ],
 
   data () {
     return {
@@ -538,6 +543,12 @@ export default {
       const isInitialWithQuery = true
 
       this.requestFilterOptions(isInitialWithQuery)
+
+      if (this.itemsSelected) {
+        const selectedIds = this.itemsSelected.map(item => item.id)
+        this.appliedQuery = selectedIds
+        this.currentQuery = selectedIds
+      }
     }
   }
 }

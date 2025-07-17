@@ -21,8 +21,10 @@
       :entries="listEntries"
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetFormFields"
-      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)">
+      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
+      @show-update-form="setFormFields">
       <template v-slot:list="{ entry, index }">
         <template v-if="isRequestFormPost">
           <input
@@ -154,14 +156,13 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpContextualHelp,
   DpEditableList,
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',
@@ -228,6 +229,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     /**
      * The "add" button text of EditableList is too long when inside the narrow context.
      * This is why a shorter button text is rendered there.
@@ -238,7 +243,7 @@ export default {
         new: Translator.trans('add'),
         add: Translator.trans(this.fieldsFullWidth ? 'add' : 'statement.similarStatementSubmitters.add'),
         abort: Translator.trans('abort'),
-        update: Translator.trans('save'),
+        update: Translator.trans('edit'),
         noEntries: Translator.trans('none'),
         delete: Translator.trans('delete')
       }
@@ -247,7 +252,8 @@ export default {
 
   methods: {
     ...mapMutations('Statement', {
-      updateStatement: 'update'
+      updateStatement: 'update',
+      setInitialStatement: 'setItem'
     }),
 
     ...mapMutations('SimilarStatementSubmitter', {
@@ -292,6 +298,7 @@ export default {
               type: 'SimilarStatementSubmitter'
             }
           })
+          this.setInitialStatement(this.statements[this.statementId])
 
           // Update local state - similarStatementSubmitter
           this.setSimilarStatementSubmitter({
@@ -301,24 +308,45 @@ export default {
         })
     },
 
+    deleteEntry (index) {
+      const name = this.listEntries[index]?.submitterName ? this.listEntries[index].submitterName : false
+
+      if (dpconfirm(Translator.trans('statement.similarStatementSubmitters.delete', { name }))) {
+        this.updateStatement({
+          id: this.statementId,
+          relationship: 'similarStatementSubmitters',
+          action: 'remove',
+          value: {
+            id: this.listEntries[index].id,
+            type: 'SimilarStatementSubmitter'
+          }
+        })
+        this.setInitialStatement(this.statements[this.statementId])
+
+        this.listEntries.splice(index, 1)
+
+        if (this.isRequestFormPost === false) {
+          this.deleteSimilarStatementSubmitter()
+        }
+
+        if (this.isRequestFormPost) {
+          this.resetFormFields()
+        }
+      }
+    },
+
     deleteSimilarStatementSubmitter () {
       const payload = {
         type: 'Statement',
         id: this.statementId,
         relationships: {
           similarStatementSubmitters: {
-            data: this.listEntries.map((entry) => {
-              return {
-                type: 'SimilarStatementSubmitter',
-                id: entry.id
-              }
-            })
+            data: this.listEntries.map(entry => ({ type: 'SimilarStatementSubmitter', id: entry.id }))
           }
         }
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
         })
@@ -375,6 +403,7 @@ export default {
       if (this.similarStatementSubmitters) {
         this.listEntries = this.similarStatementSubmitters.map(el => {
           const { city, emailAddress, fullName, postalCode, streetName, streetNumber } = el.attributes
+
           return {
             id: el.id,
             submitterAddress: streetName,
@@ -394,6 +423,10 @@ export default {
       }
     },
 
+    setFormFields (index) {
+      this.formFields = this.listEntries[index]
+    },
+
     toggleFormVisibility (visibility) {
       this.isFormVisible = visibility
     },
@@ -406,7 +439,6 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           // Update local state - similarStatementSubmitter.
           this.setSimilarStatementSubmitter(payload)
@@ -420,36 +452,6 @@ export default {
 
   mounted () {
     this.loadInitialListEntries()
-
-    this.$on('delete', (index) => {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
-        }
-      })
-
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
-      }
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.submitterCity = this.listEntries[index].submitterCity
-      this.formFields.submitterName = this.listEntries[index].submitterName
-      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
-      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
-      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
-      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
-    })
   }
 }
 </script>

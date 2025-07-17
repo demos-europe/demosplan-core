@@ -10,9 +10,9 @@
 <template>
   <div>
     <div v-if="editable">
-      <div class="u-mb-0_25">
+      <div class="flex items-baseline my-0.5">
         <input
-          class="cursor-pointer"
+          class="cursor-pointer flex-shrink-0"
           data-cy="publicationPending"
           id="publicCheck"
           name="r_publicVerified"
@@ -22,14 +22,14 @@
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicCheck"
-          class="inline font-normal u-ml-0_25 align-text-top">
+          class="font-normal ml-1 mb-1">
           {{ Translator.trans('explanation.statement.public.check') }}
         </label>
       </div>
 
-      <div class="u-mb-0_25">
+      <div class="flex items-baseline mb-0.5">
         <input
-          class="cursor-pointer"
+          class="cursor-pointer flex-shrink-0"
           data-cy="publicationApproved"
           id="publicVerify"
           name="r_publicVerified"
@@ -39,14 +39,14 @@
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicVerify"
-          class="inline font-normal u-ml-0_25 align-text-top">
+          class="font-normal ml-1 mb-1">
           {{ Translator.trans('explanation.statement.public.verify', { count: filesLength }) }}
         </label>
       </div>
 
-      <div class="u-mb-0_25">
+      <div class="flex items-baseline mb-0.5">
         <input
-          class="cursor-pointer"
+          class="cursor-pointer flex-shrink-0"
           data-cy="publicationRejected"
           id="publicReject"
           name="r_publicVerified"
@@ -56,13 +56,13 @@
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicReject"
-          class="inline font-normal u-ml-0_25 align-text-top">
+          class="font-normal ml-1 mb-1">
           {{ Translator.trans('explanation.statement.public.reject') }}
         </label>
       </div>
 
       <div v-if="checked === 'publication_rejected' && showEmailField">
-        <label class="u-mt u-mb-0_25">
+        <label class="mt-4 mb-1">
           {{ Translator.trans('email.body') }}
         </label>
         <dp-editor
@@ -72,7 +72,7 @@
 
       <dp-inline-notification
         v-if="hasPermission('feature_statements_vote')"
-        class="mt-3 mb-2"
+        class="mt-2 mb-2"
         :message="Translator.trans('explanation.statement.public.activate.voting')"
         type="info" />
     </div>
@@ -85,20 +85,21 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import VotingStatus from './VotingStatus'
 
 export default {
   name: 'StatementPublish',
 
   components: {
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpInlineNotification: async () => {
+    }),
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     VotingStatus
   },
 
@@ -133,6 +134,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'update'
+  ],
 
   data () {
     return {

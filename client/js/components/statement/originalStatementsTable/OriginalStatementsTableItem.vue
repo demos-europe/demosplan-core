@@ -73,7 +73,7 @@
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
                 <a
-                  class="u-pt-0"
+                  class="u-pt-0 block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
                 </a>
@@ -102,17 +102,17 @@
         </div>
 
         <div
-          v-if="statement.sourceAttachment !== '' || statement.files.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top">
           <div
-            v-if="statement.sourceAttachment !== '' || statement.files.length > 0"
+            v-if="statement.sourceAttachment || statement.files.length > 0"
             class="break-words">
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"
               class="fa fa-paperclip color--grey" />
             <a
-              v-if="statement.sourceAttachment !== '' && hasPermission('feature_read_source_statement_via_api')"
+              v-if="statement.sourceAttachment && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
               target="_blank"
               rel="noopener"
@@ -228,6 +228,11 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'add-to-selection',
+    'remove-from-selection'
+  ],
 
   data () {
     return {

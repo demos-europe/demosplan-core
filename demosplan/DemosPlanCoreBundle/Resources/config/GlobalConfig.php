@@ -545,8 +545,6 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var array */
     protected $publicIndexRouteParameters;
-    /** @var string[] */
-    protected $proxyTrusted;
 
     /**
      * @var bool
@@ -680,7 +678,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->piwikSiteID = $parameterBag->get('piwik_site_id');
         // external proxy
         $this->proxyDsn = $parameterBag->get('proxy_dsn');
-        $this->proxyTrusted = $parameterBag->get('proxy_trusted');
 
         // request variable
         $this->urlScheme = trim($parameterBag->get('url_scheme'));
@@ -1218,7 +1215,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyHost(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[0] ?? '';
     }
@@ -1230,17 +1227,9 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyPort(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[1] ?? '';
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProxyTrusted(): array
-    {
-        return $this->proxyTrusted;
     }
 
     public function getProjectCoreVersion(): string

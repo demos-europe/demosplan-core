@@ -41,25 +41,23 @@
         }"
         :procedure-id="procedureId"
         small>
-        <template>
-          <dp-ol-map-layer-vector
-            v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
-            class="u-mb-0_5"
-            :features="features.procedureCoordinate"
-            name="mapSettingsPreviewCoordinate" />
-          <dp-ol-map-layer-vector
-            v-if="initExtent"
-            class="u-mb-0_5"
-            :features="features.initExtent"
-            name="mapSettingsPreviewInitExtent"
-            zoom-to-drawing />
-          <dp-ol-map-layer-vector
-            v-if="territory"
-            class="u-mb-0_5"
-            :draw-style="drawingStyles.territory"
-            :features="features.territory"
-            name="mapSettingsPreviewTerritory" />
-        </template>
+        <dp-ol-map-layer-vector
+          v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
+          class="u-mb-0_5"
+          :features="features.procedureCoordinate"
+          name="mapSettingsPreviewCoordinate" />
+        <dp-ol-map-layer-vector
+          v-if="initExtent"
+          class="u-mb-0_5"
+          :features="features.initExtent"
+          name="mapSettingsPreviewInitExtent"
+          zoom-to-drawing />
+        <dp-ol-map-layer-vector
+          v-if="territory"
+          class="u-mb-0_5"
+          :draw-style="drawingStyles.territory"
+          :features="features.territory"
+          name="mapSettingsPreviewTerritory" />
       </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
@@ -98,7 +96,8 @@
           class="inline-block u-3-of-4"
           v-model="planstatus"
           :calendars-before="2"
-          :disabled="!isPlanStatusEditing" /><!--
+          :disabled="!isPlanStatusEditing"
+          name="planstatus" /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
               v-if="false === isPlanStatusEditing"
@@ -246,7 +245,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
@@ -414,7 +413,7 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
+      })
         .then(() => {
           this.previousValues.planstatus = this.planstatus
           this.isPlanStatusEditing = false
@@ -438,8 +437,8 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.isMapEnabled = this.isMapEnabled
           this.isMapStatusEditing = false
         })
@@ -461,8 +460,8 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.planningArea = this.planningArea
           this.isPlanningAreaEditing = false
         })
@@ -476,8 +475,7 @@ export default {
 
     getInitialData () {
       return dpApi.get(Routing.generate('dp_api_documents_dashboard_get', { procedureId: this.procedureId, include: 'procedureMapInfo' }))
-        .then(this.checkResponse)
-        .then((response) => {
+        .then(response => {
           // Get id of the "Elements" item that is the map
           if (hasOwnProp(response.data.data, 'relationships')) {
             this.mapIdent = response.data.data.relationships.procedureMapInfo.data.id

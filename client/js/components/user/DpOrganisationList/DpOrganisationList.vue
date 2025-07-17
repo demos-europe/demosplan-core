@@ -7,13 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-  <!--
-    Component that is used to display list of editable items
-  -->
-
-</documentation>
-
 <template>
   <div class="u-mt-0_5">
     <!-- List of pending organisations (if orga-self-registration is active) -->
@@ -66,7 +59,7 @@
     <div class="flow-root">
       <dp-search-field
         class="inline-block u-pv-0_5"
-        @search="searchVal => handleSearch(searchVal)"
+        @search="handleSearch"
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
@@ -74,7 +67,7 @@
         :label="filterLabel"
         :options="filterItems"
         inline
-        @update="selected => handleFilter(selected)" />
+        @update="handleFilter" />
 
       <div
         class="block u-mb"
@@ -170,22 +163,23 @@ import {
   dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp
+  hasOwnProp,
+  hasPermission
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
-const orgaFields = {
-  OrgaStatusInCustomer: [
-    'customer',
-    'status'
-  ].join(),
+const orgaFieldsArrays = {
+  Branding: [
+    'cssvars'
+  ],
   Customer: [
     'name',
     'subdomain'
-  ].join(),
+  ],
   Orga: [
     'addressExtension',
+    'branding',
     'canCreateProcedures',
     'ccEmail2',
     'city',
@@ -210,10 +204,26 @@ const orgaFields = {
     'showlist',
     'showname',
     'state',
+    'statusInCustomer',
     'street',
     'submissionType',
     'types'
-  ].join()
+  ],
+  OrgaStatusInCustomer: [
+    'customer',
+    'status'
+  ]
+}
+
+if (hasPermission('feature_manage_procedure_creation_permission')) {
+  orgaFieldsArrays.Orga.push('canCreateProcedures')
+}
+
+const orgaFields = {
+  Branding: orgaFieldsArrays.Branding.join(),
+  Customer: orgaFieldsArrays.Customer.join(),
+  Orga: orgaFieldsArrays.Orga.join(),
+  OrgaStatusInCustomer: orgaFieldsArrays.OrgaStatusInCustomer.join()
 }
 
 export default {
@@ -386,7 +396,7 @@ export default {
       const filterObject = {}
 
       Object.keys(selected).forEach(filter => {
-        if (selected[filter] === true) {
+        if (selected[filter]) {
           filterObject[filter] = {
             condition: {
               path: 'statusInCustomers.orgaType.name',
@@ -425,7 +435,7 @@ export default {
         sort: 'name',
         filter: filterObject,
         fields: orgaFields,
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -448,7 +458,7 @@ export default {
             }
           }
         },
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -469,7 +479,7 @@ export default {
         },
         fields: orgaFields,
         sort: 'name',
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers', 'statusInCustomers.customer'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false

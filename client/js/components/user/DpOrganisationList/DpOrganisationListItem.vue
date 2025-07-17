@@ -7,10 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-<!--  This component is used as a wrapper for DpItem to display organisation data that can be editable -->
-</documentation>
-
 <template>
   <dp-table-card
     :id="organisation.id"
@@ -27,13 +23,13 @@
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
         <div
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           type="button"
           data-cy="accordionToggleBtn"
           class="btn--blank o-link--default">
@@ -73,7 +69,8 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -83,7 +80,7 @@ export default {
   components: {
     DpButtonRow,
     DpIcon,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
     DpTableCard
   },
 
@@ -129,6 +126,13 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'addonOptions:loaded',
+    'get-items',
+    'item:selected',
+    'organisation-reset'
+  ],
 
   data () {
     return {
@@ -211,7 +215,7 @@ export default {
         }
       })
 
-      return addonRequest.then(checkResponse)
+      return addonRequest
     },
 
     reset () {
@@ -244,7 +248,6 @@ export default {
 
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*

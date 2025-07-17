@@ -222,8 +222,9 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
@@ -236,10 +237,10 @@ export default {
     DpButton,
     TextContentRenderer,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -402,7 +403,6 @@ export default {
       }
       return dpApi.post(Routing.generate('dplan_api_assessment_table_statement_fragment_update_create'),
         {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false

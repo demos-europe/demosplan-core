@@ -86,7 +86,7 @@
           :element="editLabel"
           :is-shortened="isShortened"
           @heightLimit:toggle="update"
-          @click.native="toggleEditMode" />
+          @click="toggleEditMode" />
         <button
           type="button"
           :disabled="!editable"
@@ -120,6 +120,7 @@
 <script>
 import { dpApi, DpButton, DpLoading, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Base64 } from 'js-base64'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
 
@@ -131,10 +132,10 @@ export default {
     DpButton,
     HeightLimit,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -240,6 +241,10 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'field:save'
+  ],
 
   data () {
     return {
@@ -351,34 +356,36 @@ export default {
         params,
         { serialize: true }
       ).then(response => {
+        const responseData = response.data.data
         this.fullTextLoaded = true
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.data.original
+          this.uneditedFullText = responseData.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
         }
 
         // As far as i get it, this should always be the same if the update succeeds ?!?
-        if (hasOwnProp(response.data.data, 'original')) {
-          this.fullText = response.data.data.original
+        if (hasOwnProp(responseData, 'original')) {
+          this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data.data, 'shortened')) {
-          this.shortText = response.data.data.shortened
+        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+          this.shortText = responseData.shortened
         }
 
-        if (hasOwnProp(response.data.data, 'shortened')) {
+        if (hasOwnProp(responseData, 'shortened')) {
           this.isShortened = this.fullText.length > this.shortText.length
         }
-
-        this.loading = false
-      }, () => {
-        dplan.notify.error(Translator.trans('error.api.generic'))
-        this.loading = false
-      }).then(callback)
+      })
+        .then(() => {
+          return callback
+        })
+        .finally(() => {
+          this.loading = false
+        })
     }
   },
 

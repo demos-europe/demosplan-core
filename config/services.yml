@@ -48,6 +48,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
 
+    DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
+
     DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
 
@@ -437,6 +439,11 @@ services:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $entityManager: '@doctrine.orm.entity_manager'
 
+    # RequestId processor for logs
+    demosplan\DemosPlanCoreBundle\Monolog\Processor\RequestIdProcessor:
+        tags:
+            - { name: monolog.processor, priority: 100 }
+
     Doctrine\ORM\EntityManager:
         arguments:
             $config: '@doctrine.orm.default_configuration'
@@ -698,8 +705,6 @@ services:
     demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq:
         calls:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
-
-    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq'
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
@@ -1090,7 +1095,6 @@ services:
 
     # Segment Service
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
-    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
 
     # Drafts Info Handler
@@ -1130,45 +1134,6 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
-    # Survey Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler:
-        $surveyStatuses: '%survey.statuses%'
-
-    # Survey New Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler:
-        $defaultStatus: '%survey.status.default%'
-
-    # Survey Update Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler:
-        $schemaFilePath: '%survey.schema_path_update%'
-
-    # Survey Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler:
-        $schemaFilePath: '%survey.schema_path_create%'
-
-    # Survey Show Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler: ~
-
-    # Survey Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService: ~
-
-    # Survey Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyValidator: ~
-
-    # SurveyVote Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
-
-    # SurveyVote Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
-
-    # SurveyVote Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService: ~
-
-    # SurveyVote Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
-        $schemaFilePath: '%surveyvote.schema_path_create%'
-
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
@@ -1181,6 +1146,8 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
@@ -1207,6 +1174,24 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\UserHasher:
         lazy: true
 
+    # User Activity Infrastructure
+    demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_last_login_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Logic\User\ClaimedStatementsActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_claimed_statements_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Authorization\Voter\UserActivityVoter:
+        arguments:
+            $activityCheckers: !tagged_iterator 'user_activity_checker'
+        tags:
+            - { name: security.voter }
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleService:
         lazy: true
@@ -1374,6 +1359,8 @@ services:
     demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityCompanionGeneratorCommand:
         arguments:
             $resourceTypes: !tagged dplan.resourceType
+
+    demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
 
     Intervention\Image\ImageManager: ~
 

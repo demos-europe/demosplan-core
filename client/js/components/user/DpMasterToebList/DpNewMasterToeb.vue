@@ -51,6 +51,10 @@ export default {
     }
   },
 
+  emits: [
+    'orga-added'
+  ],
+
   methods: {
     addOrga (newOrga) {
       const newOrgaCpy = { ...newOrga }

@@ -10,10 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -26,6 +28,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class TagService extends CoreService
 {
@@ -33,7 +36,8 @@ class TagService extends CoreService
         private readonly BoilerplateRepository $boilerplateRepository,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly TagRepository $tagRepository,
-        private readonly TagTopicRepository $tagTopicRepository
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -148,6 +152,10 @@ class TagService extends CoreService
         $tagUpdated = $this->tagRepository->updateObject($tag);
 
         $topicUpdated = $this->tagTopicRepository->updateObject($newTopic);
+        $this->eventDispatcher->dispatch(
+            new UpdateTagEvent($tag->getId()),
+            UpdateTagEventInterface::class
+        );
 
         return $tagUpdated instanceof Tag && $topicUpdated instanceof TagTopic;
     }

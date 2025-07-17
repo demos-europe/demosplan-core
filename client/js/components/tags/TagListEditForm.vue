@@ -1,70 +1,65 @@
-
 <template>
   <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
-      :id="`edit-${type}-${nodeElement.id}`"
       class="flex-1"
+      :id="`edit-${type}-${nodeElement.id}`"
       v-model="unsavedItem.title" />
-    <template v-else>
+    <div
+      v-else
+      class="flex-1 break-words"
+      v-text="nodeElement.attributes.title" />
+    <div class="text-center w-9">
+      <dp-contextual-help
+        v-if="nodeElement.relationships?.boilerplate"
+        icon="file"
+        :text="nodeElement.relationships.boilerplate.attributes.title" />
+    </div>
+    <addon-wrapper
+      :addon-props="{ tag: nodeElement }"
+      hook-name="tag.edit.form" />
+    <div class="flex-0 justify-center w-8 flex">
+      <button
+        v-if="isInEditState !== nodeElement.id && nodeElement.type !== 'Tag'"
+        :aria-label="Translator.trans('item.edit')"
+        class="btn--blank o-link--default"
+        :data-cy="`tags:edit${type}`"
+        @click="editItem">
+        <dp-icon
+          aria-hidden="true"
+          icon="edit" />
+      </button>
+      <a
+        v-if="isInEditState !== nodeElement.id && nodeElement.type === 'Tag'"
+        :aria-label="Translator.trans('item.edit')"
+        class="btn--blank o-link--default"
+        :data-cy="`tags:edit${type}`"
+        :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
+        <dp-icon
+          aria-hidden="true"
+          icon="edit" />
+      </a>
+      <button
+        v-if="isInEditState !== nodeElement.id"
+        :aria-label="Translator.trans('delete')"
+        class="btn--blank o-link--default"
+        :data-cy="`tags:abortEdit${type}`"
+        @click="deleteItem">
+        <dp-icon
+          aria-hidden="true"
+          icon="delete" />
+      </button>
       <div
-        class="flex-1"
-        v-text="nodeElement.attributes.title" />
-      <div class="text-center w-9">
-        <dp-contextual-help
-          v-if="nodeElement.relationships?.boilerplate"
-          icon="file"
-          :text="nodeElement.relationships.boilerplate.attributes.title" />
-      </div>
-      <addon-wrapper
-        hook-name="tag.edit.form"
-        :addon-props="{
-          tag: nodeElement
-        }" />
-    </template>
-    <div class="flex-0 pl-2 w-8">
-      <template v-if="isInEditState !== nodeElement.id">
-        <button
-          :aria-label="Translator.trans('item.edit')"
-          class="btn--blank o-link--default"
-          :data-cy="`tags:edit${type}`"
-          @click="editItem">
-          <dp-icon
-            icon="edit"
-            aria-hidden="true" />
-        </button>
-        <button
-          class="btn--blank o-link--default"
-          :data-cy="`tags:abortEdit${type}`"
-          @click="deleteItem"
-          :aria-label="Translator.trans('delete')">
-          <dp-icon
-            icon="delete"
-            aria-hidden="true" />
-        </button>
-        <dp-flyout
-          v-if="nodeElement.type === 'Tag'"
-          data-cy="tagItem:flyoutEditMenu">
-          <a
-            :href="Routing.generate('DemosPlan_statement_administration_tag', {
-              tag: nodeElement.id,
-              procedure: procedureId
-            })"
-            data-cy="tag:editPage"
-            rel="noopener">
-            {{ Translator.trans('edit') }}
-          </a>
-        </dp-flyout>
-      </template>
-      <template v-else>
+        v-else
+        class="flex">
         <button
           :aria-label="Translator.trans('save')"
           class="btn--blank o-link--default u-mr-0_25"
           :data-cy="`tags:save${type}`"
           @click="saveItem">
           <dp-icon
-            icon="check"
-            aria-hidden="true" />
+            aria-hidden="true"
+            icon="check" />
         </button>
         <button
           class="btn--blank o-link--default"
@@ -72,18 +67,22 @@
           @click="abort"
           :aria-label="Translator.trans('abort')">
           <dp-icon
-            icon="xmark"
-            aria-hidden="true" />
+            aria-hidden="true"
+            icon="xmark" />
         </button>
-      </template>
+      </div>
+      <dp-confirm-dialog
+        ref="confirmDialog"
+        data-cy="removeTagOrTopic"
+        :message="setConfirmMessage()" />
     </div>
   </div>
 </template>
 
 <script>
 import {
+  DpConfirmDialog,
   DpContextualHelp,
-  DpFlyout,
   DpIcon,
   DpInput
 } from '@demos-europe/demosplan-ui'
@@ -94,8 +93,8 @@ export default {
 
   components: {
     AddonWrapper,
+    DpConfirmDialog,
     DpContextualHelp,
-    DpFlyout,
     DpIcon,
     DpInput
   },
@@ -122,7 +121,14 @@ export default {
     }
   },
 
-  data() {
+  emits: [
+    'abort',
+    'delete',
+    'edit',
+    'save'
+  ],
+
+  data () {
     return {
       unsavedItem: {
         title: ''
@@ -135,18 +141,26 @@ export default {
       this.$emit('abort')
     },
 
-    deleteItem () {
-      const { type, attributes, children, id } = this.nodeElement
+    async deleteItem () {
+      const { type, id } = this.nodeElement
+
+      if (this.$refs.confirmDialog?.open) {
+        const isConfirmed = await this.$refs.confirmDialog.open()
+
+        if (isConfirmed) {
+          this.$emit('delete', { id, type })
+        }
+      }
+    },
+
+    setConfirmMessage () {
+      const { type, attributes, children } = this.nodeElement
       const isTagTopic = type === 'TagTopic'
       const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
 
-      const confirmMessage = isTagTopic
+      return isTagTopic
         ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
         : Translator.trans('check.tag.delete', { tag: attributes.title })
-
-      if (window.dpconfirm(confirmMessage)) {
-        this.$emit('delete', { id, type })
-      }
     },
 
     editItem () {

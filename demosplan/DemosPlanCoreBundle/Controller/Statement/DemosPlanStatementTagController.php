@@ -10,10 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
@@ -22,6 +25,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
@@ -47,6 +51,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         TranslatorInterface $translator,
         string $procedure,
         string $tag,
+        EventDispatcherInterface $eventDispatcher,
     ): Response {
         $requestPost = $request->request->all();
         $data = [];
@@ -85,6 +90,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if (null !== $data['action']) {
             $this->getMessageBag()->add('confirm', 'confirm.tag.edited');
+            $eventDispatcher->dispatch(
+                new UpdateTagEvent($tagEntity->getId()),
+                UpdateTagEventInterface::class
+            );
 
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
@@ -112,12 +121,14 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListAction(
         TranslatorInterface $translator,
+        CurrentProcedureService $currentProcedureService,
         string $procedure,
     ): Response {
         $templateVars = [];
 
         $templateVars['procedure'] = $procedure;
         $title = $translator->trans('tag.administration');
+        $templateVars['procedureTemplate'] = $currentProcedureService->getProcedure()?->getMaster() ?? false;
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',

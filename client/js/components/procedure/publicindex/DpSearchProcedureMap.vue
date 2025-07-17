@@ -28,6 +28,7 @@
             query: searchString
           })
         }"
+        search-button
         @search-changed="updateSuggestions"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
         @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
@@ -48,10 +49,11 @@
           @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
+      <!-- Search button, if dp-autocomplete is used only displayed on lap-up screens -->
       <button
         type="button"
         data-cy="searchProcedureMapForm:procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
+        :class="[dplan.settings.useOpenGeoDb ? prefixClass('hidden md:block') : '', prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')]"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
@@ -99,9 +101,9 @@
             @change="setValueAndSubmitForm($event, 'sort')"
             :value="form.sort">
             <option
-              :key="'sort_' + option.value"
               v-for="option in sortOptions"
-              :selected="option.selected"
+              :key="'sort_' + option.value"
+              :selected="option.selected ? true : null"
               :value="option.value">
               {{ option.title }}
             </option>
@@ -125,33 +127,35 @@
           data-cy="searchProcedureMapForm:municipalCode"
           name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroups in municipalities">
+          <template
+            v-for="municipalityGroup in municipalities"
+            :key="`group_${municipalityGroup.label}`">
             <optgroup
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :key="'group_' + municipalityGroups.label"
-              :label="municipalityGroups.label">
+              v-if="hasOwnProp(municipalityGroup,'options')"
+              :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
-                :selected="county.value === form.municipalCode"
+                v-for="(county, idx) in municipalityGroup.options"
+                :key="`county:${idx}`"
+                :selected="county.value === form.municipalCode ? true : null"
                 :value="county.value">
                 {{ county.title }}
               </option>
             </optgroup>
             <option
               v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              :key="`opt_${municipalityGroup.value}`"
+              :value="municipalityGroup.value">
+              {{ municipalityGroup.label }}
             </option>
           </template>
         </select>
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
-          :key="'label_' + idx"
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
@@ -160,9 +164,7 @@
             class="u-ml-0_25"
             :text="filter.contextHelp" />
         </label><!--
-     --><div
-          :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-1-of-1 u-mb')">
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :id="filter.name"
             :ref="'filter_' + idx"
@@ -414,6 +416,10 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
+      if (key === 'search') {
+        this.currentAutocompleteSearch = e.target.value
+      }
+
       this.form[key] = e.target.value
       this.submitForm()
     },

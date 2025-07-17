@@ -71,6 +71,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
@@ -117,6 +118,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use TypeError;
+use Webmozart\Assert\Assert;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -216,6 +218,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly ValidatorInterface $validator,
         private readonly AccessControlService $accessControlPermissionService,
         private readonly string $environment,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -259,12 +262,15 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function switchPhasesOfProceduresUntilNow(): array
     {
         $proceduresToSwitch = $this->getProceduresToSwitchUntilNow();
+        $this->logger->debug('Found '.\count($proceduresToSwitch).' procedures to switch phases');
 
         $externalProcedureCounter = 0;
         $internalProcedureCounter = 0;
         $entitiesToPersist = [];
 
         foreach ($proceduresToSwitch as $procedure) {
+            $this->logger->info('Switching phase of procedure '.$procedure->getName().' ('.$procedure->getId().')');
+
             // determine user; needs to be done before the phase change as it is lost afterwards
             $changeUserInternal = $procedure->getSettings()->getDesignatedPhaseChangeUser();
             $changeUserExternal = $procedure->getSettings()->getDesignatedPublicPhaseChangeUser();
@@ -281,6 +287,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $internalPhaseSwitched = $this->switchToDesignatedPhase($procedure);
             $procedureAfterExternalAndInternalChange = $this->cloneProcedure($procedure);
             $fallbackReportUserName = $this->translator->trans('user.deleted');
+
+            $this->logger->info('Result of changes for phase switch (not persisted): external: ',
+                ['external' => $externalPhaseSwitched, 'internal' => $internalPhaseSwitched]
+            );
 
             // create either a single report entry if the same user did both changes or two separate
             // changes for separate users
@@ -329,7 +339,17 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             if ($internalPhaseSwitched || $externalPhaseSwitched) {
-                $entitiesToPersist[] = $procedure;
+                // directly update procedure in loop to create report entries
+                // and dispatch events
+                $this->updateProcedureObject($procedure);
+
+                // unfortunately php/doctrine is not able to fetch the unmodified procedure
+                // from the database **before** the update of the modified object in updateProcedureObject,
+                // so we need to dispatch the event here again
+                $this->eventDispatcher->dispatch(
+                    new PostProcedureUpdatedEvent($originalProcedure, $procedure),
+                    PostProcedureUpdatedEventInterface::class
+                );
             }
         }
 
@@ -790,7 +810,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
             // T34551 all procedures shall get a customer relation
-            // - defalt-customer-blueprint relations are set within the customer only
+            // - default-customer-blueprint relations are set within the customer only
             // if a customer is given inside the procedure related $data array then
             // that signals the procedure should be used as the default-customer-blueprint.
             $setProcedureAsDefaultCustomerBlueprint = false;
@@ -822,6 +842,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             /** @var string|null $blueprintId */
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
+            Assert::false($this->getProcedure($blueprintId)?->isDeleted());
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
             $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
 
@@ -891,7 +912,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
-                    'customer' => null,
                     'deleted'  => true,
                 ];
 
@@ -900,15 +920,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
-                    $this->messageBag->add(
-                        'warning',
-                        'warning.customer.procedure.template.can.not.be.deleted'
-                    );
-                    continue;
+                    // procedure deletion is just a flag, therefore additional logic is needed to ensure
+                    // this deleted procedure is not longer set as defaultProcedureBlueprint
+                    $procedure->getCustomer()?->setDefaultProcedureBlueprint(null);
+                    $this->customerService->updateCustomer($procedure->getCustomer());
                 }
 
                 try {
-                    $this->updateProcedureWithoutReport($data);
+                    $this->updateProcedure($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     ++$deletionCount;
                 } catch (Exception $e) {
@@ -1023,7 +1042,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function updateProcedure($data)
+    public function updateProcedure($data, bool $createReports = true)
     {
         try {
             $data['ident'] ??= $data['id'];
@@ -1052,30 +1071,17 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
-            $procedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $procedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
+
+            $procedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $procedure);
+
+            if ($createReports) {
+                $destinationProcedure = $this->procedureRepository->get($data['ident']);
+
+                $this->prepareReportFromProcedureService->createReportEntry(
+                    $sourceProcedure,
+                    $destinationProcedure,
+                );
             }
-
-            $destinationProcedure = $this->procedureRepository->get($data['ident']);
-
-            $this->prepareReportFromProcedureService->createReportEntry(
-                $sourceProcedure,
-                $destinationProcedure,
-            );
 
             // convert procedure to match legacy arraystructure
             return $this->procedureToLegacyConverter->convertToLegacy($procedure);
@@ -1103,26 +1109,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
-
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
-
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $destinationProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($destinationProcedure);
-            $destinationProcedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $destinationProcedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
-                PostProcedureUpdatedEventInterface::class
-            );
+
+            $destinationProcedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $destinationProcedure);
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
@@ -1138,48 +1127,30 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * Update eines Verfahren ohne einen Reporteintrag zu generieren & ohne eine Session zu benötigen
-     * (z.B. aus einem ConsoleCommand).
-     *
-     * @param array $data
-     *
-     * @return array
-     *
-     * @throws Exception
+     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
      */
-    public function updateProcedureWithoutReport($data)
+    private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
-        try {
-            if (!isset($data['ident'])) {
-                throw new \InvalidArgumentException('Ident is missing');
-            }
+        // Load phase permission sets and set phase name
+        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
+        $updatedProcedure->setPublicParticipationPhaseName(
+            $this->globalConfig->getPhaseNameWithPriorityExternal(
+                $updatedProcedure->getPublicParticipationPhase()
+            )
+        );
 
-            $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
-            $procedure = $this->procedureRepository->update($data['ident'], $data);
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
-            $procedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $procedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
+        // Dispatch event
+        $this->eventDispatcher->dispatch(
+            new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
+            PostProcedureUpdatedEventInterface::class
+        );
 
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
-
-            return $this->procedureToLegacyConverter->convertToLegacy($procedure);
-        } catch (Exception $e) {
-            $this->logger->warning('Update Procedure without Report failed Message: ', [$e]);
-            throw $e;
+        // Update Elasticsearch
+        if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
+            $this->getEsProcedurePersister()->replaceOne($updatedProcedure);
         }
+
+        return $updatedProcedure;
     }
 
     /**
@@ -1908,11 +1879,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function isAutoSwitchOfPublicPhasePossible(Procedure $procedure): bool
     {
-        $procedureSettings = $procedure->getSettings();
+        $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
-        return null !== $procedureSettings->getDesignatedPublicSwitchDate()
-            && null !== $procedureSettings->getDesignatedPublicPhase()
-            && null !== $procedureSettings->getDesignatedPublicEndDate();
+        return null !== $participationPhase->getDesignatedSwitchDate()
+            && null !== $participationPhase->getDesignatedPhase()
+            && null !== $participationPhase->getDesignatedEndDate();
     }
 
     /**
@@ -1922,11 +1893,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function isAutoSwitchOfPhasePossible(Procedure $procedure): bool
     {
-        $procedureSettings = $procedure->getSettings();
+        $institutionPhase = $procedure->getPhaseObject();
 
-        return null !== $procedureSettings->getDesignatedSwitchDate()
-            && null !== $procedureSettings->getDesignatedPhase()
-            && null !== $procedureSettings->getDesignatedEndDate();
+        return null !== $institutionPhase->getDesignatedSwitchDate()
+            && null !== $institutionPhase->getDesignatedPhase()
+            && null !== $institutionPhase->getDesignatedEndDate();
     }
 
     /**
@@ -1942,7 +1913,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureSettings = $procedure->getSettings();
 
         if (!$this->isAutoSwitchOfPhasePossible($procedure)) {
-            $this->logger->info('Automatic phase switch prevented because of incomplete settings.', [$procedure->getId()]);
+            $this->logger->info('Automatic phase switch prevented because of incomplete settings.',
+                [
+                    'id'         => $procedure->getId(),
+                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
+                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                ]
+            );
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
 
@@ -1951,6 +1929,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $switchDate = $procedureSettings->getDesignatedSwitchDate();
         if (Carbon::now()->lessThan($switchDate)) {
+            $this->logger->info('Did not switch phase because switch date is in the future.', [$procedure->getId()]);
             // do not reset phase switch as public and internal phase switch may
             // have different timestamps. In that case one of them would be deleted
             // silently
@@ -1988,11 +1967,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureSettings = $procedure->getSettings();
 
         if (!$this->isAutoSwitchOfPublicPhasePossible($procedure)) {
+            $this->logger->info('Auto switch public phase is not possible',
+                [
+                    'id'         => $procedure->getId(),
+                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
+                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                ]
+            );
+
             return false;
         }
 
         $publicSwitchDate = $procedureSettings->getDesignatedPublicSwitchDate();
         if (Carbon::now()->lessThan($publicSwitchDate)) {
+            $this->logger->info('Did not switch public phase because switch date is in the future.', [$procedure->getId(), $publicSwitchDate, Carbon::now()]);
             // do not reset phase switch as public and internal phase switch may
             // have different timestamps. In that case one of them would be deleted
             // silently
@@ -2745,6 +2734,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);
+
+        $this->customFieldConfigurationRepository->copy($blueprintId, $newProcedure);
 
         /** @var NewProcedureAdditionalDataEvent $additionalDataEvent */
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));

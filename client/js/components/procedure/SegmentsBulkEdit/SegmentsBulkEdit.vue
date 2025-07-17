@@ -127,7 +127,6 @@
                 v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
-                editor-id="recommendationText"
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)" />
             </template>
@@ -144,6 +143,20 @@
             </template>
           </dp-editor>
         </action-stepper-action>
+        <!--Custom Fields-->
+        <action-stepper-action
+          v-for="customField in actions.customFields"
+          :key="`customField:${customField.id}`"
+          v-model="customField.checked"
+          :id="customField.id"
+          :label="customField.label">
+          <dp-multiselect
+            class="w-12"
+            :id="`customFieldSelect:${customField.id}`"
+            :disabled="!hasSegments"
+            :options="customField.options"
+            v-model="customField.selected" />
+        </action-stepper-action>
       </div>
     </template>
 
@@ -152,7 +165,7 @@
       <div class="border-between-vertical">
         <dp-inline-notification
           type="info"
-          :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length})"
+          :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length })"
           class="border-between-none mt-3 mb-2" />
 
         <dp-inline-notification
@@ -182,14 +195,14 @@
         <div
           v-if="addTagsCheckedAndSelected"
           class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length})" />
+          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
         </div>
 
         <div
           v-if="deleteTagsCheckedAndSelected"
           class="u-pv">
-          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length})" />
+          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
         </div>
 
@@ -198,6 +211,14 @@
           class="u-pv">
           <p v-html="addOrReplaceRecommendationMessage" />
           <p v-html="actions.addRecommendations.text" />
+        </div>
+
+        <div
+          v-for="customField in customFieldsCheckedAndSelected"
+          :key="`customField:${customField.id}`"
+          class="u-pv">
+          <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
+          <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
       </div>
     </template>
@@ -213,8 +234,8 @@
       <action-stepper-response
         v-if="assignPlaceCheckedAndSelected"
         :success="actions.assignPlace.success"
-        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', { count: segments.length })">
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
           class="u-mt-0_5" />
@@ -223,27 +244,36 @@
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', { count: segments.length })">
         <selected-tags-list :selected-tags="actions.addTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="deleteTagsCheckedAndSelected"
         :success="actions.deleteTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', { count: segments.length })">
         <selected-tags-list :selected-tags="actions.deleteTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="addRecommendationsChecked"
         :success="actions.addRecommendations.success"
-        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', {count: segments.length})"
+        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', { count: segments.length })"
         :description-success="addRecommendationsSuccess">
         <p
           v-html="actions.addRecommendations.text"
           class="u-mt-0_5" />
+      </action-stepper-response>
+
+      <action-stepper-response
+        v-for="customField in customFieldsCheckedAndSelected"
+        :key="`customField:${customField.id}`"
+        :success="customField.success"
+        :description-error="Translator.trans('segments.bulk.edit.generic.error', { count: segments.length, label: customField.label })"
+        :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })">
+        <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
       </action-stepper-response>
     </template>
   </action-stepper>
@@ -251,7 +281,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
@@ -264,6 +293,7 @@ import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
@@ -276,16 +306,16 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpMultiselect,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     SelectedTagsList
   },
 
@@ -332,7 +362,8 @@ export default {
           selected: [],
           checked: false,
           success: false
-        }
+        },
+        customFields: []
       },
       assignableUsers: [],
       busy: false,
@@ -345,6 +376,10 @@ export default {
   },
 
   computed: {
+    ...mapState('CustomField', {
+      customFieldItems: 'items'
+    }),
+
     ...mapState('Tag', {
       tagsItems: 'items'
     }),
@@ -393,6 +428,14 @@ export default {
       return this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
     },
 
+    customFieldsCheckedAndSelected () {
+      return hasPermission('field_segments_custom_fields')
+        ? this.actions.customFields.filter(customField => {
+          return customField.checked && customField.selected
+        })
+        : []
+    },
+
     deleteTagsCheckedAndSelected () {
       return this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
     },
@@ -433,8 +476,9 @@ export default {
       const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
       const assignSegmentAction = this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
+      const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction
+      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
     },
 
     hasPlaces () {
@@ -455,12 +499,30 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapActions('Tag', {
       listTags: 'list'
     }),
+
     ...mapActions('TagTopic', {
       listTagTopics: 'list'
     }),
+
+    addCustomFieldsToActions () {
+      Object.values(this.customFieldItems).forEach(customField => {
+        this.actions.customFields.push({
+          selected: null,
+          checked: false,
+          success: false,
+          options: customField.attributes.options,
+          label: customField.attributes.name,
+          id: customField.id
+        })
+      })
+    },
 
     /**
      * Apply selected actions.
@@ -479,6 +541,15 @@ export default {
         }
       }
 
+      if (this.customFieldsCheckedAndSelected.length > 0) {
+        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected }) => {
+          return {
+            id,
+            value: selected
+          }
+        })
+      }
+
       if (this.assignSegmentCheckedAndSelected) {
         params.assigneeId = this.actions.assignSegment.selected.id
       }
@@ -488,12 +559,17 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
-          const rpcResult = this.getRpcResult(response)
+          const rpcResult = this.getRpcResult(response.data)
 
           for (const property in this.actions) {
-            this.actions[property].success = rpcResult
+            if (property === 'customFields') {
+              this.actions.customFields.forEach(customField => {
+                customField.success = rpcResult
+              })
+            } else {
+              this.actions[property].success = rpcResult
+            }
           }
         })
         .catch(() => {
@@ -529,8 +605,34 @@ export default {
         })
     },
 
+    /**
+     * Fetch custom fields that are available either in the procedure or in the procedure template
+     */
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      return this.getAdminProcedureWithFields(payload)
+        .catch(err => console.error(err))
+    },
+
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
+      const url = Routing.generate('api_resource_list', {
+        resourceType: 'Place',
+        sort: 'sortIndex'
+      })
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
@@ -602,10 +704,21 @@ export default {
       this.listTags({ include: 'topic' }),
       this.fetchPlaces()
     ]
+
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
+
+    if (hasPermission('field_segments_custom_fields')) {
+      promises.push(this.fetchCustomFields())
+    }
+
     Promise.all(promises)
+      .then(() => {
+        if (hasPermission('field_segments_custom_fields')) {
+          this.addCustomFieldsToActions()
+        }
+      })
       .then(() => {
         this.isLoading = false
       })

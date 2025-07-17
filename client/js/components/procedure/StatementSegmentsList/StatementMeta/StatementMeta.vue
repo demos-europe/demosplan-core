@@ -32,7 +32,7 @@
             :class="{
               'bg-selected': activeItem === entry.id
             }"
-            class="p-1.5 rounded"
+            class="p-1.5 rounded-sm"
             role="presentation">
             <button
               class="text-left"
@@ -111,6 +111,12 @@
           :procedure-id="procedure.id"
           :statement-id="statement.id"
           @change="(value) => emitInput('attachments', value)" />
+
+        <statement-meta-final-email
+          v-if="hasPermission('field_send_final_email')"
+          :editable="editable"
+          :procedure="procedure"
+          :statement="statement" />
       </form>
     </div>
   </div>
@@ -125,6 +131,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaFinalEmail from './StatementMetaFinalEmail'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
@@ -137,6 +144,7 @@ export default {
     DpIcon,
     StatementEntry,
     StatementMetaAttachments,
+    StatementMetaFinalEmail,
     StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,
@@ -209,18 +217,25 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'input',
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       activeItem: 'entry',
-      finalMailDefaultText: '',
       isScrolling: false,
       localStatement: null,
       menuEntries: [
         { id: 'entry', transKey: 'entry' },
         { id: 'submitter', transKey: 'submitted.author' },
         { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasAnyPermissions(['feature_statements_vote', 'feature_statements_publication']) },
-        { id: 'locationAndDocuments', transKey: 'location.and.document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
-        { id: 'attachments', transKey: 'attachments' }
+        { id: 'locationAndDocuments', transKey: hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
+        { id: 'attachments', transKey: 'attachments' },
+        { id: 'finalEmail', transKey: 'statement.final.send', condition: hasPermission('field_send_final_email') }
       ]
     }
   },
@@ -348,14 +363,6 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-
-      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
-        orgaName: this.procedure.orgaName,
-        procedureName: this.procedure.name,
-        statementText: this.localStatement.attributes.fullText,
-        statementRecommendation: this.localStatement.attributes.recommendation
-      })
     },
 
     updateLocalStatementProperties (value, field) {
@@ -372,7 +379,7 @@ export default {
     window.addEventListener('scroll', this.handleScroll)
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
   }
 }

@@ -42,6 +42,8 @@ class UserHasher
     public function getChangeEmailHash(User $user, string $newEmail): string
     {
         $hashString = $this->globalConfig->getSalt().$user->getLogin().$newEmail;
+        // use last login date to automatically invalidate Hash when user logs in
+        $hashString .= $user->getLastLogin() instanceof DateTime ? $user->getLastLogin()->getTimestamp() : '';
         $hash = hash('sha512', $hashString);
 
         return substr($hash, 0, 10);

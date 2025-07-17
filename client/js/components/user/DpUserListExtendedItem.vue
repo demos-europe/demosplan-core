@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
@@ -131,6 +131,15 @@ export default {
       default: () => ({ })
     }
   },
+
+  emits: [
+    'card:toggle',
+    'change',
+    'delete',
+    'item:selected',
+    'reset',
+    'save-success'
+  ],
 
   data () {
     return {
@@ -285,10 +294,14 @@ export default {
         }
       }
 
-      return dpApi.patch(url, {}, payload)
-        .then(checkResponse, {
-          200: { type: 'confirm', text: 'info.user.updated' },
-          204: { type: 'confirm', text: 'info.user.updated' }
+      return dpApi.patch(url,
+        {},
+        payload,
+        {
+          messages: {
+            200: { type: 'confirm', text: 'info.user.updated' },
+            204: { type: 'confirm', text: 'info.user.updated' }
+          }
         })
         .then(() => {
           this.$root.$emit('save-success')

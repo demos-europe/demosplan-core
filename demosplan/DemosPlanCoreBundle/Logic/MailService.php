@@ -26,6 +26,8 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToRetrieveMetadata;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -314,10 +316,40 @@ class MailService extends CoreService
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
                     // attach file only if it really exists
-                    if ($this->defaultStorage->fileExists($attachment->getFilename())) {
-                        $message->attach($this->defaultStorage->readStream($attachment->getFilename()));
-                    } else {
-                        $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                    try {
+                        if ($this->defaultStorage->fileExists($attachment->getFilename())) {
+                            $mimeType = $this->defaultStorage->mimeType($attachment->getFilename());
+                            $resource = $this->defaultStorage->readStream($attachment->getFilename());
+                            $fileName = basename($attachment->getFilename());
+                            $this->logger->info(
+                                'extracted name for attachment and its contentType is',
+                                ['fileName' => $fileName, 'mimeType' => $mimeType]
+                            );
+                            $mimeType = '' !== $mimeType ? $mimeType : null;
+                            $fileName = '' !== $fileName ? $fileName : null;
+                            $message->attach(
+                                $resource,
+                                $fileName,
+                                $mimeType
+                            );
+                        } else {
+                            $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                        }
+                    } catch (UnableToCheckExistence $e) {
+                        $this->logger->warning(
+                            'Failed to check the existence of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (UnableToRetrieveMetadata $e) {
+                        $this->logger->warning(
+                            'Failed to retrieve mimeType of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (Exception $e) {
+                        $this->logger->warning(
+                            'Failed to append attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
                     }
                 }
 
@@ -335,6 +367,9 @@ class MailService extends CoreService
                     $this->mailer->send($message);
                     $mail->setStatus('sent');
                     $mail->setSendDate(new DateTime());
+                    // Clear any previous error information on successful send
+                    $mail->setErrorCode('');
+                    $mail->setErrorMessage('');
                 } catch (TransportExceptionInterface $e) {
                     $this->logger->warning('Could not send Mail',
                         [
@@ -349,12 +384,16 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
                 } catch (Exception $e) {
                     $this->logger->error('General exception on sending e-mail.', [$e]);
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
@@ -375,12 +414,15 @@ class MailService extends CoreService
 
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
-                    if ($attachment->getDeleteOnSent() && $this->defaultStorage->fileExists($attachment->getFilename())) {
-                        try {
+                    try {
+                        if ($attachment->getDeleteOnSent()
+                            && 'sent' === $mail->getStatus()
+                            && $this->defaultStorage->fileExists($attachment->getFilename())
+                        ) {
                             $this->defaultStorage->delete($attachment->getFilename());
-                        } catch (Exception $exception) {
-                            $this->logger->warning('failed to remove email attachment', [$exception]);
                         }
+                    } catch (Exception $exception) {
+                        $this->logger->warning('failed to remove email attachment', [$exception]);
                     }
                 }
 

@@ -67,10 +67,7 @@ $box-hellip-height: $box-hellip-lines * $box-hellip-line-height;
 
     &__link {
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        inset: 0;
 
         text-indent: -10000px; // hide seo/accessibility contents of link
 

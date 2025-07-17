@@ -25,6 +25,7 @@
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
             heading: heading ~ ' ' ~ externId|default,
             subnav: [{
+                datacy: 'assessmentStatement:saveChanges',
                 href: '#',
                 id: 'statementHistory',
                 label: 'history',

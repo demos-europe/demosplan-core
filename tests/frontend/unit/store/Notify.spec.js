@@ -7,16 +7,12 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
+import { createStore } from 'vuex'
 import Notify from '@DpJs/store/core/Notify'
-import Vuex from 'vuex'
 
-const LocalVue = createLocalVue()
-LocalVue.use(Vuex)
 let StubStore
 
-// Non-instance tests
-describe('Notify', () => {
+describe('Notify - Non-instance tests', () => {
   it('is namespaced', () => {
     expect(Object.hasOwn(Notify, 'namespaced')).toBe(true)
     expect(Notify.namespaced).toBe(true)
@@ -29,10 +25,9 @@ describe('Notify', () => {
   })
 })
 
-// Active tests
-describe('Notify', () => {
+describe('Notify - Active tests', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
+    StubStore = createStore({})
     StubStore.registerModule('Notify', Notify)
   })
 

@@ -30,7 +30,7 @@
       <dp-loading
         v-if="isLoading"
         overlay />
-      <div class="border rounded space-stack-m space-inset-m">
+      <div class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
           data-cy="places:newPlaceName"
@@ -150,7 +150,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpButtonRow,
@@ -244,15 +243,18 @@ export default {
       this.setEditMode(rowData.id, false)
     },
 
-    changeManualsort (val) {
-      this.places.splice(val.moved.newIndex, 0, this.places.splice(val.moved.oldIndex, 1)[0])
-      this.updateSortOrder(val)
+    changeManualsort ({ newIndex, oldIndex }) {
+      const element = this.places.splice(oldIndex, 1)[0]
+
+      this.places.splice(newIndex, 0, element)
+      this.updateSortOrder({ id: element.id, newIndex })
     },
 
     editPlace (rowData) {
-      // Reset row which was in editing state before
       const editingPlace = this.places.find(place => place.edit === true)
+
       if (editingPlace) {
+        // Reset row which was in editing state before
         editingPlace.name = this.initialRowData.name
         editingPlace.description = this.initialRowData.description
         editingPlace.solved = this.initialRowData.solved
@@ -273,6 +275,7 @@ export default {
 
     fetchPlaces () {
       this.isInitiallyLoading = true
+
       dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
@@ -284,8 +287,9 @@ export default {
         },
         sort: 'sortIndex'
       }))
-        .then(response => {
-          const places = response.data.data
+        .then(({ data }) => {
+          const places = data.data
+
           places.forEach((place) => {
             this.places.push({
               id: place.id,
@@ -379,6 +383,7 @@ export default {
       if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
+
       const payload = {
         data: {
           id: rowData.id,
@@ -392,24 +397,22 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
-        .then(checkResponse)
-        .catch((err) => console.error(err))
-        .finally(response => {
-          if (response?.errors?.length > 0) {
-            return
-          }
+        .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
           this.setEditMode(rowData.id, false)
           this.updatePlaceData(rowData.id)
         })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
-    updateSortOrder (placeData) {
+    updateSortOrder ({ id, newIndex }) {
       dpRpc(
         'workflowPlacesOfProcedure.reorder',
         {
-          workflowPlaceId: placeData.moved.element.id,
-          newWorkflowPlaceIndex: placeData.moved.newIndex
+          workflowPlaceId: id,
+          newWorkflowPlaceIndex: newIndex
         },
         this.procedureId
       ).then(() => {

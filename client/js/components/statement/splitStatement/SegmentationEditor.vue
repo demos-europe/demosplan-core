@@ -8,8 +8,16 @@
 </license>
 
 <template>
-  <div class="segmentation-editor">
-    <div id="editor" />
+  <div
+    class="segmentation-editor"
+    @focus="event => $emit('focus', event)"
+    @focusout="$emit('focusout')"
+    @mouseleave="$emit('mouseleave')"
+    @mouseover="event => $emit('mouseover', event)">
+    <div
+      id="editor"
+      class="c-styled-html"
+    />
   </div>
 </template>
 
@@ -49,6 +57,15 @@ export default {
       default: () => ({})
     }
   },
+
+  emits: [
+    'focus',
+    'focusout',
+    'mouseleave',
+    'mouseover',
+    'prosemirror:initialized',
+    'prosemirror:maxRange'
+  ],
 
   data () {
     return {
@@ -136,8 +153,8 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirror-max-range', this.maxRange)
-      this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
+      this.$emit('prosemirror:maxRange', this.maxRange)
+      this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
 
     transformSegments (segments) {

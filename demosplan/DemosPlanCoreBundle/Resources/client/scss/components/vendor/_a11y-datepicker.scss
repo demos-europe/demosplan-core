@@ -1,4 +1,4 @@
-@import '~a11y-datepicker/dist/css/themes/light.css';
+@import 'a11y-datepicker/dist/css/themes/light.css';
 
 /* The Content Security Policy (CSP) prevents cross-site scripting attacks by blocking inline execution of scripts and style sheets.
    Because of this, the styles need to be duplicated here. */
@@ -14,7 +14,7 @@
     position: relative;
 }
 
-.a1-p.visuallyhidden:not(:focus):not(:active) {
+.a1-p.visuallyhidden:not(:focus, :active) {
     position: absolute;
 
     width: 1px;

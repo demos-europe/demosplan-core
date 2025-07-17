@@ -2,7 +2,9 @@
   <div>
     <tags-list-header />
 
-    <tags-create-form :procedure-id="procedureId" />
+    <tags-create-form
+      :is-master-procedure="isMasterProcedure"
+      :procedure-id="procedureId" />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -72,50 +74,43 @@
 
 <script>
 import {
-  checkResponse,
-  DpButton,
-  DpIcon,
-  DpInput,
   DpLoading,
-  DpModal,
   dpRpc,
-  DpTreeList,
-  DpUpload
+  DpTreeList
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import TagListEditForm from './TagListEditForm'
 import TagsCreateForm from './TagsCreateForm'
 import TagsImportForm from './TagsImportForm'
-import TagListBulkControls from './TagListBulkControls'
-import TagListEditForm from './TagListEditForm'
 import TagsListHeader from './TagsListHeader'
 export default {
   name: 'TagsList',
 
   components: {
     AddonWrapper,
-    DpButton,
-    DpIcon,
-    DpInput,
     DpLoading,
-    DpModal,
-    DpUpload,
     DpTreeList,
     TagsCreateForm,
     TagsImportForm,
-    TagListBulkControls,
     TagListEditForm,
     TagsListHeader
   },
 
   props: {
+    isMasterProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
     }
   },
 
-  data() {
+  data () {
     return {
       dataIsRequested: false,
       isInEditState: ''
@@ -186,17 +181,21 @@ export default {
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: {
-          tags: {
-            data: [
-              ...parentTopic.relationships.tags.data,
-              {
-                id: tagId,
-                type: 'Tag'
+        relationships: parentTopic.relationships
+          ? {
+              ...parentTopic.relationships,
+              tags: {
+                data: parentTopic.relationships.tags.data.concat({
+                  type: 'Tag',
+                  id: tagId
+                })
               }
-            ]
-          }
-        }
+            }
+          : {
+              tags: {
+                data: [{ type: 'Tag', id: tagId }]
+              }
+            }
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -209,11 +208,11 @@ export default {
         return
       }
 
-      const hasNewParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
+      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
 
       if (hasNewParent) {
         const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
+        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
 
         this.addTagToNewTopic(parentTopic, elementId)
         this.removeTagFromOldTopic(oldParent, elementId)
@@ -224,7 +223,6 @@ export default {
 
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
-        .then(checkResponse)
         .then(() => {
           this.loadTagsAndTopics()
         })

@@ -44,10 +44,14 @@ Mit freundlichem Gruß
 {% if signature.nameLegal is defined %}
 {{ signature.nameLegal }}
 {% endif %}
-{% if signature.street is defined %}
+{% if signature.street is defined and signature.houseNumber is defined %}
+{{ signature.street ~ ' ' ~ signature.houseNumber }}
+{% elseif signature.street is defined %}
 {{ signature.street }}
+{% elseif signature.houseNumber is defined %}
+{{ signature.houseNumber }}
 {% endif %}
-{{ signature.city|default('') }} {{ signature.postalcode|default('') }}
+{{ signature.postalcode|default('') }} {{ signature.city|default('') }}
 {% if signature.email is defined %}
 {{ signature.email }}
 {% endif %}

@@ -46,6 +46,7 @@ module.exports = {
     }
   ],
   ignorePatterns: [
+    '**/addonDev/**/*',
     '**/addons/**/*',
     '**/local_modules/**/*',
     '**/node_modules/**/*',
@@ -88,6 +89,7 @@ module.exports = {
     'vue/custom-event-name-casing': ['warn', 'camelCase', {
       'ignores': ['/^[a-z][a-zA-Z]*:?[[a-z][a-zA-Z]*]?$/']
     }],
+    'vue/v-on-event-hyphenation': ['off'],
     'vue/html-closing-bracket-newline': ['off'],
     'vue/order-in-components': ['error', {
       'order': [
@@ -102,6 +104,7 @@ module.exports = {
         'inheritAttrs',
         'model',
         ['props', 'propsData'],
+        'emits',
         'data',
         'computed',
         'watch',
