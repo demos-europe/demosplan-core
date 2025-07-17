@@ -1182,7 +1182,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->orderBy('original.created', 'DESC')
             ->getQuery()
             ->getArrayResult();
-
     }
 
     /**
