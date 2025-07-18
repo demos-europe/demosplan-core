@@ -41,7 +41,7 @@ import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } fro
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
-import { mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
@@ -216,10 +216,6 @@ export default {
       return typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
     },
 
-    layers () {
-      return this.$store.getters['Layers/gisLayerList']()
-    },
-
     mapx () {
       return (this.initialExtent[0] + this.initialExtent[2]) / 2
     },
@@ -335,6 +331,13 @@ export default {
   },
 
   methods: {
+    ...mapActions('Layers', {
+      getLayers: 'get',
+      updateLayerVisibility: 'updateLayerVisibility'
+    }),
+
+    ...mapMutations('Layers', ['setIsMapLoaded']),
+
     addCustomLayerToggleButton ({ id, layerName, activated }) {
       const element = document.getElementById(id)
       //  Add click handler if button is present in DOM
@@ -1973,7 +1976,7 @@ export default {
       })
     },
 
-    toggleCustomLayerButton ({ element, layerName, visible }) {
+    toggleCustomLayerButton ({ element, visible }) {
       if (typeof element === 'undefined') {
         return
       }
@@ -1989,7 +1992,7 @@ export default {
       const newState = element.classList.contains(this.prefixClass('is-active'))
       const layerid = (element.id === 'bplanSwitcher') ? this.bPlan.id : this.scope.id
 
-      this.$store.dispatch('Layers/updateLayerVisibility', { id: layerid, isVisible: newState })
+      this.updateLayerVisibility({ id: layerid, isVisible: newState })
     },
 
     /**
@@ -1999,7 +2002,7 @@ export default {
      * @param layerId
      * @param newState
      */
-    toggleLayer (layerId, toggleExclusive, newVisibilityState) {
+    toggleLayer (layerId) {
       if (!this.map) return
 
       const layerGroup = this.map.getLayerGroup()
@@ -2013,7 +2016,7 @@ export default {
   },
 
   mounted () {
-    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
+    this.getLayers(this.procedureId).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
@@ -2030,7 +2033,7 @@ export default {
       this.addLayersToMap()
       this.doAllTheOtherExcitingStuff()
       this.addCustomZoomControls()
-      this.$store.commit('Layers/setIsMapLoaded')
+      this.setIsMapLoaded()
 
       if (JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent) && this.procedureSettings.coordinate !== '') {
         this.panToCoordinate(JSON.parse('[' + this.procedureSettings.coordinate + ']'))
