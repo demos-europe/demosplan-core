@@ -615,6 +615,10 @@ export const apiData = {
       }
     }
   }],
-  meta: { messages: { confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }] } },
+  meta: {
+    messages: {
+      confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }]
+    }
+  },
   jsonapi: { version: '1.0' }
 }

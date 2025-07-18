@@ -146,7 +146,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButtonRow,
   DpIcon,
@@ -260,7 +259,6 @@ export default {
       }
 
       return dpApi.post(url, params, data)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.created'))
           this.resetSourceAttachment()
@@ -278,7 +276,6 @@ export default {
       const attachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           const genericAttachments = this.localAttachments.additionalAttachments.filter(attachment => attachment.id !== id)
 
@@ -303,7 +300,6 @@ export default {
       const url = Routing.generate('api_resource_delete', { resourceType: 'SourceStatementAttachment', resourceId: this.initialAttachments.originalAttachment.id })
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.deleted'))
           this.resetSourceAttachment()

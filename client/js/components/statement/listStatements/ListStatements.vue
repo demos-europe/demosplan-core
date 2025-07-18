@@ -298,7 +298,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -637,19 +636,14 @@ export default {
         }
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-          .then(response => {
-            checkResponse(response)
-            return response
-          })
-          .then(response => {
+          .then(() => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-
-            return response
           })
           .catch((err) => {
             console.error(err)
             // Restore statement in store in case request failed
             this.restoreStatementAction(statementId)
+
             return err
           })
           .finally(() => {
@@ -685,7 +679,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-        .then(checkResponse)
         .catch((err) => {
           this.restoreStatementAction(statementId)
           console.error(err)
@@ -873,7 +866,7 @@ export default {
 
     getStatementsFullText (statementId) {
       return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
-        .then((response) => {
+        .then(response => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
@@ -887,13 +880,12 @@ export default {
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
-          .then(checkResponse)
-          .then((response) => {
+          .then(response => {
             /*
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
              * we also get 200 status with an error
              */
-            if (!response[0].error) {
+            if (!response.data[0].error) {
               this.getItemsByPage(this.currentPage)
               this.resetSelection()
             }
@@ -957,13 +949,17 @@ export default {
 
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
+        // Override the default success callback to display a custom message
+        this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
+          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+        })
+
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-          }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
+            // Reset the custom success callback to the default one
+            this.$store.api.successCallbacks[0] = this.$store.api.handleResponse
           })
       }
     },
