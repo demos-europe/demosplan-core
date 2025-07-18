@@ -612,7 +612,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -652,7 +652,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
