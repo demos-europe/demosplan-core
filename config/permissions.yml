@@ -718,6 +718,12 @@ feature_assign_system_roles:
     label: 'Vergebe Systemrollen wie Support, Redakteur etc. an User'
     loginRequired: true
     parent: feature_assign_roles
+feature_auto_logout_warning:
+    description: |
+        A notification is enabled, reminding the user of the log out that is going to happen automatically in time.
+    expose: true
+    label: 'Remind the user of the upcoming automatic log out'
+    loginRequired: true
 feature_auto_switch_element_state:
     description: |
         The FP can pick a date and time on which the state of the element will be switched.
