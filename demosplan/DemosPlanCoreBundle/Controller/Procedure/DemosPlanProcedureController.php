@@ -668,6 +668,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipationEndDate',
                 'r_publicParticipationPhase',
                 'r_publicParticipationPublicationEnabled',
+                'r_publicParticipationFeedbackEnabled',
+                'allowAnonymousStatements',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
@@ -2272,7 +2274,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen')]
+    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', options: ['expose' => true])]
     public function administrationNewMemberListAction(
         Breadcrumb $breadcrumb,
         MessageBagInterface $messageBag,
@@ -2360,12 +2362,12 @@ class DemosPlanProcedureController extends BaseController
         if ($requestPost->has('boilerplateDeleteChecked')) {
             // Delete checked Boilerplates
             if ($requestPost->has('boilerplate_delete')) {
-                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->get('boilerplate_delete'));
+                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all('boilerplate_delete'));
             }
 
             // Delete checked BoilerplateGroups
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
+                $this->handleDeleteBoilerplateGroups($requestPost->all('boilerplateGroupIdsTo_delete'));
             }
 
             if (false ===

@@ -5,6 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.6.0 (2025-07-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements 
+
+## v4.5.0 (2025-06-25)
 - Export Original Statements as docx in the Statement List
 - Allow filtering of institution tags in DpAddOrganizationList
 
