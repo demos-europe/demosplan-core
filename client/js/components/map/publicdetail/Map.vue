@@ -47,7 +47,7 @@ import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
 import { getTopLeft } from 'ol/extent'
 import LayerGroup from 'ol/layer/Group'
-import { mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import Overlay from 'ol/Overlay'
 import Progress from './lib/Progress'
@@ -310,6 +310,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('Layers', {
+      getLayers: 'get'
+    }),
+
     addCustomLayerToggleButton ({ id, layerName, activated }) {
       const element = document.getElementById(id)
       //  Add click handler if button is present in DOM
@@ -2014,7 +2018,44 @@ export default {
   },
 
   mounted () {
-    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
+    const payload = {
+      procedureId: this.procedureId,
+      fields: {
+        GisLayerCategory: [
+          'categories',
+          'gisLayers',
+          'hasDefaultVisibility',
+          'isVisible',
+          'name',
+          'layerWithChildrenHidden',
+          'parentId',
+          'treeOrder'
+        ].join(),
+        GisLayer: [
+          'canUserToggleVisibility',
+          'categoryId',
+          'contextualHelp',
+          'hasDefaultVisibility',
+          'isBaseLayer',
+          'isBplan',
+          'isEnabled',
+          'isMinimap',
+          'isPrint',
+          'isScope',
+          'layers',
+          'layerType',
+          'mapOrder',
+          'name',
+          'opacity',
+          'projectionLabel',
+          'treeOrder',
+          'url',
+          'visibilityGroupId'
+        ].join()
+      }
+    }
+
+    this.getLayers(payload).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
