@@ -133,7 +133,7 @@ export default {
 
           if (!firstActiveBaseLayerId) return
 
-          this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, value: true })
+          this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, setToVisible: true })
         })
       },
       deep: false // Set default for migrating purpose. To know this occurrence is checked
@@ -154,7 +154,7 @@ export default {
       let layer
       for (; i < l; i++) {
         layer = layers[i]
-        
+
         if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }

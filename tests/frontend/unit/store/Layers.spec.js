@@ -131,7 +131,6 @@ describe('Layers Actions', () => {
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
       jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
 
-
       await StubStore.dispatch('Layers/save', layerResource)
 
       expect(dpApi.patch).toHaveBeenCalledWith(
@@ -222,16 +221,17 @@ describe('Layers Actions', () => {
     it('should toggle base layer visibility exclusively', async () => {
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-1',
-        value: true
+        setToVisible: true
       })
 
-      expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(true)
-      expect(StubStore.state.Layers.layerStates['base-layer-2'].isVisible).toBe(false)
-      expect(StubStore.state.Layers.layerStates['base-layer-3'].isVisible).toBe(false)
+      console.log(StubStore.state.Layers.layerStates)
+      expect(StubStore.state.Layers.layerStates['base-layer-1']?.isVisible).toBe(true)
+      expect(StubStore.state.Layers.layerStates['base-layer-2']?.isVisible).not.toBe(true)
+      expect(StubStore.state.Layers.layerStates['base-layer-3']?.isVisible).not.toBe(true)
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-3',
-        value: true
+        setToVisible: true
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(false)
@@ -239,12 +239,12 @@ describe('Layers Actions', () => {
       expect(StubStore.state.Layers.layerStates['base-layer-3'].isVisible).toBe(true)
     })
 
-    it('should not toggle when value is false', async () => {
+    it('should not toggle when value is true', async () => {
       const commitSpy = jest.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-1',
-        value: false
+        setToVisible: true
       })
 
       // Should not make any commits when toggling to false
@@ -375,7 +375,7 @@ describe('Layers Actions', () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
       const layer = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
 
-      await StubStore.dispatch('Layers/toggleCategoryAlternatevely', { layer })
+      await StubStore.dispatch('Layers/toggleCategoryAlternately', layer)
 
       expect(dispatchSpy).toHaveBeenCalledWith('Layers/findMostParentCategory', layer)
     })

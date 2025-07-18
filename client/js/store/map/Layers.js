@@ -631,15 +631,16 @@ const LayersStore = {
     /**
      * Toggles base layer visibility (only one base layer can be visible at a time)
      *
-     * @param {Object} payload - Payload object
-     * @param {string} payload.id - Base layer ID
-     * @param {boolean} payload.value - Visibility value
+     * @param {string} id - Base layer ID
+     * @param {boolean} setToVisible - Visibility value
      *
      * @returns {void}
      */
-    toggleBaselayer ({ dispatch, state, commit }, { id, value }) {
-      // You can't toggle a base layer if it is already visible
-      if (!value) {
+    toggleBaselayer ({ dispatch, state, commit }, { id, setToVisible }) {
+      // You can't toggle a base layer "off" if it is visible because we don't know which layer to show instead.
+      const currentBaseLayer = state.apiData.included.find(layer => layer.attributes.layerType === 'base' && layer.id === id)
+
+      if (!(currentBaseLayer.attributes.isVisible && setToVisible)) {
         state.apiData.included.forEach(potentialBaseLayer => {
           if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
             commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
@@ -712,7 +713,7 @@ const LayersStore = {
 
       // If it's a base layer, we toggle it exclusively
       if (exclusively) {
-        await dispatch('toggleBaselayer', { id, value: isVisible })
+        await dispatch('toggleBaselayer', { id, setToVisible: isVisible })
       } else if (layer.attributes.visibilityGroupId) {
         // If the Layer has a visibilityGroupId, we toggle the whole group
         await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
