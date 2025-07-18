@@ -1143,74 +1143,76 @@ export default {
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
       //  ##### Fire store action #####
-      this.updateStatementAction({ data: payload }).then(updated => {
-        let updatedField = ''
-        //  Unset loading state of saved field
-        for (const field in updated) {
-          // If TAGS are changed, we have to add the tag content to consideration text field
-          if (field === 'tags') {
-            // This string will concatenate all tags' texts we want to add to recommendation
-            let textToBeAdded = ''
-            const fieldToUpdate = this.$refs.recommendation
-
-            // We return an array with promises to be able to wait until all requests are finished and then add the text at once
-            const tags = Object.values(updated.tags).map(tag => {
-              return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
-                tag: tag.id,
-                procedure: this.procedureId
-              }))
-                .then(data => {
-                  if (data.data.code === 100 && data.data.success) {
-                    // If the tag's text is already in recommendation, we don't want to add it again
-                    if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
-                      return false
-                    } else {
-                      textToBeAdded += '<p>' + data.data.body + '</p>'
-                      return Promise.resolve(true)
+      this.updateStatementAction({ data: payload })
+        .then(updated => {
+          let updatedField = ''
+          //  Unset loading state of saved field
+          for (const field in updated) {
+            // If TAGS are changed, we have to add the tag content to consideration text field
+            if (field === 'tags') {
+              // This string will concatenate all tags' texts we want to add to recommendation
+              let textToBeAdded = ''
+              const fieldToUpdate = this.$refs.recommendation
+              // We return an array with promises to be able to wait until all requests are finished and then add the text at once
+              const tags = Object.values(updated.tags).map(tag => {
+                return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
+                  tag: tag.id,
+                  procedure: this.procedureId
+                }))
+                  .then(data => {
+                    if (data.data.code === 100 && data.data.success) {
+                      // If the tag's text is already in recommendation, we don't want to add it again
+                      if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
+                        return false
+                      } else {
+                        textToBeAdded += '<p>' + data.data.body + '</p>'
+                        return Promise.resolve(true)
+                      }
                     }
+                  })
+              })
+
+              // After all requests are completed we can add the tag texts to Begründungsfeld
+              Promise.all(tags)
+                .then(() => {
+                  if (textToBeAdded !== '') {
+                    // If there is no input, we want to overwrite the 'k.A.' default string
+                    fieldToUpdate.$data.fullText !== 'k.A.'
+                      ? fieldToUpdate.$data.fullText += textToBeAdded
+                      : fieldToUpdate.$data.fullText = textToBeAdded
+
+                    fieldToUpdate.$data.isEditing = true
+                    dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
                   }
                 })
-            })
+            }
 
-            // After all requests are completed we can add the tag texts to Begründungsfeld
-            Promise.all(tags).then(() => {
-              if (textToBeAdded !== '') {
-                // If there is no input, we want to overwrite the 'k.A.' default string
-                fieldToUpdate.$data.fullText !== 'k.A.'
-                  ? fieldToUpdate.$data.fullText += textToBeAdded
-                  : fieldToUpdate.$data.fullText = textToBeAdded
-
-                fieldToUpdate.$data.isEditing = true
-                dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
+            if (this.$refs[field]) {
+              updatedField = field
+              //  Handle components that use <dp-edit-field>
+              const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
+              if (editFieldComponent) {
+                editFieldComponent.$data.loading = false
+                editFieldComponent.$data.editingEnabled = false
               }
-            })
-          }
-
-          if (this.$refs[field]) {
-            updatedField = field
-            //  Handle components that use <dp-edit-field>
-            const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
-            //  Handle components that have a loading state by themselves
-            if (hasOwnProp(this.$refs[field].$data, 'loading')) {
-              this.$refs[field].$data.loading = false
-            }
-            if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
-              this.$refs[field].$data.editingEnabled = false
+              //  Handle components that have a loading state by themselves
+              if (hasOwnProp(this.$refs[field].$data, 'loading')) {
+                this.$refs[field].$data.loading = false
+              }
+              if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
+                this.$refs[field].$data.editingEnabled = false
+              }
             }
           }
-        }
 
-        // Used in DpVersionHistory to update items in version history sidebar
-        this.$root.$emit('entity:updated', this.statementId, 'statement')
+          // Used in DpVersionHistory to update items in version history sidebar
+          this.$root.$emit('entity:updated', this.statementId, 'statement')
 
-        return updatedField
-      }).then(updatedField => {
-        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
-      })
+          return updatedField
+        })
+        .then(updatedField => {
+          this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
+        })
     },
 
     showAllFragments (checked) {

@@ -302,6 +302,7 @@ export default {
         Object.entries(updatedLayerState).forEach(([id, { opacity, isVisible }]) => {
           const layerId = id.replace(/-/g, '')
           const layer = this.findLayerById(layerId)
+
           if (!layer) {
             console.warn(`Layer with id ${id} not found in map`)
             return
@@ -2016,7 +2017,44 @@ export default {
   },
 
   mounted () {
-    this.getLayers(this.procedureId).then(() => {
+    const payload = {
+      procedureId: this.procedureId,
+      fields: {
+        GisLayerCategory: [
+          'categories',
+          'gisLayers',
+          'hasDefaultVisibility',
+          'isVisible',
+          'name',
+          'layerWithChildrenHidden',
+          'parentId',
+          'treeOrder'
+        ].join(),
+        GisLayer: [
+          'canUserToggleVisibility',
+          'categoryId',
+          'contextualHelp',
+          'hasDefaultVisibility',
+          'isBaseLayer',
+          'isBplan',
+          'isEnabled',
+          'isMinimap',
+          'isPrint',
+          'isScope',
+          'layers',
+          'layerType',
+          'mapOrder',
+          'name',
+          'opacity',
+          'projectionLabel',
+          'treeOrder',
+          'url',
+          'visibilityGroupId'
+        ].join()
+      }
+    }
+
+    this.getLayers(payload).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
