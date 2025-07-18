@@ -88,6 +88,12 @@
       @deselectAll="deselectAllLayers"
     />
 
+    <dp-ol-map
+      v-if="hasPreview"
+      :procedure-id="procedureId"
+      small
+    />
+
     <input
       :value="layersInputValue"
       name="r_layers"
@@ -142,11 +148,13 @@
 <script>
 import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
+import DpOlMap from '../map/DpOlMap.vue'
 
 export default {
   name: 'LayerSettings',
 
   components: {
+    DpOlMap,
     DpCheckbox,
     DpInput,
     DpLabel,
@@ -159,6 +167,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    hasPreview: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     initLayers: {
@@ -198,6 +212,12 @@ export default {
     },
 
     initVersion: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    procedureId: {
       type: String,
       required: false,
       default: ''
@@ -524,6 +544,8 @@ export default {
   },
 
   mounted () {
+    console.log('hier')
+    console.log(this.currentProcedureId)
     this.getLayerCapabilities()
   }
 }
