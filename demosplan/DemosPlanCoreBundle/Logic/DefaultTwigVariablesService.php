@@ -139,6 +139,8 @@ class DefaultTwigVariablesService
                 ) ?? ''
             );
         }
+        
+        $jwtToken = $this->jwtTokenManager->create($user);
 
         $this->variables = [
             'branding'                         => $brandingObject,
@@ -157,7 +159,7 @@ class DefaultTwigVariablesService
             'map'                              => $this->loadMapVariables(),
             'maxUploadSize'                    => $this->globalConfig->getMaxUploadSize(),
             'orgaInfo'                         => $orgaObject,
-            'jwtToken'                         => $this->jwtTokenManager->create($user),
+            'jwtToken'                         => $jwtToken,
             'permissions'                      => $this->permissions->getPermissions(),
             'piwik'                            => $this->loadPiwikVariables(),
             'procedure'                        => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
@@ -177,9 +179,28 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
-            'accessTokenExpirationTimestamp'   => $request->getSession()->get('accessTokenExpirationTimestamp'),
+            'accessTokenExpirationTimestamp'   => $this->getAccessTokenExpirationTimestamp($request, $jwtToken)
         ];
     }
+
+    private function getAccessTokenExpirationTimestamp(Request $request, string $jwtToken): ?int
+    {
+        // First try to get Keycloak token expiration from session
+        $sessionExpiration = $request->getSession()->get('accessTokenExpirationTimestamp');
+        if ($sessionExpiration !== null) {
+            return is_int($sessionExpiration) ? $sessionExpiration : (int) $sessionExpiration;
+        }
+
+        // Fallback to JWT token expiration
+        try {
+            $payload = $this->jwtTokenManager->parse($jwtToken);
+            return $payload['exp'] ?? null;
+        } catch (\Exception $e) {
+            // If JWT parsing fails, return null
+            return null;
+        }
+    }
+
 
     /**
      * @return array<string, string>
