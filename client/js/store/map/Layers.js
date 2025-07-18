@@ -638,9 +638,11 @@ const LayersStore = {
      */
     toggleBaselayer ({ dispatch, state, commit }, { id, setToVisible }) {
       // You can't toggle a base layer "off" if it is visible because we don't know which layer to show instead.
-      const currentBaseLayer = state.apiData.included.find(layer => layer.attributes.layerType === 'base' && layer.id === id)
+      const currentBaseLayerIsVisible = state.layerStates[id]?.isVisible
+        ? true
+        : state.apiData.included.find(layer => layer.id === id).attributes.isVisible
 
-      if (!(currentBaseLayer.attributes.isVisible && setToVisible)) {
+      if (!(currentBaseLayerIsVisible && setToVisible)) {
         state.apiData.included.forEach(potentialBaseLayer => {
           if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
             commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
