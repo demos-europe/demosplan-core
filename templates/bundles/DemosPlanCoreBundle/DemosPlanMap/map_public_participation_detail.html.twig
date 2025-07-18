@@ -427,7 +427,7 @@
                     <button id="popupAction" class="{{ 'c-map__popup__button btn btn--primary u-mt-0_5'|prefixClass }}">
                         <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
                         <template v-if="activeStatement">
-                            {{ 'statement.form.edit.location_relation'|trans }}
+                            {{ 'statement.continue'|trans }}
                         </template>
                         <template v-else>
                             {{ 'statement.new'|trans }}
