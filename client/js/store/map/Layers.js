@@ -154,6 +154,20 @@ const LayersStore = {
     },
 
     /**
+     * Sets the initial state of a layer based on API data
+     *
+     * @param state
+     * @param data
+     *
+     * returns {void}
+     */
+    setInitialLayerState (state) {
+      state.apiData.included.forEach(elem => {
+        state.layerStates[elem.id] = { isVisible: elem.attributes.hasDefaultVisibility, opacity: elem.attributes.opacity }
+      })
+    },
+
+    /**
      * Adds a legend object to the legends array
      *
      * @param {Object} data - Legend object with layerId, treeOrder, mapOrder, defaultVisibility, url
@@ -174,11 +188,11 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    setAttributeForLayer (state, data) {
-      const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+    setAttributeForLayer (state, { id, attribute, value }) {
+      const index = state.apiData.included.findIndex(elem => elem.id === id)
 
       if (index >= 0) {
-        state.apiData.included[index].attributes[data.attribute] = data.value
+        state.apiData.included[index].attributes[attribute] = value
       }
     },
 
