@@ -154,6 +154,7 @@ export default {
       let layer
       for (; i < l; i++) {
         layer = layers[i]
+        
         if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }
