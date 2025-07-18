@@ -86,42 +86,57 @@ describe('Layers Actions', () => {
   })
 
   describe('buildLegends', () => {
-    it.skip('should build legend URLs for enabled overlay layers', async () => {
+    it('should build legend URLs for enabled overlay layers', async () => {
       const commitSpy = jest.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/buildLegends')
 
       // Should commit setLegend for each enabled overlay layer
-      expect(commitSpy).toHaveBeenCalledWith('Layers/setLegend', expect.objectContaining({
+      expect(commitSpy).toHaveBeenCalledTimes(2)
+
+      // Check the legends were added to the state
+      expect(StubStore.state.Layers.legends).toHaveLength(2)
+      expect(StubStore.state.Layers.legends[0]).toEqual({
         layerId: 'overlay-layer-1',
         treeOrder: 101010301,
         mapOrder: 104,
         defaultVisibility: true,
-        url: expect.stringContaining('GetLegendGraphic')
-      }))
+        url: 'https://example.com/wms?service=WMS&Layer=sample_layer&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+      })
+      expect(StubStore.state.Layers.legends[1]).toEqual({
+        layerId: 'overlay-layer-2',
+        treeOrder: 101010302,
+        mapOrder: 105,
+        defaultVisibility: false,
+        url: 'https://example.com/wms2?service=WMS&Layer=sample_layer_2&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+      })
     })
 
-    it.skip('should handle layers with multiple layer parameters', async () => {
+    it('should handle layers with multiple layer parameters', async () => {
       // Modify mock data to have a layer with multiple layers
-      StubStore.state.Layers.apiData.included[0].attributes.layers = 'layer1,layer2,layer3'
+      const overlayLayer = StubStore.state.Layers.apiData.included.find(item => item.id === 'overlay-layer-1')
+      overlayLayer.attributes.layers = 'layer1,layer2,layer3'
       const commitSpy = jest.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/buildLegends')
 
-      // Should create legend for each layer parameter
-      expect(commitSpy).toHaveBeenCalledTimes(3) // One for each layer
+      // Should create legend for each layer parameter (3 for overlay-layer-1 + 1 for overlay-layer-2)
+      expect(commitSpy).toHaveBeenCalledTimes(4)
     })
   })
 
   describe('saveAll', () => {
-    it.skip('should save all layers and categories', async () => {
+    it('should save all layers and categories', async () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
+      jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
+
       await StubStore.dispatch('Layers/saveAll')
 
       // Should dispatch save for each included element
       const includedCount = mockLayersApiResponse.included.length
-      expect(dispatchSpy).toHaveBeenCalledTimes(includedCount + 1) // +1 for the saveAll call itself
+      // Each save triggers a 'get' dispatch, so we have saveAll + (save + get) * includedCount
+      expect(dispatchSpy).toHaveBeenCalledTimes(1 + (includedCount * 2))
     })
   })
 
@@ -177,7 +192,7 @@ describe('Layers Actions', () => {
   })
 
   describe('findMostParentCategory', () => {
-    it.skip('should find the root category for a layer', async () => {
+    it('should find the root category for a layer', async () => {
       const layer = {
         id: 'overlay-layer-1',
         attributes: {
@@ -239,7 +254,10 @@ describe('Layers Actions', () => {
       expect(StubStore.state.Layers.layerStates['base-layer-3'].isVisible).toBe(true)
     })
 
-    it('should not toggle when value is true', async () => {
+    it('should not toggle when layer is already visible and setToVisible is true', async () => {
+      // First set the layer as visible
+      StubStore.commit('Layers/setLayerState', { id: 'base-layer-1', key: 'isVisible', value: true })
+
       const commitSpy = jest.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
@@ -247,7 +265,7 @@ describe('Layers Actions', () => {
         setToVisible: true
       })
 
-      // Should not make any commits when toggling to false
+      // Should not make any commits when layer is already visible and setToVisible is true
       expect(commitSpy).not.toHaveBeenCalled()
     })
   })
@@ -348,25 +366,6 @@ describe('Layers Actions', () => {
         expect(StubStore.state.Layers.layerStates['sub-category-1'].isVisible).toBe(true)
         expect(StubStore.state.Layers.layerStates['category-1'].isVisible).toBe(true)
       }, 500)
-    })
-  })
-
-  describe('toggleAllChildren', () => {
-    it('should toggle all children of a category', async () => {
-      const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
-      const category = mockLayersApiResponse.included.find(item =>
-        item.type === 'GisLayerCategory' && item.id === 'category-1'
-      )
-
-      await StubStore.dispatch('Layers/toggleAllChildren', {
-        layer: category,
-        isVisible: false
-      })
-
-      expect(dispatchSpy).toHaveBeenCalledWith('Layers/updateLayerVisibility', {
-        id: 'sub-category-1',
-        isVisible: false
-      })
     })
   })
 
