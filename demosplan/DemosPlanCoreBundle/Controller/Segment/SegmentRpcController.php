@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,6 +43,7 @@ class SegmentRpcController extends APIController
         if ($procedureId !== $segmentListQuery->getProcedureId()) {
             throw new BadRequestException('Procedure ID given in HTTP header must match the procedure the query was originally created for');
         }
+        /** @var SegmentListQuery $segmentListQuery */
         $segmentListQuery->setFilter($filterArray);
         $segmentListQuery->setSearchPhrase($searchPhrase);
         $filterSetService->findOrCreateFromQuery($segmentListQuery);
