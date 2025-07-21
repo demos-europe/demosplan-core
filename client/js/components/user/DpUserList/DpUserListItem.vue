@@ -131,10 +131,6 @@ export default {
     DpUserFormFields
   },
 
-  emits: [
-    'item:selected'
-  ],
-
   mixins: [dpValidateMixin],
 
   props: {

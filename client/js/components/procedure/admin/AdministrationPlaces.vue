@@ -289,6 +289,7 @@ export default {
       }))
         .then(({ data }) => {
           const places = data.data
+
           places.forEach((place) => {
             this.places.push({
               id: place.id,

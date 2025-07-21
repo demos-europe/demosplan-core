@@ -100,7 +100,7 @@
         v-slot:header-count>
         {{ Translator.trans('quantity') }}
         <dp-icon
-          v-tooltip="/* @todo This causes an error */Translator.trans('procedures.statements.count')"
+          v-tooltip="Translator.trans('procedures.statements.count')"
           icon="info"
           size="small" />
       </template>

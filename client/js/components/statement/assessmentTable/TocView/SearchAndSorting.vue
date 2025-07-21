@@ -55,7 +55,6 @@
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import { DpButton } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
 
 export default {
