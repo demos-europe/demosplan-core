@@ -23,31 +23,21 @@
         v-if="isLoading"
         class="u-pv-0_5" />
       <template v-else>
-        <div class="flash flash-warning flow-root">
-          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-          <div class="u-ml">
-            <p
-              :class="{'u-mb-0': false === hasPermission('feature_statement_move_to_foreign_procedure')}"
-              :inner-html="Translator.trans('statement.moveto.procedure.description')" />
-            <p
-              class="u-mb-0"
-              v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
-              :inner-html="Translator.trans('statement.moveto.procedure.description.foreignProcedures')" />
-          </div>
-        </div>
-
+        <dp-inline-notification
+          class="mt-3 mb-2"
+          :message="Translator.trans('statement.moveto.procedure.description')"
+          type="warning" />
+        <dp-inline-notification
+          v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
+          class="mt-3 mb-2"
+          :message="Translator.trans('statement.moveto.procedure.description.foreignProcedures')"
+          type="warning" />
         <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
-        <div
-          class="flash flash-warning flow-root"
-          v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-          <div class="u-ml">
-            <p
-              class="u-mb-0"
-              :inner-html="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')" />
-          </div>
-        </div>
-
+        <dp-inline-notification
+          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          class="mt-3 mb-2"
+          :message="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')"
+          type="warning" />
         <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
         <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
@@ -118,13 +108,14 @@
 </template>
 
 <script>
-import { DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'DpMoveStatementModal',
 
   components: {
+    DpInlineNotification,
     DpModal,
     DpLoading
   },
