@@ -854,7 +854,7 @@ export default {
         if (PROJECT && PROJECT === 'robobsh') {
           const remappedUrl = getFeatureinfoSource
             .getSource()
-            .getFeatureInfoUrl(coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat },)
+            .getFeatureInfoUrl(coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat })
             .split('?')[1]
 
           if (remappedUrl) {
