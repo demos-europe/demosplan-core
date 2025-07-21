@@ -35,6 +35,7 @@ window.dplan = {
     sentryDsn               : "{{ sentry_dsn|default }}",
     csrfToken               : "{{ csrf_token('csrf')|json_encode }}",
     jwtToken                : "{{ jwtToken|default }}",
+    accessTokenExpirationTimestamp : {{ accessTokenExpirationTimestamp|default('null') }},
 
     defaultProjectionLabel  : "{{ defaultProjectionLabel() }}",
     defaultProjectionString  : "{{ defaultProjectionValue() }}",
