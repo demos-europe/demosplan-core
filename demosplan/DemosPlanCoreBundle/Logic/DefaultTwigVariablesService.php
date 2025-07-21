@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\EventListener\TokenExpirationRequestListener;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -22,9 +23,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
+use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
-use Exception;
 use Illuminate\Support\Collection;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
@@ -41,6 +42,7 @@ class DefaultTwigVariablesService
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
+        private readonly DemosPlanRequestListener $demosPlanRequestListener,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JWTTokenManagerInterface $jwtTokenManager,
         private readonly OrgaLoader $orgaLoader,
@@ -141,8 +143,6 @@ class DefaultTwigVariablesService
             );
         }
 
-        $jwtToken = $this->jwtTokenManager->create($user);
-
         $this->variables = [
             'branding'                         => $brandingObject,
             'basicAuth'                        => $basicAuth,
@@ -160,7 +160,7 @@ class DefaultTwigVariablesService
             'map'                              => $this->loadMapVariables(),
             'maxUploadSize'                    => $this->globalConfig->getMaxUploadSize(),
             'orgaInfo'                         => $orgaObject,
-            'jwtToken'                         => $jwtToken,
+            'jwtToken'                         => $this->jwtTokenManager->create($user),
             'permissions'                      => $this->permissions->getPermissions(),
             'piwik'                            => $this->loadPiwikVariables(),
             'procedure'                        => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
@@ -180,28 +180,10 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
-            'accessTokenExpirationTimestamp'   => $this->getAccessTokenExpirationTimestamp($request, $jwtToken),
+            'accessTokenExpirationTimestamp'   => $request->getSession()->get(TokenExpirationRequestListener::ACCESS_TOKEN_EXPIRATION_TIMESTAMP),
         ];
     }
 
-    private function getAccessTokenExpirationTimestamp(Request $request, string $jwtToken): ?int
-    {
-        // First try to get Keycloak token expiration from session
-        $sessionExpiration = $request->getSession()->get('accessTokenExpirationTimestamp');
-        if (null !== $sessionExpiration) {
-            return is_int($sessionExpiration) ? $sessionExpiration : (int) $sessionExpiration;
-        }
-
-        // Fallback to JWT token expiration
-        try {
-            $payload = $this->jwtTokenManager->parse($jwtToken);
-
-            return $payload['exp'] ?? null;
-        } catch (Exception $e) {
-            // If JWT parsing fails, return null
-            return null;
-        }
-    }
 
     /**
      * @return array<string, string>
