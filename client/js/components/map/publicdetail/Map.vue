@@ -36,13 +36,14 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
+import DomPurify from 'dompurify'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -850,45 +851,79 @@ export default {
         // Use prerendered html by default
         const infoFormat = 'text/html'
 
-        const remappedUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
-        ).split('?')[1]
+        if (PROJECT && PROJECT === 'robobsh') {
+          const remappedUrl = getFeatureinfoSource
+            .getSource()
+            .getFeatureInfoUrl(coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat })
+            .split('?')[1]
 
-        if (remappedUrl) {
-          const getData = { params: remappedUrl }
+          if (remappedUrl) {
+            // This triggers getFeatureInfoByType() in GetFeatureInfo service
+            const getData = {
+              params: remappedUrl,
+              infotype: 'criteria'
+            }
 
-          //  This triggers getFeatureInfoByType() in GetFeatureInfo service
-          if (PROJECT && PROJECT === 'robobsh') {
-            getData.infotype = 'criteria'
-          }
+            //  Open Popup with loading state
+            this.resetPopup()
+            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+            this.showPopup('criteriaPopup', '', coordinate)
+            //  Add progress indicator (.o-spinner on same element required)
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-          //  Open Popup with loading state
-          this.resetPopup()
-          $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
-          this.showPopup('criteriaPopup', '', coordinate)
-          //  Add progress indicator (.o-spinner on same element required)
-          $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
+            dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
+              .then(response => {
+                const parsedData = JSON.parse(response.data)
+                if (parsedData.code === 100 && parsedData.success) {
+                  if (parsedData.body !== null) {
+                    let popupContent = ''
+                    popupContent = parsedData.body
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
-            .then(response => {
-              const parsedData = JSON.parse(response.data)
-              if (parsedData.code === 100 && parsedData.success) {
-                if (parsedData.body !== null) {
-                  let popupContent = ''
-                  popupContent = parsedData.body
+                    if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
+                      popupContent = Translator.trans('map.getfeatureinfo.none')
+                    }
 
-                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
-                    popupContent = Translator.trans('map.getfeatureinfo.none')
+                    this.showPopup('criteriaPopup', popupContent, coordinate)
+                  } else {
+                    this.showPopupError('empty', coordinate)
                   }
-
-                  this.showPopup('criteriaPopup', popupContent, coordinate)
                 } else {
-                  this.showPopupError('empty', coordinate)
+                  this.showPopupError('failed', coordinate)
                 }
-              } else {
+              })
+          }
+        } else {
+          const featureInfoUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
+            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
+          )
+
+          if (featureInfoUrl) {
+            //  Open Popup with loading state
+            this.resetPopup()
+            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+            this.showPopup('criteriaPopup', '', coordinate)
+            //  Add progress indicator (.o-spinner on same element required)
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
+
+            // Make direct request to featureInfoUrl using externalApi
+            externalApi(featureInfoUrl)
+              .then(async response => {
+                let popupContent = await response.text()
+
+                if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
+                  popupContent = Translator.trans('map.getfeatureinfo.none')
+                } else {
+                  // Sanitize HTML content to prevent XSS
+                  popupContent = DomPurify.sanitize(popupContent)
+                }
+
+                this.showPopup('criteriaPopup', popupContent, coordinate)
+              })
+              .catch(error => {
+                console.error('Feature info request failed:', error)
                 this.showPopupError('failed', coordinate)
-              }
-            })
+              })
+          }
         }
       }
 
