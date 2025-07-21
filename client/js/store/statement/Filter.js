@@ -256,8 +256,7 @@ const Filter = {
         method: 'GET',
         url: Routing.generate(route, { procedureId: state.procedureId })
       })
-        .then(this.api.checkResponse)
-        .then(data => {
+        .then(({ data }) => {
           commit('updateFilterList', data.data)
         })
         .catch(error => {
@@ -285,7 +284,6 @@ const Filter = {
         method: 'GET',
         url: Routing.generate(route, { procedureId: state.procedureId, filterHash: data.filterHash })
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let filtersToUpdateInStore
           // Update only options for one filter
@@ -322,8 +320,7 @@ const Filter = {
         }
       }
       return dpApi.get(url, params)
-        .then(this.api.checkResponse)
-        .then(data => commit('updateUserFilterSets', data))
+        .then(({ data }) => commit('updateUserFilterSets', data))
         .catch((err) => {
           console.error(Translator.trans('filter.saveFilterSet.load.error'), err)
         })
@@ -342,7 +339,6 @@ const Filter = {
           filterSetId: userFilterSetId
         })
       })
-        .then(this.api.checkResponse)
         .then(() => {
           commit('removeUserFilterSet', userFilterSetId)
         })

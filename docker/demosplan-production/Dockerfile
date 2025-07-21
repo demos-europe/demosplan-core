@@ -144,7 +144,7 @@ RUN rm -rf /srv/www/var/cache/* && \
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod

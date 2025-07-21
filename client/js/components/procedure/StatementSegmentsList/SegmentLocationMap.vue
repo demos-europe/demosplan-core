@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -254,7 +254,6 @@ export default {
         resourceType: 'StatementSegment',
         resourceId: this.segmentId
       }), {}, { data: payload })
-        .then(checkResponse)
         .then(() => {
           this.updateStore(attributes.polygon)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
