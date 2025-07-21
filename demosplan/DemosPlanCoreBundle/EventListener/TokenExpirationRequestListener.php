@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use Exception;
@@ -13,7 +21,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -29,7 +36,7 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
         private readonly KernelInterface $kernel,
         private readonly Security $security,
         private readonly JWTTokenManagerInterface $jwtTokenManager,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -62,14 +69,12 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
         }
 
         // Check if in test environment
-        if ($this->kernel->getEnvironment() !== 'dev') {
+        if ('dev' !== $this->kernel->getEnvironment()) {
             return;
-
         }
 
         // Try to get JWT token expiration and store in session
         $this->injectTokenExpirationIntoSession($session, $user);
-
     }
 
     private function injectTokenExpirationIntoSession(Session $session, UserInterface $user): void
@@ -86,13 +91,13 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
                 $session->set(self::ACCESS_TOKEN_EXPIRATION_TIMESTAMP, (int) $expiration);
 
                 $this->logger->debug('JWT token expiration injected into session', [
-                    'user' => $user->getUserIdentifier(),
+                    'user'       => $user->getUserIdentifier(),
                     'expiration' => $expiration,
                 ]);
             }
         } catch (Exception $e) {
             $this->logger->warning('Failed to inject JWT token expiration into session', [
-                'user' => $user->getUserIdentifier(),
+                'user'  => $user->getUserIdentifier(),
                 'error' => $e->getMessage(),
             ]);
         }

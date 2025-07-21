@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
+use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener;
 use demosplan\DemosPlanCoreBundle\EventListener\TokenExpirationRequestListener;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
-use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
 use Illuminate\Support\Collection;
@@ -183,7 +183,6 @@ class DefaultTwigVariablesService
             'accessTokenExpirationTimestamp'   => $request->getSession()->get(TokenExpirationRequestListener::ACCESS_TOKEN_EXPIRATION_TIMESTAMP),
         ];
     }
-
 
     /**
      * @return array<string, string>
