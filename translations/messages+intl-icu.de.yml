@@ -1929,6 +1929,8 @@ gislayer.define: 'Kartenebenen definieren'
 gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
+go.back.to.personal.data: "Zurück zu Kontaktdaten"
+go.back.to.statement: "Zurück zur Stellungnahme"
 goto.participation: "Zur Beteiligung: {procedure}"
 group: "Gruppe"
 group.create: "Gruppe erstellen"
@@ -3582,6 +3584,11 @@ statement.send.email.label: "Sende unten stehende Stellungnahme an"
 statement.send: "Stellungnahme versenden"
 statement.similarStatementSubmitters: "Weitere Einreichende der gleichen Stellungnahme"
 statement.similarStatementSubmitters.add: "Einreicher*in hinzufügen"
+statement.similarStatementSubmitters.delete: |
+    {name, select,
+            false { Möchten Sie die weitere einreichende Person wirklich löschen? }
+            other { Möchten Sie die weitere einreichende Person "{name}" wirklich löschen? }
+        }
 statement.similarStatementSubmitters.hint: "Falls von weiteren Einreichenden inhaltlich identische Stellungnahmen eingegangen sind, können diese Personen hier angegeben werden."
 statement.solved.description: "Wenn sich alle Abschnitte einer Stellungnahme in einem solchen Bearbeitungsschritt befinden, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
 statement.solved.hint: "Wenn sich alle Abschnitte einer Stellungnahme in Bearbeitungsschritten befinden, bei denen diese Checkbox aktiviert ist, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
