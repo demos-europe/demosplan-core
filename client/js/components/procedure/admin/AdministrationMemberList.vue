@@ -16,6 +16,7 @@ All rights reserved
     :header-fields="headerFields"
     ref="organisationTable"
     resource-type="InvitedToeb"
+    :procedure-id="procedureId"
     @selected-items="setSelectedItems">
     <template v-slot:bulkActions>
       <!-- Bulk Actions Section -->
@@ -68,11 +69,13 @@ All rights reserved
 <script>
 import { DpButton, dpRpc } from '@demos-europe/demosplan-ui'
 import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
 
 export default {
   name: 'AdministrationMemberList',
 
   components: {
+    ClientSideTagFilter,
     OrganisationTable,
     DpButton
   },

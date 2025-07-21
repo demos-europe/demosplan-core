@@ -29,7 +29,6 @@ All rights reserved
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
-          :procedure-id="procedureId"
           :raw-items="rowItems"
           @items-filtered="filteredItems = $event"
           @reset="handleFilterReset" />
@@ -158,6 +157,7 @@ All rights reserved
 <script>
 import {
   DpDataTable,
+  DpLoading,
   DpPager,
   DpSearchField
 } from '@demos-europe/demosplan-ui'
@@ -171,6 +171,7 @@ export default {
   components: {
     ClientSideTagFilter,
     DpDataTable,
+    DpLoading,
     DpPager,
     DpSearchField
   },

@@ -14,7 +14,7 @@ All rights reserved
         align="left"
         :aria-label="Translator.trans('filters.more')"
         class="bg-surface-medium rounded pb-1 pt-[4px] rounded-md"
-        data-cy="dpAddOrganisationList:filterCategories">
+        data-cy="ClientSideTagFilter:filterCategories">
         <template v-slot:trigger>
           <span :title="Translator.trans('filters.more')">
             <dp-icon
@@ -27,7 +27,7 @@ All rights reserved
         <div>
           <button
             class="btn--blank o-link--default ml-auto"
-            data-cy="dpAddOrganisationList:toggleFilterCategories"
+            data-cy="ClientSideTagFilter:toggleFilterCategories"
             v-text="Translator.trans('toggle_all')"
             @click="toggleAllCategories" />
           <div v-if="!isLoading">
@@ -36,7 +36,7 @@ All rights reserved
               :key="category.id"
               :id="`filterCategorySelect:${category.label}`"
               :checked="selectedFilterCategories.includes(category.label)"
-              :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
+              :data-cy="`ClientSideTagFilter:filterCategoriesSelect:${category.label}`"
               :disabled="checkIfDisabled(appliedFilterQuery, category.id)"
               :label="{
                 text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
@@ -53,7 +53,7 @@ All rights reserved
       ref="filterFlyout"
       :category="{ id: category.id, label: category.label }"
       class="inline-block mt-1"
-      :data-cy="`dpAddOrganisationList:${category.label}`"
+      :data-cy="`ClientSideTagFilter:${category.label}`"
       :initial-query-ids="queryIds"
       :member-of="category.memberOf"
       :operator="category.comparisonOperator"
@@ -64,7 +64,7 @@ All rights reserved
 
   <dp-button
     class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-    data-cy="dpAddOrganisationList:resetFilter"
+    data-cy="ClientSideTagFilter:resetFilter"
     :disabled="!isQueryApplied"
     :text="Translator.trans('reset')"
     variant="outline"
@@ -79,11 +79,6 @@ import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 /**
  * ClientSideTagFilter - Client-side filtering component for institution tags
- *
- * Provides filtering functionality for organization tables by institution tags.
- * Handles cross-category filtering, localStorage persistence, and FilterFlyout integration.
- * Extracted from OrganizationTable to create a reusable filtering solution.
- *
  * @component
  * @example
  * <client-side-tag-filter
@@ -125,32 +120,7 @@ export default {
       currentlySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
-      isLoading: true,
-
-      filterCategoriesStorage: {
-        get () {
-          const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
-          return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
-        },
-        set (selectedFilterCategories) {
-          localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
-        }
-      },
-
-      filterQueryStorage: {
-        get () {
-          const filterQueryInStorage = localStorage.getItem('filterQuery')
-          return filterQueryInStorage && filterQueryInStorage !== 'undefined'
-            ? JSON.parse(filterQueryInStorage)
-            : {}
-        },
-        set (filterQuery) {
-          localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
-        },
-        reset () {
-          localStorage.setItem('filterQuery', JSON.stringify({}))
-        }
-      }
+      isLoading: true
     }
   },
 
@@ -231,7 +201,7 @@ export default {
       )
 
       this.updateFilterQuery(filter)
-      this.filterQueryStorage.set(this.appliedFilterQuery)
+      this.setFilterQueryStorage(this.appliedFilterQuery)
     },
 
     checkIfDisabled (appliedFilterQuery, categoryId) {
@@ -253,7 +223,8 @@ export default {
         : []
 
       if (Object.keys(filterOptions).length > 0) {
-        filterOptions = Object.values(filterOptions).map(option => {
+        filterOptions = Object.values(filterOptions)
+          .map(option => {
           const { id, attributes } = option
           const { name } = attributes
           const selected = selectedFilterOptionIds.includes(id)
@@ -270,9 +241,9 @@ export default {
       this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
 
       if (isInitialWithQuery) {
-        const filterQueryFromStorage = this.filterQueryStorage.get()
+        const filterQueryFromStorage = this.getFilterQueryStorage()
         if (Object.keys(filterQueryFromStorage).length > 0) {
-          this.filterQuery = { ...this.filterQuery, ...filterQueryFromStorage }
+          this.updateFilterQuery({ ...this.filterQuery, ...filterQueryFromStorage })
         }
       }
     },
@@ -329,7 +300,7 @@ export default {
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
           if (isInitial) {
-            const selectedFilterCategoriesInStorage = this.filterCategoriesStorage.get()
+            const selectedFilterCategoriesInStorage = this.getFilterCategoriesStorage()
 
             this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
               ? selectedFilterCategoriesInStorage
@@ -344,6 +315,18 @@ export default {
           console.error('Error loading tag categories:', err)
           return {}
         })
+    },
+
+    getFilterCategoriesStorage () {
+      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
+    },
+
+    getFilterQueryStorage () {
+      const filterQueryInStorage = localStorage.getItem('filterQuery')
+      return filterQueryInStorage && filterQueryInStorage !== 'undefined'
+        ? JSON.parse(filterQueryInStorage)
+        : {}
     },
 
     getSelectedOptionsCount (appliedFilterQuery, categoryId) {
@@ -362,16 +345,15 @@ export default {
           this.currentlySelectedFilterCategories.splice(index, 1)
         }
       }
-      this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
+      this.setFilterCategoriesStorage(this.currentlySelectedFilterCategories)
     },
 
     /**
-     * Loads persisted filter state from localStorage on component mount
      * Restores both visible categories and applied filters
      */
     loadFilterStateFromStorage () {
-      const savedCategories = this.filterCategoriesStorage.get()
-      const savedFilterQuery = this.filterQueryStorage.get()
+      const savedCategories = this.getFilterCategoriesStorage()
+      const savedFilterQuery = this.getFilterQueryStorage()
 
       if (savedCategories) {
         this.currentlySelectedFilterCategories = savedCategories
@@ -379,13 +361,13 @@ export default {
 
       if (Object.keys(savedFilterQuery).length > 0) {
         this.appliedFilterQuery = savedFilterQuery
-        this.filterQueryStorage.set(this.appliedFilterQuery)
+        this.setFilterQueryStorage(this.appliedFilterQuery)
       }
     },
 
     reset () {
       this.appliedFilterQuery = {}
-      this.filterQueryStorage.reset()
+      this.resetFilterQueryStorage()
 
       if (this.$refs.filterFlyout) {
         this.$refs.filterFlyout.forEach(flyout => {
@@ -397,21 +379,33 @@ export default {
       this.$emit('reset')
     },
 
+    resetFilterQueryStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify({}))
+    },
+
+    setFilterCategoriesStorage (selectedFilterCategories) {
+      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
+    },
+
+    setFilterQueryStorage (filterQuery) {
+      localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
+    },
+
     /**
      * Core filtering logic handling cross-category filters and resets
      * Manages filter state transitions and category-specific operations
      * @param {Object} filter - Filter object from FilterFlyout
-     * @param {Object} currentAppliedFilterQuery - Current applied filters
+     * @param {Object} currentlyAppliedFilterQuery - Current applied filters
      * @param {string|null} categoryId - Category ID for targeted resets
      * @returns {Object} Updated filter query object
      */
-    setAppliedFilterQuery (filter, currentAppliedFilterQuery, categoryId = null) {
+    setAppliedFilterQuery (filter, currentlyAppliedFilterQuery, categoryId = null) {
       const selectedFilterOptions = Object.fromEntries(
         Object.entries(filter).filter(([_key, value]) => value.condition)
       )
       const isReset = Object.keys(selectedFilterOptions).length === 0
-      const isAppliedFilterQueryEmpty = Object.keys(currentAppliedFilterQuery).length === 0
-      let newAppliedFilterQuery = { ...currentAppliedFilterQuery }
+      const isAppliedFilterQueryEmpty = Object.keys(currentlyAppliedFilterQuery).length === 0
+      let newAppliedFilterQuery = { ...currentlyAppliedFilterQuery }
 
       if (!isReset && isAppliedFilterQueryEmpty) {
         Object.values(selectedFilterOptions).forEach(option => {
@@ -420,6 +414,7 @@ export default {
       } else if (isReset) {
         if (categoryId) {
           const groupKey = `${categoryId}_group`
+
           Object.keys(newAppliedFilterQuery).forEach(key => {
             if (newAppliedFilterQuery[key].condition?.memberOf === groupKey) {
               delete newAppliedFilterQuery[key]
@@ -465,12 +460,12 @@ export default {
         ? categoriesWithSelectedOptions
         : this.filterCategories.map(filterCategory => filterCategory.label)
 
-      this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
+      this.setFilterCategoriesStorage(this.currentlySelectedFilterCategories)
     },
 
     updateLocalFilterQuery (payload) {
       this.updateFilterQuery(payload)
-      this.filterQueryStorage.set(this.appliedFilterQuery)
+      this.setFilterQueryStorage(this.appliedFilterQuery)
     }
   },
 
