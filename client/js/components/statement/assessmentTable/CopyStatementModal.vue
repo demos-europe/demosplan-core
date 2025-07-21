@@ -26,7 +26,7 @@
         <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
           v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
-          class="mt-3 mb-2"
+          class="mb-2"
           :message="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')"
           type="warning" />
         <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->

@@ -24,18 +24,18 @@
         class="u-pv-0_5" />
       <template v-else>
         <dp-inline-notification
-          class="mt-3 mb-2"
+          class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.description')"
           type="warning" />
         <dp-inline-notification
           v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
-          class="mt-3 mb-2"
+          class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.description.foreignProcedures')"
           type="warning" />
         <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
           v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
-          class="mt-3 mb-2"
+          class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')"
           type="warning" />
         <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
