@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
+
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -49,6 +51,11 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
+        // Check if in prod environment
+        if (DemosPlanKernel::ENVIRONMENT_PROD === $this->kernel->getEnvironment()) {
+            return;
+        }
+
         // Only handle main requests
         if (!$event->isMainRequest()) {
             return;
@@ -65,11 +72,6 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
         // Skip if user is not authenticated
         $user = $this->security->getUser();
         if (null === $user) {
-            return;
-        }
-
-        // Check if in test environment
-        if ('dev' !== $this->kernel->getEnvironment()) {
             return;
         }
 
