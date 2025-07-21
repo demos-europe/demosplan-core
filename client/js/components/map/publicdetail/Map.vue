@@ -354,9 +354,14 @@ export default {
         this.showPopup('criteriaPopup', '', coordinate)
         $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-        dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
-          params: remappedCriteriaUrl
-        }).then(criteriaResponse => {
+        const getData = { params: remappedCriteriaUrl }
+        
+        //  This triggers getFeatureInfoByType() in GetFeatureInfo service
+        if (PROJECT && PROJECT === 'robobsh') {
+          getData.infotype = 'criteria'
+        }
+
+        dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData).then(criteriaResponse => {
           const criteriaData = JSON.parse(criteriaResponse.data)
           if (criteriaData.code === 100 && criteriaData.success) {
             if (criteriaData.body !== null) {
