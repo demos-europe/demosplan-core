@@ -11,13 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Exception;
 
-class CustomerDeleter extends CoreService
+class CustomerDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,

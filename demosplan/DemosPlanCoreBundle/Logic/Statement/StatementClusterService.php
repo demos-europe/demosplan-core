@@ -14,7 +14,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
@@ -22,9 +21,10 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-class StatementClusterService extends CoreService
+class StatementClusterService
 {
     /** @var StatementService */
     protected $statementService;
@@ -34,7 +34,9 @@ class StatementClusterService extends CoreService
         private readonly DqlConditionFactory $conditionFactory,
         private readonly StatementCopier $statementCopier,
         private readonly StatementRepository $statementRepository,
-        StatementService $statementService
+        private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
+        private readonly LoggerInterface $logger,
+        StatementService $statementService,
     ) {
         $this->statementService = $statementService;
     }
@@ -52,7 +54,7 @@ class StatementClusterService extends CoreService
     public function newStatementCluster(Statement $representativeStatement, array $statementIdsToCluster)
     {
         /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $doctrineConnection = $this->doctrine->getConnection();
 
         try {
             $doctrineConnection->beginTransaction();

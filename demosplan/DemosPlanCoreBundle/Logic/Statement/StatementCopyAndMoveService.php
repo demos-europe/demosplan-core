@@ -12,12 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use Doctrine\ORM\EntityNotFoundException;
 
-class StatementCopyAndMoveService extends CoreService
+class StatementCopyAndMoveService
 {
     /** @var ReportService */
     protected $reportService;
@@ -25,7 +24,7 @@ class StatementCopyAndMoveService extends CoreService
     public function __construct(
         ReportService $reportService,
         private readonly StatementService $statementService,
-        private readonly StatementVoteRepository $statementVoteRepository
+        private readonly StatementVoteRepository $statementVoteRepository,
     ) {
         $this->reportService = $reportService;
     }

@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
@@ -28,9 +27,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class TagService extends CoreService
+class TagService
 {
     public function __construct(
         private readonly BoilerplateRepository $boilerplateRepository,
@@ -38,6 +38,7 @@ class TagService extends CoreService
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 

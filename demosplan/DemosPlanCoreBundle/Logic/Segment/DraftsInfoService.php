@@ -11,13 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Psr\Log\LoggerInterface;
 
-class DraftsInfoService extends CoreService
+class DraftsInfoService
 {
-    public function __construct(private readonly StatementHandler $statementHandler)
-    {
+    public function __construct(
+        private readonly StatementHandler $statementHandler,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -30,7 +32,7 @@ class DraftsInfoService extends CoreService
     {
         $statement = $this->statementHandler->getStatement($statementId);
         if (null === $statement) {
-            $this->getLogger()->error('Error: No Statement found for Id: '.$statementId);
+            $this->logger->error('Error: No Statement found for Id: '.$statementId);
             throw StatementNotFoundException::createFromId($statementId);
         }
         $statement->setDraftsListJson($data);
