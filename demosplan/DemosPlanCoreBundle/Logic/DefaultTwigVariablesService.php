@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\TokenExpirationInjection;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
@@ -42,7 +43,6 @@ class DefaultTwigVariablesService
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
-        private readonly DemosPlanRequestListener $demosPlanRequestListener,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JWTTokenManagerInterface $jwtTokenManager,
         private readonly OrgaLoader $orgaLoader,
@@ -50,7 +50,6 @@ class DefaultTwigVariablesService
          * @var PermissionsInterface|Permissions
          */
         private readonly PermissionsInterface $permissions,
-        private readonly SessionHandler $sessionHandler,
         private readonly TransformMessageBagService $transformMessageBagService,
         private readonly string $publicCSSClassPrefix,
         private readonly string $defaultLocale)
@@ -180,7 +179,7 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
-            'accessTokenExpirationTimestamp'   => $request->getSession()->get(TokenExpirationRequestListener::ACCESS_TOKEN_EXPIRATION_TIMESTAMP),
+            'accessTokenExpirationTimestamp'   => $request->getSession()->get(TokenExpirationInjection::ACCESS_TOKEN_EXPIRATION_TIMESTAMP),
         ];
     }
 
