@@ -12,16 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,27 +40,27 @@ class ApplyProcedureTypeTemplateCommand extends Command
     protected static $defaultName = 'dplan:procedure-type:apply-template';
     private const TEMPLATE_CONFIGURATIONS = [
         'ewm' => [
-            'name' => 'Einwendungsmanagement',
+            'name'        => 'Einwendungsmanagement',
             'description' => 'Dieser Verfahrenstyp ist für die Auswertung vieler Einwendungen optimiert',
-            'fields' => [
+            'fields'      => [
                 StatementFormDefinitionInterface::CITIZEN_XOR_ORGA_AND_ORGA_NAME => [
-                    'enabled' => false,
+                    'enabled'  => false,
                     'required' => false,
                 ],
                 StatementFormDefinitionInterface::COUNTY_REFERENCE => [
-                    'enabled' => true,
+                    'enabled'  => true,
                     'required' => true,
                 ],
                 StatementFormDefinitionInterface::NAME => [
-                    'enabled' => true,
+                    'enabled'  => true,
                     'required' => true,
                 ],
                 StatementFormDefinitionInterface::POSTAL_AND_CITY => [
-                    'enabled' => true,
+                    'enabled'  => true,
                     'required' => false,
                 ],
                 StatementFormDefinitionInterface::EMAIL => [
-                    'enabled' => true,
+                    'enabled'  => true,
                     'required' => false,
                 ],
             ],
@@ -70,7 +70,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
     public function __construct(
         private readonly ProcedureTypeService $procedureTypeService,
         private readonly ProcedureTypeRepository $procedureTypeRepository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
     }
@@ -90,7 +90,8 @@ class ApplyProcedureTypeTemplateCommand extends Command
 
         if (!isset(self::TEMPLATE_CONFIGURATIONS[$templateId])) {
             $io->error(sprintf('Unknown template: "%s"', $templateId));
-            $io->note('Available templates: ' . implode(', ', array_keys(self::TEMPLATE_CONFIGURATIONS)));
+            $io->note('Available templates: '.implode(', ', array_keys(self::TEMPLATE_CONFIGURATIONS)));
+
             return Command::FAILURE;
         }
 
@@ -109,7 +110,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         if ($isDryRun) {
             $io->section('[DRY RUN] Template Application Preview');
         } else {
-            $io->section('Applying Template: ' . $templateId);
+            $io->section('Applying Template: '.$templateId);
         }
 
         $this->displayProcedureTypeInfo($procedureType, $io);
@@ -117,11 +118,13 @@ class ApplyProcedureTypeTemplateCommand extends Command
 
         if (empty($changes)) {
             $io->success('No field changes needed. Configuration is already up to date.');
+
             return Command::SUCCESS;
         }
 
         if ($isDryRun) {
             $io->note('No changes applied due to dry-run mode.');
+
             return Command::SUCCESS;
         }
 
@@ -130,9 +133,11 @@ class ApplyProcedureTypeTemplateCommand extends Command
         try {
             $this->entityManager->flush();
             $io->success(sprintf('Template "%s" applied successfully to procedure type "%s".', $templateId, $procedureType->getName()));
+
             return Command::SUCCESS;
-        } catch (\Exception $e) {
-            $io->error('Failed to save configuration changes: ' . $e->getMessage());
+        } catch (Exception $e) {
+            $io->error('Failed to save configuration changes: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }
@@ -141,6 +146,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
     {
         if (empty($procedureTypes)) {
             $io->info('No procedure types found in the database.');
+
             return;
         }
 
@@ -152,7 +158,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
             if (null !== $procedureType->getStatementFormDefinition()) {
                 $fieldDefinitions = $procedureType->getStatementFormDefinition()->getFieldDefinitions();
                 $fieldCount = count($fieldDefinitions);
-                $enabledFieldCount = count($fieldDefinitions->filter(fn($field) => $field->isEnabled()));
+                $enabledFieldCount = count($fieldDefinitions->filter(fn ($field) => $field->isEnabled()));
             }
 
             $tableData[] = [
@@ -206,11 +212,11 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $formDefinition = $procedureType->getStatementFormDefinition();
 
         foreach ($changes as $fieldName => $change) {
-            if ($change['action'] === 'create') {
+            if ('create' === $change['action']) {
                 // Cast interface to concrete class since StatementFieldDefinition constructor requires it
                 /** @var StatementFormDefinition $concreteFormDefinition */
                 $concreteFormDefinition = $formDefinition;
-                
+
                 $fieldDefinition = new StatementFieldDefinition(
                     $fieldName,
                     $concreteFormDefinition,
@@ -247,7 +253,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
             $desiredConfig['enabled'] ? 'true' : 'false',
             $desiredConfig['required'] ? 'true' : 'false'
         ));
-        
+
         return [
             'action' => 'create',
             'config' => $desiredConfig,
@@ -272,7 +278,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
 
         return [
             'action' => 'update',
-            'field' => $fieldDefinition,
+            'field'  => $fieldDefinition,
             'config' => $desiredConfig,
         ];
     }
@@ -283,6 +289,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         if ($enabled) {
             $state .= sprintf(', required=%s', $required ? 'true' : 'false');
         }
+
         return $state;
     }
 
@@ -296,13 +303,13 @@ class ApplyProcedureTypeTemplateCommand extends Command
         return $maxOrder + 1;
     }
 
-
     private function selectProcedureTypeInteractively(string $templateId, array $config, SymfonyStyle $io): ?ProcedureType
     {
         try {
             $existingTypes = $this->procedureTypeRepository->findAll();
-        } catch (\Exception $e) {
-            $io->error('Failed to retrieve existing procedure types: ' . $e->getMessage());
+        } catch (Exception $e) {
+            $io->error('Failed to retrieve existing procedure types: '.$e->getMessage());
+
             return null;
         }
 
@@ -325,7 +332,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
             if (null !== $type->getStatementFormDefinition()) {
                 $fieldDefinitions = $type->getStatementFormDefinition()->getFieldDefinitions();
                 $fieldCount = count($fieldDefinitions);
-                $enabledCount = count($fieldDefinitions->filter(fn($field) => $field->isEnabled()));
+                $enabledCount = count($fieldDefinitions->filter(fn ($field) => $field->isEnabled()));
             }
 
             $choices[] = sprintf('%s (%d fields, %d enabled)', $type->getName(), $fieldCount, $enabledCount);
@@ -345,14 +352,15 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $selectedChoice = $io->askQuestion($question);
         $selectedIndex = array_search($selectedChoice, $choices);
 
-        if ($selectedIndex === false) {
+        if (false === $selectedIndex) {
             $io->error('Invalid selection.');
+
             return null;
         }
 
         $selectedProcedureType = $procedureTypes[$selectedIndex];
 
-        if ($selectedProcedureType === null) {
+        if (null === $selectedProcedureType) {
             // Create new procedure type
             return $this->createNewProcedureType($config, $io);
         }
@@ -379,9 +387,11 @@ class ApplyProcedureTypeTemplateCommand extends Command
             $this->entityManager->flush();
 
             $io->note(sprintf('Created new procedure type "%s"', $config['name']));
+
             return $procedureType;
-        } catch (\Exception $e) {
-            $io->error('Failed to create procedure type: ' . $e->getMessage());
+        } catch (Exception $e) {
+            $io->error('Failed to create procedure type: '.$e->getMessage());
+
             return null;
         }
     }

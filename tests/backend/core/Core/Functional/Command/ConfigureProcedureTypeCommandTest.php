@@ -12,21 +12,22 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional\Command;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Command\ApplyProcedureTypeTemplateCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureTypeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFormDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository;
-use Tests\Base\FunctionalTestCase;
+use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Tests\Base\FunctionalTestCase;
 
 class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
 {
-    const APPLIED_SUCCESSFULLY = 'applied successfully';
+    public const APPLIED_SUCCESSFULLY = 'applied successfully';
     /** @var ApplyProcedureTypeTemplateCommand */
     protected $sut;
 
@@ -45,8 +46,8 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
     private function createEwmProcedureType(string $name = 'Einwendungsmanagement'): ProcedureType
     {
         return ProcedureTypeFactory::createOne([
-            'name' => $name,
-            'statementFormDefinition' => StatementFormDefinitionFactory::createOne()->_real()
+            'name'                    => $name,
+            'statementFormDefinition' => StatementFormDefinitionFactory::createOne()->_real(),
         ])->_real();
     }
 
@@ -57,6 +58,7 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
                 return $fieldDefinition;
             }
         }
+
         return null;
     }
 
@@ -73,6 +75,7 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
                 }
             }
         }
+
         return null;
     }
 
@@ -191,14 +194,14 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
 
         // Create a procedure type with empty field definitions
         $formDefinition = new StatementFormDefinition();
-        $reflection = new \ReflectionClass($formDefinition);
+        $reflection = new ReflectionClass($formDefinition);
         $fieldDefinitionsProperty = $reflection->getProperty('fieldDefinitions');
         $fieldDefinitionsProperty->setAccessible(true);
         $fieldDefinitionsProperty->setValue($formDefinition, new \Doctrine\Common\Collections\ArrayCollection());
 
         ProcedureTypeFactory::createOne([
-            'name' => 'TestProcedureType',
-            'statementFormDefinition' => $formDefinition
+            'name'                    => 'TestProcedureType',
+            'statementFormDefinition' => $formDefinition,
         ]);
 
         $commandTester = new CommandTester($this->sut);
