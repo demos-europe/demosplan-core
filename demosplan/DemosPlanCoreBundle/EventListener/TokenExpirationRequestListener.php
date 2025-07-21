@@ -32,7 +32,6 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
     ) {
     }
 
-
     public static function getSubscribedEvents(): array
     {
         return [

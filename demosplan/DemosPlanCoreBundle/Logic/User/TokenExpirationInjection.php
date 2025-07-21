@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
@@ -28,7 +36,6 @@ class TokenExpirationInjection
             || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
     }
 
-
     public function injectTokenExpirationIntoSession(Session $session, UserInterface $user): void
     {
         try {
@@ -55,4 +62,3 @@ class TokenExpirationInjection
         }
     }
 }
-

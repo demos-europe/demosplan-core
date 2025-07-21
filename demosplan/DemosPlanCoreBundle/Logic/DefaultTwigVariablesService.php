@@ -14,8 +14,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
-use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener;
-use demosplan\DemosPlanCoreBundle\EventListener\TokenExpirationRequestListener;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
