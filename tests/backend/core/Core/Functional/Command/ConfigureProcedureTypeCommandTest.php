@@ -26,6 +26,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
 {
+    const APPLIED_SUCCESSFULLY = 'applied successfully';
     /** @var ApplyProcedureTypeTemplateCommand */
     protected $sut;
 
@@ -123,7 +124,7 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
         self::assertNotNull($configuredProcedureType, 'No procedure type was configured with ewm settings');
 
         $this->assertEwmFieldConfiguration($configuredProcedureType->getStatementFormDefinition());
-        self::assertStringContainsString('applied successfully', $commandTester->getDisplay());
+        self::assertStringContainsString(self::APPLIED_SUCCESSFULLY, $commandTester->getDisplay());
     }
 
     public function testConfigureNonExistentProcedureTypeWithoutCreateFlag(): void
@@ -141,7 +142,7 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
         $exitCode = $commandTester->execute(['template' => 'ewm'], ['interactive' => false]);
 
         self::assertEquals(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('applied successfully', $commandTester->getDisplay());
+        self::assertStringContainsString(self::APPLIED_SUCCESSFULLY, $commandTester->getDisplay());
     }
 
     public function testDryRunShowsChangesWithoutApplying(): void
@@ -204,6 +205,6 @@ class ConfigureProcedureTypeCommandTest extends FunctionalTestCase
         $exitCode = $commandTester->execute(['template' => 'ewm'], ['interactive' => false]);
 
         self::assertEquals(Command::SUCCESS, $exitCode);
-        self::assertStringContainsString('applied successfully', $commandTester->getDisplay());
+        self::assertStringContainsString(self::APPLIED_SUCCESSFULLY, $commandTester->getDisplay());
     }
 }
