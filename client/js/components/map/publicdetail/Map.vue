@@ -323,9 +323,14 @@ export default {
 
         // Show priority area popup with action button if priority area found
         if (parsedData.body !== null) {
+          // Determine correct title and text based on area type
+          const isVorranggebiet = parsedData.body.type === 'positive'
+          const titleKey = isVorranggebiet ? 'priorityArea.gfi' : 'potential.areas'
+          const title = Translator.trans(titleKey)
+
           const priorityAreaContent = {
-            title: Translator.trans('potential.areas'),
-            text: `${Translator.trans('potential.areas')} ${parsedData.body.key} (${parsedData.body.type})`
+            title: title,
+            text: `${title} ${parsedData.body.key}`
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
@@ -355,7 +360,7 @@ export default {
         $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
         const getData = { params: remappedCriteriaUrl }
-        
+
         //  This triggers getFeatureInfoByType() in GetFeatureInfo service
         if (PROJECT && PROJECT === 'robobsh') {
           getData.infotype = 'criteria'
