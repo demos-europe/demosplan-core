@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
