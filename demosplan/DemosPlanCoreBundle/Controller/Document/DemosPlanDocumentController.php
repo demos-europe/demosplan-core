@@ -61,6 +61,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -670,7 +671,9 @@ class DemosPlanDocumentController extends BaseController
          *
          * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
-        $errorReports = $session->getFlashBag()->get('errorReports');
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $errorReports = $flashBag->get('errorReports');
         $templateVars['errorReport'] = [];
 
         if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
@@ -735,7 +738,9 @@ class DemosPlanDocumentController extends BaseController
         );
 
         // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
-        $session->getFlashBag()->add('errorReports', $errorReport);
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $flashBag->add('errorReports', $errorReport);
 
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }

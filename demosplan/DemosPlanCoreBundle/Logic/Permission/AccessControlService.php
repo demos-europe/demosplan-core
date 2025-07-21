@@ -17,12 +17,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
+use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Psr\Log\LoggerInterface;
 
 /**
  * This file is part of the package demosplan.
@@ -31,7 +31,7 @@ use Psr\Log\LoggerInterface;
  *
  * All rights reserved
  */
-class AccessControlService
+class AccessControlService extends CoreService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
@@ -39,8 +39,14 @@ class AccessControlService
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
         private readonly OrgaService $orgaService,
-        private readonly LoggerInterface $logger,
     ) {
+    }
+
+    public function createPermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles)
+    {
+        foreach ($roles as $role) {
+            $this->createPermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
@@ -125,6 +131,13 @@ class AccessControlService
         $enabledPermissions = array_unique($enabledPermissions);
 
         return $enabledPermissions;
+    }
+
+    public function removePermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
+    {
+        foreach ($roles as $role) {
+            $this->removePermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
