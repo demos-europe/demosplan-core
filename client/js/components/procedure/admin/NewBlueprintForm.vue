@@ -146,6 +146,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -164,6 +165,7 @@ export default {
   components: {
     DpCheckbox,
     DpEmailList,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
