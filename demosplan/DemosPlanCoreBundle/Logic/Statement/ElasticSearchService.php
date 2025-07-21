@@ -37,7 +37,6 @@ class ElasticSearchService extends CoreService
 
     /**
      * Number of Documents to be counted as an Elasticsearch aggregation.
-     *
      */
     protected int $aggregationsMinDocumentCount = 1;
 
@@ -434,9 +433,8 @@ class ElasticSearchService extends CoreService
 
     /**
      * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
-     *
      */
-    private function hasFilterValue(array|string $filter) : bool
+    private function hasFilterValue(array|string $filter): bool
     {
         if (is_array($filter)) {
             foreach ($filter as $filterValue) {
@@ -533,7 +531,6 @@ class ElasticSearchService extends CoreService
     /**
      * Convert the result from Elasticsearch to legacy format.
      */
-
     protected function convertElasticsearchHitToLegacy(array $hit): array
     {
         $singleHit = $hit['_source'];
