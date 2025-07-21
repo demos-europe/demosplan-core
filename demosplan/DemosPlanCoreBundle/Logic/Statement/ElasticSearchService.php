@@ -38,9 +38,8 @@ class ElasticSearchService extends CoreService
     /**
      * Number of Documents to be counted as an Elasticsearch aggregation.
      *
-     * @var int
      */
-    protected $aggregationsMinDocumentCount = 1;
+    protected int $aggregationsMinDocumentCount = 1;
 
     public function __construct(private readonly EditorService $editorService, private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer, private readonly PermissionsInterface $permissions, private readonly UserService $userService)
     {
@@ -98,7 +97,7 @@ class ElasticSearchService extends CoreService
         return $query;
     }
 
-    public function setAggregationsMinDocumentCount($aggregationsMinDocumentCount): void
+    public function setAggregationsMinDocumentCount(int $aggregationsMinDocumentCount): void
     {
         $this->aggregationsMinDocumentCount = $aggregationsMinDocumentCount;
     }
@@ -116,16 +115,14 @@ class ElasticSearchService extends CoreService
         return $elasticsearchResultStatement;
     }
 
-    /**
-     * @param string $keyInAggregation
-     * @param array  $fromArray
-     * @param array  $aggregation
-     * @param array  $labelMap
-     * @param string $labelKey
-     * @param string $valueKey
-     * @param string $countKey
-     */
-    protected function addAggregationResultToArrayFromArray($keyInAggregation, $fromArray, $aggregation, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
+    protected function addAggregationResultToArrayFromArray(
+        string $keyInAggregation,
+        array $fromArray,
+        array $aggregation,
+        array $labelMap = [],
+        string $labelKey = 'key',
+        string $valueKey = 'key',
+        string $countKey = 'doc_count'): array
     {
         $generatedFilterArray = $this->elasticsearchFilterArrayTransformer->generateFilterArrayFromEsBucket(
             $fromArray,
@@ -251,14 +248,12 @@ class ElasticSearchService extends CoreService
         return $bucket;
     }
 
-    /**
-     * @param string $keyInFragmentEsResult
-     * @param string $keyInAggregation
-     * @param array  $fragmentAggregations
-     * @param array  $aggregation
-     * @param array  $labelMap
-     */
-    public function addFragmentEsResultToArray($keyInFragmentEsResult, $keyInAggregation, $fragmentAggregations, $aggregation, $labelMap = [])
+    public function addFragmentEsResultToArray(
+        string $keyInFragmentEsResult,
+        string $keyInAggregation,
+        array $fragmentAggregations,
+        array $aggregation,
+        array $labelMap = []): array
     {
         if (isset($fragmentAggregations[$keyInFragmentEsResult])) {
             $aggregation = $this->addAggregationResultToArrayFromArray(
@@ -440,9 +435,8 @@ class ElasticSearchService extends CoreService
     /**
      * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
      *
-     * @return bool
      */
-    private function hasFilterValue($filter)
+    private function hasFilterValue(array|string $filter) : bool
     {
         if (is_array($filter)) {
             foreach ($filter as $filterValue) {
@@ -537,11 +531,10 @@ class ElasticSearchService extends CoreService
     }
 
     /**
-     * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
-     *
-     * @param array $hit
+     * Convert the result from Elasticsearch to legacy format.
      */
-    protected function convertElasticsearchHitToLegacy($hit)
+
+    protected function convertElasticsearchHitToLegacy(array $hit): array
     {
         $singleHit = $hit['_source'];
         if (array_key_exists('originalId', $singleHit)) {
