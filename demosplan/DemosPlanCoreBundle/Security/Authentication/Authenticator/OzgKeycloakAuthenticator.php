@@ -38,7 +38,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -66,8 +66,6 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
                     $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
                     $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
-
-
 
                     $this->entityManager->getConnection()->commit();
                     $this->logger->info('doctrine transaction commit.');

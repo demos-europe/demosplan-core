@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
+use Exception;
 use Illuminate\Support\Collection;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
@@ -139,7 +140,7 @@ class DefaultTwigVariablesService
                 ) ?? ''
             );
         }
-        
+
         $jwtToken = $this->jwtTokenManager->create($user);
 
         $this->variables = [
@@ -179,7 +180,7 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
-            'accessTokenExpirationTimestamp'   => $this->getAccessTokenExpirationTimestamp($request, $jwtToken)
+            'accessTokenExpirationTimestamp'   => $this->getAccessTokenExpirationTimestamp($request, $jwtToken),
         ];
     }
 
@@ -187,20 +188,20 @@ class DefaultTwigVariablesService
     {
         // First try to get Keycloak token expiration from session
         $sessionExpiration = $request->getSession()->get('accessTokenExpirationTimestamp');
-        if ($sessionExpiration !== null) {
+        if (null !== $sessionExpiration) {
             return is_int($sessionExpiration) ? $sessionExpiration : (int) $sessionExpiration;
         }
 
         // Fallback to JWT token expiration
         try {
             $payload = $this->jwtTokenManager->parse($jwtToken);
+
             return $payload['exp'] ?? null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // If JWT parsing fails, return null
             return null;
         }
     }
-
 
     /**
      * @return array<string, string>
