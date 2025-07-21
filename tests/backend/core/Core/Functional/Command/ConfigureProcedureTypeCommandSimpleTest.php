@@ -25,7 +25,7 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Get the command directly from container using the actual command class
         $this->sut = new ApplyProcedureTypeTemplateCommand(
             $this->getContainer()->get('demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'),
@@ -48,7 +48,7 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
         // Arrange
         $commandTester = new CommandTester($this->sut);
 
-        // Act & Assert - should throw exception for missing required argument 
+        // Act & Assert - should throw exception for missing required argument
         $this->expectException(\Symfony\Component\Console\Exception\RuntimeException::class);
         $this->expectExceptionMessage('Not enough arguments (missing: "template")');
         $commandTester->execute([]);
@@ -88,7 +88,7 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
     {
         // Arrange
         $commandTester = new CommandTester($this->sut);
-        
+
         // Act - interactive mode will default to first existing procedure type
         $exitCode = $commandTester->execute(['template' => 'ewm'], ['interactive' => false]);
 
@@ -97,7 +97,7 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
         $output = $commandTester->getDisplay();
         self::assertStringContainsString('Applying Template: ewm', $output);
         self::assertStringContainsString('applied successfully', $output);
-        
+
         // Should show the field changes
         self::assertStringContainsString('citizenXorOrgaAndOrgaName: enabled=false', $output);
         self::assertStringContainsString('countyReference: enabled=true, required=true', $output);
@@ -114,7 +114,7 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
         // Assert - command should succeed
         self::assertEquals(Command::SUCCESS, $exitCode);
         $output = $commandTester->getDisplay();
-        
+
         // Should show procedure type information (the one that was selected/modified)
         self::assertStringContainsString('Name', $output);
         self::assertStringContainsString('Description', $output);
@@ -131,10 +131,10 @@ class ConfigureProcedureTypeCommandSimpleTest extends FunctionalTestCase
         // Assert - verify the specific ewm template was applied
         self::assertEquals(Command::SUCCESS, $exitCode);
         $output = $commandTester->getDisplay();
-        
+
         // Check for the expected field configuration changes
         self::assertStringContainsString('Field Configuration Changes', $output);
-        self::assertStringContainsString('citizenXorOrgaAndOrgaName', $output);  
+        self::assertStringContainsString('citizenXorOrgaAndOrgaName', $output);
         self::assertStringContainsString('countyReference', $output);
     }
 }
