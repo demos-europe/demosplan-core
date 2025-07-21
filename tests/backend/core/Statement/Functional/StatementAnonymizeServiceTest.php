@@ -145,7 +145,7 @@ class StatementAnonymizeServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementAnonymizeService::class);
+        $this->sut = self::getContainer()->get(StatementAnonymizeService::class);
 
         $user = $this->getUserReference('testUserPlanningOffice');
         $this->logIn($user);

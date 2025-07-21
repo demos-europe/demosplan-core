@@ -43,7 +43,6 @@
         style="width: 5%" />
     </tr>
 
-
     <dp-version-history-item
       v-for="(time, idx) in filteredItems"
       :key="idx"

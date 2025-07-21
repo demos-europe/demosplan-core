@@ -7,11 +7,11 @@
  * All rights reserved
  */
 
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
-import notify from './Notify'
-import { createStore } from 'vuex'
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
+import { checkResponse, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
+import { createStore } from 'vuex'
+import notify from './Notify'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -31,6 +31,20 @@ function registerPresetModules (store, presetStoreModules) {
     }
   }
   return store
+}
+
+const handleResponse = async (response, messages = {}) => {
+  // If the response body is empty, contentType will be null
+  const contentType = response.headers.get('Content-Type')
+  let payload = null
+
+  if (contentType && contentType.includes('json')) {
+    payload = await response.json()
+  } else {
+    payload = await response
+  }
+
+  return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url }, messages)
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
@@ -61,37 +75,28 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
-            router: router,
-            baseUrl: baseUrl,
+            router,
+            baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
+              'X-Demosplan-Procedure-Id': dplan.procedureId,
+              'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
-              (response) => {
-                if (typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
-                }
-                return Promise.resolve(response)
-              }
+              handleResponse
             ],
             errorCallbacks: [
-              (err) => {
-                const response = err.response
-                if (typeof response !== 'undefined' &&
-                typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
-                }
-                return Promise.reject(err)
-              }
+              handleResponse
             ]
           }),
           store => {
-            store.api.checkResponse = checkResponse
+            store.api.newStaticRoute = (route) => {
+              return new StaticRoute(route)
+            }
+            store.api.newRoute = (route) => {
+              return new Route(route)
+            }
+            store.api.handleResponse = handleResponse
           }
         ]
       })

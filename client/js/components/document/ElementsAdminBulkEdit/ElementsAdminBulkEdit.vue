@@ -60,6 +60,7 @@
         class="border--bottom u-mt u-pb-0_5">
         <p v-html="confirmStateChangeMessage" />
         <dp-inline-notification
+          class="mt-3 mb-2"
           :message="Translator.trans('elements.bulk.edit.change.state.hint')"
           type="warning" />
       </div>
@@ -78,15 +79,13 @@
 
 <script>
 import {
-  checkResponse,
   DpCheckbox,
   DpDatetimePicker,
   DpInlineNotification,
   dpRpc,
   DpSelect,
   dpValidateMixin,
-  formatDate,
-  hasOwnProp
+  formatDate
 } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
@@ -173,10 +172,11 @@ export default {
       }
 
       dpRpc('planning.document.category.bulk.edit', params)
-        .then(checkResponse)
-        .then((response) => {
-          this.actions.setEnabled.success = (hasOwnProp(response, 0) && hasOwnProp(response[0], 'result'))
-          this.actions.setEnabled.elementsCount = (hasOwnProp(response, 0) && response[0]?.result)
+        .then(response => {
+          const result = response.data?.[0]?.result
+
+          this.actions.setEnabled.success = !!result
+          this.actions.setEnabled.elementsCount = result
         })
         .catch(() => {
           this.actions.setEnabled.success = false

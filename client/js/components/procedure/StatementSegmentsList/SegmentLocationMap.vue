@@ -18,6 +18,7 @@
         ref="map"
         :layers="mapData.layers"
         :procedure-id="procedureId"
+        map-id="segmentLocationMap"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
         }"
@@ -93,7 +94,7 @@
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
-        :disabled="!hasChanges"
+        :disabled="{ primary: !hasChanges }"
         primary
         secondary
         @primary-action="save"
@@ -103,13 +104,12 @@
 </template>
 
 <script>
-import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
-import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -118,7 +118,7 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature,
+    DpOlMapEditFeature
   },
 
   props: {
@@ -234,50 +234,32 @@ export default {
       })
     },
 
-    /**
-     * Restore non-updatable comments from segments relationships after update request
-     */
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments: comments
-          }
-        }
-        this.setItem({ ...segmentWithComments })
-      }
-    },
-
     save () {
-      this.setItem({
-        ...this.segment,
-        attributes: {
-          ...this.segment.attributes,
-          polygon: JSON.stringify(this.featuresObject)
-        }
-      })
-      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+      const attributes = {
+        polygon: JSON.stringify(this.featuresObject)
+      }
+      const payload = {
+        type: 'StatementSegment',
+        id: this.segmentId,
+        attributes
+      }
 
       /**
-       *  Comments need to be removed as updating them is technically not supported
-       *  After completing the request, they are added again to the store to be able to display them
+       * Vuex-json-api may include relationships in the PATCH request,
+       * and it does not support excluding them from the payload.
+       * To avoid unintentionally sending relationship data, use a dpApi method with a manually constructed payload
+       * and update the store after a successful response.
        */
-      if (this.segment.relationships.comments) {
-        delete this.segment.relationships.comments
-      }
-
-      return this.saveSegmentAction(this.segmentId)
-        .then(checkResponse)
+      return dpApi.patch(Routing.generate('api_resource_update', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segmentId
+      }), {}, { data: payload })
         .then(() => {
+          this.updateStore(attributes.polygon)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
-        })
-        .finally(() => {
-          this.restoreComments(comments)
         })
     },
 
@@ -323,10 +305,22 @@ export default {
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
+    },
+
+    updateStore (polygon) {
+      const storePayload = {
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          polygon
+        },
+        id: this.segment.id
+      }
+      this.setItem(storePayload)
     }
   },
 
-  mounted() {
+  mounted () {
     this.$root.$on('segmentMap:show', () => {
       this.$nextTick(() => {
         this.initMap()

@@ -48,7 +48,7 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
     protected $statement;
 
     /**
-     * @var UserInterface
+     * @var UserInterface|null
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
      *

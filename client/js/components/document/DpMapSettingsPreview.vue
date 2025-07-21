@@ -63,14 +63,14 @@
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="(link, index) in permittedLinks"
-          class="layout__item"
-          :key="link.tooltipContent">
+          v-for="link in permittedLinks"
+          :key="link.tooltipContent"
+          class="layout__item">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="`gisLayerLink:${index}`"
+            :data-cy="`gisLayerLink:${link.label}`"
             :href="href(link)">
             <i
               aria-hidden="true"
@@ -245,7 +245,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
@@ -386,7 +386,9 @@ export default {
 
     isNotEmptyFeatureCollection (string) {
       try {
-        return JSON.parse(string).features.length > 0
+        const parsedFeatures = JSON.parse(string).features
+
+        return Array.isArray(parsedFeatures) ? parsedFeatures.length > 0 : Object.keys(parsedFeatures).length > 0
       } catch (e) {
         return true
       }
@@ -411,7 +413,7 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
+      })
         .then(() => {
           this.previousValues.planstatus = this.planstatus
           this.isPlanStatusEditing = false
@@ -435,8 +437,8 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.isMapEnabled = this.isMapEnabled
           this.isMapStatusEditing = false
         })
@@ -458,8 +460,8 @@ export default {
             }
           }
         }
-      }).then(checkResponse)
-        .then((response) => {
+      })
+        .then(() => {
           this.previousValues.planningArea = this.planningArea
           this.isPlanningAreaEditing = false
         })
@@ -473,8 +475,7 @@ export default {
 
     getInitialData () {
       return dpApi.get(Routing.generate('dp_api_documents_dashboard_get', { procedureId: this.procedureId, include: 'procedureMapInfo' }))
-        .then(this.checkResponse)
-        .then((response) => {
+        .then(response => {
           // Get id of the "Elements" item that is the map
           if (hasOwnProp(response.data.data, 'relationships')) {
             this.mapIdent = response.data.data.relationships.procedureMapInfo.data.id

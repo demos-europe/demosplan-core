@@ -6,7 +6,7 @@
       <legend class="font-size-large weight--normal u-mb-0_25">
         {{ Translator.trans('organisation.procedures.branding') }}
       </legend>
-      <p v-cleanhtml="brandingExplanation()"></p>
+      <p v-cleanhtml="brandingExplanation()" />
     </template>
     <template v-else>
       <legend class="font-size-large weight--normal u-mb-0_75">
@@ -32,9 +32,9 @@
         data-cy="organisationData:branding:dataProtection"
         :hidden-input="organisation.dataProtection || ''"
         :toolbar-items="{
-            linkButton: true,
-            headings: [3, 4]
-          }"
+          linkButton: true,
+          headings: [3, 4]
+        }"
         :value="organisation.dataProtection || ''" />
     </div>
 
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpEditor, DpCheckbox } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpEditor } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'OrganisationBrandingSettings',
@@ -103,7 +103,7 @@ export default {
   },
 
   directives: {
-    cleanhtml: CleanHtml,
+    cleanhtml: CleanHtml
   },
 
   props: {

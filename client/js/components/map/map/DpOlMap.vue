@@ -103,10 +103,10 @@
 
         <!-- Layer from outside -->
         <dp-ol-map-layer
-          v-for="layer in layers"
+          v-for="(layer, idx) in sortedLayers"
           :key="layer.name"
           :attributions="layer.attribution || ''"
-          :order="layer.mapOrder + 1"
+          :order="idx"
           :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
@@ -118,7 +118,7 @@
         ref="mapContainer"
         data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
-        id="map">
+        :id="mapId">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -139,7 +139,6 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
-  checkResponse,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -187,6 +186,12 @@ export default {
       required: false,
       type: Array,
       default: () => ([])
+    },
+
+    mapId: {
+      required: false,
+      type: String,
+      default: 'map'
     },
 
     /*
@@ -257,6 +262,15 @@ export default {
     },
 
     /**
+     * Sorted layers by mapOrder
+     *
+     * @return {layer[]}
+     */
+    sortedLayers () {
+      return [...this.layers].sort((a, b) => a.mapOrder - b.mapOrder)
+    },
+
+    /**
      * Transform function to only return results from inside current maxExtent to AutoComplete
      * @todo make it work - somehow there seem to be different projections ?:/
      *
@@ -296,7 +310,7 @@ export default {
         namedProjections,
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
-        target: 'map',
+        target: this.mapId,
         units: 'm'
       }
 
@@ -354,9 +368,7 @@ export default {
         method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
-        .then(checkResponse)
-        .then(response => response.data.attributes)
-        .catch(error => checkResponse(error.response))
+        .then(response => response.data.data.attributes)
     },
 
     panToCoordinate (coordinate) {

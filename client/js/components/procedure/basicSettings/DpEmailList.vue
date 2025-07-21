@@ -78,6 +78,10 @@ export default {
     }
   },
 
+  emits: [
+    'saved'
+  ],
+
   data () {
     return {
       formFields: {

@@ -149,9 +149,9 @@ actions.statements.confirm: |
 activate: "aktivieren"
 activated: "Aktiviert"
 add: "Hinzufügen"
-add.entity: "{entity} anlegen"
 add_orga.email_hint: "Institutionen können erst hinzugefügt werden sobald eine E-Mail-Adresse hinterlegt ist."
 address: "Adresse"
+address.extension: "Adresszusatz"
 adjustments.advanced: "Erweiterte Einstellungen"
 adjustments.general: "Grundeinstellungen"
 adjustments.general.error.public.participation.maxlength: "\"Ansprechperson für Bürger*innen\" darf nicht länger als 2000 Zeichen sein"
@@ -379,6 +379,7 @@ category.create: "Kategorie erstellen"
 category.new: "Neue Kategorie"
 category.none: "Ohne Kategorie"
 category.not.found: "Kategorie nicht gefunden."
+category_or_tag: "Kategorie / Schlagwort"
 category.update: "Kategorie bearbeiten"
 change: "Ändern"
 change.confirm.with.password: "Änderung mit Passwort bestätigen."
@@ -389,7 +390,17 @@ check: "Muss überprüft werden"
 check.assign.orga: "Sind Sie sicher, dass Sie die ausgewählte Organisation dem ausgewählten Verfahren zuweisen möchten?"
 check.boilerplate.delete: "Sind Sie sicher, daß Sie den Textbaustein \"{boilerplate}\" löschen möchten?"
 check.boilerplateGroup.delete: "Sind Sie sicher, daß Sie die Gruppe \"{boilerplateGroup}\" und Inhalt löschen möchten?"
-check.category.delete: "Sind Sie sicher, dass Sie die Kategorie {categoryTitle} löschen möchten?"
+check.category.delete: "Sind Sie sicher, dass Sie die Kategorie \"{categoryTitle}\" löschen möchten?"
+check.category_with_tags_in_use.delete: |
+    {count, plural,
+        =1 {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Das folgende Schlagwort ist an Institutionen vergeben: {tags}. Wenn Sie die Kategorie und die Schlagworte löschen, wird das Schlagwort von den Institutionen entfernt.}
+        =2 {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: {tags}. Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.}
+        =3 {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: {tags}. Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.}
+        =4 {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: {tags}. Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.}
+        =5 {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: {tags}. Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.}
+        other {Sind Sie sicher, dass Sie die Kategorie "{category}" und alle Schlagworte darin löschen möchten? Mehrere Schlagworte sind an Institutionen vergeben. Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.}
+    }
+check.category_with_tags_not_in_use.delete: "Sind Sie sicher, dass Sie die Kategorie \"{category}\" und alle Schlagworte darin löschen möchten? Die Schlagworte sind nicht an Institutionen vergeben."
 check.cluster.release: "Wollen Sie die Gruppe wirklich auflösen? Änderungen, die an der Gruppe vorgenommen wurden, werden nicht in die Stellungnahmen übernommen."
 check.entries.marked.copy: "Sind Sie sicher, dass Sie die markierten Einträge kopieren wollen?"
 check.statement.replace_source_attachment: "Sie sind dabei, die bereits vorhandene Datei zu ersetzen. Fortfahren?"
@@ -421,10 +432,10 @@ check.statement.marked.release: "Sind Sie sicher, dass Sie die markierten Stellu
 check.statement.marked.submit: "Sind Sie sicher, dass Sie die markierten Stellungnahmen an den Verfahrensträger einreichen möchten? Nachträgliche Änderungen sind nicht möglich."
 check.statement.publish: "Möchten Sie die Stellungnahme wirklich für andere Institutionen sichtbar machen?"
 check.statement.unpublish: "Möchten Sie die Veröffentlichung der Stellungnahme für andere Institutionen wirklich zurücknehmen?"
-check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichung der Begründung ablehnen möchten? Dies kann nicht rückgängig gemacht werden."
-check.tag.delete: "Sind Sie sicher, daß Sie das Schlagwort \"{tag}\" löschen möchten?"
+check.tag.delete: "Sind Sie sicher, dass Sie das Schlagwort \"{tag}\" löschen möchten?"
+check.tag_is_used.delete: "Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an mindestens eine Institution vergeben. Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt."
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
-check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
+check.topic.delete: "Sind Sie sicher, daß Sie das Thema \"{topic}\" löschen möchten?"
 check.user.delete: |
     {count, plural,
         =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
@@ -466,6 +477,7 @@ cluster.name: "Gruppenname"
 comment.add: "Kommentar hinzufügen"
 comment.add.to_segment: "Kommentar zum Abschnitt {segmentExternId} hinzufügen"
 comments: "Kommentare"
+competence: "Zuständigkeit"
 competence.explanation: "Erläuterung der Zuständigkeit"
 configuration: "Konfiguration"
 configure: "Konfigurieren"
@@ -482,7 +494,9 @@ confirm.boilerplate.deleted: "Der Textbaustein \"{title}\" wurde gelöscht."
 confirm.boilerplateGroup.created: "Die Gruppe \"{title}\" wurde erstellt."
 confirm.boilerplateGroup.deleted: "Die Gruppe \"{title}\" wurde gelöscht."
 confirm.boilerplateGroup.updated: "Die Gruppe \"{title}\" wurde geändert."
+confim.category_and_tags.deleted: "Die Kategorie \"{category}\" und alle Schlagworte darin wurden gelöscht."
 confirm.category.created: "Die Kategorie wurde erstellt."
+confirm.category.deleted: "Die Kategorie \"{category}\" wurde gelöscht."
 confirm.category.updated: "Die Kategorie wurde aktualisiert."
 confirm.consolidation.not.assigned: "Sie können keine Stellungnahmen zusammenführen, die Ihnen nicht zugewiesen sind."
 confirm.consolidation.not.enough.statements: "Wählen Sie mindestens zwei Stellungnahmen aus, um eine neue Gruppe zu erstellen."
@@ -553,6 +567,7 @@ confirm.password.changed: "Das Passwort wurde erfolgreich geändert."
 confirm.pdf.to.statement.imported: "Der Inhalt der PDF-Datei wurde erfolgreich als Stellungnahme {externId} angelegt"
 confirm.plan.state.edited: "Der Planstand wurde verändert."
 confirm.plandocument.category.saved: "Die Planungsdokumentenkategorie wurde gespeichert."
+confirm.plandocument.category.deleted: "Die Planungsdokumentkategorie wurde gelöscht."
 confirm.plandocument.deleted: "Das Planungsdokument wurde gelöscht."
 confirm.plandocument.saved: "Das Planungsdokument wurde in der Kategorie angelegt."
 confirm.plandocument.sorted: "Die Sortierung der Planungsdokumente wurde gespeichert."
@@ -579,6 +594,16 @@ confirm.statement.assignment.assigned: "Die Stellungnahme wurde Ihnen erfolgreic
 confirm.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde erfolgreich geändert."
 confirm.statements.assignment.changed: "Die Zuweisung der Stellungnahmen wurde erfolgreich geändert."
 confirm.statement.assignment.unassigned: "Die Stellungnahme wurde erfolgreich freigegeben."
+confirm.statement.attachment.created: |
+    {count, plural,
+        =1 {Der Anhang wurde gespeichert.}
+        other {Die Anhänge wurden gespeichert.}
+    }
+confirm.statement.attachment.deleted: |
+    {count, plural,
+        =1 {Der Anhang wurde gelöscht.}
+        other {Die Anhänge wurden gelöscht.}
+    }
 confirm.statement.cluster.added: "Die Stellungnahme {addedStatement} wurde der Gruppe {headStatement} hinzugefügt."
 confirm.statement.cluster.created: "Die Gruppe {clusterId} wurde erfolgreich erstellt"
 confirm.statement.cluster.merged: "Die Stellungnahmengruppen {sourceCluster} und {targetCluster} wurden zusammengeführt."
@@ -653,7 +678,9 @@ confirm.statement.published: "Die Stellungnahme wurde für andere Institutionen 
 confirm.statement.rejected.reason: "Die Stellungnahme wurde von Ihrer Koordination zurückgewiesen mit der Nachricht"
 confirm.statement.rejected: "Die Stellungnahme wurde zurückgewiesen"
 confirm.statement.saved: "Die Stellungnahme wurde gespeichert."
-confirm.statement.saved.draft.notification: "Ihre Stellungnahme wurde in <a href=\"{link}\">Ihrem Entwurfsordner</a> mit der Vorgangsnummer {number} gespeichert."
+confirm.statement.saved.draft.notification: "Ihre Stellungnahme wurde in <a href=\"{link}\">dem Entwurfsordner</a> mit der Vorgangsnummer {number} gespeichert."
+confirm.statement.source.attachment.created: "Die Stellungnahme als Anhang wurde gespeichert."
+confirm.statement.source.attachment.deleted: "Die Stellungnahme als Anhang wurde gelöscht."
 confirm.statement.status.update: "Der Status der Stellungnahme wurde erfolgreich verändert."
 confirm.statement.submitted.public.mailsent: "Haben Sie eine E-Mail-Adresse angegeben? Dann wurde Ihnen eine Kopie der Stellungnahme zugeschickt. <br />Bitte speichern Sie das PDF Ihrer Stellungnahme oder drucken Sie die Stellungnahme aus."
 confirm.statement.submitted.public: "Ihre Stellungnahme wurde erfolgreich eingereicht und mit der Vorgangsnummer {externId} gespeichert. Bitte notieren Sie sich die Vorgangsnummer, um zu einem späteren Zeitpunkt die Bewertung Ihrer Stellungnahme abzurufen."
@@ -682,7 +709,7 @@ confirm.story.created: "Die Userstory wurde angelegt."
 confirm.story.deleted: "Die Userstory wurde gelöscht."
 confirm.story.updated: "Die Userstory wurde aktualisiert."
 confirm.tag.created: "Das Schlagwort wurde angelegt."
-confirm.tag.edited: "Das Schlagwort wurde bearbeitet."
+confirm.tag.edited: "Das Schlagwort wurde aktualisiert."
 confirm.tag.deleted: "Das Schlagwort \"{title}\" wurde gelöscht."
 confirm.tag.moved: "Das Schlagwort wurde verschoben."
 confirm.tag.renamed: "Das Schlagwort wurde umbenannt."
@@ -1096,8 +1123,11 @@ email.text.notification_for_unsubmitted_statement.statements: >
     }
 end: "Ende"
 enabled: "freigeschaltet"
+entity.create: "{entity} anlegen"
+entity.choose: "{entity} auswählen"
 entity.administration.select.on.page: "Alle {entities} auf dieser Seite markieren"
 entities.marked.delete: "{sum} markierte {entities} löschen"
+entry: "Eingang"
 entries.all.dative: "allen Einträgen"
 entries.checked: "Markiert"
 entries.per.page: "Einträge pro Seite:"
@@ -1108,7 +1138,7 @@ error.2fa.code.invalid: "Der eingegebene Code ist ungültig."
 error.404.title: "Seite nicht gefunden"
 error.404: "Unter dem angefragten Pfad {path} wurde kein Inhalt gefunden."
 error.404.action: "Zurück zur <a href=\"{homepage}\">Startseite</a>."
-error.tag.add: "Das Schlagwort konnte nicht angelegt werden. Eim Fehler ist beim Speichern aufgetreten"
+error.tag.add: "Das Schlagwort konnte nicht angelegt werden. Ein Fehler ist beim Speichern aufgetreten"
 error.annotated.statement.not.ready.to.confirm: "Das Dokument kann nicht bestätigt werden."
 error.annotated.statement.not.ready.to.review: "Das Dokument ist noch nicht bereit zur Überprüfung."
 error.annotated.statement.already.reviewed: "Das Dokument wurde bereits überprüft."
@@ -1132,6 +1162,8 @@ error.copy.mapfile: "Die Einzeichnung der Stellungnahme {externId} konnte nicht 
 error.changes.not.saved: "Beim Speichern der Änderungen ist ein Fehler aufgetreten."
 error.customer.contact.phone_or_email: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
 error.customer.contact.title: "Bitte geben Sie einen Namen für den Kontakt ein."
+error.custom_field.name.duplicate: "Der Name des Feldes ist bereits in Verwendung. Bitte vergeben Sie einen anderen Namen."
+error.custom_field.option_name.duplicate: "Bitte vergeben Sie unterschiedliche Bezeichnungen für die einzelnen Optionen."
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
 error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
@@ -1208,6 +1240,7 @@ error.gislayerCategory.get: "Fehler beim laden der Kartenebenen-Kategorie."
 error.gislayerCategory.update: "Fehler beim Speichern der Kartenebenen-Kategorie."
 error.help.edit: "Beim Bearbeiten der Hilfe ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
 error.import.general: "Dokument konnte nicht importiert werden"
+error.import_segment.no_place: "Bitte fügen Sie vor dem Importieren mindestens einen Bearbeitungsschritt hinzu."
 error.length.slugName: "Der angegebene Teil des Direktlinks darf nicht länger als {count} Zeichen sein."
 error.length.text: "Der Text darf nicht länger als {count} Zeichen sein."
 error.login.or.email.not.unique: "Der angegebene Nutzername oder die angegebene E-Mail-Adresse ist bereits vergeben."
@@ -1247,14 +1280,15 @@ error.organisation.not.existent: "Ausgewählte Organisation wurde nicht gefunden
 error.organisation.not.selected: "Es wurden keine zwei Organisationen ausgewählt"
 error.organisation.not.switched: "Die Organisation konnte nicht gewechselt werden"
 error.organisation.of.user.not.found: "Es konnte keine Organisation zum/-r Nutzer*in gefunden werden."
+error.institution.not.invited: "Eine oder mehrere Institutionen sind nicht zu diesem Verfahren eingeladen."
 error.paragraph.no_circular_references: "Ein Kapitel darf keinem seiner eigenen Unterkapitel als Unterkapitel zugewiesen werden."
 error.paragraph.no_self_references: "Ein Kapitel darf sich nicht selbst als Unterkapitel zugewiesen werden."
 error.password.change: "Das Passwort konnte nicht geändert werden."
 error.pdf.generation: "Beim Erstellen des PDFs ist ein Fehler aufgetreten."
 error.phase: "Bitte wählen Sie eine Phase."
 error.procedure.create: "Das Verfahren konnte nicht erstellt werden."
-error.procedure.deleted: "Die Stellungnahmen konnten nicht gelöscht werden."
-error.procedure.deleted.noselection: "Bitte wählen Sie die zu löschenden Verfahren."
+error.procedure.onDelete: "Beim Löschen ist ein Fehler aufgetreten."
+error.procedure.deleted.noselection: "Bitte wählen Sie etwas zum Löschen aus."
 error.procedure.export.noselection: "Bitte wählen Sie die zu exportierenden Verfahren."
 error.procedure.name: "Bitte Verfahrensnamen eintragen."
 error.procedure.permissions: "Lassen Sie sich von Ihrem Master-User die Rolle Institutions-Koordination oder Institutions-Sachbearbeitung zuweisen, um in Verfahren anderer Verfahrensträger Stellungnahmen anlegen zu können."
@@ -1274,12 +1308,16 @@ error.save.email: "Die E-Mail-Adresse konnte nicht gespeichert werden."
 error.save.organisation: "Leider ist beim Speichern der Organisation {organisationName} ein Fehler aufgetreten."
 error.save.organisation.slug.bulk: "Der gleiche Direktlink zu Verfahren kann nicht für mehrere Organisationen verwendet werden"
 error.savedFilterSet.deleted: "Die Filterkombination konnte nicht gelöscht werden."
+error.split_statement.no_place: "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt hinzu."
+"error.split_statement.no_place.link": "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt <a class=\"o-link--default\" href=\"{href}\">hier</a> hinzu."
 error.split_statement.segments: "Aufgrund von fehlerhaften Daten können keine von KI vorgeschlagenenen Abschnitte angezeigt werden."
 error.statement.anonymize: "Ihre Daten konnten nicht von der Stellungnahme {externId} entfernt werden."
 error.statement.already.segmented: "Diese Stellungnahme wurde bereits aufgeteilt"
 error.statement.assignment.assigned: "Die Stellungnahme konnte nicht erfolgreich zugewiesen werden."
 error.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde nicht erfolgreich geändert."
 error.statement.assignment.unassigned: "Die Stellungnahme konnte nicht erfolgreich freigegeben werden."
+error.statement.attachment.create: "Der Anhang konnte nicht gespeichert werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
+error.statement.attachment.delete: "Der Anhang konnte nicht gelöscht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
 error.statement.cluster.created: "Die Gruppe konnte nicht erstellt werden."
 error.statement.cluster.deleted: "Die Gruppe {clusterId} konnte nicht aufgelöst werden."
 error.statement.cluster.merge.missing.cluster: "Das Zusammenführen von Stellungnahmengruppen ist fehlgeschlagen: Es wurde keine Stellungnahmengruppe gefunden."
@@ -1338,7 +1376,8 @@ error.statments.zip.export.attachment: |
     }
 error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
 error.statements.zip.import.contains.error.textfile: 'Es wurde versucht, ein fehlerhaft erstelltes ZIP-Archiv zu importieren. Bitte versuchen Sie das Zip-Archiv zu ersetzen.'
-error.survey.votes.publication: "Die Veröffentlichung der Antwort konnte nicht verändert werden."
+error.statements.of.institution.count.retrieval.failed: "Die Anzahl der Stellungnahmen der Institution konnte nicht ermittelt werden."
+error.institution.invitation.mail.list.retrieval.failed: "Es konnte nicht für alle Institutionen ermittelt werden, ob bereits eine Einladung verschickt wurde."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
 error.text: "Bitte geben Sie einen Text der Stellungnahme ein."
@@ -1362,6 +1401,7 @@ error.user.password.not.allowed: 'Das Passwort darf nicht gesetzt werden. Nutzer
 error.user.password.not.identical: 'Die Eingaben sind nicht identisch.'
 error.user.registration.password: "Bei der Registrierung ist ein Fehler aufgetreten. Bitte wenden Sie sich an den Support."
 error.user.update: "Die/der Nutzer*in {firstName} {lastName} konnte nicht aktualisiert werden."
+error.user.administration.limited.to.own.organisation: "Sie dürfen nur Nutzer der eigenen Organisation verwalten."
 error.userStory.voting.offline: "Die Punkte vor Ort konnten nicht gespeichert werden."
 error.userStory.voting.reset: "Ihre Bewertung konnte nicht zurückgesetzt werden."
 error.userStory.voting: "Die Bewertung konnte nicht gespeichert werden."
@@ -1522,7 +1562,7 @@ explanation.proxy.use: "Nutze den Proxy für Aufrufe, die über den Server und n
 explanation.public.participation.contact: "Die Ansprechperson wird auf der öffentlichen Verfahrensseite angezeigt."
 explanation.public.participation.detail.palm: "Im Rahmen der Öffentlichkeitsbeteiligung der Bauleitplanung Online können Sie Ihre Stellungnahme zu Verfahren auch über diese Webseite abgeben. Diese Funktionalität steht allerdings nicht auf dem Smartphone zur Verfügung."
 explanation.invitable_institution.authorisations: "Wenn keine Organisation ausgewählt ist, dann ist die Kategorie für alle dem Verfahren zugewiesenen Organisationen sichtbar. Ist mindestens eine Organisation ausgewählt, ist die Kategorie für Bürger*innen nicht mehr sichtbar."
-explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich „Institutionen verwalten“ in allen Verfahren zur Verfügung."
+explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich \"Institutionen verwalten\" in allen Verfahren zur Verfügung."
 explanation.invitable_institution.list.show: "Ist das Häkchen gesetzt, wird die Organisation in der Institutionen-Liste angezeigt und kann somit zu Verfahren eingeladen werden. Diese Option ist ausschließlich für den Support verfügbar."
 explanation.invitable_institutions.noneselected: "Es wurden keine Institutionen ausgewählt."
 explanation.reason.configuration: "Die Konfiguration der Begründungskapitel erfolgt unter nachfolgendem Link im Menü „Begründung“."
@@ -1595,16 +1635,22 @@ explanation.voting.online: "Die Online-Bepunktung läuft. Die Reihenfolge der Vo
 explanations: "Erläuterungen"
 export: "Export"
 export.anonymous: "Anonymisiert"
+export.anonymous.hint: "Der Export erfolgt ohne Namen."
+export.censored.citizen: "ohne Einreichendendaten der Öffentlichkeit"
+export.censored.institution: "ohne Einreichendendaten der Institutionen"
 export.compact: "Querformat (kompakt)"
 export.data: "Zu exportierende Daten"
 export.datasheet: "Export mit Datenblatt"
 export.docx.anonymous: "DOCX (ohne Namen)"
+export.docx.censored: "DOCX-Datei (anonymisiert)"
 export.docx.compact.anonymous: "DOCX (anonymisiert)"
 export.docx.compact.fragments.anonymous: "DOCX, Stellungnahmen oder Datensätze (anonymisiert)"
 export.docx.compact.fragments: "DOCX, Stellungnahmen oder Datensätze"
 export.docx.compact: "DOCX"
 export.docx.landscape.anonymous: "DOCX, Querformat (ohne Namen)"
 export.docx.landscape: "DOCX, Querformat"
+export.docx.obscured: "mit geschwärzten Inhalten"
+export.docx.obscured.hint: "Der Export erfolgt mit geschwärzten Inhalten."
 export.docx: "DOCX"
 export.filenames.statement.single.suffix: "_Stellungnahme"
 export.filenames.statement.list_final_group_citizen.suffix: "_Stellungnahmen"
@@ -1640,6 +1686,7 @@ export.xls: "XLS"
 export.xlsx: "XLSX"
 export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
+export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
 extern: "Extern"
@@ -1656,6 +1703,7 @@ field.empty: "Feld leeren"
 field.required: "Pflichtfeld"
 field.selectionRequired: "Mindestens ein Feld muss ausgewählt werden."
 fields: "Felder"
+fields.more.edit: "Weitere Felder bearbeiten"
 file: "Datei"
 file.add: "Datei hinzufügen"
 file.as.pdf: "Datei als PDF"
@@ -1667,6 +1715,7 @@ file.pdf.explanation: "Sie können an dieser Stelle Dateien des Typs PDF hochlad
 file.delete: "Datei löschen"
 file.download: "Anhang herunterladen"
 file.reference: "Dateibezug"
+file.related: "dokumentbezogen"
 file.upload.docx: ".docx hochladen"
 file.upload.pdf: ".pdf hochladen"
 file.upload.pdf.zip.mp4: ".pdf, .zip oder .mp4 hochladen"
@@ -1707,6 +1756,7 @@ filter.saveFilterSet.load.error: "Beim Laden der gespeicherten Filterkombination
 filter.saveFilterSet.load.success: "Die Filterkombination wurde erfolgreich geladen."
 filter.searchterm.active: "Aktive Filter und Suchbegriff"
 filter.verb: "Filtern"
+filters.more: "Weitere Filter"
 following: "folgendes"
 following.email.sent: "An folgende E-Mail-Adresse verschickt"
 format: "Format"
@@ -1879,6 +1929,8 @@ gislayer.define: 'Kartenebenen definieren'
 gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
+go.back.to.personal.data: "Zurück zu Kontaktdaten"
+go.back.to.statement: "Zurück zur Stellungnahme"
 goto.participation: "Zur Beteiligung: {procedure}"
 group: "Gruppe"
 group.create: "Gruppe erstellen"
@@ -2087,7 +2139,9 @@ links: "Links"
 linkSH: "zum Schleswig-Holstein-Service"
 loading: "wird geladen"
 loading.data: "Daten werden geladen..."
+location.and.document.reference: "Orts- und Dokumentbezug"
 location.notassigned: "Es sind keine Verortungsinformationen zugewiesen."
+location.reference_view: "Ortsbezug ansehen"
 location.selected: "Ihr Ort wurde markiert"
 location: "Verortung"
 location.marked.yours: "Der von Ihnen markierte Ort"
@@ -2126,7 +2180,6 @@ map.base.url: "URL der Grundkarte"
 map.base.url.hint: "Geben Sie hier die Web-Adresse für einen Web-Map-Service (WMS) ein. Die in der Adresse angegebene Kartenebene wird auf der Startseite als Grundkarte angezeigt. Die Kartenebene muss die Projektion EPSG:3857 (Web Mercator) unterstützen."
 map.base.settings.preview: "Hier können Sie prüfen, ob die URL und Layer Eingaben korrekt sind"
 map.bases: "Grundkarten"
-info.gislayer.delete: " Hinweis: mindestens eine Grundkarte muss vorhanden sein"
 map.base.minimap: "Übersichtskarte"
 map.base.minimap.hint: "Legen Sie hier eine eigene Kartenebene für die Übersichtskarte fest. Sie können aus den eingerichteten Grundkarten wählen. Standardmäßig wird die aktuell sichtbare Grundkarte genutzt."
 # uhuh...
@@ -2181,6 +2234,7 @@ map.allow.procedure.type.activate: "Karte für Verfahrenstyp aktivieren"
 map.scales.select.hint: "Achten Sie bei der Wahl der Maßstäbe auf die Differenzen zwischen einzelnen Maßstäben. Zu große Unterschiede können dazu führen, dass die Karte nicht mehr nutzbar ist."
 map.scales.select.error: "Wählen Sie die Maßstäbe so, daß zwischen zwei Maßstäben kein zu großer Abstand liegt."
 map.to: "Zur Karte..."
+map.view: "Kartenansicht"
 map.zoom.in: "In Karte hineinzoomen"
 map.zoom.reset: "Zoom der Karte zurücksetzen"
 map.zoom.out: "Aus Karte herauszoomen"
@@ -2295,6 +2349,7 @@ no: "Nein"
 none: "Keine"
 none.neutral: "kein"
 not.assigned: "Nicht zugewiesen"
+not.enabled: "Nicht freigeschaltet"
 not.public: "nicht öffentlich"
 not.specified: "Keine Angabe"
 notassigned: "nicht vergeben"
@@ -2317,7 +2372,9 @@ ok: "OK"
 on: "am"
 opacity.percent: "Deckkraft in %"
 opacity: "Deckkraft"
+option.add: "Option hinzufügen"
 option.empty: "-"
+options: "Optionen"
 orga.edit: "Organisation bearbeiten"
 organisation.add.new: "Neue Organisation anlegen"
 organisation.add: "Organisation hinzufügen"
@@ -2406,6 +2463,7 @@ paragraph.notavailable: "Kapitelbezug nicht verfügbar"
 paragraph.parent.none: "oberste Ebene"
 paragraph.parent: "Übergeordnetes Kapitel"
 paragraph.reference: "Kapitelbezug"
+paragraph.related: "kapitelbezogen"
 paragraph.file: "Planungsdokument als Datei"
 paragraph.text: "Text des Kapitels"
 paragraph.title: "Absatz"
@@ -2489,6 +2547,10 @@ places.edit.infoProcedureTemplate: "Die Anpassungen werden in die auswählbaren 
 plandocument: "Planungsdokument"
 plandocument.add: "Planungsdokument hinzufügen"
 plandocument.and.drawing: 'Planungsdokumente und Planzeichnung'
+plandocument.and.drawing.categories: "Planungsdokumente - Kategorien"
+plandocument.and.drawing.documents: "Planungsdokumente - Dokumente"
+plandocument.and.drawing.drawings: "Planzeichnung"
+plandocument.and.drawing.paragraphs: "Planungsdokumente - Kapitel"
 plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
@@ -2707,8 +2769,12 @@ procedure.phases.external.evaluating: "Auswertung Öffentlichkeit"
 procedure.phases.external.earlyparticipation: "Frühzeitige Beteiligung Öffentlichkeit"
 procedure.phases.external.participation: "Öffentliche Auslegung"
 procedure.phases.external.closed: "Beschlussfassung Öffentlichkeit"
+procedure.pictogram: "Übersichtskarte/Bild"
+procedure.pictogram.resolution.tooLow: "Bitte laden Sie ein Bild mit min. 500 x 300 px und einer maximal Größe von 5MB hoch."
+procedure.pictogram.altText: "Alternativtext des Bildes"
+procedure.pictogram.altText.toolTipp: "Geben Sie eine kurze Beschreibung des Bildinhalts ein, um die Barrierefreiheit zu gewährleisten."
+procedure.pictogram.copyright: "Urheberrecht des Bildes"
 procedure.pictogram.delete: "Verfahrenspiktogramm löschen"
-procedure.pictogram: "Verfahrenspiktogramm"
 procedure.proposal.relation.map: "Auf welchen Ort bezieht sich Ihr Vorschlag?"
 procedure.proposal.create: "Verfahren vorschlagen"
 procedure.proposal.list: "Liste der Verfahrensvorschläge"
@@ -2819,6 +2885,7 @@ public.index.filter.gfk.location.results: |
     }
 public.index.heading: "{projectName}: Plattform zur öffentlichen Mitwirkung bei räumlichen Planungen und Genehmigungsverfahren"
 public.or.invitable_institution: "Öffentlichkeit/Institutionen"
+public.participation.anonymous.statements: "Anonyme Einreichung von Stellungnahmen erlauben"
 public.participation.contact: "Ansprechperson"
 public.participation.contribute: "Mitreden"
 public.participation.faq_link_project: "Hier finden Sie Antworten."
@@ -2842,6 +2909,7 @@ public.participation.panel.institution.description_1: "Institutionen benötigen 
 public.participation.panel.institution.description_2: "<a class=\"{css}\" href=\"{url}\">Jetzt registrieren.</a>"
 public.participation.participate: "Stellung nehmen"
 public.participation.publication: "Veröffentlichung von Stellungnahmen von Bürger*innen in diesem Verfahren erlauben"
+public.participation.feedback: 'Die Checkbox "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist" für die Bürger*innen hinzufügen.'
 public.participation.receive_notifications: "Expert*innen prüfen Ihre Stellungnahme. Lassen Sie sich über das Ergebnis informieren!"
 public.participation.relation: "Ortsbezug"
 public.participation.relation.map: "Ortsbezug in der Karte"
@@ -2853,6 +2921,7 @@ public.participation: "Öffentlichkeitsbeteiligung"
 publication: "Veröffentlichung"
 publication.and.likers: "Veröffentlichung und Unterstützende"
 publication.and.voters: "Veröffentlichung und Mitzeichnende"
+publication.and.voting: "Veröffentlichung und Mitzeichnung"
 publish.edit: "Editiert veröffentlichen"
 publish: "Veröffentlichen"
 publish.on.platform: "Im öffentlichen Bereich anzeigen"
@@ -2905,6 +2974,85 @@ remove: "Entfernen"
 remove.from.list: "Aus Liste entfernen"
 rename: "umbenennen"
 replied.to: "Erwidert"
+report.add.element: |
+    Eine Kategorie wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.update.element: |
+    Eine Kategorie wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Planungsdokument als Datei: {fileName}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.delete.element: |
+    Die Kategorie "{title}" ({category}) wurde gelöscht.<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.paragraph: |
+    Eine Kapitel wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.update.paragraph: |
+    Eine Kapitel wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.delete.paragraph: |
+    Das Kapitel "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.singleDocument: |
+    Eine Planungsdokument wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.update.singleDocument: |
+    Eine Planungsdokument wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.delete.singleDocument:  |
+    Das Planungsdokument "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.create.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde gelöscht.
+report.update.planDrawingFile: |
+    Die Planzeichnung wurde geändert von "{oldFileName}" zu "{newFileName}".
+report.create.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde gelöscht.
+report.update.planDrawingExplanation: |
+    Die Planzeichenerklärung wurde geändert von "{oldFileName}" zu "{newFileName}".
 request: "Ihre Anfrage"
 requested: "angefragt"
 reset: "Zurücksetzen"
@@ -2961,7 +3109,6 @@ search: "Suche"
 search.advanced: "Erweiterte Suche"
 search.custom.explanation: "Wenn nichts ausgewählt ist, wird in allen Feldern gesucht."
 search.custom.limit_fields: "Suche einschränken auf:"
-search.custom.toggle_all: "Alle an/abwählen"
 search.filter.reset: "Suche und Filter zurücksetzen"
 search.in: "Suchen in:"
 search.list: "In dieser Liste suchen..."
@@ -3023,6 +3170,9 @@ segments.assigned.now: |
         other {Aktuell sind Ihnen <strong>#</strong> Abschnitte zur Bearbeitung zugewiesen.}
     }
 segments.bulk.edit: "Abschnitte bearbeiten"
+segments.bulk.edit.customFields.description: "\"{label}\" wird für die ausgewählten Abschnitte auf folgenden Wert gesetzt:"
+segments.bulk.edit.generic.error: "Bei {count} Abschnitten konnte \"{label}\" nicht geändert werden:"
+segments.bulk.edit.generic.success: "Bei {count} Abschnitten wurde \"{label}\" geändert zu:"
 segments.bulk.edit.place.add: "Bearbeitungsschritt ändern..."
 segments.bulk.edit.place.assigned.description: "Die ausgewählten Abschnitte werden auf folgenden Bearbeitungsschritt geändert:"
 segments.bulk.edit.place.assigned.error: "Folgender Bearbeitungsschritt konnte bei {count} Abschnitten <em>nicht geändert werden</em>:"
@@ -3080,10 +3230,13 @@ segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
 segments.export.statement.label: "Einwendung / Stellungnahme"
 segments.export.statement.similar.submitters: 'Weitere Einreichende der gleichen Stellungnahme: {similarSubmitters}'
+segments.fields.configurable: "Konfigurierbare Abschnittsfelder"
+segments.fields.edit.info: "Hier können Sie die Felder anpassen, die in einem Verfahren an Abschnitten verfügbar sind."
 segments.import: "Abschnitte importieren"
 segments.import.error.submitType: "Unbekannte Einreichungsart {value}, valide Arten sind: {translatedSubmitTypes}."
 segments.none: "Es sind noch keine Abschnitte vorhanden."
 segments.recommendations.create: "Erwiderungen verfassen"
+segments.recommendations.none: "Zu diesem Schlagwort konnten keine Erwiderungs-Vorschläge gefunden werden."
 segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
 segments.recommendations.oracle.none: "Zu diesem Abschnitt konnten keine ähnlichen Abschnitte mit Erwiderung gefunden werden."
 segments.recommendations.tags: "Vorschläge zu Schlagworten"
@@ -3172,7 +3325,7 @@ statement.anonymize.text.children.not.affected: "Texte der folgenden zugehörige
 statement.anonymize.text.children.version.update: "Nach dem Ändern dieser Stellungnahmen oder Kopien muss die Aktion \"Versionsverlauf des Stellungnahmetextes löschen\" über die zugehörige Originalstellungnahme erneut durchgeführt werden."
 statement.anonymize.text.editor.hint: "Markieren Sie Teile des Textes und klicken Sie auf \"Markierung anonymisieren\" um personenbezogenene Daten für die Entfernung zu markieren. Durch eine erneute Markierung derselben Stelle können Sie die Markierung aufheben."
 statement.anonymize.text.editor.title: "Text der Originalstellungnahme"
-statement.anonymize.text.hint: "Falls der Text der Originalstellungnahme personenbezogene Daten enthält, können Sie diese zum anonymisieren manuell markieren. Es wird ausschließlich der Text der Originalstellungnahme anonymisiert."
+statement.anonymize.text.hint: "Falls der Text der Originalstellungnahme personenbezogene Daten enthält, können Sie diese zum Anonymisieren manuell markieren. Es wird ausschließlich der Text der Originalstellungnahme anonymisiert."
 statement.anonymize.text.label: "Text der Originalstellungnahme anonymisieren"
 statement.anonymize.text.success: "Der Text der Originalstellungnahme wurde anonymisiert."
 statement.anonymize.title.actions.choose: 'Aktionen für Anonymisierung auswählen'
@@ -3250,6 +3403,7 @@ statement.detail.form.personal.post_anonymously: "Ich möchte anonym Stellung ne
 statement.detail.form.personal.post_publicly: "Ich möchte namentlich Stellung nehmen."
 statement.detail.form.personal.publish: "Ich möchte, dass meine Stellungnahme (nach Freigabe durch die Verwaltung) <em>bei {projectName} einsehbar</em> ist."
 statement.detail.form.personal.require_information_mail: "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist."
+statement.detail.form.personal.submit: "Ich möchte die Stellungnahme mit diesen persönlichen Daten einreichen:"
 statement.detail.form.statement_text: "Bitte verfassen Sie Ihre Stellungnahme"
 statement.dialog.close: "Stellungnahme-Formular minimieren"
 statement.do.fragment: "Stellungnahme aufteilen"
@@ -3335,6 +3489,7 @@ statement.is.liked: "Die Stellungnahme wurde von Ihnen unterstützt."
 statement.is.voted: "Die Stellungnahme wurde von Ihnen mitgezeichnet."
 statement.like.description: "Mit dem Unterstützen der Stellungnahme schließen Sie sich deren Meinung an."
 statement.like: "Stellungnahme unterstützen"
+statement.list.back: "Zurück zur Stellungnahmenliste"
 statement.list.empty: "Es sind keine Einträge in dieser Liste vorhanden."
 statement.manual: "Manuelle Stellungnahme"
 statement.main: "Hauptstellungnahme"
@@ -3421,12 +3576,19 @@ statement.representation.creation: "Die Stellungnahme im Namen folgender Institu
 statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
+statement.save.quickSave: "Text zwischenspeichern"
+statement.save.quickSave.success: "Der Stellungnahmetext wurde gespeichert."
 statement.save.text: "Sie haben Änderungen am Text der Stellungnahme vorgenommen. Wenn Sie fortfahren, werden diese ebenfalls gespeichert."
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
 statement.send: "Stellungnahme versenden"
 statement.similarStatementSubmitters: "Weitere Einreichende der gleichen Stellungnahme"
 statement.similarStatementSubmitters.add: "Einreicher*in hinzufügen"
+statement.similarStatementSubmitters.delete: |
+    {name, select,
+            false { Möchten Sie die weitere einreichende Person wirklich löschen? }
+            other { Möchten Sie die weitere einreichende Person "{name}" wirklich löschen? }
+        }
 statement.similarStatementSubmitters.hint: "Falls von weiteren Einreichenden inhaltlich identische Stellungnahmen eingegangen sind, können diese Personen hier angegeben werden."
 statement.solved.description: "Wenn sich alle Abschnitte einer Stellungnahme in einem solchen Bearbeitungsschritt befinden, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
 statement.solved.hint: "Wenn sich alle Abschnitte einer Stellungnahme in Bearbeitungsschritten befinden, bei denen diese Checkbox aktiviert ist, bekommt die Stellungnahme den Status \"Abgeschlossen\"."
@@ -3461,7 +3623,7 @@ statement.voteStk.status.done: "Die Planungsbehörde <strong>{reviewer}</strong>
 statement.voteStk.status.none: "Zu dieser Stellungnahme wurde noch keine Abwägungsempfehlung abgegeben."
 statement.votePla: "Votum Planungsbehörde"
 statement.voter: "Mitzeichnende"
-statement.voter.add: "Mitzeichner*in hinzufügen"
+statement.voter.add: "Mitzeichnende hinzufügen"
 statement.voter.anonym: "anonyme Mitzeichnende"
 statement.voter.change: "Mitzeichner*in bearbeiten"
 statement.voter.delete: "Mitzeichner*in löschen"
@@ -3479,6 +3641,7 @@ statements.assign.reset: "Stellungnahmen werden freigegeben"
 statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
 statements.draft: "Meine Entwürfe"
+statements.draft.organisation: "Entwürfe der Organisation"
 statements.edit: "Stellungnahmen bearbeiten"
 statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"
@@ -3538,7 +3701,7 @@ statements.organisation_of_fachplaner: "Organisation des/der Fachplaner*in"
 statements.original: "Originalstellungnahmen"
 statements.original.procedure: "Anzahl aller in diesem Verfahren eingereichten Originalstellungnahmen"
 statements.own: "Eigene Stellungnahmen"
-statements.owndraft: "Meine Entwürfe"
+statements.owndraft: "Entwürfe"
 statements.ownrelease: "Meine Freigaben"
 statements.ownsubmit: "Meine Einreichungen"
 statements.public.marked.release: "Markierte Stellungnahmen einreichen"
@@ -3574,6 +3737,16 @@ statements.yours.list.description.short.gdpr_consent_may_revoke: "<a href=\"{hre
 statements.yours.list.description: "Hier können Sie alle Ihre eingereichten Stellungnahmen einsehen. Sobald ein Verfahren vom Verfahrensträger gelöscht wird, werden auch Ihre zugehörigen Stellungnahmen und personenbezogenen Daten gelöscht."
 statements.yours.list.description.short: "<a href=\"{href}\">Hier</a> können Sie alle Ihre eingereichten Stellungnahmen einsehen."
 statements: "Stellungnahmen"
+statement_vote.length: |
+  {count, plural,
+      =1 { # Person }
+      other { # Personen }
+  }
+statement_vote.delete_vote: |
+    {name, select,
+        false { Möchten Sie die mitzeichnende Person wirklich löschen? }
+        other { Möchten Sie die mitzeichnende Person "{name}" wirklich löschen? }
+    }
 statementtext: "Text der Stellungnahme"
 static.documents: "Unterlagen"
 statistics: "Statistik"
@@ -3627,48 +3800,6 @@ support.introduction: "Wir helfen Ihnen gerne! Bei inhaltlichen und fachlichen F
 Hier steht Ihnen sowohl eine bundesweite Telefonnummer als auch unser anbieterspezifischer Kontakt zur Verfügung."
 support.login: "Kontakt für fehlende Berechtigungen"
 support.technical: "Technischer Support"
-survey: "Umfrage"
-survey.comment: "Begründung"
-survey.comment.created: "Ihre Antwort wurde erfolgreich eingereicht."
-survey.comment.publish: "Begründung veröffentlichen"
-survey.comment.publish.check: "Bitte überprüfen Sie, ob die Begründung veröffentlicht werden soll."
-survey.comment.yours: "Ihre Begründung (optional)"
-survey.comments.explanation: "Hier können Sie die Begründungen zu einer Umfrage moderieren. Sie können die Begründungen entweder veröffentlichen oder verbergen."
-survey.comments.moderate: "Begründungen moderieren"
-survey.comments.list: "Folgende Begründungen wurden zu den Antworten abgegeben"
-survey.comments.none: "Es sind noch keine Begründungen vorhanden."
-survey.confirm.created: "Die Umfrage wurde erfolgreich angelegt."
-survey.confirm.updated: "Die Umfrage wurde erfolgreich gespeichert."
-survey.date.hint: "Bitte wählen Sie einen Zeitraum, der innerhalb der Öffentlichen Beteiligung des Verfahrens liegt."
-survey.edit: "Umfrage bearbeiten"
-survey.edit.explanation: "Hier können Sie die Umfrage bearbeiten und ihren Status ändern."
-survey.error.survey.enddate.after.procedure.enddate: "Das Enddatum der Umfrage kann nicht hinter dem Ende der Öffentlichen Beteiligung des Verfahrens liegen"
-survey.error.status.evaluation: "Der Status der Umfrage kann nicht auf \"Öffentliche Beteiligung\" geändert werden, weil das Verfahren sich nicht in Beteiligung befindet"
-survey.explanation.evaluation: "Die Beteiligungsphase der Umfrage ist beendet. Die Umfrage befindet sich in Auswertung."
-survey.explanation.general: "Eine Teilnahme ist nur für die Bürger*innen der betroffenen Gemeinde möglich. Bitte melden Sie sich an, damit Sie an der Umfrage teilnehmen können."
-survey.explanation.loggedin: "Schön, dass Sie an unserer Umfrage teilnehmen wollen. Sie haben eine Stimme und können diese mit einem Argument begründen. Danach sehen Sie die aktuelle Stimmenverteilung und die Begründungen der anderen Bürger*innen."
-survey.explanation.loggedin.participated: "Sie haben bereits an dieser Umfrage teilgenommen. Vielen Dank!"
-survey.explanation.finished: "Die Umfrage ist beendet."
-survey.hint.public.check: "Die Begründung wird nach redaktioneller Prüfung hier veröffentlicht."
-survey.new: "Neue Umfrage"
-survey.new.explanation: "Hier können Sie eine neue Umfrage für das Verfahren anlegen. Die Teilnehmenden haben die Möglichkeit, für oder gegen den Vorschlag abzustimmen."
-survey.none: "Es ist noch keine Umfrage vorhanden."
-survey.period: "Die Umfrage läuft vom {start} bis zum {end}."
-survey.period.invalid: "Der Beteiligungszeitraum des Verfahrens ist abgelaufen. Bitte aktualisieren Sie ihn in den Grundeinstellungen."
-survey.status.completed: "Umfrage beendet"
-survey.status.configuration: "Konfiguration"
-survey.status.evaluation: "Auswertung"
-survey.status.explanation: "Der Status steuert die Sichtbarkeit der Inhalte einer Umfrage. Sobald er auf \"Öffentliche Beteiligung\" gestellt wird, ist die Umfrage öffentlich aufrufbar und eine Beteiligung möglich."
-survey.status.hint: "Eine öffentliche Beteiligung an dieser Umfrage ist nur während der öffentlichen Beteiligung des zugehörigen Verfahrens möglich ({start} - {end})."
-survey.status.participation: "Öffentliche Beteiligung"
-survey.support.positive: "Ja, ich bin dafür"
-survey.support.positive.because: "Ich bin dafür, weil..."
-survey.support.negative: "Nein, ich sehe das kritisch"
-survey.support.negative.because: "Ich sehe das kritisch, weil..."
-survey.votes.publication.approval: "Die Veröffentlichung der Antwort wurde erfolgreich freigegeben."
-survey.votes.publication.rejection: "Die Veröffentlichung der Antwort wurde erfolgreich abgelehnt."
-survey.votes.total: "Antworten insgesamt"
-survey.votes.until.now: "Antworten bisher"
 synopsis: "Synopse"
 system.version_info: "Versionsinformation"
 table.cols.hide: "Spalten ausblenden"
@@ -3680,11 +3811,21 @@ tag.administrate: "Schlagworte verwalten"
 tag.administration: "Schlagworte"
 tag.administration_single: "Schlagwort bearbeiten"
 tag.category: "Schlagwortkategorie"
-tag.create: "Tag erstellen"
+tag.category.name.unique.error: "Die Schlagwort-Kategorie existiert bereits. Bitte verwenden Sie einen anderen Namen."
+tag.category.new: "Neue Schlagwort-Kategorie"
+tag.category.new.create: "Schlagwort-Kategorie anlegen"
 tag.delete: "Schlagwort löschen"
 tag.move.toTopic: "in Thema verschieben"
+tag.move.toTopic.error: "Beim Schlagwort(e) Verschieben ist ein Fehler aufgetreten."
+tag.topic.create.error: "Beim Erstellen des Themas ist ein Fehler aufgetreten."
+tag.topic.update.error: "Beim Aktualisieren des Themas ist ein Fehler aufgetreten."
 tag.move: "Schlagwort verschieben"
 tag.name: "Name des neuen Schlagwortes"
+tag.name.unique.error: "Das Schlagwort existiert bereits. Bitte verwenden Sie einen anderen Namen."
+tag.name.empty.error: "Das Schlagwort muss einen Namen haben."
+tag.topic.name.empty.error: "Das Thema muss einen Namen haben."
+tag.topic.name.duplicate.error: "Das Thema existiert bereits. Bitte verwenden Sie einen anderen Namen."
+tag.or.topic.name.empty.error: "Das Schlagwort oder Thema muss einen Namen haben."
 tag.new: "Neues Schlagwort"
 tag.rename: "Schlagwort umbenennen"
 tag.search: "Schlagwort suchen"
@@ -3695,9 +3836,11 @@ tag: "Schlagwort"
 tag.create.duplicated.title: "Das Schlagwort existiert in diesem Verfahren bereits."
 tags: "Schlagworte"
 tags.assigned: "Zugewiesene Schlagworte"
+tags.can.only.be.moved.to.topics: "Schlagworte können nur in Themen verschoben werden. Eine manuelle Sortierung innerhalb eines Themas ist nicht möglich"
 tags.create: "Schlagworte anlegen"
-tags.import.help: "Importieren Sie Schlagworte aus einer Liste im Format CSV (Trennzeichen-getrennt)."
 tags.import: "Schlagworte importieren"
+tags.import.help: "Importieren Sie Schlagworte aus einer Liste im Format CSV (Trennzeichen-getrennt)."
+tags.import.hint: "Bitte beachten Sie, dass die Datei UTF-8 kodiert sein muss."
 tags.noentries: "Für dieses Verfahren sind noch keine Schlagworte vorhanden. Um Schlagworte hinzuzufügen erstellen Sie bitte zunächst unten ein neues Thema."
 tags.none.yet: "Es sind noch keine Schlagworte vorhanden."
 tags.notassigned: "Es sind keine Schlagworte zugewiesen."
@@ -3756,7 +3899,7 @@ text.procedure.edit.external.contact_person: "Bitte nennen Sie eine oder mehrere
 text.procedure.edit.external.coordinates: "Setzen Sie den Punkt hier in der Karte, um das Verfahren in der Beteiligungsebene als Markierung in der Karte anzuzeigen. Es kann so komfortabel von Bürger*innen über die Karte gefunden werden."
 text.procedure.edit.external.location_name: "Geben Sie die Postleitzahl des Ortes des Verfahrens ein, um es besser über die Liste und die Suche in der Beteiligungsebene auffindbar zu machen."
 text.procedure.edit.external.location_name.autocomplete: " Nach der Auswahl der PLZ sollte der Ort sich automatisch ausfüllen."
-text.procedure.edit.external.pictogram: "Sie können hier eine Bilddatei als Verfahrenspiktogramm hochladen, es wird anschließend in der Beteiligungsebene in der Liste der Verfahren angezeigt."
+text.procedure.edit.external.pictogram: "Laden Sie ein Bild des Bebauungsplanausschnitts auf einer Karte hoch. Bildgröße: min. 500x300 px, Formate: png, jpeg, gif; Dateigröße: max. 5 MB."
 text.procedure.edit.external.public_participations_start_date: "Der Zeitraum sollte dem Auslegungszeitraum des Verfahrens entsprechen und dient nur der Information der Beteiligten. Sie müssen das Verfahren immer noch manuell über den Verfahrensschritt öffentlich machen."
 text.procedure.edit.external.public_participations_start_date.autoswitch_phase: "Der Zeitraum sollte dem Auslegungszeitraum des Verfahrens entsprechen. Handelt es sich um einen Verfahrensschritt mit Beteiligung, wird das Verfahren am Ende des Zeitraums automatisch auf \"Auswertung\" gestellt. Bei anderen Verfahrensschritten dient der Zeitraum nur der Information. Sie müssen den Verfahrensschritt immer noch manuell umstellen oder die automatische Umstellung aktivieren."
 text.procedure.edit.external.short_url: "Geben Sie dem Verfahren eine verständliche öffentliche Webadresse (z.B. „Bebauungsplan11-Jugendzentrum-Schlossallee“). Diese kann z.B. im Amtsblatt oder in anderen Printmedien abgedruckt werden. Verwenden Sie idealerweise keine Sonderzeichen wie Umlaute oder Satzzeichen und keine Leerzeichen."
@@ -3856,6 +3999,7 @@ to.copy: "kopieren"
 to: "bis"
 toc: "Inhaltsverzeichnis"
 today: "Heute"
+toggle_all: "Alle an/abwählen"
 tool.active: "Aktives Werkzeug"
 topic: "Thema"
 topic.create.short: "Thema anlegen"
@@ -3880,6 +4024,7 @@ unsaved.changes: "Ungespeicherte Änderungen"
 unselect: "Auswahl aufheben"
 unselect.entity.first: "Aktuelle Auswahl aufheben, um {entity} auszuwählen"
 unpublished.statements.if.participation.ends: "nicht eingereichten Stellungnahmen, wenn die Beteiligung in einem Verfahren endet"
+unrestricted: "Uneingeschränkt"
 update: "Aktualisierung"
 upload: "Hochladen"
 upload.again: "Erneut hochladen"
@@ -3978,6 +4123,8 @@ voted.by.persons: |
 voted: "Mitgezeichnet"
 voters: "Mitzeichnende"
 voting: "Mitzeichnung"
+voting.activated: "Mitzeichung: Aktiviert"
+voting.deactivated: "Mitzeichnung: Deaktiviert"
 warning.access.denied: "Der Zugriff auf diese Funktion wurde verweigert."
 warning.addressBookEntry.not.found: "Adressbucheintrag konnte nicht gefunden werden."
 warning.boilerplate.delete: "Der Textbaustein konnte nicht gelöscht werden."
@@ -4052,6 +4199,7 @@ warning.login.welcomepage.failed: "Der Login war nicht erfolgreich. Die Vollstä
 warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht möglich."
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
 warning.orgadata.missing: "Die Daten Ihrer Organisation wurden noch nicht vollständig hinterlegt. Zunächst muss sich die Institutions-Koordination oder die/der Fachplaner-Admin Ihrer Organisation anmelden und diese vervollständigen. Danach können Sie demosplan nutzen."
+warning.organisation.no_available_roles: "Es sind keine Rollen verfügbar, um die Berechtigung zum Erstellen von Prozeduren zu aktivieren."
 warning.other.active.releases: "Es gibt noch andere Releases in der Phase \"Bepunktung\" oder \"Sitzung vor Ort\"."
 warning.paragraph.ordering.level.mismatch: "Die Reihenfolge der Kapitel kann nur innerhalb einer Ebene verändert werden. Um ein Kapitel einer anderen Überschrift zuzuordnen gehen Sie bitte in die Detailansicht eines Kapitels."
 warning.password.repeat.not.equal: "Die neuen Passwörter stimmen nicht überein."
@@ -4065,6 +4213,7 @@ warning.segment.needLock.generic: "Dieser Abschnitt ist zur Zeit in Bearbeitung.
 warning.segment.too_short: "Der Abschnitt ist zu kurz. Bitte erweitern Sie ihn, um ihn speichern zu können."
 warning.select.entries: "Bitte wählen Sie Einträge aus."
 warning.select.entry: "Bitte wählen Sie einen Eintrag aus."
+warning.select.one.entry: "Bitte wählen Sie mindestens einen Eintrag aus."
 warning.selected.boilerplates.delete: "Es konnten nicht alle ausgewählten Textbausteine gelöscht werden."
 warning.selected.boilerplateGroups.delete: "Es konnten nicht alle ausgewählten Gruppen gelöscht werden."
 warning.session.expired: "Ihre Session ist abgelaufen. Bitte loggen Sie sich erneut ein. Wir bitten um Ihr Verständnis."
@@ -4087,7 +4236,8 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
-warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann nicht mehr bearbeitet werden, da die Stellungnahme bereits aufgeteilt wird."
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann derzeit nicht bearbeitet werden, da bereits mit der Aufteilung in Abschnitte begonnen und diese noch nicht abgeschlossen wurde. Um den Stellungnahmetext zu ändern, müssen zunächst alle bereits erstellten Abschnitte, die in Bearbeitung sind, entfernt werden.
+Alternativ kann der Text der erstellten Abschnitte auch nach der Aufteilung angepasst werden."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
@@ -4106,6 +4256,8 @@ warning.statements.procedure.clusters: "Gruppen konnten nicht geladen werden"
 warning.story.exist: "Die Userstory existiert bereits."
 warning.story.missing: "Die Userstory existiert nicht."
 warning.tag.deleted: "Das Schlagwort {tagname} konnte nicht gelöscht werden."
+warning.tag.bulk.delete.generic.error: "Beim Löschen Der Schlagworte bzw. Themen Gruppe ist ein Fehler aufgetreten."
+warning.invited.institutions.bulk.delete.generic.error: "Beim Entfernen der eingeladenen Institutionen ist ein Fehler aufgetreten."
 warning.tag.empty: "Der Name des Schlagwortes darf nicht leer sein."
 warning.tag.multiple.tags.found: "Im Verfahren wurden mehrere Schlagworte mit dem Namen {tagname} gefunden. Bitte prüfen Sie, ob das korrekte Schlagwort {tagname} den Abschnitten hinzugefügt wurde und passen Sie es ggf. an."
 warning.tag.in.use: "Das Schlagwort {tagname} kann nicht gelöscht werden, weil es verwendet wird."

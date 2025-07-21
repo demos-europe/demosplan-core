@@ -25,6 +25,6 @@ const NewProcedure = {
     setRequiredField (state, value) {
       state.requireField = value
     }
-  },
+  }
 }
 export default NewProcedure

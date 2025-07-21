@@ -94,14 +94,17 @@ class AddonAutoinstallCommand extends CoreCommand
             $name = $addonConfig['name'];
             if (!in_array($name, $enabledAddons, true)) {
                 $output->note("Installing addon {$name} in Version {$addonConfig['version']}");
-                $this->runCommand($this->cacheClearCommand, ['--force' => true], $output);
 
                 $arguments = [
                     '--name'   => $name,
                     '--tag'    => $addonConfig['version'],
                     '--github' => true,
                 ];
-                $this->runCommand($this->addonInstallCommand, $arguments, $output);
+                try {
+                    $this->runCommand($this->addonInstallCommand, $arguments, $output);
+                } catch (\Exception $e) {
+                    $output->error("Failed to install addon {$name} in Version {$addonConfig['version']}. {$e->getMessage()}");
+                }
             }
         }
     }

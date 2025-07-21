@@ -17,7 +17,8 @@
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
-      ref="editSelectedItemsMenu">
+      ref="editSelectedItemsMenu"
+      @exportModal:toggle="tab => $emit('exportModal:toggle', tab)">
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
         <search-modal
@@ -52,6 +53,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import { DpButton } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
@@ -65,6 +67,10 @@ export default {
     DpFilterModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpFilterModal')),
     SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'))
   },
+
+  emits: [
+    'exportModal:toggle'
+  ],
 
   computed: {
     ...mapGetters('AssessmentTable', [
@@ -86,16 +92,22 @@ export default {
   },
 
   watch: {
-    showFilterModal (val) {
-      if (val) {
-        this.$refs.filterModal.openModal()
-      }
+    showFilterModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.filterModal.openModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    showSearchModal (val) {
-      if (val) {
-        this.$refs.searchModal.toggleModal()
-      }
+    showSearchModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.searchModal.toggleModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

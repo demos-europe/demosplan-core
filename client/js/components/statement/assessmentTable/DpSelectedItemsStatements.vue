@@ -91,7 +91,7 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:export"
-      @click.prevent="$root.$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')">
       <i
         aria-hidden="true"
         class="fa fa-share-square u-mr-0_125" />
@@ -102,7 +102,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpLoading,
   dpRpc,
@@ -161,7 +160,7 @@ export default {
 
     ...mapState('Statement', [
       'filterHash',
-      'statements',
+      'statements'
     ]),
 
     ...mapState('Fragment', [
@@ -202,8 +201,11 @@ export default {
   },
 
   watch: {
-    selectedElements () {
-      this.fetchRelatedFragments()
+    selectedElements: {
+      handler () {
+        this.fetchRelatedFragments()
+      },
+      deep: true
     }
   },
 
@@ -250,18 +252,17 @@ export default {
         }),
         data: payload
       })
-        .then(checkResponse)
-        .then(response => {
-          const assignee = response.included.find(elem => elem.id === response.data.relationships.assignee.data.id)
-          const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
+        .then(({ data }) => {
+          const assignee = data.included.find(elem => elem.id === data.data.relationships.assignee.data.id)
+          const orgaName = data.included.find(elem => elem.type === 'Claim').attributes.orgaName
 
           // Commit mutation for each element
-          response.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
+          data.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
             id: statement.id,
             assignee: {
               id: assignee.id,
               name: assignee.attributes.name,
-              orgaName: orgaName,
+              orgaName,
               uId: assignee.id
             },
             currentUserId: this.currentUserId
@@ -289,9 +290,8 @@ export default {
 
       if (params.statementIds.length > 0) {
         dpRpc('statements.bulk.copy', params)
-          .then(checkResponse)
-          .then((response) => {
-            if (response[0].error) {
+          .then(({ data }) => {
+            if (data[0].error) {
               dplan.notify.notify('error', Translator.trans('error.copy'))
               return
             }

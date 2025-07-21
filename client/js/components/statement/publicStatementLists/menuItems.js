@@ -41,7 +41,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       attrs: {
         'data-cy': 'emailSendAs'
       },
-      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target: target }),
+      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target }),
       text: Translator.trans('email.send.as')
     },
 
@@ -65,7 +65,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
 
       attrs: {
         type: 'button',
-        class: 'o-flyout-menu__item',
+        class: '',
         'data-cy': 'statementEdit',
         'aria-label': Translator.trans('statement.edit.with.id', { id: number })
       },

@@ -118,6 +118,7 @@
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
       ref="filter"
+      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
       @handle-sort-change="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->

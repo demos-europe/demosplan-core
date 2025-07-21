@@ -10,6 +10,7 @@
 <template>
   <div>
     <dp-inline-notification
+      class="mt-3 mb-2"
       :message="Translator.trans('excel.import.error', { count: errors.length, entities: Translator.trans(context) })"
       type="error" />
 
@@ -61,7 +62,9 @@
     <dp-progress-bar
       v-if="errors.length > 1"
       :label="Translator.trans('done.capital') + ':'"
-      :percentage="completedPercent" />
+      :percentage="completedPercent"
+      showPercentage
+    />
 
     <a
       :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId })"

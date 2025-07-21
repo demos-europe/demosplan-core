@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
+import { enableAutoUnmount } from '@vue/test-utils'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('ExportModal', () => {
-
   const props = {
     options: {
       docx: {
@@ -69,7 +69,7 @@ describe('ExportModal', () => {
         buttonLabelSingle: 'export.trigger.xlsx',
         exportTypes: true,
         obscure: false,
-        tabLabel: 'export.xlsx',
+        tabLabel: 'export.xlsx'
       },
       zip: {
         _defaults: {
@@ -101,18 +101,27 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        propsData: props
-    })
+        props,
+        global: {
+          renderStubDefaultSlot: true,
+          stubs: {
+            'dp-modal': {
+              template: '<div><slot /></div>',
+              methods: {
+                toggle: jest.fn()
+              }
+            }
+          }
+        }
+      })
   })
 
-  afterEach(() => {
-    wrapper.destroy()
-  })
+  enableAutoUnmount(afterEach)
 
   it('displays each optGroup as tab', () => {
     const tabButtons = wrapper.findAll('button')
     const optGroups = Object.keys(props.options)
-    const buttonTexts = tabButtons.wrappers.map(button => button.text())
+    const buttonTexts = tabButtons.map(button => button.text())
 
     optGroups.forEach(key => {
       expect(buttonTexts).toContain(props.options[key].tabLabel)
@@ -130,19 +139,15 @@ describe('ExportModal', () => {
     expect(getComputedStyle(matchingTabContent.element).display).toBe('block')
   })
 
-    it('triggers a "submit" event when the submit button is clicked', async () => {
-      wrapper.vm.submit = jest.fn()
-      wrapper.vm.$refs.exportModal = {
-        toggle: jest.fn()
-      }
+  it('triggers a "submit" event when the submit button is clicked', async () => {
+    wrapper.vm.submit = jest.fn()
+    wrapper.vm.handleSubmit()
 
-      wrapper.vm.handleSubmit()
+    const event = wrapper.emitted('submit')
 
-      const event = wrapper.emitted('submit')
-
-      expect(wrapper.emitted()).toHaveProperty('submit')
-      expect(event).toHaveLength(1)
-    })
+    expect(wrapper.emitted()).toHaveProperty('submit')
+    expect(event).toHaveLength(1)
+  })
 
   describe('ExportModal: pdf export', () => {
     it('displays "anonymized" checkbox in the pdf tab if pdf.anonymize or pdf.obscure option is set to true', async () => {
@@ -155,7 +160,6 @@ describe('ExportModal', () => {
     })
 
     it('does not display "anonymized" checkbox in the pdf tab if pdf.anonymize and pdf.obscure options are set to false', async () => {
-
       await wrapper.setProps({
         options: {
           ...props.options,
@@ -368,13 +372,13 @@ describe('ExportModal', () => {
       expect(checkboxStub.exists()).toBe(true)
     })
 
-    it('does not display "anonymized" checkbox in the xlsx tab if xlsx.anonymize and xlsx.obscure options are set to false',  () => {
+    it('does not display "anonymized" checkbox in the xlsx tab if xlsx.anonymize and xlsx.obscure options are set to false', () => {
       const checkboxStub = wrapper.find('[datacy="exportModal:xlsxAnonymous"]')
 
       expect(checkboxStub.exists()).toBe(false)
     })
 
-    // fails because 'feature_admin_assessmenttable_export_statement_generic_xlsx' permission is always evaluated as true
+    // Fails because 'feature_admin_assessmenttable_export_statement_generic_xlsx' permission is always evaluated as true
     it.skip('displays two radio buttons for selecting the data to be exported if xlsx.exportTypes is true', () => {
       const radioButtonStubs = wrapper.findAll('[datacy^="exportModal:xlsxExportType"]')
 
@@ -429,4 +433,4 @@ describe('ExportModal', () => {
       expect(radioButtonStubs.length).toBe(0)
     })
   })
-  })
+})

@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
@@ -168,7 +168,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save'
     }),
 
@@ -272,7 +272,7 @@ export default {
         this.resetCurrentDepartment()
       }
 
-      const url = Routing.generate('api_resource_update', { resourceType: 'User', resourceId: this.user.id })
+      const url = Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id })
       const payload = {
         data: {
           id: this.user.id,
@@ -290,14 +290,18 @@ export default {
               }
             }
           },
-          type: 'User'
+          type: 'AdministratableUser'
         }
       }
 
-      return dpApi.patch(url, {}, payload)
-        .then(checkResponse, {
-          200: { type: 'confirm', text: 'info.user.updated' },
-          204: { type: 'confirm', text: 'info.user.updated' }
+      return dpApi.patch(url,
+        {},
+        payload,
+        {
+          messages: {
+            200: { type: 'confirm', text: 'info.user.updated' },
+            204: { type: 'confirm', text: 'info.user.updated' }
+          }
         })
         .then(() => {
           this.$root.$emit('save-success')

@@ -49,7 +49,7 @@
     <dp-inline-notification
       v-else
       type="info"
-      class="u-mt-1_5 u-mb"
+      class="u-mt-1_5 mb-4"
       :message="Translator.trans('explanation.noentries')" />
   </div>
 </template>
@@ -98,11 +98,17 @@ export default {
     ]),
 
     comments () {
-      return this.segment?.hasRelationship('comments')
-        ? Object.values(this.segment.rel('comments'))
-          .filter(comment => typeof comment !== 'undefined')
-          .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
-        : []
+      const commentsData = this.segment?.relationships?.comments?.data
+
+      if (!commentsData || commentsData.length === 0) {
+        return []
+      }
+
+      const comments = this.segment.rel('comments') || {}
+
+      return Object.values(comments)
+        .filter(comment => typeof comment !== 'undefined')
+        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
     },
 
     hasComments () {

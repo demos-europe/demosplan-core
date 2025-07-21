@@ -49,6 +49,7 @@ class BrandingResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('feature_customer_branding_edit')) {
             $properties[] = $this->createAttribute($this->styling)
                 ->updatable([$customerCondition])
+                ->readable()
                 ->aliasedPath(Paths::branding()->cssvars);
         }
 

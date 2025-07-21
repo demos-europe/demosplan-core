@@ -168,6 +168,7 @@ class FrontendIntegratorCommand extends CoreCommand
 
     private function saveOpenApiSpec(OpenApi $openApiSpec): void
     {
+        // local file is valid, no need for flysystem
         file_put_contents(
             DemosPlanPath::getRootPath(self::OPEN_API_JSON_FILE),
             Writer::writeToJson($openApiSpec)

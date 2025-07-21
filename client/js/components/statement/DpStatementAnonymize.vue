@@ -89,11 +89,16 @@
         <dp-button
           color="secondary"
           data-cy="statementAnonymize:backToOriginalStatements"
-          :href="Routing.generate('dplan_assessmenttable_view_original_table', {
-            procedureId: procedureId,
-            filterHash: originalFilterHash
-          })"
+          :href="hasPermission('area_admin_original_statement_list')
+            ? Routing.generate('dplan_procedure_original_statement_list', {
+              procedureId: procedureId
+            })
+            : Routing.generate('dplan_assessmenttable_view_original_table', {
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
+
         <dp-button
           class="float-right"
           data-cy="statementAnonymize:next"
@@ -123,7 +128,7 @@
               v-for="(snippet, idx) in anonymizedTextSnippets"
               :key="idx + 'snippet'">
               <span v-if="idx !== 0">
-               ...
+                ...
               </span>
               <span
                 class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"
@@ -222,7 +227,7 @@
             {{ Translator.trans('id') }} {{ child.externId }}
           </li>
         </ul>
-        <p>
+        <p v-if="hasPermission('area_admin_assessmenttable')">
           <a :href="aTableLink">{{ Translator.trans('statement.anonymize.text.children.link.to.list') }}</a><br>
           {{ Translator.trans('statement.anonymize.text.children.version.update') }}
         </p>
@@ -231,10 +236,14 @@
       <div class="flow-root">
         <dp-button
           data-cy="statementAnonymize:backToOriginalStatements"
-          :href="Routing.generate('dplan_assessmenttable_view_original_table', {
-            procedureId: procedureId,
-            filterHash: originalFilterHash
-          })"
+          :href="hasPermission('area_admin_original_statement_list')
+            ? Routing.generate('dplan_procedure_original_statement_list', {
+              procedureId: procedureId
+            })
+            : Routing.generate('dplan_assessmenttable_view_original_table', {
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
       </div>
     </template>
@@ -243,7 +252,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   DpAnonymizeText,
   dpApi,
@@ -397,7 +405,6 @@ export default {
           'Content-Type': 'application/json; charset=utf-8'
         }
       })
-        .then(checkResponse)
         .then(() => {
           this.currentStep = 3
           this.busy = false

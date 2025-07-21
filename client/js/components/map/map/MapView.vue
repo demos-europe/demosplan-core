@@ -101,7 +101,7 @@
           class="border--bottom u-pv-0_5 u-mb-0_5 flow-root">
           <i
             aria-hidden="true"
-            class="fa fa-map-marker u-ml-0_25 color--grey-light"/>
+            class="fa fa-map-marker u-ml-0_25 color--grey-light" />
           <dp-ol-map-draw-feature
             data-cy="setMapRelation"
             :features="procedureCoordinatesFeature"
@@ -245,8 +245,11 @@ export default {
   },
 
   watch: {
-    defaultAttribution () {
-      this.$refs.map.updateMapInstance()
+    defaultAttribution: {
+      handler () {
+        this.$refs.map.updateMapInstance()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

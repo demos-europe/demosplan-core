@@ -92,6 +92,10 @@ export default {
     }
   },
 
+  emits: [
+    'procedure-search-focused'
+  ],
+
   data () {
     return {
       focused: false,
@@ -135,7 +139,7 @@ export default {
       this.selected = false
       this.query = query
       this.isLoading = true
-      this.getLocationSuggestions({ query: query })
+      this.getLocationSuggestions({ query })
         .then(() => { this.isLoading = false })
     }, 500),
 

@@ -3,8 +3,9 @@
 addonDev
 addonZip
 addonZips
-addonDev
 addons
+CLAUDE.md
+claude-mds
 node_modules
 yarn-error.log
 docker-compose.yml
@@ -27,6 +28,7 @@ phpstan.neon
 !.github
 logs
 /docker-compose.override.yml
+plans
 
 # Core project
 /projects/core/app/cache/*

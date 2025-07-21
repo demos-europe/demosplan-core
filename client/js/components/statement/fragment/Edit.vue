@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentEdit',
@@ -165,6 +165,10 @@ export default {
     }
   },
 
+  emits: [
+    'closeEditMode'
+  ],
+
   data () {
     return {
       voteAdvice: Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }]).find(el => el.title === this.voteAdviceInitial),
@@ -215,20 +219,19 @@ export default {
         dataForRequest[el.name] = el.value
       })
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
-        .then(checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            this.$root.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', data.data)
           } else {
-            this.$root.$emit('fragment-saved', response.data)
+            this.$root.$emit('fragment-saved', data.data)
 
             //  Set this to new data
-            this.considerationAdvice = response.data.considerationAdvice
-            this.voteAdvice = response.data.voteAdvice || { name: '-', title: '', value: '' }
+            this.considerationAdvice = data.data.considerationAdvice
+            this.voteAdvice = data.data.voteAdvice || { name: '-', title: '', value: '' }
           }
         })
         .catch(err => {

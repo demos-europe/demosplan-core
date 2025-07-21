@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -238,7 +239,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_orga_name',
             'field_statement_meta_postal_code',
             'field_statement_meta_submit_name',
-            'field_statement_phase',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
@@ -252,6 +252,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
+        if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+            $this->enablePermissions([
+                'feature_list_restricted_external_links',
+            ]);
+        }
+
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -529,7 +535,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             $this->enablePermissions([
                 'area_admin',  // Verwalten
-                'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
@@ -707,14 +712,18 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
-        // Keine Institution eingeladen
-        if (0 === count($invitedOrgaIds)) {
-            $this->logger->debug('Procedure doesn\'t have Orgas');
+        $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
+        /** @var Orga $orga */
+        $dataInputOrgaIds = $dataInputOrganisations?->map(fn ($orga) => $orga->getId())->toArray() ?? [];
+
+        // Keine Institution eingeladen und keine Datenerfasser-Organisationen
+        if (0 === count($invitedOrgaIds) && 0 === count($dataInputOrgaIds)) {
+            $this->logger->debug('Procedure doesn\'t have Orgas or DataInput Orgas');
 
             return false;
         }
 
-        // Ist eine eingeladene Institution
+        // Ist eine eingeladene Institution oder Datenerfasser-Organisation
         if (!isset($this->user) || !$this->user instanceof User) {
             $this->logger->debug('No User defined');
 
@@ -722,9 +731,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isDataInputInstitution = \in_array($this->user->getOrganisationId(), $dataInputOrgaIds, true);
 
-        if ($isInvitedInstitution) {
-            $this->logger->debug('Orga is member');
+        if ($isInvitedInstitution || $isDataInputInstitution) {
+            if ($isDataInputInstitution) {
+                $this->logger->debug('Orga is data input member');
+            } else {
+                $this->logger->debug('Orga is member');
+            }
 
             return true;
         }
@@ -942,7 +956,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             }
         } else {
             // Give devs a hint that the permissions here need to be reworked
-            $this->logger->info('This area has no explicit permission specified! '
+            $this->logger->debug('This area has no explicit permission specified! '
                         .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
     }
@@ -958,7 +972,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
             $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
-            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
+            $dataInputOrgaAccess = $this->procedureAccessEvaluator->isAllowedAsDataInputOrga($this->user, $this->procedure);
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess || $dataInputOrgaAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different

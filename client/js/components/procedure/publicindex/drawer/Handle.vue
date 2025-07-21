@@ -29,6 +29,10 @@ export default {
       type: Boolean,
       required: true
     }
-  }
+  },
+
+  emits: [
+    'input'
+  ]
 }
 </script>

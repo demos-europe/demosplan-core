@@ -12,6 +12,7 @@
     <button
       v-if="toggleButton"
       class="btn--blank o-link--default float-right"
+      data-cy="pinInformation"
       @click="$emit('toggle')">
       {{ Translator.trans('information.pin') }}
     </button>
@@ -137,6 +138,10 @@ export default {
       default: false
     }
   },
+
+  emits: [
+    'toggle'
+  ],
 
   computed: {
     isSegmentWithAssignee () {

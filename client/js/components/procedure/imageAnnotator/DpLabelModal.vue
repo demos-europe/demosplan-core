@@ -7,9 +7,10 @@
   All rights reserved
 </license>
 
-<dp-modal
-  ref="labelModal"
-  content-classes="w-14">
+<template>
+  <dp-modal
+    ref="labelModal"
+    content-classes="w-14">
     <h3>
       {{ Translator.trans('format') }}
     </h3>
@@ -26,7 +27,8 @@
         {{ Translator.trans('accept') }}
       </button>
     </div>
-</dp-modal>
+  </dp-modal>
+</template>
 
 <script>
 import { DpModal, DpSelect } from '@demos-europe/demosplan-ui'
@@ -45,6 +47,10 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'set-label'
+  ],
 
   data () {
     return {

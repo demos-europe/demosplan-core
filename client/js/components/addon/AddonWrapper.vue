@@ -6,13 +6,15 @@
       :key="`addon:${addon.name}`"
       :data-cy="`addon:${addon.name}`"
       :ref="`${addon.name}${refComponent}`"
-      v-bind="addonProps"
+      v-bind="{ demosplanUi, ...addonProps }"
       @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import { shallowRef } from 'vue'
 
 export default {
   name: 'AddonWrapper',
@@ -24,7 +26,7 @@ export default {
     addonProps: {
       type: Object,
       required: false,
-      default: () => {}
+      default: () => ({})
     },
 
     /**
@@ -43,8 +45,13 @@ export default {
     }
   },
 
+  emits: [
+    'addons:loaded'
+  ],
+
   data () {
     return {
+      demosplanUi: shallowRef(demosplanUi),
       loadedAddons: []
     }
   },
@@ -53,9 +60,8 @@ export default {
     loadAddonComponents(this.hookName)
       .then(addons => {
         addons.forEach(addon => {
-          this.$.appContext.components[addon.name] = window[addon.name].default
           this.loadedAddons.push({
-            component: window[addon.name].default,
+            component: shallowRef(window[addon.name].default),
             name: addon.name
           })
         })

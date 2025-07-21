@@ -26,7 +26,7 @@ class APIDocumentationController extends BaseController
     /**
      * @DplanPermissions("area_demosplan")
      */
-    #[Route(path: '/api/', methods: ['GET', 'HEAD'])]
+    #[Route(path: '/api', methods: ['GET', 'HEAD'])]
     public function indexAction(): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {

@@ -48,10 +48,13 @@
       data-dp-validate="organisationForm">
       <!-- Form fields -->
       <dp-organisation-form-fields
+        :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
+        @addon-update="updateAddonPayload"
+        @addonOptions:loaded="setAdditionalFieldOptions"
         @organisation-update="updateOrganisation" />
 
       <!-- Button row -->
@@ -66,7 +69,7 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -88,6 +91,12 @@ export default {
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: false,
@@ -119,6 +128,7 @@ export default {
   },
 
   emits: [
+    'addonOptions:loaded',
     'get-items',
     'item:selected',
     'organisation-reset'
@@ -126,6 +136,14 @@ export default {
 
   data () {
     return {
+      addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
+        attributes: null,
+        id: '',
+        initValue: '',
+        resourceType: '',
+        url: '',
+        value: ''
+      },
       isOpen: false,
       isLoading: true,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
@@ -162,6 +180,44 @@ export default {
   },
 
   methods: {
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.url === 'api_resource_update'
+          ? undefined
+          : {
+              orga: {
+                data: {
+                  type: 'Orga',
+                  id: this.organisation.id
+                }
+              }
+            },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {})
+      }
+    },
+
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const addonRequest = dpApi({
+        headers: {
+          ...(dplan.csrfToken && { 'x-csrf-token': dplan.csrfToken }) // TODO: should be adjusted in UI: api2defaultHeaders
+        },
+        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
+        url: Routing.generate(this.addonPayload.url, {
+          resourceType: this.addonPayload.resourceType,
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+        }),
+        data: {
+          data: payload
+        }
+      })
+
+      return addonRequest
+    },
+
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
@@ -177,26 +233,14 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-        /*
-         * Some update requests need this information, others cant handle them
-         * depending on the permissions
-         */
-        const additionalAttributes = ['showname', 'showlist']
-        if (hasPermission('feature_notification_ending_phase')) {
-          additionalAttributes.push('emailNotificationEndingPhase')
+        const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
+        const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+
+        if (addonExists && addonHasValue) {
+          this.handleAddonRequest().then(() => this.submitOrganisationForm())
+        } else {
+          this.submitOrganisationForm()
         }
-        if (hasPermission('feature_notification_statement_new')) {
-          additionalAttributes.push('emailNotificationNewStatement')
-        }
-        this.saveOrganisationAction({
-          id: this.organisation.id,
-          options: {
-            attributes: {
-              full: ['registrationStatuses'],
-              unchanged: additionalAttributes
-            }
-          }
-        })
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
@@ -205,6 +249,7 @@ export default {
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
         .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
            * a) the registrationStatuses of a pending organisation no longer contain a status of 'pending' or b) the registrationStatuses of an activated organisation now
@@ -219,12 +264,45 @@ export default {
         })
     },
 
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
+    },
+
     setItem (payload) {
       this.$store.commit(`Orga${this.moduleSubstring}/setItem`, payload)
     },
 
+    submitOrganisationForm () {
+      /*
+       * Some update requests need this information, others cant handle them
+       * depending on the permissions
+       */
+      const additionalAttributes = ['showname', 'showlist']
+
+      if (hasPermission('feature_notification_ending_phase')) {
+        additionalAttributes.push('emailNotificationEndingPhase')
+      }
+      if (hasPermission('feature_notification_statement_new')) {
+        additionalAttributes.push('emailNotificationNewStatement')
+      }
+
+      this.saveOrganisationAction({
+        id: this.organisation.id,
+        options: {
+          attributes: {
+            full: ['registrationStatuses'],
+            unchanged: additionalAttributes
+          }
+        }
+      })
+    },
+
     toggleItem (open) {
       this.isOpen = open
+    },
+
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
     },
 
     updateOrganisation (payload) {

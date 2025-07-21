@@ -28,6 +28,7 @@
             query: searchString
           })
         }"
+        search-button
         @search-changed="updateSuggestions"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
         @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
@@ -48,10 +49,11 @@
           @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
+      <!-- Search button, if dp-autocomplete is used only displayed on lap-up screens -->
       <button
         type="button"
         data-cy="searchProcedureMapForm:procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
+        :class="[dplan.settings.useOpenGeoDb ? prefixClass('hidden md:block') : '', prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')]"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
@@ -99,9 +101,9 @@
             @change="setValueAndSubmitForm($event, 'sort')"
             :value="form.sort">
             <option
-              :key="'sort_' + option.value"
               v-for="option in sortOptions"
-              :selected="option.selected"
+              :key="'sort_' + option.value"
+              :selected="option.selected ? true : null"
               :value="option.value">
               {{ option.title }}
             </option>
@@ -125,14 +127,16 @@
           data-cy="searchProcedureMapForm:municipalCode"
           name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroup in municipalities">
+          <template
+            v-for="municipalityGroup in municipalities"
+            :key="`group_${municipalityGroup.label}`">
             <optgroup
               v-if="hasOwnProp(municipalityGroup,'options')"
-              :key="`group_${municipalityGroup.label}`"
               :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroup.options"
-                :selected="county.value === form.municipalCode"
+                v-for="(county, idx) in municipalityGroup.options"
+                :key="`county:${idx}`"
+                :selected="county.value === form.municipalCode ? true : null"
                 :value="county.value">
                 {{ county.title }}
               </option>
@@ -412,6 +416,10 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
+      if (key === 'search') {
+        this.currentAutocompleteSearch = e.target.value
+      }
+
       this.form[key] = e.target.value
       this.submitForm()
     },

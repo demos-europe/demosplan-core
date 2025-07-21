@@ -14,8 +14,8 @@ const fetchResourcesByProcedureId = (mutationName, url, includes = []) => ({ com
   return dpApi({
     method: 'GET',
     url: Routing.generate(url, {
-      procedureId: procedureId,
-      includes: includes
+      procedureId,
+      includes
     })
   }).then(response => {
     commit(mutationName, normalize(response.data))

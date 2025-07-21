@@ -84,7 +84,7 @@ export default {
 
   data () {
     return {
-      emptyContact: emptyContact,
+      emptyContact,
       contact: { ...emptyContact },
       showContactForm: false,
       translationKeys: {

@@ -152,6 +152,10 @@ export default {
     }
   },
 
+  emits: [
+    'selected-cluster'
+  ],
+
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,

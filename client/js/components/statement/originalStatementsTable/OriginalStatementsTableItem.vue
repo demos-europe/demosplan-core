@@ -66,15 +66,15 @@
             <td>
               {{ submitter }}
             </td>
-            <td v-cleanhtml="element">
-              {{ element }}
-            </td>
+            <td v-cleanhtml="element" />
             <td>
               {{ statement.phase }}
             </td>
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
-                <a :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
+                <a
+                  class="u-pt-0 block leading-[2] whitespace-nowrap"
+                  :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
                 </a>
               </dp-flyout>
@@ -102,17 +102,17 @@
         </div>
 
         <div
-          v-if="statement.sourceAttachment !== '' || statement.files.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top">
           <div
-            v-if="statement.sourceAttachment !== '' || statement.files.length > 0"
+            v-if="statement.sourceAttachment || statement.files.length > 0"
             class="break-words">
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"
               class="fa fa-paperclip color--grey" />
             <a
-              v-if="statement.sourceAttachment !== '' && hasPermission('feature_read_source_statement_via_api')"
+              v-if="statement.sourceAttachment && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
               target="_blank"
               rel="noopener"
@@ -157,7 +157,7 @@
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
           <div
-            v-else-if="statement.consetRevoked"
+            v-else-if="statement.consentRevoked"
             class="border--top">
             <span> {{ Translator.trans('personal.data.usage.revoked') }} </span>
             <span> {{ Translator.trans('personal.data.usage.revoked.statement') }} </span>
@@ -260,9 +260,11 @@ export default {
       if (hasOwnProp(this.statement, 'paragraph')) {
         const elementParagraphs = this.selectedElementParagraph()
 
-        if (elementParagraphs && this.statement.paragraphParentId) {
-          const paragraph = elementParagraphs.find((el) => el.id === this.statement.paragraphParentId)
-          elementTitle += `<br>${paragraph.title}`
+        if (elementParagraphs && this.statement.elementId) {
+          const paragraph = elementParagraphs.find((el) => el.elementId === this.statement.elementId)
+          if (paragraph?.title) {
+            elementTitle += `<br>${paragraph.title}`
+          }
         }
       }
 
@@ -293,10 +295,6 @@ export default {
         name += (this.statement.authorName !== '')
           ? this.statement.authorName
           : `${Translator.trans('role.citizen')} (${Translator.trans('anonymous')})`
-
-        if (this.statement.votesNum > 0) {
-          name += `<br>${Translator.trans('voters')}: ${this.statement.votesNum}`
-        }
 
         if (hasPermission('feature_statements_like') && this.statement.publicAllowed) {
           name += `<br>${Translator.trans('liked.by')}: ${this.statement.likesNum}`

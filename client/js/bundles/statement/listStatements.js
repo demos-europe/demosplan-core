@@ -12,11 +12,13 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
+import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {
-  ListStatements
+  ListStatements,
+  ListOriginalStatements
 }
-const apiStores = ['AssignableUser', 'Statement']
+const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 
 initialize(components, {}, apiStores)

@@ -52,8 +52,11 @@ export default {
    * should not be necessary
    */
   watch: {
-    olMapState () {
-      this.init()
+    olMapState: {
+      handler () {
+        this.init()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -89,7 +92,7 @@ export default {
 
       //  Animate view to new resolution
       this.view.animate({
-        resolution: resolution,
+        resolution,
         duration: 250,
         easing: easeOut
       })

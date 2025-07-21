@@ -63,12 +63,11 @@
          other form elements (that do not share the vue context) also need to be validated. -->
     <template v-if="hasPermission('feature_procedure_require_location')">
       <input
-        type="hidden"
-        name="r_coordinate"
-        v-model="currentProcedureCoordinate"
-        required
         :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
-        data-dp-validate-if="#r_publicParticipationPhase!==configuration,#r_phase!==configuration">
+        v-model="currentProcedureCoordinate"
+        name="r_coordinate"
+        required
+        type="hidden">
       <span :class="prefixClass('validation-hint')">
         {{ Translator.trans('statement.map.draw.no_drawing_warning') }}
       </span>
@@ -76,10 +75,10 @@
 
     <!-- No validation without `feature_procedure_require_location` -->
     <input
-      type="hidden"
-      name="r_coordinate"
+      v-else
       v-model="currentProcedureCoordinate"
-      v-else>
+      name="r_coordinate"
+      type="hidden">
   </div>
 </template>
 

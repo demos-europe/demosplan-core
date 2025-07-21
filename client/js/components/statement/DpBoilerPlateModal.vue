@@ -28,6 +28,7 @@
       </a>
       <dp-button-row
         class="ml-auto"
+        :disabled="{ primary: textToBeAdded === '' }"
         primary
         :primary-text="Translator.trans('insert')"
         secondary
@@ -73,6 +74,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'insert'
+  ],
 
   data () {
     return {
@@ -127,6 +132,7 @@ export default {
 
     resetAndClose () {
       this.$refs.boilerplateDropdown.resetBoilerPlateMultiSelect()
+      this.textToBeAdded = ''
       this.toggleModal()
     },
 

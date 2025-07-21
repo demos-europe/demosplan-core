@@ -156,18 +156,19 @@ const AssessmentTable = {
 
   actions: {
     /**
+     * @param commit
+     * @param state
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
-      const data = await dpApi({
+      const { data } = await dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId: procedureId })
+        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
       })
-        .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve, reject) => {
-        // To prevent invalid type error missmatch of array and object
+      return new Promise(resolve => {
+        // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
         }
@@ -180,7 +181,7 @@ const AssessmentTable = {
         commit('addBase', data)
         commit('setProperty', { prop: 'currentTableView', val: data.defaultToggleView })
         const emptyOptions = ['adviceValues', 'priorities', 'paragraph', 'agencies']
-        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '' } }))
+        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '', elementId: '' } }))
 
         return resolve(true)
       })

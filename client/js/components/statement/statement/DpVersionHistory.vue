@@ -25,12 +25,12 @@
       class="u-mt-1_5 u-ml" />
 
     <div
-      v-else
+      v-else-if="!isLoading"
       class="c-slidebar__content overflow-y-auto"
       :class="{'u-mr': days.length === 0}"
       style="height: 88vh;">
       <table class="u-mb">
-        <tr class="hide-visually">
+        <tr class="sr-only">
           <th>
             {{ Translator.trans('history') }}
           </th>
@@ -43,9 +43,9 @@
             colspan="4"
             class="u-mr">
             <dp-inline-notification
-              type="info"
+              class="mt-3 mb-2"
               :message="Translator.trans('explanation.noentries')"
-            />
+              type="info" />
           </td>
         </tr>
         <!-- if there are history items -->
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
@@ -143,14 +143,11 @@ export default {
         method: 'GET',
         url: Routing.generate(route, params)
       })
-        .then(response => checkResponse(response))
-        .then(response => response)
-        .then(response => {
-          this.days = response.data
-          this.times = response.included
+        .then(({ data }) => {
+          this.days = data.data
+          this.times = data.included
           this.isLoading = false
         })
-        .catch(error => checkResponse(error.response))
     },
 
     updateVersionHistory (entityId, entityType) {

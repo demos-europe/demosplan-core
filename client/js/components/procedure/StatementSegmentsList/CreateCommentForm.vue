@@ -53,6 +53,10 @@ export default {
     }
   },
 
+  emits: [
+    'update'
+  ],
+
   computed: {
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
@@ -96,7 +100,7 @@ export default {
     }),
 
     resetCurrentComment (show = true) {
-      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show: show } })
+      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show } })
       this.$refs.createComment.resetEditor()
     },
 
@@ -135,7 +139,7 @@ export default {
           const payloadRel = payload.relationships
           const newCommentData = {
             ...payload,
-            id: id,
+            id,
             attributes: {
               ...payload.attributes,
               creationDate: dayjs().toISOString() // Since we don't have the value from the Backend, this should be close enough for ordering
@@ -169,7 +173,7 @@ export default {
             relationship: 'comments',
             action: 'add',
             value: {
-              id: id,
+              id,
               type: 'SegmentComment'
             }
           }

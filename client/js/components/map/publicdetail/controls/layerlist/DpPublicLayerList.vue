@@ -18,16 +18,18 @@
         :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
-        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :parent-is-visible="parentIsVisible"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)" />
       <dp-public-layer-list-category
         v-else
-        :key="`category:${layer.id}?`"
         :group="layer"
+        :key="`category:${layer.id}`"
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
-        :visible="true"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :parent-is-visible="parentIsVisible"
+        :visible="true" />
     </template>
   </ul>
 </template>
@@ -69,6 +71,12 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    parentIsVisible: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
 
@@ -111,10 +119,13 @@ export default {
   },
 
   watch: {
-    isMapAndLayersReady () {
-      if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
-        this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
-      }
+    isMapAndLayersReady: {
+      handler () {
+        if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
+          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id, isVisible: true })
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

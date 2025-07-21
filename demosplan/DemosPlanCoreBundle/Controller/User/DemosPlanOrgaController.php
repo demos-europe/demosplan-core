@@ -138,7 +138,7 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'])]
+    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
     public function editOrgaSaveAction(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,
@@ -476,7 +476,7 @@ class DemosPlanOrgaController extends BaseController
             $userLastName = $request->request->get('r_lastname');
             $userEmail = $request->request->get('r_useremail');
             $phone = $request->request->get('r_orgaphone');
-            $orgaTypeNames = $request->request->get('r_orgatype') ?? [OrgaType::PUBLIC_AGENCY];
+            $orgaTypeNames = [] === $request->request->all('r_orgatype') ? [OrgaType::PUBLIC_AGENCY] : $request->request->all('r_orgatype');
 
             $orgaService->createOrgaRegister($orgaName, $phone, $userFirstName, $userLastName, $userEmail, $customer, $orgaTypeNames);
 

@@ -210,7 +210,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpMultiselect,
@@ -317,7 +316,7 @@ export default {
     payloadRelationships () {
       return {
         statements: {
-          data: this.selectedElementsIds.map(id => ({ id: id, type: 'statement' }))
+          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' }))
         },
         ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
       }
@@ -372,7 +371,6 @@ export default {
         }),
         data: payload
       })
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false

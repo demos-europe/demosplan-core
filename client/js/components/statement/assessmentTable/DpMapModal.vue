@@ -13,16 +13,17 @@
     content-classes="u-1-of-2 u-pb"
     @modal:toggled="(open) => {isModalOpen = open}">
     <dp-ol-map
-      :class="prefixClass('u-mv-0_5')"
       v-if="isModalOpen"
-      :procedure-id="procedureId"
-      :map-options-route="mapOptionsRoute"
       ref="map"
+      :class="prefixClass('u-mv-0_5')"
+      map-id="mapModal"
+      :map-options-route="mapOptionsRoute"
       :options="{
         autoSuggest: false,
         scaleSelect: false,
-        procedureExtent: false,
-      }">
+        procedureExtent: true
+      }"
+      :procedure-id="procedureId">
       <dp-ol-map-layer-vector
         zoom-to-drawing
         :features="drawing" />

@@ -111,6 +111,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $id;
 
     /**
+     * This property is used inside this base Statement class only to be able to
+     * build conditions for resource types. e.g. to filter out segments.
+     *
+     * @var StatementInterface
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="segmentsOfStatement", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
+     */
+    #[Assert\IsNull(groups: [StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
+    protected $parentStatementOfSegment;
+
+    /**
      * Elternstellungnahme, von der diese kopiert wurde.
      *
      * @var Statement
@@ -899,7 +912,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * cascade={"remove"} means, that the associated placeholder will be deleted, in case of this moved statement will be deleted.
      *
-     * @var Statement
+     * @var Statement|null
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
      *
@@ -3050,7 +3063,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * VoteStatskanzlei
+     * VoteStaatskanzlei
      * Get the StK-vote of this statement.
      *
      * @return string

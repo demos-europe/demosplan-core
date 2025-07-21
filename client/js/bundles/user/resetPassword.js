@@ -11,9 +11,9 @@
  * This is the entrypoint for password_recover.html.twig
  */
 
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const components = {
   RegisterFlyout

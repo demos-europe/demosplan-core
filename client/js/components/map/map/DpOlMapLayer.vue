@@ -95,8 +95,11 @@ export default {
   },
 
   watch: {
-    defaultAttributions () {
-      this.source.setAttributions(this.defaultAttributions)
+    defaultAttributions: {
+      handler (newVal) {
+        this.source.setAttributions(newVal)
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -110,8 +113,10 @@ export default {
       let url = splittedUrl[0]
 
       if (splittedUrl[1]) {
-        // We have to ensure that the Service is not within the params,
-        // since the `createSourceTileWMS` function from OL already adds it
+        /*
+         * We have to ensure that the Service is not within the params,
+         * since the `createSourceTileWMS` function from OL already adds it
+         */
         const params = splittedUrl[1].split('&').reduce((acc, curr) => {
           return (!curr.toUpperCase().includes('SERVICE=')) ? acc + curr : acc
         }, '?')
@@ -150,18 +155,18 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
   const resolutions = map.getView().getResolutions()
 
   return new TileWMS({
-    url: url,
+    url,
     params: {
       LAYERS: layers || '',
       FORMAT: 'image/png'
     },
-    projection: projection,
+    projection,
     tileGrid: new TileGrid({
-      origin: origin,
-      resolutions: resolutions,
+      origin,
+      resolutions,
       matrixIds: getMatrixIds(resolutions)
     }),
-    attributions: attributions
+    attributions
   })
 }
 
@@ -175,13 +180,13 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
  */
 const createTileLayer = (title, name, source, opacity) => {
   return new TileLayer({
-    title: title,
-    name: name,
+    title,
+    name,
     preload: 10,
     opacity: opacity / 100,
     type: 'base',
     visible: true,
-    source: source
+    source
   })
 }
 

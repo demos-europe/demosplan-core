@@ -13,25 +13,36 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -55,20 +66,29 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
  * @property-read End $status
+ * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
+ * @property-read GenericStatementAttachmentResourceType $genericAttachments
+ * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService $fileService,
         HTMLSanitizer $htmlSanitizer,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ParagraphRepository $paragraphRepository,
+        private readonly ElementsService $elementsService,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly FileContainerRepository $fileContainerRepository,
     ) {
-        parent::__construct($fileService, $htmlSanitizer);
+        parent::__construct($htmlSanitizer, $statementService);
     }
 
     public function getEntityClass(): string
@@ -133,6 +153,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
+            // filter out segments
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->parentStatementOfSegment),
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
@@ -218,6 +240,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         // some updates are allowed for manual statements only
         $manualStatementCondition = $this->conditionFactory->propertyHasValue(true, $this->manual);
+
         // currently updates are only needed for "normal" statements
         $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
@@ -225,8 +248,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
-            $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
+            $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         );
+
+        $statementConditions = $this->currentUser
+            ->hasPermission('feature_allow_update_on_non_manual_statements')
+            ? [$simpleStatementCondition]
+            : [$simpleStatementCondition, $manualStatementCondition];
 
         /** @var StatementResourceConfigBuilder $configBuilder */
         $configBuilder = parent::getProperties();
@@ -257,12 +285,80 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->originalId
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
-                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id);
+                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id)
+                ->updatable([$simpleStatementCondition], function (Statement $statement, ?string $paragraphParentId): array {
+                    if (null === $paragraphParentId || '' === $paragraphParentId) {
+                        $statement->setParagraph(null);
+                    } else {
+                        $paragraphEntity = $this->paragraphRepository->get($paragraphParentId);
+                        Assert::notNull($paragraphEntity);
+                        $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
+                        $statement->setParagraph($paragraphVersion);
+                    }
+
+                    return [];
+                });
+            $configBuilder->document
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?SingleDocumentInterface $singleDocument): array {
+                    if (null === $singleDocument) {
+                        $statement->setDocument(null);
+                    } else {
+                        $singleDocumentVersion = $this->singleDocumentVersionRepository->createVersion($singleDocument);
+                        Assert::notNull($singleDocumentVersion);
+                        $statement->setDocument($singleDocumentVersion);
+                    }
+
+                    return [];
+                });
+
             $configBuilder->paragraphTitle
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
+            $configBuilder->location
+                ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
+                ->aliasedPath(Paths::statement()->polygon);
+            $configBuilder->location
+                ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
+                ->aliasedPath(Paths::statement()->polygon);
+
+            $configBuilder->elements
+                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
+                    if (null === $planningDocumentCategory) {
+                        // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
+                        $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
+                    }
+                    Assert::notNull($planningDocumentCategory);
+
+                    $statement->setElement($planningDocumentCategory);
+
+                    return [];
+                })
+                ->readable()
+                ->aliasedPath(Paths::statement()->element);
+            $configBuilder->paragraphVersion
+                ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+                ->readable()
+                ->aliasedPath(Paths::statement()->paragraph);
+            $configBuilder->genericAttachments
+                ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
+                ->readable(false, function (Statement $statement): ?array {
+                    $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+
+                    return $fileContainers;
+                });
+
+            $configBuilder->feedback->setReadableByPath();
+            $configBuilder->sentAssessmentDate->setReadableByPath();
+            $configBuilder->sentAssessment->setReadableByPath();
+            $configBuilder->publicStatement->setReadableByPath();
+            $configBuilder->authorFeedback->setReadableByPath()->setAliasedPath(Paths::statement()->meta->authorFeedback);
+            $configBuilder->user
+                ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+                ->setReadableByPath();
+
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -284,6 +380,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             })->filterable();
         }
 
+        if ($this->currentUser->hasPermission('field_statement_priority')) {
+            $configBuilder->priority->setReadableByPath();
+        }
+
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
             $configBuilder->similarStatementSubmitters->readable();
         }
@@ -301,30 +401,33 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // updatable with special permission and on manual statements only
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
             $configBuilder->fullText
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->text);
             $configBuilder->initialOrganisationName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaName);
+            $configBuilder->initialOrganisationEmail
+                ->setReadableByPath()
+                ->aliasedPath(Paths::statement()->meta->orgaEmail);
             $configBuilder->initialOrganisationDepartmentName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
             $configBuilder->initialOrganisationPostalCode
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
             $configBuilder->initialOrganisationCity
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaCity);
             $configBuilder->initialOrganisationHouseNumber
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->houseNumber);
             $configBuilder->initialOrganisationStreet
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaStreet);
-            $configBuilder->authorName->updatable([$simpleStatementCondition, $manualStatementCondition]);
-            $configBuilder->submitName->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->authorName->updatable($statementConditions);
+            $configBuilder->submitName->updatable($statementConditions);
             $configBuilder->internId->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, string $internIdToSet): array {
                     // check for unique
                     $isUnique = $this->statementService->isInternIdUniqueForProcedure($internIdToSet, $statement->getProcedureId());
@@ -338,7 +441,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->authoredDate->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, mixed $newValue): array {
                     $unrequestedChange = false;
                     // authoredDate should be less or equal to the submitDate
@@ -353,7 +456,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitDate->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 static function (Statement $statement, string $value): array {
                     $statement->setSubmit(new DateTime($value));
 
@@ -361,7 +464,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitType->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 static function (Statement $statement, string $submitType): array {
                     $statement->setSubmitType($submitType);
 
@@ -369,13 +472,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 }
             );
             $configBuilder->submitterEmailAddress->updatable(
-                [$simpleStatementCondition, $manualStatementCondition],
+                $statementConditions,
                 function (Statement $statement, mixed $value): array {
                     $statement->setSubmitterEmailAddress($value);
 
                     return [];
                 }
             );
+
+            $configBuilder->numberOfAnonymVotes->readable()->updatable();
         }
 
         // always updatable if access to type and instances was granted
@@ -387,22 +492,37 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->memo->updatable([$simpleStatementCondition]);
         }
 
+        if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
+            $configBuilder->publicVerified
+                ->readable(true, function (Statement $statement) {
+                    return $statement->getPublicVerified();
+                })
+                ->updatable(
+                    [$simpleStatementCondition],
+                    static function (Statement $statement, string $publicVerified): array {
+                        $statement->setPublicVerified($publicVerified);
+
+                        return [];
+                    }
+                );
+        }
+
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
-            $configBuilder->submitterEmailAddress->updatable([$simpleStatementCondition, $manualStatementCondition]);
+            $configBuilder->submitterEmailAddress->updatable($statementConditions);
             $configBuilder->submitterName
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->submitName);
             $configBuilder->submitterPostalCode
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaPostalCode);
             $configBuilder->submitterCity
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaCity);
             $configBuilder->submitterHouseNumber
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->houseNumber);
             $configBuilder->submitterStreet
-                ->updatable([$simpleStatementCondition, $manualStatementCondition])
+                ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaStreet);
         }
 
@@ -416,6 +536,43 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 }
             );
+        }
+
+        $configBuilder->procedurePhase
+            ->updatable($statementConditions, function (Statement $statement, array $procedurePhase): array {
+                // check that phaseKey exists so that it is not possible to set a phase that does not exist
+                try {
+                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
+                    $statement->setPhase($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return [];
+                }
+
+                return [];
+            })
+            ->readable(false, function (Statement $statement): ?array {
+                try {
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return null;
+                }
+            });
+
+        if ($this->currentUser->hasPermission('field_statement_phase')) {
+            $configBuilder->availableProcedurePhases
+                ->readable(false, function (Statement $statement): ?array {
+                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
+                });
+        }
+
+        if ($this->getTypes()->getStatementVoteResourceType()->isAvailable()) {
+            $configBuilder->votes
+                ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
+                ->readable(true);
         }
 
         return $configBuilder;

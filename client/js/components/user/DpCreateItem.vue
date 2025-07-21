@@ -49,8 +49,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
+import { mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'DpCreateItem',
@@ -186,13 +186,6 @@ export default {
   },
 
   computed: {
-    /**
-     * Needed for entity === 'user'
-     */
-    ...mapState('Role', {
-      roles: 'items'
-    }),
-
     dynamicComponent () {
       return this.customComponent[this.entity].componentName
     },
@@ -206,8 +199,9 @@ export default {
     },
 
     itemResource () {
+      const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
-        type: this.entity,
+        type,
         ...this.item
       }
     }
@@ -217,8 +211,12 @@ export default {
     ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       createUser: 'create'
+    }),
+
+    ...mapMutations('AdministratableUser', {
+      updateAdministratableUser: 'setItem'
     }),
 
     changeTypeToPascalCase (payload) {
@@ -272,7 +270,11 @@ export default {
       if (this.entity === 'user') {
         if (this.dpValidate.newUserForm) {
           this.createUser(this.itemResource)
-            .then(() => {
+            .then(response => {
+              const { type: userType, relationships = {} } = this.itemResource
+              const newUser = Object.values(response.data[userType])[0]
+              const payload = { ...newUser, relationships }
+              this.updateAdministratableUser({ ...payload, id: newUser.id })
               this.reset()
               dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
             })

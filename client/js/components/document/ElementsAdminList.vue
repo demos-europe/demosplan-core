@@ -48,7 +48,7 @@
     <dp-loading v-if="isLoading" />
     <p
       v-else-if="treeData.length < 1"
-      v-text="Translator.trans('plandocuments.no_elements')"/>
+      v-text="Translator.trans('plandocuments.no_elements')" />
     <dp-tree-list
       v-else
       ref="treeList"
@@ -181,18 +181,30 @@ export default {
      */
     bulkDelete () {
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
-        this.selectedElements.forEach(el => {
-          this.deleteElement(el)
-            .then(() => {
-              this.buildTree()
-              this.resetSelection()
+        // Parent deletion cascades to children, so only delete parents if both selected
+        const elementsToDelete = this.filterTopLevelParents(this.selectedElements)
+        const deletePromises = elementsToDelete.map(el => this.deleteElement(el))
 
-              // Clear cache from previously selected items.
-              lscache.remove(`${dplan.procedureId}:selectedElements`)
+        Promise.all(deletePromises)
+          .then(() => {
+            this.buildTree()
+            this.resetSelection()
 
-              dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
-            })
-        })
+            // Clear cache from previously selected items.
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+          })
+          .catch(error => {
+            console.error('Error during bulk deletion:', error)
+
+            // Still perform cleanup even if some deletions failed
+            this.buildTree()
+            this.resetSelection()
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('error', Translator.trans('error.entries.marked.deleted'))
+          })
       }
     },
 
@@ -217,6 +229,26 @@ export default {
 
         return null
       }, null)
+    },
+
+    /**
+     * Filter out child elements when their parents are also selected
+     * to avoid faulty API calls when deleting (parent deletion cascades to children)
+     * @param selectedIds
+     */
+    filterTopLevelParents (selectedIds) {
+      // Use Set for O(1) lookup performance
+      const selectedSet = new Set(selectedIds)
+
+      return selectedIds.filter(elementId => {
+        const element = this.elements[elementId]
+
+        if (!element?.attributes?.parentId) {
+          return true
+        }
+
+        return !selectedSet.has(element.attributes.parentId)
+      })
     },
 
     /**
@@ -342,7 +374,7 @@ export default {
       }
 
       // Do an optimistic FE update, so there is no lag until item is displayed in new position
-      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex})
+      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex })
 
       // Find the element that is directly following the moved element (only folders, no files)
       const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
@@ -354,7 +386,7 @@ export default {
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
         newIndex: newIndex === 0 ? newIndex : index,
-        parentId: parentId
+        parentId
       })
         .then(response => {
           /*
@@ -385,7 +417,7 @@ export default {
         })
         .catch(error => {
           // Undo optimistic FE update
-          this.moveElementInList({indexToMoveFrom: newIndex, indexToMoveTo: oldIndex})
+          this.moveElementInList({ indexToMoveFrom: newIndex, indexToMoveTo: oldIndex })
 
           console.error(error)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
@@ -439,7 +471,7 @@ export default {
               ...this.elements[el.id],
               attributes: {
                 ...this.elements[el.id].attributes,
-                idx: idx,
+                idx,
                 parentId: updatedSort.nodeId
               }
             })

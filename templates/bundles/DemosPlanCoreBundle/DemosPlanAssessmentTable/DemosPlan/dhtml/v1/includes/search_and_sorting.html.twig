@@ -34,6 +34,7 @@
         {% if filtersSet is defined or fieldsSet is defined or templateVars.table.search is defined and templateVars.table.search != '' %}
             <div class="ml-auto">
                 <dp-button
+                    data-cy="resetSearchSorting"
                     href="{{ path(route_reset_assessment_table|default('dplan_assessmenttable_view_table'), {'procedureId': templateVars.table.procedure.ident}) }}"
                     :text="Translator.trans('reset')"
                     variant="outline">

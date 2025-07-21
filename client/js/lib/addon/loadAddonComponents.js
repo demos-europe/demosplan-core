@@ -1,4 +1,4 @@
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import { dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
   while (window.dplan.loadedAddons[hookName] === 'pending') {
@@ -12,13 +12,12 @@ export default async function loadAddonComponents (hookName) {
   window.dplan.loadedAddons[hookName] = 'pending'
 
   const params = {
-    hookName: hookName
+    hookName
   }
 
   return await dpRpc('addons.assets.load', params)
-    .then(response => checkResponse(response))
-    .then(response => {
-      const result = response[0].result
+    .then(({ data }) => {
+      const result = data[0].result
       const addons = []
 
       for (const key of Object.keys(result)) {

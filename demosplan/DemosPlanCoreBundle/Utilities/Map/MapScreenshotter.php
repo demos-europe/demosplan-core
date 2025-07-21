@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utilities\Map;
 
-use DemosEurope\DemosplanAddon\Contracts\ApiClientInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Map\FeaturesToMapLayersConverter;
@@ -33,12 +32,11 @@ use Exception;
 use GdImage;
 use GeoJson\GeoJson;
 use geoPHP\geoPHP;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Psr\Log\LoggerInterface;
 use stdClass;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 
 class MapScreenshotter
 {
@@ -74,8 +72,6 @@ class MapScreenshotter
     private $mapEnableWmtsExport;
 
     public function __construct(
-        private readonly ApiClientInterface $apiClient,
-        private readonly Filesystem $filesystem,
         private readonly GeoJsonToFeaturesConverter $geoJsonToFeaturesConverter,
         GlobalConfigInterface $globalConfig,
         private readonly ImageManager $imageManager,
@@ -90,7 +86,7 @@ class MapScreenshotter
         private readonly TextIntoImageInserter $textIntoImageInserter,
         private readonly TranslatorInterface $translator,
         private readonly UrlFileReader $urlFileReader,
-        private readonly WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter
+        private readonly WmsToWmtsCoordinatesConverter $wmsToWmtsCoordinatesConverter,
     ) {
         $this->logger = $logger;
         $this->mapEnableWmtsExport = $globalConfig->getMapEnableWmtsExport();
@@ -105,7 +101,7 @@ class MapScreenshotter
     public function makeScreenshot(
         string $polygon,
         $wms,
-        $copyrightText = null
+        $copyrightText = null,
     ): ?string {
         try {
             if ($this->mapEnableWmtsExport && $this->hasWmtsTile($polygon)) {
@@ -173,7 +169,7 @@ class MapScreenshotter
      */
     public function makeScreenshotWmts(
         string $geoJson,
-        $copyrightText = null
+        $copyrightText = null,
     ): ?string {
         try {
             $copyrightText ??= $this->translator->trans('map.attribution.exports', ['currentYear' => date('Y')]);
@@ -311,6 +307,7 @@ class MapScreenshotter
             // Bilder, die nicht statisch sind (WMS-Aufrufe bspw.)
             if (!str_contains(substr($path, -4), '.')
                 || 'http' === strtolower(substr($path, 0, 4))) {
+                // @todo: use Symfony HttpClient see UrlFileReader
                 $func = 'https:' === strtolower(substr($path, 0, 6)) ? 'file_get_contents_https'
                     : 'fileGetContentsCurl';
                 if (false === ($imageContent = @$func($path))) {
@@ -318,6 +315,7 @@ class MapScreenshotter
                 }
 
                 $tempPath = 'temp_'.md5(microtime().random_int(0, mt_getrandmax())).'.img';
+                // local file is valid, no need for flysystem
                 file_put_contents($tempPath, $imageContent);
                 $path = $tempPath;
             }
@@ -367,7 +365,7 @@ class MapScreenshotter
         int $src_y,
         int $src_w,
         int $src_h,
-        int $opacity
+        int $opacity,
     ): void {
         // Zwischenbild erzeugen
         $cut = imagecreatetruecolor($src_w, $src_h);
@@ -418,6 +416,7 @@ class MapScreenshotter
                 continue;
             }
 
+            // local file is valid, no need for flysystem
             file_put_contents($tempFile, $imageContent);
             if (false === ($imageData = getimagesize($tempFile))) {
                 @unlink($tempFile);

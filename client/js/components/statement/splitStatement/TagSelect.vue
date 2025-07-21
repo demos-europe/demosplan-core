@@ -12,6 +12,7 @@ All rights reserved
     class="multiselect--dark inline-block align-bottom cursor-pointer w-full"
     :class="{'has-selection': selected.length}"
     :placeholder="placeHolder"
+    :open-direction="dropdownDirection"
     :options="tagsByTopic"
     :close-on-select="false"
     :searchable="false"
@@ -40,6 +41,12 @@ export default {
   },
 
   props: {
+    dropdownDirection: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
     entity: {
       type: Object,
       default: () => ({})

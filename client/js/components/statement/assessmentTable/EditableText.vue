@@ -242,6 +242,10 @@ export default {
     }
   },
 
+  emits: [
+    'field:save'
+  ],
+
   data () {
     return {
       fullText: '',
@@ -270,9 +274,11 @@ export default {
     },
 
     save () {
-      /** transformedText contains the text with the obscure tag applied.
+      /**
+       * TransformedText contains the text with the obscure tag applied.
        * To avoid the cursor jumping to the end, we update the fullText with transformedText only when the save action is triggered.
-       * */
+       *
+       */
       if (this.transformedText && this.transformedText !== this.fullText) {
         this.fullText = this.transformedText
       }
@@ -350,34 +356,36 @@ export default {
         params,
         { serialize: true }
       ).then(response => {
+        const responseData = response.data.data
         this.fullTextLoaded = true
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.data.original
+          this.uneditedFullText = responseData.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
         }
 
         // As far as i get it, this should always be the same if the update succeeds ?!?
-        if (hasOwnProp(response.data.data, 'original')) {
-          this.fullText = response.data.data.original
+        if (hasOwnProp(responseData, 'original')) {
+          this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data.data, 'shortened')) {
-          this.shortText = response.data.data.shortened
+        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+          this.shortText = responseData.shortened
         }
 
-        if (hasOwnProp(response.data.data, 'shortened')) {
+        if (hasOwnProp(responseData, 'shortened')) {
           this.isShortened = this.fullText.length > this.shortText.length
         }
-
-        this.loading = false
-      }, () => {
-        dplan.notify.error(Translator.trans('error.api.generic'))
-        this.loading = false
-      }).then(callback)
+      })
+        .then(() => {
+          return callback
+        })
+        .finally(() => {
+          this.loading = false
+        })
     }
   },
 

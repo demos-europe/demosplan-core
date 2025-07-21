@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -33,12 +32,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\PageTitleExtension;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -48,6 +49,7 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -132,12 +134,12 @@ class AssessmentTableServiceOutput
         private readonly DocxExporter $docxExporter,
         Environment $twig,
         FileService $serviceFiles,
+        private readonly FilesystemOperator $defaultStorage,
         FormFactoryInterface $formFactory,
         GlobalConfigInterface $config,
         MapService $serviceMap,
         LoggerInterface $logger,
         private readonly PageTitleExtension $pageTitleExtension,
-        private readonly ParagraphService $paragraphService,
         ProcedureHandler $procedureHandler,
         PermissionsInterface $permissions,
         ServiceImporter $serviceImport,
@@ -403,12 +405,17 @@ class AssessmentTableServiceOutput
 
                 $section->addTextBreak();
                 $image = $presentableOriginalStatement->getImage();
-                if (null !== $image) {
-                    $docxImageTag = $this->getDocxImageTag($image);
-                    Html::addHtml($section, $docxImageTag);
+                if ((null !== $image) && $this->defaultStorage->fileExists($image)) {
+                    // temporary local file is needed for PhpWord
+                    $fs = new Filesystem();
+                    $tmpFilePath = DemosPlanPath::getTemporaryPath(random_int(10, 9999999).'.png');
+                    $fs->dumpFile($tmpFilePath, $this->defaultStorage->read($image));
+                    Html::addHtml($section, $this->getDocxImageTag($tmpFilePath));
                     $section->addText($this->translator->trans('map.attribution.exports', [
                         'currentYear' => date('Y'),
                     ]));
+                    // unfortunately it is not possible to clean up the temporary file
+                    // as the file is still in use by the Word document which is returned as a streamed response
                 }
             }
         }
@@ -516,7 +523,7 @@ class AssessmentTableServiceOutput
      */
     public function replacePhase(array $statement): array
     {
-        $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+        $statement['phase'] = $this->statementService->getProcedurePhaseNameFromArray($statement);
 
         return $statement;
     }
@@ -570,8 +577,6 @@ class AssessmentTableServiceOutput
         string $sortType,
         string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
     ): WriterInterface {
-        $this->docxExporter->setProcedureHandler($this->getProcedureHandler());
-
         return $this->docxExporter->generateDocx(
             $outputResult,
             $templateName,
@@ -723,6 +728,7 @@ class AssessmentTableServiceOutput
         $width = 300;
         $height = 300;
         $margin = 10;
+        // phpword needs a local file, no need for flysystem
         if (!file_exists($imageFile)) {
             return $imgTag;
         }
@@ -889,49 +895,62 @@ class AssessmentTableServiceOutput
     public function collectClusterOrgaOutputForExport($item)
     {
         $departments = collect([]);
-        $translator = $this->translator;
         foreach ($item['cluster'] as $clusteredStatement) {
-            if (array_key_exists('publicStatement', $clusteredStatement)
-                && Statement::EXTERNAL === $clusteredStatement['publicStatement']) {
-                // set 'Bürger'
-                $key = $translator->trans('public').': '.$translator->trans(
-                    'role.citizen'
-                );
-            } else {
-                // set OrgaName
-                $clusteredStatement['oName'] =
-                    (!array_key_exists(
-                        'oName',
-                        $clusteredStatement
-                    ) || '' == $clusteredStatement['oName']) ?
-                        $translator->trans('not.specified') :
-                        $clusteredStatement['oName'];
-
-                // set DepartmentName
-                $clusteredStatement['dName'] =
-                    (!array_key_exists(
-                        'dName',
-                        $clusteredStatement
-                    ) || '' == $clusteredStatement['dName']) ?
-                        $translator->trans('not.specified') :
-                        $clusteredStatement['dName'];
-
-                $key = $translator->trans(
-                    'institution'
-                ).': '.$clusteredStatement['oName'].', '.$clusteredStatement['dName'];
-            }
-
-            // collect usernames in departments of orgas
-            // if orga + department not already in collection:
-            if (!$departments->has($key)) {
-                $departments->put($key, collect([]));
-            }
-
-            // collect names of users under orga+department
-            $departments->get($key)->push($clusteredStatement['uName']);
+            $key = $this->generateDepartmentKey($clusteredStatement);
+            $this->addUserToDepartment($departments, $key, $clusteredStatement['uName']);
         }
 
         return $departments;
+    }
+
+    /**
+     * Generate department key for clustered statement.
+     */
+    private function generateDepartmentKey(array $clusteredStatement): string
+    {
+        if ($this->isPublicStatement($clusteredStatement)) {
+            return $this->translator->trans('public').': '.$this->translator->trans('role.citizen');
+        }
+
+        $orgaName = $this->getFieldValueOrDefault($clusteredStatement, 'oName');
+        $departmentName = $this->getFieldValueOrDefault($clusteredStatement, 'dName');
+
+        return $this->translator->trans('institution').': '.$orgaName.', '.$departmentName;
+    }
+
+    /**
+     * Check if statement is from public/citizen.
+     */
+    private function isPublicStatement(array $clusteredStatement): bool
+    {
+        return array_key_exists('publicStatement', $clusteredStatement)
+            && Statement::EXTERNAL === $clusteredStatement['publicStatement'];
+    }
+
+    /**
+     * Get field value or return default "not specified" translation.
+     */
+    private function getFieldValueOrDefault(array $clusteredStatement, string $fieldName): string
+    {
+        return (!array_key_exists($fieldName, $clusteredStatement) || '' == $clusteredStatement[$fieldName])
+            ? $this->translator->trans('not.specified')
+            : $clusteredStatement[$fieldName];
+    }
+
+    /**
+     * Add user to department collection.
+     */
+    private function addUserToDepartment(Collection $departments, string $key, string $userName): void
+    {
+        if (!$departments->has($key)) {
+            $departments->put($key, collect([]));
+        }
+
+        /** @var Collection|null $department */
+        $department = $departments->get($key);
+        if ($department instanceof Collection) {
+            $department->push($userName);
+        }
     }
 
     /**

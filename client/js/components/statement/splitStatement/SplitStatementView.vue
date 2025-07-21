@@ -15,7 +15,13 @@
           id="header"
           class="u-pv-0_25 flow-root">
           <dp-inline-notification
+            v-if="!isLoading && availablePlaces.length < 1"
+            class="mt-3 mb-2"
+            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }) })"
+            type="warning" />
+          <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
+            class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
             type="info" />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">
@@ -26,9 +32,7 @@
             v-if="segmentationStatus === 'inUserSegmentation'"
             class="float-right u-pt-0_25 u-m-0">
             <li class="inline-block">
-              <dp-flyout
-                ref="metadataFlyout"
-                :has-menu="false">
+              <dp-flyout ref="metadataFlyout">
                 <template v-slot:trigger>
                   <span>
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
@@ -92,10 +96,12 @@
             class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
-              @prosemirror-initialized="runPostInitTasks"
-              @prosemirror-max-range="setMaxRange"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
+              @prosemirror:initialized="runPostInitTasks"
+              @prosemirror:maxRange="setMaxRange"
+              @focus="event => handleMouseOver(event)"
+              @focusout="handleMouseLeave"
+              @mouseover="event => handleMouseOver(event)"
+              @mouseleave="handleMouseLeave"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
@@ -112,8 +118,8 @@
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
-                @edit-segment="enableEditMode"
-                @delete-segment="immediatelyDeleteSegment" />
+                @segment:edit="enableEditMode"
+                @segment:delete="immediatelyDeleteSegment" />
             </transition>
 
             <transition
@@ -287,6 +293,7 @@ export default {
 
   computed: {
     ...mapGetters('SplitStatement', [
+      'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -326,20 +333,26 @@ export default {
   },
 
   watch: {
-    editModeActive (newVal) {
-      if (newVal) {
-        window.addEventListener('scroll', this.handleScroll, false)
-      } else {
-        window.removeEventListener('scroll', this.handleScroll, false)
-        this.displayScrollButton = false
-      }
+    editModeActive: {
+      handler (newVal) {
+        if (newVal) {
+          window.addEventListener('scroll', this.handleScroll, false)
+        } else {
+          window.removeEventListener('scroll', this.handleScroll, false)
+          this.displayScrollButton = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    initialData (newVal) {
-      this.calculateProcessingTime()
-      if (newVal) {
-        this.isLoading = false
-      }
+    initialData: {
+      handler (newVal) {
+        this.calculateProcessingTime()
+        if (newVal) {
+          this.isLoading = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -537,10 +550,8 @@ export default {
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
-        } else {
-          if (card.classList.contains('highlighted')) {
-            card.classList.remove('highlighted')
-          }
+        } else if (card.classList.contains('highlighted')) {
+          card.classList.remove('highlighted')
         }
       }
     },
@@ -561,9 +572,9 @@ export default {
      * Adds highlighting background color to segment and border color to corresponding card
      * Updates currentlyHighlightedSegmentId in the store
      */
-    handleMouseOver (e) {
+    handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = e.target.getAttribute('data-range') || e.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
 
         /**
          * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
@@ -572,7 +583,7 @@ export default {
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = e.target.closest('span[data-range]')
+          const closestParent = event.target.closest('span[data-range]')
           segmentId = closestParent ? closestParent.getAttribute('data-range') : null
         }
 
@@ -720,7 +731,16 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton () {
+      if (window._paq) {
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
+      }
+    },
+
     async saveAndFinish () {
+      this.clickTrackerSaveButton()
+
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
@@ -741,6 +761,7 @@ export default {
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
+            console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))
             this.setProperty({ prop: 'isBusy', val: false })
           }
