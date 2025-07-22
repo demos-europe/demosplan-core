@@ -88,16 +88,17 @@
       @deselectAll="deselectAllLayers"
     />
 
-    <dp-ol-map
-      v-if="hasPreview"
-      :procedure-id="procedureId"
-      small
-    />
-
     <input
       :value="layersInputValue"
       name="r_layers"
       type="hidden">
+
+    <dp-ol-map
+      v-if="hasPreview"
+      :layers="previewLayers"
+      :procedure-id="procedureId"
+      small
+    />
 
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
@@ -289,6 +290,16 @@ export default {
 
     layersInputValue () {
       return this.layers.map(el => el.label).join(',')
+    },
+
+    previewLayers () {
+      return [{
+        name: `preview-layers-${this.layersInputValue}`, // Force component recreation on layer change (DpOlMapLayer)
+        url: this.url,
+        layers: this.layersInputValue,
+        mapOrder: 1,
+        layerType: 'overlay',
+      }]
     },
 
     serviceTypeOptions () {
@@ -544,8 +555,6 @@ export default {
   },
 
   mounted () {
-    console.log('hier')
-    console.log(this.currentProcedureId)
     this.getLayerCapabilities()
   }
 }
