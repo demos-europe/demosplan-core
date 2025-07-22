@@ -32,6 +32,7 @@ class TokenExpirationInjection
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly LoggerInterface $logger,
+        private readonly CurrentUserService $currentUser,
     ) {
     }
 
@@ -43,8 +44,18 @@ class TokenExpirationInjection
      */
     public function shouldInjectTestJwtTokenExpiration(): bool
     {
+
+        if (!$this->displayLogoutWarning()) {
+            return false;
+        }
+
         return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment()
             || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
+    }
+
+    public function displayLogoutWarning(): bool
+    {
+       return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**

@@ -40,6 +40,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly RouterInterface $router,
+        private readonly TokenExpirationInjection $tokenExpiration,
     ) {
     }
 
@@ -62,7 +63,11 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->info('Start of doctrine transaction.');
                     $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
                     $accessTokenExpirationDate = $accessToken->getExpires();
-                    $request->getSession()->set(TokenExpirationInjection::ACCESS_TOKEN_EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
+
+                    if ($this->tokenExpiration->displayLogoutWarning()) {
+                        $request->getSession()->set(TokenExpirationInjection::ACCESS_TOKEN_EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
+                    }
+
 
                     $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
                     $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
