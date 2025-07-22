@@ -38,6 +38,7 @@ use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
@@ -107,10 +108,10 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->setReadableByPath();
-        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior();
+        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
         $configBuilder->sourceEntityId->addPathCreationBehavior();
@@ -223,7 +224,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isUpdateAllowed(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function getUpdatability(): ResourceUpdatability
