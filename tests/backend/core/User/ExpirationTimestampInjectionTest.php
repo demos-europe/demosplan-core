@@ -16,15 +16,10 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Tests\Base\FunctionalTestCase;
 
 class ExpirationTimestampInjectionTest extends FunctionalTestCase
@@ -53,19 +48,17 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
         $this->enablePermissions(['feature_auto_logout_warning']);
     }
 
-
     /**
      * @return array<string, array{string, bool}>
      */
     public static function environmentProvider(): array
     {
         return [
-            'dev environment should inject' => [DemosPlanKernel::ENVIRONMENT_DEV, true],
-            'test environment should inject' => [DemosPlanKernel::ENVIRONMENT_TEST, true],
+            'dev environment should inject'      => [DemosPlanKernel::ENVIRONMENT_DEV, true],
+            'test environment should inject'     => [DemosPlanKernel::ENVIRONMENT_TEST, true],
             'prod environment should not inject' => [DemosPlanKernel::ENVIRONMENT_PROD, false],
         ];
     }
-
 
     #[DataProvider('environmentProvider')]
     public function testShouldInjectTestExpirationBasedOnEnvironment(string $environment, bool $expectedResult): void
