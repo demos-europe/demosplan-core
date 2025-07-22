@@ -34,13 +34,13 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
-        private readonly ClientRegistry $clientRegistry,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly OzgKeycloakUserData $ozgKeycloakUserData,
-        private readonly LoggerInterface $logger,
-        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router,
-        private readonly ExpirationTimestampInjection $tokenExpiration,
+        private readonly ClientRegistry               $clientRegistry,
+        private readonly EntityManagerInterface       $entityManager,
+        private readonly OzgKeycloakUserData          $ozgKeycloakUserData,
+        private readonly LoggerInterface              $logger,
+        private readonly OzgKeycloakUserDataMapper    $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface              $router,
+        private readonly ExpirationTimestampInjection $expirationTimestampInjection,
     ) {
     }
 
@@ -64,7 +64,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
                     $accessTokenExpirationDate = $accessToken->getExpires();
 
-                    if ($this->tokenExpiration->hasLogoutWarningPermission()) {
+                    if ($this->expirationTimestampInjection->hasLogoutWarningPermission()) {
                         $request->getSession()->set(ExpirationTimestampInjection::EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
                     }
 
