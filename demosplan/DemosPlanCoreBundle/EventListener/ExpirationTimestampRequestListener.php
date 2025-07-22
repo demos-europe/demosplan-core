@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Request listener that automatically injects JWT token expiration into session
+ * Request listener that automatically injects expiration timestamp into session
  * for authenticated users when not already present.
  */
 #[AsEventListener(event: 'kernel.request', priority: 5)]
