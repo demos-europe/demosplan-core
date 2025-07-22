@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ExpirationTimestampRequestListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security                     $security,
+        private readonly Security $security,
         private readonly ExpirationTimestampInjection $expirationTimestampInjection,
     ) {
     }
