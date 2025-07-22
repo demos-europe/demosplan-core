@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Logic\User\TokenExpirationInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,15 +20,15 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Request listener that automatically injects JWT token expiration into session
+ * Request listener that automatically injects expiration timestamp into session
  * for authenticated users when not already present.
  */
 #[AsEventListener(event: 'kernel.request', priority: 5)]
-class TokenExpirationRequestListener implements EventSubscriberInterface
+class ExpirationTimestampRequestListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Security $security,
-        private readonly TokenExpirationInjection $tokenExpirationInjection,
+        private readonly ExpirationTimestampInjection $expirationTimestampInjection,
     ) {
     }
 
@@ -42,7 +42,7 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event): void
     {
         // Check if in prod environment
-        if (!$this->tokenExpirationInjection->shouldInjectTestJwtTokenExpiration()) {
+        if (!$this->expirationTimestampInjection->shouldInjectTestExpiration()) {
             return;
         }
 
@@ -66,6 +66,6 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
         }
 
         // Try to get JWT token expiration and store in session
-        $this->tokenExpirationInjection->injectTokenExpirationIntoSession($session, $user);
+        $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
     }
 }
