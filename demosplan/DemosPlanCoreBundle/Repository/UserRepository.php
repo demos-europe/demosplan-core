@@ -617,17 +617,20 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Get users with pagination and optional criteria filtering (UserRepositoryInterface implementation).
      *
-     * @param int   $startIndex Starting index (1-based)
-     * @param int   $count      Number of users to return
-     * @param array $criteria   Optional filtering criteria
-     *
+     * @param int    $startIndex Starting index (1-based)
+     * @param int    $count      Number of users to return
+     * @param array  $criteria   Optional filtering criteria
+     * @param string $sort
+     * @param string $sortDir
      * @return array Array containing users and pagination info
      */
-    public function getUsers(int $startIndex, int $count, array $criteria = []): array
+    public function getUsers(int $startIndex, int $count, array $criteria = [], string $sort = 'u.login', string $sortDir = 'ASC'): array
     {
         $qb = $this->createQueryBuilder('u')
             ->setFirstResult($startIndex - 1)
-            ->setMaxResults($count);
+            ->setMaxResults($count)
+            ->where('u.deleted = false')
+            ->orderBy($sort, $sortDir);
 
         // Apply criteria filters
         $qb = $this->applyCriteriaFilters($criteria, $qb);
@@ -636,7 +639,8 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
         // Get total count for pagination
         $totalCountQb = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)');
+            ->select('COUNT(u.id)')
+            ->where('u.deleted = false');
 
         // Apply criteria filters
         $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
