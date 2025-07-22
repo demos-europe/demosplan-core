@@ -44,7 +44,6 @@ class TokenExpirationInjection
      */
     public function shouldInjectTestJwtTokenExpiration(): bool
     {
-
         if (!$this->displayLogoutWarning()) {
             return false;
         }
@@ -55,7 +54,7 @@ class TokenExpirationInjection
 
     public function displayLogoutWarning(): bool
     {
-       return $this->currentUser->hasPermission('feature_auto_logout_warning');
+        return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**
