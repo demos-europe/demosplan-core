@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
@@ -256,4 +257,36 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             throw $exception;
         }
     }
+
+    public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
+    {
+        // Get the CustomFieldConfiguration from database
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
+
+        if (!$customFieldConfiguration) {
+            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
+        }
+
+        // Get the current CustomField object
+        $customField = clone $customFieldConfiguration->getConfiguration();
+        $customField->setId($customFieldConfiguration->getId());
+
+        // Update the fields from the request
+        $attributes = $entityData->getAttributes();
+
+        if (array_key_exists($this->name->getAsNamesInDotNotation(), $attributes)) {
+            $customField->setName($attributes['name']);
+        }
+
+        if (array_key_exists($this->description->getAsNamesInDotNotation(), $attributes)) {
+            $customField->setDescription($attributes['description']);
+        }
+
+        // Save back to CustomFieldConfiguration
+        $customFieldConfiguration->setConfiguration($customField);
+        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+
+        return new ModifiedEntity($customField, ['name', 'description']);
+    }
+
 }
