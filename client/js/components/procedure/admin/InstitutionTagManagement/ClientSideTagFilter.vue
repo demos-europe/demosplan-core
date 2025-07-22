@@ -14,7 +14,7 @@ All rights reserved
         align="left"
         :aria-label="Translator.trans('filters.more')"
         class="bg-surface-medium rounded pb-1 pt-[4px] rounded-md"
-        data-cy="ClientSideTagFilter:filterCategories">
+        data-cy="clientSideTagFilter:filterCategories">
         <template v-slot:trigger>
           <span :title="Translator.trans('filters.more')">
             <dp-icon
@@ -27,7 +27,7 @@ All rights reserved
         <div>
           <button
             class="btn--blank o-link--default ml-auto"
-            data-cy="ClientSideTagFilter:toggleFilterCategories"
+            data-cy="clientSideTagFilter:toggleFilterCategories"
             v-text="Translator.trans('toggle_all')"
             @click="toggleAllCategories" />
           <div v-if="!isLoading">
@@ -36,7 +36,7 @@ All rights reserved
               :key="category.id"
               :id="`filterCategorySelect:${category.label}`"
               :checked="selectedFilterCategories.includes(category.label)"
-              :data-cy="`ClientSideTagFilter:filterCategoriesSelect:${category.label}`"
+              :data-cy="`clientSideTagFilter:filterCategoriesSelect:${category.label}`"
               :disabled="checkIfDisabled(appliedFilterQuery, category.id)"
               :label="{
                 text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
@@ -79,6 +79,9 @@ import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 /**
  * ClientSideTagFilter - Client-side filtering component for institution tags
+ *
+ *  Provides filtering functionality for organization tables by institution tags.
+ *  Handles cross-category filtering, localStorage persistence, and FilterFlyout integration.
  * @component
  * @example
  * <client-side-tag-filter
@@ -225,16 +228,16 @@ export default {
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions)
           .map(option => {
-          const { id, attributes } = option
-          const { name } = attributes
-          const selected = selectedFilterOptionIds.includes(id)
+            const { id, attributes } = option
+            const { name } = attributes
+            const selected = selectedFilterOptionIds.includes(id)
 
-          return {
-            id,
-            label: name,
-            selected
-          }
-        })
+            return {
+              id,
+              label: name,
+              selected
+            }
+          })
       }
 
       this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
@@ -349,6 +352,7 @@ export default {
     },
 
     /**
+     *  Loads persisted filter state from localStorage
      * Restores both visible categories and applied filters
      */
     loadFilterStateFromStorage () {

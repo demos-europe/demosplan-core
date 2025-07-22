@@ -41,13 +41,11 @@
 <script>
 import { dpApi, DpButton } from '@demos-europe/demosplan-ui'
 import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
-    ClientSideTagFilter,
     dpApi, // eslint-disable-line vue/no-unused-components
     DpButton,
     OrganisationTable

@@ -467,7 +467,7 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    handleFilterReset () {
+    resetSearch() {
       this.$refs.searchField.handleReset()
     },
 

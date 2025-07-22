@@ -477,7 +477,7 @@ export default {
         .map(el => el.name)
     },
 
-    handleFilterReset () {
+    resetSearch() {
       this.$refs.searchField.handleReset()
     },
 
