@@ -44,7 +44,6 @@ class TokenExpirationInjection
      */
     public function shouldInjectTestExpiration(): bool
     {
-
         if (!$this->hasLogoutWarningPermission()) {
             return false;
         }
@@ -55,7 +54,7 @@ class TokenExpirationInjection
 
     public function hasLogoutWarningPermission(): bool
     {
-       return $this->currentUser->hasPermission('feature_auto_logout_warning');
+        return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**
