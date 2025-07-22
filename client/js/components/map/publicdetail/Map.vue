@@ -388,7 +388,7 @@ export default {
 
           const priorityAreaContent = {
             title: title,
-            text: `${title} ${parsedData.body.key}`
+            text: `${parsedData.body.key}`
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
