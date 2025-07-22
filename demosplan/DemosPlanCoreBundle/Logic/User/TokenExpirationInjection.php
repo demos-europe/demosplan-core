@@ -24,7 +24,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class TokenExpirationInjection
 {
-    public const ACCESS_TOKEN_EXPIRATION_TIMESTAMP = 'accessTokenExpirationTimestamp';
+    public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
 
     /** @var int Session expiration time for testing (120 minutes) */
     private const TEST_SESSION_LIFETIME_SECONDS = 7200;
@@ -42,9 +42,10 @@ class TokenExpirationInjection
      *
      * @return bool True if injection should occur, false otherwise
      */
-    public function shouldInjectTestJwtTokenExpiration(): bool
+    public function shouldInjectTestExpiration(): bool
     {
-        if (!$this->displayLogoutWarning()) {
+
+        if (!$this->hasLogoutWarningPermission()) {
             return false;
         }
 
@@ -52,9 +53,9 @@ class TokenExpirationInjection
             || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
     }
 
-    public function displayLogoutWarning(): bool
+    public function hasLogoutWarningPermission(): bool
     {
-        return $this->currentUser->hasPermission('feature_auto_logout_warning');
+       return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**
@@ -64,7 +65,7 @@ class TokenExpirationInjection
     public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
     {
         // Skip if expiration is already present in session
-        if ($session->has(self::ACCESS_TOKEN_EXPIRATION_TIMESTAMP)) {
+        if ($session->has(self::EXPIRATION_TIMESTAMP)) {
             return;
         }
 
@@ -75,7 +76,7 @@ class TokenExpirationInjection
             $expirationTimestamp = $sessionCreated + $sessionLifetime;
 
             // Set the custom expiration directly in session
-            $session->set(self::ACCESS_TOKEN_EXPIRATION_TIMESTAMP, $expirationTimestamp);
+            $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
 
             $this->logger->debug('Expiration timestamp injected into session for testing', [
                 'user'       => $user->getUserIdentifier(),

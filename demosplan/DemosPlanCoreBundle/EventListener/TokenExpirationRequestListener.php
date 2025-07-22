@@ -42,7 +42,7 @@ class TokenExpirationRequestListener implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event): void
     {
         // Check if in prod environment
-        if (!$this->tokenExpirationInjection->shouldInjectTestJwtTokenExpiration()) {
+        if (!$this->tokenExpirationInjection->shouldInjectTestExpiration()) {
             return;
         }
 
