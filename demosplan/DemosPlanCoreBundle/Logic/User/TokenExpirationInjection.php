@@ -27,7 +27,7 @@ class TokenExpirationInjection
     public const ACCESS_TOKEN_EXPIRATION_TIMESTAMP = 'accessTokenExpirationTimestamp';
 
     /** @var int Session expiration time for testing (120 minutes) */
-    private const  TEST_SESSION_LIFETIME_SECONDS = 7200;
+    private const TEST_SESSION_LIFETIME_SECONDS = 7200;
 
     public function __construct(
         private readonly KernelInterface $kernel,
@@ -59,7 +59,6 @@ class TokenExpirationInjection
         }
 
         try {
-
             $metadataBag = $session->getMetadataBag();
             $sessionCreated = $metadataBag->getCreated();
             $sessionLifetime = $metadataBag->getLifetime() ?: self::TEST_SESSION_LIFETIME_SECONDS;
