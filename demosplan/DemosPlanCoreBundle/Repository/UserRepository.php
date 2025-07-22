@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -629,24 +630,17 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             ->setMaxResults($count);
 
         // Apply criteria filters
-        foreach ($criteria as $field => $value) {
-            if (null !== $value) {
-                if (is_array($value)) {
-                    $qb->andWhere("u.{$field} IN (:{$field})")
-                       ->setParameter($field, $value);
-                } else {
-                    $qb->andWhere("u.{$field} = :{$field}")
-                       ->setParameter($field, $value);
-                }
-            }
-        }
+        $qb = $this->applyCriteriaFilters($criteria, $qb);
 
         $users = $qb->getQuery()->getResult();
 
         // Get total count for pagination
-        $totalCount = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->getQuery()
+        $totalCountQb = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)');
+
+        // Apply criteria filters
+        $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
+        $totalCount = $totalCountQb->getQuery()
             ->getSingleScalarResult();
 
         return [
@@ -736,5 +730,23 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     private function invalidateCachedLoginList(): void
     {
         $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+    }
+
+    private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder
+    {
+        foreach ($criteria as $field => $value) {
+            if (null !== $value) {
+                if (is_array($value)) {
+                    $qb->andWhere("u.{$field} IN (:{$field})")
+                        ->setParameter($field, $value);
+                }
+                else {
+                    $qb->andWhere("u.{$field} = :{$field}")
+                        ->setParameter($field, $value);
+                }
+            }
+        }
+
+        return $qb;
     }
 }
