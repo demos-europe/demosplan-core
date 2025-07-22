@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.8.0 (2025-07-22)
 - Allow to configure procedures to accept or not anonymous statements
 - Export Original Statements as docx in the Statement List
 - Allow filtering of institution tags in DpAddOrganizationList
