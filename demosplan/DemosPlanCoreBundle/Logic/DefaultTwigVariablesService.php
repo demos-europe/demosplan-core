@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Logic\User\TokenExpirationInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
@@ -177,7 +177,7 @@ class DefaultTwigVariablesService
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                    => $this->getFilteredExternalLinks(),
-            TokenExpirationInjection::EXPIRATION_TIMESTAMP   => $request->getSession()->get(TokenExpirationInjection::EXPIRATION_TIMESTAMP),
+            ExpirationTimestampInjection::EXPIRATION_TIMESTAMP   => $request->getSession()->get(ExpirationTimestampInjection::EXPIRATION_TIMESTAMP),
         ];
     }
 

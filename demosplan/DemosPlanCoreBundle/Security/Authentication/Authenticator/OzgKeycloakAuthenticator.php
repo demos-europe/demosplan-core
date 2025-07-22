@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\Logic\User\TokenExpirationInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -34,13 +34,13 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
-        private readonly ClientRegistry $clientRegistry,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly OzgKeycloakUserData $ozgKeycloakUserData,
-        private readonly LoggerInterface $logger,
-        private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router,
-        private readonly TokenExpirationInjection $tokenExpiration,
+        private readonly ClientRegistry               $clientRegistry,
+        private readonly EntityManagerInterface       $entityManager,
+        private readonly OzgKeycloakUserData          $ozgKeycloakUserData,
+        private readonly LoggerInterface              $logger,
+        private readonly OzgKeycloakUserDataMapper    $ozgKeycloakUserDataMapper,
+        private readonly RouterInterface              $router,
+        private readonly ExpirationTimestampInjection $tokenExpiration,
     ) {
     }
 
@@ -65,7 +65,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
                     $accessTokenExpirationDate = $accessToken->getExpires();
 
                     if ($this->tokenExpiration->hasLogoutWarningPermission()) {
-                        $request->getSession()->set(TokenExpirationInjection::EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
+                        $request->getSession()->set(ExpirationTimestampInjection::EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
                     }
 
                     $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));

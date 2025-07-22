@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * in non-production environments. This enables frontend auto-logout functionality
  * for development and testing purposes.
  */
-class TokenExpirationInjection
+class ExpirationTimestampInjection
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
 
