@@ -580,6 +580,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     private $segmentPlaces;
 
+    /**
+     * @ORM\Column(name="demos_pipes_pi_retries", type="integer", options={"default": 0}, nullable=false, options="comment: 'Number of retries for Demos Pipes PI to process this procedure.'})")
+     */
+    private int $demosPipesPiRetries = 0;
+
     protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
     public function __construct()
@@ -2268,5 +2273,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getCustomFieldConfiguration(): ?CustomFieldConfiguration
     {
         return $this->customFieldConfiguration;
+    }
+
+    public function getDemosPipesPiRetries(): int
+    {
+        return $this->demosPipesPiRetries;
+    }
+
+    public function incrementDemosPipesPiRetries(): void
+    {
+        ++$this->demosPipesPiRetries;
     }
 }
