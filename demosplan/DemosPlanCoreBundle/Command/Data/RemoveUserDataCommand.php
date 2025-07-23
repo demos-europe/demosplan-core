@@ -302,13 +302,32 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function removeUserDataFromAddresses(): void
     {
+        $germanStates = [
+            'Baden-Württemberg',
+            'Bayern',
+            'Berlin',
+            'Brandenburg',
+            'Bremen',
+            'Hamburg',
+            'Hessen',
+            'Mecklenburg-Vorpommern',
+            'Niedersachsen',
+            'Nordrhein-Westfalen',
+            'Rheinland-Pfalz',
+            'Saarland',
+            'Sachsen',
+            'Sachsen-Anhalt',
+            'Schleswig-Holstein',
+            'Thüringen',
+        ];
+
         /** @var Address[] $allAddresses */
         $allAddresses = $this->initializeRemovingDataForEntity(Address::class);
         foreach ($allAddresses as $address) {
             $address->setCode(null); // ?
             $address->setStreet($this->map($address->getStreet(), $this->faker->streetName));
             $address->setStreet1($this->map($address->getStreet1(), $this->faker->streetName));
-            $address->setState($this->map($address->getState(), $this->faker->state));
+            $address->setState($this->map($address->getState(), $this->faker->randomElement($germanStates)));
             $address->setPostalcode($this->map($address->getPostalcode(), $this->faker->postcode));
             $address->setCity($this->map($address->getCity(), $this->faker->city));
             $address->setRegion(''); // this->faker->domainWord
