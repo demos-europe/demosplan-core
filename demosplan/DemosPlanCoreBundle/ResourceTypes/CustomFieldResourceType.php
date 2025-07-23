@@ -59,6 +59,8 @@ use Pagerfanta\Pagerfanta;
  * @property-read End $description
  * @property-read End $targetEntity
  * @property-read End $sourceEntity
+ * @property-read End $options
+ *
  *
  * @method bool isNullSafe(int $index)
  */
@@ -111,7 +113,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->options->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
@@ -282,11 +284,16 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $customField->setDescription($attributes['description']);
         }
 
+        if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
+            $customField->setOptions($attributes['options']);
+        }
+
+
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
 
-        return new ModifiedEntity($customField, ['name', 'description']);
+        return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
 
 }
