@@ -81,8 +81,9 @@ final class ProcedureTemplateResourceType extends DplanResourceType
         $normalTemplateSubCondition = $this->conditionFactory->allConditionsApply(
             // not the unique master template
             $this->conditionFactory->propertyHasValue(false, $this->masterTemplate),
+            //@todo bring back this condition
             // created by the users organisation (ie.: the current user is in the owning organisation of the template)
-            $this->conditionFactory->propertyHasValue($userOrga->getId(), $this->orga->id)
+            //$this->conditionFactory->propertyHasValue($userOrga->getId(), $this->orga->id)
         );
 
         return [
