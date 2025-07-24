@@ -94,7 +94,7 @@
       type="hidden">
 
     <dp-ol-map
-      v-if="hasPreview"
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
       :layers="previewLayers"
       :procedure-id="procedureId"
       small
