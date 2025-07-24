@@ -94,6 +94,13 @@ class OdtImporter
                     case 'table:table-row':
                         $html .= '<tr>' . $this->processNodes($child) . '</tr>';
                         break;
+                    case 'table:table-header-rows':
+                        // Process table header rows - contains header cells that should be processed
+                        $html .= $this->processNodes($child);
+                        break;
+                    case 'table:table-column':
+                        // Table column definitions - skip as they don't contain content
+                        break;
                     case 'table:table-cell':
                         $html .= $this->processTableCell($child);
                         break;
@@ -823,16 +830,38 @@ class OdtImporter
             $title = trim(strip_tags($node->textContent));
 
             // Skip empty headings
-            if (!empty($title)) {
-                $headings[] = [
-                    'node' => $node,
-                    'title' => $title,
-                    'level' => $level,
-                ];
+            if (empty($title)) {
+                continue;
             }
+
+            // Skip headings that are inside table elements to preserve table structure
+            if ($this->isHeadingInsideTable($node)) {
+                continue;
+            }
+
+            $headings[] = [
+                'node' => $node,
+                'title' => $title,
+                'level' => $level,
+            ];
         }
 
         return $headings;
+    }
+
+    /**
+     * Check if a heading node is inside a table element.
+     */
+    private function isHeadingInsideTable(\DOMNode $node): bool
+    {
+        $parent = $node->parentNode;
+        while ($parent && $parent->nodeType === XML_ELEMENT_NODE) {
+            if ($parent->nodeName === 'table') {
+                return true;
+            }
+            $parent = $parent->parentNode;
+        }
+        return false;
     }
 
     /**

@@ -582,4 +582,49 @@ class OdtImporterTest extends TestCase
         $this->assertStringContainsString('<ol start="4">', $html);
         $this->assertStringContainsString('<li>Verbesserung der Standortbedingungen', $html);
     }
+
+    /**
+     * Test table header rows processing - reproduces LEP document issue
+     */
+    public function testProcessesTableHeaderRows(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content>
+            <table:table table:name="Tabelle1" table:style-name="Tabelle1">
+                <table:table-column table:style-name="Tabelle1.A"/>
+                <table:table-column table:style-name="Tabelle1.B"/>
+                <table:table-header-rows>
+                    <table:table-row table:style-name="Tabelle1.1">
+                        <table:table-cell table:style-name="Tabelle1.A1" office:value-type="string">
+                            <text:p text:style-name="P173">
+                                <text:span text:style-name="T50">Arbeitsplatzzentralität Kennziffer Sozial. Besch. a. A. je Einwohnerinnen und Einwohner</text:span>
+                            </text:p>
+                        </table:table-cell>
+                        <table:table-cell table:style-name="Tabelle1.B1" office:value-type="string">
+                            <text:p text:style-name="P173">
+                                <text:span text:style-name="T50">Header 2</text:span>
+                            </text:p>
+                        </table:table-cell>
+                    </table:table-row>
+                </table:table-header-rows>
+                <table:table-row>
+                    <table:table-cell><text:p>Data 1</text:p></table:table-cell>
+                    <table:table-cell><text:p>Data 2</text:p></table:table-cell>
+                </table:table-row>
+            </table:table>
+        </office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // Table headers should now be processed and included in output
+        $this->assertStringContainsString('<table>', $html);
+        $this->assertStringContainsString('Arbeitsplatzzentralität Kennziffer Sozial. Besch.', $html);
+        $this->assertStringContainsString('Header 2', $html);
+        $this->assertStringContainsString('Data 1', $html);
+        $this->assertStringContainsString('Data 2', $html);
+        $this->assertStringContainsString('</table>', $html);
+    }
 }
