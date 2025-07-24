@@ -392,53 +392,8 @@ export default {
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
-        } else {
-          // If no priority area found, show regular getFeatureInfo
-          this.showFallbackFeatureInfo(coordinate, getFeatureinfoSource)
         }
       }).catch(e => console.error(e))
-    },
-
-    /**
-     * Shows fallback feature info when no priority area is found
-     * @param {Array} coordinate - Click coordinates
-     * @param {Object} getFeatureinfoSource - Source for feature info
-     */
-    showFallbackFeatureInfo (coordinate, getFeatureinfoSource) {
-      const $popup = $(this.popupoverlay.getElement())
-      const viewResolution = this.mapview.getResolution()
-      const remappedCriteriaUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
-        coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/html' }
-      ).split('?')[1]
-
-      if (remappedCriteriaUrl) {
-        this.resetPopup()
-        $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
-        this.showPopup('criteriaPopup', '', coordinate)
-        $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
-
-        const getData = { params: remappedCriteriaUrl }
-
-        //  This triggers getFeatureInfoByType() in GetFeatureInfo service
-        if (PROJECT && PROJECT === 'robobsh') {
-          getData.infotype = 'criteria'
-        }
-
-        dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData).then(criteriaResponse => {
-          const criteriaData = JSON.parse(criteriaResponse.data)
-          if (criteriaData.code === 100 && criteriaData.success) {
-            if (criteriaData.body !== null) {
-              let popupContent = criteriaData.body
-              if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
-                popupContent = Translator.trans('map.getfeatureinfo.none')
-              }
-              this.showPopup('criteriaPopup', popupContent, coordinate)
-            } else {
-              this.showPopup('criteriaPopup', Translator.trans('map.getfeatureinfo.none'), coordinate)
-            }
-          }
-        }).catch(e => console.error(e))
-      }
     },
 
     /**
