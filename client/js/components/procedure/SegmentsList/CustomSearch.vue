@@ -16,7 +16,6 @@
         @search="term => handleSearch(term)"
         @reset="$emit('reset')">
         <dp-flyout
-          align="left"
           data-cy="customSearch:searchCustomLimitFields"
           class="top-0.5 right-0"
           position="absolute"
