@@ -94,7 +94,7 @@
     // Title + main action
     &__title,
     &__title--button {
-        color: $actionbox-color-contrast !important;
+        color: $actionbox-color-contrast;
 
         font-family: $normal-font-family;
         font-weight: $normal-font-weight;
@@ -121,10 +121,8 @@
 
         text-align: center;
 
-        &,
         &:hover {
-            color: $actionbox-color-inactive !important;
-
+            color: $actionbox-color-inactive;
             text-decoration: none;
         }
 
