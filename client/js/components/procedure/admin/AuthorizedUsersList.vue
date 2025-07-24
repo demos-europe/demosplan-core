@@ -201,7 +201,7 @@
                   {{ Translator.trans('anonymous') }}
                 </p>
               </div>
-              <dp-text-area
+              <dp-input
                 v-else
                 :id="`email:${rowData.tokenId}`"
                 class="mt-3 test"
@@ -210,7 +210,7 @@
                   text: Translator.trans('email')
                 }"
                 type="email"
-                :value="rowData.submitterEmailAddress"
+                :model-value="rowData.submitterEmailAddress"
                 @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
               <div class="o-form__group mb-2 mt-3">
                 <dp-input
