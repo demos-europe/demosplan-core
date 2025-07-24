@@ -111,7 +111,6 @@
       ref="dataTable"
       class="mb-4 mt-2 max-w-full"
       :header-fields="headerFields"
-      has-flyout
       :default-sort-order="{ direction: 1, key: 'submitterName' }"
       :is-loading="isLoading"
       is-expandable
@@ -154,34 +153,8 @@
       </template>
       <template v-slot:expandedContent="rowData">
         <span data-dp-validate="saveEditAuthorisedUser">
-          <div class="flex">
-            <div class="align-top u-2-of-7">
-              <div class="px-3 py-1 mb-3 bg-surface-medium flex w-10">
-                <p
-                  :id="`userToken:${rowData.tokenId}`"
-                  class="m-0">
-                  {{ rowData.token }}
-                </p>
-                <button
-                  type="button"
-                  class="btn-icns m-0"
-                  :aria-label="Translator.trans('clipboard.copy_to')"
-                  @click="copyTokenToClipboard(rowData.tokenId)">
-                  <i
-                    class="fa fa-copy"
-                    aria-hidden="true" />
-                </button>
-              </div>
-              <div v-if="rowData.usedEmailAddress">
-                <strong :id="`emailSent:${rowData.tokenId}`">
-                  {{ Translator.trans('following.email.sent') }}
-                </strong>
-                <p :aria-labelledby="`emailSent:${rowData.tokenId}`">
-                  {{ rowData.usedEmailAddress }}
-                </p>
-              </div>
-            </div>
-            <div class="align-top u-3-of-7 px-3">
+          <div class="flex mt-1">
+            <div class="align-top u-5-of-9 pr-4">
               <dp-input
                 :id="`name:${rowData.tokenId}`"
                 :disabled="!rowData.isManual || !rowData.isEditable"
@@ -212,10 +185,10 @@
                 type="email"
                 :model-value="rowData.submitterEmailAddress"
                 @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val" />
-              <div class="o-form__group mb-2 mt-3">
+              <div class="flex flex-row mb-2 mt-3">
                 <dp-input
                   :id="`street:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="w-full mr-2"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('street')
@@ -224,30 +197,31 @@
                   @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val" />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
-                  class="o-form__group-item"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('street.number.short')
                   }"
-                  :size="5"
                   :model-value="rowData.submitterHouseNumber"
+                  :size="5"
+                  width="auto"
                   @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val" />
               </div>
-              <div class="o-form__group mb-2 mt-3">
+              <div class="flex flex-row mb-2 mt-3">
                 <dp-input
                   :id="`postalcode:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="mr-2"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('postalcode')
                   }"
+                  :model-value="rowData.submitterPostalCode"
                   pattern="^[0-9]{5}$"
                   :size="5"
-                  :model-value="rowData.submitterPostalCode"
+                  width="auto"
                   @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val" />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
-                  class="o-form__group-item"
+                  class="w-full"
                   :disabled="!rowData.isManual || !rowData.isEditable"
                   :label="{
                     text: Translator.trans('city')
@@ -256,7 +230,31 @@
                   @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val" />
               </div>
             </div>
-            <div class="align-top u-3-of-7">
+            <div class="align-top u-4-of-9 mt-4">
+              <div class="px-3 py-1 mb-3 bg-surface-medium flex w-10">
+                <p
+                  :id="`userToken:${rowData.tokenId}`"
+                  class="m-0">
+                  {{ rowData.token }}
+                </p>
+                <button
+                  type="button"
+                  class="btn-icns ml-0.5 my-0"
+                  :aria-label="Translator.trans('clipboard.copy_to')"
+                  @click="copyTokenToClipboard(rowData.tokenId)">
+                  <i
+                    class="fa fa-copy"
+                    aria-hidden="true" />
+                </button>
+              </div>
+              <div v-if="rowData.usedEmailAddress">
+                <strong :id="`emailSent:${rowData.tokenId}`">
+                  {{ Translator.trans('following.email.sent') }}
+                </strong>
+                <p :aria-labelledby="`emailSent:${rowData.tokenId}`">
+                  {{ rowData.usedEmailAddress }}
+                </p>
+              </div>
               <dp-text-area
                 class="mb-3"
                 :disabled="!rowData.isEditable"
