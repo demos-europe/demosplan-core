@@ -6,7 +6,7 @@
     @search="term => handleSearch(term)">
     <template v-slot:default>
       <dp-flyout
-        class="top-px right-2"
+        class="top-0.5 right-0"
         data-cy="customSearch:searchCustomLimitFields"
         position="absolute"
         :padded="false"
