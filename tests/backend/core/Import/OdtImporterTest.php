@@ -111,7 +111,26 @@ class OdtImporterTest extends TestCase
     {
         $zip = $this->createMock(ZipArchive::class);
         $zip->method('open')->willReturn(true);
-        $zip->method('getFromName')->willReturn('<office:document-content><text:list text:style-name="WWNum4"><text:list-item><text:p>1. First item</text:p></text:list-item><text:list-item><text:p>2. Second item</text:p></text:list-item></text:list></office:document-content>');
+        
+        // Mock getFromName to return different content based on filename
+        $zip->method('getFromName')->willReturnCallback(function ($filename) {
+            if ($filename === 'content.xml') {
+                return '<office:document-content><text:list text:style-name="WWNum4"><text:list-item><text:p>1. First item</text:p></text:list-item><text:list-item><text:p>2. Second item</text:p></text:list-item></text:list></office:document-content>';
+            }
+            if ($filename === 'styles.xml') {
+                return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum4">
+<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
+</text:list-level-style-number>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
+            }
+            return false;
+        });
+        
         $zip->method('close')->willReturn(true);
 
         $odtImporter = new OdtImporter($zip);
@@ -358,5 +377,209 @@ class OdtImporterTest extends TestCase
 
         $this->assertStringContainsString('<h1>Style-based Heading 1</h1>', $html);
         $this->assertStringContainsString('<h1>Bold Large Text Heading</h1>', $html);
+    }
+
+    /**
+     * Test basic list continuation functionality (LEP document scenario)
+     */
+    public function testListContinuationBasic(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        
+        $zip->method('getFromName')->willReturnCallback(function ($filename) {
+            if ($filename === 'content.xml') {
+                return '<office:document-content>
+                    <text:list xml:id="list1" text:style-name="WWNum5">
+                        <text:list-item><text:p>First main item</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1" text:style-name="WWNum5">
+                        <text:list-item><text:p>Second main item</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1" text:style-name="WWNum5">
+                        <text:list-item><text:p>Third main item</text:p></text:list-item>
+                    </text:list>
+                </office:document-content>';
+            }
+            if ($filename === 'styles.xml') {
+                return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum5">
+<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
+</text:list-level-style-number>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
+            }
+            return false;
+        });
+        
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // First list should start at 1 (no start attribute)
+        $this->assertStringContainsString('<ol>', $html);
+        $this->assertStringContainsString('<li>First main item</li>', $html);
+        // Second list should continue from 2
+        $this->assertStringContainsString('<ol start="2">', $html);
+        $this->assertStringContainsString('<li>Second main item</li>', $html);
+        // Third list should continue from 3
+        $this->assertStringContainsString('<ol start="3">', $html);
+        $this->assertStringContainsString('<li>Third main item</li>', $html);
+    }
+
+    /**
+     * Test list continuation with multiple items in each list
+     */
+    public function testListContinuationMultipleItems(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        
+        $zip->method('getFromName')->willReturnCallback(function ($filename) {
+            if ($filename === 'content.xml') {
+                return '<office:document-content>
+                    <text:list xml:id="list1" text:style-name="WWNum5">
+                        <text:list-item><text:p>Item 1.1</text:p></text:list-item>
+                        <text:list-item><text:p>Item 1.2</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1" text:style-name="WWNum5">
+                        <text:list-item><text:p>Item 2.1</text:p></text:list-item>
+                        <text:list-item><text:p>Item 2.2</text:p></text:list-item>
+                    </text:list>
+                </office:document-content>';
+            }
+            if ($filename === 'styles.xml') {
+                return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum5">
+<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
+</text:list-level-style-number>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
+            }
+            return false;
+        });
+        
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // First list should start at 1 and contain 2 items
+        $this->assertStringContainsString('<ol>', $html);
+        $this->assertStringContainsString('<li>Item 1.1</li>', $html);
+        $this->assertStringContainsString('<li>Item 1.2</li>', $html);
+        // Second list should continue from 3 (after the 2 items in the first list)
+        $this->assertStringContainsString('<ol start="3">', $html);
+        $this->assertStringContainsString('<li>Item 2.1</li>', $html);
+        $this->assertStringContainsString('<li>Item 2.2</li>', $html);
+    }
+
+    /**
+     * Test that unordered lists are not affected by continuation logic
+     */
+    public function testUnorderedListsIgnoreContinuation(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        
+        $zip->method('getFromName')->willReturnCallback(function ($filename) {
+            if ($filename === 'content.xml') {
+                return '<office:document-content>
+                    <text:list xml:id="list1" text:style-name="WWNum1">
+                        <text:list-item><text:p>Bullet item 1</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1" text:style-name="WWNum1">
+                        <text:list-item><text:p>Bullet item 2</text:p></text:list-item>
+                    </text:list>
+                </office:document-content>';
+            }
+            if ($filename === 'styles.xml') {
+                return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum1">
+<text:list-level-style-bullet text:level="1" text:bullet-char="-">
+</text:list-level-style-bullet>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
+            }
+            return false;
+        });
+        
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // Both should be unordered lists without start attributes
+        $this->assertStringContainsString('<ul>', $html);
+        $this->assertStringContainsString('<li>Bullet item 1</li>', $html);
+        $this->assertStringContainsString('<li>Bullet item 2</li>', $html);
+        // Should not contain start attributes or ordered list tags
+        $this->assertStringNotContainsString('start=', $html);
+        $this->assertStringNotContainsString('<ol>', $html);
+    }
+
+    /**
+     * Test LEP document structure specifically (matches the real document)
+     */
+    public function testLEPDocumentListStructure(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        
+        $zip->method('getFromName')->willReturnCallback(function ($filename) {
+            if ($filename === 'content.xml') {
+                return '<office:document-content>
+                    <text:p>Dafür sollen folgende Ansätze verfolgt werden:</text:p>
+                    <text:list xml:id="list1115186218" text:style-name="WWNum5">
+                        <text:list-item><text:p>Stärkung der Wettbewerbsfähigkeit und Attraktivität des Wirtschafts- und Lebensraums Metropolregion Hamburg</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1115186218" text:style-name="WWNum5">
+                        <text:list-item><text:p>Erhöhung der nationalen und internationalen Sichtbarkeit der Metropolregion Hamburg</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1115186218" text:style-name="WWNum5">
+                        <text:list-item><text:p>Ausbau und Weiterentwicklung der Zusammenarbeit in der Organisation Metropolregion Hamburg</text:p></text:list-item>
+                    </text:list>
+                    <text:list text:continue-list="list1115186218" text:style-name="WWNum5">
+                        <text:list-item><text:p>Verbesserung der Standortbedingungen im zur Metropolregion Hamburg gehörenden Teil des Landes</text:p></text:list-item>
+                    </text:list>
+                </office:document-content>';
+            }
+            if ($filename === 'styles.xml') {
+                return '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum5">
+<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
+</text:list-level-style-number>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
+            }
+            return false;
+        });
+        
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // Should produce correctly numbered sequence: 1., 2., 3., 4.
+        $this->assertStringContainsString('<li>Stärkung der Wettbewerbsfähigkeit', $html);
+        $this->assertStringContainsString('<ol start="2">', $html);
+        $this->assertStringContainsString('<li>Erhöhung der nationalen', $html);
+        $this->assertStringContainsString('<ol start="3">', $html);
+        $this->assertStringContainsString('<li>Ausbau und Weiterentwicklung', $html);
+        $this->assertStringContainsString('<ol start="4">', $html);
+        $this->assertStringContainsString('<li>Verbesserung der Standortbedingungen', $html);
     }
 }

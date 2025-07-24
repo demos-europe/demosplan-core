@@ -15,6 +15,8 @@ class OdtImporter
     private array $styleMap = [];
     private array $listStyleMap = [];
     private array $headingStyleMap = [];
+    private array $listContinuation = [];  // Maps list IDs to their continuation relationships
+    private array $listCounters = [];      // Tracks current count for each list sequence
 
     public function __construct(?ZipArchive $zipArchive = null)
     {
@@ -178,35 +180,99 @@ class OdtImporter
 
     private function processList(\DOMNode $node): string
     {
-        // Use specification-compliant list type detection based on parsed styles
+        // Parse list attributes for continuation support
         $styleName = $node->getAttribute('text:style-name');
         $listType = $node->getAttribute('text:list-type');
+        $continuesList = $node->getAttribute('text:continue-list');
+        $listId = $node->getAttribute('xml:id') ?: uniqid('list_');
         
-        // Default to unordered - most lists should be bullet lists
-        $isOrdered = false;
+        // Determine if this is an ordered or unordered list using dynamic style detection
+        $isOrdered = $this->getListType($styleName, $listType);
         
+        if ($isOrdered) {
+            // Handle list continuation for ordered lists
+            $startValue = $this->getListStartValue($listId, $continuesList);
+            $tag = 'ol';
+            $attributes = $startValue > 1 ? ' start="' . $startValue . '"' : '';
+        } else {
+            // Unordered lists don't need continuation handling
+            $tag = 'ul';
+            $attributes = '';
+        }
+        
+        // Process list content
+        $content = $this->processNodes($node);
+        
+        // Update counters for continued lists
+        if ($isOrdered) {
+            $this->updateListCounters($listId, $content);
+        }
+        
+        return '<' . $tag . $attributes . '>' . $content . '</' . $tag . '>';
+    }
+
+    /**
+     * Determine if a list is ordered or unordered based on style analysis.
+     * This method trusts the dynamic parseListStyles() analysis completely.
+     */
+    private function getListType(string $styleName, string $listType): bool
+    {
         // First check if we have parsed style information from styles.xml
         if (!empty($styleName) && isset($this->listStyleMap[$styleName])) {
-            $isOrdered = $this->listStyleMap[$styleName];
-        } elseif (!empty($styleName)) {
-            // Specification-compliant fallback based on ODT specification analysis:
-            // From SimpleDoc.odt styles.xml:
-            // - WWNum2: text:list-level-style-number with style:num-format="1" → ordered
-            // - WWNum4: text:list-level-style-number with style:num-format="1" → ordered
-            // - WWNum3, WWNum5, WWNum6, WWNum7: text:list-level-style-bullet → unordered
-            if ($styleName === 'WWNum2' || $styleName === 'WWNum4') {
-                $isOrdered = true;
-            }
-            // All other WWNum styles (WWNum3, WWNum5, WWNum6, WWNum7) are unordered bullet lists
+            return $this->listStyleMap[$styleName];
         }
         
-        // Also check for explicit list type attributes
+        // Check for explicit list type attributes as fallback
         if ($listType === 'numbered' || $listType === 'ordered') {
-            $isOrdered = true;
+            return true;
         }
         
-        $tag = $isOrdered ? 'ol' : 'ul';
-        return '<' . $tag . '>' . $this->processNodes($node) . '</' . $tag . '>';
+        // Default to unordered - most lists should be bullet lists
+        return false;
+    }
+
+    /**
+     * Calculate the starting value for a list, handling continuation from previous lists.
+     */
+    private function getListStartValue(string $listId, string $continuesList): int
+    {
+        if (!empty($continuesList)) {
+            // This list continues from another list
+            $this->listContinuation[$listId] = $continuesList;
+            
+            // Find the current count of the list we're continuing from
+            $parentCount = $this->listCounters[$continuesList] ?? 0;
+            $startValue = $parentCount + 1;
+            
+            // Initialize this list's counter to continue the sequence
+            $this->listCounters[$listId] = $parentCount;
+            
+            return $startValue;
+        } else {
+            // This is a new list sequence
+            $this->listCounters[$listId] = 0;
+            return 1;
+        }
+    }
+
+    /**
+     * Update list counters based on the number of list items processed.
+     */
+    private function updateListCounters(string $listId, string $content): void
+    {
+        // Count the number of <li> elements in the processed content
+        $itemCount = substr_count($content, '<li>');
+        
+        if ($itemCount > 0) {
+            // Update the counter for this list
+            $this->listCounters[$listId] = ($this->listCounters[$listId] ?? 0) + $itemCount;
+            
+            // If this list continues from another, also update the parent counter
+            $continuesFrom = $this->listContinuation[$listId] ?? null;
+            if ($continuesFrom !== null) {
+                $this->listCounters[$continuesFrom] = $this->listCounters[$listId];
+            }
+        }
     }
 
     /**
