@@ -149,13 +149,13 @@
 <script>
 import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
-import DpOlMap from '../map/DpOlMap.vue'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'LayerSettings',
 
   components: {
-    DpOlMap,
+    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
     DpInput,
     DpLabel,
