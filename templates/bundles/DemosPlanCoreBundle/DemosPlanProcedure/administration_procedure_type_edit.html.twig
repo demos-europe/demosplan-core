@@ -23,6 +23,30 @@
         heading: isCreate == true ? 'procedure.type.create'|trans : 'text.procedures.type.edit'|trans
     } %}
 
+    {% set formData = {
+        id: form.id,
+        name: form.name,
+        description: form.description,
+        allowedToEnableMap: form.procedureBehaviorDefinition.allowedToEnableMap,
+        participationGuestOnly: form.procedureBehaviorDefinition.participationGuestOnly,
+        mapHintDefault: form.procedureUiDefinition.mapHintDefault,
+        statementFormHintStatement: form.procedureUiDefinition.statementFormHintStatement,
+        statementFormHintPersonalData: form.procedureUiDefinition.statementFormHintPersonalData,
+        statementFormHintRecheck: form.procedureUiDefinition.statementFormHintRecheck,
+        statementPublicSubmitConfirmationText: form.procedureUiDefinition.statementPublicSubmitConfirmationText
+    } %}
+
+    <administration-procedure-type-edit
+        :guest-only="Boolean({{ guestOnly }})"
+        :is-create="Boolean({{ isCreate }})"
+        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        :procedure-types="JSON.parse('{{ procedureTypes|default([])|json_encode|e('js', 'utf-8') }}')"
+        selected-procedure-type-id="{{ selectedProcedureTypeId }}"
+        :initial-form-data="JSON.parse('{{ formData|json_encode|e('js', 'utf-8') }}')"
+        :field-definitions="JSON.parse('{{ form.statementFormDefinition.fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')">
+    </administration-procedure-type-edit>
+
+
     {% if isCreate == true and selectedProcedureTypeId == '' %}
         <p>
             {{ 'text.procedures.type.create.hint'|trans }}
@@ -58,7 +82,7 @@
                     {
                         class: 'u-mb-0_25',
                         type: 'checkbox',
-                        attr: { tooltip: 'text.procedure.types.guests.only.tipp'|trans }
+                        attr: { tooltip: 'text.procedure.types.guests.only.tip'|trans }
                     })
                 }}
             </div>

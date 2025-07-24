@@ -11,16 +11,14 @@
  * This is the entrypoint for administration_procedure_type_edit.html.twig
  */
 
-/*
- * import DpAccordion from '@DpJs/components/core/DpAccordion'
- * import DpEditor from '@DpJs/components/core/DpEditor/DpEditor'
- */
 import { defineAsyncComponent } from 'vue'
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
+import AdministrationProcedureTypeEdit from '@DpJs/components/procedure/AdministrationProcedureTypeEdit'
 
 const components = {
+  AdministrationProcedureTypeEdit,
   DpEditor: defineAsyncComponent(async () => {
     const { DpEditor } = await import('@demos-europe/demosplan-ui')
     return DpEditor
