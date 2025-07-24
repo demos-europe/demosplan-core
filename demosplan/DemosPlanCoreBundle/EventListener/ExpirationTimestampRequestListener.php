@@ -16,14 +16,14 @@ use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Request listener that automatically injects expiration timestamp into session
  * for authenticated users when not already present.
  */
-#[AsEventListener(event: 'kernel.request', priority: 5)]
+#[AsEventListener(event: 'kernel.controller', priority: 5)]
 class ExpirationTimestampRequestListener implements EventSubscriberInterface
 {
     public function __construct(
@@ -35,11 +35,11 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 0],
+            KernelEvents::CONTROLLER => ['onKernelController', 5],
         ];
     }
 
-    public function onKernelRequest(RequestEvent $event): void
+    public function onKernelController(ControllerEvent $event): void
     {
         // Check if in prod environment
         if (!$this->expirationTimestampInjection->shouldInjectTestExpiration()) {
