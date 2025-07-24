@@ -14,6 +14,7 @@ class OdtImporter
     private ?ZipArchive $zipArchive;
     private array $styleMap = [];
     private array $listStyleMap = [];
+    private array $headingStyleMap = [];
 
     public function __construct(?ZipArchive $zipArchive = null)
     {
@@ -129,6 +130,9 @@ class OdtImporter
                     case 'text:s':
                         $html .= ' '; // Space element
                         break;
+                    case 'text:tab':
+                        $html .= ' '; // Convert tab to space for readability
+                        break;
                     default:
                         $html .= $this->processNodes($child);
                         break;
@@ -226,13 +230,8 @@ class OdtImporter
             $html
         );
 
-        // Remove automatic numbering from headings if present
-        // Pattern: <h1>1.Testüberschrift</h1> -> <h1>Testüberschrift</h1>
-        $html = preg_replace(
-            '/(<h[1-6][^>]*>)\s*\d+\.\s*([^<]+)(<\/h[1-6]>)/s',
-            '$1$2$3',
-            $html
-        );
+        // Note: Disabled automatic numbering removal to preserve structured headings like "2.1 Küstenmeer"
+        // This was previously removing numbering patterns but we want to keep them for Zwischenüberschriften
 
         return $html;
     }
@@ -240,10 +239,12 @@ class OdtImporter
     private function parseStyles(\DOMDocument $dom): void
     {
         $this->styleMap = [];
+        $this->headingStyleMap = [];
 
         $xpath = new \DOMXPath($dom);
+        
+        // Parse text styles
         $styleNodes = $xpath->query('//office:automatic-styles/style:style[@style:family="text"]');
-
         foreach ($styleNodes as $styleNode) {
             $styleName = $styleNode->getAttribute('style:name');
             if (empty($styleName)) {
@@ -253,6 +254,20 @@ class OdtImporter
             $format = $this->extractTextFormat($xpath, $styleNode);
             if (!empty($format)) {
                 $this->styleMap[$styleName] = $format;
+            }
+        }
+        
+        // Parse paragraph styles for heading detection
+        $paragraphStyles = $xpath->query('//office:automatic-styles/style:style[@style:family="paragraph"]');
+        foreach ($paragraphStyles as $styleNode) {
+            $styleName = $styleNode->getAttribute('style:name');
+            if (empty($styleName)) {
+                continue;
+            }
+            
+            $headingLevel = $this->extractHeadingLevel($xpath, $styleNode);
+            if ($headingLevel > 0) {
+                $this->headingStyleMap[$styleName] = $headingLevel;
             }
         }
     }
@@ -284,6 +299,39 @@ class OdtImporter
         }
 
         return $format;
+    }
+
+    /**
+     * Extract heading level from paragraph style definition.
+     */
+    private function extractHeadingLevel(\DOMXPath $xpath, \DOMElement $styleNode): int
+    {
+        // Check if parent style indicates heading
+        $parentStyleName = $styleNode->getAttribute('style:parent-style-name');
+        if ($parentStyleName && str_contains($parentStyleName, 'Heading')) {
+            // Extract level from parent style name like "Heading_1", "Heading_2"
+            if (preg_match('/Heading[_\s]*(\d+)/', $parentStyleName, $matches)) {
+                return (int) $matches[1];
+            }
+            return 1; // Default to level 1 for generic heading styles
+        }
+        
+        // Check text properties for heading-like formatting
+        $textProps = $xpath->query('style:text-properties', $styleNode)->item(0);
+        if ($textProps) {
+            $isBold = $this->isBold($textProps);
+            $fontSize = $textProps->getAttribute('fo:font-size');
+            
+            // Detect heading based on bold + large font size
+            if ($isBold && $fontSize) {
+                $size = (int) filter_var($fontSize, FILTER_SANITIZE_NUMBER_INT);
+                if ($size >= 14) {
+                    return 1; // Large bold text likely a heading
+                }
+            }
+        }
+        
+        return 0; // Not a heading
     }
 
     /**
@@ -521,7 +569,7 @@ class OdtImporter
     }
 
     /**
-     * Process a paragraph node, handling caption detection.
+     * Process a paragraph node, handling caption detection and heading detection.
      */
     private function processParagraph(\DOMNode $node): string
     {
@@ -532,6 +580,12 @@ class OdtImporter
         }
 
         $content = $this->processNodes($node);
+        
+        // Check if this paragraph should be converted to a heading
+        $headingLevel = $this->detectHeadingLevel($node, $content);
+        if ($headingLevel > 0) {
+            return '<h' . $headingLevel . '>' . $content . '</h' . $headingLevel . '>';
+        }
         
         // Check if this paragraph contains an image frame
         if ($this->containsImageFrame($node)) {
@@ -923,5 +977,68 @@ class OdtImporter
         }
 
         return $content;
+    }
+
+    /**
+     * Detect if a paragraph should be treated as a heading and at what level.
+     */
+    private function detectHeadingLevel(\DOMNode $node, string $content): int
+    {
+        // First check style-based detection
+        $styleName = $node->getAttribute('text:style-name');
+        if ($styleName && isset($this->headingStyleMap[$styleName])) {
+            return $this->headingStyleMap[$styleName];
+        }
+        
+        // Then check content patterns
+        $patternLevel = $this->detectHeadingByPattern($content);
+        if ($patternLevel > 0) {
+            return $patternLevel;
+        }
+        
+        // Finally check formatting-based detection
+        return $this->detectHeadingByFormatting($node, $content);
+    }
+
+    /**
+     * Detect heading level based on content patterns.
+     */
+    private function detectHeadingByPattern(string $content): int
+    {
+        $text = trim(strip_tags($content));
+        
+        // Skip policy items (single number followed by G or Z, with or without space)
+        if (preg_match('/^\d+\s*[GZ]\s*$/u', $text)) {
+            return 0; // Keep as paragraph
+        }
+        
+        // Generic numerical patterns (avoiding specific language patterns)
+        // Note: \s* allows for optional whitespace to handle both "7 Title" and "7Title" cases
+        $patterns = [
+            '/^\d+\.\d+\.\d+\.\d+\s*[A-ZÄÖÜ]/u' => 4, // "3.1.1.1 Sub-sub-subsection" or "3.1.1.1Sub-sub-subsection"
+            '/^\d+\.\d+\.\d+\s*[A-ZÄÖÜ]/u' => 3, // "3.1.1 Sub-subsection" or "3.1.1Sub-subsection"
+            '/^\d+\.\d+\s*[A-ZÄÖÜ]/u' => 2,     // "2.1 Subsection" or "2.1Subsection"
+            '/^\d+\s*[A-ZÄÖÜ]/u' => 1,           // "1 Section Title" or "1Section"
+            '/^\(\d+\)\s*[A-ZÄÖÜ]/u' => 2,      // "(1) Parenthetical heading" or "(1)Parenthetical"
+        ];
+        
+        foreach ($patterns as $pattern => $level) {
+            if (preg_match($pattern, $text)) {
+                return $level;
+            }
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Detect heading level based on formatting (bold, size, etc.).
+     */
+    private function detectHeadingByFormatting(\DOMNode $node, string $content): int
+    {
+        // This method would analyze the formatting of the content
+        // For now, return 0 (no heading detected)
+        // Could be extended to analyze font sizes, bold formatting, etc.
+        return 0;
     }
 }

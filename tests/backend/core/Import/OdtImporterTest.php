@@ -61,7 +61,7 @@ class OdtImporterTest extends TestCase
         $html = $odtImporter->convert(DemosPlanPath::getTestPath(
             self::BACKEND_CORE_IMPORT_RES_SIMPLE_DOC_ODT
         ));
-        $this->assertStringContainsString('<table><tr><td><p>Cell 1</p></td><td><p>Cell 2</p></td></tr></table>', $html);
+        $this->assertStringContainsString('<table><tr><td >Cell 1</td><td >Cell 2</td></tr></table>', $html);
     }
 
     public function testConvertsHeadingLevels(): void
@@ -89,8 +89,8 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<td colspan="2"><p>Colspan 2</p></td>', $html);
-        $this->assertStringContainsString('<td rowspan="2"><p>Rowspan 2</p></td>', $html);
+        $this->assertStringContainsString('<td colspan="2" >Colspan 2</td>', $html);
+        $this->assertStringContainsString('<td rowspan="2" >Rowspan 2</td>', $html);
         $this->assertStringNotContainsString('covered-table-cell', $html);
     }
 
@@ -104,7 +104,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<ul><li><p>Item 1</p></li><li><p>Item 2</p></li></ul>', $html);
+        $this->assertStringContainsString('<ul><li>Item 1</li><li>Item 2</li></ul>', $html);
     }
 
     public function testConvertsOrderedList(): void
@@ -117,7 +117,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<ol><li><p>1. First item</p></li><li><p>2. Second item</p></li></ol>', $html);
+        $this->assertStringContainsString('<ol><li>1. First item</li><li>2. Second item</li></ol>', $html);
     }
 
     public function testConvertsTextFormatting(): void
@@ -145,7 +145,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<p>Normal <strong>bold</strong> and <u><em>italic underline</em></u> text</p>', $html);
+        $this->assertStringContainsString('<p>Normal <strong>bold</strong> and <em><u>italic underline</u></em> text</p>', $html);
     }
 
     public function testConvertsFootnotes(): void
@@ -158,7 +158,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<p>Text with footnote<sup class="footnote"', $html);
+        $this->assertStringContainsString('<p>Text with footnote<sup title="Footnote content"', $html);
         $this->assertStringContainsString('title="Footnote content"', $html);
         $this->assertStringContainsString('>1</sup></p>', $html);
     }
@@ -173,7 +173,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<p>Text with endnote<sup class="endnote"', $html);
+        $this->assertStringContainsString('<p>Text with endnote<sup title="Endnote content"', $html);
         $this->assertStringContainsString('title="Endnote content"', $html);
         $this->assertStringContainsString('>i</sup></p>', $html);
     }
@@ -201,7 +201,7 @@ class OdtImporterTest extends TestCase
         $odtImporter = new OdtImporter($zip);
         $html = $odtImporter->convert('test.odt');
 
-        $this->assertStringContainsString('<ul><li><p>Item 1</p><ul><li><p>Nested item 1.1</p></li></ul></li></ul>', $html);
+        $this->assertStringContainsString('<ul><li>Item 1<ul><li>Nested item 1.1</li></ul></li></ul>', $html);
     }
 
     public function testHandlesUnknownStylesGracefully(): void
@@ -216,5 +216,147 @@ class OdtImporterTest extends TestCase
 
         // Unknown styles should not cause errors and should return content as-is
         $this->assertStringContainsString('<p>Normal text here</p>', $html);
+    }
+
+    /**
+     * Test recognition of Zwischenüberschriften patterns like "2.1 Küstenmeer"
+     */
+    public function testRecognizesZwischenuberschriftenPatterns(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>1 Vernetzung und Kooperation</text:p><text:p>2.1 Küstenmeer</text:p><text:p>3.1.1 Oberzentren</text:p><text:p>3.1.1.1 Sub-level heading</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        $this->assertStringContainsString('<h1>1 Vernetzung und Kooperation</h1>', $html);
+        $this->assertStringContainsString('<h2>2.1 Küstenmeer</h2>', $html);
+        $this->assertStringContainsString('<h3>3.1.1 Oberzentren</h3>', $html);
+        $this->assertStringContainsString('<h4>3.1.1.1 Sub-level heading</h4>', $html);
+    }
+
+    /**
+     * Test that space elements (text:s) are preserved in heading recognition
+     */
+    public function testPreservesSpacesInHeadingRecognition(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>7<text:s/>Mobilität der Zukunft</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // Should recognize as heading and preserve the space
+        $this->assertStringContainsString('<h1>7 Mobilität der Zukunft</h1>', $html);
+    }
+
+    /**
+     * Test that tab elements (text:tab) are converted to spaces in heading recognition
+     */
+    public function testConvertTabsToSpacesInHeadingRecognition(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>7<text:tab/>Mobilität der Zukunft</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // Should recognize as heading and convert tab to space
+        $this->assertStringContainsString('<h1>7 Mobilität der Zukunft</h1>', $html);
+    }
+
+    /**
+     * Test that policy items (G/Z patterns) remain as paragraphs, not headings
+     */
+    public function testPolicyItemsRemainAsParagraphs(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>1 G</text:p><text:p>2 Z</text:p><text:p>15 G</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        // These should remain as paragraphs, NOT become headings
+        $this->assertStringContainsString('<p>1 G</p>', $html);
+        $this->assertStringContainsString('<p>2 Z</p>', $html);
+        $this->assertStringContainsString('<p>15 G</p>', $html);
+        
+        // Verify they are NOT headings
+        $this->assertStringNotContainsString('<h1>1 G</h1>', $html);
+        $this->assertStringNotContainsString('<h1>2 Z</h1>', $html);
+    }
+
+    /**
+     * Test recognition of "Teil" patterns
+     */
+    public function testRecognizesTeilPatterns(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>Teil A Herausforderungen</text:p><text:p>Teil B Grundsätze und Ziele</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        $this->assertStringContainsString('<h1>Teil A Herausforderungen</h1>', $html);
+        $this->assertStringContainsString('<h1>Teil B Grundsätze und Ziele</h1>', $html);
+    }
+
+    /**
+     * Test recognition of parenthetical patterns like "(1) Title"
+     */
+    public function testRecognizesParentheticalPatterns(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<office:document-content><text:p>(1) Schleswig-Holstein weiterdenken</text:p><text:p>(2) Landesplanung weiterdenken</text:p></office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        $this->assertStringContainsString('<h2>(1) Schleswig-Holstein weiterdenken</h2>', $html);
+        $this->assertStringContainsString('<h2>(2) Landesplanung weiterdenken</h2>', $html);
+    }
+
+    /**
+     * Test that style-based heading detection works
+     */
+    public function testStyleBasedHeadingDetection(): void
+    {
+        $zip = $this->createMock(ZipArchive::class);
+        $zip->method('open')->willReturn(true);
+        $zip->method('getFromName')->willReturn('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0">
+<office:automatic-styles>
+<style:style style:name="P1" style:family="paragraph" style:parent-style-name="Heading_1">
+</style:style>
+<style:style style:name="P2" style:family="paragraph">
+<style:text-properties fo:font-weight="bold" fo:font-size="16pt"/>
+</style:style>
+</office:automatic-styles>
+<office:body>
+<office:text>
+<text:p text:style-name="P1">Style-based Heading 1</text:p>
+<text:p text:style-name="P2">Bold Large Text Heading</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $zip->method('close')->willReturn(true);
+
+        $odtImporter = new OdtImporter($zip);
+        $html = $odtImporter->convert('test.odt');
+
+        $this->assertStringContainsString('<h1>Style-based Heading 1</h1>', $html);
+        $this->assertStringContainsString('<h1>Bold Large Text Heading</h1>', $html);
     }
 }
