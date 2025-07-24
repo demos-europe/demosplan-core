@@ -251,13 +251,13 @@ class EntityContentChangeService extends CoreService
                 $postUpdateIdentifier = $postUpdateValue;
             }
 
-            // ensure defined values:
-            $preUpdateValue ??= '';
-            $postUpdateValue ??= '';
-            $preUpdateIdentifier ??= $preUpdateValue;
-            $postUpdateIdentifier ??= $postUpdateValue;
-            $preUpdateIdentifiers ??= $preUpdateValue;
-            $postUpdateIdentifiers ??= $postUpdateValue;
+            // ensure defined values (restored original logic):
+            $preUpdateValue = $preUpdateValue ?? '';
+            $postUpdateValue = $postUpdateValue ?? '';
+            $preUpdateIdentifier = $preUpdateIdentifier ?? $preUpdateValue;
+            $postUpdateIdentifier = $postUpdateIdentifier ?? $postUpdateValue;
+            $preUpdateIdentifiers = $preUpdateIdentifiers ?? $preUpdateValue;
+            $postUpdateIdentifiers = $postUpdateIdentifiers ?? $postUpdateValue;
 
             // use IDs to determine change, instead of using identifier because identifier may not be unique
             if ($preUpdateValue !== $postUpdateValue) {
@@ -282,7 +282,43 @@ class EntityContentChangeService extends CoreService
                     );
                 }
 
+                // Handle mixed types: string vs array (e.g., empty string vs collection, or collection vs empty string)
+                if ((is_string($preUpdateValue) && is_array($postUpdateValue)) || 
+                    (is_array($preUpdateValue) && is_string($postUpdateValue))) {
+                    
+                    // Convert both to version strings for comparison
+                    $preVersionString = is_array($preUpdateValue) 
+                        ? $this->convertToVersionString($preUpdateIdentifiers)
+                        : (string) $preUpdateIdentifier;
+                    $postVersionString = is_array($postUpdateValue) 
+                        ? $this->convertToVersionString($postUpdateIdentifiers)
+                        : (string) $postUpdateIdentifier;
+
+                    return $this->getUnifiedDiffOfTwoStrings(
+                        $preVersionString,
+                        $postVersionString,
+                        $propertyName,
+                        $entityType
+                    );
+                }
+
                 // change detected, but not arrays or strings?
+                $this->logger->error('EntityContentChangeService: Unhandled type combination', [
+                    'propertyName' => $propertyName,
+                    'entityType' => $entityType,
+                    'preUpdateValue' => [
+                        'type' => gettype($preUpdateValue),
+                        'value' => is_scalar($preUpdateValue) ? $preUpdateValue : '[non-scalar]',
+                        'isArray' => is_array($preUpdateValue),
+                        'isString' => is_string($preUpdateValue)
+                    ],
+                    'postUpdateValue' => [
+                        'type' => gettype($postUpdateValue),
+                        'value' => is_scalar($postUpdateValue) ? $postUpdateValue : '[non-scalar]',
+                        'isArray' => is_array($postUpdateValue),  
+                        'isString' => is_string($postUpdateValue)
+                    ]
+                ]);
                 throw new NotYetImplementedException('should have been string or array.');
             }
         }

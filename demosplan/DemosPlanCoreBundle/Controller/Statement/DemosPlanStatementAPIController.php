@@ -157,6 +157,7 @@ class DemosPlanStatementAPIController extends APIController
                     'data'    => [
                         'movedStatementId'       => $copiedStatement->getId(),
                         'movedToProcedureId'     => $copiedStatement->getProcedureId(),
+                        'movedToProcedureName'   => $copiedStatement->getProcedure()->getName(),
                         'placeholderStatementId' => $copiedStatement->isPlaceholder() ? $copiedStatement->getPlaceholderStatement()->getId() : $copiedStatement->getId(),
                     ],
                 ];
@@ -260,6 +261,7 @@ class DemosPlanStatementAPIController extends APIController
                     'data'    => [
                         'movedStatementId'       => $movedStatement->getId(),
                         'movedToProcedureId'     => $movedStatement->getProcedureId(),
+                        'movedToProcedureName'   => $movedStatement->getProcedure()->getName(),
                         'placeholderStatementId' => $movedStatement->isPlaceholder() ? $movedStatement->getPlaceholderStatement()->getId() : $movedStatement->getId(),
                     ],
                 ];

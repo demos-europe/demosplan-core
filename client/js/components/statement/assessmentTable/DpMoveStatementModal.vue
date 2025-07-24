@@ -271,7 +271,7 @@ export default {
               movedStatementId: response.data.movedStatementId,
               placeholderStatementId: response.data.placeholderStatementId,
               movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name
+              movedToProcedureName: response.data.movedToProcedureName || 'Unknown Procedure'
             }
 
             // Handle update of assessment table ui from TableCard.vue
@@ -279,7 +279,10 @@ export default {
           }
           this.toggleModal(null)
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('DpMoveStatementModal - Move statement error:', error)
+          console.error('DpMoveStatementModal - Error response:', error.response)
+          console.error('DpMoveStatementModal - Error data:', error.response?.data)
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
           this.toggleModal(null)
         })

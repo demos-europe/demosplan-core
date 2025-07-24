@@ -2685,6 +2685,15 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $statementObject = $this->getStatement($statement['id']);
 
+        if (null === $statementObject) {
+            $this->getLogger()->error('Statement not found when getting procedure phase name', [
+                'statementId' => $statement['id'] ?? 'unknown',
+                'statementArray' => $statement
+            ]);
+            // Fallback: assume it's not submitted by citizen if we can't find the statement
+            return $this->getProcedurePhaseName($statement['phase'], false);
+        }
+
         return $this->getProcedurePhaseName(
             $statement['phase'],
             $statementObject->isSubmittedByCitizen()
