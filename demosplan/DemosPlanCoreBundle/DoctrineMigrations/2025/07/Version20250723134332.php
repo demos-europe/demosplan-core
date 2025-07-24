@@ -9,11 +9,17 @@ use Doctrine\Migrations\AbstractMigration;
 use Ramsey\Uuid\Uuid;
 
 
+/**
+ * Transform custom field options from string arrays to objects with IDs
+ *
+ * Before: options: ["Option 1", "Option 2"]
+ * After:  options: [{"id": "uuid1", "label": "Option 1"}, {"id": "uuid2", "label": "Option 2"}]
+ */
 class Version20250723134332 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Transform custom field options to ID-based format';
+        return 'Transform custom field options from labels to ID-based objects';
     }
 
     /**
@@ -22,54 +28,36 @@ class Version20250723134332 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->transformCustomFields();
-    }
 
-
-
-    private function transformCustomFields(): void
-    {
-        $mapping = [];
-
-        // Get all configurations and transform them while building mapping
+        // Step 1: Transform configurations and build label→ID mapping
+        $labelToIdMapping = [];
         $configs = $this->connection->fetchAllAssociative(
             'SELECT id, configuration FROM custom_field_configuration'
         );
 
         foreach ($configs as $config) {
             $data = json_decode($config['configuration'], true);
+            if (!isset($data['options']) || !is_array($data['options'])) continue;
 
-            if (!isset($data['options']) || !is_array($data['options'])) {
-                continue;
-            }
-
-            // Transform string options to object options and build mapping
+            // Convert string options to objects and build mapping
             $newOptions = [];
             foreach ($data['options'] as $label) {
-                $id = Uuid::uuid4()->toString();
-                $newOptions[] = [
-                    'id' => $id,
-                    'label' => $label
-                ];
-
-                // Build mapping for segment transformation
-                $key = $config['id'] . '::' . $label;
-                $mapping[$key] = $id;
+                $optionId = Uuid::uuid4()->toString();
+                $newOptions[] = ['id' => $optionId, 'label' => $label];
+                $labelToIdMapping[$config['id'] . '::' . $label] = $optionId;
             }
 
             $data['options'] = $newOptions;
-
-            // Update configuration
             $this->addSql(
                 'UPDATE custom_field_configuration SET configuration = ? WHERE id = ?',
                 [json_encode($data), $config['id']]
             );
         }
 
-        // Now update segment values using the mapping
+        // Step 2: Update segment values from labels to IDs
         $segments = $this->connection->fetchAllAssociative(
             'SELECT _st_id, custom_fields FROM _statement
-             WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
+               WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
         );
 
         foreach ($segments as $segment) {
@@ -79,9 +67,8 @@ class Version20250723134332 extends AbstractMigration
             $updated = false;
             foreach ($fields as &$field) {
                 $key = $field['id'] . '::' . $field['value'];
-
-                if (isset($mapping[$key])) {
-                    $field['value'] = $mapping[$key];
+                if (isset($labelToIdMapping[$key])) {
+                    $field['value'] = $labelToIdMapping[$key];
                     $updated = true;
                 }
             }
@@ -95,57 +82,43 @@ class Version20250723134332 extends AbstractMigration
         }
     }
 
-
-
     /**
      * @throws Exception
      */
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->revertCustomFields();
-    }
 
-    private function revertCustomFields(): void
-    {
-        $mapping = [];
-
-        // Get all configurations and build ID→label mapping
+        // Step 1: Build ID→label mapping and revert configurations
+        $idToLabelMapping = [];
         $configs = $this->connection->fetchAllAssociative(
             'SELECT id, configuration FROM custom_field_configuration'
         );
 
         foreach ($configs as $config) {
             $data = json_decode($config['configuration'], true);
+            if (!isset($data['options']) || !is_array($data['options'])) continue;
 
-            if (!isset($data['options']) || !is_array($data['options'])) {
-                continue;
-            }
-
-            // Build mapping for segment reversion and convert back to string array
+            // Convert objects back to strings and build mapping
             $labels = [];
             foreach ($data['options'] as $option) {
                 if (isset($option['id'], $option['label'])) {
-                    // Build mapping: configId::optionId -> optionLabel
-                    $key = $config['id'] . '::' . $option['id'];
-                    $mapping[$key] = $option['label'];
+                    $idToLabelMapping[$config['id'] . '::' . $option['id']] = $option['label'];
                     $labels[] = $option['label'];
                 }
             }
 
             $data['options'] = $labels;
-
-            // Update configuration back to string array
             $this->addSql(
                 'UPDATE custom_field_configuration SET configuration = ? WHERE id = ?',
                 [json_encode($data), $config['id']]
             );
         }
 
-        // Now revert segment values using the mapping
+        // Step 2: Update segment values from IDs back to labels
         $segments = $this->connection->fetchAllAssociative(
             'SELECT _st_id, custom_fields FROM _statement
-             WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
+               WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
         );
 
         foreach ($segments as $segment) {
@@ -155,9 +128,8 @@ class Version20250723134332 extends AbstractMigration
             $updated = false;
             foreach ($fields as &$field) {
                 $key = $field['id'] . '::' . $field['value'];
-
-                if (isset($mapping[$key])) {
-                    $field['value'] = $mapping[$key];
+                if (isset($idToLabelMapping[$key])) {
+                    $field['value'] = $idToLabelMapping[$key];
                     $updated = true;
                 }
             }
@@ -182,14 +154,4 @@ class Version20250723134332 extends AbstractMigration
             "Migration can only be executed safely on 'mysql'."
         );
     }
-
-
-
-
-
-
-
-
-
-
 }
