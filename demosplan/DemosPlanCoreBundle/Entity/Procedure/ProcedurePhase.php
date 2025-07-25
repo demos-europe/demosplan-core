@@ -52,7 +52,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(name="phase_key", type="string", nullable=false)
      */
-    protected string $key;
+    protected string $key = 'configuration';
 
     /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
@@ -124,7 +124,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
-    public function __construct(string $key = 'configuration', string $step = '')
+    public function __construct(string $key, string $step)
     {
         $this->key = $key;
         $this->step = $step;
