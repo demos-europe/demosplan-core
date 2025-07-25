@@ -287,11 +287,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
             $newOptions = $attributes['options'];
-            $currentOptions = $customField->getOptions() ?? [];
+            $this->validateOptionsUpdate($newOptions);
 
+            $currentOptions = $customField->getOptions() ?? [];
             $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
             $customField->setOptions($updatedOptions);
         }
+
 
 
 
@@ -341,6 +343,16 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         return $updatedOptions;
     }
+
+    private function validateOptionsUpdate(array $newOptions): void
+    {
+        foreach ($newOptions as $option) {
+            if (!isset($option['label']) || empty(trim($option['label']))) {
+                throw new InvalidArgumentException('All options must have a non-empty label');
+            }
+        }
+    }
+
 
 
 }
