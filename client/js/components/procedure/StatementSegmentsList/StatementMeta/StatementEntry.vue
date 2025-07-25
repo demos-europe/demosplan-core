@@ -20,7 +20,7 @@ All rights reserved
       <dp-input
         v-if="isStatementManual ? true : !editable"
         id="statementAuthoredDate"
-        class="o-form__group-item"
+        class="o-form__group-item mb-2"
         data-cy="statementEntry:authoredDate"
         disabled
         :label="{
@@ -29,7 +29,9 @@ All rights reserved
         :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
 
       <!-- authoredDate: if not manual statement -->
-      <div v-else>
+      <div
+        v-else
+        class="mb-2">
         <dp-label
           :text="Translator.trans('statement.date.authored')"
           for="authoredDateDatepicker" />
@@ -81,15 +83,28 @@ All rights reserved
         :options="submitTypeOptions" />
 
       <dp-input
+        v-if="editable"
         id="statementInternId"
-        v-model="localStatement.attributes.internId"
         class="mb-2"
+        v-model="localStatement.attributes.internId"
         data-cy="statementEntry:internId"
         :disabled="!editable"
         :label="{
           text: Translator.trans('internId')
         }"
-        width="w-1/4" />
+      />
+
+      <dp-input
+        v-else
+        id="statementInternId"
+        class="mb-2"
+        :model-value="localStatement.attributes.internId || '-'"
+        data-cy="statementEntry:internId"
+        disabled
+        :label="{
+          text: Translator.trans('internId')
+        }"
+      />
 
       <template v-if="hasPermission('field_statement_phase')">
         <dp-select

@@ -172,7 +172,6 @@ All rights reserved
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id"
-      class="mb-4"
     />
   </fieldset>
 </template>
@@ -291,7 +290,7 @@ export default {
     getDisplayValue (value) {
       const isDisabled = !this.editable || !this.isStatementManual
 
-      return (isDisabled && (!value || value.trim() === '')) ? '---' : value
+      return (isDisabled && (!value || value.trim() === '')) ? '-' : value
     },
 
     getSubmitterNameValue() {
