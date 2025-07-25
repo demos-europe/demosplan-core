@@ -116,7 +116,7 @@
   </div>
 </template>
 <script>
-import { checkResponse, dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import convertExtentToObject from '../map/utils/convertExtentToObject'
@@ -285,7 +285,6 @@ export default {
       }
 
       dpApi.patch(url, {}, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
           this.$refs.mapView.$refs.map.getMapOptions()

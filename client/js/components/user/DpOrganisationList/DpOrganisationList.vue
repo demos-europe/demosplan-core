@@ -169,14 +169,14 @@ import {
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
-const orgaFields = {
+const orgaFieldsArrays = {
   Branding: [
     'cssvars'
-  ].join(),
+  ],
   Customer: [
     'name',
     'subdomain'
-  ].join(),
+  ],
   Orga: [
     'addressExtension',
     'branding',
@@ -208,15 +208,22 @@ const orgaFields = {
     'street',
     'submissionType',
     'types'
-  ].join(),
+  ],
   OrgaStatusInCustomer: [
     'customer',
     'status'
-  ].join()
+  ]
 }
 
 if (hasPermission('feature_manage_procedure_creation_permission')) {
-  orgaFields.Orga.push('canCreateProcedures')
+  orgaFieldsArrays.Orga.push('canCreateProcedures')
+}
+
+const orgaFields = {
+  Branding: orgaFieldsArrays.Branding.join(),
+  Customer: orgaFieldsArrays.Customer.join(),
+  Orga: orgaFieldsArrays.Orga.join(),
+  OrgaStatusInCustomer: orgaFieldsArrays.OrgaStatusInCustomer.join()
 }
 
 export default {

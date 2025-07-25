@@ -7,6 +7,8 @@
 //  All rights reserved
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+@use "sass:math";
+
 // DPLAN CORE
 // Default Settings (override inuit settings, are overridden by project settings)
 
@@ -66,3 +68,11 @@ $dp-border-thickness: 1px !default;
 
 // Width of map toolbar in public detail view - defined here because several components depend on it
 $map-toolbar-width: 300px !default;
+
+// Button Spacing
+$dp-button-spacing-horizontal: round(math.div($base-line-height, 2));
+
+// These variable is shared between _button.scss and _form.scss.
+// It is defined here because currently the include order of settings and inuit core leads to not having
+// $inuit-base-spacing-unit available in one of the more appropriate places (token, settings).
+$dp-form-element-spacing-vertical: round(math.div($base-line-height, 4)) + 1px;
