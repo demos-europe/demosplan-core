@@ -12,11 +12,16 @@
     >
       {{ displayTime }}
     </span>
+
+    <dp-contextual-help
+      :class="prefixClass('self-center')"
+      :text="Translator.trans('time.left.till.automatic.logout')"
+    />
   </div>
 </template>
 
 <script>
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 const millisecondsPerSecond = 1000
 const millisecondsPerMinute = 60 * millisecondsPerSecond
@@ -25,7 +30,11 @@ const millisecondsPerHour = 60 * millisecondsPerMinute
 export default {
   name: 'SessionTimer',
 
-  mixins: [prefixClassMixin],
+  components: {
+    DpContextualHelp
+  },
+
+  mixins: [ prefixClassMixin ],
 
   props: {
     showNotifications: {
