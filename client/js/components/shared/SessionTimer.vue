@@ -21,8 +21,6 @@ import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 const millisecondsPerSecond = 1000
 const millisecondsPerMinute = 60 * millisecondsPerSecond
 const millisecondsPerHour = 60 * millisecondsPerMinute
-const testWarning10Minutes = 119 * millisecondsPerMinute // For testing - will be 10
-const testWarning3Minutes = 118 * millisecondsPerMinute  // For testing - 3
 
 export default {
   name: 'SessionTimer',
@@ -58,7 +56,7 @@ export default {
     },
 
     isWarning () {
-      return this.timeLeft <= testWarning10Minutes
+      return this.timeLeft <= 119 * millisecondsPerMinute
     },
 
     shouldShowTimer () {
@@ -114,8 +112,8 @@ export default {
 
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.warning10minLeft = timestampInMsecs - testWarning10Minutes // 119 min (for testing)
-      this.warning3minLeft = timestampInMsecs - testWarning3Minutes  // 118 min
+      this.warning10minLeft = timestampInMsecs - (119 * millisecondsPerMinute) // for testing - will be 10
+      this.warning3minLeft = timestampInMsecs - (118 * millisecondsPerMinute) // will be 3
       this.updateTimer()
       this.intervalId = setInterval(this.updateTimer, millisecondsPerSecond)
     },
