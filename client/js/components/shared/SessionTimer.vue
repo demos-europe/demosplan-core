@@ -51,7 +51,7 @@ export default {
 
   computed: {
     shouldShowTimer () {
-      return this.hasPermission('feature_auto_logout_warning') && this.isValidSession()
+      return this.dplan?.expirationTimestamp > 0
     },
 
     displayTime () {
@@ -80,10 +80,6 @@ export default {
   },
 
   methods: {
-    isValidSession () {
-      return this.dplan?.loggedIn && this.dplan?.expirationTimestamp
-    },
-
     getTimeUnits (milliseconds) {
       const hours = Math.floor(milliseconds / millisecondsPerHour)
       const minutes = Math.floor((milliseconds % millisecondsPerHour) / millisecondsPerMinute)
@@ -107,7 +103,7 @@ export default {
     },
 
     updateTimer () {
-      if (!this.isValidSession()) {
+      if (!this.dplan?.expirationTimestamp) {
         this.cleanup()
         return
       }
