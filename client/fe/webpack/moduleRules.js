@@ -76,9 +76,27 @@ const postcssPurgeCss = purgeCSSPlugin({
 })
 const autoprefixer = require('autoprefixer') // The autoprefixer must run after postcss-prefix-selector
 
+const classReplacer = () => {
+  return (root) => {
+    let sourceSelectors = []
+
+    root.walkRules('.bg-red-500', rule => {
+      console.log('Getting rules from .bg-red-500')
+      sourceSelectors = rule.selectors
+    })
+
+    root.walkRules('.dp-breadcrumb-container', rule => {
+      console.log('Setting rules for .my-test-class')
+      rule.selectors = sourceSelectors
+    })
+  }
+}
+classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
+
 const postCssPlugins = [
   postcssPrefixSelector,
   tailwindCss,
+  classReplacer(),
   postcssFlexbugsFixes,
   postcssPresetEnv,
   postcssPurgeCss,
