@@ -30,3 +30,7 @@
     In this case, we are safe-listing classes used in the segment status charts.
 */
 @source inline('text-status-{progress,changed,complete}-icon');
+
+.dp-breadcrumb-container {
+    @apply flex items-center justify-between u-pv-0_25
+}
