@@ -177,7 +177,7 @@
               <dp-input
                 v-else
                 :id="`email:${rowData.tokenId}`"
-                class="mt-3 test"
+                class="mt-3"
                 :disabled="!rowData.isManual || !rowData.isEditable"
                 :label="{
                   text: Translator.trans('email')
