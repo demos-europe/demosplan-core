@@ -37,13 +37,13 @@
           min="0"
           max="100"
           step="2"
-          v-model="opacity"
+          :value="opacity"
           :aria-label="layer.attributes.name + ' ' + Translator.trans('opacity.percent')"
           aria-valuemin="0"
           aria-valuemax="100"
           aria-orientation="horizontal"
           @input="setOpacity"
-          @change="setAndSaveOpacity"
+          @change="setOpacity"
           @focus="toggleOpacityControl(true)"
           @blur="toggleOpacityControl(false)"
           @click.stop="">
@@ -82,28 +82,10 @@ export default {
       required: true
     },
 
-    visible: {
-      type: Boolean,
-      required: true,
-      default: true
-    },
-
-    layerType: {
-      type: String,
-      required: false,
-      default: 'overlay'
-    },
-
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
       default: false
-    },
-
-    parentIsVisible: {
-      type: Boolean,
-      required: false,
-      default: true
     }
   },
 
@@ -114,15 +96,13 @@ export default {
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:toggleVisibiltyGroup',
-    'layer-opacity:change',
-    'layer-opacity:changed'
+    'layer:toggleVisibiltyGroup'
   ],
 
   data () {
     return {
       showOpacityControl: false,
-      opacity: 100,
+      showVisibilityGroup: false,
       tooltipExpanded: false
     }
   },
@@ -150,6 +130,10 @@ export default {
     layerTitle () {
       //  Return title only if contextualHelp is currently not shown
       return this.tooltipExpanded === false ? this.layer.attributes.name : ''
+    },
+
+    opacity () {
+      return this.layerStates[this.layer.id]?.opacity
     },
 
     statusIcon () {
@@ -216,12 +200,11 @@ export default {
         return
       }
 
-      // Toggle overlays
-      this.updateLayerVisibility({
+      this.$store.dispatch('Layers/updateLayerVisibility', {
         id: this.layer.id,
-        isVisible: typeof isVisible !== 'undefined' ? isVisible : !this.isVisible,
+        isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
-        exclusively: this.layer.attributes.isBaseLayer
+        exclusively: this.layer.attributes.layerType === 'base'
       })
     },
 
@@ -238,21 +221,16 @@ export default {
     },
 
     setOpacity (e) {
-      let val = e.target.value
-      this.$store.commit('Layers/setAttributeForLayer', { id: this.layer.id, attribute: 'opacity', value: val })
-
+      const val = e.target.value
       if (isNaN(val * 1)) return false
 
-      val /= 100
-      this.$root.$emit('layer-opacity:change', { id: this.layer.id, opacity: val })
+      this.$store.commit('Layers/setLayerState', { id: this.layer.id, key: 'opacity', value: val })
     },
 
-    saveOpacity () {
-      this.$root.$emit('layer-opacity:changed', { id: this.layer.id, opacity: this.opacity })
-    },
-
-    setAndSaveOpacity (e) {
-      this.setOpacity(e).saveOpacity()
+    showVisibilityGroupLayer (visibilityGroupId, calleeId, hoverState) {
+      if (calleeId !== this.layer.id && visibilityGroupId === this.layer.attributes.visibilityGroupId) {
+        this.showVisibilityGroup = hoverState
+      }
     },
 
     toggleOpacityControl (overObject) {
@@ -268,14 +246,6 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  },
-
-  created () {
-    this.opacity = this.layer.attributes.opacity
-
-    if (this.visible) {
-      this.setLayerState({ id: this.layer.id, key: 'isVisible', value: true })
     }
   }
 }
