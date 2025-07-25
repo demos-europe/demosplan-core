@@ -20,7 +20,7 @@
     <form
       v-if="!isCreate || selectedProcedureTypeId"
       id="administrationProcedureTypeForm"
-      :action="isCreate ? Routing.generate('DemosPlan_procedureType_create_save') : Routing.generate('DemosPlan_procedureType_edit_save', { procedureTypeId: selectedProcedureTypeId })"
+      :action="formAction"
       method="post"
       data-dp-validate>
       <!-- General Settings -->
@@ -45,7 +45,7 @@
               type="text"
               :model-value="formData.name"
               :label="{
-                text: Translator.trans('form.fields.name')
+                text: Translator.trans('text.procedures.type.name')
               }"
               required
             />
@@ -56,7 +56,7 @@
             type="text"
             :model-value="formData.description"
             :label="{
-              text: Translator.trans('form.fields.description')
+              text: Translator.trans('description')
             }"
           />
 
@@ -64,7 +64,7 @@
             :model-value="formData.allowedToEnableMap"
             class="u-mb-0_25"
             :label="{
-              text: Translator.trans('procedure.behavior.allowMap')
+              text: Translator.trans('map.allow.procedure.type.activate')
             }"
           />
 
@@ -76,16 +76,19 @@
               text: Translator.trans('procedure.behavior.hasPriorityArea')
             }" />
 
-          <dp-checkbox
-            v-model="formData.participationGuestOnly"
-            class="u-mb-0_25"
-            :label="{
-              text: Translator.trans('procedure.types.guests.only')
-            }"
-            :tooltip="Translator.trans('text.procedure.types.guests.only.tip')" />
-
-          <dp-tooltip :text="Translator.trans('text.procedure.types.guests.only.tip')" /> <!-- ToDo: to be adjusted -->
-
+          <div class="flex flex-row">
+            <dp-checkbox
+              id="procedureBehaviorDefinition_participationGuestOnly"
+              name="participationGuestOnly"
+              v-model="formData.participationGuestOnly"
+              class="mb-1 mr-0.5"
+              :label="{
+                text: Translator.trans('text.procedure.types.guests.only')
+              }"
+              :disabled="participationGuestOnly"
+              :tooltip="Translator.trans('text.procedure.types.guests.only.tip')" />
+            <dp-contextual-help :text="Translator.trans('text.procedure.types.guests.only.tip')" />
+          </div>
         </div>
       </section>
 
@@ -93,10 +96,11 @@
       <section>
         <h2 class="u-mt u-mb-0">{{ Translator.trans('form.fields.and.hint.texts') }}</h2>
         <div class="u-pt">
+          <p class="font-bold">{{ Translator.trans('statement.form.hint.statement') }}</p>
+          <p>{{ Translator.trans('text.visible.to.loggedin.users') }}</p>
           <dp-editor
             v-model="formData.statementFormHintStatement"
-            class="u-mb-0_25"
-          />
+            class="u-mb-0_25" />
 
           <dp-editor
             v-model="formData.statementFormHintPersonalData"
@@ -188,7 +192,7 @@
   </div>
 </template>
 <script>
-import { DpButtonRow, DpEditor, DpInput, DpCheckbox, DpTextArea, DpTooltip } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpEditor, DpInput, DpCheckbox, DpTextArea, DpContextualHelp } from '@demos-europe/demosplan-ui'
 import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
 
 export default {
@@ -199,7 +203,7 @@ export default {
     DpInput,
     DpCheckbox,
     DpTextArea,
-    DpTooltip,
+    DpContextualHelp,
     ProcedureTypeSelect
   },
   props: {
@@ -237,9 +241,13 @@ export default {
       type: String,
       required: true
     },
+    participationGuestOnly: { // ToDo: name to be adjusted
+      type: Boolean,
+      default: false
+    },
 
     procedureTypes: {
-      type: String,
+      type: Array,
       required: true
     }
   },
@@ -262,6 +270,10 @@ export default {
   },
 
   methods: {
+    formAction () {
+      return this.isCreate ? Routing.generate('DemosPlan_procedureType_create_save') : Routing.generate('DemosPlan_procedureType_edit_save', { procedureTypeId: this.selectedProcedureTypeId })
+    },
+
     submit () {
       this.dpValidateAction('administrationProcedureTypeForm', () => {
         this.$refs.administrationProcedureTypeForm.submit()

@@ -24,26 +24,27 @@
     } %}
 
     {% set formData = {
-        id: form.id,
-        name: form.name,
-        description: form.description,
-        allowedToEnableMap: form.procedureBehaviorDefinition.allowedToEnableMap,
-        participationGuestOnly: form.procedureBehaviorDefinition.participationGuestOnly,
-        mapHintDefault: form.procedureUiDefinition.mapHintDefault,
-        statementFormHintStatement: form.procedureUiDefinition.statementFormHintStatement,
-        statementFormHintPersonalData: form.procedureUiDefinition.statementFormHintPersonalData,
-        statementFormHintRecheck: form.procedureUiDefinition.statementFormHintRecheck,
-        statementPublicSubmitConfirmationText: form.procedureUiDefinition.statementPublicSubmitConfirmationText
+        id: form.id.vars.value,
+        name: form.name.vars.value,
+        description: form.description.vars.value,
+        allowedToEnableMap: form.procedureBehaviorDefinition.allowedToEnableMap.vars.value,
+        participationGuestOnly: form.procedureBehaviorDefinition.participationGuestOnly.vars.value,
+        mapHintDefault: form.procedureUiDefinition.mapHintDefault.vars.value,
+        statementFormHintStatement: form.procedureUiDefinition.statementFormHintStatement.vars.value,
+        statementFormHintPersonalData: form.procedureUiDefinition.statementFormHintPersonalData.vars.value,
+        statementFormHintRecheck: form.procedureUiDefinition.statementFormHintRecheck.vars.value,
+        statementPublicSubmitConfirmationText: form.procedureUiDefinition.statementPublicSubmitConfirmationText.vars.value
     } %}
 
     <administration-procedure-type-edit
         :guest-only="Boolean({{ guestOnly }})"
         :is-create="Boolean({{ isCreate }})"
+        :participation-guest-only="Boolean({{ form.procedureBehaviorDefinition.participationGuestOnly.vars.disabled }})"
         :csrf-token="{{ csrf_token('csrf')|json_encode }}"
-        :procedure-types="JSON.parse('{{ procedureTypes|default([])|json_encode|e('js', 'utf-8') }}')"
+        :procedure-types="{{ procedureTypes|default([])|json_encode }}"
         selected-procedure-type-id="{{ selectedProcedureTypeId }}"
         :initial-form-data="JSON.parse('{{ formData|json_encode|e('js', 'utf-8') }}')"
-        :field-definitions="JSON.parse('{{ form.statementFormDefinition.fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')">
+        :field-definitions="{{ form.statementFormDefinition.fieldDefinitions|default({})|json_encode }}">
     </administration-procedure-type-edit>
 
 
