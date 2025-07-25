@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use Twig\TwigFilter;
 
@@ -51,7 +52,11 @@ class DateExtension extends ExtensionBase
 
         try {
             if (is_numeric($timestamp)) {
-                $dateResult = date($format, $timestamp);
+                $datetime = new DateTime();
+                $datetime->setTimestamp($timestamp);
+                $userTimezone = new DateTimeZone('Europe/Berlin');
+                $datetime->setTimezone($userTimezone);
+                $dateResult = $datetime->format($format);
             }
         } catch (Exception) {
         }
