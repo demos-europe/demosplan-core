@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -225,7 +226,7 @@ class OzgKeycloakUserDataMapper
             }
         }
         $this->entityManager->persist($existingOrga);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Organisation updated',
@@ -369,7 +370,7 @@ class OzgKeycloakUserDataMapper
     {
         $orgaTypesNeeded = [];
         foreach ($requestedRoles as $requestedRole) {
-            foreach (OrgaType::ORGATYPE_ROLE as $orgaType => $type) {
+            foreach (OrgaTypeInterface::ORGATYPE_ROLE as $orgaType => $type) {
                 if (in_array($requestedRole->getCode(), $type, true)
                     && !in_array($orgaType, $orgaTypesNeeded, true)
                 ) {
@@ -542,7 +543,7 @@ class OzgKeycloakUserDataMapper
         $dplanUser->setProvidedByIdentityProvider(true);
 
         $this->entityManager->persist($dplanUser);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Existing user was updated.',
