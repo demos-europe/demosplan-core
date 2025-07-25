@@ -112,10 +112,6 @@ export default {
     }
   },
 
-  emits: [
-    'statement:copyToProcedure'
-  ],
-
   data () {
     return {
       isLoading: true,
@@ -199,37 +195,16 @@ export default {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId
       })
-        .then(response => {
-          // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
-          if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
-            console.log('Copy successful! Response data:', response.data)
-            console.log('movedToProcedureId:', response.data.movedToProcedureId)
-            console.log('Accessible procedures:', Object.keys(this.accessibleProcedures))
-            console.log('Inaccessible procedures:', Object.keys(this.inaccessibleProcedures))
-
-            const copyToProcedureParams = {
-              copyToProcedureId: response.data.copyToProcedureId,
-              statementId: this.statementId,
-              copiedStatementId: response.data.copiedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: response.data.movedToProcedureName || 'Unknown Procedure'
-            }
-
-            // Handle update of assessment table ui from TableCard.vue
-            this.$root.$emit('statement:copyToProcedure', copyToProcedureParams)
+        .finally(() => {
+        this.setModalProperty({
+          prop: 'copyStatementModal',
+          val: {
+            ...this.copyStatementModal,
+            statementId: null
           }
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
-          this.handleToggleModal()
         })
-        .catch((error) => {
-          console.error('CopyStatementModal - Copy statement error:', error)
-          console.error('CopyStatementModal - Error response:', error.response)
-          console.error('CopyStatementModal - Error data:', error.response?.data)
-          dplan.notify.notify('error', Translator.trans('error.results.loading'))
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
-          this.handleToggleModal()
-        })
+        this.handleToggleModal()
+      })
     },
 
     // Fetch statement fragments to check if user can move this statement
