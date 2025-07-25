@@ -45,6 +45,7 @@
 
         <p
           v-if="!localAttachments.originalAttachment.hash && !editable"
+          class="color-text-muted"
           v-text="Translator.trans('none')" />
 
         <template v-if="editable">
@@ -79,6 +80,7 @@
       <!-- Other attachments -->
       <div>
         <dp-label
+          class="mb-0.5"
           :text="Translator.trans('more.attachments')"
           for="uploadStatementAttachment" />
 
@@ -110,6 +112,7 @@
         </ul>
         <p
           v-if="localAttachments.additionalAttachments.length === 0 && !editable"
+          class="color-text-muted"
           v-text="Translator.trans('none')" />
 
         <!-- File upload -->
