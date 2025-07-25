@@ -265,13 +265,15 @@ export default {
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
           if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
+            const { movedToProcedureId, movedStatementId, placeholderStatementId, movedToProcedureName } = response.data.data
+
             const moveToProcedureParams = {
-              movedToProcedureId: response.data.movedToProcedureId,
+              movedToProcedureId,
               statementId: this.statementId,
-              movedStatementId: response.data.movedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: response.data.movedToProcedureName || 'Unknown Procedure'
+              movedStatementId,
+              placeholderStatementId,
+              movedToAccessibleProcedure: this.movedToAccessibleProcedure(movedToProcedureId),
+              movedToProcedureName: movedToProcedureName || ''
             }
 
             // Handle update of assessment table ui from TableCard.vue
@@ -279,10 +281,7 @@ export default {
           }
           this.toggleModal(null)
         })
-        .catch((error) => {
-          console.error('DpMoveStatementModal - Move statement error:', error)
-          console.error('DpMoveStatementModal - Error response:', error.response)
-          console.error('DpMoveStatementModal - Error data:', error.response?.data)
+        .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
           this.toggleModal(null)
         })
