@@ -18,13 +18,11 @@
 <script>
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
-// Time constants to avoid magic numbers
 const millisecondsPerSecond = 1000
 const millisecondsPerMinute = 60 * millisecondsPerSecond
 const millisecondsPerHour = 60 * millisecondsPerMinute
-const testWarning10Minutes = 119 * millisecondsPerMinute // For testing - will be 10 * millisecondsPerMinute in production
-const testWarning3Minutes = 118 * millisecondsPerMinute  // For testing - will be 3 * millisecondsPerMinute in production
-const updateInterval = millisecondsPerSecond
+const testWarning10Minutes = 119 * millisecondsPerMinute // For testing - will be 10
+const testWarning3Minutes = 118 * millisecondsPerMinute  // For testing - 3
 
 export default {
   name: 'SessionTimer',
@@ -50,10 +48,6 @@ export default {
   },
 
   computed: {
-    shouldShowTimer () {
-      return this.dplan?.expirationTimestamp > 0
-    },
-
     displayTime () {
       if (this.timeLeft <= 0) {
         return '00:00'
@@ -64,8 +58,11 @@ export default {
     },
 
     isWarning () {
-      // Use reactive timeLeft instead of non-reactive Date.now()
       return this.timeLeft <= testWarning10Minutes
+    },
+
+    shouldShowTimer () {
+      return this.dplan?.expirationTimestamp > 0
     }
   },
 
@@ -80,39 +77,6 @@ export default {
   },
 
   methods: {
-    getTimeUnits (milliseconds) {
-      const hours = Math.floor(milliseconds / millisecondsPerHour)
-      const minutes = Math.floor((milliseconds % millisecondsPerHour) / millisecondsPerMinute)
-      const seconds = Math.floor((milliseconds % millisecondsPerMinute) / millisecondsPerSecond)
-      return { hours, minutes, seconds }
-    },
-
-    formatTimeString ({ hours, minutes, seconds }) {
-      const pad = (num) => String(num).padStart(2, '0')
-      return hours > 0
-        ? `${ hours }:${ pad(minutes) }:${ pad(seconds) }`
-        : `${ pad(minutes) }:${ pad(seconds) }`
-    },
-
-    initializeTimer () {
-      const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.warning10minLeft = timestampInMsecs - testWarning10Minutes // 119 min (for testing)
-      this.warning3minLeft = timestampInMsecs - testWarning3Minutes  // 118 min
-      this.updateTimer()
-      this.intervalId = setInterval(this.updateTimer, updateInterval)
-    },
-
-    updateTimer () {
-      if (!this.dplan?.expirationTimestamp) {
-        this.cleanup()
-        return
-      }
-
-      const sessionExpiration = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.timeLeft = sessionExpiration - Date.now()
-      this.checkWarnings()
-    },
-
     checkWarnings () {
       const now = Date.now()
 
@@ -127,17 +91,50 @@ export default {
       }
     },
 
+    cleanup () {
+      if (this.intervalId) {
+        clearInterval(this.intervalId)
+        this.intervalId = null
+      }
+    },
+
+    formatTimeString ({ hours, minutes, seconds }) {
+      const pad = (num) => String(num).padStart(2, '0')
+      return hours > 0
+        ? `${ hours }:${ pad(minutes) }:${ pad(seconds) }`
+        : `${ pad(minutes) }:${ pad(seconds) }`
+    },
+
+    getTimeUnits (milliseconds) {
+      const hours = Math.floor(milliseconds / millisecondsPerHour)
+      const minutes = Math.floor((milliseconds % millisecondsPerHour) / millisecondsPerMinute)
+      const seconds = Math.floor((milliseconds % millisecondsPerMinute) / millisecondsPerSecond)
+      return { hours, minutes, seconds }
+    },
+
+    initializeTimer () {
+      const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
+      this.warning10minLeft = timestampInMsecs - testWarning10Minutes // 119 min (for testing)
+      this.warning3minLeft = timestampInMsecs - testWarning3Minutes  // 118 min
+      this.updateTimer()
+      this.intervalId = setInterval(this.updateTimer, millisecondsPerSecond)
+    },
+
     showWarning (message) {
       if (this.showNotifications && this.dplan?.notify?.info) {
         this.dplan.notify.info(message)
       }
     },
 
-    cleanup () {
-      if (this.intervalId) {
-        clearInterval(this.intervalId)
-        this.intervalId = null
+    updateTimer () {
+      if (!this.dplan?.expirationTimestamp) {
+        this.cleanup()
+        return
       }
+
+      const sessionExpiration = this.dplan.expirationTimestamp * millisecondsPerSecond
+      this.timeLeft = sessionExpiration - Date.now()
+      this.checkWarnings()
     }
   }
 }
