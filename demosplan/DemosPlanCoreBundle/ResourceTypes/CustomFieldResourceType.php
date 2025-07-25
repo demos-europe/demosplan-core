@@ -47,6 +47,7 @@ use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
+use Ramsey\Uuid\Uuid;
 
 /** LEARNINGS
  * implementing PropertyAutoPathInterface makes it available to attributes from the entity.
@@ -285,8 +286,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         }
 
         if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
-            $customField->setOptions($attributes['options']);
+            $newOptions = $attributes['options'];
+            $currentOptions = $customField->getOptions() ?? [];
+
+            $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
+            $customField->setOptions($updatedOptions);
         }
+
 
 
         // Save back to CustomFieldConfiguration
@@ -295,5 +301,46 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
+
+    private function processOptionsUpdate(array $currentOptions, array $newOptions): array
+    {
+        $updatedOptions = [];
+        $currentOptionsById = [];
+
+        // Index current options by ID
+        foreach ($currentOptions as $option) {
+            if (isset($option['id'])) {
+                $currentOptionsById[$option['id']] = $option;
+            }
+        }
+
+        // Process each new option
+        foreach ($newOptions as $newOption) {
+            if (isset($newOption['id'])) {
+                // Update existing option
+                if (isset($currentOptionsById[$newOption['id']])) {
+                    $updatedOptions[] = [
+                        'id' => $newOption['id'],
+                        'label' => $newOption['label'] ?? $currentOptionsById[$newOption['id']]['label']
+                    ];
+                } else {
+                    // ID provided but doesn't exist - treat as new
+                    $updatedOptions[] = [
+                        'id' => $newOption['id'],
+                        'label' => $newOption['label']
+                    ];
+                }
+            } else {
+                // New option - generate UUID
+                $updatedOptions[] = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'label' => $newOption['label']
+                ];
+            }
+        }
+
+        return $updatedOptions;
+    }
+
 
 }
