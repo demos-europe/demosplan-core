@@ -28,12 +28,7 @@
 
         button {
             background-color: $dp-color-white;
-            padding: {
-                top: $inuit-base-spacing-unit--tiny;
-                bottom:$inuit-base-spacing-unit--tiny;
-                right: $inuit-base-spacing-unit--small;
-                left: $inuit-base-spacing-unit--small;
-            }
+            padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
         }
     }
 
