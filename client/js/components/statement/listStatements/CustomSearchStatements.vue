@@ -7,9 +7,11 @@
     <template v-slot:default>
       <dp-flyout
         align="left"
-        class="top-px right-0 absolute"
+        class="top-0.5 right-0"
         data-cy="customSearch:searchCustomLimitFields"
-        :padded="false">
+        position="absolute"
+        :padded="false"
+      >
         <template v-slot:trigger>
           <dp-icon icon="settings" />
         </template>
