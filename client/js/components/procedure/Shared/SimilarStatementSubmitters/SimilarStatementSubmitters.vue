@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="flex items-center space-inline-s u-mt-0_5">
+    <div class="flex items-center space-inline-s mt-2">
       <p
         class="weight--bold u-m-0"
         v-text="Translator.trans('statement.similarStatementSubmitters')" />
