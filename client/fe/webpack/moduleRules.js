@@ -78,29 +78,38 @@ const autoprefixer = require('autoprefixer') // The autoprefixer must run after 
 
 const classReplacer = () => {
   return (root) => {
-    let sourceSelectors = []
+    console.log('classReplacer running!')
 
-    root.walkRules('.bg-red-500', rule => {
-      console.log('Getting rules from .bg-red-500')
-      sourceSelectors = rule.selectors
+    // Suche nach existierenden Tailwind-Klassen
+    root.walkRules(rule => {
+      if (rule.selector.includes('bg-red-500') ||
+          rule.selector.includes('flex') ||
+          rule.selector.includes('items-center') ||
+          rule.selector.includes('justify-between')) {
+        console.log('Found Tailwind rule:', rule.selector)
+      }
     })
 
-    root.walkRules('.dp-breadcrumb-container', rule => {
-      console.log('Setting rules for .my-test-class')
-      rule.selectors = sourceSelectors
+    // Suche nach dp-breadcrumb
+    root.walkRules(rule => {
+      if (rule.selector.includes('breadcrumb')) {
+        console.log('Found breadcrumb rule:', rule.selector)
+      }
     })
   }
 }
+
+
 classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
 
 const postCssPlugins = [
   postcssPrefixSelector,
   tailwindCss,
-  classReplacer(),
   postcssFlexbugsFixes,
   postcssPresetEnv,
   postcssPurgeCss,
-  autoprefixer
+  autoprefixer,
+  classReplacer()  // <- NACH allem anderen!
 ]
 
 const postCssPluginsWithoutPurgeCss = [
@@ -108,7 +117,8 @@ const postCssPluginsWithoutPurgeCss = [
   tailwindCss,
   postcssFlexbugsFixes,
   postcssPresetEnv,
-  autoprefixer
+  autoprefixer,
+  classReplacer()  // <- Auch hier hinzufügen!
 ]
 
 /**
@@ -120,8 +130,18 @@ const moduleRules =
   [
     {
       test: /\.css$/,
-      use: [MiniCssExtractPlugin.loader],
-      exclude: [/client\/css\/(tailwind|preflight)\.css/] // Compiling and Purging happens in Tailwind config.
+      use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader',
+        {
+          loader: 'postcss-loader',
+          options: {
+            postcssOptions: {
+              plugins: [classReplacer()]
+            }
+          }
+        }
+      ]
     },
     {
       test: /\.s?css$/,
