@@ -24,11 +24,13 @@ FE.command('build <project>')
   .option('--json <filename>', 'Export build statistics / bundle analysis to json')
   .option('-A, --analyze', 'Run the bundle analyzer (does not work with --stats)')
   .option('-S, --only-styles', 'Only build the styles')
+  .option('--theme <theme>', 'Theme to use for the build', 'tailwind')
   .action(runWebpack('build'))
 
 // Define the watch command
 FE.command('watch <project>')
   .action(runWebpack('watch'))
+  .option('--theme <theme>', 'Theme to use for the build', 'tailwind')
 
 FE.parse(process.argv)
 
