@@ -32,5 +32,5 @@
 @source inline('text-status-{progress,changed,complete}-icon');
 
 .dp-breadcrumb-container {
-    @apply flex items-center justify-between
+    background-color: red !important;
 }

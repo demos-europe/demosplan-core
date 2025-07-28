@@ -86,27 +86,19 @@ const classReplacer = () => {
   return (root) => {
     console.log('classReplacer running!')
 
-    // Suche nach existierenden Tailwind-Klassen
     root.walkRules(rule => {
-      if (rule.selector.includes('bg-red-500') ||
-          rule.selector.includes('flex') ||
-          rule.selector.includes('items-center') ||
-          rule.selector.includes('justify-between')) {
-        console.log('Found Tailwind rule:', rule.selector)
-      }
-    })
-
-    // Suche nach dp-breadcrumb
-    root.walkRules(rule => {
-      if (rule.selector.includes('breadcrumb')) {
-        console.log('Found breadcrumb rule:', rule.selector)
+      // Ersetze dp-breadcrumb-container mit test-red-background
+      if (rule.selector.includes('dp-breadcrumb-container')) {
+        rule.walkDecls(decl => {
+          decl.remove()
+        })
+        rule.append({'prop': 'background-color', 'value': 'yellow'})
       }
     })
   }
 }
 
-
-classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
+  classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
 
 const postCssPlugins = [
   postcssPrefixSelector,
@@ -120,9 +112,9 @@ const postCssPlugins = [
 const postCssPluginsWithoutPurgeCss = [
   postcssPrefixSelector,
   tailwindCss,
+  classReplacer(),  // NACH tailwindCss, damit er die generierten Klassen sieht
   postcssFlexbugsFixes,
-  postcssPresetEnv,
-  classReplacer()  // <- Auch hier hinzufügen!
+  postcssPresetEnv
 ]
 
 /**
