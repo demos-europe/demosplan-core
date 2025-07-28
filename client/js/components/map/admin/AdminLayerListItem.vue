@@ -109,7 +109,7 @@
       <input
         type="checkbox"
         data-cy="adminLayerListItem:toggleDefaultVisibility"
-        :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+        :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
         @change.prevent="toggleHasDefaultVisibility"
         :checked="hasDefaultVisibility"
         :class="[iconClass, 'o-sortablelist__checkbox']">
@@ -264,7 +264,7 @@ export default {
 
   computed: {
     parentCategory () {
-      // Get parentLayer and check if if it hides his children
+      // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
@@ -671,7 +671,7 @@ export default {
       }
     },
 
-    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
+    ...mapState('Layers', ['draggableOptions']),
     ...mapGetters('Layers', ['elementListForLayerSidebar'])
   },
 
@@ -694,6 +694,7 @@ export default {
     ...mapMutations('Layers', [
       'setAttributeForLayer',
       'setChildrenFromCategory',
+      'setHoverLayerIconIsHovered',
       'updateState'
     ]),
 
@@ -802,11 +803,7 @@ export default {
       }
 
       if (this.preventActiveFromToggeling === false) {
-        if (this.isActive) {
-          this.updateState({ key: 'activeLayerId', value: '' })
-        } else {
-          this.updateState({ key: 'activeLayerId', value: this.layer.id })
-        }
+        this.updateState({ key: 'activeLayerId', value: this.isActive ? '' : this.layer.id })
       } else {
         this.preventActiveFromToggeling = false
       }
@@ -842,14 +839,14 @@ export default {
         return false
       }
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.$store.commit('Layers/setHoverLayerIconIsHovered', true)
+        this.setHoverLayerIconIsHovered(true)
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.$store.commit('Layers/setHoverLayerIconIsHovered', false)
+      this.setHoverLayerIconIsHovered(false)
     },
 
     /**
@@ -858,7 +855,7 @@ export default {
     toggleHasDefaultVisibility () {
       this.preventActiveFromToggeling = true
       // Can't be updated when it's a visiblityGroup
-      if ((this.layer.attributes.visibilityGroupId !== '' && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
+      if ((this.layer.attributes.visibilityGroupId && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
         return
       }
 

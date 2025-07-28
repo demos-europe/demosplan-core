@@ -269,8 +269,7 @@ export default {
   computed: {
     ...mapState('Layers', [
       'draggableOptions',
-      'draggableOptionsForBaseLayer',
-      'draggableOptionsForCategorysWithHiddenLayers'
+      'draggableOptionsForBaseLayer'
     ]),
 
     ...mapGetters('Layers', [
@@ -353,9 +352,8 @@ export default {
       'setAttributeForLayer',
       'setChildrenFromCategory',
       'resetOrder',
-      'setDraggableOptions',
-      'setDraggableOptionsForBaseLayer',
-      'setMinimapBaseLayer'
+      'setMinimapBaseLayer',
+      'updateState'
     ]),
 
     updateChildren (ev) {
@@ -414,7 +412,40 @@ export default {
   },
 
   mounted () {
-    this.getLayers(this.procedureId)
+    const payload = {
+      procedureId: this.procedureId,
+      fields: {
+        GisLayerCategory: [
+          'categories',
+          'gisLayers',
+          'hasDefaultVisibility',
+          'isVisible',
+          'name',
+          'layerWithChildrenHidden',
+          'parentId',
+          'treeOrder'
+        ].join(),
+        GisLayer: [
+          'canUserToggleVisibility',
+          'categoryId',
+          'hasDefaultVisibility',
+          'isBaseLayer',
+          'isBplan',
+          'isEnabled',
+          'isMinimap',
+          'isPrint',
+          'isScope',
+          'layers',
+          'layerType',
+          'mapOrder',
+          'name',
+          'treeOrder',
+          'url',
+          'visibilityGroupId'
+        ].join()
+      }
+    }
+    this.getLayers(payload)
       .then(() => {
         this.isLoading = false
         this.currentMinimapLayer = this.minimapLayer
@@ -438,19 +469,22 @@ export default {
       dragClass: 'o-sortablelist__drag' // Class name for the dragging item
     }
 
-    this.setDraggableOptions({
-      ...basicOptions,
-      ...{
-        group: {
-          name: 'treeList',
-          revertClone: false,
-          pull: ['treeList'],
-          push: ['treeList']
+    this.updateState({
+      key: 'draggableOptions',
+      value: {
+        ...basicOptions,
+        ...{
+          group: {
+            name: 'treeList',
+            revertClone: false,
+            pull: ['treeList'],
+            push: ['treeList']
+          }
         }
       }
     })
 
-    this.setDraggableOptionsForBaseLayer(basicOptions)
+    this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
   }
 }
 </script>

@@ -281,7 +281,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
@@ -560,9 +559,8 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
-          const rpcResult = this.getRpcResult(response)
+          const rpcResult = this.getRpcResult(response.data)
 
           for (const property in this.actions) {
             if (property === 'customFields') {

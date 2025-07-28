@@ -156,7 +156,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpContextualHelp,
   DpEditableList,
@@ -348,7 +347,6 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.entry.deleted'))
         })
@@ -441,7 +439,6 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'SimilarStatementSubmitter', resourceId: this.listEntries[index].id }), {}, { data: payload })
-        .then(response => { checkResponse(response) })
         .then(() => {
           // Update local state - similarStatementSubmitter.
           this.setSimilarStatementSubmitter(payload)

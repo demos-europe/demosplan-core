@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div 
+  <div
     v-if="publicParticipationFeedbackEnabled"
     :class="[
       prefixClass('c-statement__formblock'),
