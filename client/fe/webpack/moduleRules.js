@@ -84,28 +84,45 @@ const postcssPurgeCss = purgeCSSPlugin({
 
 const classReplacer = () => {
   return (root) => {
-    let sourceSelectors = []
+    console.log('classReplacer running!')
 
-    root.walkRules('.bg-red-500', rule => {
-      console.log('Getting rules from .bg-red-500')
-      sourceSelectors = rule.selectors
+    // Suche nach existierenden Tailwind-Klassen
+    root.walkRules(rule => {
+      if (rule.selector.includes('bg-red-500') ||
+          rule.selector.includes('flex') ||
+          rule.selector.includes('items-center') ||
+          rule.selector.includes('justify-between')) {
+        console.log('Found Tailwind rule:', rule.selector)
+      }
     })
 
-    root.walkRules('.dp-breadcrumb-container', rule => {
-      console.log('Setting rules for .my-test-class')
-      rule.selectors = sourceSelectors
+    // Suche nach dp-breadcrumb
+    root.walkRules(rule => {
+      if (rule.selector.includes('breadcrumb')) {
+        console.log('Found breadcrumb rule:', rule.selector)
+      }
     })
   }
 }
+
+
 classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
 
 const postCssPlugins = [
   postcssPrefixSelector,
   tailwindCss,
-  classReplacer(),
   postcssFlexbugsFixes,
   postcssPresetEnv,
-  postcssPurgeCss
+  postcssPurgeCss,
+  classReplacer()  // <- NACH allem anderen!
+]
+
+const postCssPluginsWithoutPurgeCss = [
+  postcssPrefixSelector,
+  tailwindCss,
+  postcssFlexbugsFixes,
+  postcssPresetEnv,
+  classReplacer()  // <- Auch hier hinzufügen!
 ]
 
 /**
