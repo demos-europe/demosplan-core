@@ -123,6 +123,7 @@ function runWebpack (mode) {
     process.env.project = project
     process.env.silent = (options.parent.silent) ? 'true' : 'false'
     options.mode = mode
+    log(chalk.yellow(`Building with ${options.theme} theme`))
 
     log(chalk.green('Loading webpack config'))
 
