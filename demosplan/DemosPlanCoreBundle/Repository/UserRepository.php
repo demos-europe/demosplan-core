@@ -59,7 +59,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         Reindexer $reindexer,
-        string $entityClass
+        string $entityClass,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -87,8 +87,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Get Entity by Id (UserRepositoryInterface implementation).
      *
      * @param string $userId the user ID as UUID v4
-     *
-     * @return User|null
      */
     public function getUser(string $userId): ?User
     {
@@ -191,8 +189,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @param array $data User data array
      *
-     * @return User
-     *
      * @throws Exception
      */
     public function createUser(array $data): User
@@ -240,11 +236,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Update Entity (UserRepositoryInterface implementation).
      *
-     * @param string $userId
-     * @param array $data
-     *
-     * @return User|null
-     *
      * @throws Exception
      */
     public function updateUser(string $userId, array $data): ?User
@@ -264,8 +255,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Update user object directly (UserRepositoryInterface implementation).
      *
      * @param User $entity
-     *
-     * @return User
      *
      * @throws Exception
      */
@@ -515,8 +504,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Overrides all relevant data field of the given user with default values, to remove any sensible data.
      *
      * @param string $userId
-     *
-     * @return User|bool
      */
     public function wipe($userId): bool|User
     {
@@ -587,8 +574,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Get user by login (UserRepositoryInterface implementation).
      *
      * @param string $login User login
-     *
-     * @return User|null
      */
     public function getUserByLogin(string $login): ?User
     {
@@ -618,11 +603,10 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Get users with pagination and optional criteria filtering (UserRepositoryInterface implementation).
      *
-     * @param int    $startIndex Starting index (1-based)
-     * @param int    $count      Number of users to return
-     * @param array  $criteria   Optional filtering criteria
-     * @param string $sort
-     * @param string $sortDir
+     * @param int   $startIndex Starting index (1-based)
+     * @param int   $count      Number of users to return
+     * @param array $criteria   Optional filtering criteria
+     *
      * @return array Array containing users and pagination info
      */
     public function getUsers(int $startIndex, int $count, array $criteria = [], string $sort = 'u.login', string $sortDir = 'ASC'): array
@@ -649,9 +633,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             ->getSingleScalarResult();
 
         return [
-            'users' => $users,
+            'users'        => $users,
             'totalResults' => (int) $totalCount,
-            'startIndex' => $startIndex,
+            'startIndex'   => $startIndex,
             'itemsPerPage' => $count,
         ];
     }
@@ -744,8 +728,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 if (is_array($value)) {
                     $qb->andWhere("u.{$field} IN (:{$field})")
                         ->setParameter($field, $value);
-                }
-                else {
+                } else {
                     $qb->andWhere("u.{$field} = :{$field}")
                         ->setParameter($field, $value);
                 }
