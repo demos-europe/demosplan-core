@@ -5,5 +5,5 @@
 @tailwind utilities;
 
 .dp-breadcrumb-container {
-    @apply flex items-center justify-between
+    background-color: red !important;
 }
