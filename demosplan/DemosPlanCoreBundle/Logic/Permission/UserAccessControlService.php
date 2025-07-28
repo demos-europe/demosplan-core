@@ -14,13 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserAccessControlService extends CoreService
+class UserAccessControlService extends CoreService implements UserAccessControlServiceInterface
 {
     public function __construct(
         private readonly UserAccessControlRepository $userAccessControlRepository,
@@ -28,9 +29,6 @@ class UserAccessControlService extends CoreService
     ) {
     }
 
-    /**
-     * Create a user-specific permission.
-     */
     public function createUserPermission(
         UserInterface $user,
         string $permission,
@@ -87,9 +85,6 @@ class UserAccessControlService extends CoreService
         return $userPermission;
     }
 
-    /**
-     * Remove a user-specific permission.
-     */
     public function removeUserPermission(
         UserInterface $user,
         string $permission,
@@ -128,11 +123,6 @@ class UserAccessControlService extends CoreService
         return false;
     }
 
-    /**
-     * Get all permissions for a user.
-     *
-     * @return UserAccessControl[]
-     */
     public function getUserPermissions(UserInterface $user): array
     {
         $orga = $user->getOrga();
@@ -151,9 +141,6 @@ class UserAccessControlService extends CoreService
         );
     }
 
-    /**
-     * Check if a user has a specific permission.
-     */
     public function userPermissionExists(
         UserInterface $user,
         string $permission,
