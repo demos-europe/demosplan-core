@@ -62,6 +62,9 @@ services:
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
 
+    DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService
+
     DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
 
