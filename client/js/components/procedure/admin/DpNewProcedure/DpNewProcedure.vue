@@ -75,6 +75,7 @@
 
       <dp-input
         v-else
+        v-model="procedureName"
         class="mb-4"
         data-cy="newProcedureTitle"
         id="r_name"
@@ -305,7 +306,8 @@ export default {
         description: '',
         agencyMainEmailAddress: ''
       },
-      mainEmail: ''
+      mainEmail: '',
+      procedureName: ''
     }
   },
 
