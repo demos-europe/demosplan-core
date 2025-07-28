@@ -214,11 +214,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         try {
             $em = $this->getEntityManager();
 
-            try {
-                $user = $this->get($entityId);
-            } catch (NoResultException) {
-                $user = null;
-            }
+            $user = $this->get($entityId);
             // this is where the magical mapping happens
             $user = $this->generateObjectValues($user, $data);
 
@@ -529,8 +525,13 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             $randomNumber = random_int(1, PHP_INT_MAX - 1);
 
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->find($userId);
+
+            // Check if user exists before wiping data
+            if (null === $user) {
+                return false;
+            }
 
             //          wipeData:
             $user->setGender(null);
