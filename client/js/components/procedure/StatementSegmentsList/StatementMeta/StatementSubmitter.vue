@@ -32,7 +32,7 @@ All rights reserved
         :label="{
           text: Translator.trans('department')
         }"
-        :value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
         class="mb-2"
         data-cy="statementSubmitter:departmentName"
         @input="value => localStatement.attributes.initialOrganisationDepartmentName = value"
@@ -46,7 +46,7 @@ All rights reserved
         :label="{
           text: Translator.trans('organisation')
         }"
-        :value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
         @input="value => localStatement.attributes.initialOrganisationName = value"
@@ -64,7 +64,7 @@ All rights reserved
         :label="{
           text: Translator.trans('name')
         }"
-        :value="getSubmitterNameValue()"
+        :model-value="getSubmitterNameValue()"
         class="mb-2"
         data-cy="statementSubmitter:submitterName"
         @input="value => localStatement.attributes[statementSubmitterField] = value"
@@ -77,7 +77,7 @@ All rights reserved
         :label="{
           text: Translator.trans('email')
         }"
-        :value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
+        :model-value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
         class="mb-2"
         data-cy="statementSubmitter:emailAddress"
         type="email"
@@ -90,7 +90,7 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.representation.assessment')
         }"
-        :value="localStatement.attributes.represents"
+        :model-value="localStatement.attributes.represents"
         data-cy="statementSubmitter:representation"
         disabled
       />
@@ -112,7 +112,7 @@ All rights reserved
           :label="{
             text: Translator.trans('street')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
           class="o-form__group-item"
           data-cy="statementSubmitter:street"
           @input="value => localStatement.attributes.initialOrganisationStreet = value"
@@ -124,8 +124,8 @@ All rights reserved
             text: Translator.trans('street.number.short')
           }"
           :size="3"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
-          class="o-form__group-item shrink"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
+          class="o-form__group-item !w-1/5 shrink"
           data-cy="statementSubmitter:houseNumber"
           @input="value => localStatement.attributes.initialOrganisationHouseNumber = value"
         />
@@ -137,8 +137,8 @@ All rights reserved
           :label="{
             text: Translator.trans('postalcode')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
-          class="o-form__group-item shrink"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
+          class="o-form__group-item !w-1/4 shrink"
           data-cy="statementSubmitter:postalCode"
           pattern="^[0-9]{4,5}$"
           @input="value => localStatement.attributes.initialOrganisationPostalCode = value"
@@ -149,7 +149,7 @@ All rights reserved
           :label="{
             text: Translator.trans('city')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
           class="o-form__group-item"
           data-cy="statementSubmitter:city"
           @input="value => localStatement.attributes.initialOrganisationCity = value"

@@ -26,7 +26,7 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.authored')
         }"
-        :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
+        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
 
       <!-- authoredDate: if not manual statement -->
       <div
@@ -54,7 +54,7 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.submitted')
         }"
-        :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
+        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
 
       <!-- submitDate: if not manual statement -->
       <div v-else>
