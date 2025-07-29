@@ -51,7 +51,6 @@ const postcssPrefixSelector = require('postcss-prefix-selector')({
 
       return prefix + selector.substring(1)
     }).join(' ')
-
     return selector
   },
   ignoreFiles: [/.+style\.scss/]
@@ -75,24 +74,7 @@ const postcssPurgeCss = purgeCSSPlugin({
   }
 })
 const autoprefixer = require('autoprefixer') // The autoprefixer must run after postcss-prefix-selector
-
-const classReplacer = () => {
-  return (root) => {
-    console.log('classReplacer running!')
-
-    root.walkRules(rule => {
-      // Ersetze dp-breadcrumb-container mit test-red-background
-      if (rule.selector.includes('dp-breadcrumb-container')) {
-        rule.walkDecls(decl => {
-          decl.remove()
-        })
-        rule.append({'prop': 'background-color', 'value': 'yellow'})
-      }
-    })
-  }
-}
-
-  classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
+const demosplanThemeProvider = require('demosplan-theme-provider')
 
 const postCssPlugins = [
   postcssPrefixSelector,
@@ -101,16 +83,16 @@ const postCssPlugins = [
   postcssPresetEnv,
   postcssPurgeCss,
   autoprefixer,
-  classReplacer()  // <- NACH allem anderen!
+  demosplanThemeProvider()
 ]
 
 const postCssPluginsWithoutPurgeCss = [
   postcssPrefixSelector,
   tailwindCss,
-  classReplacer(),  // NACH tailwindCss, damit er die generierten Klassen sieht
   postcssFlexbugsFixes,
   postcssPresetEnv,
-  autoprefixer
+  autoprefixer,
+  demosplanThemeProvider(),  // NACH tailwindCss, damit er die generierten Klassen sieht
 ]
 
 /**
