@@ -29,9 +29,10 @@ All rights reserved
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
+          :search-applied="isSearchApplied"
           :raw-items="rowItems"
           @items-filtered="filteredItems = $event"
-          @reset="handleFilterReset" />
+          @reset="resetSearch" />
 
         <!-- Slot for bulk actions -->
       </div>
@@ -264,6 +265,10 @@ export default {
       return this.pagination.currentPage || 1
     },
 
+    isSearchApplied () {
+      return this.searchTerm !== ''
+    },
+
     itemsPerPage () {
       return this.pagination.perPage || this.defaultPagination.perPage
     },
@@ -467,7 +472,7 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    resetSearch() {
+    resetSearch () {
       this.$refs.searchField.handleReset()
     },
 

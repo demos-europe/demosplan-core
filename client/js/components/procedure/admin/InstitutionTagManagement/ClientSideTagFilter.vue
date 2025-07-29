@@ -106,6 +106,12 @@ export default {
       required: true
     },
 
+    searchApplied: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     rawItems: {
       type: Array,
       required: true
@@ -141,7 +147,7 @@ export default {
     }),
 
     isQueryApplied () {
-      return Object.keys(this.appliedFilterQuery).length > 0
+      return Object.keys(this.appliedFilterQuery).length > 0 || this.searchApplied
     },
 
     filterCategoriesToBeDisplayed () {
