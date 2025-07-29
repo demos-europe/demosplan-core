@@ -81,24 +81,7 @@ const postcssPurgeCss = purgeCSSPlugin({
     return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
   }
 })
-
-const classReplacer = () => {
-  return (root) => {
-    console.log('classReplacer running!')
-
-    root.walkRules(rule => {
-      // Ersetze dp-breadcrumb-container mit test-red-background
-      if (rule.selector.includes('dp-breadcrumb-container')) {
-        rule.walkDecls(decl => {
-          decl.remove()
-        })
-        rule.append({'prop': 'background-color', 'value': 'yellow'})
-      }
-    })
-  }
-}
-
-  classReplacer.postcss = true // This is a postcss plugin, so it needs to be marked as such
+const demosplanThemeProvider = require('demosplan-theme-provider')
 
 const postCssPlugins = [
   postcssPrefixSelector,
@@ -106,15 +89,15 @@ const postCssPlugins = [
   postcssFlexbugsFixes,
   postcssPresetEnv,
   postcssPurgeCss,
-  classReplacer()  // <- NACH allem anderen!
+  demosplanThemeProvider()
 ]
 
 const postCssPluginsWithoutPurgeCss = [
   postcssPrefixSelector,
   tailwindCss,
-  classReplacer(),  // NACH tailwindCss, damit er die generierten Klassen sieht
   postcssFlexbugsFixes,
-  postcssPresetEnv
+  postcssPresetEnv,
+  demosplanThemeProvider(),  // NACH tailwindCss, damit er die generierten Klassen sieht
 ]
 
 /**
