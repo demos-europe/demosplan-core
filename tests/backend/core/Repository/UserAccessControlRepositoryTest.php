@@ -201,19 +201,19 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
 
         // Act & Assert
         self::assertTrue($this->sut->permissionExists(
+            $permission,
             $this->testUser->object(),
             $this->testOrga->object(),
             $this->testCustomer->object(),
-            $this->testRole,
-            $permission
+            $this->testRole
         ));
 
         self::assertFalse($this->sut->permissionExists(
+            'non_existent_permission',
             $this->testUser->object(),
             $this->testOrga->object(),
             $this->testCustomer->object(),
-            $this->testRole,
-            'non_existent_permission'
+            $this->testRole
         ));
     }
 

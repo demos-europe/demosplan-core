@@ -98,20 +98,16 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
             return false;
         }
 
-        $role = $role ?? $user->getDplanRoles()->first();
-
-        // Return false if user has no roles
-        if (null === $role || false === $role) {
-            return false;
-        }
-
-        $userPermission = $this->userAccessControlRepository->findOneBy([
-            'user'         => $user,
+        $conditions = [
+            'user' => $user,
             'organisation' => $orga,
-            'customer'     => $customer,
-            'role'         => $role,
-            'permission'   => $permission,
-        ]);
+            'customer' => $customer,
+            'permission' => $permission,
+        ];
+        if ($role instanceof RoleInterface) {
+            $conditions['role'] = $role;
+        }
+        $userPermission = $this->userAccessControlRepository->findOneBy($conditions);
 
         if ($userPermission) {
             $this->entityManager->remove($userPermission);
@@ -154,19 +150,12 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
             return false;
         }
 
-        $role = $role ?? $user->getDplanRoles()->first();
-
-        // Return false if user has no roles
-        if (null === $role || false === $role) {
-            return false;
-        }
-
         return $this->userAccessControlRepository->permissionExists(
+            $permission,
             $user,
             $orga,
             $customer,
-            $role,
-            $permission
+            $role
         );
     }
 
