@@ -32,9 +32,10 @@
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
+          :search-applied="isSearchApplied"
           :raw-items="institutionList"
           @items-filtered="filteredItems = $event"
-          @reset="handleFilterReset" />
+          @reset="resetSearch" />
       </div>
 
       <div class="flex justify-end mt-4">
@@ -274,6 +275,10 @@ export default {
         .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
+    isSearchApplied () {
+      return this.searchTerm !== ''
+    },
+
     selectableColumns () {
       return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
     },
@@ -477,7 +482,7 @@ export default {
         .map(el => el.name)
     },
 
-    resetSearch() {
+    resetSearch () {
       this.$refs.searchField.handleReset()
     },
 
@@ -487,7 +492,6 @@ export default {
     },
 
     handleSearch (searchTerm) {
-      this.isLoading = true
       this.searchTerm = searchTerm
 
       this.getInstitutionsByPage(1)
