@@ -274,8 +274,8 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
         $this->designatedPhase = $sourcePhase->designatedPhase;
         $this->permissionSet = $sourcePhase->permissionSet;
-        $this->startDate = $sourcePhase->startDate;
-        $this->endDate = $sourcePhase->endDate;
+        $this->startDate = $sourcePhase->getStartDate();
+        $this->endDate = $sourcePhase->getEndDate();
     }
 
     public function getIteration(): int
