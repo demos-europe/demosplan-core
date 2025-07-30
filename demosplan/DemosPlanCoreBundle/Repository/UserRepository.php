@@ -179,6 +179,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             $this->invalidateCachedLoginList();
 
+            // Force reload from database to trigger postLoad event
+            $em->refresh($user);
+
             return $user;
         } catch (Exception $e) {
             $this->logger->warning('User could not be added. ', [$e]);
