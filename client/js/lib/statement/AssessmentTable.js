@@ -12,7 +12,7 @@
  * inside the webpack scope. These are to be refactored, generalized or made obsolete by migrating
  * their functionality to other components.
  */
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 export default function AssessmentTable () {
   /*
@@ -49,10 +49,8 @@ export default function AssessmentTable () {
       method: 'POST',
       url: Routing.generate('dplan_api_procedure_update_filter_hash', { procedureId }),
       data: inputFields
-    }).then(checkResponse)
-      .then((data) => {
-        return data.data.attributes.hash
-      })
+    })
+      .then(({ data }) => data.data.attributes.hash)
   }
 
   window.submitForm = function (event, task, filterHash = null) {

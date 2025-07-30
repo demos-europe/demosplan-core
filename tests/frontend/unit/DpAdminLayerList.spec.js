@@ -20,14 +20,11 @@ describe('AdminLayerList', () => {
 
   beforeEach(() => {
     mutations = {
-      setDraggableOptions: jest.fn(),
-      setDraggableOptionsForBaseLayer: jest.fn(),
       setMinimapBaseLayer: jest.fn()
     }
 
     actions = {
       get: jest.fn(),
-      setDraggableOptions: jest.fn(),
       setListOrder: jest.fn(),
       resetOrder: jest.fn(),
       save: jest.fn()
