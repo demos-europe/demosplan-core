@@ -1159,7 +1159,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
     private function validatePhaseIterationValue($value): array
     {
-        if (!is_numeric($value) || (int) $value < 1) {
+        if (!is_numeric($value) || (int) $value < 1 || (int) $value > 500) {
             return [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.phaseIteration.invalid'),
