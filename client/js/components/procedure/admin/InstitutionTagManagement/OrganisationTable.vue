@@ -29,8 +29,8 @@ All rights reserved
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
-          :search-applied="isSearchApplied"
           :raw-items="rowItems"
+          :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
           @reset="resetSearch" />
 
@@ -472,10 +472,6 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    resetSearch () {
-      this.$refs.searchField.handleReset()
-    },
-
     handleReset () {
       this.searchTerm = ''
       this.getInstitutionsWithContacts(1)
@@ -514,6 +510,10 @@ export default {
     resetQuery () {
       this.searchTerm = ''
       this.filterManager.reset()
+    },
+
+    resetSearch () {
+      this.$refs.searchField.handleReset()
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
