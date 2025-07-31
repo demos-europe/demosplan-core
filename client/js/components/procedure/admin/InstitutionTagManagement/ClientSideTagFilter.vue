@@ -106,16 +106,16 @@ export default {
       required: true
     },
 
+    rawItems: {
+      type: Array,
+      required: true
+    },
+
     searchApplied: {
       type: Boolean,
       required: false,
       default: false
     },
-
-    rawItems: {
-      type: Array,
-      required: true
-    }
   },
 
   emits: [
@@ -138,17 +138,13 @@ export default {
       filterQuery: 'getFilterQuery'
     }),
 
-    ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
-    }),
-
     ...mapState('InstitutionTag', {
       institutionTagItems: 'items'
     }),
 
-    isQueryApplied () {
-      return Object.keys(this.appliedFilterQuery).length > 0 || this.searchApplied
-    },
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
+    }),
 
     filterCategoriesToBeDisplayed () {
       return (this.filterCategories || [])
@@ -156,8 +152,8 @@ export default {
           this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
-    selectedFilterCategories () {
-      return this.currentlySelectedFilterCategories
+    isQueryApplied () {
+      return Object.keys(this.appliedFilterQuery).length > 0 || this.searchApplied
     },
 
     queryIds () {
@@ -167,7 +163,11 @@ export default {
       return Object.values(this.appliedFilterQuery)
         .filter(el => el && el.condition && el.condition.value)
         .map(el => el.condition.value)
-    }
+    },
+
+    selectedFilterCategories () {
+      return this.currentlySelectedFilterCategories
+    },
   },
 
   watch: {
