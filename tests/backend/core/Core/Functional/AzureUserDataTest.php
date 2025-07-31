@@ -174,18 +174,18 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'aud' => 'https://graph.windows.net/',
-                'iss' => 'https://sts.windows.net/tenant-id/',
-                'iat' => 1600000000,
-                'nbf' => 1600000000,
-                'exp' => 1600003600,
+                'aud'         => 'https://graph.windows.net/',
+                'iss'         => 'https://sts.windows.net/tenant-id/',
+                'iat'         => 1600000000,
+                'nbf'         => 1600000000,
+                'exp'         => 1600003600,
                 'family_name' => 'Doe',
-                'given_name' => 'John',
-                'name' => 'Doe, John',
-                'sub' => 'azure-user-id-123',
-                'oid' => 'object-id-456',
-                'tid' => 'tenant-id',
-                'roles' => ['User'],
+                'given_name'  => 'John',
+                'name'        => 'Doe, John',
+                'sub'         => 'azure-user-id-123',
+                'oid'         => 'object-id-456',
+                'tid'         => 'tenant-id',
+                'roles'       => ['User'],
                 // No email, upn, or unique_name fields in complete response
             ]);
 
