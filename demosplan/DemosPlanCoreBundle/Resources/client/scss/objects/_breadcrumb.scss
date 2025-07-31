@@ -72,3 +72,9 @@
         text-decoration: none;
     }
 }
+
+.test-red-background {
+    @apply flex items-center justify-between;
+    background-color: red !important;
+    color: red !important;
+}

@@ -72,7 +72,7 @@
     "d3-sankey-diagram": "^0.7.3",
     "dayjs": "^1.11.13",
     "deep-object-diff": "^1.1.9",
-    "demosplan-theme-provider": "git@github.com:demos-europe/demosplan-theme-provider.git",
+    "demosplan-theme-provider": "link:local_modules/demosplan-theme-provider",
     "dompurify": "^3.2.4",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",

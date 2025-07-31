@@ -31,6 +31,5 @@
 */
 @source inline('text-status-{progress,changed,complete}-icon');
 
-.dp-breadcrumb-container {
-    background-color: red !important;
-}
+@import "./theme-test.css";
+

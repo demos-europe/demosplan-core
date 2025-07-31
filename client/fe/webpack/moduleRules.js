@@ -166,7 +166,7 @@ const moduleRules =
           loader: 'postcss-loader',
           options: {
             postcssOptions: {
-              plugins: [tailwindCss]
+              plugins: [tailwindCss, demosplanThemeProvider()] //
             },
             sourceMap: false
           }
