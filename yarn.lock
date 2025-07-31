@@ -6574,6 +6574,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"demosplan-theme-provider@git@github.com:demos-europe/demosplan-theme-provider.git":
+  version: 0.0.0
+  resolution: "demosplan-theme-provider@git@github.com:demos-europe/demosplan-theme-provider.git#commit=0a1e2c7383585903ffa7845f314127db4b70f880"
+  checksum: 10c0/2e206f4ba7d3fd3edea7e1ec30abb4121d9179c31f1f30a31faecf4110095a6d4f9ced03d34d48004a364a02a48926971fc5458520140b878037052bfa765d48
+  languageName: node
+  linkType: hard
+
 "detect-newline@npm:^3.0.0":
   version: 3.1.0
   resolution: "detect-newline@npm:3.1.0"
@@ -12769,6 +12776,7 @@ __metadata:
     d3-sankey-diagram: "npm:^0.7.3"
     dayjs: "npm:^1.11.13"
     deep-object-diff: "npm:^1.1.9"
+    demosplan-theme-provider: "git@github.com:demos-europe/demosplan-theme-provider.git"
     dompurify: "npm:^3.2.4"
     eslint: "npm:^9.14.0"
     eslint-config-standard: "npm:^17.1.0"
