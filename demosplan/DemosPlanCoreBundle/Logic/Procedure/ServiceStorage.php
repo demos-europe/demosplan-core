@@ -357,8 +357,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $mandatoryErrors[] = $error;
         }
 
-
-
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'shortUrl');
@@ -1168,7 +1166,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         return $errors;
     }
-
 
     private function validatePhaseIterationValue($value): array
     {
