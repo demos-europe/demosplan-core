@@ -65,18 +65,14 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
         // Propagate user login to session
         $request->getSession()->set('userId', $user->getId());
 
-        // Redirect to logged-in home page
-        $targetUrl = $this->router->generate('core_home_loggedin');
-
-        return new RedirectResponse($targetUrl);
+        return $this->createSuccessRedirect();
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         $this->logger->warning('Login via Azure OAuth failed', ['exception' => $exception]);
-        $targetUrl = $this->router->generate('core_login_idp_error');
 
-        return new RedirectResponse($targetUrl);
+        return $this->createFailureRedirect();
     }
 
     /**
@@ -89,5 +85,15 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
             '/connect/azure', // Azure OAuth start endpoint
             Response::HTTP_TEMPORARY_REDIRECT
         );
+    }
+
+    private function createSuccessRedirect(): RedirectResponse
+    {
+        return new RedirectResponse($this->router->generate('core_home_loggedin'));
+    }
+
+    private function createFailureRedirect(): RedirectResponse
+    {
+        return new RedirectResponse($this->router->generate('core_login_idp_error'));
     }
 }
