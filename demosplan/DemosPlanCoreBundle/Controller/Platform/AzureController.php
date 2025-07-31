@@ -23,7 +23,7 @@ class AzureController extends AbstractController
     /**
      * Link to this controller to start the Azure OAuth "connect" process.
      */
-    #[Route(path: '/connect/azure', name: 'connect_azure_start')]
+    #[Route(path: '/connect/azure', name: 'connect_azure_start', options: ['expose' => true])]
     public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
     {
         // Will redirect to Azure AD OAuth endpoint
