@@ -58,9 +58,7 @@ class AzureUserData implements AzureUserDataInterface, Stringable
     private function checkMandatoryValuesExist(): void
     {
         if ('' === $this->emailAddress) {
-            throw new AuthenticationCredentialsNotFoundException(
-                'Email address is missing in Azure OAuth response'
-            );
+            throw new AuthenticationCredentialsNotFoundException('Email address is missing in Azure OAuth response');
         }
     }
 

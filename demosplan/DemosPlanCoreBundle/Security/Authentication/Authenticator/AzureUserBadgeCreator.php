@@ -38,7 +38,7 @@ class AzureUserBadgeCreator
         return new UserBadge($userIdentifier, function () use ($resourceOwner, $request) {
             try {
                 $this->azureUserData->fill($resourceOwner);
-                $this->logger->info('Processing Azure OAuth authentication: ' . $this->azureUserData);
+                $this->logger->info('Processing Azure OAuth authentication: '.$this->azureUserData);
 
                 $user = $this->azureUserDataMapper->mapUserData($this->azureUserData);
                 $request->getSession()->set('userId', $user->getId());
@@ -46,10 +46,10 @@ class AzureUserBadgeCreator
                 return $user;
             } catch (Exception $e) {
                 $this->logger->error('Azure OAuth authentication failed', [
-                    'userData' => $this->azureUserData->__toString(),
+                    'userData'  => $this->azureUserData->__toString(),
                     'exception' => $e->getMessage(),
                 ]);
-                throw new AuthenticationException('Azure OAuth authentication failed: ' . $e->getMessage());
+                throw new AuthenticationException('Azure OAuth authentication failed: '.$e->getMessage());
             }
         });
     }

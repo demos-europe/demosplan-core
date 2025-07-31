@@ -93,7 +93,7 @@ class AzureUserDataTest extends FunctionalTestCase
 
         $result = $this->azureUserData->__toString();
 
-        $this->assertStringContainsString('emailAddress: ' . self::TEST_EMAIL, $result);
+        $this->assertStringContainsString('emailAddress: '.self::TEST_EMAIL, $result);
         $this->assertStringContainsString('objectId: object-id-456', $result);
         $this->assertStringContainsString('subject: azure-user-id-123', $result);
     }
@@ -121,8 +121,8 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner->method('toArray')
             ->willReturn([
                 'unique_name' => 'user@domain.com',
-                'sub' => 'azure-user-id-123',
-                'oid' => 'object-id-456',
+                'sub'         => 'azure-user-id-123',
+                'oid'         => 'object-id-456',
             ]);
 
         $this->azureUserData->fill($resourceOwner);
@@ -137,11 +137,11 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => 'primary@email.com',
-                'upn' => 'fallback@upn.com',
+                'email'       => 'primary@email.com',
+                'upn'         => 'fallback@upn.com',
                 'unique_name' => 'fallback@unique.com',
-                'sub' => 'azure-user-id-123',
-                'oid' => 'object-id-456',
+                'sub'         => 'azure-user-id-123',
+                'oid'         => 'object-id-456',
             ]);
 
         $this->azureUserData->fill($resourceOwner);
@@ -154,10 +154,10 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'upn' => 'upn@email.com',
+                'upn'         => 'upn@email.com',
                 'unique_name' => 'unique@email.com',
-                'sub' => 'azure-user-id-123',
-                'oid' => 'object-id-456',
+                'sub'         => 'azure-user-id-123',
+                'oid'         => 'object-id-456',
             ]);
 
         $this->azureUserData->fill($resourceOwner);
@@ -186,11 +186,11 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email' => '',
-                'upn' => '',
+                'email'       => '',
+                'upn'         => '',
                 'unique_name' => '',
-                'sub' => 'azure-user-id-123',
-                'oid' => 'object-id-456',
+                'sub'         => 'azure-user-id-123',
+                'oid'         => 'object-id-456',
             ]);
 
         $this->expectException(AuthenticationCredentialsNotFoundException::class);
@@ -205,19 +205,19 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'aud' => 'https://graph.windows.net/',
-                'iss' => 'https://sts.windows.net/example-tenant-id/',
-                'iat' => 1600000000,
-                'nbf' => 1600000000,
-                'exp' => 1600003600,
+                'aud'         => 'https://graph.windows.net/',
+                'iss'         => 'https://sts.windows.net/example-tenant-id/',
+                'iat'         => 1600000000,
+                'nbf'         => 1600000000,
+                'exp'         => 1600003600,
                 'family_name' => 'Doe',
-                'given_name' => 'John',
-                'name' => 'Doe, John (extern)',
-                'oid' => 'example-object-id-123',
-                'sub' => 'example-subject-id-456',
+                'given_name'  => 'John',
+                'name'        => 'Doe, John (extern)',
+                'oid'         => 'example-object-id-123',
+                'sub'         => 'example-subject-id-456',
                 'unique_name' => 'test.user@example.com',
-                'upn' => 'test.user@example.com',
-                'tid' => 'example-tenant-id',
+                'upn'         => 'test.user@example.com',
+                'tid'         => 'example-tenant-id',
                 // Note: no 'email' field present - typical for some Azure configurations
             ]);
 

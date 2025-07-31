@@ -32,7 +32,7 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
         private readonly ClientRegistry $clientRegistry,
         private readonly LoggerInterface $logger,
         private readonly RouterInterface $router,
-        private readonly AzureUserBadgeCreator $azureUserBadgeCreator
+        private readonly AzureUserBadgeCreator $azureUserBadgeCreator,
     ) {
     }
 

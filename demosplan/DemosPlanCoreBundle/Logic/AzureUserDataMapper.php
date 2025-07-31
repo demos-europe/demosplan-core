@@ -27,7 +27,7 @@ class AzureUserDataMapper
 {
     public function __construct(
         private readonly LoggerInterface $logger,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
     }
 
@@ -43,20 +43,19 @@ class AzureUserDataMapper
 
         if ($user instanceof User) {
             $this->logger->info('Found existing SCIM-provisioned user for Azure OAuth', [
-                'email' => $azureUserData->getEmailAddress(),
-                'objectId' => $azureUserData->getObjectId()
+                'email'    => $azureUserData->getEmailAddress(),
+                'objectId' => $azureUserData->getObjectId(),
             ]);
+
             return $user;
         }
 
         // User not found - this should not happen with SCIM provisioning
         $this->logger->warning('Azure OAuth user not found in system', [
-            'email' => $azureUserData->getEmailAddress(),
-            'objectId' => $azureUserData->getObjectId()
+            'email'    => $azureUserData->getEmailAddress(),
+            'objectId' => $azureUserData->getObjectId(),
         ]);
 
-        throw new AuthenticationException(
-            'User not found in system. Users must be provisioned before Azure OAuth login.'
-        );
+        throw new AuthenticationException('User not found in system. Users must be provisioned before Azure OAuth login.');
     }
 }
