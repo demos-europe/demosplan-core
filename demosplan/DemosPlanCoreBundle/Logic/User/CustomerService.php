@@ -26,7 +26,7 @@ class CustomerService implements CustomerServiceInterface
     public function __construct(
         private readonly CustomerRepository $customerRepository,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
