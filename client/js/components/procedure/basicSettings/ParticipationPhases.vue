@@ -22,6 +22,7 @@
           text: iterator.label,
           tooltip: iterator.tooltip
         }"
+        :model-value="iterator.value"
         :name="iterator.name"
         pattern="^[1-9][0-9]*$"
         required
