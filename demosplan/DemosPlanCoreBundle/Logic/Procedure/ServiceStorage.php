@@ -352,10 +352,12 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationError = $this->validatePhaseIterations($procedure);
-        if (count($phaseIterationError) > 0) {
-            $mandatoryErrors[] = $phaseIterationError;
+        $phaseIterationErrors = $this->validatePhaseIterations($procedure);
+        foreach ($phaseIterationErrors as $error) {
+            $mandatoryErrors[] = $error;
         }
+
+
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'name');
@@ -1144,22 +1146,33 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
     private function validatePhaseIterations(array $procedure): array
     {
+        $errors = [];
+
         $phaseIteration = 'phase_iteration';
         if (isset($procedure[$phaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+            $error =
+                $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+            if (!empty($error)) {
+                $errors[] = $error;
+            }
         }
 
         $publicPhaseIteration = 'public_participation_phase_iteration';
         if (isset($procedure[$publicPhaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+            $error =
+                $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
+            if (!empty($error)) {
+                $errors[] = $error;
+            }
         }
 
-        return [];
+        return $errors;
     }
+
 
     private function validatePhaseIterationValue($value): array
     {
-        if (!is_numeric($value) || (int) $value < 1 || (int) $value > 500) {
+        if (!is_numeric($value) || (int) $value < 1 || (int) $value > 65535) {
             return [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.phaseIteration.invalid'),

@@ -161,26 +161,70 @@ class ServiceStorageTest extends FunctionalTestCase
         $this->setUp();
 
         return [
-            [[
+            [
+                [
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
                 'r_phase_iteration'                         => '2',
-            ], 'mandatoryError' => []],
-            [[
+            ],
+                'mandatoryError' => []
+            ],
+            [
+                [
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
                 'r_public_participation_phase_iteration'    => '3',
-            ], 'mandatoryError' => []],
-            [[
+            ],
+                'mandatoryError' => []
+            ],
+            [
+                [
+                    'action'                                    => 'edit',
+                    'r_ident'                                   => $this->testProcedure->getId(),
+                    'r_phase_iteration'                         => '65535',
+                ],
+                'mandatoryError' => []
+            ],
+            [
+                [
+                'action'                                    => 'edit',
+                'r_ident'                                   => $this->testProcedure->getId(),
+                'r_public_participation_phase_iteration'    => '65535',
+            ],
+                'mandatoryError' => []
+            ],
+            [
+                [
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
                 'r_phase_iteration'                         => '-3',
-            ], 'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')],
-            [[
+            ],
+                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')
+            ],
+            [
+                [
                 'action'                                    => 'edit',
                 'r_ident'                                   => $this->testProcedure->getId(),
                 'r_public_participation_phase_iteration'    => '-2',
-            ], 'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')],
+            ],
+                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')
+            ],
+            [
+                [
+                'action'                                    => 'edit',
+                'r_ident'                                   => $this->testProcedure->getId(),
+                'r_phase_iteration'                         => '65536',
+            ],
+                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')
+            ],
+            [
+                [
+                'action'                                    => 'edit',
+                'r_ident'                                   => $this->testProcedure->getId(),
+                'r_public_participation_phase_iteration'    => '65536',
+            ],
+                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid')
+            ],
         ];
     }
 
