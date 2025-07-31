@@ -25,7 +25,7 @@ class AzureUserDataTest extends FunctionalTestCase
     public const TEST_EMAIL = 'test@example.com';
     public const TEST_EXAMPLE_EMAIL = 'test.user@example.com';
     public const MISSING_EMAIL_MESSAGE = 'Email address is missing in Azure OAuth response';
-    
+
     private ?AzureUserData $azureUserData;
 
     protected function setUp(): void
@@ -190,11 +190,11 @@ class AzureUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'       => '',
-                'upn'         => '',
-                'unique_name' => '',
-                'sub'         => 'azure-user-id-123',
-                'oid'         => 'object-id-456',
+                'email'            => '',
+                'upn'              => '',
+                'unique_name'      => '',
+                'sub'              => 'azure-user-id-123',
+                'oid'              => 'object-id-456',
                 'additional_field' => 'some-value', // Additional field to differentiate from missing fields test
             ]);
 
