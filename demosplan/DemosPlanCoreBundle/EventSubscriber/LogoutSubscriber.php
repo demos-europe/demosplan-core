@@ -52,6 +52,7 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined
         if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
+            $event->getRequest()->getSession()->invalidate();
             $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
             $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
             // add subdomain for redirect
