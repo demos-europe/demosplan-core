@@ -32,8 +32,8 @@
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
-          :search-applied="isSearchApplied"
           :raw-items="institutionList"
+          :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
           @reset="resetSearch" />
       </div>
@@ -482,10 +482,6 @@ export default {
         .map(el => el.name)
     },
 
-    resetSearch () {
-      this.$refs.searchField.handleReset()
-    },
-
     handleReset () {
       this.searchTerm = ''
       this.getInstitutionsByPage(1)
@@ -498,6 +494,10 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    resetSearch () {
+      this.$refs.searchField.handleReset()
     },
 
     separateByCommas (institutionTags) {
