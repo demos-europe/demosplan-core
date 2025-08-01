@@ -283,14 +283,13 @@ class EntityContentChangeService extends CoreService
                 }
 
                 // Handle mixed types: string vs array (e.g., empty string vs collection, or collection vs empty string)
-                if ((is_string($preUpdateValue) && is_array($postUpdateValue)) || 
-                    (is_array($preUpdateValue) && is_string($postUpdateValue))) {
-                    
+                if ((is_string($preUpdateValue) && is_array($postUpdateValue))
+                    || (is_array($preUpdateValue) && is_string($postUpdateValue))) {
                     // Convert both to version strings for comparison
-                    $preVersionString = is_array($preUpdateValue) 
+                    $preVersionString = is_array($preUpdateValue)
                         ? $this->convertToVersionString($preUpdateIdentifiers)
                         : (string) $preUpdateIdentifier;
-                    $postVersionString = is_array($postUpdateValue) 
+                    $postVersionString = is_array($postUpdateValue)
                         ? $this->convertToVersionString($postUpdateIdentifiers)
                         : (string) $postUpdateIdentifier;
 
@@ -304,20 +303,20 @@ class EntityContentChangeService extends CoreService
 
                 // change detected, but not arrays or strings?
                 $this->logger->error('EntityContentChangeService: Unhandled type combination', [
-                    'propertyName' => $propertyName,
-                    'entityType' => $entityType,
+                    'propertyName'   => $propertyName,
+                    'entityType'     => $entityType,
                     'preUpdateValue' => [
-                        'type' => gettype($preUpdateValue),
-                        'value' => is_scalar($preUpdateValue) ? $preUpdateValue : '[non-scalar]',
-                        'isArray' => is_array($preUpdateValue),
-                        'isString' => is_string($preUpdateValue)
+                        'type'     => gettype($preUpdateValue),
+                        'value'    => is_scalar($preUpdateValue) ? $preUpdateValue : '[non-scalar]',
+                        'isArray'  => is_array($preUpdateValue),
+                        'isString' => is_string($preUpdateValue),
                     ],
                     'postUpdateValue' => [
-                        'type' => gettype($postUpdateValue),
-                        'value' => is_scalar($postUpdateValue) ? $postUpdateValue : '[non-scalar]',
-                        'isArray' => is_array($postUpdateValue),  
-                        'isString' => is_string($postUpdateValue)
-                    ]
+                        'type'     => gettype($postUpdateValue),
+                        'value'    => is_scalar($postUpdateValue) ? $postUpdateValue : '[non-scalar]',
+                        'isArray'  => is_array($postUpdateValue),
+                        'isString' => is_string($postUpdateValue),
+                    ],
                 ]);
                 throw new NotYetImplementedException('should have been string or array.');
             }
