@@ -3,10 +3,13 @@
     v-if="shouldShowTimer"
     :class="prefixClass('flex items-baseline space-x-1')"
   >
-    <i
-      :class="[prefixClass('fa'), prefixClass('fa-clock-o opacity-80')]"
+    <dp-icon
+      :class="prefixClass('self-center mt-[2px]')"
       aria-hidden="true"
+      icon="clock"
+      size="small"
     />
+
     <span
       :class="{ 'color-message-warning-text': isWarning }"
     >
@@ -21,7 +24,7 @@
 </template>
 
 <script>
-import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpIcon, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 const millisecondsPerSecond = 1000
 const millisecondsPerMinute = 60 * millisecondsPerSecond
@@ -31,7 +34,8 @@ export default {
   name: 'SessionTimer',
 
   components: {
-    DpContextualHelp
+    DpContextualHelp,
+    DpIcon
   },
 
   mixins: [ prefixClassMixin ],
