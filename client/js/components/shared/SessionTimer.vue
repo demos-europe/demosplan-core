@@ -36,14 +36,6 @@ export default {
 
   mixins: [ prefixClassMixin ],
 
-  props: {
-    showNotifications: {
-      type: Boolean,
-      required: false,
-      default: true
-    }
-  },
-
   data() {
     return {
       intervalId: null,
@@ -121,7 +113,7 @@ export default {
     },
 
     showWarning (message) {
-      if (this.showNotifications && this.dplan?.notify?.info) {
+      if (this.dplan?.notify?.info) {
         this.dplan.notify.info(message)
       }
     },
