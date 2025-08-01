@@ -88,6 +88,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     protected $masterProcedurePhase;
 
+    private const MAX_PHASE_ITERATION_VALUE = 100;
+
     public function __construct(
         private readonly ArrayHelper $arrayHelper,
         ContentService $contentService,
@@ -352,9 +354,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationErrors = $this->validatePhaseIterations($procedure);
-        foreach ($phaseIterationErrors as $error) {
-            $mandatoryErrors[] = $error;
+        $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
+        if (!empty($phaseErrorMessage)) {
+            $mandatoryErrors[]= $phaseErrorMessage;
+        }
+        $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
+        if (!empty($phaseErrorMessage)) {
+            $mandatoryErrors[]= $phaseErrorMessage;
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
@@ -1147,35 +1153,37 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $errors = [];
 
         $phaseIteration = 'phase_iteration';
-        if (isset($procedure[$phaseIteration])) {
-            $error =
-                $this->validatePhaseIterationValue($procedure[$phaseIteration]);
-            if (!empty($error)) {
-                $errors[] = $error;
-            }
-        }
+        $this->addPhaseIterationError($procedure, $phaseIteration);
 
         $publicPhaseIteration = 'public_participation_phase_iteration';
-        if (isset($procedure[$publicPhaseIteration])) {
-            $error =
-                $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
-            if (!empty($error)) {
-                $errors[] = $error;
-            }
-        }
+        $this->addPhaseIterationError($procedure, $publicPhaseIteration);
 
         return $errors;
     }
 
-    private function validatePhaseIterationValue($value): array
+    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey):array
     {
-        if (!is_numeric($value) || (int) $value < 1 || (int) $value > 65535) {
+        if (isset($procedure[$fieldName])) {
+            $error = $this->validatePhaseIterationValue($procedure[$fieldName], $errorMessageKey);
+            if (!empty($error)) {
+                return $error;
+            }
+        }
+        return [];
+    }
+
+
+    private function validatePhaseIterationValue(int $value, string $errorMessageKey): array
+    {
+        if (!is_numeric($value) || (int) $value < 1 || (int) $value > self::MAX_PHASE_ITERATION_VALUE) {
+
             return [
                 'type'    => 'error',
-                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+                'message' => $this->translator->trans($errorMessageKey),
             ];
         }
 
         return [];
     }
+
 }
