@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <div class="flex items-center space-inline-s u-mv-0_5">
+    <div class="flex items-center space-inline-s mt-2">
       <p
         class="weight--bold u-m-0"
         v-text="Translator.trans('statement.similarStatementSubmitters')" />
@@ -120,7 +120,7 @@
             <dp-input
               id="statementSubmitterHouseNumber"
               v-model="formFields.submitterHouseNumber"
-              class="o-form__group-item shrink"
+              class="o-form__group-item !w-1/5 shrink"
               data-cy="voterHousenumber"
               :label="{
                 text: Translator.trans('street.number.short')
@@ -132,7 +132,7 @@
             <dp-input
               id="statementSubmitterPostalCode"
               v-model="formFields.submitterPostalCode"
-              class="o-form__group-item shrink"
+              class="o-form__group-item !w-1/4 shrink"
               data-cy="voterPostalCode"
               :label="{
                 text: Translator.trans('postalcode')

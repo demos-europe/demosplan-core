@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div 
+  <div
     v-if="publicParticipationFeedbackEnabled"
     :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
     <dp-checkbox
@@ -55,7 +55,7 @@
           name="r_email"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           width="u-1-of-1-palm u-1-of-2"
           @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
@@ -76,9 +76,9 @@
           name="r_email2"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email2"
+          :model-value="statement.r_email2"
           width="u-1-of-1-palm u-1-of-2"
-        @input="val => setStatementData({r_email2: val})" /><!--
+          @input="val => setStatementData({r_email2: val})" /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
           id="r_getEvaluation_snailmail"
