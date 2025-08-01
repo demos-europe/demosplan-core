@@ -78,12 +78,12 @@ export default {
       const now = Date.now()
 
       if (now >= this.warning10minLeft && !this.warningsShown.has('10min')) {
-        this.showWarning(this.Translator.trans('session.expiration.warning', { minutes: 10 }))
+        this.showWarning(Translator.trans('session.expiration.warning', { minutes: 10 }))
         this.warningsShown.add('10min')
       }
 
       if (now >= this.warning3minLeft && !this.warningsShown.has('3min')) {
-        this.showWarning(this.Translator.trans('session.expiration.warning', { minutes: 3 }))
+        this.showWarning(Translator.trans('session.expiration.warning', { minutes: 3 }))
         this.warningsShown.add('3min')
       }
     },
