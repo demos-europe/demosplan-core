@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -97,9 +98,7 @@ class ServiceStorageTest extends FunctionalTestCase
         static::assertEquals($publicIterationValue, $procedure->getPublicParticipationPhaseObject()->getIteration());
     }
 
-    /**
-     * @dataProvider phaseIterationDataProvider()
-     */
+    #[DataProvider('phaseIterationDataProvider')]
     public function testMandatoryErrorOnUpdatePhaseIteration($data, $expectedMandatoryError): void
     {
         $procedure = $this->sut->administrationEditHandler($data);
@@ -123,7 +122,7 @@ class ServiceStorageTest extends FunctionalTestCase
             static::assertArrayHasKey('mandatoryfieldwarning', $procedure);
             self::assertSame('error', $procedure['mandatoryfieldwarning'][0]['type']);
             self::assertSame(
-                $this->translator->trans('error.phaseIteration.invalid'),
+                $expectedMandatoryError,
                 $procedure['mandatoryfieldwarning'][0]['message']
             );
 
@@ -181,7 +180,7 @@ class ServiceStorageTest extends FunctionalTestCase
                 [
                     'action'                                    => 'edit',
                     'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '65535',
+                    'r_phase_iteration'                         => '99',
                 ],
                 'mandatoryError' => [],
             ],
@@ -189,7 +188,7 @@ class ServiceStorageTest extends FunctionalTestCase
                 [
                     'action'                                    => 'edit',
                     'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '65535',
+                    'r_public_participation_phase_iteration'    => '98',
                 ],
                 'mandatoryError' => [],
             ],
@@ -207,13 +206,13 @@ class ServiceStorageTest extends FunctionalTestCase
                     'r_ident'                                   => $this->testProcedure->getId(),
                     'r_public_participation_phase_iteration'    => '-2',
                 ],
-                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid'),
+                'mandatoryError' => $this->translator->trans('error.publicPhaseIteration.invalid'),
             ],
             [
                 [
                     'action'                                    => 'edit',
                     'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '65536',
+                    'r_phase_iteration'                         => '101',
                 ],
                 'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid'),
             ],
@@ -221,9 +220,9 @@ class ServiceStorageTest extends FunctionalTestCase
                 [
                     'action'                                    => 'edit',
                     'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '65536',
+                    'r_public_participation_phase_iteration'    => '101',
                 ],
-                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid'),
+                'mandatoryError' => $this->translator->trans('error.publicPhaseIteration.invalid'),
             ],
         ];
     }
