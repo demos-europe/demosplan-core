@@ -106,7 +106,7 @@ class ServiceStorageTest extends FunctionalTestCase
         /** @var Procedure $procedureObject */
         $procedureObject = $this->find(Procedure::class, $this->testProcedure->getId());
 
-        if ([] === $expectedMandatoryError) {
+        if (null === $expectedMandatoryError) {
             if (array_key_exists('r_phase_iteration', $data)) {
                 static::assertEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
             }
@@ -166,7 +166,7 @@ class ServiceStorageTest extends FunctionalTestCase
                     'r_ident'                                   => $this->testProcedure->getId(),
                     'r_phase_iteration'                         => '2',
                 ],
-                'mandatoryError' => [],
+                'mandatoryError' => null,
             ],
             [
                 [
@@ -174,7 +174,7 @@ class ServiceStorageTest extends FunctionalTestCase
                     'r_ident'                                   => $this->testProcedure->getId(),
                     'r_public_participation_phase_iteration'    => '3',
                 ],
-                'mandatoryError' => [],
+                'mandatoryError' => null,
             ],
             [
                 [
@@ -182,7 +182,7 @@ class ServiceStorageTest extends FunctionalTestCase
                     'r_ident'                                   => $this->testProcedure->getId(),
                     'r_phase_iteration'                         => '99',
                 ],
-                'mandatoryError' => [],
+                'mandatoryError' => null,
             ],
             [
                 [
@@ -190,7 +190,7 @@ class ServiceStorageTest extends FunctionalTestCase
                     'r_ident'                                   => $this->testProcedure->getId(),
                     'r_public_participation_phase_iteration'    => '98',
                 ],
-                'mandatoryError' => [],
+                'mandatoryError' => null,
             ],
             [
                 [
