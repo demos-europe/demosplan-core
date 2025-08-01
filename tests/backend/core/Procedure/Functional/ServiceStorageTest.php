@@ -168,14 +168,14 @@ class ServiceStorageTest extends FunctionalTestCase
         $validCases = [
             ['r_phase_iteration' => '2'],
             ['r_public_participation_phase_iteration' => '3'],
-            ['r_phase_iteration' => '99'],
+            ['r_phase_iteration'                      => '99'],
             ['r_public_participation_phase_iteration' => '98'],
         ];
 
         $invalidCases = [
             ['r_phase_iteration' => '-3', 'error' => 'error.phaseIteration.invalid'],
             ['r_public_participation_phase_iteration' => '-2', 'error' => 'error.publicPhaseIteration.invalid'],
-            ['r_phase_iteration' => '101', 'error' => 'error.phaseIteration.invalid'],
+            ['r_phase_iteration'                      => '101', 'error' => 'error.phaseIteration.invalid'],
             ['r_public_participation_phase_iteration' => '101', 'error' => 'error.publicPhaseIteration.invalid'],
         ];
 
@@ -190,7 +190,7 @@ class ServiceStorageTest extends FunctionalTestCase
         foreach ($invalidCases as $case) {
             $testCases[] = [
                 $this->getPhaseIterationTestData($case),
-                $this->translator->trans($case['error'])
+                $this->translator->trans($case['error']),
             ];
         }
 
@@ -202,7 +202,7 @@ class ServiceStorageTest extends FunctionalTestCase
         $this->setUp();
 
         $baseData = $this->getBaseProcedureData();
-        
+
         return [
             [$baseData], // Missing action
             [array_merge($baseData, ['action' => 'wrong action'])], // Wrong action
@@ -212,25 +212,25 @@ class ServiceStorageTest extends FunctionalTestCase
     private function getPhaseIterationTestData(array $phaseData): array
     {
         return array_merge([
-            'action' => 'edit',
+            'action'  => 'edit',
             'r_ident' => $this->testProcedure->getId(),
-        ], array_filter($phaseData, fn($key) => $key !== 'error', ARRAY_FILTER_USE_KEY));
+        ], array_filter($phaseData, fn ($key) => 'error' !== $key, ARRAY_FILTER_USE_KEY));
     }
 
     private function getBaseProcedureData(): array
     {
         return [
-            'r_copymaster' => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress' => 'aValidMailAddress@daklfkls.de',
-            'r_startdate' => '01.02.2055',
-            'r_enddate' => '01.02.2056',
-            'r_externalName' => 'testAdded',
-            'r_name' => 'testAdded',
-            'r_master' => false,
-            'orgaId' => $this->testUser->getOrganisationId(),
-            'orgaName' => $this->testUser->getOrgaName(),
+            'r_copymaster'             => $this->masterBlueprint->getId(),
+            'agencyMainEmailAddress'   => 'aValidMailAddress@daklfkls.de',
+            'r_startdate'              => '01.02.2055',
+            'r_enddate'                => '01.02.2056',
+            'r_externalName'           => 'testAdded',
+            'r_name'                   => 'testAdded',
+            'r_master'                 => false,
+            'orgaId'                   => $this->testUser->getOrganisationId(),
+            'orgaName'                 => $this->testUser->getOrgaName(),
             'publicParticipationPhase' => 'configuration',
-            'r_procedure_type' => $this->procedureType->getId(),
+            'r_procedure_type'         => $this->procedureType->getId(),
         ];
     }
 
@@ -305,10 +305,10 @@ class ServiceStorageTest extends FunctionalTestCase
     {
         return array_merge($this->getBaseProcedureData(), [
             'agencyMainEmailAddress' => 'test@example.com',
-            'action' => 'new',
-            'r_externalName' => 'testAnonymousDefault',
-            'r_name' => 'testAnonymousDefault',
-            'r_desc' => 'Test default anonymous statements value',
+            'action'                 => 'new',
+            'r_externalName'         => 'testAnonymousDefault',
+            'r_name'                 => 'testAnonymousDefault',
+            'r_desc'                 => 'Test default anonymous statements value',
         ]);
     }
 }
