@@ -1148,26 +1148,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function validatePhaseIterations(array $procedure): array
-    {
-        $errors = [];
-
-        $phaseIteration = 'phase_iteration';
-        $this->addPhaseIterationError($procedure, $phaseIteration);
-
-        $publicPhaseIteration = 'public_participation_phase_iteration';
-        $this->addPhaseIterationError($procedure, $publicPhaseIteration);
-
-        return $errors;
-    }
-
-    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey): array
+    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey):array
     {
         if (isset($procedure[$fieldName])) {
-            $error = $this->validatePhaseIterationValue($procedure[$fieldName], $errorMessageKey);
-            if (!empty($error)) {
-                return $error;
-            }
+            return $this->validatePhaseIterationValue($procedure[$fieldName], $errorMessageKey);
         }
 
         return [];
