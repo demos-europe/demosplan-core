@@ -44,4 +44,16 @@ class AzureController extends AbstractController
         // leave this method blank and create an authenticator
         // This is handled by AzureAuthenticator
     }
+
+    /**
+     * Front-Channel logout endpoint for Azure AD.
+     * Azure AD will redirect here after logout, then we redirect to our standard logout.
+     */
+    #[Route(path: '/connect/azure/logout', name: 'connect_azure_logout', options: ['expose' => true])]
+    public function logoutAction(): RedirectResponse
+    {
+        // Redirect to standard DemosPlan logout route
+        // The LogoutSubscriber will handle the actual logout process
+        return $this->redirectToRoute('DemosPlan_user_logout');
+    }
 }

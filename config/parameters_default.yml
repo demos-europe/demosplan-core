@@ -344,6 +344,10 @@ parameters:
     # roles may be granted via keycloak groups
     keycloak_group_role_string: ''
 
+    # Azure AD logout route for Front-Channel logout like
+    # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
+    oauth_azure_logout_route: ''
+
     # Set users with permissions to alter Database
     database_install_user: ""
     database_install_password: ""
