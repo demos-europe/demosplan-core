@@ -180,7 +180,10 @@ export default {
               dplan.notify.notify('confirm', Translator.trans('confirm.statement.considerations.attached', { count: response.data.body.considerations.length }))
             }
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error('DetailView - Copy from fragments error:', error)
+            console.error('DetailView - Error response:', error.response)
+            console.error('DetailView - Error data:', error.response?.data)
             dplan.notify.notify('error', Translator.trans('error.results.loading'))
           })
           .finally(() => {
