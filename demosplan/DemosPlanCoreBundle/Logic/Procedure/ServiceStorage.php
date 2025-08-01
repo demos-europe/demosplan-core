@@ -354,11 +354,11 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
         if (!empty($phaseErrorMessage)) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
-        $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
         if (!empty($phaseErrorMessage)) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
@@ -1148,24 +1148,18 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey):array
+    private function validatePhaseIteration(array $procedure, string $fieldName, string $errorMessageKey):array
     {
-        if (isset($procedure[$fieldName])) {
-            return $this->validatePhaseIterationValue($procedure[$fieldName], $errorMessageKey);
+        if (!isset($procedure[$fieldName])) {
+            return [];
         }
-
-        return [];
-    }
-
-    private function validatePhaseIterationValue(int $value, string $errorMessageKey): array
-    {
+        $value = $procedure[$fieldName];
         if (!is_numeric($value) || (int) $value < 1 || (int) $value > self::MAX_PHASE_ITERATION_VALUE) {
             return [
                 'type'    => 'error',
                 'message' => $this->translator->trans($errorMessageKey),
             ];
         }
-
         return [];
     }
 }
