@@ -356,11 +356,11 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
         $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
         if (!empty($phaseErrorMessage)) {
-            $mandatoryErrors[]= $phaseErrorMessage;
+            $mandatoryErrors[] = $phaseErrorMessage;
         }
         $phaseErrorMessage = $this->addPhaseIterationError($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
         if (!empty($phaseErrorMessage)) {
-            $mandatoryErrors[]= $phaseErrorMessage;
+            $mandatoryErrors[] = $phaseErrorMessage;
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
@@ -1161,7 +1161,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $errors;
     }
 
-    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey):array
+    private function addPhaseIterationError(array $procedure, string $fieldName, string $errorMessageKey): array
     {
         if (isset($procedure[$fieldName])) {
             $error = $this->validatePhaseIterationValue($procedure[$fieldName], $errorMessageKey);
@@ -1169,14 +1169,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 return $error;
             }
         }
+
         return [];
     }
-
 
     private function validatePhaseIterationValue(int $value, string $errorMessageKey): array
     {
         if (!is_numeric($value) || (int) $value < 1 || (int) $value > self::MAX_PHASE_ITERATION_VALUE) {
-
             return [
                 'type'    => 'error',
                 'message' => $this->translator->trans($errorMessageKey),
@@ -1185,5 +1184,4 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         return [];
     }
-
 }
