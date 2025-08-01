@@ -269,40 +269,12 @@ class ServiceStorageTest extends FunctionalTestCase
         static::assertTrue($allowAnonymousStatements);
 
         // Test with allowAnonymousStatements set to false (checkbox unchecked)
-        $dataWithAnonymousFalse = [
-            'action'                                    => 'edit',
-            'r_ident'                                   => $this->testProcedure->getId(),
-            'r_phase_iteration'                         => '1',
-            'r_name'                                    => 'testAdded',
-            'r_phase'                                   => 'configuration',
-            'mandatoryError'                            => [],
-            // allowAnonymousStatements key is not present (unchecked checkbox)
-        ];
-
-        $result = $this->sut->administrationEditHandler($dataWithAnonymousFalse);
-        static::assertIsArray($result);
-
-        /** @var Procedure $updatedProcedure */
-        $updatedProcedure = $this->find(Procedure::class, $result['id']);
-        static::assertFalse($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+        $dataWithAnonymousFalse = $this->getBaseEditData();
+        $this->testAnonymousStatementsSetting($dataWithAnonymousFalse, false);
 
         // Test with allowAnonymousStatements set to true
-        $dataWithAnonymousTrue = [
-            'action'                                    => 'edit',
-            'r_ident'                                   => $this->testProcedure->getId(),
-            'allowAnonymousStatements'                  => '1',
-            'r_phase_iteration'                         => '1',
-            'r_name'                                    => 'testAdded',
-            'r_phase'                                   => 'configuration',
-            'mandatoryError'                            => [],
-        ];
-
-        $result = $this->sut->administrationEditHandler($dataWithAnonymousTrue);
-        static::assertIsArray($result);
-
-        /** @var Procedure $updatedProcedure */
-        $updatedProcedure = $this->find(Procedure::class, $result['id']);
-        static::assertTrue($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+        $dataWithAnonymousTrue = $this->getBaseEditData(['allowAnonymousStatements' => '1']);
+        $this->testAnonymousStatementsSetting($dataWithAnonymousTrue, true);
     }
 
     public function testAllowAnonymousStatementsWithoutPermission(): void
@@ -314,17 +286,7 @@ class ServiceStorageTest extends FunctionalTestCase
         static::assertTrue($originalValue);
 
         // Test that setting is ignored when permission is not present
-        // Test with allowAnonymousStatements set to false (checkbox unchecked)
-        $dataWithAnonymousFalse = [
-            'action'                                    => 'edit',
-            'r_ident'                                   => $this->testProcedure->getId(),
-            'r_phase_iteration'                         => '1',
-            'r_name'                                    => 'testAdded',
-            'r_phase'                                   => 'configuration',
-            'mandatoryError'                            => [],
-            // allowAnonymousStatements key is not present (unchecked checkbox)
-        ];
-
+        $dataWithAnonymousFalse = $this->getBaseEditData();
         $result = $this->sut->administrationEditHandler($dataWithAnonymousFalse);
         static::assertIsArray($result);
 
@@ -332,6 +294,28 @@ class ServiceStorageTest extends FunctionalTestCase
         $updatedProcedure = $this->find(Procedure::class, $result['id']);
         // Should maintain original value since permission is not present
         static::assertEquals($originalValue, $updatedProcedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    private function getBaseEditData(array $additionalData = []): array
+    {
+        return array_merge([
+            'action'            => 'edit',
+            'r_ident'           => $this->testProcedure->getId(),
+            'r_phase_iteration' => '1',
+            'r_name'            => 'testAdded',
+            'r_phase'           => 'configuration',
+            'mandatoryError'    => [],
+        ], $additionalData);
+    }
+
+    private function testAnonymousStatementsSetting(array $data, bool $expectedValue): void
+    {
+        $result = $this->sut->administrationEditHandler($data);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        static::assertEquals($expectedValue, $updatedProcedure->getSettings()->getAllowAnonymousStatements());
     }
 
     public function testAllowAnonymousStatementsDefaultValue(): void
