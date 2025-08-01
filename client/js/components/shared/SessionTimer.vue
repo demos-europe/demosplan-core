@@ -61,6 +61,7 @@ export default {
       }
 
       const timeComponents = this.getTimeUnits(this.timeLeft)
+
       return this.formatTimeString(timeComponents)
     },
 
@@ -97,6 +98,7 @@ export default {
 
     formatTimeString ({ hours, minutes, seconds }) {
       const pad = (num) => String(num).padStart(2, '0')
+
       return hours > 0
         ? `${ hours }:${ pad(minutes) }:${ pad(seconds) }`
         : `${ pad(minutes) }:${ pad(seconds) }`
@@ -106,6 +108,7 @@ export default {
       const hours = Math.floor(milliseconds / millisecondsPerHour)
       const minutes = Math.floor((milliseconds % millisecondsPerHour) / millisecondsPerMinute)
       const seconds = Math.floor((milliseconds % millisecondsPerMinute) / millisecondsPerSecond)
+
       return { hours, minutes, seconds }
     },
 
