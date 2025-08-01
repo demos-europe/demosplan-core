@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "466d83e34237fc31ec48ab51beac590d",
+"content-hash": "466d83e34237fc31ec48ab51beac590d",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1637,16 +1637,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.57",
+            "version": "v0.59",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "cb0125eff624b146a55778852751055a10ba05ba"
+                "reference": "8972225bec2fd602eb8199afe1e71514c18f5ddc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/cb0125eff624b146a55778852751055a10ba05ba",
-                "reference": "cb0125eff624b146a55778852751055a10ba05ba",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/8972225bec2fd602eb8199afe1e71514c18f5ddc",
+                "reference": "8972225bec2fd602eb8199afe1e71514c18f5ddc",
                 "shasum": ""
             },
             "require": {
@@ -1713,9 +1713,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.57"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.59"
             },
-            "time": "2025-06-30T17:28:06+00:00"
+            "time": "2025-07-31T11:54:13+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -24310,9 +24310,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
