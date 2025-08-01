@@ -1148,7 +1148,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function validatePhaseIteration(array $procedure, string $fieldName, string $errorMessageKey):array
+    private function validatePhaseIteration(array $procedure, string $fieldName, string $errorMessageKey): array
     {
         if (!isset($procedure[$fieldName])) {
             return [];
@@ -1160,6 +1160,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 'message' => $this->translator->trans($errorMessageKey),
             ];
         }
+
         return [];
     }
 }
