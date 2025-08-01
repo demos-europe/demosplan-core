@@ -97,7 +97,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('RegisterFlyout', RegisterFlyout)
     app.component('DpContextualHelp', DpContextualHelp)
-    app.component('SessionTimer', SessionTimer)
+
+    if (window.hasPermission('feature_auto_logout_warning')) {
+      app.component('SessionTimer', SessionTimer)
+    }
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {
