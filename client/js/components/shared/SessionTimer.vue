@@ -73,16 +73,6 @@ export default {
     }
   },
 
-  mounted () {
-    if (this.shouldShowTimer) {
-      this.initializeTimer()
-    }
-  },
-
-  beforeUnmount () {
-    this.cleanup()
-  },
-
   methods: {
     checkWarnings () {
       const now = Date.now()
@@ -143,6 +133,16 @@ export default {
       this.timeLeft = sessionExpiration - Date.now()
       this.checkWarnings()
     }
+  },
+
+  mounted () {
+    if (this.shouldShowTimer) {
+      this.initializeTimer()
+    }
+  },
+
+  beforeUnmount () {
+    this.cleanup()
   }
 }
 </script>
