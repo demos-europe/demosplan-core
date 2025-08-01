@@ -107,31 +107,37 @@ class ServiceStorageTest extends FunctionalTestCase
         $procedureObject = $this->find(Procedure::class, $this->testProcedure->getId());
 
         if (null === $expectedMandatoryError) {
-            if (array_key_exists('r_phase_iteration', $data)) {
-                static::assertEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
-            }
-
-            if (array_key_exists('r_public_participation_phase_iteration', $data)) {
-                static::assertEquals(
-                    $data['r_public_participation_phase_iteration'],
-                    $procedureObject->getPublicParticipationPhaseObject()->getIteration()
-                );
-            }
+            $this->assertValidPhaseIterationUpdate($data, $procedureObject);
         } else {
-            // use equals here, because values are incoming as string but are stored as integers.
-            static::assertArrayHasKey('mandatoryfieldwarning', $procedure);
-            self::assertSame('error', $procedure['mandatoryfieldwarning'][0]['type']);
-            self::assertSame(
-                $expectedMandatoryError,
-                $procedure['mandatoryfieldwarning'][0]['message']
-            );
+            $this->assertInvalidPhaseIterationUpdate($procedure, $data, $procedureObject, $expectedMandatoryError);
+        }
+    }
 
-            if (array_key_exists('r_phase_iteration', $data)) {
-                static::assertNotEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
-            }
-            if (array_key_exists('r_public_participation_phase_iteration', $data)) {
-                static::assertNotEquals($data['r_public_participation_phase_iteration'], $procedureObject->getPublicParticipationPhaseObject()->getIteration());
-            }
+    private function assertValidPhaseIterationUpdate(array $data, Procedure $procedureObject): void
+    {
+        if (array_key_exists('r_phase_iteration', $data)) {
+            static::assertEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
+        }
+
+        if (array_key_exists('r_public_participation_phase_iteration', $data)) {
+            static::assertEquals(
+                $data['r_public_participation_phase_iteration'],
+                $procedureObject->getPublicParticipationPhaseObject()->getIteration()
+            );
+        }
+    }
+
+    private function assertInvalidPhaseIterationUpdate(array $procedure, array $data, Procedure $procedureObject, string $expectedError): void
+    {
+        static::assertArrayHasKey('mandatoryfieldwarning', $procedure);
+        self::assertSame('error', $procedure['mandatoryfieldwarning'][0]['type']);
+        self::assertSame($expectedError, $procedure['mandatoryfieldwarning'][0]['message']);
+
+        if (array_key_exists('r_phase_iteration', $data)) {
+            static::assertNotEquals($data['r_phase_iteration'], $procedureObject->getPhaseObject()->getIteration());
+        }
+        if (array_key_exists('r_public_participation_phase_iteration', $data)) {
+            static::assertNotEquals($data['r_public_participation_phase_iteration'], $procedureObject->getPublicParticipationPhaseObject()->getIteration());
         }
     }
 
@@ -159,106 +165,72 @@ class ServiceStorageTest extends FunctionalTestCase
     {
         $this->setUp();
 
-        return [
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '2',
-                ],
-                'mandatoryError' => null,
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '3',
-                ],
-                'mandatoryError' => null,
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '99',
-                ],
-                'mandatoryError' => null,
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '98',
-                ],
-                'mandatoryError' => null,
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '-3',
-                ],
-                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid'),
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '-2',
-                ],
-                'mandatoryError' => $this->translator->trans('error.publicPhaseIteration.invalid'),
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_phase_iteration'                         => '101',
-                ],
-                'mandatoryError' => $this->translator->trans('error.phaseIteration.invalid'),
-            ],
-            [
-                [
-                    'action'                                    => 'edit',
-                    'r_ident'                                   => $this->testProcedure->getId(),
-                    'r_public_participation_phase_iteration'    => '101',
-                ],
-                'mandatoryError' => $this->translator->trans('error.publicPhaseIteration.invalid'),
-            ],
+        $validCases = [
+            ['r_phase_iteration' => '2'],
+            ['r_public_participation_phase_iteration' => '3'],
+            ['r_phase_iteration' => '99'],
+            ['r_public_participation_phase_iteration' => '98'],
         ];
+
+        $invalidCases = [
+            ['r_phase_iteration' => '-3', 'error' => 'error.phaseIteration.invalid'],
+            ['r_public_participation_phase_iteration' => '-2', 'error' => 'error.publicPhaseIteration.invalid'],
+            ['r_phase_iteration' => '101', 'error' => 'error.phaseIteration.invalid'],
+            ['r_public_participation_phase_iteration' => '101', 'error' => 'error.publicPhaseIteration.invalid'],
+        ];
+
+        $testCases = [];
+
+        // Add valid cases
+        foreach ($validCases as $case) {
+            $testCases[] = [$this->getPhaseIterationTestData($case), null];
+        }
+
+        // Add invalid cases
+        foreach ($invalidCases as $case) {
+            $testCases[] = [
+                $this->getPhaseIterationTestData($case),
+                $this->translator->trans($case['error'])
+            ];
+        }
+
+        return $testCases;
     }
 
     public function exceptionDataProvider(): array
     {
         $this->setUp();
 
+        $baseData = $this->getBaseProcedureData();
+        
         return [
-            [[
-                'r_copymaster'              => $this->masterBlueprint->getId(),
-                'agencyMainEmailAddress'    => 'aValidMailAddress@daklfkls.de',
-                'r_startdate'               => '01.02.2055',
-                'r_enddate'                 => '01.02.2056',
-                'r_externalName'            => 'testAdded',
-                'r_name'                    => 'testAdded',
-                'r_master'                  => false,
-                'orgaId'                    => $this->testUser->getOrganisationId(),
-                'orgaName'                  => $this->testUser->getOrgaName(),
-                'publicParticipationPhase'  => 'configuration',
-                'r_procedure_type'          => $this->procedureType->getId(),
-            ]],
-            [[
-                'r_copymaster'              => $this->masterBlueprint->getId(),
-                'agencyMainEmailAddress'    => 'aValidMailAddress@daklfkls.de',
-                'action'                    => 'wrong action',
-                'r_startdate'               => '01.02.2055',
-                'r_enddate'                 => '01.02.2056',
-                'r_externalName'            => 'testAdded',
-                'r_name'                    => 'testAdded',
-                'r_master'                  => false,
-                'orgaId'                    => $this->testUser->getOrganisationId(),
-                'orgaName'                  => $this->testUser->getOrgaName(),
-                'publicParticipationPhase'  => 'configuration',
-                'r_procedure_type'          => $this->procedureType->getId(),
-            ]],
+            [$baseData], // Missing action
+            [array_merge($baseData, ['action' => 'wrong action'])], // Wrong action
+        ];
+    }
+
+    private function getPhaseIterationTestData(array $phaseData): array
+    {
+        return array_merge([
+            'action' => 'edit',
+            'r_ident' => $this->testProcedure->getId(),
+        ], array_filter($phaseData, fn($key) => $key !== 'error', ARRAY_FILTER_USE_KEY));
+    }
+
+    private function getBaseProcedureData(): array
+    {
+        return [
+            'r_copymaster' => $this->masterBlueprint->getId(),
+            'agencyMainEmailAddress' => 'aValidMailAddress@daklfkls.de',
+            'r_startdate' => '01.02.2055',
+            'r_enddate' => '01.02.2056',
+            'r_externalName' => 'testAdded',
+            'r_name' => 'testAdded',
+            'r_master' => false,
+            'orgaId' => $this->testUser->getOrganisationId(),
+            'orgaName' => $this->testUser->getOrgaName(),
+            'publicParticipationPhase' => 'configuration',
+            'r_procedure_type' => $this->procedureType->getId(),
         ];
     }
 
@@ -331,20 +303,12 @@ class ServiceStorageTest extends FunctionalTestCase
 
     private function prepareNewProcedureDataArray(): array
     {
-        return [
-            'r_copymaster'             => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress'   => 'test@example.com',
-            'action'                   => 'new',
-            'r_startdate'              => '01.02.2055',
-            'r_enddate'                => '01.02.2056',
-            'r_externalName'           => 'testAnonymousDefault',
-            'r_name'                   => 'testAnonymousDefault',
-            'r_master'                 => false,
-            'orgaId'                   => $this->testUser->getOrganisationId(),
-            'orgaName'                 => $this->testUser->getOrgaName(),
-            'publicParticipationPhase' => 'configuration',
-            'r_procedure_type'         => $this->procedureType->getId(),
-            'r_desc'                   => 'Test default anonymous statements value',
-        ];
+        return array_merge($this->getBaseProcedureData(), [
+            'agencyMainEmailAddress' => 'test@example.com',
+            'action' => 'new',
+            'r_externalName' => 'testAnonymousDefault',
+            'r_name' => 'testAnonymousDefault',
+            'r_desc' => 'Test default anonymous statements value',
+        ]);
     }
 }
