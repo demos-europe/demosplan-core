@@ -25,6 +25,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class ExpirationTimestampInjection
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
+    public const KEYCLOAK_TOKEN = 'keycloakToken';
 
     /** @var int Session expiration time for testing (120 minutes) */
     private const TEST_SESSION_LIFETIME_SECONDS = 7200;

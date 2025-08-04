@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use Exception;
+use Predis\Command\Redis\EXPIRE;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -38,7 +40,8 @@ class LogoutSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [LogoutEvent::class => 'onLogout'];
+        return [
+            LogoutEvent::class => ['onLogout', 1]];
     }
 
     public function onLogout(LogoutEvent $event): void
@@ -52,6 +55,8 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined
         if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
+
+            $keycloakToken = $event->getRequest()->getSession()->get(ExpirationTimestampInjection::KEYCLOAK_TOKEN);
             $event->getRequest()->getSession()->invalidate();
             $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
             $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
@@ -63,6 +68,13 @@ class LogoutSubscriber implements EventSubscriberInterface
                     'post_logout_redirect_uri=https://'.$currentCustomer->getSubdomain().'.',
                     $logoutRoute
                 );
+
+                $logoutRoute = str_replace(
+                    'id_token_hint=',
+                    'id_token_hint='.$keycloakToken,
+                    $logoutRoute
+                );
+
                 $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
             } catch (Exception $e) {
                 $this->logger->error('Could not get current customer', [$e->getMessage()]);
