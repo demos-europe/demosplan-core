@@ -341,6 +341,23 @@ export default {
           this.updateCustomField(updatedField)
 
           await this.saveCustomField(storeField.id)
+            .then(response => {
+              // Reset store on error
+              if (response.status >= 400) {
+                const restoredField = {
+                  ...this.initialRowData,
+                  id: this.newRowData.id
+                }
+                this.updateCustomField(restoredField)
+              }
+            })
+            .catch(() => {
+              const restoredField = {
+                ...this.initialRowData,
+                id: this.newRowData.id
+              }
+              this.updateCustomField(restoredField)
+            })
         }
       }
     },
