@@ -27,7 +27,7 @@ export default {
      * @param {string} message.text Text of the message
      * @param {string} [message.linkUrl] Link url of the message
      * @param {string} [message.linkText] Link text of the message
-     * @param {boolean} [message.persist] Whether the message should persist like error messages (SessionTimer usage)
+     * @param {boolean} [message.persist] Allow non-error notifications to persist (SessionTimer usage)
      */
     add (state, message) {
       state.messages.push({
