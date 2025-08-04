@@ -1322,8 +1322,8 @@ class StatementService implements StatementServiceInterface
             }
         }
 
-        if ($statement instanceof Statement) {
-            if (
+        if ($statement instanceof Statement
+            && (
                 $statement->getAuthorName() != $currentAuthorName
                 || $statement->getSubmitterName() != $currentSubmitterName
                 || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
@@ -1335,9 +1335,9 @@ class StatementService implements StatementServiceInterface
                 || $statement->getOrgaEmail() != $currentOrgaEmail
                 || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
                 || $statement->getSubmit() != $currentSubmittedDateTimeStamp
-            ) {
-                return true;
-            }
+            )
+        ) {
+            return true;
         }
 
         return false;

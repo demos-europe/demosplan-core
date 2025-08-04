@@ -470,14 +470,12 @@ class ElasticSearchService
      * @param string|null $search
      * @param array       $filters
      * @param array       $sort
-     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,
         $search = '',
         $filters = [],
         $sort = null,
-        $resultKey = 'statements',
     ): ElasticsearchResultSet {
         $filterSet = [
             'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,

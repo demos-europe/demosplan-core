@@ -41,6 +41,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class StatementDeleter
 {
+    public const DELETE_ERROR_MESSAGE = 'Fehler beim Löschen eines Statements: ';
     public function __construct(
         protected AssignService $assignService,
         protected PermissionsInterface $permissions,
@@ -198,14 +199,14 @@ class StatementDeleter
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
                     $success = true;
                 } catch (DemosException $demosException) {
-                    $this->logger->error('Fehler beim Löschen eines Statements: ', [$demosException]);
+                    $this->logger->error(self::DELETE_ERROR_MESSAGE, [$demosException]);
                     $this->messageBag->add(
                         'warning',
                         $demosException->getUserMsg()
                     );
                     $success = false;
                 } catch (Exception $e) {
-                    $this->logger->error('Fehler beim Löschen eines Statements: ', [$e]);
+                    $this->logger->error(self::DELETE_ERROR_MESSAGE, [$e]);
                     $doctrineConnection->rollBack();
                     $success = false;
                 } catch (\Doctrine\DBAL\Driver\Exception $e) {
@@ -260,7 +261,7 @@ class StatementDeleter
 
             return $success;
         } catch (Exception $e) {
-            $this->logger->warning('Fehler beim Löschen eines Statements: ', [$e]);
+            $this->logger->warning(self::DELETE_ERROR_MESSAGE, [$e]);
             $doctrineConnection->rollBack();
 
             return false;
