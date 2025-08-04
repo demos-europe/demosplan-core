@@ -119,7 +119,7 @@ export default {
 
     showWarning (message) {
       if (this.dplan?.notify?.info) {
-        this.dplan.notify.info(message)
+        this.dplan.notify.info({ message, persist: true })
       }
     },
 
@@ -140,6 +140,7 @@ export default {
     updateTimer () {
       if (!this.dplan?.expirationTimestamp) {
         this.cleanup()
+
         return
       }
 
