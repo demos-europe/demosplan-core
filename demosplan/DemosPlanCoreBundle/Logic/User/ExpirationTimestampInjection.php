@@ -88,11 +88,11 @@ class ExpirationTimestampInjection
 
     public function hasValidToken(SessionInterface $session): bool
     {
-
         $tokenExpires = $session->get(self::EXPIRATION_TIMESTAMP);
 
         if (!$tokenExpires) {
             $this->logger->debug('No token expiration found in session');
+
             return false;
         }
 
@@ -100,13 +100,12 @@ class ExpirationTimestampInjection
         $isValid = $currentTime <= $tokenExpires;
 
         $this->logger->debug('Token validation result', [
-            'current_time' => date('Y-m-d H:i:s', $currentTime),
-            'token_expires' => date('Y-m-d H:i:s', $tokenExpires),
+            'current_time'      => date('Y-m-d H:i:s', $currentTime),
+            'token_expires'     => date('Y-m-d H:i:s', $tokenExpires),
             'seconds_remaining' => $tokenExpires - $currentTime,
-            'is_valid' => $isValid
+            'is_valid'          => $isValid,
         ]);
 
         return $isValid;
     }
-
 }

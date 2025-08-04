@@ -87,7 +87,7 @@
                                 href="#publicStatementForm"
                                 id="statementModalButton"
                                 @click.stop.prevent="toggleStatementModal({})"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button u-mb-0_5 is-active'|prefixClass }}"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 mb-0.5 is-active'|prefixClass }}"
                                 data-cy="publicStatementButton"
                                 aria-controls="statementModal"
                                 aria-describedby="statementActionDescriptionMap"
@@ -114,7 +114,7 @@
 
                             <button
                                 type="button"
-                                class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner is-active u-mb-0_5 js__statementForm'|prefixClass }}"
+                                class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 o-spinner is-active mb-0.5 js__statementForm'|prefixClass }}"
                                 data-statement-action="activateQueryAreaButton"
                                 id="queryAreaButton">
                                 {{  "statement.map.choose_priority_area"|trans }}
@@ -190,7 +190,7 @@
 
                                 <button
                                     type="button"
-                                    class="{{ 'c-actionbox__title--button u-mt-0_5 hidden'|prefixClass }}"
+                                    class="{{ 'c-actionbox__title--button text-h4 mt-0.5 hidden'|prefixClass }}"
                                     id="saveStatementButton"
                                     title="{{ "statement.map.draw.no_drawing_warning"|trans }}">
                                     {{ "statement.map.draw_to_map"|trans }}
@@ -204,7 +204,7 @@
                                 <button
                                     type="button"
                                     data-maptools-id="markLocationButtonResponsive"
-                                    class="{{ 'c-actionbox__title c-actionbox__title--button is-active'|prefixClass }}">
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 is-active'|prefixClass }}">
                                     {{ "statement.map.draw.mark_place"|trans }}
                                 </button>
 
@@ -225,7 +225,7 @@
                                 <button
                                     type="button"
                                     id="markLocationButton"
-                                    class="{{ 'c-actionbox__title c-actionbox__title--button o-spinner u-mb-0_5 is-active'|prefixClass }}">
+                                    class="{{ 'c-actionbox__title c-actionbox__title--button text-h4 o-spinner mb-0.5 is-active'|prefixClass }}">
                                     {{ "statement.map.draw.mark_place"|trans }}
                                 </button>
 
@@ -427,7 +427,7 @@
                     <button id="popupAction" class="{{ 'c-map__popup__button btn btn--primary u-mt-0_5'|prefixClass }}">
                         <i :class="activeStatement ? prefixClass('fa fa-commenting') : prefixClass('fa fa-comment')" aria-hidden="true"></i>
                         <template v-if="activeStatement">
-                            {{ 'statement.form.edit.location_relation'|trans }}
+                            {{ 'statement.continue'|trans }}
                         </template>
                         <template v-else>
                             {{ 'statement.new'|trans }}

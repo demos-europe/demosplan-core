@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
 use Exception;
-use Predis\Command\Redis\EXPIRE;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -55,7 +54,6 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined
         if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
-
             $keycloakToken = $event->getRequest()->getSession()->get(ExpirationTimestampInjection::KEYCLOAK_TOKEN);
             $event->getRequest()->getSession()->invalidate();
             $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
