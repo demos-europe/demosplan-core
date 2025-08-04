@@ -316,7 +316,7 @@ export default {
     }),
 
     ...mapMutations('CustomField', {
-      updateCustomField: 'set'
+      updateCustomField: 'setItem'
     }),
 
     async saveEditedFields () {
