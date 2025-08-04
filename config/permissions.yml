@@ -1222,6 +1222,13 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_layer_preview:
+    description: |-
+        Enable a preview for layer selection of external WMS services as an admin.
+    expose: true
+    label: 'Enables WMS layer preview during selection'
+    loginRequired: true
+    parent: area_map_participation_area
 feature_map_max_extent:
     description: |-
         Restrict the access to get the max extension of the public map (in the admin area)
