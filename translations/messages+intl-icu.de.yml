@@ -1172,7 +1172,8 @@ error.phone.required: "Bitte geben Sie eine Telefonnummer ein."
 error.startdate.required: "Bitte geben Sie ein Startdatum ein"
 error.enddate.required: "Bitte geben Sie ein Enddatum ein"
 error.date.endbeforestart: "Das Enddatum kann nicht vor dem Startdatum liegen."
-error.phaseIteration.invalid: "Die Durchgangsnummer einer Phase muss eine positive Ganzzahl sein."
+error.phaseIteration.invalid: "Die Durchgangsnummer des Verfahrenschritts Institutionen muss eine positive Ganzzahl sein und darf nicht größer als 100 sein."
+error.publicPhaseIteration.invalid: "Die Durchgangsnummer des Verfahrenschritts Öffentlichkeit muss eine positive Ganzzahl sein und darf nicht größer als 100 sein."
 error.date: "Bitte geben Sie ein Datum ein."
 error.date.invalid: "Das angegebene Datum ist ungültig"
 error.delete.addressBookEntry: "Der Adressbucheintrag konnte nicht gelöscht werden"
@@ -2909,7 +2910,7 @@ public.participation.panel.institution.description_1: "Institutionen benötigen 
 public.participation.panel.institution.description_2: "<a class=\"{css}\" href=\"{url}\">Jetzt registrieren.</a>"
 public.participation.participate: "Stellung nehmen"
 public.participation.publication: "Veröffentlichung von Stellungnahmen von Bürger*innen in diesem Verfahren erlauben"
-public.participation.feedback: 'Die Checkbox "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist" für die Bürger*innen hinzufügen.'
+public.participation.feedback: 'Die Checkbox "Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten" für die Bürger*innen hinzufügen.'
 public.participation.receive_notifications: "Expert*innen prüfen Ihre Stellungnahme. Lassen Sie sich über das Ergebnis informieren!"
 public.participation.relation: "Ortsbezug"
 public.participation.relation.map: "Ortsbezug in der Karte"
