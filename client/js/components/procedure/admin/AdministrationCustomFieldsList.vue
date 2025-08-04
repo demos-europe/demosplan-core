@@ -138,13 +138,14 @@
         <div class="flex float-right">
           <button
             v-if="!rowData.edit"
-            class="btn--blank o-link--default"
+            class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
             :aria-label="Translator.trans('item.edit')"
             @click="editCustomField(rowData)">
-            <i
-              class="fa fa-pencil"
-              aria-hidden="true" />
+            <dp-icon
+              aria-hidden="true"
+              icon="edit"
+            />
           </button>
 
           <template v-else>
