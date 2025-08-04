@@ -10,9 +10,7 @@
       size="small"
     />
 
-    <span
-      :class="{ 'color-message-warning-text': isWarning }"
-    >
+    <span :class="{ 'color-message-warning-text': isWarning }">
       {{ displayTime }}
     </span>
 
@@ -42,7 +40,6 @@ export default {
 
   data() {
     return {
-      hasExpired: false,
       intervalId: null,
       timeLeft: 0,
       warningsShown: new Set(),
@@ -141,8 +138,8 @@ export default {
       const sessionExpiration = this.dplan.expirationTimestamp * millisecondsPerSecond
       this.timeLeft = sessionExpiration - Date.now()
 
-      if (this.timeLeft <= 0 && !this.hasExpired) {
-        this.hasExpired = true
+      if (this.timeLeft <= 0) {
+        this.cleanup()
         this.handleSessionTimeout()
 
         return
@@ -163,5 +160,3 @@ export default {
   }
 }
 </script>
-
-
