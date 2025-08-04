@@ -71,7 +71,7 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
         }
 
         // Check if in prod environment
-        if (!$this->expirationTimestampInjection->shouldInjectTestExpiration()) {
+        if ($this->expirationTimestampInjection->shouldInjectTestExpiration()) {
             $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
         }
 
