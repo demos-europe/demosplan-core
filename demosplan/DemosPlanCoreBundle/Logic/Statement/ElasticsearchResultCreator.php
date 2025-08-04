@@ -661,7 +661,7 @@ class ElasticsearchResultCreator
             $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $this->logger->info('Received invalid Page for pagination', [$e]);
                 $paginator->setCurrentPage(1);

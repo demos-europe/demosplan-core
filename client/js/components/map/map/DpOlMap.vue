@@ -106,11 +106,12 @@
           v-for="(layer, idx) in sortedLayers"
           :key="layer.name"
           :attributions="layer.attribution || ''"
-          :order="idx"
+          :order="options.hideDefaultLayer ? idx : idx + 1"
           :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
-          :projection="layer.projectionValue" />
+          :projection="layer.projectionValue"
+          :layer-type="layer.layerType || 'overlay'" />
       </div>
 
       <!-- Map container -->

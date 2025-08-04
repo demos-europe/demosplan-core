@@ -37,10 +37,8 @@ class ElasticSearchService
 
     /**
      * Number of Documents to be counted as an Elasticsearch aggregation.
-     *
-     * @var int
      */
-    protected $aggregationsMinDocumentCount = 1;
+    protected int $aggregationsMinDocumentCount = 1;
 
     public function __construct(
         private readonly EditorService $editorService,
@@ -103,7 +101,7 @@ class ElasticSearchService
         return $query;
     }
 
-    public function setAggregationsMinDocumentCount($aggregationsMinDocumentCount): void
+    public function setAggregationsMinDocumentCount(int $aggregationsMinDocumentCount): void
     {
         $this->aggregationsMinDocumentCount = $aggregationsMinDocumentCount;
     }
@@ -121,16 +119,14 @@ class ElasticSearchService
         return $elasticsearchResultStatement;
     }
 
-    /**
-     * @param string $keyInAggregation
-     * @param array  $fromArray
-     * @param array  $aggregation
-     * @param array  $labelMap
-     * @param string $labelKey
-     * @param string $valueKey
-     * @param string $countKey
-     */
-    protected function addAggregationResultToArrayFromArray($keyInAggregation, $fromArray, $aggregation, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
+    protected function addAggregationResultToArrayFromArray(
+        string $keyInAggregation,
+        array $fromArray,
+        array $aggregation,
+        array $labelMap = [],
+        string $labelKey = 'key',
+        string $valueKey = 'key',
+        string $countKey = 'doc_count'): array
     {
         $generatedFilterArray = $this->elasticsearchFilterArrayTransformer->generateFilterArrayFromEsBucket(
             $fromArray,
@@ -256,14 +252,12 @@ class ElasticSearchService
         return $bucket;
     }
 
-    /**
-     * @param string $keyInFragmentEsResult
-     * @param string $keyInAggregation
-     * @param array  $fragmentAggregations
-     * @param array  $aggregation
-     * @param array  $labelMap
-     */
-    public function addFragmentEsResultToArray($keyInFragmentEsResult, $keyInAggregation, $fragmentAggregations, $aggregation, $labelMap = [])
+    public function addFragmentEsResultToArray(
+        string $keyInFragmentEsResult,
+        string $keyInAggregation,
+        array $fragmentAggregations,
+        array $aggregation,
+        array $labelMap = []): array
     {
         if (isset($fragmentAggregations[$keyInFragmentEsResult])) {
             $aggregation = $this->addAggregationResultToArrayFromArray(
@@ -442,12 +436,9 @@ class ElasticSearchService
         return [$boolMustFilter, $boolMustNotFilter];
     }
 
-    /**
-     * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
-     *
-     * @return bool
-     */
-    private function hasFilterValue($filter)
+    // Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
+    
+    private function hasFilterValue(array|string $filter): bool
     {
         if (is_array($filter)) {
             foreach ($filter as $filterValue) {
@@ -515,7 +506,8 @@ class ElasticSearchService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits'] ?? []));
+        $total = $this->extractTotalFromElasticsearchResult($elasticsearchResult);
+        $resultSet->setTotal($total);
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($elasticsearchResult->getPager());
@@ -524,11 +516,26 @@ class ElasticSearchService
     }
 
     /**
-     * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
-     *
-     * @param array $hit
+     * Extract total count from Elasticsearch result, handling both legacy and modern formats.
      */
-    protected function convertElasticsearchHitToLegacy($hit)
+    private function extractTotalFromElasticsearchResult(ElasticsearchResult $elasticsearchResult): int
+    {
+        $hits = $elasticsearchResult->getHits();
+        $total = $hits['total'] ?? 0;
+
+        // Elasticsearch 7+ returns total as object with 'value' field
+        if (is_array($total) && isset($total['value'])) {
+            return (int) $total['value'];
+        }
+
+        // Legacy format or fallback
+        return (int) $total;
+    }
+
+    /**
+     * Convert the result from Elasticsearch to legacy format.
+     */
+    protected function convertElasticsearchHitToLegacy(array $hit): array
     {
         $singleHit = $hit['_source'];
         if (array_key_exists('originalId', $singleHit)) {

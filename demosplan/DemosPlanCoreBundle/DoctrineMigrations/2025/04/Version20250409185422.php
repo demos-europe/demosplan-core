@@ -32,7 +32,12 @@ class Version20250409185422 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _procedure RENAME INDEX fk_d1a01d0281398e09 TO IDX_D1A01D0281398E09');
+        $procedureTable = $schema->getTable('_procedure');
+        
+        // Check if the old index exists before trying to rename it
+        if ($procedureTable->hasIndex('fk_d1a01d0281398e09')) {
+            $this->addSql('ALTER TABLE _procedure RENAME INDEX fk_d1a01d0281398e09 TO IDX_D1A01D0281398E09');
+        }
     }
 
     /**
@@ -42,7 +47,12 @@ class Version20250409185422 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _procedure RENAME INDEX idx_d1a01d0281398e09 TO FK_D1A01D0281398E09');
+        $procedureTable = $schema->getTable('_procedure');
+        
+        // Check if the new index exists before trying to rename it back
+        if ($procedureTable->hasIndex('IDX_D1A01D0281398E09')) {
+            $this->addSql('ALTER TABLE _procedure RENAME INDEX IDX_D1A01D0281398E09 TO fk_d1a01d0281398e09');
+        }
     }
 
     /**
