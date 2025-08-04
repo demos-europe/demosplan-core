@@ -2380,7 +2380,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formkit/themes@npm:1.6.9":
+"@formkit/themes@npm:1.6.9, @formkit/themes@npm:^1.6.9":
   version: 1.6.9
   resolution: "@formkit/themes@npm:1.6.9"
   dependencies:
@@ -2486,14 +2486,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@init/diplan-karten@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@init/diplan-karten@npm:1.0.1"
+"@init/diplan-karten@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@init/diplan-karten@npm:1.1.0"
   dependencies:
     "@formkit/addons": "npm:1.6.9"
     "@formkit/auto-animate": "npm:0.8.2"
     "@formkit/core": "npm:^1.6.9"
     "@formkit/inputs": "npm:^1.6.9"
+    "@formkit/themes": "npm:^1.6.9"
     "@formkit/vue": "npm:1.6.9"
     "@masterportal/masterportalapi": "npm:2.45.0"
     "@oruga-ui/oruga-next": "npm:0.10.6"
@@ -2501,7 +2502,8 @@ __metadata:
     "@turf/turf": "npm:^7.2.0"
     "@vueuse/components": "npm:^13.3.0"
     "@vueuse/core": "npm:^13.3.0"
-    diplanung-style: "npm:^13.1.0"
+    axios: "npm:^1.11.0"
+    diplanung-style: "npm:^13.2.0"
     lodash-es: "npm:^4.17.21"
     ol: "npm:10.3.1"
     ol-ext: "npm:^4.0.26"
@@ -2509,7 +2511,7 @@ __metadata:
     "@popperjs/core": ^2.11.8
     bootstrap: ^5.3.3
     vue: ^3.5.13
-  checksum: 10c0/90313b29af48c2320fec5fab8c9052b97f2f3698d43ad7cdbdb41273e33cb330574b2d4dccaf93bd315e267a5cb5bd23a2aca3aa1cc36151283ed07707467da6
+  checksum: 10c0/1fbd777d15c8da2074f693e00b9da51386e3c5ebc485eff14e8acad32702588df15bf92483748b794cbc4083543602b6fd41e1099cbf594167ddd9a8f6151afb
   languageName: node
   linkType: hard
 
@@ -6952,6 +6954,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "axios@npm:1.11.0"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.4"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
+  languageName: node
+  linkType: hard
+
 "babel-core@npm:^7.0.0-bridge.0":
   version: 7.0.0-bridge.0
   resolution: "babel-core@npm:7.0.0-bridge.0"
@@ -8699,7 +8712,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diplanung-style@npm:^13.1.0":
+"diplanung-style@npm:^13.2.0":
   version: 13.2.0
   resolution: "diplanung-style@npm:13.2.0"
   dependencies:
@@ -9857,6 +9870,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.15.6":
+  version: 1.15.11
+  resolution: "follow-redirects@npm:1.15.11"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: 10c0/d301f430542520a54058d4aeeb453233c564aaccac835d29d15e050beb33f339ad67d9bddbce01739c5dc46a6716dbe3d9d0d5134b1ca203effa11a7ef092343
+  languageName: node
+  linkType: hard
+
 "font-awesome@npm:^4.7.0":
   version: 4.7.0
   resolution: "font-awesome@npm:4.7.0"
@@ -9892,6 +9915,19 @@ __metadata:
     es-set-tostringtag: "npm:^2.1.0"
     mime-types: "npm:^2.1.12"
   checksum: 10c0/e534b0cf025c831a0929bf4b9bbe1a9a6b03e273a8161f9947286b9b13bf8fb279c6944aae0070c4c311100c6d6dbb815cd955dc217728caf73fad8dc5b8ee9c
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "form-data@npm:4.0.4"
+  dependencies:
+    asynckit: "npm:^0.4.0"
+    combined-stream: "npm:^1.0.8"
+    es-set-tostringtag: "npm:^2.1.0"
+    hasown: "npm:^2.0.2"
+    mime-types: "npm:^2.1.12"
+  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
   languageName: node
   linkType: hard
 
@@ -14576,6 +14612,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"proxy-from-env@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "proxy-from-env@npm:1.1.0"
+  checksum: 10c0/fe7dd8b1bdbbbea18d1459107729c3e4a2243ca870d26d34c2c1bcd3e4425b7bcc5112362df2d93cc7fb9746f6142b5e272fd1cc5c86ddf8580175186f6ad42b
+  languageName: node
+  linkType: hard
+
 "psl@npm:^1.1.33":
   version: 1.15.0
   resolution: "psl@npm:1.15.0"
@@ -15043,7 +15086,7 @@ __metadata:
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
-    "@init/diplan-karten": "npm:^1.0.1"
+    "@init/diplan-karten": "npm:^1.1.0"
     "@masterportal/masterportalapi": "npm:2.48.0"
     "@sentry/browser": "npm:^9.24.0"
     "@sentry/tracing": "npm:^7.120.3"
