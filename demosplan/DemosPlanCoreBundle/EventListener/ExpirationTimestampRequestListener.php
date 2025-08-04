@@ -46,8 +46,7 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
-
-        if(!$this->expirationTimestampInjection->hasLogoutWarningPermission()) {
+        if (!$this->expirationTimestampInjection->hasLogoutWarningPermission()) {
             return;
         }
 
@@ -75,7 +74,6 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
         }
 
-
         $isValid = $this->expirationTimestampInjection->hasValidToken($session);
 
         if (true === $isValid) {
@@ -98,5 +96,4 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
         $redirectResponse = new RedirectResponse($this->router->generate('DemosPlan_user_logout'));
         $event->setController(static fn () => $redirectResponse);
     }
-
 }
