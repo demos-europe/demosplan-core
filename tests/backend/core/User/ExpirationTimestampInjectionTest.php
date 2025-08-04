@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -37,7 +37,7 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
 
         $this->kernelMock = $this->createMock(KernelInterface::class);
 
-        $this->sut = new ExpirationTimestampInjection(
+        $this->sut = new OzgKeycloakLogoutManager(
             $this->kernelMock,
             self::getContainer()->get(LoggerInterface::class),
             self::getContainer()->get(CurrentUserService::class),

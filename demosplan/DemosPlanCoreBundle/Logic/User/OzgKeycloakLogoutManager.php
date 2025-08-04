@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * in non-production environments. This enables frontend auto-logout functionality
  * for development and testing purposes.
  */
-class ExpirationTimestampInjection
+class OzgKeycloakLogoutManager
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
     public const KEYCLOAK_TOKEN = 'keycloakToken';
@@ -55,7 +55,7 @@ class ExpirationTimestampInjection
     }
 
     /**
-     * Injects JWT token expiration timestamp into the user session.
+     * Injects test expiration timestamp into the user session.
      * Creates a new JWT token for the user and extracts its expiration time.
      */
     public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
@@ -107,5 +107,11 @@ class ExpirationTimestampInjection
         ]);
 
         return $isValid;
+    }
+
+    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, string $idToken): void
+    {
+        $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
+        $session->set(self::KEYCLOAK_TOKEN, $idToken);
     }
 }
