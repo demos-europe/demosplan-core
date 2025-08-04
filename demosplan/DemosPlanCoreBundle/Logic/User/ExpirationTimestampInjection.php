@@ -25,6 +25,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class ExpirationTimestampInjection
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
+    public const KEYCLOAK_TOKEN = 'keycloakToken';
 
     /** @var int Session expiration time for testing (120 minutes) */
     private const TEST_SESSION_LIFETIME_SECONDS = 7200;
@@ -44,10 +45,6 @@ class ExpirationTimestampInjection
      */
     public function shouldInjectTestExpiration(): bool
     {
-        if (!$this->hasLogoutWarningPermission()) {
-            return false;
-        }
-
         return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment()
             || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
     }
@@ -88,4 +85,28 @@ class ExpirationTimestampInjection
             ]);
         }
     }
+
+    public function hasValidToken(SessionInterface $session): bool
+    {
+
+        $tokenExpires = $session->get(self::EXPIRATION_TIMESTAMP);
+
+        if (!$tokenExpires) {
+            $this->logger->debug('No token expiration found in session');
+            return false;
+        }
+
+        $currentTime = time();
+        $isValid = $currentTime <= $tokenExpires;
+
+        $this->logger->debug('Token validation result', [
+            'current_time' => date('Y-m-d H:i:s', $currentTime),
+            'token_expires' => date('Y-m-d H:i:s', $tokenExpires),
+            'seconds_remaining' => $tokenExpires - $currentTime,
+            'is_valid' => $isValid
+        ]);
+
+        return $isValid;
+    }
+
 }

@@ -13,11 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Request listener that automatically injects expiration timestamp into session
@@ -29,6 +32,8 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
     public function __construct(
         private readonly Security $security,
         private readonly ExpirationTimestampInjection $expirationTimestampInjection,
+        private readonly RouterInterface $router,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -41,8 +46,8 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
-        // Check if in prod environment
-        if (!$this->expirationTimestampInjection->shouldInjectTestExpiration()) {
+
+        if(!$this->expirationTimestampInjection->hasLogoutWarningPermission()) {
             return;
         }
 
@@ -65,7 +70,33 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             return;
         }
 
-        // Try to get JWT token expiration and store in session
-        $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
+        // Check if in prod environment
+        if ($this->expirationTimestampInjection->shouldInjectTestExpiration()) {
+            $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
+        }
+
+
+        $isValid = $this->expirationTimestampInjection->hasValidToken($session);
+
+        if (true === $isValid) {
+            return;
+        }
+
+        $this->handleExpiredToken($event);
     }
+
+    private function handleExpiredToken(ControllerEvent $event): void
+    {
+        $this->logger->info('Token expired, redirecting to logout');
+
+        // Invalidate session
+        $session = $event->getRequest()->getSession();
+        $session->invalidate();
+
+        // Direct response - no controller needed
+
+        $redirectResponse = new RedirectResponse($this->router->generate('DemosPlan_user_logout'));
+        $event->setController(static fn () => $redirectResponse);
+    }
+
 }
