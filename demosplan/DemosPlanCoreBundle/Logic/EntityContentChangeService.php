@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
@@ -70,7 +71,7 @@ class EntityContentChangeService
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CurrentUserService $currentUserService,
         private readonly LoggerInterface $logger,
-        private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->tokenStorage = $tokenStorage;
     }

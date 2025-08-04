@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -34,7 +35,7 @@ class StatementClusterService
         private readonly DqlConditionFactory $conditionFactory,
         private readonly StatementCopier $statementCopier,
         private readonly StatementRepository $statementRepository,
-        private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
+        private readonly ManagerRegistry $doctrine,
         private readonly LoggerInterface $logger,
         StatementService $statementService,
     ) {
