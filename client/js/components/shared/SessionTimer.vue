@@ -109,6 +109,14 @@ export default {
       return { hours, minutes, seconds }
     },
 
+    async handleSessionTimeout() {
+      try {
+        window.location.href = this.Routing.generate('DemosPlan_user_logout')
+      } catch (error) {
+        console.error('Session timeout logout failed:', error)
+      }
+    },
+
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
       this.warning10minLeft = timestampInMsecs - (119 * millisecondsPerMinute) // for testing - will be 10
@@ -120,20 +128,6 @@ export default {
     showWarning (message) {
       if (this.dplan?.notify?.info) {
         this.dplan.notify.info({ message, persist: true })
-      }
-    },
-
-    async handleSessionTimeout() {
-      try {
-        const logoutUrl = this.Routing.generate('DemosPlan_user_logout')
-
-        await fetch(logoutUrl, {
-          method: 'POST',
-          credentials: 'same-origin'
-        })
-
-      } catch (error) {
-        console.error('Session timeout logout failed:', error)
       }
     },
 
