@@ -153,7 +153,7 @@
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="customFields:saveEdit"
-              @click="saveEditedFields()">
+              @click="saveEditedFields">
               <dp-icon
                 icon="check"
                 aria-hidden="true" />
@@ -324,27 +324,23 @@ export default {
         const isConfirmed = await this.$refs.confirmDialog.open()
 
         if (isConfirmed) {
-          //TODO: Send data
-          //update store item
           const storeField = this.customFields[this.newRowData.id]
-          storeField.attributes.options = this.newRowData.options
-          this.updateCustomField(storeField)
-          // send patch
-          await this.saveCustomField(storeField.id).catch()
+          const { description = '', name, options } = this.newRowData
 
-          //Beispiel Update ohne Store
-          // dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
-          //   .then(response => {
-          //     if (response.ok) {
-          //       dplan.notify.confirm(Translator.trans('statement.save.quickSave.success'))
-          //     } else {
-          //       dplan.notify.error(Translator.trans('error.api.generic'))
-          //     }
-          //   })
-          //   .catch((err) => {
-          //     console.error(err)
-          //     dplan.notify.error(Translator.trans('error.api.generic'))
-          //   })
+          const updatedField = {
+            id: storeField.id,
+            attributes: {
+              ...storeField.attributes,
+              description,
+              name,
+              options
+            },
+            type: storeField.type
+          }
+
+          this.updateCustomField(updatedField)
+
+          await this.saveCustomField(storeField.id)
         }
       }
     },
@@ -394,29 +390,38 @@ export default {
     },
 
     editCustomField (rowData) {
-      console.log(this.customFieldItems)
-      const editingCustomField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
+      let editingCustomField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
 
-      console.log(editingCustomField)
-      console.log(rowData)
       if (editingCustomField) {
-        // Reset row which was in editing state before
-        editingCustomField.description = this.initialRowData.description
-        editingCustomField.edit = false
-        editingCustomField.name = this.initialRowData.name
-        editingCustomField.open = false
-        editingCustomField.options = this.initialRowData.options
-        console.log(this.newRowData)
+        const { description = '', name = '', options = [] } = this.initialRowData
+
+        editingCustomField = {
+          description,
+          edit: false,
+          name,
+          open: false,
+          options
+        }
+
         this.newRowData = {}
       }
 
-      // Save initial state of currently edited row
-      this.initialRowData.description = rowData.description
-      this.initialRowData.name = rowData.name
-      this.initialRowData.options = rowData.options
+      // Store initial state of currently edited row
+      const { id, description, name, options } = rowData
 
-      this.newRowData.description = rowData.description
-      this.newRowData.name = rowData.name
+      this.initialRowData = {
+        description,
+        name,
+        options: [...options]
+      }
+
+      this.newRowData = {
+        id,
+        description,
+        name,
+        options: [...options]
+      }
+
 
       if (!this.newRowData.options) {
         this.newRowData.options = [...rowData.options]//rowData.options.map((option) => option)
