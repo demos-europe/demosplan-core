@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-"content-hash": "466d83e34237fc31ec48ab51beac590d",
+    "content-hash": "7ce47f7a508e2c8847766f74e68c274f",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -9608,16 +9608,16 @@
         },
         {
             "name": "php-amqplib/rabbitmq-bundle",
-            "version": "2.17.3",
+            "version": "2.17.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-amqplib/RabbitMqBundle.git",
-                "reference": "76ca2c9b9efddad5ade150b656efe10119a81acf"
+                "reference": "84f6c284daddd350b1b9ba3a4efabcb7c9c03479"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/76ca2c9b9efddad5ade150b656efe10119a81acf",
-                "reference": "76ca2c9b9efddad5ade150b656efe10119a81acf",
+                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/84f6c284daddd350b1b9ba3a4efabcb7c9c03479",
+                "reference": "84f6c284daddd350b1b9ba3a4efabcb7c9c03479",
                 "shasum": ""
             },
             "require": {
@@ -9681,9 +9681,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-amqplib/RabbitMqBundle/issues",
-                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.17.3"
+                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.17.4"
             },
-            "time": "2025-01-08T09:24:19+00:00"
+            "time": "2025-08-03T22:35:15+00:00"
         },
         {
             "name": "php-http/curl-client",
@@ -13061,16 +13061,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.4.23",
+            "version": "v6.4.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "9056771b8eca08d026cd3280deeec3cfd99c4d93"
+                "reference": "59266a5bf6a596e3e0844fd95e6ad7ea3c1d3350"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/9056771b8eca08d026cd3280deeec3cfd99c4d93",
-                "reference": "9056771b8eca08d026cd3280deeec3cfd99c4d93",
+                "url": "https://api.github.com/repos/symfony/console/zipball/59266a5bf6a596e3e0844fd95e6ad7ea3c1d3350",
+                "reference": "59266a5bf6a596e3e0844fd95e6ad7ea3c1d3350",
                 "shasum": ""
             },
             "require": {
@@ -13135,7 +13135,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.4.23"
+                "source": "https://github.com/symfony/console/tree/v6.4.24"
             },
             "funding": [
                 {
@@ -13147,11 +13147,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-27T19:37:22+00:00"
+            "time": "2025-07-30T10:38:54+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -24310,9 +24314,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
