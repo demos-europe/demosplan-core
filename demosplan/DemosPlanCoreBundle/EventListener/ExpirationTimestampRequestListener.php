@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -30,10 +30,10 @@ use Symfony\Component\Routing\RouterInterface;
 class ExpirationTimestampRequestListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security $security,
-        private readonly ExpirationTimestampInjection $expirationTimestampInjection,
-        private readonly RouterInterface $router,
-        private readonly LoggerInterface $logger,
+        private readonly Security                 $security,
+        private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+        private readonly RouterInterface          $router,
+        private readonly LoggerInterface          $logger,
     ) {
     }
 
@@ -45,8 +45,9 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
     }
 
     public function onKernelController(ControllerEvent $event): void
+
     {
-        if (!$this->expirationTimestampInjection->hasLogoutWarningPermission()) {
+        if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission()) {
             return;
         }
 
@@ -70,11 +71,11 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
         }
 
         // Check if in prod environment
-        if ($this->expirationTimestampInjection->shouldInjectTestExpiration()) {
-            $this->expirationTimestampInjection->injectTokenExpirationIntoSession($session, $user);
+        if ($this->ozgKeycloakLogoutManager->shouldInjectTestExpiration()) {
+            $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
         }
 
-        $isValid = $this->expirationTimestampInjection->hasValidToken($session);
+        $isValid = $this->ozgKeycloakLogoutManager->hasValidToken($session);
 
         if (true === $isValid) {
             return;
