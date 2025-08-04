@@ -42,6 +42,7 @@ export default {
 
   data() {
     return {
+      hasExpired: false,
       intervalId: null,
       timeLeft: 0,
       warningsShown: new Set(),
@@ -122,6 +123,20 @@ export default {
       }
     },
 
+    async handleSessionTimeout() {
+      try {
+        const logoutUrl = this.Routing.generate('DemosPlan_user_logout')
+
+        await fetch(logoutUrl, {
+          method: 'POST',
+          credentials: 'same-origin'
+        })
+
+      } catch (error) {
+        console.error('Session timeout logout failed:', error)
+      }
+    },
+
     updateTimer () {
       if (!this.dplan?.expirationTimestamp) {
         this.cleanup()
@@ -130,6 +145,14 @@ export default {
 
       const sessionExpiration = this.dplan.expirationTimestamp * millisecondsPerSecond
       this.timeLeft = sessionExpiration - Date.now()
+
+      if (this.timeLeft <= 0 && !this.hasExpired) {
+        this.hasExpired = true
+        this.handleSessionTimeout()
+
+        return
+      }
+
       this.checkWarnings()
     }
   },
