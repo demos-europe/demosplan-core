@@ -108,4 +108,10 @@ class ExpirationTimestampInjection
 
         return $isValid;
     }
+
+    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, string $idToken): void
+    {
+        $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
+        $session->set(self::KEYCLOAK_TOKEN, $idToken);
+    }
 }
