@@ -34,13 +34,13 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 class OzgKeycloakAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
     public function __construct(
-        private readonly ClientRegistry            $clientRegistry,
-        private readonly EntityManagerInterface    $entityManager,
-        private readonly OzgKeycloakUserData       $ozgKeycloakUserData,
-        private readonly LoggerInterface           $logger,
+        private readonly ClientRegistry $clientRegistry,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly OzgKeycloakUserData $ozgKeycloakUserData,
+        private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface           $router,
-        private readonly OzgKeycloakLogoutManager  $keycloakLogoutManager,
+        private readonly RouterInterface $router,
+        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
     ) {
     }
 

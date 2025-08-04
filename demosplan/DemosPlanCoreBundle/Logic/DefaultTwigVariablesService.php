@@ -177,7 +177,7 @@ class DefaultTwigVariablesService
             'urlScheme'                                          => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                                       => $this->globalConfig->getUseOpenGeoDb(),
             'externalLinks'                                      => $this->getFilteredExternalLinks(),
-            OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP   => $request->getSession()->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP),
+            OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP       => $request->getSession()->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP),
         ];
     }
 

@@ -30,10 +30,10 @@ use Symfony\Component\Routing\RouterInterface;
 class ExpirationTimestampRequestListener implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security                 $security,
+        private readonly Security $security,
         private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
-        private readonly RouterInterface          $router,
-        private readonly LoggerInterface          $logger,
+        private readonly RouterInterface $router,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -45,7 +45,6 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
     }
 
     public function onKernelController(ControllerEvent $event): void
-
     {
         if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission()) {
             return;
