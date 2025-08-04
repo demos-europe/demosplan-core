@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
@@ -2304,7 +2305,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Create a new records collection from the converted data
-        $records = new \ArrayIterator($convertedRecords);
+        $records = new ArrayIterator($convertedRecords);
         $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {
