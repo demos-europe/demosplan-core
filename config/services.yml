@@ -395,6 +395,7 @@ services:
         arguments:
             $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
         lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService: ~
 
@@ -651,6 +652,7 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
