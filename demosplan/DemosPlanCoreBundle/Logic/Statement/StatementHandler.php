@@ -108,6 +108,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
@@ -244,7 +245,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
+        private readonly StatementDeleter $statementDeleter,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly ManagerRegistry $doctrine,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -4061,8 +4065,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             /** @var StatementRepository $statementRepository */
-            $statementRepository = $this->statementService
-                ->getDoctrine()
+            $statementRepository = $this->doctrine
                 ->getManager()
                 ->getRepository(Statement::class);
             $voteObjects = $statementRepository
