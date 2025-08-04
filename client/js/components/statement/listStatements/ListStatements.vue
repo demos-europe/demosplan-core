@@ -8,11 +8,11 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+  <div id="test" class="dp-list-statements-container" :class="{ 'dp-list-statements-fullscreen-overlay': isFullscreen }">
     <dp-sticky-element
       border
-      class="pt-2 pb-3"
-      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      class="dp-list-statements-sticky"
+      :class="{ 'dp-list-statements-sticky-fullscreen': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <custom-search-statements

@@ -1,5 +1,25 @@
-.dp-breadcrumb-container {
-    background-color: red !important;
+/* Default Theme */
+
+.dp-list-statements-fullscreen-overlay {
+    @apply fixed top-0 left-0 flex flex-col w-full h-full z-fixed bg-surface;
 }
 
+.dp-list-statements-sticky {
+    @apply pt-2 pb-3;
+}
 
+.dp-procedure-name-container{
+
+}
+
+/* Twig Override*/
+
+#sideMenu {
+    display: none !important;
+}
+
+/* Breadcrumb: Change CSS triangle icons to slash separators */
+.o-breadcrumb li + li::before {
+    content: '/';
+    border: none;           /* remove CSS triangle */
+}
