@@ -72,7 +72,7 @@
         <div v-if="rowData.edit">
           <dp-input
             v-model="newRowData.name"
-            id="cfName"
+            id="customFieldName"
             required
           />
         </div>
@@ -254,11 +254,6 @@ export default {
   data () {
     return {
       customFieldItems: [],
-      headerFields: [
-        { field: 'name', label: Translator.trans('name'), colClass: 'u-3-of-12' },
-        { field: 'options', label: Translator.trans('options'), colClass: 'u-4-of-12' },
-        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' }
-      ],
       initialRowData: {},
       isLoading: false,
       isNewFieldFormOpen: false,
@@ -297,6 +292,26 @@ export default {
         }
         return rowData.open ? rowData.options : rowData.options.slice(0, 2)
       }
+    },
+
+    headerFields () {
+      return [
+        {
+          field: 'name',
+          label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
+          colClass: 'u-3-of-12'
+        },
+        {
+          field: 'options',
+          label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('options')}*` : Translator.trans('options'),
+          colClass: 'u-4-of-12'
+        },
+        {
+          field: 'description',
+          label: Translator.trans('description'),
+          colClass: 'u-5-of-12'
+        }
+      ]
     },
 
     helpTextDismissibleKey () {
