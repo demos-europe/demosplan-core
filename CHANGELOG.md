@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fix time based procedure phase switch
+
 ## v4.9.0 (2025-07-30)
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements

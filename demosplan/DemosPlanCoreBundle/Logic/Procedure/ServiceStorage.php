@@ -1061,19 +1061,33 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         string $endDate,
         $mandatoryErrors,
     ) {
+        $this->logger->info('checkSwitchDateValidFields called', [
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'currentErrorCount' => count($mandatoryErrors),
+        ]);
+
         $hasMandatoryAutoSwitchError = false;
 
-        $designatedSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime($startDate)));
-        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate);
-        if (!$designatedSwitchDate->isFuture()) {
-            $mandatoryErrors[] = [
-                'type'    => 'error',
-                'message' => $this->translator
-                    ->trans('error.designated.switchdate.in.past'),
-            ];
-            $hasMandatoryAutoSwitchError = true;
-        }
-        if (!$designatedSwitchEndDate->isFuture()) {
+        $designatedSwitchDate = Carbon::make($startDate);
+        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate)->endOfDay();
+
+        $now = Carbon::now();
+
+        $this->logger->info('Parsed dates for validation', [
+            'designatedSwitchDate' => $designatedSwitchDate->toISOString(),
+            'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+            'now' => $now->toISOString(),
+        ]);
+
+        // Check if end date is in the future
+        if (!$designatedSwitchEndDate->greaterThan($now)) {
+            $this->logger->warning('Switch date validation failed: end date is not in the future', [
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'now' => $now->toISOString(),
+                'differenceInMinutes' => $now->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
@@ -1081,7 +1095,15 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
             $hasMandatoryAutoSwitchError = true;
         }
-        if (!$designatedSwitchDate->lt($designatedSwitchEndDate)) {
+
+        // Check if start date is before end date
+        if ($designatedSwitchDate->startOfDay()->greaterThanOrEqualTo($designatedSwitchEndDate)) {
+            $this->logger->warning('Switch date validation failed: start date is not before end date', [
+                'designatedSwitchDate' => $designatedSwitchDate->toISOString(),
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'differenceInMinutes' => $designatedSwitchDate->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
