@@ -88,11 +88,11 @@
             v-for="(option, index) in displayedOptions(rowData)"
             :key="index"
             class="mb-1"
-            :data-cy="`customFields:option${option}`">
+            :data-cy="`customFields:option${option.label}`">
             <div v-if="rowData.edit">
               <div class="flex">
                 <dp-input
-                  v-model="newRowData.options[index]"
+                  v-model="newRowData.options[index].label"
                   :id="`option:${index}`"
                   :key="`option:${index}`"
                   required
@@ -101,7 +101,7 @@
                 <dp-button
                   v-if="index >= rowData.options.length"
                   class="w-[20px] inline-block ml-1"
-                  :data-cy="`customFields:removeOptionInput:${option}`"
+                  :data-cy="`customFields:removeOptionInput:${option.label}`"
                   hide-text
                   icon="x"
                   :text="Translator.trans('remove')"
@@ -112,7 +112,7 @@
             </div>
 
             <div v-else>
-              {{ option }}
+              {{ option.label }}
             </div>
           </li>
           <li v-if="rowData.edit">
@@ -402,11 +402,11 @@ export default {
     },
 
     addOptionInput () {
-      this.newFieldOptions.push('')
+      this.newFieldOptions.push({ label: '' })
     },
 
     addOptionInputOnEdit () {
-      this.newRowData.options.push('')
+      this.newRowData.options.push({ label: ''})
     },
 
     /**
@@ -457,25 +457,19 @@ export default {
       this.initialRowData = {
         description,
         name,
-        options: [...options]
+        options
       }
 
       this.newRowData = {
         id,
         description,
         name,
-        options: [...options]
+        options
       }
-
 
       if (!this.newRowData.options) {
-        this.newRowData.options = [...rowData.options]//rowData.options.map((option) => option)
-
-        // rowData.options.forEach((option) => {
-        //   this.newRowData.options.push(option)
-        // })
+        this.newRowData.options = options
       }
-      //this.showOptions(rowData)
 
       this.setEditMode(rowData)
     },
@@ -504,7 +498,7 @@ export default {
       }
 
       this.getCustomFields(payload).then(() => {
-        this.customFieldsReduced()
+        this.reduceCustomFields()
       })
         .catch(err => console.error(err))
     },
@@ -592,7 +586,7 @@ export default {
     /**
      * CustomFields reduced to the format we need in the FE
      */
-    customFieldsReduced () {
+    reduceCustomFields () {
       const fieldsReduced = Object.values(this.customFields)
         .map(field => {
           if (field) {
@@ -603,7 +597,7 @@ export default {
               id,
               name,
               description,
-              options,
+              options: JSON.parse(JSON.stringify(options)),
               open: this.expandedFields[id] || false,
               edit: false,
             }
