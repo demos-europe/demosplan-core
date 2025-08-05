@@ -270,7 +270,7 @@ export default {
   watch: {
     autoSwitchPhase (newVal) {
       if (newVal && !this.switchDateOnly) {
-        this.switchDateOnly = this.formatDateToGerman(new Date())
+        this.switchDateOnly = this.minSwitchDate
         this.switchTime = '00:00'
         this.updateSwitchDate()
       }
