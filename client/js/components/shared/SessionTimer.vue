@@ -43,8 +43,8 @@ export default {
       intervalId: null,
       timeLeft: 0,
       warningsShown: new Set(),
-      warning3minLeft: 0,
-      warning10minLeft: 0
+      threeMinutesThreshold: 0,
+      tenMinutesThreshold: 0
     }
   },
 
@@ -54,9 +54,9 @@ export default {
         return '00:00'
       }
 
-      const timeComponents = this.getTimeUnits(this.timeLeft)
+      const timeUnits = this.getTimeUnits(this.timeLeft)
 
-      return this.formatTimeString(timeComponents)
+      return this.formatTimeString(timeUnits)
     },
 
     isWarning () {
@@ -72,12 +72,12 @@ export default {
     checkWarnings () {
       const now = Date.now()
 
-      if (now >= this.warning10minLeft && !this.warningsShown.has('10min')) {
+      if (now >= this.tenMinutesThreshold && !this.warningsShown.has('10min')) {
         this.showWarning(Translator.trans('session.expiration.warning', { minutes: 10 }))
         this.warningsShown.add('10min')
       }
 
-      if (now >= this.warning3minLeft && !this.warningsShown.has('3min')) {
+      if (now >= this.threeMinutesThreshold && !this.warningsShown.has('3min')) {
         this.showWarning(Translator.trans('session.expiration.warning', { minutes: 3 }))
         this.warningsShown.add('3min')
       }
@@ -116,8 +116,8 @@ export default {
 
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.warning10minLeft = timestampInMsecs - (119 * millisecondsPerMinute) // for testing - will be 10
-      this.warning3minLeft = timestampInMsecs - (118 * millisecondsPerMinute) // will be 3
+      this.tenMinutesThreshold = timestampInMsecs - (119 * millisecondsPerMinute) // for testing - will be 10
+      this.threeMinutesThreshold = timestampInMsecs - (118 * millisecondsPerMinute) // will be 3
       this.updateTimer()
       this.intervalId = setInterval(this.updateTimer, millisecondsPerSecond)
     },
