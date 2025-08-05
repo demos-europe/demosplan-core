@@ -436,9 +436,8 @@ class ElasticSearchService
         return [$boolMustFilter, $boolMustNotFilter];
     }
 
-    /**
-     * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
-     */
+    // Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
+
     private function hasFilterValue(array|string $filter): bool
     {
         if (is_array($filter)) {

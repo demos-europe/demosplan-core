@@ -42,6 +42,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class StatementDeleter
 {
     public const DELETE_ERROR_MESSAGE = 'Fehler beim Löschen eines Statements: ';
+
     public function __construct(
         protected AssignService $assignService,
         protected PermissionsInterface $permissions,
