@@ -42,6 +42,12 @@ class AccessControlService
         private readonly LoggerInterface $logger,
     ) {
     }
+    public function createPermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles)
+    {
+        foreach ($roles as $role) {
+            $this->createPermission($permissionName, $orga, $customer, $role);
+        }
+    }
 
     public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
     {
@@ -126,7 +132,12 @@ class AccessControlService
 
         return $enabledPermissions;
     }
-
+    public function removePermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
+    {
+        foreach ($roles as $role) {
+            $this->removePermission($permissionName, $orga, $customer, $role);
+        }
+    }
     public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
     {
         // Find the existing permission with the given parameters
