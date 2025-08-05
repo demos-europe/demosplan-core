@@ -49,7 +49,6 @@ class OzgKeycloakLogoutManager
      *
      * @return bool True if injection should occur, false otherwise
      */
-
     public function shouldInjectTestExpiration(): bool
     {
         $isTestOrDev = DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
@@ -60,9 +59,9 @@ class OzgKeycloakLogoutManager
 
         // If env is test or dev, and  keycloak logout is configured then do not inject
         $keycloakLogoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-        return '' === $keycloakLogoutRoute;
-  }
 
+        return '' === $keycloakLogoutRoute;
+    }
 
     public function hasLogoutWarningPermission(): bool
     {
