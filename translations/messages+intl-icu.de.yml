@@ -2526,7 +2526,7 @@ personal.data.usage.revoked.statement: "Aus verfahrensbezogenen Gründen werden 
 persons: "Personen"
 phase: "Phase"
 phase.autoswitch.date: "Tag der Umstellung"
-phase.autoswitch.datetime: "Zeitpunkt der Umstellung"
+phase.autoswitch.datetime: "Beginn"
 phase.autoswitch.value: "Wird umgestellt auf:"
 phase.changed: "Phase geändert"
 phase.public: "Phase Öffentlichkeit"
