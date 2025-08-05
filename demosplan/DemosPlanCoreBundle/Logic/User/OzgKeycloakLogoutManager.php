@@ -22,7 +22,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * Store test tokens (in user session) only in dev/test environments when Keycloak is not configured.
  * Stores Keycloak tokens in session and builds logout URLs with customer subdomains.
  */
-
 class OzgKeycloakLogoutManager
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
