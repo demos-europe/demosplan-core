@@ -57,12 +57,10 @@ final class ProcedureTemplateResourceType extends DplanResourceType
         $properties[] = $this->createToManyRelationship($this->agencyExtraEmailAddresses)->readable()->filterable();
         $properties[] = $this->createToOneRelationship($this->owningOrganisation)->readable()->aliasedPath($this->orga)->sortable()->filterable();
 
-
         if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
             $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
                 ->readable(true, function (Procedure $procedure): ?ArrayCollection {
                     return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE_TEMPLATE', $procedure->getId(), 'SEGMENT');
-
                 });
         }
 
@@ -81,9 +79,9 @@ final class ProcedureTemplateResourceType extends DplanResourceType
         $normalTemplateSubCondition = $this->conditionFactory->allConditionsApply(
             // not the unique master template
             $this->conditionFactory->propertyHasValue(false, $this->masterTemplate),
-            //@todo bring back this condition
+            // @todo bring back this condition
             // created by the users organisation (ie.: the current user is in the owning organisation of the template)
-            //$this->conditionFactory->propertyHasValue($userOrga->getId(), $this->orga->id)
+            // $this->conditionFactory->propertyHasValue($userOrga->getId(), $this->orga->id)
         );
 
         return [

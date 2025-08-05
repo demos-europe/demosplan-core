@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use Ramsey\Uuid\Uuid;
+
 class CustomFieldFactory
 {
     public function __construct(private readonly CustomFieldValidator $customFieldValidator)
@@ -42,7 +43,7 @@ class CustomFieldFactory
     }
 
     /**
-     * Ensure options are in the new object format
+     * Ensure options are in the new object format.
      */
     private function normalizeOptions(array $options): array
     {
@@ -51,8 +52,8 @@ class CustomFieldFactory
         foreach ($options as $option) {
             // Already in new format or ensure it has required keys
             $normalizedOptions[] = [
-                'id' => Uuid::uuid4()->toString(),
-                'label' => $option['label']
+                'id'    => Uuid::uuid4()->toString(),
+                'label' => $option['label'],
             ];
         }
 

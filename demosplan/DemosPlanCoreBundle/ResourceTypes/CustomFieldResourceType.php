@@ -62,7 +62,6 @@ use Ramsey\Uuid\Uuid;
  * @property-read End $sourceEntity
  * @property-read End $options
  *
- *
  * @method bool isNullSafe(int $index)
  */
 final class CustomFieldResourceType extends AbstractResourceType implements JsonApiResourceTypeInterface, PropertyPathInterface, IteratorAggregate, PropertyAutoPathInterface
@@ -294,9 +293,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $customField->setOptions($updatedOptions);
         }
 
-
-
-
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
@@ -322,21 +318,21 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                 // Update existing option
                 if (isset($currentOptionsById[$newOption['id']])) {
                     $updatedOptions[] = [
-                        'id' => $newOption['id'],
-                        'label' => $newOption['label'] ?? $currentOptionsById[$newOption['id']]['label']
+                        'id'    => $newOption['id'],
+                        'label' => $newOption['label'] ?? $currentOptionsById[$newOption['id']]['label'],
                     ];
                 } else {
                     // ID provided but doesn't exist - treat as new
                     $updatedOptions[] = [
-                        'id' => $newOption['id'],
-                        'label' => $newOption['label']
+                        'id'    => $newOption['id'],
+                        'label' => $newOption['label'],
                     ];
                 }
             } else {
                 // New option - generate UUID
                 $updatedOptions[] = [
-                    'id' => Uuid::uuid4()->toString(),
-                    'label' => $newOption['label']
+                    'id'    => Uuid::uuid4()->toString(),
+                    'label' => $newOption['label'],
                 ];
             }
         }
@@ -352,7 +348,4 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             }
         }
     }
-
-
-
 }

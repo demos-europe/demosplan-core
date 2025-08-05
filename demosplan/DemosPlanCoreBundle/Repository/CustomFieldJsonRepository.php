@@ -49,7 +49,6 @@ class CustomFieldJsonRepository implements RepositoryInterface
         return $customField;
     }
 
-
     public function getEntitiesByIdentifiers(array $identifiers, array $conditions, array $sortMethods, array $identifierPropertyPath): array
     {
         throw new InvalidArgumentException();
