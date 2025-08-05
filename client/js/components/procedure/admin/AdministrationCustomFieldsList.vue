@@ -343,55 +343,6 @@ export default {
       updateCustomField: 'setItem'
     }),
 
-    async saveEditedFields () {
-      const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
-
-      if (!isDataValid) {
-        return
-      }
-
-      if (this.$refs.confirmDialog?.open) {
-        const isConfirmed = await this.$refs.confirmDialog.open()
-
-        if (isConfirmed) {
-          const storeField = this.customFields[this.newRowData.id]
-          const { description = '', name, options } = this.newRowData
-
-          const updatedField = {
-            id: storeField.id,
-            attributes: {
-              ...storeField.attributes,
-              description,
-              name,
-              options
-            },
-            type: storeField.type
-          }
-
-          this.updateCustomField(updatedField)
-
-          await this.saveCustomField(storeField.id)
-            .then(response => {
-              // Reset store on error
-              if (response.status >= 400) {
-                const restoredField = {
-                  ...this.initialRowData,
-                  id: this.newRowData.id
-                }
-                this.updateCustomField(restoredField)
-              }
-            })
-            .catch(() => {
-              const restoredField = {
-                ...this.initialRowData,
-                id: this.newRowData.id
-              }
-              this.updateCustomField(restoredField)
-            })
-        }
-      }
-    },
-
     abortFieldEdit (rowData) {
       rowData.description = this.initialRowData.description
       rowData.name = this.initialRowData.name
@@ -485,14 +436,57 @@ export default {
         .catch(err => console.error(err))
     },
 
+    getCustomFields (payload) {
+      return this.isProcedureTemplate
+        ? this.getProcedureTemplateWithFields(payload)
+          .then(response => {
+            return response
+          })
+        : this.getAdminProcedureWithFields(payload)
+          .then(response => {
+            return response
+          })
+    },
+
+    getIndexOfRowData (rowData) {
+      return this.customFieldItems.findIndex(el => el.id === rowData.id)
+    },
+
     hideOptions (rowData) {
       const idx = this.getIndexOfRowData(rowData)
 
       this.customFieldItems[idx].open = false
     },
 
-    getIndexOfRowData (rowData) {
-      return this.customFieldItems.findIndex(el => el.id === rowData.id)
+    /**
+     * CustomFields reduced to the format we need in the FE
+     */
+    reduceCustomFields () {
+      const fieldsReduced = Object.values(this.customFields)
+        .map(field => {
+          if (field) {
+            const { id, attributes } = field
+            const { description, name, options } = attributes
+
+            return {
+              id,
+              name,
+              description,
+              options: JSON.parse(JSON.stringify(options)),
+              open: false,
+              edit: false,
+            }
+          }
+        })
+        .filter(field => field !== undefined)
+
+      if (this.customFieldItems.length > 0) {
+        this.customFieldItems = []
+      }
+
+      fieldsReduced.forEach((field) => {
+        this.customFieldItems.push(field)
+      })
     },
 
     removeOptionInput (index) {
@@ -508,6 +502,55 @@ export default {
           label: ''
         }
       ]
+    },
+
+    async saveEditedFields () {
+      const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
+
+      if (!isDataValid) {
+        return
+      }
+
+      if (this.$refs.confirmDialog?.open) {
+        const isConfirmed = await this.$refs.confirmDialog.open()
+
+        if (isConfirmed) {
+          const storeField = this.customFields[this.newRowData.id]
+          const { description = '', name, options } = this.newRowData
+
+          const updatedField = {
+            id: storeField.id,
+            attributes: {
+              ...storeField.attributes,
+              description,
+              name,
+              options
+            },
+            type: storeField.type
+          }
+
+          this.updateCustomField(updatedField)
+
+          await this.saveCustomField(storeField.id)
+            .then(response => {
+              // Reset store on error
+              if (response.status >= 400) {
+                const restoredField = {
+                  ...this.initialRowData,
+                  id: this.newRowData.id
+                }
+                this.updateCustomField(restoredField)
+              }
+            })
+            .catch(() => {
+              const restoredField = {
+                ...this.initialRowData,
+                id: this.newRowData.id
+              }
+              this.updateCustomField(restoredField)
+            })
+        }
+      }
     },
 
     /**
@@ -553,49 +596,6 @@ export default {
           this.resetNewFieldForm()
           this.fetchCustomFields()
         })
-    },
-
-    getCustomFields (payload) {
-      return this.isProcedureTemplate
-        ? this.getProcedureTemplateWithFields(payload)
-          .then(response => {
-            return response
-          })
-        : this.getAdminProcedureWithFields(payload)
-          .then(response => {
-            return response
-          })
-    },
-
-    /**
-     * CustomFields reduced to the format we need in the FE
-     */
-    reduceCustomFields () {
-      const fieldsReduced = Object.values(this.customFields)
-        .map(field => {
-          if (field) {
-            const { id, attributes } = field
-            const { description, name, options } = attributes
-
-            return {
-              id,
-              name,
-              description,
-              options: JSON.parse(JSON.stringify(options)),
-              open: false,
-              edit: false,
-            }
-          }
-        })
-        .filter(field => field !== undefined)
-
-      if (this.customFieldItems.length > 0) {
-        this.customFieldItems = []
-      }
-
-      fieldsReduced.forEach((field) => {
-        this.customFieldItems.push(field)
-      })
     },
 
     setEditMode (rowData, editState = true) {
