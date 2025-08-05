@@ -270,9 +270,7 @@ export default {
           label: ''
         }
       ],
-      newRowData: {},
-      // ToDo: Find out if expandedFields are still needed: it seems as they can be deleted, if the list items are not expanded through dpDataTable expand mechanism
-      expandedFields: {},
+      newRowData: {}
     }
   },
 
@@ -491,8 +489,6 @@ export default {
       const idx = this.getIndexOfRowData(rowData)
 
       this.customFieldItems[idx].open = false
-
-      delete this.expandedFields[rowData.id]
     },
 
     getIndexOfRowData (rowData) {
@@ -586,7 +582,7 @@ export default {
               name,
               description,
               options: JSON.parse(JSON.stringify(options)),
-              open: this.expandedFields[id] || false,
+              open: false,
               edit: false,
             }
           }
@@ -613,7 +609,6 @@ export default {
       const idx = this.customFieldItems.findIndex(el => el.id === rowData.id)
 
       this.customFieldItems[idx].open = true
-      this.expandedFields[rowData.id] = true
     },
 
     /**
