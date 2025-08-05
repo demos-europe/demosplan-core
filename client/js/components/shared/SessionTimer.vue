@@ -10,7 +10,7 @@
       size="small"
     />
 
-    <span :class="{ 'color-message-warning-text': isWarning }">
+    <span :class="{ 'text-message-severe': isWarning }">
       {{ displayTime }}
     </span>
 
