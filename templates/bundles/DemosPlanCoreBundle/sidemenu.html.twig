@@ -105,7 +105,8 @@
         title="{{ item.label }}"
         data-cy="sideMenu:{{ item.label }}"
         font-weight="normal"
-        :is-open="{{ (item is knp_menu_ancestor) ? 'true' : 'false' }}">
+        :is-open="{{ (item is knp_menu_ancestor) ? 'true' : 'false' }}"
+        :show-border="false">
 {% endblock %}
 
 {% block linkElement %}

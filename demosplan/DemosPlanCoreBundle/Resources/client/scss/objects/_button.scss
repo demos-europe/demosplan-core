@@ -417,6 +417,7 @@
 // links shouldn't have any pointer events if they are 'disabled'
 a.is-disabled {
     pointer-events: none !important;
+    @extend %disabled-opacity;
 }
 
 
