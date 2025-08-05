@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -31,27 +32,37 @@ class OzgKeycloakLogoutManager
     private const ID_TOKEN_HINT = 'id_token_hint=';
 
     /** @var int Session expiration time for testing (120 minutes) */
-    private const TEST_SESSION_LIFETIME_SECONDS = 7200;
+    private const TEST_SESSION_LIFETIME_SECONDS = 15;
 
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly LoggerInterface $logger,
         private readonly CurrentUserService $currentUser,
         private readonly CustomerService $customerService,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
     }
 
     /**
-     * Determines if token expiration should be injected based on the current environment.
-     * Only enables injection in development and test environments.
+     * Determines if test token expiration should be injected in dev/test environments.
+     * Skips injection when Keycloak logout is configured since real tokens handle expiration.
      *
      * @return bool True if injection should occur, false otherwise
      */
+
     public function shouldInjectTestExpiration(): bool
     {
-        return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment()
-            || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
-    }
+        $isTestOrDev = DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
+
+        if (!$isTestOrDev) {
+            return false;
+        }
+
+        // If env is test or dev, and  keycloak logout is configured then do not inject
+        $keycloakLogoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+        return '' === $keycloakLogoutRoute;
+  }
+
 
     public function hasLogoutWarningPermission(): bool
     {
@@ -124,7 +135,7 @@ class OzgKeycloakLogoutManager
         }
     }
 
-    public function getLogoutUrl(string $logoutRoute, string $keycloakToken): string
+    public function getLogoutUrl(string $logoutRoute, ?string $keycloakToken): string
     {
         $currentCustomer = $this->customerService->getCurrentCustomer();
 
@@ -134,7 +145,7 @@ class OzgKeycloakLogoutManager
             $logoutRoute
         );
 
-        if ($this->hasLogoutWarningPermission()) {
+        if ($keycloakToken) {
             $logoutRoute = str_replace(
                 self::ID_TOKEN_HINT,
                 self::ID_TOKEN_HINT.$keycloakToken,
