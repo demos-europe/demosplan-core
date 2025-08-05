@@ -435,22 +435,6 @@ export default {
     },
 
     editCustomField (rowData) {
-      let editingCustomField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
-
-      if (editingCustomField) {
-        const { description = '', name = '', options = [] } = this.initialRowData
-
-        editingCustomField = {
-          description,
-          edit: false,
-          name,
-          open: false,
-          options
-        }
-
-        this.newRowData = {}
-      }
-
       // Store initial state of currently edited row
       const { id, description, name, options } = rowData
 
@@ -465,10 +449,6 @@ export default {
         description,
         name,
         options
-      }
-
-      if (!this.newRowData.options) {
-        this.newRowData.options = options
       }
 
       this.setEditMode(rowData)
@@ -623,8 +603,7 @@ export default {
 
     showOptions (rowData) {
       const idx = this.customFieldItems.findIndex(el => el.id === rowData.id)
-      console.log(rowData)
-      console.log(this.expandedFields)
+
       this.customFieldItems[idx].open = true
       this.expandedFields[rowData.id] = true
     },
