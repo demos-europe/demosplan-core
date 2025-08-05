@@ -113,10 +113,15 @@ class OzgKeycloakLogoutManager
         return $isValid;
     }
 
-    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, string $idToken): void
+    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, array $tokenValues): void
     {
         $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
-        $session->set(self::KEYCLOAK_TOKEN, $idToken);
+        if (isset($tokenValues['id_token'])) {
+            $session->set(self::KEYCLOAK_TOKEN, $tokenValues['id_token']);
+            $this->logger->info('Adding keycloak id_token to session');
+        } else {
+            $this->logger->warning('No keycloak id_token found in token values, not storing in session');
+        }
     }
 
     public function getLogoutUrl(string $logoutRoute, string $keycloakToken): string

@@ -64,7 +64,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
 
             $accessTokenExpirationDate = $accessToken->getExpires();
             $tokenValues = $accessToken->getValues();
-            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $accessTokenExpirationDate, $tokenValues['id_token']);
+            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $accessTokenExpirationDate, $tokenValues);
 
             $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
