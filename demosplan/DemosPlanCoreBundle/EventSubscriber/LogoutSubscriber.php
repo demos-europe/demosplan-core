@@ -37,7 +37,6 @@ class LogoutSubscriber implements EventSubscriberInterface
     }
 
     /**
-     *
      * Set this listener with priority 1 to execute before Symfony's default LogoutListener.
      * This prevents the session from being invalidated prematurely,
      * as we need the session to access the stored Keycloak ID token for logout.
@@ -46,11 +45,10 @@ class LogoutSubscriber implements EventSubscriberInterface
      *
      * @return array[]
      */
-
     public static function getSubscribedEvents(): array
     {
         return [
-            LogoutEvent::class => ['onLogout', 1]
+            LogoutEvent::class => ['onLogout', 1],
         ];
     }
 

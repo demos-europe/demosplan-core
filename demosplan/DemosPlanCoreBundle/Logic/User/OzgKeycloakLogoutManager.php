@@ -129,7 +129,7 @@ class OzgKeycloakLogoutManager
             $logoutRoute
         );
 
-        if ($this->hasLogoutWarningPermission()){
+        if ($this->hasLogoutWarningPermission()) {
             $logoutRoute = str_replace(
                 self::ID_TOKEN_HINT,
                 self::ID_TOKEN_HINT.$keycloakToken,
@@ -138,6 +138,5 @@ class OzgKeycloakLogoutManager
         }
 
         return $logoutRoute;
-
     }
 }
