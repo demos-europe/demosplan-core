@@ -65,7 +65,7 @@
                 :value="switchDate"
               />
             </div><!--
-         --><div class="layout__item u-1-of-3 u-pl-0_5">
+         --><div class="layout__item w-1/3 pl-2">
               <dp-label
                 :for="`${switchDateId}_time`"
                 :text="Translator.trans('time')"
