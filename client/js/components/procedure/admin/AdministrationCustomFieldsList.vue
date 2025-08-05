@@ -21,14 +21,14 @@
           id="newFieldOption:1"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption1"
-          v-model="newFieldOptions[0]"
+          v-model="newFieldOptions[0].label"
           maxlength="250"
           required />
         <dp-input
           id="newFieldOption:2"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption2"
-          v-model="newFieldOptions[1]"
+          v-model="newFieldOptions[1].label"
           maxlength="250"
           required />
 
@@ -37,14 +37,14 @@
           :key="`option:${idx}`">
           <div class="w-[calc(100%-26px)] inline-block mb-2">
             <dp-input
-              v-model="newFieldOptions[idx + 2]"
-              :id="`option:${newFieldOptions[idx + 2]}`"
+              v-model="newFieldOptions[idx + 2].label"
+              :id="`option:${newFieldOptions[idx + 2].label}`"
               :data-cy="`customFields:newFieldOption${idx + 2}`"
               maxlength="250" />
           </div>
           <dp-button
             class="w-[20px] inline-block ml-1"
-            :data-cy="`customFields:removeOptionInput:${option}`"
+            :data-cy="`customFields:removeOptionInput:${option.label}`"
             hide-text
             icon="x"
             :text="Translator.trans('remove')"
@@ -263,8 +263,12 @@ export default {
       isNewFieldFormOpen: false,
       isSuccess: false,
       newFieldOptions: [
-        '',
-        ''
+        {
+          label: ''
+        },
+        {
+          label: ''
+        }
       ],
       newRowData: {},
       // ToDo: Find out if expandedFields are still needed: it seems as they can be deleted, if the list items are not expanded through dpDataTable expand mechanism
@@ -501,8 +505,12 @@ export default {
 
     resetNewFieldForm () {
       this.newFieldOptions = [
-        '',
-        ''
+        {
+          label: ''
+        },
+        {
+          label: ''
+        }
       ]
     },
 
@@ -514,7 +522,7 @@ export default {
      */
     saveNewField (customFieldData) {
       const { description, name } = customFieldData
-      const options = this.newFieldOptions.filter(option => option !== '')
+      const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
       if (!isDataValid) {
