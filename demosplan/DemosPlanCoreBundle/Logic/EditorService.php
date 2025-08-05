@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 
-class EditorService extends CoreService
+class EditorService
 {
     final public const EXISTING_FIELD_FILTER = '*';
     final public const KEINE_ZUORDNUNG = 'keinezuordnung';
