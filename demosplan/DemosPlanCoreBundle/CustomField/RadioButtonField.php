@@ -117,4 +117,14 @@ class RadioButtonField extends AbstractCustomField
     {
         return $this->id;
     }
+
+    public function getOptionValueById(string $customFieldOptionValueId): ?string
+    {
+        foreach ($this->options as $option) {
+            if ($option['id'] === $customFieldOptionValueId) {
+                return $option['label'];
+            }
+        }
+        return null;
+    }
 }
