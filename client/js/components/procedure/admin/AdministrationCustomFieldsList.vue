@@ -141,6 +141,7 @@
             class="btn--blank o-link--default mr-1"
             data-cy="customFields:editField"
             :aria-label="Translator.trans('item.edit')"
+            :title="Translator.trans('edit')"
             @click="editCustomField(rowData)">
             <dp-icon
               aria-hidden="true"
@@ -153,6 +154,7 @@
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="customFields:saveEdit"
+              :title="Translator.trans('save')"
               @click="saveEditedFields">
               <dp-icon
                 icon="check"
@@ -163,6 +165,7 @@
               class="btn--blank o-link--default inline-block"
               data-cy="customFields:abortEdit"
               @click="abortFieldEdit(rowData)"
+              :title="Translator.trans('abort')"
               :aria-label="Translator.trans('abort')">
               <dp-icon
                 icon="xmark"
