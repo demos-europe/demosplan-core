@@ -21,7 +21,7 @@ class Version20250805123542 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T16177: fill designated_switch_date_timestamp for existing procedure phases';
+        return 'refs DPLAN-16177: fill designated_switch_date_timestamp for existing procedure phases';
     }
 
     /**
@@ -34,9 +34,9 @@ class Version20250805123542 extends AbstractMigration
         // Update designated_switch_date_timestamp for existing procedure phases
         // that have a designated_switch_date but no designated_switch_date_timestamp
         $this->addSql('
-            UPDATE procedure_phase 
+            UPDATE procedure_phase
             SET designated_switch_date_timestamp = UNIX_TIMESTAMP(designated_switch_date)
-            WHERE designated_switch_date IS NOT NULL 
+            WHERE designated_switch_date IS NOT NULL
             AND designated_switch_date_timestamp IS NULL
         ');
     }
@@ -52,9 +52,9 @@ class Version20250805123542 extends AbstractMigration
         // We can't perfectly rollback since we don't know which ones were originally null,
         // but we can clear values that match the designated_switch_date timestamp
         $this->addSql('
-            UPDATE procedure_phase 
+            UPDATE procedure_phase
             SET designated_switch_date_timestamp = NULL
-            WHERE designated_switch_date IS NOT NULL 
+            WHERE designated_switch_date IS NOT NULL
             AND designated_switch_date_timestamp = UNIX_TIMESTAMP(designated_switch_date)
         ');
     }

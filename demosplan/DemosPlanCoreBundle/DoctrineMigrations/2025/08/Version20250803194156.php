@@ -21,7 +21,7 @@ class Version20250803194156 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T16177: Add designated_switch_date_timestamp to procedure_phase table for date comparison';
+        return 'refs DPLAN-16177: Add designated_switch_date_timestamp to procedure_phase table for date comparison';
     }
 
     /**
