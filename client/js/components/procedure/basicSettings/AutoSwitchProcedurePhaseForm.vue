@@ -295,6 +295,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           const date = new Date(newVal)
+          
           if (!isNaN(date.getTime())) {
             this.startDate = this.formatDateToGerman(date)
           }
