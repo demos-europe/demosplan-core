@@ -59,8 +59,8 @@
                 required
               />
               <!-- Hidden input with combined datetime for backend -->
-              <input 
-                type="hidden" 
+              <input
+                type="hidden"
                 :name="switchDateId"
                 :value="switchDate"
               />
@@ -139,8 +139,7 @@ import {
   DpDateRangePicker,
   DpInput,
   DpLabel,
-  DpSelect,
-  formatDate
+  DpSelect
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 
@@ -288,7 +287,7 @@ export default {
       deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    switchDateOnly() {
+    switchDateOnly () {
       this.updateSwitchDate()
     },
 
@@ -307,33 +306,36 @@ export default {
 
   methods: {
     // Helper function to convert German date format (DD.MM.YYYY) to ISO format (YYYY-MM-DD)
-    convertGermanToIsoDate(germanDate) {
-      if (!germanDate) return ''
-      
+    convertGermanToIsoDate (germanDate) {
+      if (!germanDate) {
+        return ''
+      }
+
       if (germanDate.includes('.')) {
         const [day, month, year] = germanDate.split('.')
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
       }
-      
+
       return germanDate // Already in ISO format
     },
 
     // Helper function to convert date object to German format (DD.MM.YYYY)
-    formatDateToGerman(date) {
+    formatDateToGerman (date) {
       const day = date.getDate().toString().padStart(2, '0')
       const month = (date.getMonth() + 1).toString().padStart(2, '0')
       const year = date.getFullYear()
       return `${day}.${month}.${year}`
     },
 
-    parseAndUpdateTime() {
-      const time = this.parseTimeInput(this.switchTime)
-      this.switchTime = time
+    parseAndUpdateTime () {
+      this.switchTime = this.parseTimeInput(this.switchTime)
       this.updateSwitchDate()
     },
 
-    parseTimeInput(input) {
-      if (!input) return '00:00'
+    parseTimeInput (input) {
+      if (!input) {
+        return '00:00'
+      }
 
       // Remove any non-digits and colons
       const cleaned = input.replace(/[^\d:]/g, '')
@@ -344,10 +346,12 @@ export default {
         const [hour, minute] = cleaned.split(':')
         const h = parseInt(hour) || 0
         const m = parseInt(minute) || 0
+
         return `${Math.min(h, 23).toString().padStart(2, '0')}:${Math.min(m, 59).toString().padStart(2, '0')}`
       } else {
         // 900, 0900, 9 formats
         const digits = cleaned.padStart(1, '0') // Don't force pad here
+
         if (digits.length === 1) {
           // Single digit (e.g., "9") -> 09:00
           return `${digits.padStart(2, '0')}:00`
@@ -361,6 +365,7 @@ export default {
           // Four digits (e.g., "0900") -> 09:00
           const h = Math.min(parseInt(digits.slice(0, 2)) || 0, 23)
           const m = Math.min(parseInt(digits.slice(2)) || 0, 59)
+
           return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
         } else {
           // Fallback for other cases
@@ -369,11 +374,11 @@ export default {
       }
     },
 
-    updateSwitchDate() {
+    updateSwitchDate () {
       if (this.switchDateOnly && this.switchTime) {
         const isoDate = this.convertGermanToIsoDate(this.switchDateOnly)
         const dateObj = new Date(`${isoDate}T${this.switchTime}:00`)
-        
+
         if (!isNaN(dateObj.getTime())) {
           this.switchDate = dateObj.toISOString()
         }
@@ -392,7 +397,7 @@ export default {
       if (this.initSwitchDate) {
         this.autoSwitchPhase = true
         const date = new Date(this.initSwitchDate)
-        
+
         this.switchDateOnly = this.formatDateToGerman(date)
         this.switchTime = date.toTimeString().substring(0, 5)
         this.switchDate = this.initSwitchDate
@@ -400,9 +405,9 @@ export default {
         this.switchDateOnly = this.formatDateToGerman(new Date())
         this.switchTime = '00:00'
       }
-      
+
       this.switchDateMax = this.endDate
-      
+
       if (this.switchDate) {
         const date = new Date(this.switchDate)
         if (!isNaN(date.getTime())) {
@@ -437,4 +442,3 @@ export default {
   }
 }
 </script>
-
