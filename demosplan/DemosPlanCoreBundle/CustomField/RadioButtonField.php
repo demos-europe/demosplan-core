@@ -35,16 +35,25 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
-        $this->options = $json['options'];
+        $this->options = array_map(static function ($optionData) {
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->fromJson($optionData);
+            return $customFieldOption;
+        }, $json['options']);
+
     }
 
     public function toJson(): array
     {
+        $options = array_map(static function ($customField) {
+            return $customField->toJson();
+        }, $this->options);
+
         return [
             'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
-            'options'       => $this->options,
+            'options'       => $options,
         ];
     }
 

@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -113,7 +114,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->options->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
+        $configBuilder->options
+            ->setReadableByCallable(
+                static fn(CustomFieldInterface $customField): array =>
+                array_map(static fn($option) => $option->toJson(), $customField->getOptions())
+            )
+            ->addPathCreationBehavior()
+            ->addPathUpdateBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
@@ -305,40 +312,41 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $updatedOptions = [];
         $currentOptionsById = [];
 
-        // Index current options by ID
+        // Index current options by ID - now working with CustomFieldOption objects
         foreach ($currentOptions as $option) {
-            if (isset($option['id'])) {
-                $currentOptionsById[$option['id']] = $option;
-            }
+            $currentOptionsById[$option->getId()] = $option;
         }
 
-        // Process each new option
+        // Process each new option - incoming data is still arrays from API
         foreach ($newOptions as $newOption) {
             if (isset($newOption['id'])) {
                 // Update existing option
                 if (isset($currentOptionsById[$newOption['id']])) {
-                    $updatedOptions[] = [
-                        'id'    => $newOption['id'],
-                        'label' => $newOption['label'] ?? $currentOptionsById[$newOption['id']]['label'],
-                    ];
+                    $customFieldOption = new CustomFieldOption();
+                    $customFieldOption->setId($newOption['id']);
+                    $customFieldOption->setLabel(
+                        $newOption['label'] ?? $currentOptionsById[$newOption['id']]->getLabel()
+                    );
+                    $updatedOptions[] = $customFieldOption;
                 } else {
                     // ID provided but doesn't exist - treat as new
-                    $updatedOptions[] = [
-                        'id'    => $newOption['id'],
-                        'label' => $newOption['label'],
-                    ];
+                    $customFieldOption = new CustomFieldOption();
+                    $customFieldOption->setId($newOption['id']);
+                    $customFieldOption->setLabel($newOption['label']);
+                    $updatedOptions[] = $customFieldOption;
                 }
             } else {
                 // New option - generate UUID
-                $updatedOptions[] = [
-                    'id'    => Uuid::uuid4()->toString(),
-                    'label' => $newOption['label'],
-                ];
+                $customFieldOption = new CustomFieldOption();
+                $customFieldOption->setId(Uuid::uuid4()->toString());
+                $customFieldOption->setLabel($newOption['label']);
+                $updatedOptions[] = $customFieldOption;
             }
         }
 
         return $updatedOptions;
     }
+
 
     private function validateOptionsUpdate(array $newOptions): void
     {
