@@ -139,7 +139,6 @@ class CustomFieldValueCreator
             throw new InvalidArgumentException('No custom field configuration found for given ID.');
         }
 
-
         return $customFieldConfiguration->getConfiguration();
     }
 

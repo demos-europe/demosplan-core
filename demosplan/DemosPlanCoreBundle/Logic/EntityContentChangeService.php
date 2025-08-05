@@ -1116,7 +1116,6 @@ class EntityContentChangeService
             ->getCustomFieldConfigurationById($customFieldId)->getOptionValueById($customFieldValueId);
     }
 
-
     /**
      * @return array<string, string|array<string,string>>
      *

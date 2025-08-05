@@ -57,5 +57,4 @@ interface CustomFieldInterface
     public function getId(): string;
 
     public function getOptionValueById(string $customFieldValueId): ?string;
-
 }

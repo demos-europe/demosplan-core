@@ -125,6 +125,7 @@ class RadioButtonField extends AbstractCustomField
                 return $option['label'];
             }
         }
+
         return null;
     }
 }
