@@ -19,10 +19,10 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Service responsible for injecting test expiration timestamps into user sessions
- * in non-production environments. This enables frontend auto-logout functionality
- * for development and testing purposes.
+ * Store test tokens (in user session) only in dev/test environments when Keycloak is not configured.
+ * Stores Keycloak tokens in session and builds logout URLs with customer subdomains.
  */
+
 class OzgKeycloakLogoutManager
 {
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
@@ -69,8 +69,7 @@ class OzgKeycloakLogoutManager
     }
 
     /**
-     * Injects test expiration timestamp into the user session.
-     * Creates a new JWT token for the user and extracts its expiration time.
+     * Stores test expiration timestamp into the user session.
      */
     public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
     {
