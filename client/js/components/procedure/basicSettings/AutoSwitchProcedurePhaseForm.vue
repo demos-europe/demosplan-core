@@ -413,6 +413,7 @@ export default {
 
       if (this.switchDate) {
         const date = new Date(this.switchDate)
+        
         if (!isNaN(date.getTime())) {
           this.startDate = this.formatDateToGerman(date)
         }
