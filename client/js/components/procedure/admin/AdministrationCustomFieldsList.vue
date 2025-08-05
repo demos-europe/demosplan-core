@@ -64,6 +64,7 @@
     <dp-data-table
       v-if="isProcedureTemplate ? !procedureTemplateCustomFieldsLoading : !procedureCustomFieldsLoading"
       data-cy="customFields:table"
+      data-dp-validate="editCustomFieldsForm"
       has-flyout
       :header-fields="headerFields"
       :items="customFieldItems"
@@ -94,6 +95,7 @@
                   v-model="newRowData.options[index]"
                   :id="`option:${index}`"
                   :key="`option:${index}`"
+                  required
                 />
 
                 <dp-button
@@ -154,7 +156,7 @@
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="customFields:saveEdit"
               :title="Translator.trans('save')"
-              @click="saveEditedFields">
+              @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)">
               <dp-icon
                 icon="check"
                 aria-hidden="true" />
@@ -218,7 +220,8 @@ import {
   DpInlineNotification,
   DpInput,
   DpLabel,
-  DpLoading
+  DpLoading,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
@@ -237,6 +240,8 @@ export default {
     DpLabel,
     DpLoading
   },
+
+  mixins: [dpValidateMixin],
 
   props: {
     isProcedureTemplate: {
@@ -644,7 +649,9 @@ export default {
 
       let isAnyOptionNameDuplicated = false
       customFieldOptions.forEach(optionName => {
-        isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, optionName)
+        if (optionName !== '') {
+          isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, optionName)
+        }
       })
 
       if (isAnyOptionNameDuplicated) {
