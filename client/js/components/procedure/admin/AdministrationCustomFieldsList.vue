@@ -92,9 +92,8 @@
               <div class="flex">
                 <dp-input
                   v-model="newRowData.options[index]"
-                  :id="'option' + index"
-                  :key="'option' + index"
-                  required
+                  :id="`option:${index}`"
+                  :key="`option:${index}`"
                 />
 
                 <dp-button
@@ -338,6 +337,12 @@ export default {
     }),
 
     async saveEditedFields () {
+      const isDataValid = this.validateNamesAreUnique(this.newRowData.name, this.newRowData.options)
+
+      if (!isDataValid) {
+        return
+      }
+
       if (this.$refs.confirmDialog?.open) {
         const isConfirmed = await this.$refs.confirmDialog.open()
 
