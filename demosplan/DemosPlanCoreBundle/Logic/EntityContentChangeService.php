@@ -1063,7 +1063,7 @@ class EntityContentChangeService
             $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
             $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
                 fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $preUpdateValue['value'],
+                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']),
                 ]
             );
         }
@@ -1073,7 +1073,7 @@ class EntityContentChangeService
             $postUpdateValues = $postUpdateCustomFieldValueList->toJson();
             $postUpdateValues = collect($postUpdateValues)->mapWithKeys(
                 fn (array $postUpdateValues) => [
-                    $this->getCustomFieldName($postUpdateValues['id']) => $postUpdateValues['value'],
+                    $this->getCustomFieldName($postUpdateValues['id']) => $this->getCustomFieldValueName($postUpdateValues['id'], $postUpdateValues['value']),
                 ]
             );
         }
@@ -1108,6 +1108,12 @@ class EntityContentChangeService
         return $this->customFieldValueCreator
             ->getCustomFieldConfigurationByUUID($customFieldId)
             ->getConfiguration()->getName();
+    }
+
+    public function getCustomFieldValueName(string $customFieldId, string $customFieldValueId): string
+    {
+        return $this->customFieldValueCreator
+            ->getCustomFieldConfigurationById($customFieldId)->getOptionValueById($customFieldValueId);
     }
 
     /**
