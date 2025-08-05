@@ -1062,8 +1062,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $mandatoryErrors,
     ) {
         $this->logger->info('checkSwitchDateValidFields called', [
-            'startDate' => $startDate,
-            'endDate' => $endDate,
+            'startDate'         => $startDate,
+            'endDate'           => $endDate,
             'currentErrorCount' => count($mandatoryErrors),
         ]);
 
@@ -1075,17 +1075,17 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $now = Carbon::now();
 
         $this->logger->info('Parsed dates for validation', [
-            'designatedSwitchDate' => $designatedSwitchDate->toISOString(),
+            'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
             'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
-            'now' => $now->toISOString(),
+            'now'                     => $now->toISOString(),
         ]);
 
         // Check if end date is in the future
         if (!$designatedSwitchEndDate->greaterThan($now)) {
             $this->logger->warning('Switch date validation failed: end date is not in the future', [
                 'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
-                'now' => $now->toISOString(),
-                'differenceInMinutes' => $now->diffInMinutes($designatedSwitchEndDate, false),
+                'now'                     => $now->toISOString(),
+                'differenceInMinutes'     => $now->diffInMinutes($designatedSwitchEndDate, false),
             ]);
 
             $mandatoryErrors[] = [
@@ -1099,9 +1099,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         // Check if start date is before end date
         if ($designatedSwitchDate->startOfDay()->greaterThanOrEqualTo($designatedSwitchEndDate)) {
             $this->logger->warning('Switch date validation failed: start date is not before end date', [
-                'designatedSwitchDate' => $designatedSwitchDate->toISOString(),
+                'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
                 'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
-                'differenceInMinutes' => $designatedSwitchDate->diffInMinutes($designatedSwitchEndDate, false),
+                'differenceInMinutes'     => $designatedSwitchDate->diffInMinutes($designatedSwitchEndDate, false),
             ]);
 
             $mandatoryErrors[] = [
