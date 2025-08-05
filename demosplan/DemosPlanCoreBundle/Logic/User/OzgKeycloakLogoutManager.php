@@ -27,6 +27,9 @@ class OzgKeycloakLogoutManager
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
     public const KEYCLOAK_TOKEN = 'keycloakToken';
 
+    private const POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri=https://';
+    private const ID_TOKEN_HINT = 'id_token_hint=';
+
     /** @var int Session expiration time for testing (120 minutes) */
     private const TEST_SESSION_LIFETIME_SECONDS = 7200;
 
@@ -34,6 +37,7 @@ class OzgKeycloakLogoutManager
         private readonly KernelInterface $kernel,
         private readonly LoggerInterface $logger,
         private readonly CurrentUserService $currentUser,
+        private readonly CustomerService $customerService,
     ) {
     }
 
@@ -109,9 +113,35 @@ class OzgKeycloakLogoutManager
         return $isValid;
     }
 
-    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, string $idToken): void
+    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, array $tokenValues): void
     {
         $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
-        $session->set(self::KEYCLOAK_TOKEN, $idToken);
+        if (isset($tokenValues['id_token'])) {
+            $session->set(self::KEYCLOAK_TOKEN, $tokenValues['id_token']);
+            $this->logger->info('Adding keycloak id_token to session');
+        } else {
+            $this->logger->warning('No keycloak id_token found in token values, not storing in session');
+        }
+    }
+
+    public function getLogoutUrl(string $logoutRoute, string $keycloakToken): string
+    {
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+
+        $logoutRoute = str_replace(
+            self::POST_LOGOUT_REDIRECT_URI,
+            self::POST_LOGOUT_REDIRECT_URI.$currentCustomer->getSubdomain().'.',
+            $logoutRoute
+        );
+
+        if ($this->hasLogoutWarningPermission()) {
+            $logoutRoute = str_replace(
+                self::ID_TOKEN_HINT,
+                self::ID_TOKEN_HINT.$keycloakToken,
+                $logoutRoute
+            );
+        }
+
+        return $logoutRoute;
     }
 }
