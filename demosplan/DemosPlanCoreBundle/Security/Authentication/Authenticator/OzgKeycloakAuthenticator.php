@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
-use demosplan\DemosPlanCoreBundle\Logic\User\ExpirationTimestampInjection;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -40,7 +40,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
         private readonly RouterInterface $router,
-        private readonly ExpirationTimestampInjection $expirationTimestampInjection,
+        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
     ) {
     }
 
@@ -61,15 +61,10 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->entityManager->getConnection()->beginTransaction();
             $this->logger->info('Start of doctrine transaction.');
             $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
+
             $accessTokenExpirationDate = $accessToken->getExpires();
-
-            // Store ID token for logout
             $tokenValues = $accessToken->getValues();
-            if (isset($tokenValues['id_token'])) {
-                $request->getSession()->set(ExpirationTimestampInjection::KEYCLOAK_TOKEN, $tokenValues['id_token']);
-            }
-
-            $request->getSession()->set(ExpirationTimestampInjection::EXPIRATION_TIMESTAMP, $accessTokenExpirationDate);
+            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $accessTokenExpirationDate, $tokenValues['id_token']);
 
             $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
