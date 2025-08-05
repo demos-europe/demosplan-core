@@ -405,7 +405,7 @@ export default {
         this.switchTime = date.toTimeString().substring(0, 5)
         this.switchDate = this.initSwitchDate
       } else {
-        this.switchDateOnly = this.formatDateToGerman(new Date())
+        this.switchDateOnly = this.minSwitchDate
         this.switchTime = '00:00'
       }
 
