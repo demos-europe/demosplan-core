@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use Illuminate\Support\Collection;
+
 class RadioButtonField extends AbstractCustomField
 {
     protected string $id = '';
@@ -97,12 +99,15 @@ class RadioButtonField extends AbstractCustomField
             return true;
         }
 
-        if (in_array($value, $this->options, true)) {
-            return true;
-        }
+        // Create Laravel collection using the class directly
+        $optionsCollection = new Collection($this->options);
+        //$optionsCollection = collect($this->options);
 
-        return false;
+        return $optionsCollection->contains(function ($option) use ($value) {
+            return $option['id'] === $value;
+        });
     }
+
 
     public function setId($id): void
     {
