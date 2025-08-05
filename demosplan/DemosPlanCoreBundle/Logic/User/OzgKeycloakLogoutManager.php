@@ -27,6 +27,9 @@ class OzgKeycloakLogoutManager
     public const EXPIRATION_TIMESTAMP = 'expirationTimestamp';
     public const KEYCLOAK_TOKEN = 'keycloakToken';
 
+    private const POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri=https://';
+    private const ID_TOKEN_HINT = 'id_token_hint=';
+
     /** @var int Session expiration time for testing (120 minutes) */
     private const TEST_SESSION_LIFETIME_SECONDS = 7200;
 
@@ -34,6 +37,7 @@ class OzgKeycloakLogoutManager
         private readonly KernelInterface $kernel,
         private readonly LoggerInterface $logger,
         private readonly CurrentUserService $currentUser,
+        private readonly CustomerService $customerService,
     ) {
     }
 
@@ -113,5 +117,27 @@ class OzgKeycloakLogoutManager
     {
         $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
         $session->set(self::KEYCLOAK_TOKEN, $idToken);
+    }
+
+    public function getLogoutUrl(string $logoutRoute, string $keycloakToken): string
+    {
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+
+        $logoutRoute = str_replace(
+            self::POST_LOGOUT_REDIRECT_URI,
+            self::POST_LOGOUT_REDIRECT_URI.$currentCustomer->getSubdomain().'.',
+            $logoutRoute
+        );
+
+        if ($this->hasLogoutWarningPermission()){
+            $logoutRoute = str_replace(
+                self::ID_TOKEN_HINT,
+                self::ID_TOKEN_HINT.$keycloakToken,
+                $logoutRoute
+            );
+        }
+
+        return $logoutRoute;
+
     }
 }
