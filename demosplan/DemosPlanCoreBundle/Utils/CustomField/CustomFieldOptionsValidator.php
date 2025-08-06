@@ -27,16 +27,14 @@ class CustomFieldOptionsValidator
     private function validateOptionIds(array $newOptions, CustomFieldInterface $customField): void
     {
         collect($newOptions)
-            ->filter(fn($option) => isset($option['id']))
+            ->filter(fn ($option) => isset($option['id']))
             ->pluck('id')
             ->each(function ($id) use ($customField) {
                 if (null === $customField->getCustomOptionValueById($id)) {
                     throw new InvalidArgumentException("Invalid option ID: {$id}");
                 }
             });
-
     }
-
 
     private function validateBasicStructure(array $options): void
     {
