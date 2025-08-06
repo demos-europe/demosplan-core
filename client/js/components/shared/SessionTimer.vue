@@ -59,7 +59,7 @@ export default {
     },
 
     isWarning () {
-      return this.timeLeft <= 119 * millisecondsPerMinute
+      return this.timeLeft <= 10 * millisecondsPerMinute
     },
 
     shouldShowTimer () {
@@ -115,8 +115,8 @@ export default {
 
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.tenMinutesThreshold = timestampInMsecs - (119 * millisecondsPerMinute) // for testing - will be 10
-      this.threeMinutesThreshold = timestampInMsecs - (118 * millisecondsPerMinute) // will be 3
+      this.tenMinutesThreshold = timestampInMsecs - (10 * millisecondsPerMinute)
+      this.threeMinutesThreshold = timestampInMsecs - (3 * millisecondsPerMinute)
       this.updateTimer()
       this.intervalId = setInterval(this.updateTimer, millisecondsPerSecond)
     },
