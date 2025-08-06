@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -25,7 +26,7 @@ class CustomFieldUpdater
     {
     }
 
-    public function updateCustomField(string $entityId, array $attributes)
+    public function updateCustomField(string $entityId, array $attributes): CustomFieldInterface
     {
         // Get the CustomFieldConfiguration from database
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
@@ -38,28 +39,42 @@ class CustomFieldUpdater
         $customField = clone $customFieldConfiguration->getConfiguration();
         $customField->setId($customFieldConfiguration->getId());
 
-        if (array_key_exists('name', $attributes)) {
-            $customField->setName($attributes['name']);
-        }
-
-        if (array_key_exists('description', $attributes)) {
-            $customField->setDescription($attributes['description']);
-        }
-
-        if (array_key_exists('options', $attributes)) {
-            $newOptions = $attributes['options'];
-            $this->customFieldOptionsValidator->validate($newOptions, $customField);
-            $currentOptions = $customField->getOptions();
-            $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
-            $customField->setOptions($updatedOptions);
-        }
-
+        $this->updateBasicFields($customField, $attributes);
+        $this->updateOptionsIfPresent($customField, $attributes);
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
 
         return $customField;
     }
+
+    private function updateBasicFields($customField, array $attributes): void
+    {
+        if (isset($attributes['name'])) {
+            $customField->setName($attributes['name']);
+        }
+
+        if (isset($attributes['description'])) {
+            $customField->setDescription($attributes['description']);
+        }
+    }
+
+    private function updateOptionsIfPresent($customField, array $attributes): void
+    {
+        if (!isset($attributes['options'])) {
+            return;
+        }
+
+        $newOptions = $attributes['options'];
+        $this->customFieldOptionsValidator->validate($newOptions, $customField);
+
+        $currentOptions = $customField->getOptions();
+        $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
+        $customField->setOptions($updatedOptions);
+    }
+
+
+
 
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
