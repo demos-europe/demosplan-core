@@ -35,7 +35,6 @@ class CustomFieldOptionsValidator
         if ($labels->count() !== $labels->unique()->count()) {
             throw new InvalidArgumentException('Option labels must be unique');
         }
-
     }
 
     private function validateFieldTypeSpecific(array $options, string $fieldType): void
