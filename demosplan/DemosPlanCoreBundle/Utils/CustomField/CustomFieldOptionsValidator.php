@@ -67,10 +67,4 @@ class CustomFieldOptionsValidator
         }
     }
 
-    private function validateSelectOptions(array $options): void
-    {
-        if (empty($options)) {
-            throw new InvalidArgumentException('Select fields must have at least 1 option');
-        }
-    }
 }
