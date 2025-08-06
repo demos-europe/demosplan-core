@@ -76,7 +76,7 @@
  * - utilities: Tailwind, demosplan-ui and Inuit utility classes
  * - overrides: project specific overrides (both Scss and Css Variables)
  */
-@layer important;
+@layer theme base components utilities overrides;
 
 @layer base {
     @import 'inuit-5/generic.shared';

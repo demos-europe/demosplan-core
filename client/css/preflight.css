@@ -1,1 +1,2 @@
-@import "tailwindcss/preflight.css" layer(base);
+/**@import "tailwindcss/preflight.css" layer(base);*/
+@import "carbon-components/css/carbon-components.css";
