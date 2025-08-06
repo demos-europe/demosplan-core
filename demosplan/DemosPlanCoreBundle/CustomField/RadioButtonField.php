@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-use Illuminate\Support\Collection;
-
 class RadioButtonField extends AbstractCustomField
 {
     protected string $id = '';
