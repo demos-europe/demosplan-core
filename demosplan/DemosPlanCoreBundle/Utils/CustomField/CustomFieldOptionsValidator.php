@@ -12,12 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use Doctrine\ORM\EntityManagerInterface;
-
 
 class CustomFieldOptionsValidator
 {
@@ -40,7 +35,7 @@ class CustomFieldOptionsValidator
     {
         match ($fieldType) {
             'singleSelect' => $this->validateRadioButtonOptions($options),
-            //'select' => $this->validateSelectOptions($options),
+            // 'select' => $this->validateSelectOptions($options),
             // Future field types can be added here
             default => null, // No specific validation needed
         };
@@ -59,5 +54,4 @@ class CustomFieldOptionsValidator
             throw new InvalidArgumentException('Select fields must have at least 1 option');
         }
     }
-
 }
