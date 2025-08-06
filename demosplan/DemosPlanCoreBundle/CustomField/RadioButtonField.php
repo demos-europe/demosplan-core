@@ -108,11 +108,7 @@ class RadioButtonField extends AbstractCustomField
             return true;
         }
 
-        // Create Laravel collection using the class directly
-        $optionsCollection = new Collection($this->options);
-        // $optionsCollection = collect($this->options);
-
-        return $optionsCollection->contains(function ($option) use ($value) {
+        return collect($this->options)->contains(function ($option) use ($value) {
             return $option->getId() === $value;
         });
     }
