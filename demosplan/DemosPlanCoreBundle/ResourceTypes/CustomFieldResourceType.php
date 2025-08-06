@@ -268,39 +268,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
     {
-        // Get the CustomFieldConfiguration from database
-        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
-
-        if (!$customFieldConfiguration) {
-            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
-        }
-
-        // Get the current CustomField object
-        $customField = clone $customFieldConfiguration->getConfiguration();
-        $customField->setId($customFieldConfiguration->getId());
-
         // Update the fields from the request
         $attributes = $entityData->getAttributes();
-
-        if (array_key_exists($this->name->getAsNamesInDotNotation(), $attributes)) {
-            $customField->setName($attributes['name']);
-        }
-
-        if (array_key_exists($this->description->getAsNamesInDotNotation(), $attributes)) {
-            $customField->setDescription($attributes['description']);
-        }
-
-        if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
-            $newOptions = $attributes['options'];
-            $this->customFieldUpdater->validateOptionsUpdate($newOptions);
-            $currentOptions = $customField->getOptions() ?? [];
-            $updatedOptions = $this->customFieldUpdater->processOptionsUpdate($currentOptions, $newOptions);
-            $customField->setOptions($updatedOptions);
-        }
-
-        // Save back to CustomFieldConfiguration
-        $customFieldConfiguration->setConfiguration($customField);
-        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+        $customField = $this->customFieldUpdater->updateCustomField($entityId, $attributes);
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }

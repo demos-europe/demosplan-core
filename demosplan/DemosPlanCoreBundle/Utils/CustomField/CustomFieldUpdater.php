@@ -19,11 +19,49 @@ use Ramsey\Uuid\Uuid;
 
 class CustomFieldUpdater
 {
-    public function __construct(private readonly CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
-    public function processOptionsUpdate(array $currentOptions, array $newOptions): array
+    public function updateCustomField($entityId, $attributes) {
+
+        // Get the CustomFieldConfiguration from database
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
+
+        if (!$customFieldConfiguration) {
+            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
+        }
+
+        // Get the current CustomField object
+        $customField = clone $customFieldConfiguration->getConfiguration();
+        $customField->setId($customFieldConfiguration->getId());
+
+
+        if (array_key_exists('name', $attributes)) {
+            $customField->setName($attributes['name']);
+        }
+
+        if (array_key_exists('description', $attributes)) {
+            $customField->setDescription($attributes['description']);
+        }
+
+        if (array_key_exists('options', $attributes)) {
+            $newOptions = $attributes['options'];
+            $this->validateOptionsUpdate($newOptions);
+            $currentOptions = $customField->getOptions();
+            $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
+            $customField->setOptions($updatedOptions);
+        }
+
+        // Save back to CustomFieldConfiguration
+        $customFieldConfiguration->setConfiguration($customField);
+        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+        return $customField;
+
+    }
+
+    private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
         $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
 
@@ -40,7 +78,7 @@ class CustomFieldUpdater
             ->toArray();
     }
 
-    public function validateOptionsUpdate(array $newOptions): void
+    private function validateOptionsUpdate(array $newOptions): void
     {
         foreach ($newOptions as $option) {
             if (!isset($option['label']) || empty(trim($option['label']))) {
