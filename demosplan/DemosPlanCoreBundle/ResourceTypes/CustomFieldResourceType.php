@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -49,7 +48,6 @@ use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
-use Ramsey\Uuid\Uuid;
 
 /** LEARNINGS
  * implementing PropertyAutoPathInterface makes it available to attributes from the entity.

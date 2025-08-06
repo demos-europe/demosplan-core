@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -26,15 +25,16 @@ class CustomFieldUpdater
 
     public function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
-        $currentOptionsById = collect($currentOptions)->keyBy(fn($option) => $option->getId());
+        $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
 
         return collect($newOptions)
             ->map(function (array $newOption) use ($currentOptionsById) {
                 $customFieldOption = new CustomFieldOption();
                 $customFieldOption->fromJson([
-                    'id' => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                    'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
                     'label' => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
                 ]);
+
                 return $customFieldOption;
             })
             ->toArray();
