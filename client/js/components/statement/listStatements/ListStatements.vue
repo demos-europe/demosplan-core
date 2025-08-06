@@ -47,9 +47,10 @@
         @export="showHintAndDoExport" />
       <div
         v-if="items.length > 0"
-        class="flex mt-2">
+        class="dp-pagination-container">
         <dp-pager
           v-if="pagination.currentPage"
+          class="dp-pager-component"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"

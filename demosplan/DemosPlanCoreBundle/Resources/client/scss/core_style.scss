@@ -76,7 +76,7 @@
  * - utilities: Tailwind, demosplan-ui and Inuit utility classes
  * - overrides: project specific overrides (both Scss and Css Variables)
  */
-@layer theme, base, components, utilities, overrides;
+@layer important;
 
 @layer base {
     @import 'inuit-5/generic.shared';
@@ -98,7 +98,11 @@
 }
 
 @layer overrides {
-    @import 'trumps-3rd-party-resets.dplan';
+    //@import 'trumps-3rd-party-resets.dplan';
+}
+
+@layer important {
+    @import 'carbon-components/scss/globals/scss/styles';
 }
 
 // After including core_style.scss (this file), the project style.scss file that serves as an entry point for style

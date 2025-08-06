@@ -15,6 +15,7 @@ import {
   dpValidateMultiselectDirective,
   Tooltip
 } from '@demos-europe/demosplan-ui'
+import CarbonVue from '@carbon/vue'
 import {
   initGlobalEventListener,
   ToggleSideMenu,
@@ -86,6 +87,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
+    app.use(CarbonVue)
 
     // Register components that are used globally
     app.component('BackToTopButton', BackToTopButton)

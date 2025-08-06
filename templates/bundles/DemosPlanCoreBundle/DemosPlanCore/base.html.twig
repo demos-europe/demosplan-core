@@ -99,7 +99,7 @@
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: templateVars.contextualHelpBreadcrumb
                                     } %}
-                                {% endif %}3
+                                {% endif %}
                             </div>
                         {% endblock breadcrumb %}
 
@@ -107,9 +107,9 @@
                         {% include '@DemosPlanCore/DemosPlanCore/includes/base_nojs_notifications.html.twig' %}
 
                         {# Name of procedure #}
-                        <div class="dp-procedure-name-container flow-root border--top">
+                        <div class="dp-procedure-name-container">
                             {% if proceduresettings.name|default != '' %}
-                                <span class="color--grey inline-block u-pt-0_5 u-mb-0_25">
+                                <span class="color--grey inline-block u-pt-0_5 u-mb-10_25">
                                     {{ proceduresettings.name|default }}
                                 </span>
                             {% else %}

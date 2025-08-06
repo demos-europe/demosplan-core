@@ -61,9 +61,9 @@
     The participation area pageheader can be found at
     demosplan\DemosPlanCoreBundle\Resources\views\DemosPlanCore\includes\pageheader.html.twig
 #}
-<header class="border--bottom {{ flush|default == true ? '' : 'u-mb' }} u-pb-0_5 flow-root">
+<header class="dp-page-header">
     <h1
-        class="font-size-h1 align-bottom inline-block u-m-0"
+        class="dp-header-title"
         :data-cy="{{ heading|responsive|json_encode }}">
         {{ heading|responsive }}
     </h1>
