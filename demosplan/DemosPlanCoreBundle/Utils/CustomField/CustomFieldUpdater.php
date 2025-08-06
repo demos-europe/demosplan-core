@@ -73,9 +73,6 @@ class CustomFieldUpdater
         $customField->setOptions($updatedOptions);
     }
 
-
-
-
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
         $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
