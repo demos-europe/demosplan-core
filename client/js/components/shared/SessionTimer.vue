@@ -4,13 +4,12 @@
     :class="prefixClass('flex items-baseline space-x-1')"
   >
     <dp-icon
-      :class="[prefixClass('self-center mt-[2px]'), { 'text-message-severe': isWarning }]"
+      :class="[prefixClass('self-center'), { 'text-message-severe': isWarning }]"
       aria-hidden="true"
       icon="clock"
-      size="small"
     />
 
-    <span :class="{ 'text-message-severe': isWarning }">
+    <span :class="{ [prefixClass('text-message-severe')]: isWarning }">
       {{ displayTime }}
     </span>
 
