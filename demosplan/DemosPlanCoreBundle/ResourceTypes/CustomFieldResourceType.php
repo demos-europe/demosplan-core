@@ -308,25 +308,18 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
-        $currentOptionsById = [];
+        $currentOptionsById = collect($currentOptions)->keyBy(fn($option) => $option->getId());
 
-        // Index current options by ID
-        foreach ($currentOptions as $option) {
-            $currentOptionsById[$option->getId()] = $option;
-        }
-
-        return array_map(function (array $newOption) use ($currentOptionsById) {
-            $optionData = [
-                'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
-                'label' => $newOption['label'] ??
-                        $currentOptionsById[$newOption['id'] ?? '']?->getLabel() ?? '',
-            ];
-
-            $customFieldOption = new CustomFieldOption();
-            $customFieldOption->fromJson($optionData);
-
-            return $customFieldOption;
-        }, $newOptions);
+        return collect($newOptions)
+            ->map(function (array $newOption) use ($currentOptionsById) {
+                $customFieldOption = new CustomFieldOption();
+                $customFieldOption->fromJson([
+                    'id' => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                    'label' => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
+                ]);
+                return $customFieldOption;
+            })
+            ->toArray();
     }
 
     private function validateOptionsUpdate(array $newOptions): void
