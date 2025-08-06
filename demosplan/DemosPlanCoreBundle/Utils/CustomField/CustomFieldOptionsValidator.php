@@ -24,11 +24,11 @@ class CustomFieldOptionsValidator
 
     private function validateBasicStructure(array $options): void
     {
-        foreach ($options as $option) {
-            if (!isset($option['label']) || empty(trim($option['label']))) {
-                throw new InvalidArgumentException('All options must have a non-empty label');
-            }
+        // Check all options have non-empty labels
+        if (!collect($options)->every(fn($option) => isset($option['label']) && !empty(trim($option['label'])))) {
+            throw new InvalidArgumentException('All options must have a non-empty label');
         }
+
 
         // Check for duplicate labels using Collections
         $labels = collect($options)->pluck('label')->map('trim');
