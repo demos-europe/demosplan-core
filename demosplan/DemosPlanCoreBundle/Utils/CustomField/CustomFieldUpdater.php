@@ -48,7 +48,7 @@ class CustomFieldUpdater
 
         if (array_key_exists('options', $attributes)) {
             $newOptions = $attributes['options'];
-            $this->customFieldOptionsValidator->validate($newOptions, $customField->getType());
+            $this->customFieldOptionsValidator->validate($newOptions, $customField);
             $currentOptions = $customField->getOptions();
             $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
             $customField->setOptions($updatedOptions);

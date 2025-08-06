@@ -12,15 +12,31 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class CustomFieldOptionsValidator
 {
-    public function validate(array $options, string $fieldType): void
+    public function validate(array $newOptions, CustomFieldInterface $customField): void
     {
-        $this->validateBasicStructure($options);
-        $this->validateFieldTypeSpecific($options, $fieldType);
+        $this->validateBasicStructure($newOptions);
+        $this->validateOptionIds($newOptions, $customField);
+        $this->validateFieldTypeSpecific($newOptions, $customField->getType());
     }
+
+    private function validateOptionIds(array $newOptions, CustomFieldInterface $customField): void
+    {
+        collect($newOptions)
+            ->filter(fn($option) => isset($option['id']))
+            ->pluck('id')
+            ->each(function ($id) use ($customField) {
+                if (null === $customField->getCustomOptionValueById($id)) {
+                    throw new InvalidArgumentException("Invalid option ID: {$id}");
+                }
+            });
+
+    }
+
 
     private function validateBasicStructure(array $options): void
     {
