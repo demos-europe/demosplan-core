@@ -59,7 +59,7 @@ class CustomFieldUpdater
         }
     }
 
-    private function updateOptionsIfPresent($customField, array $attributes): void
+    private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes): void
     {
         if (!isset($attributes['options'])) {
             return;
