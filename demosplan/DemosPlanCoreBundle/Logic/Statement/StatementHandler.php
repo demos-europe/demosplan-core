@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
@@ -108,6 +109,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
@@ -244,7 +246,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
+        private readonly StatementDeleter $statementDeleter,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly ManagerRegistry $doctrine,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -2300,7 +2305,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Create a new records collection from the converted data
-        $records = new \ArrayIterator($convertedRecords);
+        $records = new ArrayIterator($convertedRecords);
         $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {
@@ -4061,8 +4066,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             /** @var StatementRepository $statementRepository */
-            $statementRepository = $this->statementService
-                ->getDoctrine()
+            $statementRepository = $this->doctrine
                 ->getManager()
                 ->getRepository(Statement::class);
             $voteObjects = $statementRepository

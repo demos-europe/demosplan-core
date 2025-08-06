@@ -67,8 +67,6 @@ function initUserbox () {
   if (flyouts.length > 0) {
     flyouts.forEach(flyout => {
       flyout.addEventListener('touchstart', toggleFlyout, { passive: false })
-      // Also add click handler as fallback for some touch devices
-      flyout.addEventListener('click', toggleFlyout)
     })
 
     // Use click instead of touchstart for body to prevent race condition

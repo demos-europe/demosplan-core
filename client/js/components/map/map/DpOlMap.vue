@@ -106,11 +106,12 @@
           v-for="(layer, idx) in sortedLayers"
           :key="layer.name"
           :attributions="layer.attribution || ''"
-          :order="idx"
+          :order="options.hideDefaultLayer ? idx : idx + 1"
           :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
-          :projection="layer.projectionValue" />
+          :projection="layer.projectionValue"
+          :layer-type="layer.layerType || 'overlay'" />
       </div>
 
       <!-- Map container -->
@@ -139,7 +140,6 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
-  checkResponse,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -369,9 +369,7 @@ export default {
         method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
-        .then(checkResponse)
-        .then(response => response.data.attributes)
-        .catch(error => checkResponse(error.response))
+        .then(response => response.data.data.attributes)
     },
 
     panToCoordinate (coordinate) {

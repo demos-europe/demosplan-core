@@ -61,7 +61,6 @@ export default {
   data () {
     return {
       selectedItems: [],
-      searchTerm: '',
       headerFields: [
         {
           field: 'legalName',
