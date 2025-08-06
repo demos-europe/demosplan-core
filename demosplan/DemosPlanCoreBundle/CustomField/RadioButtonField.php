@@ -113,7 +113,7 @@ class RadioButtonField extends AbstractCustomField
         // $optionsCollection = collect($this->options);
 
         return $optionsCollection->contains(function ($option) use ($value) {
-            return $option['id'] === $value;
+            return $option->getId() === $value;
         });
     }
 
@@ -125,17 +125,6 @@ class RadioButtonField extends AbstractCustomField
     public function getId(): string
     {
         return $this->id;
-    }
-
-    public function getOptionValueById(string $customFieldOptionValueId): ?string
-    {
-        foreach ($this->options as $option) {
-            if ($option['id'] === $customFieldOptionValueId) {
-                return $option['label'];
-            }
-        }
-
-        return null;
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
