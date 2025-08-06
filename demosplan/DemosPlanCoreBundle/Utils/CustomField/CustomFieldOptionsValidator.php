@@ -29,6 +29,13 @@ class CustomFieldOptionsValidator
                 throw new InvalidArgumentException('All options must have a non-empty label');
             }
         }
+
+        // Check for duplicate labels using Collections
+        $labels = collect($options)->pluck('label')->map('trim');
+        if ($labels->count() !== $labels->unique()->count()) {
+            throw new InvalidArgumentException('Option labels must be unique');
+        }
+
     }
 
     private function validateFieldTypeSpecific(array $options, string $fieldType): void
@@ -44,7 +51,7 @@ class CustomFieldOptionsValidator
     private function validateRadioButtonOptions(array $options): void
     {
         if (count($options) < 2) {
-            throw new InvalidArgumentException('Radio button fields must have at least 2 options');
+            throw new InvalidArgumentException('Radio is tebutton fields must have at least 2 options');
         }
     }
 
