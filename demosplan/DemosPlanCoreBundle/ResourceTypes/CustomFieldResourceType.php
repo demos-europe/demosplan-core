@@ -116,8 +116,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
-                static fn(CustomFieldInterface $customField): array =>
-                array_map(static fn($option) => $option->toJson(), $customField->getOptions())
+                static fn (CustomFieldInterface $customField): array => array_map(static fn ($option) => $option->toJson(), $customField->getOptions())
             )
             ->addPathCreationBehavior()
             ->addPathUpdateBehavior();
@@ -307,7 +306,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
 
-
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
         $currentOptionsById = [];
@@ -317,10 +315,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $currentOptionsById[$option->getId()] = $option;
         }
 
-        return array_map(function (array $newOption) use
-        ($currentOptionsById) {
+        return array_map(function (array $newOption) use ($currentOptionsById) {
             $optionData = [
-                'id' => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
                 'label' => $newOption['label'] ??
                         $currentOptionsById[$newOption['id'] ?? '']?->getLabel() ?? '',
             ];
@@ -331,7 +328,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             return $customFieldOption;
         }, $newOptions);
     }
-
 
     private function validateOptionsUpdate(array $newOptions): void
     {
