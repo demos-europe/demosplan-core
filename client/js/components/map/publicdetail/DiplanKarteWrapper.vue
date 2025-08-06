@@ -104,6 +104,18 @@ const handleDrawing = (event) => {
       r_location_point: '',
       location_is_set: ''
     }
+  } else if (event.detail[0].features[0].properties?.type === 'PLACEMARK') {
+    // We need to extract the coordinates to stay consistent with other location references
+    const coordinates = geometry.features[0].geometry.coordinates
+    const coordinateString = coordinates.join(',')
+    payload = {
+      r_location: 'point',
+      r_location_point: coordinateString,
+      r_location_priority_area_key: '',
+      r_location_priority_area_type: '',
+      r_location_geometry: '',
+      location_is_set: 'point'
+    }
   } else {
     payload = {
       r_location: 'point',
