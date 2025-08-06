@@ -83,13 +83,23 @@
       </template>
 
       <template v-slot:options="rowData">
-        <ul>
+        <ul v-if="!rowData.edit">
           <li
             v-for="(option, index) in displayedOptions(rowData)"
             :key="index"
             class="mb-1"
             :data-cy="`customFields:option${option.label}`">
-            <div v-if="rowData.edit">
+            <div>
+              {{ option.label }}
+            </div>
+          </li>
+
+        </ul>
+        <ul v-else>
+          <li
+            v-for="(option, index) in newRowData.options"
+            :key="index"
+            class="mb-1">
               <div class="flex">
                 <dp-input
                   v-model="newRowData.options[index].label"
@@ -109,13 +119,8 @@
                   @click="deleteOptionOnEdit(index)"
                 />
               </div>
-            </div>
-
-            <div v-else>
-              {{ option.label }}
-            </div>
           </li>
-          <li v-if="rowData.edit">
+          <li>
             <dp-button
               data-cy="customFields:addOptionOnEdit"
               icon="plus"
@@ -128,7 +133,9 @@
 
       <template v-slot:description="rowData">
         <div v-if="rowData.edit">
-          <dp-input v-model="newRowData.description" id="cfDescription" />
+          <dp-input
+            id="customFieldDescription"
+            v-model="newRowData.description" />
         </div>
         <div v-else>
           {{ rowData.description }}
@@ -213,6 +220,7 @@
 
 <script>
 import {
+  dpApi,
   DpButton,
   DpConfirmDialog,
   DpDataTable,
@@ -223,7 +231,7 @@ import {
   DpLoading,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
@@ -328,7 +336,6 @@ export default {
   methods: {
     ...mapActions('CustomField', {
       createCustomField: 'create',
-      saveCustomField: 'save'
     }),
 
     ...mapActions('AdminProcedure', {
@@ -337,10 +344,6 @@ export default {
 
     ...mapActions('ProcedureTemplate', {
       getProcedureTemplateWithFields: 'get'
-    }),
-
-    ...mapMutations('CustomField', {
-      updateCustomField: 'setItem'
     }),
 
     abortFieldEdit (rowData) {
@@ -388,23 +391,13 @@ export default {
     },
 
     editCustomField (rowData) {
-      // Store initial state of currently edited row
-      const { id, description, name, options } = rowData
+      let previouslyEditedUnsavedField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
 
-      this.initialRowData = {
-        description,
-        name,
-        options
+      if (previouslyEditedUnsavedField) {
+        this.resetEditedUnsavedField(previouslyEditedUnsavedField)
       }
 
-      this.newRowData = {
-        id,
-        description,
-        name,
-        options
-      }
-
-      this.setEditMode(rowData)
+      this.setFieldBeingEdited(rowData)
     },
 
     /**
@@ -493,6 +486,18 @@ export default {
       this.newFieldOptions.splice(index, 1)
     },
 
+    resetEditedUnsavedField (customField) {
+      const { description = '', name = '', options = [] } = this.initialRowData
+
+      customField.description = description
+      customField.edit = false
+      customField.name = name
+      customField.open = false
+      customField.options = options
+
+      this.newRowData = {}
+    },
+
     resetNewFieldForm () {
       this.newFieldOptions = [
         {
@@ -502,6 +507,14 @@ export default {
           label: ''
         }
       ]
+    },
+
+    saveCustomField (payload) {
+      const url = Routing.generate('api_resource_update', { resourceType: 'CustomField', resourceId: this.newRowData.id })
+
+      return dpApi.patch(url, {}, {
+        data: payload
+      })
     },
 
     async saveEditedFields () {
@@ -519,35 +532,18 @@ export default {
           const { description = '', name, options } = this.newRowData
 
           const updatedField = {
-            id: storeField.id,
+            ...storeField,
             attributes: {
               ...storeField.attributes,
               description,
               name,
               options
-            },
-            type: storeField.type
+            }
           }
 
-          this.updateCustomField(updatedField)
-
-          await this.saveCustomField(storeField.id)
-            .then(response => {
-              // Reset store on error
-              if (response.status >= 400) {
-                const restoredField = {
-                  ...this.initialRowData,
-                  id: this.newRowData.id
-                }
-                this.updateCustomField(restoredField)
-              }
-            })
-            .catch(() => {
-              const restoredField = {
-                ...this.initialRowData,
-                id: this.newRowData.id
-              }
-              this.updateCustomField(restoredField)
+          await this.saveCustomField(updatedField)
+            .then(() => {
+              this.setEditMode(storeField, false)
             })
         }
       }
@@ -603,6 +599,33 @@ export default {
 
       this.customFieldItems[idx].open = editState
       this.customFieldItems[idx].edit = editState
+    },
+
+    setFieldBeingEdited (rowData) {
+      this.setInitialRowData(rowData)
+      this.setNewRowData(rowData)
+      this.setEditMode(rowData)
+    },
+
+    setInitialRowData (rowData) {
+      const { description = '', name, options } = rowData
+
+      this.initialRowData = {
+        description,
+        name,
+        options
+      }
+    },
+
+    setNewRowData (rowData) {
+      const { id, description = '', name, options } = rowData
+
+      this.newRowData = {
+        id,
+        description,
+        name,
+        options
+      }
     },
 
     showOptions (rowData) {
