@@ -308,15 +308,16 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
-        $currentOptionsById = collect($currentOptions)->keyBy(fn($option) => $option->getId());
+        $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
 
         return collect($newOptions)
             ->map(function (array $newOption) use ($currentOptionsById) {
                 $customFieldOption = new CustomFieldOption();
                 $customFieldOption->fromJson([
-                    'id' => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                    'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
                     'label' => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
                 ]);
+
                 return $customFieldOption;
             })
             ->toArray();
