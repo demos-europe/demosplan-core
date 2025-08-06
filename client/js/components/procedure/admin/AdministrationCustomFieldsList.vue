@@ -188,7 +188,7 @@
 
           <button
             v-if="!rowData.open"
-            :aria-label="Translator.trans('item.edit')"
+            :aria-label="Translator.trans('aria.expand')"
             class="btn--blank o-link--default"
             data-cy="customFields:showOptions"
             :disabled="rowData.options.length < 3"
@@ -201,7 +201,7 @@
           <template v-else>
             <button
               v-if="!rowData.edit"
-              :aria-label="Translator.trans('save')"
+              :aria-label="Translator.trans('aria.collapse')"
               class="btn--blank o-link--default"
               data-cy="customFields:hideOptions"
               @click="hideOptions(rowData)">
