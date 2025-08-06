@@ -61,7 +61,7 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
             'blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
     ): self {
         $customFieldOptions = collect($options)
-            ->map(fn(string $label) => CustomFieldOptionFactory::fromLabel($label)->create())
+            ->map(fn (string $label) => CustomFieldOptionFactory::fromLabel($label)->create())
             ->toArray();
 
         return $this->with([
