@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
@@ -73,6 +74,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
+        private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly Reindexer $reindexer,
         private readonly CurrentUserInterface $currentUser)
@@ -292,10 +294,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
             $newOptions = $attributes['options'];
-            $this->validateOptionsUpdate($newOptions);
-
+            $this->customFieldUpdater->validateOptionsUpdate($newOptions);
             $currentOptions = $customField->getOptions() ?? [];
-            $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
+            $updatedOptions = $this->customFieldUpdater->processOptionsUpdate($currentOptions, $newOptions);
             $customField->setOptions($updatedOptions);
         }
 
@@ -304,31 +305,5 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
-    }
-
-    private function processOptionsUpdate(array $currentOptions, array $newOptions): array
-    {
-        $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
-
-        return collect($newOptions)
-            ->map(function (array $newOption) use ($currentOptionsById) {
-                $customFieldOption = new CustomFieldOption();
-                $customFieldOption->fromJson([
-                    'id'    => $newOption['id'] ?? Uuid::uuid4()->toString(),
-                    'label' => $newOption['label'] ?? $currentOptionsById->get($newOption['id'] ?? '')?->getLabel() ?? '',
-                ]);
-
-                return $customFieldOption;
-            })
-            ->toArray();
-    }
-
-    private function validateOptionsUpdate(array $newOptions): void
-    {
-        foreach ($newOptions as $option) {
-            if (!isset($option['label']) || empty(trim($option['label']))) {
-                throw new InvalidArgumentException('All options must have a non-empty label');
-            }
-        }
     }
 }
