@@ -307,44 +307,29 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
 
+
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
-        $updatedOptions = [];
         $currentOptionsById = [];
 
-        // Index current options by ID - now working with CustomFieldOption objects
+        // Index current options by ID
         foreach ($currentOptions as $option) {
             $currentOptionsById[$option->getId()] = $option;
         }
 
-        // Process each new option - incoming data is still arrays from API
-        foreach ($newOptions as $newOption) {
-            if (isset($newOption['id'])) {
-                // Update existing option
-                if (isset($currentOptionsById[$newOption['id']])) {
-                    $customFieldOption = new CustomFieldOption();
-                    $customFieldOption->setId($newOption['id']);
-                    $customFieldOption->setLabel(
-                        $newOption['label'] ?? $currentOptionsById[$newOption['id']]->getLabel()
-                    );
-                    $updatedOptions[] = $customFieldOption;
-                } else {
-                    // ID provided but doesn't exist - treat as new
-                    $customFieldOption = new CustomFieldOption();
-                    $customFieldOption->setId($newOption['id']);
-                    $customFieldOption->setLabel($newOption['label']);
-                    $updatedOptions[] = $customFieldOption;
-                }
-            } else {
-                // New option - generate UUID
-                $customFieldOption = new CustomFieldOption();
-                $customFieldOption->setId(Uuid::uuid4()->toString());
-                $customFieldOption->setLabel($newOption['label']);
-                $updatedOptions[] = $customFieldOption;
-            }
-        }
+        return array_map(function (array $newOption) use
+        ($currentOptionsById) {
+            $optionData = [
+                'id' => $newOption['id'] ?? Uuid::uuid4()->toString(),
+                'label' => $newOption['label'] ??
+                        $currentOptionsById[$newOption['id'] ?? '']?->getLabel() ?? '',
+            ];
 
-        return $updatedOptions;
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->fromJson($optionData);
+
+            return $customFieldOption;
+        }, $newOptions);
     }
 
 
