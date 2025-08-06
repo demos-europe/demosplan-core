@@ -24,8 +24,8 @@ class CustomFieldUpdater
     {
     }
 
-    public function updateCustomField($entityId, $attributes) {
-
+    public function updateCustomField($entityId, $attributes)
+    {
         // Get the CustomFieldConfiguration from database
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
 
@@ -36,7 +36,6 @@ class CustomFieldUpdater
         // Get the current CustomField object
         $customField = clone $customFieldConfiguration->getConfiguration();
         $customField->setId($customFieldConfiguration->getId());
-
 
         if (array_key_exists('name', $attributes)) {
             $customField->setName($attributes['name']);
@@ -57,8 +56,8 @@ class CustomFieldUpdater
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
-        return $customField;
 
+        return $customField;
     }
 
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
