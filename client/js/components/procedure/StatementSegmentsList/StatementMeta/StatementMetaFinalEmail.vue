@@ -113,7 +113,7 @@ All rights reserved
   </fieldset>
 </template>
 <script>
-import { checkResponse, DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import { mapState } from 'vuex'
 
@@ -262,7 +262,6 @@ export default {
           emailAttachments: formattedAttachments
         }
         dpRpc('statement.email.sender', params, this.procedure.id)
-          .then(checkResponse)
           .then(() => {
             this.resetEmailData()
           })
