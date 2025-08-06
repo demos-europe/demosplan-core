@@ -20,7 +20,8 @@ use Ramsey\Uuid\Uuid;
 class CustomFieldUpdater
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldOptionsValidator $customFieldOptionsValidator)
     {
     }
 
@@ -47,7 +48,7 @@ class CustomFieldUpdater
 
         if (array_key_exists('options', $attributes)) {
             $newOptions = $attributes['options'];
-            $this->validateOptionsUpdate($newOptions);
+            $this->customFieldOptionsValidator->validate($newOptions, $customField->getType());
             $currentOptions = $customField->getOptions();
             $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
             $customField->setOptions($updatedOptions);
@@ -75,14 +76,5 @@ class CustomFieldUpdater
                 return $customFieldOption;
             })
             ->toArray();
-    }
-
-    private function validateOptionsUpdate(array $newOptions): void
-    {
-        foreach ($newOptions as $option) {
-            if (!isset($option['label']) || empty(trim($option['label']))) {
-                throw new InvalidArgumentException('All options must have a non-empty label');
-            }
-        }
     }
 }
