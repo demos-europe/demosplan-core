@@ -66,5 +66,4 @@ class CustomFieldOptionsValidator
             throw new InvalidArgumentException('Radio is tebutton fields must have at least 2 options');
         }
     }
-
 }
