@@ -354,7 +354,6 @@ export default {
       this.newRowData = {}
 
       this.setEditMode(rowData, false)
-      this.hideOptions(rowData)
     },
 
     addOptionInput () {
