@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomField
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
 
 class CustomFieldUpdaterTest extends UnitTestCase
@@ -84,26 +85,39 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertContains('New Option 2', $newOptionLabels);
     }
 
-    /*public function testUpdateCustomFieldWithEmptyOptionLabelsThrowsInvalidArgumentException(): void
+    #[DataProvider('updateCustomFieldDataProvider')]
+    public function testUpdateCustomFieldWithInvalidOptionsThrowsException($labelOption1, $labelOption2, $expectedErrorMessage): void
     {
         // Arrange
         $procedure = ProcedureFactory::createOne();
-        $customField1 = CustomFieldConfigurationFactory::new()
+        $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($procedure->_real())
             ->asRadioButton('Color1', options: ['green', 'yellow'])->create();
 
-        $entityId = $customField1->getId();
-        $attributes['options'] = [
-            ['id' => 'option1', 'label' => ''], // Empty label
-            ['id' => 'option2', 'label' => 'Valid Option 2']
-        ];
+        $option1 = $customField->getConfiguration()->getOptions()[0];
+        $option2 = $customField->getConfiguration()->getOptions()[1];
 
-        $this->sut->updateCustomField($entityId, $attributes);
+        $entityId = $customField->getId();
+        $attributes['options'] = [
+            ['id' => $option1->getId(), 'label' => $labelOption1], // Empty label
+            ['id' => $option2->getId(), 'label' => $labelOption2]
+        ];
 
         // Assert & Act
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('All options must have a non-empty label');
+        $this->expectExceptionMessage($expectedErrorMessage);
 
         $this->sut->updateCustomField($entityId, $attributes);
-    }*/
+    }
+
+    public function updateCustomFieldDataProvider(): array
+    {
+        return [
+            'EmptyOptionLabelsThrowsInvalidArgumentException' => [
+                'labelOption1' => '',
+                'labelOption2' => 'New label',
+                'expectedErrorMessage'  => 'All options must have a non-empty label',
+            ],
+        ];
+    }
 }
