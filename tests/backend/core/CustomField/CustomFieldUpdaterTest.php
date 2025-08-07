@@ -100,7 +100,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $entityId = $customField->getId();
         $attributes['options'] = [
             ['id' => $option1->getId(), 'label' => $labelOption1], // Empty label
-            ['id' => $option2->getId(), 'label' => $labelOption2]
+            ['id' => $option2->getId(), 'label' => $labelOption2],
         ];
 
         // Assert & Act
@@ -114,8 +114,8 @@ class CustomFieldUpdaterTest extends UnitTestCase
     {
         return [
             'EmptyOptionLabelsThrowsInvalidArgumentException' => [
-                'labelOption1' => '',
-                'labelOption2' => 'New label',
+                'labelOption1'          => '',
+                'labelOption2'          => 'New label',
                 'expectedErrorMessage'  => 'All options must have a non-empty label',
             ],
         ];
