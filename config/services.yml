@@ -16,6 +16,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
+
+    demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
+
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
@@ -61,6 +65,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
+
+    DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService
 
     DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
@@ -265,6 +272,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureAuthenticator: ~
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureUserBadgeCreator: ~
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 

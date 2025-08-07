@@ -761,7 +761,7 @@ class ElementsServiceTest extends FunctionalTestCase
             'title'             => 'my updated element',
             'text'              => 'a updated unique and nice text',
         ]);
-        $updatedElement = $this->find(Elements::class, $updatedElement['ident']);
+        $updatedElement = $this->find(Elements::class, $updatedElement['id']);
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [

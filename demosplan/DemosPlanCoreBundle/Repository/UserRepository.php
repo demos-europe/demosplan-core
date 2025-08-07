@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -177,6 +178,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             $em->flush();
 
             $this->invalidateCachedLoginList();
+
+            // Force reload from database to trigger postLoad event
+            $em->refresh($user);
 
             return $user;
         } catch (Exception $e) {
@@ -616,37 +620,34 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Get users with pagination and optional criteria filtering (UserRepositoryInterface implementation).
      *
-     * @param int   $startIndex Starting index (1-based)
-     * @param int   $count      Number of users to return
-     * @param array $criteria   Optional filtering criteria
-     *
+     * @param int    $startIndex Starting index (1-based)
+     * @param int    $count      Number of users to return
+     * @param array  $criteria   Optional filtering criteria
+     * @param string $sort
+     * @param string $sortDir
      * @return array Array containing users and pagination info
      */
-    public function getUsers(int $startIndex, int $count, array $criteria = []): array
+    public function getUsers(int $startIndex, int $count, array $criteria = [], string $sort = 'u.login', string $sortDir = 'ASC'): array
     {
         $qb = $this->createQueryBuilder('u')
             ->setFirstResult($startIndex - 1)
-            ->setMaxResults($count);
+            ->setMaxResults($count)
+            ->where('u.deleted = false')
+            ->orderBy($sort, $sortDir);
 
         // Apply criteria filters
-        foreach ($criteria as $field => $value) {
-            if (null !== $value) {
-                if (is_array($value)) {
-                    $qb->andWhere("u.{$field} IN (:{$field})")
-                       ->setParameter($field, $value);
-                } else {
-                    $qb->andWhere("u.{$field} = :{$field}")
-                       ->setParameter($field, $value);
-                }
-            }
-        }
+        $qb = $this->applyCriteriaFilters($criteria, $qb);
 
         $users = $qb->getQuery()->getResult();
 
         // Get total count for pagination
-        $totalCount = $this->createQueryBuilder('u')
+        $totalCountQb = $this->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->getQuery()
+            ->where('u.deleted = false');
+
+        // Apply criteria filters
+        $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
+        $totalCount = $totalCountQb->getQuery()
             ->getSingleScalarResult();
 
         return [
@@ -736,5 +737,23 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     private function invalidateCachedLoginList(): void
     {
         $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+    }
+
+    private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder
+    {
+        foreach ($criteria as $field => $value) {
+            if (null !== $value) {
+                if (is_array($value)) {
+                    $qb->andWhere("u.{$field} IN (:{$field})")
+                        ->setParameter($field, $value);
+                }
+                else {
+                    $qb->andWhere("u.{$field} = :{$field}")
+                        ->setParameter($field, $value);
+                }
+            }
+        }
+
+        return $qb;
     }
 }

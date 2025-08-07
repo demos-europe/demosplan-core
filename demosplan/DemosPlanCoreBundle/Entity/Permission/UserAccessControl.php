@@ -16,6 +16,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserAccessControlInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -30,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="user_access_control", uniqueConstraints={@ORM\UniqueConstraint(name="unique_user_orga_customer_role_permission", columns={"user_id", "orga_id", "customer_id", "role_id", "permission"})})
  */
-class UserAccessControl extends CoreEntity implements UuidEntityInterface
+class UserAccessControl extends CoreEntity implements UuidEntityInterface, UserAccessControlInterface
 {
     /**
      * @ORM\Column(type="string", length=36, options={"fixed":true})

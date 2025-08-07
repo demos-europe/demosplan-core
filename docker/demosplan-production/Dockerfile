@@ -16,12 +16,12 @@ COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
-RUN npm install --ignore-scripts -g corepack && \
-    corepack enable && yarn set version 4.2.2 && \
-    npm i --ignore-scripts -g n && \
+RUN npm install --ignore-scripts -g n && \
     rm -rf /root/.npm && \
-# Install specific node version
-    n 20.18.1
+# Install specific node version first
+    n 20.18.1 && \
+    npm install --ignore-scripts -g corepack && \
+    corepack enable && yarn set version 4.2.2
 
 WORKDIR /srv/www
 

@@ -74,18 +74,21 @@ class UserAccessControlRepository extends CoreRepository
      * Check if a specific permission exists for a user.
      */
     public function permissionExists(
+        string $permission,
         UserInterface $user,
         OrgaInterface $orga,
         CustomerInterface $customer,
-        RoleInterface $role,
-        string $permission,
+        ?RoleInterface $role = null,
     ): bool {
-        return null !== $this->findOneBy([
-            'user'         => $user,
+        $conditions = [
+            'user' => $user,
             'organisation' => $orga,
-            'customer'     => $customer,
-            'role'         => $role,
-            'permission'   => $permission,
-        ]);
+            'customer' => $customer,
+            'permission' => $permission,
+        ];
+        if ($role instanceof RoleInterface) {
+            $conditions['role'] = $role;
+        }
+        return null !== $this->findOneBy($conditions);
     }
 }
