@@ -86,7 +86,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
     }
 
     #[DataProvider('updateCustomFieldDataProvider')]
-    public function testUpdateCustomFieldWithInvalidOptionsThrowsException($labelOption1, $labelOption2, $expectedErrorMessage): void
+    public function testUpdateCustomFieldWithInvalidOptionsThrowsException($optionId1, $labelOption1, $labelOption2, $expectedErrorMessage): void
     {
         // Arrange
         $procedure = ProcedureFactory::createOne();
@@ -96,10 +96,11 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $option1 = $customField->getConfiguration()->getOptions()[0];
         $option2 = $customField->getConfiguration()->getOptions()[1];
+        $optionId1 = $optionId1 ?  : $option1->getId();
 
         $entityId = $customField->getId();
         $attributes['options'] = [
-            ['id' => $option1->getId(), 'label' => $labelOption1], // Empty label
+            ['id' => $optionId1, 'label' => $labelOption1], // Empty label
             ['id' => $option2->getId(), 'label' => $labelOption2]
         ];
 
@@ -113,10 +114,23 @@ class CustomFieldUpdaterTest extends UnitTestCase
     public function updateCustomFieldDataProvider(): array
     {
         return [
-            'EmptyOptionLabelsThrowsInvalidArgumentException' => [
+            'emptyOptionLabels' => [
+                'optionId1' => null,
                 'labelOption1' => '',
                 'labelOption2' => 'New label',
                 'expectedErrorMessage'  => 'All options must have a non-empty label',
+            ],
+            'duplicateOptionLabels' => [
+                'optionId1' => null,
+                'labelOption1' => 'New label',
+                'labelOption2' => 'New label',
+                'expectedErrorMessage'  => 'Option labels must be unique',
+            ],
+            'invalidOptionId' => [
+                'optionId1' => 'non-existent-id',
+                'labelOption1' => 'Yellow',
+                'labelOption2' => 'Green',
+                'expectedErrorMessage'  => 'Invalid option ID: non-existent-id',
             ],
         ];
     }
