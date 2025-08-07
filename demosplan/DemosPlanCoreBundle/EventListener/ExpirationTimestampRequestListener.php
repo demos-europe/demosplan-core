@@ -85,12 +85,6 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
     {
         $this->logger->info('Token expired, redirecting to logout');
 
-        // Invalidate session
-        $session = $event->getRequest()->getSession();
-        $session->invalidate();
-
-        // Direct response - no controller needed
-
         $redirectResponse = new RedirectResponse($this->router->generate('DemosPlan_user_logout'));
         $event->setController(static fn () => $redirectResponse);
     }
