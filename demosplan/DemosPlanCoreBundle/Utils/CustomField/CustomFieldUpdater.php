@@ -21,8 +21,7 @@ use Ramsey\Uuid\Uuid;
 class CustomFieldUpdater
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldOptionsValidator $customFieldOptionsValidator)
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
