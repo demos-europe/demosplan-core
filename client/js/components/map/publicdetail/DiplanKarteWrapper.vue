@@ -116,6 +116,8 @@ const handleDrawing = (event) => {
       r_location_geometry: '',
       location_is_set: 'point'
     }
+    closeLocationInfo()
+    toggleStatementModal()
   } else {
     payload = {
       r_location: 'point',
@@ -154,9 +156,6 @@ onMounted(() => {
   registerWebComponent({
     nonce: styleNonce
   })
-})
-
-onMounted(() => {
   store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 })
 
