@@ -162,6 +162,7 @@
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="customFields:saveEdit"
+              :disabled="isSaveDisabled[rowData.id]"
               :title="Translator.trans('save')"
               @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)">
               <dp-icon
@@ -269,6 +270,7 @@ export default {
       initialRowData: {},
       isLoading: false,
       isNewFieldFormOpen: false,
+      isSaveDisabled: {},
       isSuccess: false,
       newFieldOptions: [
         {
@@ -333,6 +335,17 @@ export default {
     }
   },
 
+  watch: {
+    newRowData: {
+      handler (newVal) {
+        if (newVal && newVal.id) {
+          this.disableSaveIfFieldUnchanged(newVal)
+        }
+      },
+      deep: true
+    }
+  },
+
   methods: {
     ...mapActions('CustomField', {
       createCustomField: 'create',
@@ -380,13 +393,21 @@ export default {
      * @returns { boolean }
      */
     checkIfOptionNameIsUnique (options, name) {
-      const identicalNames = options.filter(optionName => optionName === name)
+      const identicalNames = options.filter(option => option.label === name)
 
       return identicalNames.length <= 1
     },
 
     deleteOptionOnEdit (index) {
       this.newRowData.options.splice(index, 1)
+    },
+
+    disableSaveIfFieldUnchanged (newRowData) {
+      const isNameUnchanged = this.initialRowData.name === newRowData.name
+      const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
+      const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
+
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged
     },
 
     editCustomField (rowData) {
@@ -612,7 +633,7 @@ export default {
       this.initialRowData = {
         description,
         name,
-        options
+        options: JSON.parse(JSON.stringify(options))
       }
     },
 
@@ -636,7 +657,7 @@ export default {
     /**
      *
      * @param customFieldName {String}
-     * @param customFieldOptions {Array} array of strings
+     * @param customFieldOptions {Array} array of objects with label property
      */
     validateNamesAreUnique (customFieldName, customFieldOptions) {
       const isNameDuplicated = !this.checkIfNameIsUnique(customFieldName)
@@ -646,9 +667,9 @@ export default {
       }
 
       let isAnyOptionNameDuplicated = false
-      customFieldOptions.forEach(optionName => {
-        if (optionName !== '') {
-          isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, optionName)
+      customFieldOptions.forEach(option => {
+        if (option.label !== '') {
+          isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)
         }
       })
 
