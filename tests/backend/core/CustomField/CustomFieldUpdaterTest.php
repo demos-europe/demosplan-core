@@ -106,6 +106,4 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $this->sut->updateCustomField($entityId, $attributes);
     }*/
-
-
 }
