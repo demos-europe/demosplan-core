@@ -27,11 +27,10 @@ abstract class AbstractCustomField implements CustomFieldInterface
     {
         $options = $newOptions ?? $this->getOptions();
 
-        // Common validation logic (from CustomFieldOptionsValidator)
+
         $this->validateBasicStructure($options);
         $this->validateOptionIds($options);
 
-        // Delegate field-specific validation to concrete classes
         $this->validateFieldSpecific($options);
     }
 
