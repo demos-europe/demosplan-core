@@ -16,9 +16,11 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -41,6 +43,8 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
             $this->kernelMock,
             self::getContainer()->get(LoggerInterface::class),
             self::getContainer()->get(CurrentUserService::class),
+            self::getContainer()->get(CustomerService::class),
+            self::getContainer()->get(ParameterBagInterface::class),
         );
 
         $this->testUser = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
