@@ -17,14 +17,13 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
-
     protected string $name = '';
 
     protected string $description = '';
 
     abstract public function isValueValid(string $value): bool;
 
-    public function validate(array $newOptions = null): void
+    public function validate(?array $newOptions = null): void
     {
         $options = $newOptions ?? $this->getOptions();
 
@@ -63,5 +62,4 @@ abstract class AbstractCustomField implements CustomFieldInterface
                 }
             });
     }
-
 }
