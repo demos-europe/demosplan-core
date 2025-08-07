@@ -66,7 +66,7 @@ class CustomFieldUpdater
         }
 
         $newOptions = $attributes['options'];
-        $this->customFieldOptionsValidator->validate($newOptions, $customField);
+        $customField->validate($newOptions);
 
         $currentOptions = $customField->getOptions();
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);

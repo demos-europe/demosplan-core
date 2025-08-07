@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
 class RadioButtonField extends AbstractCustomField
 {
     protected string $id = '';
@@ -131,4 +133,12 @@ class RadioButtonField extends AbstractCustomField
 
         return null;
     }
+
+    protected function validateFieldSpecific(array $options): void
+    {
+        if (count($options) < 2) {
+            throw new InvalidArgumentException('Radio button fields must have at least 2 options');
+        }
+    }
+
 }
