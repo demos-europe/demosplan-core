@@ -74,9 +74,7 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
         }
 
-        $isValid = $this->ozgKeycloakLogoutManager->hasValidToken($session);
-
-        if (true === $isValid) {
+        if ($this->ozgKeycloakLogoutManager->hasValidToken($session)) {
             return;
         }
 
