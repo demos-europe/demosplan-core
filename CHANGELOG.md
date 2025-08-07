@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 ## v4.9.0 (2025-07-30)
+- Display Keycloak logout countdown warning in the header and logout automatically
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements
 - Migrate to Tailwind CSS v4
