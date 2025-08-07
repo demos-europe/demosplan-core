@@ -27,7 +27,6 @@ abstract class AbstractCustomField implements CustomFieldInterface
     {
         $options = $newOptions ?? $this->getOptions();
 
-
         $this->validateBasicStructure($options);
         $this->validateOptionIds($options);
 
