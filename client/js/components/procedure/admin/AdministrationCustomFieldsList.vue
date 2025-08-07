@@ -563,6 +563,8 @@ export default {
 
           await this.saveCustomField(updatedField)
             .then(() => {
+              const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
+              this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
             })
         }
@@ -622,8 +624,9 @@ export default {
     },
 
     setFieldBeingEdited (rowData) {
+      const newRowData = JSON.parse(JSON.stringify(rowData))
       this.setInitialRowData(rowData)
-      this.setNewRowData(rowData)
+      this.setNewRowData(newRowData)
       this.setEditMode(rowData)
     },
 
