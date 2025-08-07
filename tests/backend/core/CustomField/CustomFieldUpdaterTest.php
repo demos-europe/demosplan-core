@@ -12,28 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\CustomField;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
-use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use Tests\Base\UnitTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class CustomFieldUpdaterTest extends UnitTestCase
 {
@@ -48,7 +31,6 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $this->sut = $this->getContainer()->get(CustomFieldUpdater::class);
     }
-
 
     public function testUpdateCustomFieldWithValidNameUpdate(): void
     {
