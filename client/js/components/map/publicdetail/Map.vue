@@ -1874,6 +1874,7 @@ export default {
         const layerObj = this.layers.find(el => el.id === layer.get('name'))
         const source = this.createLayerSource(layerObj)
         layer.setSource(source)
+        const layerObj = this.layers.find(el => el.id.replaceAll('-', '') === layer.get('name'))
       }
     },
 
