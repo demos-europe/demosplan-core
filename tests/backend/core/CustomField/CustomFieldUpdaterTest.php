@@ -96,12 +96,12 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $option1 = $customField->getConfiguration()->getOptions()[0];
         $option2 = $customField->getConfiguration()->getOptions()[1];
-        $optionId1 = $optionId1 ?  : $option1->getId();
+        $optionId1 = $optionId1 ?: $option1->getId();
 
         $entityId = $customField->getId();
         $attributes['options'] = [
             ['id' => $optionId1, 'label' => $labelOption1], // Empty label
-            ['id' => $option2->getId(), 'label' => $labelOption2]
+            ['id' => $option2->getId(), 'label' => $labelOption2],
         ];
 
         // Assert & Act
@@ -115,21 +115,21 @@ class CustomFieldUpdaterTest extends UnitTestCase
     {
         return [
             'emptyOptionLabels' => [
-                'optionId1' => null,
-                'labelOption1' => '',
-                'labelOption2' => 'New label',
+                'optionId1'             => null,
+                'labelOption1'          => '',
+                'labelOption2'          => 'New label',
                 'expectedErrorMessage'  => 'All options must have a non-empty label',
             ],
             'duplicateOptionLabels' => [
-                'optionId1' => null,
-                'labelOption1' => 'New label',
-                'labelOption2' => 'New label',
+                'optionId1'             => null,
+                'labelOption1'          => 'New label',
+                'labelOption2'          => 'New label',
                 'expectedErrorMessage'  => 'Option labels must be unique',
             ],
             'invalidOptionId' => [
-                'optionId1' => 'non-existent-id',
-                'labelOption1' => 'Yellow',
-                'labelOption2' => 'Green',
+                'optionId1'             => 'non-existent-id',
+                'labelOption1'          => 'Yellow',
+                'labelOption2'          => 'Green',
                 'expectedErrorMessage'  => 'Invalid option ID: non-existent-id',
             ],
         ];
