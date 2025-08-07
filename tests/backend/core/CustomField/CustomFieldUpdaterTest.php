@@ -64,7 +64,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
         $newOptions = [
             ['id' => $updatedOptionId, 'label' => 'Updated Option 1'],
-            ['label' => 'New Option 2']  // New option without ID
+            ['label' => 'New Option 2'],  // New option without ID
         ];
         $attributes = ['options' => $newOptions];
 
@@ -72,8 +72,8 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $result = $this->sut->updateCustomField($customField->getId(), $attributes);
 
         // Assert
-        $newOptionLabels = array_map(static fn($option) => $option->getLabel(), $result->getOptions());
-        $optionIds = array_map(static fn($option) => $option->getId(), $result->getOptions());
+        $newOptionLabels = array_map(static fn ($option) => $option->getLabel(), $result->getOptions());
+        $optionIds = array_map(static fn ($option) => $option->getId(), $result->getOptions());
 
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertCount(2, $result->getOptions());
@@ -81,7 +81,5 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertNotContains($toBeDeletedOptionId, $optionIds);
         static::assertContains('Updated Option 1', $newOptionLabels);
         static::assertContains('New Option 2', $newOptionLabels);
-
     }
-
 }
