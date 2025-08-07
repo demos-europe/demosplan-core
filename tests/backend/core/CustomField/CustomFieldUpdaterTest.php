@@ -50,4 +50,38 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertEquals('Updated Field Name', $result->getName());
     }
+
+    public function testUpdateCustomFieldWithValidOptionsUpdate(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton(options: ['yellow', 'green'])->create();
+
+        $updatedOptionId = $customField->getConfiguration()->getOptions()[0]->getId();
+        $toBeDeletedOptionId = $customField->getConfiguration()->getOptions()[1]->getId();
+
+        $newOptions = [
+            ['id' => $updatedOptionId, 'label' => 'Updated Option 1'],
+            ['label' => 'New Option 2']  // New option without ID
+        ];
+        $attributes = ['options' => $newOptions];
+
+        // Act
+        $result = $this->sut->updateCustomField($customField->getId(), $attributes);
+
+        // Assert
+        $newOptionLabels = array_map(static fn($option) => $option->getLabel(), $result->getOptions());
+        $optionIds = array_map(static fn($option) => $option->getId(), $result->getOptions());
+
+        static::assertInstanceOf(CustomFieldInterface::class, $result);
+        static::assertCount(2, $result->getOptions());
+        static::assertContains($updatedOptionId, $optionIds);
+        static::assertNotContains($toBeDeletedOptionId, $optionIds);
+        static::assertContains('Updated Option 1', $newOptionLabels);
+        static::assertContains('New Option 2', $newOptionLabels);
+
+    }
+
 }
