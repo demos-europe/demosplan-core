@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.9.1 (2025-08-07)
 - Fix time based procedure phase switch
 
 ## v4.9.0 (2025-07-30)
