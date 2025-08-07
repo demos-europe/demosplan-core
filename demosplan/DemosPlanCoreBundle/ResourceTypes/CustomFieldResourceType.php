@@ -18,13 +18,13 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
@@ -47,7 +47,6 @@ use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
-use Ramsey\Uuid\Uuid;
 
 /** LEARNINGS
  * implementing PropertyAutoPathInterface makes it available to attributes from the entity.
@@ -72,6 +71,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
+        private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly Reindexer $reindexer,
         private readonly CurrentUserInterface $currentUser)
@@ -113,7 +113,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->options->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
+        $configBuilder->options
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): array => array_map(static fn ($option) => $option->toJson(), $customField->getOptions())
+            )
+            ->addPathCreationBehavior()
+            ->addPathUpdateBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
@@ -262,90 +267,10 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
     {
-        // Get the CustomFieldConfiguration from database
-        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
-
-        if (!$customFieldConfiguration) {
-            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
-        }
-
-        // Get the current CustomField object
-        $customField = clone $customFieldConfiguration->getConfiguration();
-        $customField->setId($customFieldConfiguration->getId());
-
         // Update the fields from the request
         $attributes = $entityData->getAttributes();
-
-        if (array_key_exists($this->name->getAsNamesInDotNotation(), $attributes)) {
-            $customField->setName($attributes['name']);
-        }
-
-        if (array_key_exists($this->description->getAsNamesInDotNotation(), $attributes)) {
-            $customField->setDescription($attributes['description']);
-        }
-
-        if (array_key_exists($this->options->getAsNamesInDotNotation(), $attributes)) {
-            $newOptions = $attributes['options'];
-            $this->validateOptionsUpdate($newOptions);
-
-            $currentOptions = $customField->getOptions() ?? [];
-            $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
-            $customField->setOptions($updatedOptions);
-        }
-
-        // Save back to CustomFieldConfiguration
-        $customFieldConfiguration->setConfiguration($customField);
-        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+        $customField = $this->customFieldUpdater->updateCustomField($entityId, $attributes);
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
-    }
-
-    private function processOptionsUpdate(array $currentOptions, array $newOptions): array
-    {
-        $updatedOptions = [];
-        $currentOptionsById = [];
-
-        // Index current options by ID
-        foreach ($currentOptions as $option) {
-            if (isset($option['id'])) {
-                $currentOptionsById[$option['id']] = $option;
-            }
-        }
-
-        // Process each new option
-        foreach ($newOptions as $newOption) {
-            if (isset($newOption['id'])) {
-                // Update existing option
-                if (isset($currentOptionsById[$newOption['id']])) {
-                    $updatedOptions[] = [
-                        'id'    => $newOption['id'],
-                        'label' => $newOption['label'] ?? $currentOptionsById[$newOption['id']]['label'],
-                    ];
-                } else {
-                    // ID provided but doesn't exist - treat as new
-                    $updatedOptions[] = [
-                        'id'    => $newOption['id'],
-                        'label' => $newOption['label'],
-                    ];
-                }
-            } else {
-                // New option - generate UUID
-                $updatedOptions[] = [
-                    'id'    => Uuid::uuid4()->toString(),
-                    'label' => $newOption['label'],
-                ];
-            }
-        }
-
-        return $updatedOptions;
-    }
-
-    private function validateOptionsUpdate(array $newOptions): void
-    {
-        foreach ($newOptions as $option) {
-            if (!isset($option['label']) || empty(trim($option['label']))) {
-                throw new InvalidArgumentException('All options must have a non-empty label');
-            }
-        }
     }
 }

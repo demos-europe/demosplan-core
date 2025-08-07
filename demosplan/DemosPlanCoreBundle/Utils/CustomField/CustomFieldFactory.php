@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
@@ -51,10 +52,10 @@ class CustomFieldFactory
 
         foreach ($options as $option) {
             // Already in new format or ensure it has required keys
-            $normalizedOptions[] = [
-                'id'    => Uuid::uuid4()->toString(),
-                'label' => $option['label'],
-            ];
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->setId(Uuid::uuid4()->toString());
+            $customFieldOption->setLabel($option['label']);
+            $normalizedOptions[] = $customFieldOption;
         }
 
         return $normalizedOptions;

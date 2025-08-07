@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-use Illuminate\Support\Collection;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class RadioButtonField extends AbstractCustomField
 {
@@ -35,16 +35,25 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
-        $this->options = $json['options'];
+        $this->options = array_map(static function ($optionData) {
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->fromJson($optionData);
+
+            return $customFieldOption;
+        }, $json['options']);
     }
 
     public function toJson(): array
     {
+        $options = array_map(static function ($customField) {
+            return $customField->toJson();
+        }, $this->options);
+
         return [
             'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
-            'options'       => $this->options,
+            'options'       => $options,
         ];
     }
 
@@ -99,12 +108,8 @@ class RadioButtonField extends AbstractCustomField
             return true;
         }
 
-        // Create Laravel collection using the class directly
-        $optionsCollection = new Collection($this->options);
-        // $optionsCollection = collect($this->options);
-
-        return $optionsCollection->contains(function ($option) use ($value) {
-            return $option['id'] === $value;
+        return collect($this->options)->contains(function ($option) use ($value) {
+            return $option->getId() === $value;
         });
     }
 
@@ -118,14 +123,21 @@ class RadioButtonField extends AbstractCustomField
         return $this->id;
     }
 
-    public function getOptionValueById(string $customFieldOptionValueId): ?string
+    public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         foreach ($this->options as $option) {
-            if ($option['id'] === $customFieldOptionValueId) {
-                return $option['label'];
+            if ($customFieldOptionValueId === $option->getId()) {
+                return $option;
             }
         }
 
         return null;
+    }
+
+    protected function validateFieldSpecific(array $options): void
+    {
+        if (count($options) < 2) {
+            throw new InvalidArgumentException('Radio button fields must have at least 2 options');
+        }
     }
 }

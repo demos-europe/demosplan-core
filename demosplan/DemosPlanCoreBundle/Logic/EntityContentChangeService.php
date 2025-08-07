@@ -1112,8 +1112,7 @@ class EntityContentChangeService
 
     public function getCustomFieldValueName(string $customFieldId, string $customFieldValueId): string
     {
-        return $this->customFieldValueCreator
-            ->getCustomFieldConfigurationById($customFieldId)->getOptionValueById($customFieldValueId);
+        return $this->customFieldValueCreator->getCustomFieldConfigurationById($customFieldId)->getCustomOptionValueById($customFieldValueId)->getLabel();
     }
 
     /**
