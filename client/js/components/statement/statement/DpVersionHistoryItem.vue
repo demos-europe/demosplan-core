@@ -238,7 +238,7 @@ export default {
       if (this.time.displayChange) {
         this.loadHistory()
           .then((response) => {
-            this.history = response.data
+            this.history = response.data.data
             this.isLoading = false
           })
       } else {
