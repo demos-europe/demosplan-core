@@ -1872,8 +1872,10 @@ export default {
     setLayerSource (layer) {
       if (layer.getSource() === null) {
         const layerObj = this.layers.find(el => el.id.replaceAll('-', '') === layer.get('name'))
+
         if (layerObj) {
           const source = this.createLayerSource(layerObj)
+
           layer.setSource(source)
         }
       }
