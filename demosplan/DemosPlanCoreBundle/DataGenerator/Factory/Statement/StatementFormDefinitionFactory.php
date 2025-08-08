@@ -46,7 +46,7 @@ final class StatementFormDefinitionFactory extends PersistentProxyObjectFactory
 
     protected function initialize(): static
     {
-        return $this->afterInstantiate(function (StatementFormDefinition $formDefinition): void {
+        return $this->afterInstantiate(function (): void {
             // The constructor already creates default field definitions
             // No additional initialization needed
         });
