@@ -47,7 +47,7 @@ class OzgKeycloakLogoutManager
      */
     public function isKeycloakConfigured(): bool
     {
-        $this->logger->warning('Logging oauth_keycloak_logout_route', [
+        $this->logger->info('Logging oauth_keycloak_logout_route', [
             'oauth_keycloak_logout_route'  =>  $this->parameterBag->get('oauth_keycloak_logout_route'),
             'isKeycloakConfigured' => '' !== $this->parameterBag->get('oauth_keycloak_logout_route'),
         ]);
