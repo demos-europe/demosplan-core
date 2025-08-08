@@ -50,6 +50,11 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             return;
         }
 
+        // If Keycloak is not configured, do nothing regardless of environment
+        if (!$this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+            return;
+        }
+
         // Only handle main requests
         if (!$event->isMainRequest()) {
             return;

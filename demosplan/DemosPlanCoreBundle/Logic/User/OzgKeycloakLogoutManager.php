@@ -43,23 +43,22 @@ class OzgKeycloakLogoutManager
     }
 
     /**
+     * Check if Keycloak logout is configured for this environment.
+     */
+    public function isKeycloakConfigured(): bool
+    {
+        return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
+    }
+
+
+    /**
      * Determines if test token expiration should be injected in dev/test environments.
-     * Skips injection when Keycloak logout is configured since real tokens handle expiration.
      *
      * @return bool True if injection should occur, false otherwise
      */
     public function shouldInjectTestExpiration(): bool
     {
-        $isTestOrDev = DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
-
-        if (!$isTestOrDev) {
-            return false;
-        }
-
-        // If env is test or dev, and  keycloak logout is configured then do not inject
-        $keycloakLogoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-
-        return '' === $keycloakLogoutRoute;
+        return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
     }
 
     public function hasLogoutWarningPermission(): bool
