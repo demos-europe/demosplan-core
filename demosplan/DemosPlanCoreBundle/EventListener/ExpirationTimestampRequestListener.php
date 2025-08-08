@@ -46,11 +46,11 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
-        if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission()){
+        if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission()) {
             return;
         }
 
-        if($this->ozgKeycloakLogoutManager->shouldSkipInProductionWithoutKeycloak()) {
+        if ($this->ozgKeycloakLogoutManager->shouldSkipInProductionWithoutKeycloak()) {
             return;
         }
         // Only handle main requests

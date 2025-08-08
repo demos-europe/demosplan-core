@@ -50,11 +50,10 @@ class OzgKeycloakLogoutManager
         return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
     }
 
-
     public function shouldSkipInProductionWithoutKeycloak()
     {
-        return DemosPlanKernel::ENVIRONMENT_PROD === $this->kernel->getEnvironment() &&
-            !$this->isKeycloakConfigured();
+        return DemosPlanKernel::ENVIRONMENT_PROD === $this->kernel->getEnvironment()
+            && !$this->isKeycloakConfigured();
     }
 
     /**
