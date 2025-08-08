@@ -88,8 +88,8 @@
         }"
         name="r_userOrganisation"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_userOrganisation"
-      @input="val => setStatementData({r_userOrganisation: val})" /><!--
+        :model-value="statement.r_userOrganisation"
+        @input="val => setStatementData({r_userOrganisation: val})" /><!--
 
    --><label
         v-if="hasPermission('field_statement_user_position') && formOptions.userPosition"

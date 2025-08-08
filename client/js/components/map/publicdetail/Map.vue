@@ -1895,9 +1895,13 @@ export default {
 
     setLayerSource (layer) {
       if (layer.getSource() === null) {
-        const layerObj = this.layers.find(el => el.id === layer.get('name'))
-        const source = this.createLayerSource(layerObj)
-        layer.setSource(source)
+        const layerObj = this.layers.find(el => el.id.replaceAll('-', '') === layer.get('name'))
+
+        if (layerObj) {
+          const source = this.createLayerSource(layerObj)
+
+          layer.setSource(source)
+        }
       }
     },
 
@@ -2076,12 +2080,15 @@ export default {
           'isMinimap',
           'isPrint',
           'isScope',
+          'layerVersion',
           'layers',
           'layerType',
           'mapOrder',
           'name',
           'opacity',
           'projectionLabel',
+          'serviceType',
+          'tileMatrixSet',
           'treeOrder',
           'url',
           'visibilityGroupId'
