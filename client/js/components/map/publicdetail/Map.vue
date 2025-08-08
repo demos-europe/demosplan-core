@@ -41,7 +41,7 @@ import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } fro
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
 import DomPurify from 'dompurify'
 import { easeOut } from 'ol/easing'
