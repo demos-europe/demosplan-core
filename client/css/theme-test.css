@@ -60,3 +60,71 @@
     display: inline !important;
 }
 
+
+
+
+
+
+
+
+
+/*CvStatementList*/
+:root {
+    --dp-orange-20: #ffd9be;
+    --dp-orange-70: #8A3800;
+    --dp-green-10: #DCFDD4;
+    --dp-green-70: #325F26;
+    --dp-primary-blue: #1E3A8A;
+}
+
+/* Carbon Tag Overrides for colors that differ in our carbon version */
+.cv-statement-list .status-editing {
+    background-color: var(--dp-orange-20) !important;
+    color: var(--dp-orange-70) !important;
+}
+
+.cv-statement-list .status-completed {
+    background-color: var(--dp-green-10) !important;
+    color: var(--dp-green-70) !important;
+}
+
+/* Carbon Tag Overrides for row-size */
+.cv-statement-list .bx--data-table td {
+    padding: 15px !important;
+    vertical-align: top !important;
+}
+
+.cv-statement-list .text-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.cv-statement-list .bx--btn--tertiary {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.bx--btn--primary {
+    background-color: var(--dp-primary-blue) !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
