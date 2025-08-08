@@ -132,6 +132,16 @@ class CustomFieldValueCreator
         return $customFieldConfigurations;
     }
 
+    public function getCustomFieldConfigurationById(string $customFieldId): CustomFieldInterface
+    {
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($customFieldId);
+        if (null === $customFieldConfiguration) {
+            throw new InvalidArgumentException('No custom field configuration found for given ID.');
+        }
+
+        return $customFieldConfiguration->getConfiguration();
+    }
+
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
     {
         if (!$customField->isValueValid($value)) {

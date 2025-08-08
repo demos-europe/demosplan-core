@@ -10,15 +10,54 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
 /**
  * Provide the generalized hashing functionality for stored queries.
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
-
     protected string $name = '';
 
     protected string $description = '';
 
     abstract public function isValueValid(string $value): bool;
+
+    public function validate(?array $newOptions = null): void
+    {
+        $options = $newOptions ?? $this->getOptions();
+
+        $this->validateBasicStructure($options);
+        $this->validateOptionIds($options);
+
+        $this->validateFieldSpecific($options);
+    }
+
+    abstract protected function validateFieldSpecific(array $options): void;
+
+    private function validateBasicStructure(array $options): void
+    {
+        // Check all options have non-empty labels
+        if (!collect($options)->every(fn ($option) => isset($option['label']) && !empty(trim($option['label'])))) {
+            throw new InvalidArgumentException('All options must have a non-empty label');
+        }
+
+        // Check for duplicate labels using Collections
+        $labels = collect($options)->pluck('label')->map('trim');
+        if ($labels->count() !== $labels->unique()->count()) {
+            throw new InvalidArgumentException('Option labels must be unique');
+        }
+    }
+
+    private function validateOptionIds(array $newOptions): void
+    {
+        collect($newOptions)
+            ->filter(fn ($option) => isset($option['id']))
+            ->pluck('id')
+            ->each(function ($id) {
+                if (null === $this->getCustomOptionValueById($id)) {
+                    throw new InvalidArgumentException("Invalid option ID: {$id}");
+                }
+            });
+    }
 }
