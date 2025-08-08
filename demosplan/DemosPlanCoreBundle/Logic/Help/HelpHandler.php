@@ -10,18 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Help;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use Exception;
 
-class HelpHandler extends CoreHandler
+class HelpHandler
 {
-    public function __construct(MessageBagInterface $messageBag, private readonly HelpService $helpService)
+    public function __construct(private readonly HelpService $helpService)
     {
-        parent::__construct($messageBag);
     }
 
     /**

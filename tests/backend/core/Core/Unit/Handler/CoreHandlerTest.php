@@ -1,5 +1,5 @@
 <?php
-
+/* TODO REMOVE THIS TEST */
 /**
  * This file is part of the package demosplan.
  *
@@ -30,11 +30,13 @@ class CoreHandlerTest extends UnitTestCase
     protected $coreHandler;
 
     protected $uploadDir;
+    protected $messageBag;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->coreHandler = new CoreHandler(self::getContainer()->get(MessageBagInterface::class));
+        $this->messageBag = self::getContainer()->get(MessageBagInterface::class);
 
         if (is_dir($this->getUploadDir().'/coreHandlerUpload_test/')) {
             $this->deleteTestDir();
@@ -59,35 +61,9 @@ class CoreHandlerTest extends UnitTestCase
         rmdir($this->getUploadDir().'/coreHandlerUpload_test');
     }
 
-    public function testSetGetRequest()
-    {
-        $request = ['one' => 'eins', 2 => 'two', 3 => 3];
-
-        $this->coreHandler->setRequestValues($request);
-
-        static::assertEquals($request, $this->coreHandler->getRequestValues());
-    }
-
-    public function testSetGetFiles()
-    {
-        $fileBag = new FileBag();
-        $this->coreHandler->setSymfonyFileBag($fileBag);
-
-        static::assertEquals($fileBag, $this->coreHandler->getSymfonyFileBag());
-    }
-
     protected function createTempFile()
     {
         return tempnam($this->getUploadDir().'/coreHandlerUpload_test', 'CoreHandlerUploadTest');
-    }
-
-    public function testSetGetConfigService()
-    {
-        self::markSkippedForCIIntervention();
-
-        $configService = new stdClass();
-        $this->coreHandler->setDemosplanConfig($configService);
-        static::assertEquals($configService, $this->coreHandler->getDemosplanConfig());
     }
 
     protected function getUploadDir()

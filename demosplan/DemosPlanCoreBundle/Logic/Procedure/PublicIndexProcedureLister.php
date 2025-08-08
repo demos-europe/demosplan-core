@@ -84,7 +84,7 @@ class PublicIndexProcedureLister
 
             $tmpRequestParams = $requestPost;
             $tmpRequestParams['municipalCode'] = $gkz;
-            $this->procedureHandler->setRequestValues($tmpRequestParams);
+            $this->procedureHandler->requestDataHandler->setRequestValues($tmpRequestParams);
             $procedures = $this->procedureHandler->getProcedureList();
 
             if (0 === (is_countable($procedures['list']['procedurelist']) ? count($procedures['list']['procedurelist']) : 0)) {
@@ -102,7 +102,7 @@ class PublicIndexProcedureLister
             }
         }
 
-        $this->procedureHandler->setRequestValues($requestPost);
+        $this->procedureHandler->requestDataHandler->setRequestValues($requestPost);
         $procedures = $this->procedureHandler->getProcedureList();
 
         // projektspezfische Anpassung der Variablen ermöglichen

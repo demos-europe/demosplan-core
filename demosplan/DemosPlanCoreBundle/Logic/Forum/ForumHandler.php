@@ -15,7 +15,6 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -23,8 +22,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Psr\Log\LoggerInterface;
 
-class ForumHandler extends CoreHandler
+class ForumHandler
 {
     /**
      * @var ForumService
@@ -54,9 +54,9 @@ class ForumHandler extends CoreHandler
         MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
+        private readonly LoggerInterface $logger
     ) {
-        parent::__construct($messageBag);
         $this->forumService = $forumService;
         $this->mailService = $mailService;
         $this->twig = $twig;
@@ -705,7 +705,7 @@ class ForumHandler extends CoreHandler
                     $vars
                 );
             } catch (Exception) {
-                $this->getLogger()->warning(sprintf('Email konnte nicht an den Moderator %s verschickt werden', $user['email']));
+                $this->logger->warning(sprintf('Email konnte nicht an den Moderator %s verschickt werden', $user['email']));
             }
         }
     }
@@ -752,7 +752,7 @@ class ForumHandler extends CoreHandler
                 $vars
             );
         } catch (Exception) {
-            $this->getLogger()->warning(sprintf('Email konnte nicht an den Autor %s verschickt werden', $data['starterEntryAuthor']['uemail']));
+            $this->logger->warning(sprintf('Email konnte nicht an den Autor %s verschickt werden', $data['starterEntryAuthor']['uemail']));
         }
     }
 

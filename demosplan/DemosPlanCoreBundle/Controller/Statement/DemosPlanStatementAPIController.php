@@ -713,8 +713,7 @@ class DemosPlanStatementAPIController extends APIController
         );
         $assessmentQuery->setViewMode(
             AssessmentTableViewMode::create(
-                $parameters['view_mode'] ?? $assessmentHandler->getDemosplanConfig()
-                    ->getAssessmentTableDefaultViewMode()
+                $parameters['view_mode'] ?? $assessmentHandler->globalConfig->getAssessmentTableDefaultViewMode()
             )
         );
 

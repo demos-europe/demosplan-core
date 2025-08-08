@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
@@ -58,7 +59,11 @@ use function strlen;
  */
 class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessmentController
 {
-    public function __construct(private readonly PermissionsInterface $permissions, private readonly StatementHandler $statementHandler)
+    public function __construct(
+        private readonly PermissionsInterface $permissions,
+        private readonly StatementHandler $statementHandler,
+        private readonly requestDataHandler $requestDataHandler,
+    )
     {
         parent::__construct($permissions);
     }
@@ -176,7 +181,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['formAction'] = $router->generate('DemosPlan_statement_fragment_update_redirect_fragment_reviewer').'?'.http_build_query($pagerQuerystring);
 
         $requestPost = $this->rememberFilters($request);
-        $statementHandler->setRequestValues($requestPost);
+        $statementHandler->requestDataHandler->setRequestValues($requestPost);
 
         $departmentId = $currentUser->getUser()->getDepartmentId();
 
@@ -273,7 +278,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $requestPost[str_replace('_', '.', (string) $filterName)] = $value;
         }
 
-        $statementHandler->setRequestValues($requestPost);
+        $statementHandler->requestDataHandler->setRequestValues($requestPost);
         $result = $statementHandler->getStatementFragmentsDepartment($departmentId);
 
         $templateVars['list'] = $result;

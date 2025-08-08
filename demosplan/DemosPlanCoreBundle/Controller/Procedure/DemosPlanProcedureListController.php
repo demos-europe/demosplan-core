@@ -383,7 +383,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 unset($requestPost['municipalCode']);
             }
 
-            $procedureHandler->setRequestValues(
+            $procedureHandler->requestDataHandler->setRequestValues(
                 $requestPost
             );
 

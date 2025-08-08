@@ -47,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserModificationException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -64,6 +63,7 @@ use Doctrine\ORM\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
@@ -79,8 +79,9 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class UserHandler extends CoreHandler implements UserHandlerInterface
+class UserHandler implements UserHandlerInterface
 {
     /**
      * @var MailService
@@ -132,6 +133,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     protected $orgaHandler;
 
     public function __construct(
+        private readonly RequestStack $requestStack,
         private readonly ContentService $contentService,
         CustomerService $customerService,
         DraftStatementService $draftStatementService,
@@ -141,7 +143,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
         private readonly MasterToebService $masterToebService,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         OrgaHandler $orgaHandler,
         OrgaService $orgaService,
         private readonly PasswordValidator $passwordValidator,
@@ -151,10 +153,10 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly TranslatorInterface $translator,
         private readonly UserHasher $userHasher,
         private readonly UserSecurityHandler $userSecurityHandler,
+        private readonly LoggerInterface $logger,
         UserService $userService,
         ValidatorInterface $validator,
     ) {
-        parent::__construct($messageBag);
         $this->customerService = $customerService;
         $this->draftStatementService = $draftStatementService;
         $this->mailService = $mailService;
@@ -312,7 +314,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $data['organisation'] = $orga;
         } else {
             // wenn es keine orgaEntität zur Id gibt, gebe eine Fehlermeldung aus
-            $this->getMessageBag()->add('error', 'error.user.organisation_not_found');
+            $this->messageBag->add('error', 'error.user.organisation_not_found');
 
             return null;
         }
@@ -328,7 +330,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             if (1 === $departments->count() && $departments->first() instanceof Department) {
                 $data['department'] = $departments->first();
             } else {
-                $this->getMessageBag()->add('error', 'error.user.department_not_found');
+                $this->messageBag->add('error', 'error.user.department_not_found');
 
                 return null;
             }
@@ -484,7 +486,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         );
 
         // Notiere, dass mail verschickt wurde
-        $this->getLogger()->info('Verification mail to change email address was sent to user', ['userId' => $user->getId()]);
+        $this->logger->info('Verification mail to change email address was sent to user', ['userId' => $user->getId()]);
 
         return $user;
     }
@@ -580,7 +582,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         return $this->handleSaveSingleUser($userIdent, $requestData);
                     }
                 } catch (Exception) {
-                    $this->getLogger()->warning("Tried to run an unknown user action {$manageUsersAction}");
+                    $this->logger->warning("Tried to run an unknown user action {$manageUsersAction}");
                 }
         }
 
@@ -598,13 +600,13 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $result = $this->updateUser($ident, $user);
             if (!$result instanceof User) {
                 $this->logger->error("Failed updating user {$ident}");
-                $this->getMessageBag()->add('error', 'error.user.update', ['firstName' => $user['firstname'], 'lastName' => $user['lastname']]);
+                $this->messageBag->add('error', 'error.user.update', ['firstName' => $user['firstname'], 'lastName' => $user['lastname']]);
 
                 return;
             }
         }
 
-        $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+        $this->messageBag->add('confirm', 'confirm.all.changes.saved');
     }
 
     /**
@@ -634,7 +636,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
 
         if (!$isEmailUnique || !$isLoginUnique) {
-            $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
+            $this->messageBag->add('error', 'error.login.or.email.not.unique');
 
             // do not return user object to avoid confirm message
             return false;
@@ -728,17 +730,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             if (0 < count($invitationFailedList)) {
                 $names = $invitationFailedList->map(static fn (User $user) => $user->getFullname())->implode(', ');
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error',
                     'error.email.invitation.send.to.users',
                     ['names' => $names, 'invited' => $invitedUsersCount]
                 );
             }
 
-            $this->getMessageBag()->add('confirm', 'confirm.users.invited', ['count' => $invitedUsersCount]);
+            $this->messageBag->add('confirm', 'confirm.users.invited', ['count' => $invitedUsersCount]);
         } else {
             // if none were chosen - put out a warning
-            $this->getMessageBag()->add('warning', 'warning.select.entries');
+            $this->messageBag->add('warning', 'warning.select.entries');
         }
     }
 
@@ -810,7 +812,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $this->wipeUsersById($usersToDelete);
         } else {
             // if nothing was selected - put out a warning
-            $this->getMessageBag()->add('warning', 'warning.select.entries');
+            $this->messageBag->add('warning', 'warning.select.entries');
         }
 
         return null;
@@ -828,7 +830,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             if ($this->isUserOnlyAdminOfItsOrganisation($userId) && $numberOfOpenProcedures > 0) {
                 $this->logger->error("Failed to delete user with id {$userId}, because of user is the only administrator of organisation and there are open procedures.");
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error',
                     'error.delete.last.admin.user.of.orga.with.open.procedures',
                     [
@@ -841,12 +843,12 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
                 if (!$result instanceof User) {
                     $this->logger->error("Failed to delete user with id {$userId}");
-                    $this->getMessageBag()->add('error', 'error.delete.user');
+                    $this->messageBag->add('error', 'error.delete.user');
 
                     return $userId;
                 }
 
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
+                $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
             }
         }
 
@@ -896,7 +898,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $result = $this->updateUser($userIdent, $data[$userIdent]);
 
         if ($result instanceof User) {
-            $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+            $this->messageBag->add('confirm', 'confirm.all.changes.saved');
         }
 
         return $result;
@@ -927,7 +929,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         // Add a default Department (= Keine Abteilung)
         $this->addDefaultDepartment($newOrga->getid());
-        $this->getMessageBag()->add(
+        $this->messageBag->add(
             'confirm',
             $this->translator->trans(
                 'confirm.orga.created',
@@ -1058,7 +1060,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 } catch (Exception) {
                     $this->logger->critical('Undefined orga update action: '.$manageOrgasAction);
 
-                    $this->getMessageBag()->add('error', 'error.undefined');
+                    $this->messageBag->add('error', 'error.undefined');
 
                     return;
                 }
@@ -1083,7 +1085,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $orgaSlugs = array_map(static fn ($item) => $slugify->slugify($item['slug']), $orgas);
         $uniqueOrgaSlugs = array_unique($orgaSlugs);
         if (count($uniqueOrgaSlugs) !== count($orgaSlugs)) {
-            $this->getMessageBag()->add('error', 'error.save.organisation.slug.bulk');
+            $this->messageBag->add('error', 'error.save.organisation.slug.bulk');
             $duplicatedSlugs = array_diff(array_keys($orgaSlugs), array_keys($uniqueOrgaSlugs));
 
             return collect($duplicatedSlugs)->first();
@@ -1109,16 +1111,16 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($data as $ident => $orgaEntry) {
             $result = $this->updateOrga($ident, $orgaEntry);
             if (!$result instanceof Orga) {
-                $this->getLogger()->error("Failed updating orga {$ident}");
+                $this->logger->error("Failed updating orga {$ident}");
 
-                $this->getMessageBag()->add('error', 'error.save.organisation', ['organisationName' => $orgaEntry['name']]);
+                $this->messageBag->add('error', 'error.save.organisation', ['organisationName' => $orgaEntry['name']]);
 
                 return $ident;
             }
         }
 
         // Erfolgsmeldung
-        $this->getMessageBag()->add('confirm', 'confirm.all.changes.saved');
+        $this->messageBag->add('confirm', 'confirm.all.changes.saved');
 
         return null;
     }
@@ -1147,7 +1149,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $this->validateCssVars($data);
             $mandatoryErrors = $this->checkMandatoryFieldsOrga($data, $currentOrga);
             if (0 < $mandatoryErrors) {
-                $this->getMessageBag()->add('error', 'error.mandatoryfields');
+                $this->messageBag->add('error', 'error.mandatoryfields');
 
                 return null;
             }
@@ -1155,11 +1157,11 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             return $this->userService->updateOrga($orgaId, $data, true);
         } catch (DuplicateSlugException $e) {
-            $this->getMessageBag()->add('error', 'error.organisation.duplicated.slug', ['slug' => $e->getDuplicatedSlug()]);
+            $this->messageBag->add('error', 'error.organisation.duplicated.slug', ['slug' => $e->getDuplicatedSlug()]);
         } catch (ViolationsException) {
-            $this->getMessageBag()->add('error', 'error.organisation.cssvars.invalid');
+            $this->messageBag->add('error', 'error.organisation.cssvars.invalid');
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.save');
+            $this->messageBag->add('error', 'error.save');
             $this->logger->error('orga mit orgaId '.$orgaId.' konnte nicht geupdated werden! ('.$e->getMessage().')');
         }
 
@@ -1220,9 +1222,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 }
             }
 
-            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
+            $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
         } else {
-            $this->getMessageBag()->add('error', 'error.delete');
+            $this->messageBag->add('error', 'error.delete');
         }
 
         return null;
@@ -1235,7 +1237,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $updatedOrga = $this->updateOrga($ident, $transformedData[$ident]);
 
             if (null !== $updatedOrga) {
-                $this->getMessageBag()->add('confirm', 'confirm.orga.updated', ['orgaName' => $updatedOrga->getName()]);
+                $this->messageBag->add('confirm', 'confirm.orga.updated', ['orgaName' => $updatedOrga->getName()]);
 
                 return null;
             }
@@ -1273,7 +1275,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 } catch (Exception) {
                     $this->logger->critical("Undefined department update action: {$manageDepartmentsAction}.");
 
-                    $this->getMessageBag()->add('error', 'error.generic');
+                    $this->messageBag->add('error', 'error.generic');
                 }
         }
 
@@ -1292,20 +1294,20 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 if ('_token' !== $ident) {
                     $result = $this->updateDepartment($ident, $department);
                     if (is_array($result) && array_key_exists('mandatoryfieldwarning', $result)) {
-                        return $this->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
+                        return $this->requestStack->getSession()->getFlashBag()->get('error.mandatoryfields', 'error');
                     }
                 }
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
 
-                return $this->getSession()->getFlashBag()->set(
+                return $this->requestStack->getSession()->getFlashBag()->set(
                     'error',
                     'Die Abteilung konnte nicht aktualisiert werden!'
                 );
             }
         }
 
-        return $this->getSession()->getFlashBag()->set(
+        return $this->requestStack->getSession()->getFlashBag()->set(
             'confirm',
             $this->translator->trans('confirm.all.changes.saved')
         );
@@ -1334,7 +1336,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             return $this->userService->updateDepartment($departmentId, $data);
         } catch (Exception $e) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'error',
                 $this->translator->trans('error.save')
             );
@@ -1390,13 +1392,13 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         ).' could not been deleted!'
                     );
 
-                    $this->getMessageBag()->add('error', 'error.delete.department');
+                    $this->messageBag->add('error', 'error.delete.department');
                 }
             }
 
-            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
+            $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
         } else {
-            $this->getMessageBag()->add('error', 'error.delete');
+            $this->messageBag->add('error', 'error.delete');
         }
     }
 
@@ -1414,16 +1416,16 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $result = $this->updateDepartment($ident, $transformedData[$ident]);
 
             if (array_key_exists('mandatoryfieldwarning', $result)) {
-                $this->getMessageBag()->add('error', 'error.mandatoryfields');
+                $this->messageBag->add('error', 'error.mandatoryfields');
             }
 
-            $this->getMessageBag()->add('confirm', 'confirm.department.updated');
+            $this->messageBag->add('confirm', 'confirm.department.updated');
         } catch (Exception) {
             $this->logger->error(
                 'Department mit DepartmentId: '.$ident.' could not been updated!'
             );
 
-            $this->getMessageBag()->add('error', 'error.update.department');
+            $this->messageBag->add('error', 'error.update.department');
         } finally {
             return null;
         }
@@ -1461,12 +1463,12 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 return $this->userService->addDepartment($data, $orgaId);
             } catch (Exception) {
                 $this->logger->error('Department could not been added!');
-                $this->getMessageBag()->add('error', 'error.department.create');
+                $this->messageBag->add('error', 'error.department.create');
             }
         } else {
             $this->logger->error('Selected Organisation for creating department could not been found!');
 
-            $this->getMessageBag()->add('error', 'error.organisation.not.existent');
+            $this->messageBag->add('error', 'error.organisation.not.existent');
         }
 
         throw new Exception('Department creation failed miserably.');
@@ -1491,10 +1493,10 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
-            $this->getMessageBag()->add('confirm', 'confirm.password.changed');
+            $this->messageBag->add('confirm', 'confirm.password.changed');
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
-            $this->getMessageBag()->add('error', 'error.password.change');
+            $this->messageBag->add('error', 'error.password.change');
         }
     }
 
@@ -1544,62 +1546,62 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         try {
             $user = $this->getSingleUser($userId);
             if (!$user instanceof User) {
-                $this->getLogger()->info(
+                $this->logger->info(
                     'Wrong user on request of email change.',
                     ['userId' => $userId]
                 );
                 throw new \InvalidArgumentException('Could not find User');
             }
-            $this->getLogger()->info(
+            $this->logger->info(
                 'Request change of email',
                 ['userId' => $userId, 'from' => $user->getEmail(), 'to' => $newEmailAddress]
             );
 
             // check PW before send mail
             if (!$hasherFactory->getPasswordHasher($user)->verify($user->getPassword() ?? '', $password)) {
-                $this->getLogger()->info(
+                $this->logger->info(
                     'Wrong password on request of email change.',
                     ['userId' => $userId]
                 );
-                $this->getMessageBag()->add('error', 'error.wrong.password');
+                $this->messageBag->add('error', 'error.wrong.password');
                 throw new \InvalidArgumentException("This is either not the user's password or the user does not exist");
             }
 
             $newEmailAddress = trim($newEmailAddress);
             // Check if a valid email was entered and email is unique
             if (!filter_var($newEmailAddress, FILTER_VALIDATE_EMAIL)) {
-                $this->getLogger()->error(
+                $this->logger->error(
                     'Given Email has invalid format.',
                     ['userId' => $userId, 'newEmailAddress' => $newEmailAddress]
                 );
-                $this->getMessageBag()->add('error', 'error.email.invalid');
+                $this->messageBag->add('error', 'error.email.invalid');
 
                 return false;
             }
-            $this->getLogger()->info(
+            $this->logger->info(
                 'Incoming Email address on request email change of user has valid format.',
                 ['userId' => $userId, 'newEmailAddress' => $newEmailAddress]);
 
             // given email has to be unique in email as well as in login to avoid setting existing login as new email
             if (!$this->userService->checkUniqueEmailAndLogin($newEmailAddress, $user)) {
-                $this->getMessageBag()->add('error', 'error.login.or.email.not.unique');
+                $this->messageBag->add('error', 'error.login.or.email.not.unique');
 
                 return false;
             }
-            $this->getLogger()->info('Incoming Email is unique.');
+            $this->logger->info('Incoming Email is unique.');
 
             $successful = $this->userService->storeNewEmail($user->getId(), $newEmailAddress);
             if (!$successful) {
-                $this->getMessageBag()->add('error', 'error.save.email');
+                $this->messageBag->add('error', 'error.save.email');
 
                 return false;
             }
-            $this->getLogger()->info('Successfully stored incoming Email in settings.');
+            $this->logger->info('Successfully stored incoming Email in settings.');
 
             $hash = $this->userHasher->getChangeEmailHash($user, $newEmailAddress);
             $user = $this->sendChangeEmailVerificationEmail($user, $newEmailAddress, $hash);
             if ($user instanceof User) {
-                $this->getMessageBag()->add('confirm', 'confirm.user.request.change.email',
+                $this->messageBag->add('confirm', 'confirm.user.request.change.email',
                     ['email' => $newEmailAddress]);
 
                 return true;
@@ -1607,7 +1609,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             return false;
         } catch (Exception) {
-            $this->getLogger()->error('User password could not be changed!');
+            $this->logger->error('User password could not be changed!');
 
             return false;
         }
@@ -1634,7 +1636,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             );
 
             if (!is_array($setting) || 1 !== count($setting) || !($setting[0] instanceof Setting)) {
-                $this->getLogger()->error('Too many Entries (Settings) found!');
+                $this->logger->error('Too many Entries (Settings) found!');
                 throw new \InvalidArgumentException('Too many Entries (Settings) found!');
             }
 
@@ -1642,12 +1644,12 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $newEmail = $setting->getContent();
 
             if (!$this->userHasher->isValidChangeEmailHash($user, $newEmail, $token)) {
-                $this->getLogger()->warning('Angefragter Key ist nicht gültig', ['key' => $token, 'uId' => $user->getId()]);
-                $this->getMessageBag()->add('error', 'error.user.invalidkey');
+                $this->logger->warning('Angefragter Key ist nicht gültig', ['key' => $token, 'uId' => $user->getId()]);
+                $this->messageBag->add('error', 'error.user.invalidkey');
                 throw new \InvalidArgumentException('Invalid key');
             }
 
-            $this->getLogger()->info('Confirmed email change of user ', ['userId' => $user->getId()]);
+            $this->logger->info('Confirmed email change of user ', ['userId' => $user->getId()]);
 
             $user = $userService->setEmailOfUser($user, $newEmail);
 
@@ -1657,7 +1659,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             return $user;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler bei der Abfrage: ', [$e]);
+            $this->logger->error('Fehler bei der Abfrage: ', [$e]);
             throw $e;
         }
     }
@@ -1672,7 +1674,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 return false;
             }
 
-            $this->getMessageBag()->add('confirm', 'user.password.recovery_vague', ['email' => $email]);
+            $this->messageBag->add('confirm', 'user.password.recovery_vague', ['email' => $email]);
 
             // Check if a valid email was entered
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -1737,7 +1739,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $showList = array_key_exists('showlist', $data) ? filter_var($data['showlist'], FILTER_VALIDATE_BOOLEAN) : false;
         if ($this->canUpdateShowList() && $showList !== $currentOrga->getShowlist() && (!array_key_exists('showlistChangeReason', $data)
             || '' === trim((string) $data['showlistChangeReason']))) {
-            $this->getMessageBag()->add('error', 'reason.change');
+            $this->messageBag->add('error', 'reason.change');
             ++$mandatoryErrors;
         }
 
@@ -1878,7 +1880,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 return $this->userService->wipeDepartment($department);
             }
 
-            $this->getMessageBag()->add('error', 'error.delete.department.related.users');
+            $this->messageBag->add('error', 'error.delete.department.related.users');
         } catch (CouldNotDeleteAddressesOfDepartmentException $e) {
             $this->logger->error('Fehler beim Löschen der Adressen: ', [$e]);
         } catch (CouldNotDeleteDraftStatementsOfDepartmentException $e) {
@@ -2255,12 +2257,12 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
 
         if ($currentOrga->hasType(OrgaType::PUBLIC_AGENCY, $currentSubdomain) && 0 < $validator->validate($emailAddress, [new NotBlank()])->count()) {
-            $this->getMessageBag()->add('error', 'error.missing.emailAddress');
+            $this->messageBag->add('error', 'error.missing.emailAddress');
             ++$mandatoryErrors;
         }
 
         if (0 < $validator->validate($emailAddress, [new Email()])->count()) {
-            $this->getMessageBag()->add('error', 'error.email.invalid');
+            $this->messageBag->add('error', 'error.email.invalid');
             ++$mandatoryErrors;
         }
 
@@ -2274,7 +2276,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
         if (0 < $validator->validate($slugName, [new Length(['min' => 0, 'max' => 250])])->count()) {
-            $this->getMessageBag()->add('error', 'error.length.slugName', ['count' => 250]);
+            $this->messageBag->add('error', 'error.length.slugName', ['count' => 250]);
             ++$mandatoryErrors;
         }
 

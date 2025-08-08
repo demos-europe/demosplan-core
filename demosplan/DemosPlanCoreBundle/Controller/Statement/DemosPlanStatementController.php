@@ -933,7 +933,7 @@ class DemosPlanStatementController extends BaseController
                 }
                 $this->logger->info('Post RequestValidationWeakEvent');
 
-                $statementHandler->setRequestValues($requestPost);
+                $statementHandler->requestDataHandler->setRequestValues($requestPost);
                 $statementHandler->setDisplayNotices(false);
 
                 $fullEmailAddress = '';

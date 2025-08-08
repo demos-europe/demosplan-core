@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -32,11 +31,13 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingR
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class AssessmentHandler extends CoreHandler
+class AssessmentHandler
 {
     /**
      * @var AssessmentTableServiceOutput
@@ -64,21 +65,22 @@ class AssessmentHandler extends CoreHandler
     protected $simpleSpreadsheetService;
 
     public function __construct(
-        AssessmentTableServiceOutput $assessmentTableServiceOutput,
-        private readonly CurrentUserInterface $currentUser,
-        private readonly GlobalConfig $globalConfig,
-        HashedQueryService $filterSetService,
-        MessageBagInterface $messageBag,
+        AssessmentTableServiceOutput                         $assessmentTableServiceOutput,
+        private readonly CurrentUserInterface                $currentUser,
+        public readonly GlobalConfig                         $globalConfig,
+        HashedQueryService                                   $filterSetService,
+        MessageBagInterface                                  $messageBag,
         private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
-        private readonly ProcedureService $procedureService,
-        private readonly RouterInterface $router,
-        SimpleSpreadsheetService $simpleSpreadsheetService,
-        StatementFragmentService $statementFragmentService,
-        StatementService $statementService,
-        TranslatorInterface $translator,
-        UserFilterSetService $userFilterSetService,
+        private readonly ProcedureService                    $procedureService,
+        private readonly RouterInterface                     $router,
+        SimpleSpreadsheetService                             $simpleSpreadsheetService,
+        StatementFragmentService                             $statementFragmentService,
+        StatementService                                     $statementService,
+        TranslatorInterface                                  $translator,
+        UserFilterSetService                                 $userFilterSetService,
+        private readonly RequestStack $requestStack,
+        private readonly LoggerInterface $logger
     ) {
-        parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->filterSetService = $filterSetService;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
@@ -258,7 +260,7 @@ class AssessmentHandler extends CoreHandler
                 $viewMode
             );
         } catch (Exception $e) {
-            $this->getLogger()->warning($e);
+            $this->logger->warning($e);
             throw HandlerException::assessmentExportFailedException('docx');
         }
 
@@ -390,7 +392,7 @@ class AssessmentHandler extends CoreHandler
     {
         // we need a hashList in the session that saves the last hash given to a procedure
         // @todo: maybe we can combine this with code in viewTableAction
-        $hashList = $this->getSession()->get('hashList', []);
+        $hashList = $this->requestStack->getSession()->get('hashList', []);
         if (!array_key_exists($procedureId, $hashList)) {
             $hashList[$procedureId] = [
                 'assessment' => [
@@ -412,7 +414,7 @@ class AssessmentHandler extends CoreHandler
             $hashList[$procedureId]['assessment']['hash'] = $filterSet->getHash();
             $hashList[$procedureId]['assessment']['page'] = (int) ($parameters['page']['number'] ?? 1);
         }
-        $this->getSession()->set('hashList', $hashList);
+        $this->requestStack->getSession()->set('hashList', $hashList);
     }
 
     /**

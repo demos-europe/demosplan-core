@@ -11,16 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 
-class StatementAnonymizeHandler extends CoreHandler
+class StatementAnonymizeHandler
 {
     final public const ANONYMIZE_STATEMENT_TEXT = 'anonymizeStatementText';
 
@@ -44,18 +42,12 @@ class StatementAnonymizeHandler extends CoreHandler
         ],
     ];
 
-    /** @var CurrentUserInterface */
-    protected $currentUserInterface;
-
     public function __construct(
-        CurrentUserInterface $currentUserInterface,
+        private readonly CurrentUserInterface $currentUserInterface,
         private readonly ManagerRegistry $doctrine,
-        MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
         private readonly StatementAnonymizeService $statementAnonymizeService
     ) {
-        parent::__construct($messageBag);
-        $this->currentUserInterface = $currentUserInterface;
     }
 
     /**
