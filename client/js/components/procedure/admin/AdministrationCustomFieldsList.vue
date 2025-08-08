@@ -566,6 +566,8 @@ export default {
               const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
+              // fetch custom fields to get a consistent state for the custom fields
+              this.fetchCustomFields()
             })
         }
       }
