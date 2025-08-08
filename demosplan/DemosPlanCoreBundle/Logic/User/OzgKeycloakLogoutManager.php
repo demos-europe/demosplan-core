@@ -50,7 +50,6 @@ class OzgKeycloakLogoutManager
         return '' !== $this->parameterBag->get('oauth_keycloak_logout_route');
     }
 
-
     /**
      * Determines if test token expiration should be injected in dev/test environments.
      *
