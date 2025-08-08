@@ -364,7 +364,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService:
         lazy: true
@@ -387,7 +386,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqService:
         lazy: true
@@ -484,7 +482,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService:
         lazy: true
@@ -667,7 +664,6 @@ services:
     ##########Handler
 
     demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler: ~
@@ -695,7 +691,6 @@ services:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\RpcElementsBulkEditor:
@@ -710,7 +705,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Help\HelpHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Help\HelpService:
         lazy: true
@@ -725,7 +719,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
         arguments:
@@ -768,12 +761,10 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\News\NewsHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineProcedureListener:
         autowire: true
@@ -792,7 +783,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader:
         lazy: true
@@ -826,7 +816,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Repository\ProcedureElasticsearchRepository:
         $procedureSearchType: "@fos_elastica.index.procedures"
@@ -867,7 +856,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
         lazy: true
@@ -876,14 +864,12 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService:
         lazy: true
@@ -942,7 +928,6 @@ services:
             $env: '%kernel.environment%'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer:
@@ -1122,15 +1107,12 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserHandler:
         public: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserHasher:
@@ -1160,7 +1142,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserMapper: ~
 
@@ -1194,7 +1175,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineUserListener:
         lazy: true

@@ -72,6 +72,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use Exception;
 use RuntimeException;
 use Symfony\Component\Finder\SplFileInfo;
@@ -103,7 +104,17 @@ class DemosPlanStatementController extends BaseController
 {
     private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
 
-    public function __construct(private readonly CurrentProcedureService $currentProcedureService, private readonly CurrentUserService $currentUser, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementService $draftStatementService, private readonly Environment $twig, private readonly MailService $mailService, private readonly PermissionsInterface $permissions, private readonly NameGenerator $nameGenerator)
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserService $currentUser,
+        private readonly DraftStatementHandler $draftStatementHandler,
+        private readonly DraftStatementService $draftStatementService,
+        private readonly Environment $twig,
+        private readonly MailService $mailService,
+        private readonly PermissionsInterface $permissions,
+        private readonly NameGenerator $nameGenerator,
+        protected readonly RequestDataHandler $requestDataHandler
+    )
     {
     }
 
@@ -933,7 +944,7 @@ class DemosPlanStatementController extends BaseController
                 }
                 $this->logger->info('Post RequestValidationWeakEvent');
 
-                $statementHandler->setRequestValues($requestPost);
+                $statementHandler->requestDataHandler->setRequestValues($requestPost);
                 $statementHandler->setDisplayNotices(false);
 
                 $fullEmailAddress = '';

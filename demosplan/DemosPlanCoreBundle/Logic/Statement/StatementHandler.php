@@ -71,7 +71,6 @@ use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PropertiesUpdater;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
@@ -88,6 +87,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -113,6 +113,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -131,7 +132,7 @@ use Webmozart\Assert\Assert;
 use function array_key_exists;
 use function is_string;
 
-class StatementHandler extends CoreHandler implements StatementHandlerInterface
+class StatementHandler implements StatementHandlerInterface
 {
     use RefreshElasticsearchIndexTrait;
 
@@ -189,6 +190,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /** @var Environment */
     protected $twig;
 
+    /**
+     * @var array
+     */
+    protected $requestValues = [];
+
     /** @var QueryFragment */
     protected $esQueryFragment;
 
@@ -224,7 +230,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly GlobalConfigInterface $globalConfig,
         private readonly JsonApiActionService $jsonApiActionService,
         MailService $mailService,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         MunicipalityService $municipalityService,
         private readonly OrgaService $orgaService,
         ParagraphService $paragraphService,
@@ -243,6 +249,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         StatementService $statementService,
         TagService $tagService,
         private readonly TranslatorInterface $translator,
+        public readonly RequestDataHandler $requestDataHandler,
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
@@ -250,8 +257,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly ManagerRegistry $doctrine,
+        private readonly LoggerInterface $logger
     ) {
-        parent::__construct($messageBag);
         $this->assignService = $assignService;
         $this->countyService = $countyService;
         $this->draftStatementHandler = $draftStatementHandler;
@@ -285,7 +292,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     public function savePublicStatement(string $procedureId): Statement
     {
-        $inData = $this->prepareIncomingData('statementpublicnew');
+        $inData = $this->requestDataHandler->prepareIncomingData('statementpublicnew');
 
         // check if GDPR consent was given, regardless of the feature_statement_gdpr_consent permission
         $gdprConsentReceived = array_key_exists('r_gdpr_consent', $inData) && 'on' === $inData['r_gdpr_consent'];
@@ -312,7 +319,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $submittedStatements = $this->submitStatement($draftStatementIdent, '', true, $gdprConsentReceived);
 
         if ($this->isDisplayNotices()) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'confirm',
                 $this->translator->trans('confirm.statement.saved')
             );
@@ -420,7 +427,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $sort->setDirection('desc');
         $esQuery->setSort([$sort]);
 
-        return $this->statementFragmentService->getStatementFragmentsDepartment($esQuery, $this->getRequestValues());
+        return $this->statementFragmentService->getStatementFragmentsDepartment($esQuery, $this->requestDataHandler->getRequestValues());
     }
 
     /**
@@ -440,7 +447,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $sort->setDirection('desc');
         $esQuery->setSort([$sort]);
 
-        return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->getRequestValues(), $departmentId);
+        return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->requestDataHandler->getRequestValues(), $departmentId);
     }
 
     public function addSourceStatementAttachments(array $statements)
@@ -459,7 +466,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         // Always give names to variables, that describe, what they do
         $rereplacedDotsWithUnderscoreRequestVars = [];
-        foreach ($this->getRequestValues() as $name => $val) {
+        foreach ($this->requestDataHandler->getRequestValues() as $name => $val) {
             $indexName = str_replace('_', '.', $name);
             if (!array_key_exists($indexName, $rereplacedDotsWithUnderscoreRequestVars) || !is_array($rereplacedDotsWithUnderscoreRequestVars[$indexName])) {
                 $rereplacedDotsWithUnderscoreRequestVars[$indexName] = [];
@@ -499,7 +506,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // T12218 T12304:text has changed && has obscured text? -> infrom user, that related statement, are not obscured automatically
         if (array_key_exists('text', $statementFragmentData)
             && $this->editorService->hasObscuredText($statementFragmentData['text'])) {
-            $this->getMessageBag()->add('warning', 'warning.not.obscured.text.in.statement');
+            $this->messageBag->add('warning', 'warning.not.obscured.text.in.statement');
         }
 
         // get areaInformation which will be deleted
@@ -531,7 +538,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $this->generateIsolatedMunicipalityMessage($isolatedAreaInformation->get('municipalities'), $result->getStatement());
             $this->generateIsolatedTagMessage($isolatedAreaInformation->get('tags'), $result->getStatement());
 
-            $this->getMessageBag()->add('confirm', 'confirm.fragment.edit', ['id' => $fragmentToUpdate->getDisplayId()]);
+            $this->messageBag->add('confirm', 'confirm.fragment.edit', ['id' => $fragmentToUpdate->getDisplayId()]);
 
             $newTags = collect($result->getTags())->filter(static fn (Tag $tag) => in_array($tag->getId(), $newTagIds, true));
             $this->addAdditionalAreaInformationToStatement($result, $newTags);
@@ -548,7 +555,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             try {
                 $this->notifyReviewerOfFragment($result, $isReviewer);
             } catch (Exception) {
-                $this->getMessageBag()->add('error', 'warning.fragment.assignment.information');
+                $this->messageBag->add('error', 'warning.fragment.assignment.information');
             }
         }
 
@@ -591,7 +598,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($statementFragmentId);
 
         if (!($fragmentToUpdate instanceof StatementFragment)) {
-            $this->getLogger()->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
+            $this->logger->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
 
             return false;
         }
@@ -665,7 +672,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $fragmentToDelete = $this->statementFragmentService->getStatementFragment($fragmentId);
 
         if (null === $fragmentToDelete) {
-            $this->getLogger()->error('Could not delete StatementFragment, Fragment not found: '.$fragmentId);
+            $this->logger->error('Could not delete StatementFragment, Fragment not found: '.$fragmentId);
 
             return false;
         }
@@ -721,7 +728,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
         if (null === $toAddress || '' == $toAddress || [] == $toAddress) {
-            $this->getLogger()->warning('could not send email to '.($isReviewer ? $procedureOrga->getName() : $fragmentDepartment->getName()).'. there seems to be no email adress');
+            $this->logger->warning('could not send email to '.($isReviewer ? $procedureOrga->getName() : $fragmentDepartment->getName()).'. there seems to be no email adress');
 
             return;
         }
@@ -954,7 +961,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
                 } catch (Exception $e) {
-                    $this->getLogger()->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
+                    $this->logger->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
                 }
             }
         }
@@ -1208,7 +1215,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         $esQuery->setSort([$sort]);
-        $vars = $this->getRequestValues();
+        $vars = $this->requestDataHandler->getRequestValues();
         $statementFragmentService = $this->statementFragmentService;
 
         // if there are selected items, select only them:
@@ -1238,7 +1245,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $templateVars = [];
 
         // replace formOption values like vote
-        $formOptions = $this->getDemosplanConfig()->getFormOptions();
+        $formOptions = $this->globalConfig->getFormOptions();
         /** @var array $fragment */
         foreach ($fragments as $fragment) {
             if (0 < strlen((string) $fragment['voteAdvice'])) {
@@ -1271,7 +1278,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         try {
             $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content));
         } catch (Exception $e) {
-            $this->getLogger()->error('Communication with PDF Service failed', $e->getTrace());
+            $this->logger->error('Communication with PDF Service failed', $e->getTrace());
             throw HandlerException::fragmentExportFailedException('pdf');
         }
 
@@ -1284,7 +1291,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         } else {
             $name = $filenamePrefix.'_'.$procedure->getName().'.pdf';
         }
-        $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($content, true));
+        $this->logger->debug('Got Response: '.DemosPlanTools::varExport($content, true));
 
         return new PdfFile($name, $content);
     }
@@ -1414,7 +1421,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $statementFragmentData = [];
         if (!array_key_exists('r_text', $data) || '' === $data['r_text']) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'error.mandatoryfield',
                 ['name' => $this->translator->trans('fragment')]
@@ -1506,7 +1513,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $considerationText .= nl2br($tag->getBoilerplate()->getText());
                 }
             } catch (Exception) {
-                $this->getLogger()->warning('Could not resolve Tag with ID: '.$tagId);
+                $this->logger->warning('Could not resolve Tag with ID: '.$tagId);
                 continue;
             }
         }
@@ -1535,7 +1542,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         try {
             $this->countyService->getCounty($countyId);
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not send Email to county, county not found: ', [$e]);
+            $this->logger->error('Could not send Email to county, county not found: ', [$e]);
             throw $e;
         }
 
@@ -2028,7 +2035,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $statementFragmentData['departmentId'] = $data['r_reviewer'];
             $statementFragmentData['considerationAdvice'] = $statementFragmentData['consideration'];
         } else {
-            $this->getMessageBag()->add('warning', 'fragment.assign.reviewer.voteAdvice.pending');
+            $this->messageBag->add('warning', 'fragment.assign.reviewer.voteAdvice.pending');
         }
 
         return $statementFragmentData;
@@ -2076,7 +2083,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $statementFragmentData['departmentId'] = null;
         // reset assignment when reviewer sends fragment back
         $statementFragmentData['assignee'] = null;
-        $this->getMessageBag()->add(
+        $this->messageBag->add(
             'confirm',
             'confirm.fragment.update.complete',
             [
@@ -2357,7 +2364,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     Assert::stringNotEmpty($currentTagTitle);
                     $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
                 } catch (InvalidArgumentException) {
-                    $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
+                    $this->messageBag->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
                 } catch (DuplicatedTagTopicTitleException) {
                     $alreadyCreatedTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
@@ -2486,7 +2493,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $externalStatementId = ($relatedStatement->isCopy() ? $this->translator->trans('copyof').' ' : '').$relatedStatement->getExternId();
         if (1 === $messages->count()) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'info',
                 $singularKey,
                 [
@@ -2495,7 +2502,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 ]
             );
         } elseif (1 < $messages->count()) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'info',
                 $pluralKey,
                 [
@@ -2733,7 +2740,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $externalId = 'Kopie von '.$externalId;
             }
 
-            $this->getMessageBag()->add('warning', 'warning.isolated.county',
+            $this->messageBag->add('warning', 'warning.isolated.county',
                 ['name' => $name, 'parentStatementExternalId' => $externalId]
             );
         });
@@ -2757,7 +2764,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $externalId = 'Kopie von '.$externalId;
                 }
             }
-            $this->getMessageBag()->add('warning', 'warning.isolated.priorityArea',
+            $this->messageBag->add('warning', 'warning.isolated.priorityArea',
                 ['name' => $name, 'parentStatementExternalId' => $externalId]
             );
         });
@@ -2777,7 +2784,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $externalId = 'Kopie von '.$externalId;
             }
 
-            $this->getMessageBag()->add('warning', 'warning.isolated.municipality',
+            $this->messageBag->add('warning', 'warning.isolated.municipality',
                 ['name' => $name, 'parentStatementExternalId' => $externalId]
             );
         });
@@ -2797,7 +2804,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $externalId = 'Kopie von '.$externalId;
                 }
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning',
                     'warning.isolated.tag',
                     ['name' => $name, 'parentStatementExternalId' => $externalId]
@@ -2839,8 +2846,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->getDemosplanConfig()->getInternalPhases();
-        $templateVars['externalPhases'] = $this->getDemosplanConfig()->getExternalPhases();
+        $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
+        $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
 
         // add vars for location fields
         $procedureService = $this->procedureService;
@@ -2944,7 +2951,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     || $this->permissions->hasPermission('feature_segments_of_statement_list')
                     || $this->permissions->hasPermission('feature_statement_data_input_orga')) {
                     // success messages with link to created statement
-                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
+                    $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
                         'confirm',
                         'confirm.statement.new',
                         ['externId' => $assessableStatement->getExternId()],
@@ -2960,10 +2967,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     );
                 }
             } else {
-                $this->getMessageBag()->add('error', 'error.save');
+                $this->messageBag->add('error', 'error.save');
             }
         } catch (Exception $e) {
-            $this->getMessageBag()->add('error', 'error.save');
+            $this->messageBag->add('error', 'error.save');
             $this->logger->warning('Error on creating new statement', [$e]);
         }
 
@@ -3008,7 +3015,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         if (0 < count($violations)) {
             $statementToAttachTo->setSimilarStatementSubmitters(new ArrayCollection());
-            $this->getMessageBag()->add('error', 'error.statement.similar_submitter.invalid');
+            $this->messageBag->add('error', 'error.statement.similar_submitter.invalid');
             $this->logger->warning('Error on validating the new statement for similarStatementSubmitter.', [$violations]);
         }
 
@@ -3269,7 +3276,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if ($updatedStatement instanceof Statement) {
                 return true;
             } else {
-                $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
+                $this->logger->error('Set assignee of Statement '.$statement->getId().' failed.');
             }
         }
 
@@ -3331,7 +3338,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // check for assigment of statement and his fragments
         if ($this->permissions->hasPermission('feature_statement_assignment')) {
             if (!$this->areAllFragmentsClaimedByCurrentUser($statementToCheck->getId())) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning',
                     'statement.cluster.fragments.not.claimed.by.current.user',
                     ['ids' => $statementToCheck->getExternId()]
@@ -3341,7 +3348,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             if (!$this->assignService->isStatementObjectAssignedToCurrentUser($statementToCheck)) {
-                $this->getMessageBag()->add('warning', 'confirm.consolidation.not.assigned');
+                $this->messageBag->add('warning', 'confirm.consolidation.not.assigned');
 
                 return false;
             }
@@ -3349,7 +3356,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
         // T5505 do not copy fragment if assigned ro reviewer
         if (!$this->isNoFragmentAssignedToReviewer($statementToCheck->getId())) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'warning.statement.cluster.copy.fragment.assigned.to.reviewer',
                 ['statementId' => $statementToCheck->getExternId()]
@@ -3393,8 +3400,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (0 < count($statements)) {
             $firstStatementProcedureId = $statements[0]->getProcedureId();
             if ($firstStatementProcedureId != $procedureId) {
-                $this->getLogger()->info('Statements does not belong to procedure '.$procedureId);
-                $this->getMessageBag()->add(
+                $this->logger->info('Statements does not belong to procedure '.$procedureId);
+                $this->messageBag->add(
                     'error', 'warning.statements.wrong.procedure',
                     ['procedureId' => $procedureId]);
 
@@ -3403,13 +3410,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             foreach ($statements as $statement) {
                 if ($statement instanceof Statement) {
                     if (!($procedureId === $statement->getProcedureId())) {
-                        $this->getLogger()->info('Statements do not belong to same procedure');
-                        $this->getMessageBag()->add('error', 'warning.statement.cluster.removed.placeholder');
+                        $this->logger->info('Statements do not belong to same procedure');
+                        $this->messageBag->add('error', 'warning.statement.cluster.removed.placeholder');
 
                         return false;
                     }
                 } else {
-                    $this->getLogger()->warning('$statement is not an object of Statement');
+                    $this->logger->warning('$statement is not an object of Statement');
                 }
             }
         }
@@ -3457,7 +3464,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         try {
             // do not check for instance of Statement because of Proxy Object in Unit tests (will fail)
             if (null === $headStatement) {
-                $this->getLogger()->error('Could not choose Statement to create Cluster');
+                $this->logger->error('Could not choose Statement to create Cluster');
                 throw new InvalidArgumentException('Could not choose Statement to create Cluster');
             }
 
@@ -3527,7 +3534,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $this->entityManager->persist($headStatement);
             $this->entityManager->flush();
 
-            $this->getLogger()->info('Cluster headstatement generated');
+            $this->logger->info('Cluster headstatement generated');
 
             $fileService = $this->fileService;
             collect($representativeStatement->getFiles())
@@ -3542,7 +3549,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         } catch (StatementNameTooLongException $e) {
             throw $e;
         } catch (Exception $e) {
-            $this->getLogger()->error('genereate headStatement failed: ', [$e]);
+            $this->logger->error('genereate headStatement failed: ', [$e]);
         }
 
         return $this->getStatement($headStatement->getId());
@@ -3566,13 +3573,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         try {
             if (!$headStatement->isClusterStatement()) {
                 // easy possible solution would be to use createStatementCluster instead
-                $this->getLogger()->error('Given Statement is not a Cluster/HeadStatement');
+                $this->logger->error('Given Statement is not a Cluster/HeadStatement');
 
                 return false;
             }
 
             if ($statementToAdd->isInCluster()) {
-                $this->getLogger()->error('Given StatementToAdd ('.$statementToAdd->getExternId().') is already in a cluster ('.$statementToAdd->getHeadStatement()->getExternId().')');
+                $this->logger->error('Given StatementToAdd ('.$statementToAdd->getExternId().') is already in a cluster ('.$statementToAdd->getHeadStatement()->getExternId().')');
 
                 return false;
             }
@@ -3591,8 +3598,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             // check for placeholderStatement
             if ($statementToAdd->isPlaceholder()) {
-                $this->getLogger()->warning('On create statement cluster: removed Statement '.$statementToAdd->getId().' because it is a placeholder statement.');
-                $this->getMessageBag()->add('warning',
+                $this->logger->warning('On create statement cluster: removed Statement '.$statementToAdd->getId().' because it is a placeholder statement.');
+                $this->messageBag->add('warning',
                     'warning.statement.cluster.removed.placeholder',
                     ['%externId' => $statementToAdd->getExternId()]);
 
@@ -3612,7 +3619,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 }
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Add Statement to Clusterfailed: ', [$e]);
+            $this->logger->error('Add Statement to Clusterfailed: ', [$e]);
         }
 
         return false;
@@ -3639,17 +3646,17 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         if (0 < $successfulAddedElements->count()) {
-            $this->getMessageBag()->add('confirm', 'confirm.statements.cluster.added',
+            $this->messageBag->add('confirm', 'confirm.statements.cluster.added',
                 [
                     'statementIds' => $successfulAddedElements->implode(', '),
                     'clusterId'    => $headStatement->getExternId(),
                 ]);
 
-            $this->getLogger()->info('addStatementsToCluster pushed '.$successfulAddedElements->implode(', '));
+            $this->logger->info('addStatementsToCluster pushed '.$successfulAddedElements->implode(', '));
         }
 
         if (0 < $notSuccessfulAddedElements->count()) {
-            $this->getMessageBag()->addChoice(
+            $this->messageBag->addChoice(
                 'warning',
                 'warning.statements.cluster.not.added',
                 [
@@ -3658,7 +3665,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     'count'        => $notSuccessfulAddedElements->count(),
                 ]);
 
-            $this->getLogger()->info('addStatementsToCluster could not push '.$notSuccessfulAddedElements->implode(', '));
+            $this->logger->info('addStatementsToCluster could not push '.$notSuccessfulAddedElements->implode(', '));
         }
     }
 
@@ -3676,12 +3683,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $headStatement = $statementToDetach->getHeadStatement();
 
             if (null === $headStatement) {
-                $this->getLogger()->warning('Given Statement to detach '.$statementToDetach->getId().' is not member of a cluster.');
+                $this->logger->warning('Given Statement to detach '.$statementToDetach->getId().' is not member of a cluster.');
             }
 
             $successfulRemoved = $headStatement->removeClusterElement($statementToDetach);
             if (!$successfulRemoved) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error', 'error.statement.detach.cluster.element',
                     ['statementId' => $statementToDetach->getExternId()]
                 );
@@ -3701,7 +3708,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $removedStatement = $statementService->updateStatementFromObject($statementToDetach, true, true);
             } else {
                 // failed detach $statementToDetach from $headStatement:
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error', 'error.statement.detach.cluster.element',
                     ['statementId' => $statementToDetach->getExternId()]
                 );
@@ -3710,7 +3717,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             if ($headStatement instanceof Statement && $removedStatement instanceof Statement) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'confirm', 'confirm.statement.detach.cluster.element',
                     [
                         'statementId' => $statementToDetach->getExternId(),
@@ -3725,14 +3732,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $status = $this->statementDeleter->deleteStatementObject($headStatement);
 
                     if ($status) {
-                        $this->getMessageBag()->add(
+                        $this->messageBag->add(
                             'confirm', 'confirm.statement.cluster.resolved',
                             ['clusterId' => $headStatementId]
                         );
                     } else {
-                        $this->getLogger()->warning(
+                        $this->logger->warning(
                             'Delete empty Cluster (Statement) failed, ID: ', [$headStatementId]);
-                        $this->getMessageBag()->add(
+                        $this->messageBag->add(
                             'error', 'error.statement.cluster.deleted',
                             ['clusterId' => $headStatementId]
                         );
@@ -3744,7 +3751,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 return true;
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Detach Statement from Cluster failed: ', [$e]);
+            $this->logger->error('Detach Statement from Cluster failed: ', [$e]);
         }
 
         return false;
@@ -3762,7 +3769,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $successful = false;
         if (!$headStatement->isClusterStatement()) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'error',
                 'error.no.cluster.given',
                 ['statementId' => $headStatement->getExternId()]
@@ -3790,7 +3797,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if (!$removedStatement instanceof Statement) {
                 $notDetachedStatements->push($statement);
 
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'error', 'error.statement.cluster.resolve',
                     ['clusterId' => $headStatement->getExternId()]
                 );
@@ -3798,12 +3805,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         if (0 === $notDetachedStatements->count()) {
-            $this->getLogger()->info("All statements of Cluster {$headStatement->getId()} are successfully detached.");
+            $this->logger->info("All statements of Cluster {$headStatement->getId()} are successfully detached.");
             // will also check for assignment but not for clustered!
             $successful = $this->statementDeleter->deleteStatementObject($headStatement, true);
         } else {
-            $this->getLogger()->error("Some statements of Cluster {$headStatement->getId()} are not detached.");
-            $this->getMessageBag()->add(
+            $this->logger->error("Some statements of Cluster {$headStatement->getId()} are not detached.");
+            $this->messageBag->add(
                 'warning', 'warning.statement.cluster.resolve.incomplete',
                 ['clusterId' => $headStatement->getExternId()]
             );
@@ -3814,7 +3821,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         if ($successful) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'confirm', 'confirm.statement.cluster.resolved',
                 ['clusterId' => $headStatement->getExternId()]
             );
@@ -4012,7 +4019,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             return $statementVoteRepository
                 ->getByUserId($userId, $deleted, $active);
         } catch (Exception $e) {
-            $this->getLogger()->warning('exception while fetching statement votes', [$e]);
+            $this->logger->warning('exception while fetching statement votes', [$e]);
         }
 
         return [];
@@ -4077,7 +4084,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             // use this update method to enable ignoring assignment
             $this->statementService->updateStatementFromObject($copyOfStatement, true);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Could not create votes on create statement', [$e]);
+            $this->logger->warning('Could not create votes on create statement', [$e]);
         }
     }
 
@@ -4286,8 +4293,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         foreach ($statements as $key => $statement) {
             if ($statement->isPlaceholder()) {
                 unset($statements[$key]);
-                $this->getLogger()->warning('On create statement cluster: removed Statement '.$statement->getId().' because it is a placeholder statement.');
-                $this->getMessageBag()->add('warning',
+                $this->logger->warning('On create statement cluster: removed Statement '.$statement->getId().' because it is a placeholder statement.');
+                $this->messageBag->add('warning',
                     'warning.statement.cluster.removed.placeholder',
                     ['%externId' => $statement->getExternId()]);
             }
@@ -4438,10 +4445,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $newClusterStatement
                 );
 
-                $this->getLogger()->info('Cluster Fragments copied');
+                $this->logger->info('Cluster Fragments copied');
             }
 
-            $this->getMessageBag()->addObject(
+            $this->messageBag->addObject(
                 LinkMessageSerializable::createLinkMessage(
                     'confirm',
                     'confirm.statement.cluster.created',
@@ -4513,20 +4520,20 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             if (0 < count($statementsNotClaimedByUser)) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning', 'statement.cluster.not.assigned',
                     ['ids' => implode(', ', $statementsNotClaimedByUser)]
                 );
 
-                $this->getLogger()->info('Folowing statements are not claimed by current user: '.implode(', ', $statementsNotClaimedByUser));
+                $this->logger->info('Folowing statements are not claimed by current user: '.implode(', ', $statementsNotClaimedByUser));
                 $areAllElementsClaimedByUser = false;
             }
             if (0 < count($stmtFragmentsNotClaimedByUser)) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning', 'statement.cluster.fragments.not.claimed.by.current.user',
                     ['ids' => implode(', ', $stmtFragmentsNotClaimedByUser)]
                 );
-                $this->getLogger()->info('Folowing fragments are not claimed by current user: '.implode(', ', $stmtFragmentsNotClaimedByUser));
+                $this->logger->info('Folowing fragments are not claimed by current user: '.implode(', ', $stmtFragmentsNotClaimedByUser));
                 $areAllElementsClaimedByUser = false;
             }
         }
@@ -4627,7 +4634,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             try {
                 $additionalFiles[] = $this->fileService->getFileInfoFromFileString($file);
             } catch (Exception $e) {
-                $this->getLogger()->error('Could not find file based on file string: ', [$e]);
+                $this->logger->error('Could not find file based on file string: ', [$e]);
             }
         }
 

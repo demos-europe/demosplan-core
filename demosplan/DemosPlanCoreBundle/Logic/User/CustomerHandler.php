@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -24,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 use function array_key_exists;
 
-class CustomerHandler extends CoreHandler
+class CustomerHandler
 {
     /**
      * @var CustomerService
@@ -38,7 +37,6 @@ class CustomerHandler extends CoreHandler
         private readonly ValidatorInterface $validator)
     {
         $this->customerService = $customerService;
-        parent::__construct($messageBag);
     }
 
     /**

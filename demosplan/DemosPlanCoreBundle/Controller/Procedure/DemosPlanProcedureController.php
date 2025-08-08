@@ -153,7 +153,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
-        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly CurrentProcedureService $currentProcedureService
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -1699,7 +1699,7 @@ class DemosPlanProcedureController extends BaseController
                         return $this->redirectToRoute('core_home');
                     }
 
-                    $statementHandler->setRequestValues($requestPost);
+                    $statementHandler->requestDataHandler->setRequestValues($requestPost);
                     try {
                         $savedStatement = $statementHandler->savePublicStatement($procedureId);
                         $templateVars['confirmationText'] =
@@ -2162,12 +2162,6 @@ class DemosPlanProcedureController extends BaseController
 
                 return $this->redirectBack($request);
             } else {
-                $helperServices = [
-                    'serviceMail'      => $mailService,
-                    'serviceDemosPlan' => $statementService,
-                ];
-                $this->procedureHandler->setHelperServices($helperServices);
-
                 // verfasse und verschicke die Einladungs-E-Mail
                 try {
                     $storageResult = $this->procedureHandler->sendInvitationEmails(

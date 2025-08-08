@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Exception;
 use Monolog\Logger;
@@ -42,7 +41,6 @@ use function is_array;
 abstract class BaseController extends AbstractController
 {
     use IsProfilableTrait;
-    use CanTransformRequestVariablesTrait;
 
     /**
      * @var GlobalConfigInterface|GlobalConfig

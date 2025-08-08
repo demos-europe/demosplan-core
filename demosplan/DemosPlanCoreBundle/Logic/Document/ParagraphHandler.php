@@ -13,22 +13,21 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
-class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
+class ParagraphHandler implements ParagraphHandlerInterface
 {
     public function __construct(
         protected readonly ParagraphService $paragraphService,
         protected readonly ParagraphRepository $paragraphRepository,
         private readonly FlashMessageHandler $flashMessageHandler,
-        MessageBag $messageBag,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly RequestStack $requestStack
     ) {
-        parent::__construct($messageBag);
     }
 
     public function administrationDocumentNewHandler(string $procedure, string $category, array $data, $elementId)
@@ -192,7 +191,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         if ($this->paragraphService->isChildOf($parentParagraphId, $documentId)) {
             // Prohibits assigning own children as the parent.
 
-            $this->getSession()->getFlashBag()->add(
+            $this->requestStack->getSession()->getFlashBag()->add(
                 'warning',
                 $this->translator->trans('error.paragraph.no_circular_references')
             );
@@ -202,7 +201,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
             // Prohibits assigning oneself as the parent.
             // Second condition deactivates this for newly created chapters, see T11773.
 
-            $this->getSession()->getFlashBag()->add(
+            $this->requestStack->getSession()->getFlashBag()->add(
                 'warning',
                 $this->translator->trans('error.paragraph.no_self_references')
             );

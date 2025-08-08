@@ -18,28 +18,24 @@ use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\FaqNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
+use Psr\Log\LoggerInterface;
 
-class FaqHandler extends CoreHandler implements FaqHandlerInterface
+class FaqHandler implements FaqHandlerInterface
 {
     /**
      * @var ContentService
@@ -47,18 +43,15 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     protected $contentService;
 
     public function __construct(
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
-        private readonly FaqResourceType $faqResourceType,
         private readonly FaqService $faqService,
         private readonly CustomerHandler $customerHandler,
         private readonly RoleHandler $roleHandler,
-        private readonly RoleRepository $roleRepository,
         ContentService $contentService,
-        private readonly ValidatorInterface $validator
+        private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($messageBag);
         $this->contentService = $contentService;
     }
 
@@ -103,11 +96,11 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     {
         $currentCustomer = $this->customerHandler->getCurrentCustomer();
 
-        $category = $this->getFaqService()->getFaqCategory($categoryId, $currentCustomer);
+        $category = $this->faqService->getFaqCategory($categoryId, $currentCustomer);
 
         if (is_null($category)) {
             $this->logger->warning('Category with ID: '.$categoryId.' not found.');
-            $this->getMessageBag()->add('warning', 'category.not.found');
+            $this->messageBag->add('warning', 'category.not.found');
         }
 
         return $category;
@@ -122,7 +115,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
     {
         $this->ensureThatFaqCategoryBelongsToCurrentCustomer($faqCategory);
 
-        return $this->getFaqService()->updateFaqCategory($faqCategory);
+        return $this->faqService->updateFaqCategory($faqCategory);
     }
 
     /**
@@ -165,7 +158,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
 
             return $faqCategory;
         } catch (UnexpectedValueException $e) {
-            $this->getMessageBag()->add('error', 'error.no.title.given');
+            $this->messageBag->add('error', 'error.no.title.given');
             throw $e;
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Anlegen einer Kategorie: ', [$e]);
@@ -188,7 +181,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         $mandatoryErrors = false;
         if (!array_key_exists('r_enable', $data) || '' === trim((string) $data['r_enable'])) {
             $mandatoryErrors = true;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'error.mandatoryfield',
                 ['name' => $this->translator->trans('status')]
@@ -196,7 +189,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         }
         if (!array_key_exists('r_group_code', $data)) {
             $mandatoryErrors = true;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'error.mandatoryfield',
                 ['name' => $this->translator->trans('visible')]
@@ -204,7 +197,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         }
         if (!array_key_exists('r_title', $data) || '' === trim((string) $data['r_title'])) {
             $mandatoryErrors = true;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'error.mandatoryfield',
                 ['name' => $this->translator->trans('heading')]
@@ -212,7 +205,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         }
         if (!array_key_exists('r_text', $data) || '' === trim((string) $data['r_text'])) {
             $mandatoryErrors = true;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'error.mandatoryfield',
                 ['name' => $this->translator->trans('text')]
@@ -220,7 +213,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         }
         if (!array_key_exists('r_category_id', $data)) {
             $mandatoryErrors = true;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'confirm', 'error.mandatoryfield',
                 ['name' => $this->translator->trans('category')]
             );
@@ -231,7 +224,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         }
         if (255 < strlen((string) $data['r_title'])) {
             $data['r_title'] = substr((string) $data['r_title'], 0, 255);
-            $this->getMessageBag()->add('warning', 'warning.faq.title.tooLong');
+            $this->messageBag->add('warning', 'warning.faq.title.tooLong');
         }
 
         // write fields into object
@@ -278,7 +271,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      */
     public function getAllCategoriesOfCurrentCustomer(): array
     {
-        return $this->getFaqService()->getFaqCategoriesOfCurrentCustomer();
+        return $this->faqService->getFaqCategoriesOfCurrentCustomer();
     }
 
     /**
@@ -286,7 +279,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
      */
     public function deleteFaq(Faq $faq): void
     {
-        $this->getFaqService()->deleteFaq($faq);
+        $this->faqService->deleteFaq($faq);
     }
 
     /**
@@ -364,7 +357,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
             $categoryTitle = $faqCategory->getTitle();
 
             if (0 !== count($this->faqService->getEnabledAndDisabledFaqList($faqCategory))) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning',
                     'category.delete.deny.because.of.related.content',
                     ['title' => $categoryTitle]
@@ -375,13 +368,13 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
 
             $successfullyDeleted = $this->faqService->deleteFaqCategory($faqCategory);
             if (false === $successfullyDeleted) {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'warning',
                     'category.delete.unsuccessful',
                     ['title' => $categoryTitle]
                 );
             } else {
-                $this->getMessageBag()->add(
+                $this->messageBag->add(
                     'confirm',
                     'category.delete.successful',
                     ['title' => $categoryTitle]
@@ -408,12 +401,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
 
     public function findFaqCategoryByType(string $typeName): FaqCategory
     {
-        return $this->getFaqService()->findFaqCategoryByType($typeName);
-    }
-
-    protected function getFaqService(): FaqService
-    {
-        return $this->faqService;
+        return $this->faqService->findFaqCategoryByType($typeName);
     }
 
     // todo please update and use this method

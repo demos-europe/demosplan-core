@@ -15,19 +15,17 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PublicAffairsAgentNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use Exception;
 
-class PublicAffairsAgentHandler extends CoreHandler
+class PublicAffairsAgentHandler
 {
     protected function getOrgaHandler(): OrgaHandler
     {
         return $this->orgaHandler;
     }
 
-    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBagInterface $messageBag)
+    public function __construct(private readonly OrgaHandler $orgaHandler)
     {
-        parent::__construct($messageBag);
     }
 
     /**

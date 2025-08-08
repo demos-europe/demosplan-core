@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
@@ -39,11 +38,12 @@ use Twig\Environment;
 use Twig_Error_Loader;
 use Twig_Error_Runtime;
 use Twig_Error_Syntax;
+use Psr\Log\LoggerInterface;
 
 /**
  * Speicherung von Planterunterlagen.
  */
-class DraftStatementHandler extends CoreHandler
+class DraftStatementHandler
 {
     /** @var DraftStatementService */
     protected $draftStatementService;
@@ -95,8 +95,8 @@ class DraftStatementHandler extends CoreHandler
         RouterInterface $router,
         TranslatorInterface $translator,
         UserService $userService,
+        private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($messageBag);
         $this->contentService = $serviceContent;
         $this->doctrine = $doctrine;
         $this->fileService = $fileService;
@@ -107,6 +107,16 @@ class DraftStatementHandler extends CoreHandler
         $this->translator = $translator;
         $this->twig = $twig;
         $this->userService = $userService;
+    }
+
+    /**
+     * @deprecated
+     *
+     * @param array $data
+     */
+    public function createTemplateVars($data): array
+    {
+        return ['list' => $data];
     }
 
     /**
@@ -731,11 +741,11 @@ class DraftStatementHandler extends CoreHandler
     public function createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser(int $exactlyDaysToGo, bool $internal): int
     {
         if ($internal) {
-            $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
+            $internalWritePhaseKeys = $this->globalConfig->getInternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
                 ->getAllProceduresWithSoonEndingPhases($internalWritePhaseKeys, $exactlyDaysToGo, true);
         } else {
-            $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
+            $externalWritePhaseKeys = $this->globalConfig->getExternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
                 ->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, $exactlyDaysToGo, true, false);
         }

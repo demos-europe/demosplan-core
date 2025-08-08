@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
@@ -19,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
@@ -27,45 +25,26 @@ use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class NewsHandler extends CoreHandler
+class NewsHandler
 {
     /** @var int Do not increase over 65535 as this is the maximum in the database */
     final public const NEWS_DESCRIPTION_MAX_LENGTH = 65535;
     /** @var int Do not increase over 65535 as this is the maximum in the database */
     final public const NEWS_TEXT_MAX_LENGTH = 65535;
-
-    /** @var ContentService */
-    protected $contentService;
-    /** @var ProcedureNewsService */
-    protected $procedureNewsService;
-    /** @var GlobalNewsHandler */
-    protected $globalNewsHandler;
-
-    /** @var ManagerRegistry */
-    protected $doctrine;
-
-    /** @var Permissions */
-    protected $permissions;
-
     public function __construct(
         private readonly ArrayHelper $arrayHelper,
-        ContentService $contentService,
+        private readonly ContentService $contentService,
         private readonly FlashMessageHandler $flashMessageHandler,
-        GlobalNewsHandler $globalNewsHandler,
-        ManagerRegistry $doctrine,
-        MessageBagInterface $messageBag,
-        PermissionsInterface $permissions,
-        ProcedureNewsService $procedureNewsService,
-        private readonly TranslatorInterface $translator
+        private readonly GlobalNewsHandler $globalNewsHandler,
+        private readonly ManagerRegistry $doctrine,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureNewsService $procedureNewsService,
+        private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($messageBag);
-        $this->contentService = $contentService;
-        $this->doctrine = $doctrine;
-        $this->globalNewsHandler = $globalNewsHandler;
-        $this->permissions = $permissions;
-        $this->procedureNewsService = $procedureNewsService;
     }
 
     /**
@@ -364,7 +343,7 @@ class NewsHandler extends CoreHandler
 
             return true;
         } catch (ORMException $e) {
-            $this->getLogger()->error('failed to update enabled state of entities', ['exception' => $e]);
+            $this->logger->error('failed to update enabled state of entities', ['exception' => $e]);
 
             return false;
         }
