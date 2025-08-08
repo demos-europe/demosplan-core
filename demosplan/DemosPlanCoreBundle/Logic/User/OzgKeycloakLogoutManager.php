@@ -31,7 +31,7 @@ class OzgKeycloakLogoutManager
     private const ID_TOKEN_HINT = 'id_token_hint=';
 
     /** @var int Session expiration time for testing (120 minutes) */
-    private const TEST_SESSION_LIFETIME_SECONDS = 7200;
+    private const TEST_SESSION_LIFETIME_SECONDS = 900;
 
     public function __construct(
         private readonly KernelInterface $kernel,
