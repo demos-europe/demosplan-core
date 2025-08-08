@@ -358,7 +358,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $useIdp = true;
         }
 
-        $useAzureSso = $parameterBag->get('azure_sso_enabled', false);
+        $useAzureSso = $parameterBag->get('azure_sso_enabled');
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',

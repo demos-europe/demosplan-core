@@ -331,6 +331,8 @@ parameters:
     # LocationUpdateService::repopulateDatabase()
     use_opengeodb: true
 
+    # should the azure Authentication be used?
+    azure_sso_enabled: false
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
