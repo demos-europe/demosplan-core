@@ -1360,6 +1360,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
+        $now = Carbon::now()->getTimestamp();
         $query = $this->createFluentQuery();
         $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
@@ -1368,15 +1369,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['phase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['phase', 'designatedPhase'])
             ->propertyIsNotNull(['phase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['phase', 'designatedSwitchDateTimestamp']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['publicParticipationPhase', 'designatedSwitchDateTimestamp']);
 
         return $query->getEntities();
     }
