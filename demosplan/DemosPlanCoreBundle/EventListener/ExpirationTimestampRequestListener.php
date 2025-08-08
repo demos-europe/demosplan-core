@@ -46,12 +46,8 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
-        if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission()) {
-            return;
-        }
-
-        // If Keycloak is not configured, do nothing regardless of environment
-        if (!$this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+        if (!$this->ozgKeycloakLogoutManager->hasLogoutWarningPermission() &&
+            !$this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
             return;
         }
 
