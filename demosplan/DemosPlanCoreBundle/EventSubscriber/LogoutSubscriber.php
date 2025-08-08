@@ -64,7 +64,7 @@ class LogoutSubscriber implements EventSubscriberInterface
         }
 
         // let oauth identity provider handle logout when defined
-        if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
+        if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
             $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
             $event->getRequest()->getSession()->invalidate();
             $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
