@@ -68,17 +68,18 @@ class LogoutSubscriber implements EventSubscriberInterface
         if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
             // Keycloak logout
             if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
-            $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
-            $event->getRequest()->getSession()->invalidate();
-            $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-            $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
+                $event->getRequest()->getSession()->invalidate();
+                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+                $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
-            // add additional parameters to keycloak logout url for redirect
-                try {
-                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
-                $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
-            } catch (Exception $e) {
-                $this->logger->error('Could not get current customer', [$e->getMessage()]);}
+                // add additional parameters to keycloak logout url for redirect
+                    try {
+                        $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                } catch (Exception $e) {
+                    $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                }
                 $response = $this->redirect($logoutRoute);
             }
 

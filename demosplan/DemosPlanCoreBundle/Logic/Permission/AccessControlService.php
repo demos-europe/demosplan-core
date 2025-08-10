@@ -32,6 +32,7 @@ use Psr\Log\LoggerInterface;
  *
  * All rights reserved
  */
+// @SuppressWarnings(php:S1448) - Class has logical cohesion despite method count
 class AccessControlService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
