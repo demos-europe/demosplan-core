@@ -2,13 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use InvalidArgumentException;
+use Predis\Client as PredisClient;
 use SessionHandlerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
-use Predis\Client as PredisClient;
-use InvalidArgumentException;
 
 /**
  * Factory for creating session handlers based on environment configuration.
@@ -42,9 +50,7 @@ class SessionHandlerFactory
             return $this->createDatabaseHandler();
         }
 
-        throw new InvalidArgumentException(
-            sprintf('Unsupported session handler configuration: %s', $sessionHandler)
-        );
+        throw new InvalidArgumentException(sprintf('Unsupported session handler configuration: %s', $sessionHandler));
     }
 
     private function createRedisHandler(string $dsn): RedisSessionHandler
