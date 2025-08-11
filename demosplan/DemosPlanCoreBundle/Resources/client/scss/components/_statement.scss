@@ -169,5 +169,24 @@
                 padding-bottom: 12px !important;
             }
         }
+
+        // Custom breakpoint for StatementModal.vue navigation (710px)
+        &__formnav {
+            &.mobile {
+                display: block;
+
+                @media screen and (width >= 710px) {
+                    display: none;
+                }
+            }
+
+            &.tablet-desktop {
+                display: none;
+
+                @media screen and (width >= 710px) {
+                    display: block;
+                }
+            }
+        }
     }
 }

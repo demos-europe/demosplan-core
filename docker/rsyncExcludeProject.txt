@@ -9,3 +9,6 @@ web/js
 web/video
 parameters.yml
 release.sh
+var/cache
+var/logs
+var/sessions

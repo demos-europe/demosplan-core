@@ -207,7 +207,7 @@
                                     name="agencyMainEmailAddress[fullAddress]"
                                     required
                                     type="email"
-                                    value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
+                                    model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
                                 </dp-input>
                             </div>
 
@@ -745,6 +745,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
                                         data-cy="internalPhase"
@@ -760,7 +761,7 @@
                                             name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedInternalPhase">
                                     </participation-phases>
                                 {% endif %}
@@ -894,6 +895,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
                                         data-cy="publicPhase"
@@ -909,7 +911,7 @@
                                             name: 'r_public_participation_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedPublicPhase">
                                     </participation-phases>
                                 {% endif %}
@@ -972,6 +974,16 @@
                                 {% else %}
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('feature_feedback_on_statement_controllable') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" {#  #}{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'checked' : '' }}>
+                                        {{ "public.participation.feedback"|trans }}
+                                    </label>
+                                {% else %}
+                                    {# allow publishing the possibility of Feedback by default #}
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1"> }
                                 {% endif %}
 
                                 {% if hasPermission('field_submit_anonymous_statements') %}

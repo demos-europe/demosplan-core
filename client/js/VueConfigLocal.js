@@ -50,7 +50,6 @@ const dplan = {
 }
 
 const dpApi = jest.fn(() => Promise.resolve())
-const checkResponse = jest.fn(data => Promise.resolve(data))
 
 const globalMocks = {
   hasPermission,
@@ -58,8 +57,7 @@ const globalMocks = {
   Translator,
   dplan,
   lscache,
-  dpApi,
-  checkResponse
+  dpApi
 }
 
 // Create a local Vue instance

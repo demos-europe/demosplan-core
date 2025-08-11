@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
@@ -126,7 +126,6 @@ export default {
 
       //  Fire action from store
       this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
-        .then(checkResponse)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
         })

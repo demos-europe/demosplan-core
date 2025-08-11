@@ -93,6 +93,13 @@
       name="r_layers"
       type="hidden">
 
+    <dp-ol-map
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
+      :layers="previewLayers"
+      :procedure-id="procedureId"
+      small
+    />
+
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
       id="r_tileMatrixSet"
@@ -142,11 +149,13 @@
 <script>
 import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'LayerSettings',
 
   components: {
+    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
     DpInput,
     DpLabel,
@@ -159,6 +168,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    hasPreview: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     initLayers: {
@@ -198,6 +213,12 @@ export default {
     },
 
     initVersion: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    procedureId: {
       type: String,
       required: false,
       default: ''
@@ -269,6 +290,16 @@ export default {
 
     layersInputValue () {
       return this.layers.map(el => el.label).join(',')
+    },
+
+    previewLayers () {
+      return [{
+        name: `preview-layers-${this.layersInputValue}`, // Force component recreation on layer change (DpOlMapLayer)
+        url: this.url,
+        layers: this.layersInputValue,
+        mapOrder: 1,
+        layerType: 'overlay',
+      }]
     },
 
     serviceTypeOptions () {

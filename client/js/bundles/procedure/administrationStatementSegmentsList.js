@@ -51,4 +51,8 @@ const apiStores = [
   'User'
 ]
 
+if (hasPermission('feature_similar_statement_submitter')) {
+  apiStores.push('SimilarStatementSubmitter')
+}
+
 initialize(components, stores, apiStores)

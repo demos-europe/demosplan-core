@@ -161,14 +161,13 @@ const AssessmentTable = {
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
-      const data = await dpApi({
+      const { data } = await dpApi({
         method: 'GET',
         url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
       })
-        .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}

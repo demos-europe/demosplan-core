@@ -24,17 +24,11 @@
         class="u-pv-0_5" />
       <template v-else>
         <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
-        <div
-          class="flash flash-warning flow-root"
-          v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-          <div class="u-ml">
-            <p
-              class="u-mb-0"
-              :inner-html="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')" />
-          </div>
-        </div>
-
+        <dp-inline-notification
+          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          class="mb-2"
+          :message="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')"
+          type="warning" />
         <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
         <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
@@ -87,13 +81,14 @@
 </template>
 
 <script>
-import { DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpLoading, DpModal, hasOwnProp} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'CopyStatementModal',
 
   components: {
+    DpInlineNotification,
     DpModal,
     DpLoading
   },

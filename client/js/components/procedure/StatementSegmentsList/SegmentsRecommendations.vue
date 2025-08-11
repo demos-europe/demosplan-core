@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
@@ -184,11 +184,22 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, payload)
-        .then(response => { checkResponse(response) })
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-        })
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm'
+            },
+            204: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm'
+            }
+          }
+        }
+      )
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)

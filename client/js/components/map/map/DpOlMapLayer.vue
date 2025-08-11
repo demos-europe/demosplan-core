@@ -26,6 +26,12 @@ export default {
       default: ''
     },
 
+    layerType: {
+      required: false,
+      type: String,
+      default: 'base'
+    },
+
     layers: {
       required: true,
       type: String
@@ -69,7 +75,8 @@ export default {
 
   data () {
     return {
-      source: null
+      layer: null,
+      source: null,
     }
   },
 
@@ -125,15 +132,21 @@ export default {
       }
 
       this.source = createSourceTileWMS(url, this.layers, this.projection, this.defaultAttributions, this.map)
-      const layer = createTileLayer(this.title, this.name, this.source, this.opacity)
+      this.layer = createTileLayer(this.title, this.name, this.source, this.opacity, this.layerType)
 
       //  Insert layer at pos 0, making it the background layer
-      this.map.getLayers().insertAt(this.order, layer)
+      this.map.getLayers().insertAt(this.order, this.layer)
     }
   },
 
   mounted () {
     this.addLayer()
+  },
+
+  beforeUnmount () {
+    if (this.layer && this.map) {
+      this.map.removeLayer(this.layer)
+    }
   },
 
   render: () => null
@@ -178,13 +191,13 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
  * @return {object} ol/layer/Tile instance
  * @see https://openlayers.org/en/latest/apidoc/module-ol_layer_Tile-TileLayer.html
  */
-const createTileLayer = (title, name, source, opacity) => {
+const createTileLayer = (title, name, source, opacity, layerType = 'base') => {
   return new TileLayer({
     title,
     name,
     preload: 10,
     opacity: opacity / 100,
-    type: 'base',
+    type: layerType,
     visible: true,
     source
   })
