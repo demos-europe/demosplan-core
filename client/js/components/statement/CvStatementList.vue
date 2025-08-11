@@ -18,7 +18,12 @@ All rights reserved
 
 
       <template #actions>
-        <cv-search placeholder="Suchen" light/>
+        <cv-search
+          light
+          placeholder="Suchen"
+          :value="searchValue"
+          @input="applySearch"
+        />
         <cv-button kind="ghost" icon-only>
           <Filter16 />
         </cv-button>
@@ -104,14 +109,15 @@ export default {
 
   data() {
     return {
-      selectedRows: [],
       columns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
         { key: 'author', label: 'Einreicher*in' },
         { key: 'text', label: 'Text' },
         { key: 'sections', label: 'Abschnitte' }
-      ]
+      ],
+      selectedRows: [],
+      searchValue: '',
     }
   },
 
@@ -154,6 +160,33 @@ export default {
       fetchStatements: 'list'
     }),
 
+    applySearch(term) {
+      this.searchValue = term
+
+      this.fetchStatements({
+        page: { number: 1, size: 10 }, // Wie ListStatements
+        search: { value: this.searchValue },
+        filter: {
+          procedureId: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
+        sort: '-submitDate', // Default sort!
+        include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
+        fields: {
+          Statement: [
+            'authoredDate', 'authorName', 'externId', 'isSubmittedByCitizen',
+            'initialOrganisationName', 'internId', 'status', 'submitDate',
+            'submitName', 'text', 'textIsTruncated'
+          ].join(),
+          SourceStatementAttachment: ['file'].join()
+        }
+      })
+    },
+
     formatDate(dateString) {
       if (!dateString) return ''
       const date = new Date(dateString)
@@ -192,6 +225,20 @@ export default {
       const route = hasSimplifiedCreate ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted'
 
       window.location.href = Routing.generate(route, { procedureId: this.procedureId })
+    },
+
+    resetSearch() {
+      this.searchValue = ''
+      this.fetchStatements({
+        page: {
+          number: 1,
+          size: 100
+        },
+        search: {
+          value: ''
+        },
+        include: ['segments'].join()
+      })
     }
   },
 

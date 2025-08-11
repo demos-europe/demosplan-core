@@ -94,6 +94,11 @@
     vertical-align: top !important;
 }
 
+/* Remove padding around cv-data-table */
+.bx--tab-content {
+    padding: 0 !important;
+}
+
 .cv-statement-list .text-content {
     overflow: hidden;
     display: -webkit-box;
