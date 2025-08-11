@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- allow sessions to be stored in redis
+
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8

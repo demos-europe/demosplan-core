@@ -47,7 +47,6 @@ class DefaultTwigVariablesService
          * @var PermissionsInterface|Permissions
          */
         private readonly PermissionsInterface $permissions,
-        private readonly SessionHandler $sessionHandler,
         private readonly TransformMessageBagService $transformMessageBagService,
         private readonly string $publicCSSClassPrefix,
         private readonly string $defaultLocale)

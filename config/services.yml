@@ -365,6 +365,14 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
 
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
+
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:
             $publicCSSClassPrefix: '%public_css_class_prefix%'
