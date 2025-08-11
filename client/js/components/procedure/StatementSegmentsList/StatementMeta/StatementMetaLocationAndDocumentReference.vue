@@ -27,7 +27,9 @@
             :procedure-id="procedureId" />
         </template>
         <template v-else>
-          <p class="color-text-muted">-</p>
+          <p class="color-text-muted">
+            -
+          </p>
         </template>
       </div>
 

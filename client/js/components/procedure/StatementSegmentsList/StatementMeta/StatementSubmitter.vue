@@ -293,7 +293,7 @@ export default {
       return (isDisabled && (!value || value.trim() === '')) ? '-' : value
     },
 
-    getSubmitterNameValue() {
+    getSubmitterNameValue () {
       if (this.isSubmitterAnonymized()) {
         return Translator.trans('anonymized')
       }
