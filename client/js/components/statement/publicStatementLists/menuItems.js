@@ -65,7 +65,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
 
       attrs: {
         type: 'button',
-        class: 'o-flyout-menu__item',
+        class: '',
         'data-cy': 'statementEdit',
         'aria-label': Translator.trans('statement.edit.with.id', { id: number })
       },
