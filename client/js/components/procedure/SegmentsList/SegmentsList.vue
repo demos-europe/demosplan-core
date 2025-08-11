@@ -213,7 +213,9 @@
             v-for="customField in selectedCustomFields"
             :key="customField.field"
             v-slot:[customField.field]="rowData">
-            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
+            <div>
+              {{ getCustomFieldOptionLabel(rowData, customField) }}
+            </div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
@@ -710,6 +712,16 @@ export default {
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFieldOptionLabel (rowData, selectedCustomField) {
+      const customFieldOptionId = rowData.attributes.customFields?.find(el => el.id === selectedCustomField.fieldId)?.value || ''
+
+      if (customFieldOptionId === '') {
+        return ''
+      }
+
+      return this.customFields[selectedCustomField.fieldId].attributes.options.find((option) => option.id === customFieldOptionId).label
     },
 
     getCustomFields () {
