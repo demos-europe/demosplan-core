@@ -186,7 +186,7 @@ final class GisLayerResourceType extends DplanResourceType
                 ->aliasedPath($this->category),
             $this->createAttribute($this->visibilityGroupId)
                 ->updatable()
-                ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
+                ->readable(true, static fn (GisLayer $gisLayer): ?string => $gisLayer->getVisibilityGroupId() ?? null),
         ];
 
         if ($this->currentUser->hasPermission('area_admin_map')) {

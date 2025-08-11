@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpDashboardTaskCard',
 
@@ -99,10 +99,9 @@ export default {
         // Get the actual filter hash
         const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash })
         dpApi.patch(url, {}, filterData)
-          .then(response => checkResponse(response))
-          .then(response => {
-            if (response) {
-              this.userHash = response
+          .then(({ data }) => {
+            if (data) {
+              this.userHash = data
             }
           })
       })

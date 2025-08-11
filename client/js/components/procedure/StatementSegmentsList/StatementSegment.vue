@@ -62,7 +62,7 @@
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
                   <dd>
-                    {{ customField.value }}
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned') }}
                   </dd>
                 </div>
               </template>
@@ -385,9 +385,11 @@
           }"
           data-cy="segmentMap"
           @click.prevent="showMap">
-          <i
-            class="fa fa-map-marker"
-            aria-hidden="true" />
+          <dp-icon
+            class="mx-auto"
+            icon="map-pin"
+            :weight="hasPolygonFeatures() ? 'fill' : 'regular'"
+          />
         </button>
       </div>
     </div>
@@ -397,7 +399,6 @@
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBadge,
@@ -554,7 +555,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('orga') : ''
+        const orga = assignee?.rel ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -572,7 +573,7 @@ export default {
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
         const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
@@ -642,14 +643,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
-    }),
-
-    ...mapActions('Place', {
-      fetchPlaces: 'list'
-    }),
-
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
@@ -717,8 +710,7 @@ export default {
         }
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
@@ -744,10 +736,25 @@ export default {
       this.activeId = id
     },
 
+    hasPolygonFeatures () {
+      const raw = this.segment.attributes.polygon
+
+      if (!raw || typeof raw !== 'string') {
+        return false
+      }
+
+      const parsedPolygon = JSON.parse(raw)
+      const features = parsedPolygon?.features
+
+      return Array.isArray(features) && features.length > 0
+    },
+
     initAssignableUsers () {
       const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
 
       if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
         return
       }
 
@@ -756,9 +763,7 @@ export default {
         sort: 'lastname'
       })
         .then(() => {
-          if (this.segment.relationships?.assignee?.data?.id) {
-            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-          }
+          this.setSelectedAssignee()
         })
     },
 
@@ -766,6 +771,8 @@ export default {
       const placeItemsLoaded = Object.keys(this.placeItems).length
 
       if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
         return
       }
 
@@ -781,9 +788,7 @@ export default {
         sort: 'sortIndex'
       })
         .then(() => {
-          if (this.segment.relationships.place) {
-            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-          }
+          this.setSelectedPlace()
         })
     },
 
@@ -825,7 +830,10 @@ export default {
 
       if (hasCustomFields) {
         attributes = {
-          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+          customFields: Object.values(this.customFieldValues).map(option => ({
+            id: option.fieldId,
+            value: this.getCustomFieldValueForPayload(option)
+          }))
         }
       }
 
@@ -833,6 +841,9 @@ export default {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
+          attributes: {
+            recommendation: this.segment.attributes.recommendation
+          },
           relationships: {
             assignee,
             place
@@ -849,18 +860,22 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          ...(hasCustomFields ? {
-            customFields: {
-              ...this.segment.attributes.customFields,
-              ...payload.data.attributes?.customFields
-            }
-          } : {})
+          ...(hasCustomFields
+            ? {
+                customFields: {
+                  ...this.segment.attributes.customFields,
+                  ...payload.data.attributes?.customFields
+                }
+              }
+            : {})
         },
         relationships: {
           ...this.segment.relationships,
           ...payload.data.relationships
         }
       }
+
+      this.removeComments(updatedSegment.relationships)
 
       this.setSegment({
         ...updatedSegment,
@@ -884,7 +899,6 @@ export default {
         : { id: this.segment.id }
 
       this.saveSegmentAction(savePayload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
@@ -917,8 +931,10 @@ export default {
      * @param {string} value.id   id of the selected option
      * @param {string} value.fieldId   id of the custom field
      * @param {string} value.name   name of the selected option
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
      */
     setCustomFieldValue (value) {
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
       this.customFieldValues[value.fieldId] = value
     },
 
@@ -931,6 +947,18 @@ export default {
           this.customFieldValues[fieldId] = selectedOption
         }
       })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
     },
 
     showComments () {
@@ -1021,7 +1049,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.isFullscreen = false
           this.isEditing = false
@@ -1093,6 +1120,12 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    // Helper to get the custom field value from an option
+    getCustomFieldValueForPayload (option) {
+      // Return null for unassigned options instead of 'UNASSIGNED'
+      return option.value === 'UNASSIGNED' ? null : option.name
     }
   },
 
@@ -1100,7 +1133,7 @@ export default {
     this.initPlaces()
     this.initAssignableUsers()
 
-    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()
     }
 

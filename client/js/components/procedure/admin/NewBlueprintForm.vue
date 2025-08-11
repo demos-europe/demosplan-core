@@ -35,49 +35,45 @@
       <legend
         class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
-      <dp-form-row class="u-mb-0_75">
-        <dp-input
-          id="r_name"
-          data-cy="newMasterName"
-          :label="{
-            text: Translator.trans('name')
-          }"
-          maxlength="200"
-          name="r_name"
-          required />
-      </dp-form-row>
+      <dp-input
+        id="r_name"
+        data-cy="newMasterName"
+        :label="{
+          text: Translator.trans('name')
+        }"
+        maxlength="200"
+        name="r_name"
+        required />
 
-      <dp-form-row class="u-mb-0_75">
-        <dp-select
-          id="r_copymaster"
-          v-model="selectedBlueprint"
-          :label="{
-            hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
-            text: Translator.trans('master')
-          }"
-          data-cy="NewBlueprintForm:selectedBlueprint"
-          name="r_copymaster"
-          :options="blueprintOptions"
-          :show-placeholder="false"
-          @select="setValuesFromSelectedBlueprint" />
-      </dp-form-row>
+      <dp-select
+        id="r_copymaster"
+        class="mt-4"
+        data-cy="NewBlueprintForm:selectedBlueprint"
+        v-model="selectedBlueprint"
+        :label="{
+          hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
+          text: Translator.trans('master')
+        }"
+        name="r_copymaster"
+        :options="blueprintOptions"
+        :show-placeholder="false"
+        @select="setValuesFromSelectedBlueprint" />
 
-      <div class="relative">
+      <div class="relative mt-4">
         <dp-loading
           v-if="isLoading"
           overlay />
 
-        <dp-form-row class="u-mb-0_75">
-          <dp-text-area
-            :label="Translator.trans('internalnote')"
-            id="r_desc"
-            data-cy="NewBlueprintForm:internalNote"
-            name="r_desc"
-            reduced-height />
-        </dp-form-row>
+        <dp-text-area
+          id="r_desc"
+          data-cy="NewBlueprintForm:internalNote"
+          :label="Translator.trans('internalnote')"
+          name="r_desc"
+          reduced-height />
 
         <dp-input
           :id="agencyMainEmailId"
+          class="mt-4"
           data-cy="agencyMainEmailAddress"
           :label="{
             hint: Translator.trans('explanation.organisation.email.procedure.agency'),
@@ -89,7 +85,7 @@
           v-model="mainEmail" />
 
         <dp-label
-          class="u-mt"
+          class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
           :hint="Translator.trans('email.address.more.explanation')"
@@ -97,11 +93,12 @@
         <dp-email-list
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
           :init-emails="emailAddresses" />
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
+          class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
           id="r_publicParticipationContact"
@@ -111,6 +108,7 @@
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
           id="r_customerMasterBlueprint"
+          class="mt-4"
           :disabled="isCustomerMasterBlueprintExisting"
           :label="{
             hint: Translator.trans('explanation.customer.masterblueprint'),
@@ -118,11 +116,10 @@
           }"
           name="r_customerMasterBlueprint" />
 
-        <p
+        <dp-inline-notification
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          class="lbl__hint u-ml-0_75 u-mb">
-          {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
-        </p>
+          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
+          type="warning" />
 
         <div class="text-right space-inline-s">
           <input
@@ -149,7 +146,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
-  DpFormRow,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -168,7 +165,7 @@ export default {
   components: {
     DpCheckbox,
     DpEmailList,
-    DpFormRow,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,

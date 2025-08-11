@@ -15,11 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
-class CustomFieldValueCreator extends CoreService
+class CustomFieldValueCreator
 {
     public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
@@ -32,9 +32,24 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
+        // Store original data as JSON representation before making any changes
+        // Create a completely new object - DON'T modify the passed-in object at all
+        $updatedCustomFieldValuesList = new CustomFieldValuesList();
+
+        // Copy all existing values to the new object first
+        if ($currentCustomFieldValuesList->getCustomFieldsValues()) {
+            foreach ($currentCustomFieldValuesList->getCustomFieldsValues() as $existingValue) {
+                $newValue = new CustomFieldValue();
+                $newValue->fromJson($existingValue->toJson());
+                $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
+            }
+        }
+
+        // Parse the new values
         $newCustomFieldValuesList = new CustomFieldValuesList();
         $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
+        // Now apply changes to our new copy
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
@@ -43,22 +58,53 @@ class CustomFieldValueCreator extends CoreService
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
             $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
-            $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
+
+            // Find in our new copy, not in the original
+            $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+                $this->handleExistingCustomField($updatedCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
-                $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+                $this->handleNewCustomField($updatedCustomFieldValuesList, $newCustomFieldValue);
             }
         }
 
-        /*
-         * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
-         * Doctrine only tracks updates when the object reference changes.
-         * @see CustomFieldValuesList
-         * @see CustomFieldValueType
-         */
-        return clone $currentCustomFieldValuesList;
+        // Sort fields to ensure consistent ordering in the database
+        $updatedCustomFieldValuesList->sortByFieldId();
+
+        // At the very end, before returning, ensure array is properly indexed
+        $updatedCustomFieldValuesList->reindexValues();
+
+        // Never modify the passed-in object - return a completely new one
+        return $updatedCustomFieldValuesList;
+    }
+
+    protected function handleExistingCustomField(
+        CustomFieldValuesList $updatedCustomFieldValuesList,
+        CustomFieldValue $existingCustomFieldValue,
+        CustomFieldValue $newCustomFieldValue,
+    ): void {
+        // If the value is null, remove this field from the updated list
+
+        if (null === $newCustomFieldValue->getValue()) {
+            $updatedCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+
+            return;
+        }
+
+        $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+    }
+
+    protected function handleNewCustomField(
+        CustomFieldValuesList $updatedCustomFieldValuesList,
+        CustomFieldValue $newCustomFieldValue,
+    ): void {
+        // Skip adding fields marked for removal
+        if (null !== $newCustomFieldValue->getValue()) {
+            $brandNewValue = new CustomFieldValue();
+            $brandNewValue->fromJson($newCustomFieldValue->toJson());
+            $updatedCustomFieldValuesList->addCustomFieldValue($brandNewValue);
+        }
     }
 
     private function getCustomField(string $sourceEntityClass,
@@ -74,6 +120,16 @@ class CustomFieldValueCreator extends CoreService
         }
 
         return $customFieldConfigurations[0]->getConfiguration();
+    }
+
+    public function getCustomFieldConfigurationByUUID(string $customFieldId): CustomFieldConfiguration
+    {
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->find($customFieldId);
+        if (null === $customFieldConfigurations) {
+            throw new InvalidArgumentException('No custom field configuration found for given ID.');
+        }
+
+        return $customFieldConfigurations;
     }
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void

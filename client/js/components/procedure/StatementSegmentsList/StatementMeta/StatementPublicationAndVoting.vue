@@ -83,7 +83,7 @@ All rights reserved
           <div
             data-dp-validate="newVoterForm"
             v-if="editable && statement.attributes.isManual"
-            class="space-stack-s border-t py-3">
+            class="space-stack-s border-t border-neutral py-3">
             <!-- Role -->
             <div class="flex">
               <dp-radio
@@ -178,16 +178,18 @@ All rights reserved
       </dp-editable-list>
 
       <!-- Anonymous voters -->
-      <div class="w-1/4">
+      <div class="mt-4">
+        <dp-label
+          class="mb-0.5"
+          for="numberOfAnonymVotes"
+          :text="Translator.trans('statement.voter.anonym')"
+        />
         <dp-input
           id="numberOfAnonymVotes"
+          class="w-1/12"
           v-model.number="localStatement.attributes.numberOfAnonymVotes"
-          class="mt-4"
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
-          :label="{
-            text: Translator.trans('statement.voter.anonym')
-          }"
           name="numberOfAnonymVotes"
           type="number" />
       </div>
@@ -208,6 +210,7 @@ import {
   DpButtonRow,
   DpEditableList,
   DpInput,
+  DpLabel,
   DpLoading,
   DpRadio,
   dpValidateMixin
@@ -222,6 +225,7 @@ export default {
   components: {
     DpButtonRow,
     DpEditableList,
+    DpLabel,
     DpLoading,
     DpInput,
     DpRadio,

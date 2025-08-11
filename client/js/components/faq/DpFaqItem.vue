@@ -168,10 +168,12 @@ export default {
 
     handleToggle (isEnabled) {
       if (isEnabled !== this.isFaqEnabled) {
+        const { attributes, id, type } = this.faqItem
         const faqCopy = {
-          ...this.faqItem,
+          id,
+          type,
           attributes: {
-            ...this.faqItem.attributes,
+            ...attributes,
             enabled: isEnabled
           }
         }
@@ -221,7 +223,9 @@ export default {
         return this.faqItem.attributes[key] !== value
       }).length !== 0
       if (hasChangedAttributes === true) {
-        this.updateFaq({ ...faqCpy, id: faqCpy.id })
+        const { attributes, id, type } = faqCpy
+
+        this.updateFaq({ id, type, attributes })
         const saveAction = () => {
           return this.saveFaq(this.faqItem.id)
             .then(() => {

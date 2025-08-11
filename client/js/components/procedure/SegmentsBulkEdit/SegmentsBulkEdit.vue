@@ -220,7 +220,6 @@
           <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
-
       </div>
     </template>
 
@@ -276,14 +275,12 @@
         :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })">
         <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
       </action-stepper-response>
-
     </template>
   </action-stepper>
 </template>
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
@@ -562,9 +559,8 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
-          const rpcResult = this.getRpcResult(response)
+          const rpcResult = this.getRpcResult(response.data)
 
           for (const property in this.actions) {
             if (property === 'customFields') {
@@ -633,7 +629,10 @@ export default {
     },
 
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'Place' })
+      const url = Routing.generate('api_resource_list', {
+        resourceType: 'Place',
+        sort: 'sortIndex'
+      })
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {

@@ -12,125 +12,150 @@
     <dp-input
       id="r_name"
       v-model="name"
-      class="u-mb-0_5"
-      data-cy="newMapLayerName"
       :label="{
         text: Translator.trans('name')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerName"
       name="r_name"
-      required />
+      required
+    />
 
     <dp-input
       id="r_url"
       v-model="url"
-      class="u-mb-0_5"
-      data-cy="newMapLayerURL"
       :label="{
         text: Translator.trans('url')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerURL"
       name="r_url"
       required
       @blur="getLayerCapabilities"
-      @enter="getLayerCapabilities" />
+      @enter="getLayerCapabilities"
+    />
 
     <dp-select
       v-model="serviceType"
-      class="u-mb-0_5"
-      data-cy="layerSettings:serviceType"
       :label="{
         text: Translator.trans('type')
       }"
-      name="r_serviceType"
       :options="serviceTypeOptions"
-      required
-      @select="setServiceInUrl" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:serviceType"
       name="r_serviceType"
-      v-model="serviceType">
+      required
+      @select="setServiceInUrl"
+    />
+
+    <input
+      v-model="serviceType"
+      name="r_serviceType"
+      type="hidden">
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
       id="r_xplanDefaultlayers"
-      class="u-mb-0_5"
       :label="{
         text: Translator.trans('explanation.gislayer.xplan.default')
       }"
+      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
+      class="u-mb-0_5"
       name="r_xplanDefaultlayers"
       style="display: none;"
-      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
-      value="1" />
+      value="1"
+    />
 
     <dp-label
       :text="Translator.trans('layers')"
       for="r_layers"
-      required />
-    <dp-multiselect
-      @input="filterMatrixSetByLayers"
       required
-      track-by="label"
-      label="label"
-      multiple
+    />
+
+    <dp-multiselect
       id="r_layers"
       v-model="layers"
-      data-cy="newMapLayerLayers"
       :options="layersOptions"
-      class="u-mb-0_5" />
+      class="u-mb-0_5"
+      data-cy="newMapLayerLayers"
+      label="label"
+      track-by="label"
+      multiple
+      required
+      selection-controls
+      @input="filterMatrixSetByLayers"
+      @selectAll="selectAllLayers"
+      @deselectAll="deselectAllLayers"
+    />
 
     <input
-      type="hidden"
       :value="layersInputValue"
-      name="r_layers">
+      name="r_layers"
+      type="hidden">
+
+    <dp-ol-map
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
+      :layers="previewLayers"
+      :procedure-id="procedureId"
+      small
+    />
+
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
       id="r_tileMatrixSet"
       v-model="matrixSet"
-      class="u-mb-0_5"
-      data-cy="layerSettings:matrixSet"
       :disabled="disabledMatrixSelect"
       :label="{
         text: Translator.trans('map.tilematrixset')
       }"
-      name="r_tileMatrixSet"
       :options="matrixSetOptions"
-      required
-      @select="filterProjectionsByMatrixSet" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:matrixSet"
       name="r_tileMatrixSet"
-      v-model="matrixSet">
+      required
+      @select="filterProjectionsByMatrixSet"
+    />
+
+    <input
+      v-model="matrixSet"
+      name="r_tileMatrixSet"
+      type="hidden">
 
     <dp-select
       id="r_layerProjection"
       v-model="projection"
-      class="u-mb-0_5"
       :disabled="disabledProjectionSelect"
       :label="{
         text: Translator.trans('projection')
       }"
-      name="r_layerProjection"
       :options="projectionOptions"
-      required />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
       name="r_layerProjection"
-      v-model="projection">
+      required
+    />
 
     <input
-      type="hidden"
+      v-model="projection"
+      name="r_layerProjection"
+      type="hidden">
+
+    <input
+      v-model="version"
       name="r_layerVersion"
-      v-model="version">
+      type="hidden">
   </div>
 </template>
 
 <script>
 import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'LayerSettings',
 
   components: {
+    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
     DpInput,
     DpLabel,
@@ -143,6 +168,12 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    hasPreview: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     initLayers: {
@@ -182,6 +213,12 @@ export default {
     },
 
     initVersion: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
+    procedureId: {
       type: String,
       required: false,
       default: ''
@@ -253,6 +290,16 @@ export default {
 
     layersInputValue () {
       return this.layers.map(el => el.label).join(',')
+    },
+
+    previewLayers () {
+      return [{
+        name: `preview-layers-${this.layersInputValue}`, // Force component recreation on layer change (DpOlMapLayer)
+        url: this.url,
+        layers: this.layersInputValue,
+        mapOrder: 1,
+        layerType: 'overlay',
+      }]
     },
 
     serviceTypeOptions () {
@@ -482,6 +529,14 @@ export default {
         // Otherwise reset selection to empty
         this.layers = []
       }
+    },
+
+    selectAllLayers () {
+      this.layers = [...this.layersOptions]
+    },
+
+    deselectAllLayers () {
+      this.layers = []
     },
 
     setServiceInUrl () {

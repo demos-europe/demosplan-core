@@ -9,7 +9,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpContextualHelp,
@@ -67,16 +66,28 @@ export default {
       default: () => []
     },
 
+    initAuthUsers: {
+      required: false,
+      type: Array,
+      default: () => []
+    },
+
     initDataInputOrgas: {
       required: false,
       type: Array,
       default: () => []
     },
 
-    initAuthUsers: {
+    initPictogramAltText: {
       required: false,
-      type: Array,
-      default: () => []
+      type: String,
+      default: ''
+    },
+
+    initPictogramCopyright: {
+      required: false,
+      type: String,
+      default: ''
     },
 
     initProcedureCategories: {
@@ -144,15 +155,17 @@ export default {
         value: ''
       },
       isLoadingPlisData: false,
-      selectedAgencies: this.initAgencies,
-      selectedDataInputOrgas: this.initDataInputOrgas,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedPublicPhase: this.initProcedurePhasePublic,
-      selectedProcedureCategories: this.initProcedureCategories,
-      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
+      pictogramAltText: this.initPictogramAltText,
+      pictogramCopyright: this.initPictogramCopyright,
       procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName
+      procedureName: this.initProcedureName,
+      selectedAgencies: this.initAgencies,
+      selectedAuthUsers: this.initAuthUsers,
+      selectedDataInputOrgas: this.initDataInputOrgas,
+      selectedInternalPhase: this.initProcedurePhaseInternal,
+      selectedProcedureCategories: this.initProcedureCategories,
+      selectedPublicPhase: this.initProcedurePhasePublic,
+      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures
     }
   },
 
@@ -208,7 +221,6 @@ export default {
       })
 
       return addonRequest
-        .then(checkResponse)
         .catch(error => {
           /** The 'is-invalid' class would be added to the addon field in case of an error */
           const input = document.getElementById('addonAdditionalField')
