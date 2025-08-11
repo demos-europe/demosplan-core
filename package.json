@@ -107,7 +107,7 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
+    "@babel/core": "^7.28.0",
     "@babel/eslint-parser": "^7.28.0",
     "@babel/eslint-plugin": "^7.25.9",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
@@ -115,8 +115,8 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/plugin-transform-object-assign": "^7.25.9",
     "@babel/plugin-transform-runtime": "^7.25.9",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/runtime": "^7.26.0",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/runtime": "^7.28.2",
     "@fullhuman/postcss-purgecss": "^7.0.2",
     "@vue/test-utils": "^2.4.6",
     "@vue/vue3-jest": "^29.2.6",
