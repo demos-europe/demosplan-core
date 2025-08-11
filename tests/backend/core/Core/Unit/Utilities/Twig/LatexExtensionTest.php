@@ -37,7 +37,7 @@ class LatexExtensionTest extends UnitTestCase
 
         $containerStub = $this->getMockForAbstractClass(ContainerInterface::class);
 
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
 
         // Stubbe den Logger
         $stub = $this->getMockForAbstractClass(LoggerInterface::class);

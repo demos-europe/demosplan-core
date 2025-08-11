@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -38,12 +37,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
-class PrepareReportFromProcedureService extends CoreService
+class PrepareReportFromProcedureService
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
@@ -58,6 +58,7 @@ class PrepareReportFromProcedureService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -102,7 +103,7 @@ class PrepareReportFromProcedureService extends CoreService
             );
             $this->reportService->persistAndFlushReportEntries($reportEntry);
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not add report to protocol: ', [$e]);
+            $this->logger->error('Could not add report to protocol: ', [$e]);
         }
     }
 
@@ -163,7 +164,7 @@ class PrepareReportFromProcedureService extends CoreService
         $update = [];
 
         // if the procedure is deleted, only a deletion entry will be created.
-        if (true === $destinationProcedure->getDeleted()) {
+        if (true === $destinationProcedure->isDeleted()) {
             $update = [
                 'ident'    => $destinationProcedure->getId(),
                 'customer' => null,
@@ -256,8 +257,14 @@ class PrepareReportFromProcedureService extends CoreService
         || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
             $reportEntryEvent = new ProcedureEditedEvent(
                 $sourceProcedure->getId(),
-                ['planPDF' => $sourceProcedureSettings->getPlanPDF(), 'planDrawPDF' => $sourceProcedureSettings->getPlanDrawPDF()],
-                ['planPDF' => $destinationProcedureSettings->getPlanPDF(), 'planDrawPDF' => $destinationProcedureSettings->getPlanDrawPDF()],
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $sourceProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $sourceProcedureSettings->getPlanDrawPDF(),
+                ],
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $destinationProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $destinationProcedureSettings->getPlanDrawPDF(),
+                ],
                 $this->currentUser->getUser()
             );
             $this->eventDispatcher->dispatch($reportEntryEvent);

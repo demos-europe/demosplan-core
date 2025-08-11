@@ -60,7 +60,7 @@
         <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
-              class="o-flyout__trigger u-ph-0_25 line-height--2"
+              class="rounded-button px-1 py-0.5 leading-[2] whitespace-nowrap text-interactive hover:text-interactive-hover hover:bg-interactive-subtle-hover active:text-interactive-active active:bg-interactive-subtle-active"
               :assigned-id="currentAssignee.id"
               :assigned-name="currentAssignee.name"
               :assigned-organisation="currentAssignee.orgaName"
@@ -115,9 +115,7 @@
             </dp-flyout>
           </li>
           <li>
-            <dp-flyout
-              ref="metadataFlyout"
-              :has-menu="false">
+            <dp-flyout ref="metadataFlyout">
               <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
@@ -166,7 +164,7 @@
         v-else-if="currentAction === 'editText'"
         :current-user="currentUser"
         :editable="editable"
-        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
@@ -176,7 +174,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpFlyout,
   DpSlidebar,
@@ -332,9 +329,13 @@ export default {
       statements: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
-    ...mapGetters('SegmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', [
+      'commentsList'
+    ]),
 
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
@@ -462,6 +463,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
@@ -527,7 +532,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => { checkResponse(response) })
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
@@ -542,6 +546,26 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+
+
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedure.id,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
     },
 
     getStatement () {
@@ -636,7 +660,6 @@ export default {
       if (hasPermission('feature_statements_vote')) {
         allFields.StatementVote = [
           'city',
-          'createdDate',
           'createdByCitizen',
           'departmentName',
           'email',
@@ -670,7 +693,6 @@ export default {
         'genericAttachments',
         'genericAttachments.file',
         'paragraph',
-        'paragraphs',
         'paragraphVersion.paragraph',
         'sourceAttachment',
         'sourceAttachment.file',
@@ -690,6 +712,10 @@ export default {
         include: include.join(),
         fields: allFields
       })
+    },
+
+    hasDraftSegments () {
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
     resetSlidebar () {
@@ -827,7 +853,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => checkResponse(response))
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
@@ -851,6 +876,9 @@ export default {
 
   mounted () {
     this.getStatement()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {
@@ -865,7 +893,7 @@ export default {
 
     this.fetchLayers(this.procedureId)
       .then(response => {
-        this.procedureMapSettings.layers = response.data
+        this.procedureMapSettings.layers = response.data.data
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })

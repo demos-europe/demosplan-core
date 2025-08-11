@@ -95,7 +95,7 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
-        @select-all="handleSelectAll"
+        @selectAll="handleSelectAll"
         @items-toggled="handleToggleItem">
         <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
@@ -157,7 +157,7 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              class="btn--blank o-link--default"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
@@ -168,6 +168,7 @@
               {{ Translator.trans('split') }}
             </button>
             <a
+              class="block leading-[2] whitespace-nowrap"
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
@@ -175,6 +176,7 @@
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalPdf}"
               data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
@@ -184,6 +186,7 @@
             </a>
             <a
               v-if="hasPermission('area_admin_original_statement_list')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalId}"
               data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
@@ -191,7 +194,7 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              class="btn--blank o-link--default"
+              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
@@ -295,7 +298,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -309,6 +311,7 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
+  sessionStorageMixin,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -343,7 +346,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin, tableSelectAllItems],
+  mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -603,6 +606,7 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
+      this.updateSessionStorage('selectedSort', sortValue)
       this.getItemsByPage(1)
     },
 
@@ -632,19 +636,14 @@ export default {
         }
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-          .then(response => {
-            checkResponse(response)
-            return response
-          })
-          .then(response => {
+          .then(() => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-
-            return response
           })
           .catch((err) => {
             console.error(err)
             // Restore statement in store in case request failed
             this.restoreStatementAction(statementId)
+
             return err
           })
           .finally(() => {
@@ -680,7 +679,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-        .then(checkResponse)
         .catch((err) => {
           this.restoreStatementAction(statementId)
           console.error(err)
@@ -720,7 +718,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'genericAttachments',
+        'sourceAttachment',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -751,13 +749,13 @@ export default {
         include: [
           'segments',
           'assignee',
-          'genericAttachments',
-          'genericAttachments.file'
+          'sourceAttachment',
+          'sourceAttachment.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
-          File: [
-            'hash'
+          SourceStatementAttachment: [
+            'file'
           ].join()
         }
       }).then((data) => {
@@ -775,15 +773,18 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('genericAttachments')) {
-        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
-          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
-        if (originalAttachment.length === 1) {
-          return originalAttachment[0].relationships.file.get().attributes.hash
-        }
+      if (!el.hasRelationship('sourceAttachment')) {
+        return null
       }
 
-      return null
+      const attachments = el.relationships.sourceAttachment.list()
+      const firstAttachment = Object.values(attachments)[0]
+
+      if (!firstAttachment?.relationships?.file) {
+        return null
+      }
+
+      return firstAttachment.relationships.file.get()?.attributes?.hash || null
     },
 
     /**
@@ -865,7 +866,7 @@ export default {
 
     getStatementsFullText (statementId) {
       return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
-        .then((response) => {
+        .then(response => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
@@ -879,13 +880,12 @@ export default {
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
-          .then(checkResponse)
-          .then((response) => {
+          .then(response => {
             /*
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
              * we also get 200 status with an error
              */
-            if (!response[0].error) {
+            if (!response.data[0].error) {
               this.getItemsByPage(this.currentPage)
               this.resetSelection()
             }
@@ -909,6 +909,14 @@ export default {
       this.searchValue = ''
       this.getItemsByPage(1)
       this.$refs.customSearchStatements.toggleAllFields(false)
+    },
+
+    restoreSelectedSort () {
+      const storedSort = this.getItemFromSessionStorage('selectedSort')
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+      }
     },
 
     /**
@@ -941,13 +949,17 @@ export default {
 
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
+        // Override the default success callback to display a custom message
+        this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
+          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+        })
+
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-          }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
+            // Reset the custom success callback to the default one
+            this.$store.api.successCallbacks[0] = this.$store.api.handleResponse
           })
       }
     },
@@ -971,6 +983,7 @@ export default {
       }
     })
     this.initPagination()
+    this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   }
 }

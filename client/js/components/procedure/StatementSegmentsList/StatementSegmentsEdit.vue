@@ -39,6 +39,7 @@
             class="inline-block break-words"
             style="width: 95%">
           <dp-edit-field
+            class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
@@ -68,7 +69,7 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <template v-if="editable && !segmentDraftList">
+      <template v-if="editable && !hasDraftSegments">
         <dp-editor
           hidden-input="statementText"
           required
@@ -88,7 +89,7 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
-          v-if="segmentDraftList"
+          v-if="hasDraftSegments"
           class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />
@@ -103,7 +104,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpButtonRow,
@@ -152,7 +152,7 @@ export default {
       default: false
     },
 
-    segmentDraftList: {
+    hasDraftSegments: {
       type: Object,
       required: false,
       default: () => {}
@@ -271,15 +271,32 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm'
+            },
+            204: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm'
+            },
+            400: {
+              text: Translator.trans('segment.claim.fail'),
+              type: 'error'
+            }
+          }
+        }
+      )
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('segment.claim.success'))
           this.claimLoading = null
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
@@ -369,7 +386,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee
@@ -418,13 +434,31 @@ export default {
   mounted () {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       this.listSegments({
-        include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
+        include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
+          StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },

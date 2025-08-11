@@ -9,7 +9,7 @@
     <!-- Location reference -->
     <div
       v-if="hasPermission('field_statement_polygon')"
-      class="font-semibold mb-1">
+      class="font-semibold mb-0.5">
       {{ Translator.trans('location') }}
     </div>
 
@@ -27,7 +27,7 @@
             :procedure-id="procedureId" />
         </template>
         <template v-else>
-          -
+          <p class="color-text-muted">-</p>
         </template>
       </div>
 
@@ -181,6 +181,9 @@ export default {
     ...mapState('ElementsDetails', {
       elements: 'items'
     }),
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
 
     documentOptions () {
       const documents = this.getDocuments()
@@ -311,7 +314,23 @@ export default {
         }
       }
 
-      this.$emit('save', this.localStatement)
+      // Get current statement from store (includes any relationship changes from other components)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          paragraphParentId: this.localStatement.attributes.paragraphParentId
+        },
+        relationships: {
+          ...currentStatement.relationships,
+          elements: this.localStatement.relationships.elements,
+          document: this.localStatement.relationships.document
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     /*

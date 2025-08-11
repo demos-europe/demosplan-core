@@ -585,25 +585,17 @@
         <legend class="layout__item u-mt-0_5 u-p-0 u-pb-0_5">
           {{ Translator.trans('copies.paper') }}
         </legend>
-        <label>
-          {{ Translator.trans('quantity') }}
-          <p class="font-size-6 weight--normal">
-            {{ Translator.trans('explanation.organisation.copies.paper') }}
-          </p>
-          <select
-            class="bg-color--white"
-            style="height: 27px;"
-            data-cy="orgaFormField:organisationCopiesPaper"
-            v-model="localOrganisation.attributes.copy"
-            @change="emitOrganisationUpdate">
-            <option
-              v-for="(count, idx) in paperCopyCountOptions"
-              :key="idx"
-              :value="count">
-              {{ count }}
-            </option>
-          </select>
-        </label>
+        <dp-select
+          v-model="localOrganisation.attributes.copy"
+          :classes="'w-fit'"
+          :label="{
+            text: Translator.trans('quantity'),
+            hint: Translator.trans('explanation.organisation.copies.paper')
+          }"
+          :options="paperCopyCountOptions"
+          :show-placeholder="false"
+          data-cy="orgaFormField:organisationCopiesPaper"
+          @select="emitOrganisationUpdate" />
       </div>
 
       <label v-if="hasPermission('field_organisation_paper_copy_spec') && canEdit('paperCopySpec')">
@@ -765,7 +757,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
@@ -776,7 +768,8 @@ export default {
     DpCheckbox,
     DpDetails,
     DpEditor,
-    DpTextArea
+    DpTextArea,
+    DpSelect
   },
 
   inject: [
@@ -883,7 +876,7 @@ export default {
   emits: [
     'addon-update',
     'addonOptions:loaded',
-    'organisation-update'
+    'organisation:update'
   ],
 
   data () {
@@ -957,9 +950,10 @@ export default {
 
     /**
      * Options for the number of paper copies dropdown
+     * @return {Array <{value: number, label: string}>} for 0-10
      */
     paperCopyCountOptions () {
-      return Array.from(Array(11).keys())
+      return Array.from({ length: 11 }, (_, i) => ({ value: i, label: String(i) }))
     },
 
     registrationStatuses () {
@@ -985,7 +979,7 @@ export default {
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
+        this.$emit('organisation:update', this.localOrganisation)
       })
     },
 
@@ -1047,7 +1041,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('organisation-reset', () => {
+    this.$root.$on('organisation:reset', () => {
       this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
     })
     if (this.registrationStatuses.length === 0) {

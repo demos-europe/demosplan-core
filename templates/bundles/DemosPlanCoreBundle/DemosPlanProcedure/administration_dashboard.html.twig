@@ -45,6 +45,14 @@
                             {{ 'places'|trans }}
                         </a>
                     {% endif %}
+                    {% if hasPermission('area_admin_custom_fields') %}
+                    <a
+                        class="block u-pb-0_25"
+                        data-cy="customFields"
+                        href="{{ path('DemosPlan_procedure_custom_fields_list', { 'procedureId': procedure}) }}">
+                        {{ 'segments.fields.configurable'|trans }}
+                    </a>
+                    {% endif %}
                     {% if hasPermission('area_admin_protocol') %}
                         <a
                             class="block u-pb-0_25"
@@ -79,7 +87,7 @@
                         {# number of segmentable statements #}
                         {% set segmentableStatementsCount = templateVars.segmentableStatementsCount|default(0) %}
 
-                        <div class="shadow space-inset-m">
+                        <div class="shadow-sm space-inset-m">
                             <h4 class="u-mb-0 weight--bold">{{ 'statements.do.segment'|trans }}</h4>
                             {% if statementIdToBeSplit is not defined or statementIdToBeSplit == null %}
                                 <p class="u-mb-0 u-mt">
@@ -122,7 +130,7 @@
 
                 {# statement charts - status and priority #}
                 {% if hasPermission('feature_statements_statistic_state_and_priority') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <div class="layout">
                             {% if templateVars.statementsTotal|default(0) > 0 %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
@@ -168,7 +176,7 @@
 
                 {# fragment charts #}
                 {% if hasPermission('area_statements_fragment') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <div class="layout">
                             {% if hasPermission('field_fragment_status') %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
@@ -210,7 +218,7 @@
 
                 {# moved statements sankey diagram  #}
                 {% if hasPermission('feature_statement_move_to_procedure') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <p class="weight--bold">{{ 'statements.moved'|trans }}</p>
                         {% if (templateVars.movedStatementData.toThisProcedure.total|default(0) + templateVars.movedStatementData.fromThisProcedure.total|default(0)) == 0 %}
                             <p>{{ 'statement.sum'|trans({ count: 0 }) }}</p>
@@ -268,58 +276,6 @@
                                     </table>
                                 </div>
                             </div>
-                        {% endif %}
-                    </div>
-                {% endif %}
-
-                {# procedure survey chart #}
-                {% if hasPermission('area_survey_management') %}
-                    {# For now, we want to show only one (the first) survey; in the BE it has been modelled with the
-                       perspective that we will have several surveys at some point, which is why it's an array #}
-                    {% set survey = templateVars.surveys|first %}
-                    {% set commentsPendingCount = templateVars.surveyStatistics|length > 0 ? templateVars.surveyStatistics.votes.reviewRequired.sum : '' %}
-
-                    {% if templateVars.procedureHasSurveys == true %}
-                        {% set votes = {} %}
-                        {% set votes = votes|merge({ percentagePositive: templateVars.surveyStatistics.votes.positive.percent|default(0) }) %}
-                        {% set votes = votes|merge({ percentageNegative: templateVars.surveyStatistics.votes.negative.percent|default(0) }) %}
-                        {% set votes = votes|merge({ nPositive: templateVars.surveyStatistics.votes.positive.sum }) %}
-                        {% set votes = votes|merge({ nNegative: templateVars.surveyStatistics.votes.negative.sum }) %}
-                        {% set votes = votes|merge({ total: templateVars.surveyStatistics.votes.sum }) %}
-                    {% endif %}
-
-                    <div class="shadow space-inset-m">
-                        <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}inline-block{% endif %}">{{ 'survey'|trans }}</p>
-                        {% if templateVars.procedureHasSurveys == true and survey.id is defined %}
-                            <span class="u-ml-1_5 o-badge--light font-size-small" style="border-radius: 3px; padding: 1px 6px 3px 1px;">
-                                {{ survey.status|trans }}
-                            </span>
-                            <div>
-                                <p>{{ survey.title }}</p>
-                                {% if templateVars.surveyStatistics.votes.sum > 0 %}
-                                    <dp-survey-chart title="{{ survey.title }}" :votes="JSON.parse('{{ votes|json_encode|e('js', 'utf-8') }}')"></dp-survey-chart>
-
-                                    <a class="o-link--icon u-m-0 float-left" href="{{ path("dplan_survey_show", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
-                                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                                        {{ 'survey.comments.moderate'|trans }}
-                                    </a>
-                                    {% if commentsPendingCount > 0 %}
-                                        <span class="u-ml o-notification-badge">
-                                            {{ commentsPendingCount }}
-                                        </span>
-                                    {% endif %}
-                                {% endif %}
-                                <a class="o-link--icon u-m-0 float-right" href="{{ path("dplan_survey_edit", { 'procedureId': procedure, 'surveyId': survey.id }) }}">
-                                    <i class="fa fa-pencil" aria-hidden="true"></i>
-                                    {{ 'survey.edit'|trans }}
-                                </a>
-                            </div>
-                        {% else %}
-                            <p>{{ 'survey.none'|trans }}</p>
-                            <a class="btn-icns u-m-0 float-right" href="{{ path("dplan_survey_new", { 'procedureId': procedure }) }}">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                                {{ 'survey.new'|trans }}
-                            </a>
                         {% endif %}
                     </div>
                 {% endif %}

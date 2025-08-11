@@ -37,7 +37,9 @@ if (hasPermission('area_admin_boilerplates')) {
 }
 
 const apiStores = [
+  'AdminProcedure',
   'AggregationFilterItems',
+  'CustomField',
   'AssignableUser',
   'ElementsDetails',
   'Place',
@@ -48,5 +50,9 @@ const apiStores = [
   'Tags',
   'User'
 ]
+
+if (hasPermission('feature_similar_statement_submitter')) {
+  apiStores.push('SimilarStatementSubmitter')
+}
 
 initialize(components, stores, apiStores)

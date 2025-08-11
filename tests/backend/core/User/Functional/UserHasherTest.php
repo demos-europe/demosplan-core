@@ -28,7 +28,7 @@ class UserHasherTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UserHasher::class);
+        $this->sut = self::getContainer()->get(UserHasher::class);
     }
 
     public function testPasswordEditHash()

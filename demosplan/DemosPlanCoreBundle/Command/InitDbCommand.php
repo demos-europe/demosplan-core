@@ -45,7 +45,7 @@ class InitDbCommand extends CoreCommand
                 'with-fixtures',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Populate the db with the given fixture group.'
+                'Populate the db with the given fixture group. ProdData or TestData',
             )
             ->addOption(
                 'create-database',

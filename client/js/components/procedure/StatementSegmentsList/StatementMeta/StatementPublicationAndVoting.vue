@@ -43,8 +43,10 @@ All rights reserved
         :has-permission-to-edit="editable && statement.attributes.isManual"
         :translation-keys="translationKeys"
         ref="listComponent"
+        @delete="id => deleteVote(id)"
         @reset="resetForm()"
-        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
+        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
+        @showUpdateForm="id => updateFormFields(id)">
         <template v-slot:list="{ entry }">
           <span
             v-if="entry.attributes.name"
@@ -81,7 +83,7 @@ All rights reserved
           <div
             data-dp-validate="newVoterForm"
             v-if="editable && statement.attributes.isManual"
-            class="space-stack-s border-t py-3">
+            class="space-stack-s border-t border-neutral py-3">
             <!-- Role -->
             <div class="flex">
               <dp-radio
@@ -176,16 +178,18 @@ All rights reserved
       </dp-editable-list>
 
       <!-- Anonymous voters -->
-      <div class="w-1/4">
+      <div class="mt-4">
+        <dp-label
+          class="mb-0.5"
+          for="numberOfAnonymVotes"
+          :text="Translator.trans('statement.voter.anonym')"
+        />
         <dp-input
           id="numberOfAnonymVotes"
+          class="w-1/12"
           v-model.number="localStatement.attributes.numberOfAnonymVotes"
-          class="mt-4"
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
-          :label="{
-            text: Translator.trans('statement.voter.anonym')
-          }"
           name="numberOfAnonymVotes"
           type="number" />
       </div>
@@ -206,6 +210,7 @@ import {
   DpButtonRow,
   DpEditableList,
   DpInput,
+  DpLabel,
   DpLoading,
   DpRadio,
   dpValidateMixin
@@ -220,6 +225,7 @@ export default {
   components: {
     DpButtonRow,
     DpEditableList,
+    DpLabel,
     DpLoading,
     DpInput,
     DpRadio,
@@ -347,6 +353,14 @@ export default {
         }
       }
       return isEmpty
+    },
+
+    deleteVote (voteId) {
+      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
+      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
+        this.removeVote(voteId)
+        this.resetForm()
+      }
     },
 
     removeVote (id) {
@@ -507,28 +521,18 @@ export default {
     setLocalValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.votes = Object.assign({}, this.votesState)
+    },
+
+    updateFormFields (id) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.votes[id].attributes[key]
+      }
     }
   },
 
   created () {
     this.setLocalValues()
     this.setInitVoters()
-  },
-
-  mounted () {
-    this.$on('showUpdateForm', (id) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.votes[id].attributes[key]
-      }
-    })
-
-    this.$on('delete', (voteId) => {
-      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
-      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
-        this.removeVote(voteId)
-        this.resetForm()
-      }
-    })
   }
 }
 </script>

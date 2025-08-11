@@ -25,7 +25,7 @@ class SaltlessMd5EncoderTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(SaltlessMd5Encoder::class);
+        $this->sut = self::getContainer()->get(SaltlessMd5Encoder::class);
     }
 
     public function testNeedsRehash()

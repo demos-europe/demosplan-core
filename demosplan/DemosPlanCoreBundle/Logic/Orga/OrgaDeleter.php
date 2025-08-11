@@ -11,14 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Orga;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 
-class OrgaDeleter extends CoreService
+class OrgaDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
@@ -32,8 +31,11 @@ class OrgaDeleter extends CoreService
      */
     public function deleteOrganisations(array $orgaIds, bool $isDryRun): void
     {
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'orga_slug', 'o_id', $orgaIds), 's_id');
         // delete orga slugs
         $this->deleteOrgaSlug($orgaIds, $isDryRun);
+
+        $this->procedureDeleter->deleteSlugs($slugsIds, $isDryRun);
 
         // delete organisations address book entry
         $this->deleteAddressBookEntry($orgaIds, $isDryRun);

@@ -15,173 +15,117 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <div class="mt-4">
-      <dp-loading
-        v-if="isLoading"
-        class="mt-4" />
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
 
-      <template v-else>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
-          <dp-search-field
-            class="h-fit mt-1 col-span-1 sm:col-span-3"
-            data-cy="institutionList:searchField"
-            input-width="u-1-of-1"
-            @reset="handleReset"
-            @search="val => handleSearch(val)" />
+    <template v-else>
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
+        <dp-search-field
+          class="h-fit mt-1 col-span-1 sm:col-span-3"
+          data-cy="institutionList:searchField"
+          input-width="u-1-of-1"
+          ref="searchField"
+          @reset="handleReset"
+          @search="val => handleSearch(val)" />
 
-          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
-            <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
-              <dp-flyout
-                align="left"
-                :aria-label="Translator.trans('filters.more')"
-                class="bg-surface-medium rounded pb-1 pt-[4px]"
-                data-cy="institutionList:filterCategories">
-                <template v-slot:trigger>
-                  <span :title="Translator.trans('filters.more')">
-                    <dp-icon
-                      aria-hidden="true"
-                      class="inline"
-                      icon="faders" />
-                  </span>
-                </template>
-                <!-- 'More filters' flyout -->
-                <div>
-                  <button
-                    class="btn--blank o-link--default ml-auto"
-                    data-cy="institutionList:toggleAllFilterCategories"
-                    v-text="Translator.trans('toggle_all')"
-                    @click="toggleAllSelectedFilterCategories" />
-                  <div v-if="!isLoading">
-                    <dp-checkbox
-                      v-for="category in allFilterCategories"
-                      :key="category.id"
-                      :id="`filterCategorySelect:${category.label}`"
-                      :checked="selectedFilterCategories.includes(category.label)"
-                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
-                      :disabled="checkIfDisabled(category.id)"
-                      :label="{
-                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
-                      }"
-                      @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
-                  </div>
-                </div>
-              </dp-flyout>
-            </div>
+        <client-side-tag-filter
+          v-if="hasPermission('feature_institution_tag_read')"
+          :filter-categories="allFilterCategories"
+          :raw-items="institutionList"
+          :search-applied="isSearchApplied"
+          @items-filtered="filteredItems = $event"
+          @reset="resetSearch" />
+      </div>
 
-            <filter-flyout
-              v-for="category in filterCategoriesToBeDisplayed"
-              :key="`filter_${category.label}`"
-              ref="filterFlyout"
-              :category="{ id: category.id, label: category.label }"
-              class="inline-block"
-              :data-cy="`institutionListFilter:${category.label}`"
-              :initial-query-ids="queryIds"
-              :member-of="category.memberOf"
-              :operator="category.comparisonOperator"
-              :path="category.rootPath"
-              @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
-              @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
-          </div>
+      <div class="flex justify-end mt-4">
+        <dp-column-selector
+          data-cy="institutionList:selectableColumns"
+          :initial-selection="initiallySelectedColumns"
+          local-storage-key="institutionList"
+          :selectable-columns="selectableColumns"
+          use-local-storage
+          @selection-changed="setCurrentlySelectedColumns" />
+      </div>
 
-          <dp-button
-            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-            data-cy="institutionList:resetFilter"
-            :disabled="!isQueryApplied"
-            :text="Translator.trans('reset')"
-            variant="outline"
-            v-tooltip="Translator.trans('search.filter.reset')"
-            @click="resetQuery" />
-        </div>
-
-        <div class="flex justify-end mt-4">
-          <dp-column-selector
-            data-cy="institutionList:selectableColumns"
-            :initial-selection="initiallySelectedColumns"
-            local-storage-key="institutionList"
-            :selectable-columns="selectableColumns"
-            use-local-storage
-            @selection-changed="setCurrentlySelectedColumns" />
-        </div>
-
-        <dp-data-table
-          ref="dataTable"
-          class="mt-1 overflow-x-auto scrollbar-none"
-          data-dp-validate="tagsTable"
-          data-cy="institutionList:dataTable"
-          :header-fields="headerFields"
-          is-resizable
-          :items="institutionList"
-          track-by="id">
-          <template v-slot:name="institution">
-            <ul class="o-list max-w-12">
-              <li>
-                {{ institution.name }}
-              </li>
-              <li class="o-list__item o-hellip--nowrap">
-                {{ date(institution.createdDate) }}
-              </li>
-            </ul>
-          </template>
-          <template
-            v-for="(category, idx) in institutionTagCategoriesCopy"
-            v-slot:[category.attributes.name]="institution">
-            <dp-multiselect
-              v-if="institution.edit"
-              :key="idx"
-              v-model="editingInstitutionTags[category.id]"
-              :data-cy="`institutionList:tags${category.attributes.name}`"
-              label="name"
-              multiple
-              :options="getCategoryTags(category.id)"
-              track-by="id" />
-            <div
-              v-else
-              :key="`tags:${idx}`"
-              v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
-          </template>
-          <template v-slot:action="institution">
-            <div class="float-right">
-              <template v-if="institution.edit">
-                <button
-                  :aria-label="Translator.trans('save')"
-                  class="btn--blank o-link--default mr-1"
-                  data-cy="institutionList:saveTag"
-                  @click="addTagsToInstitution(institution.id)">
-                  <dp-icon
-                    icon="check"
-                    aria-hidden="true" />
-                </button>
-                <button
-                  :aria-label="Translator.trans('abort')"
-                  class="btn--blank o-link--default"
-                  data-cy="institutionList:abortTag"
-                  @click="abortEdit()">
-                  <dp-icon
-                    icon="xmark"
-                    aria-hidden="true" />
-                </button>
-              </template>
+      <dp-data-table
+        ref="dataTable"
+        class="mt-1 overflow-x-auto scrollbar-none"
+        data-dp-validate="tagsTable"
+        data-cy="institutionList:dataTable"
+        :header-fields="headerFields"
+        is-resizable
+        :items="filteredItems || institutionList"
+        track-by="id">
+        <template v-slot:name="institution">
+          <ul class="o-list max-w-12">
+            <li>
+              {{ institution.name }}
+            </li>
+            <li class="o-list__item o-hellip--nowrap">
+              {{ date(institution.createdDate) }}
+            </li>
+          </ul>
+        </template>
+        <template
+          v-for="(category, idx) in institutionTagCategoriesCopy"
+          v-slot:[category.attributes.name]="institution">
+          <dp-multiselect
+            v-if="institution.edit"
+            :key="idx"
+            v-model="editingInstitutionTags[category.id]"
+            :data-cy="`institutionList:tags${category.attributes.name}`"
+            label="name"
+            multiple
+            :options="getCategoryTags(category.id)"
+            track-by="id" />
+          <div
+            v-else
+            :key="`tags:${idx}`"
+            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
+        </template>
+        <template v-slot:action="institution">
+          <div class="float-right">
+            <template v-if="institution.edit">
               <button
-                v-else
-                :aria-label="Translator.trans('item.edit')"
-                class="btn--blank o-link--default"
-                data-cy="institutionList:editTag"
-                @click="editInstitution(institution.id)">
+                :aria-label="Translator.trans('save')"
+                class="btn--blank o-link--default mr-1"
+                data-cy="institutionList:saveTag"
+                @click="addTagsToInstitution(institution.id)">
                 <dp-icon
-                  icon="edit"
+                  icon="check"
                   aria-hidden="true" />
               </button>
-            </div>
-          </template>
-        </dp-data-table>
+              <button
+                :aria-label="Translator.trans('abort')"
+                class="btn--blank o-link--default"
+                data-cy="institutionList:abortTag"
+                @click="abortEdit()">
+                <dp-icon
+                  icon="xmark"
+                  aria-hidden="true" />
+              </button>
+            </template>
+            <button
+              v-else
+              :aria-label="Translator.trans('item.edit')"
+              class="btn--blank o-link--default"
+              data-cy="institutionList:editTag"
+              @click="editInstitution(institution.id)">
+              <dp-icon
+                icon="edit"
+                aria-hidden="true" />
+            </button>
+          </div>
+        </template>
+      </dp-data-table>
 
-        <div
-          ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
-          <div />
-        </div>
-      </template>
-    </div>
+      <div
+        ref="scrollBar"
+        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+        <div />
+      </div>
+    </template>
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
@@ -195,11 +139,8 @@
 
 <script>
 import {
-  DpButton,
-  DpCheckbox,
   DpColumnSelector,
   DpDataTable,
-  DpFlyout,
   DpIcon,
   DpInlineNotification,
   DpLoading,
@@ -208,26 +149,23 @@ import {
   DpSlidingPagination,
   formatDate
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
   name: 'InstitutionList',
 
   components: {
-    DpButton,
-    DpCheckbox,
+    ClientSideTagFilter,
     DpColumnSelector,
     DpDataTable,
-    DpMultiselect,
-    DpFlyout,
     DpIcon,
+    DpMultiselect,
     DpInlineNotification,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination,
-    FilterFlyout
+    DpSlidingPagination
   },
 
   mixins: [tableScrollbarMixin],
@@ -242,14 +180,12 @@ export default {
 
   data () {
     return {
-      appliedFilterQuery: {},
       currentlySelectedColumns: [],
-      currentlySelectedFilterCategories: [],
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
+      filteredItems: null,
       initiallySelectedColumns: [],
-      initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
       searchTerm: ''
@@ -257,10 +193,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
-    }),
-
     ...mapState('InstitutionTag', {
       institutionTagList: 'items'
     }),
@@ -276,21 +208,21 @@ export default {
     }),
 
     allFilterCategories () {
-      return this.institutionTagCategoriesValues.reduce((acc, category) => {
-        const { id, attributes } = category
-        const groupKey = `${id}_group`
+      return (Object.values(this.institutionTagCategoriesCopy) || [])
+        .filter(category => category && category.id && category.attributes)
+        .map(category => {
+          const { id, attributes } = category
+          const groupKey = `${id}_group`
 
-        acc[id] = {
-          id,
-          comparisonOperator: 'ARRAY_CONTAINS_VALUE',
-          label: attributes.name,
-          rootPath: 'assignedTags',
-          selected: false,
-          memberOf: groupKey
-        }
-
-        return acc
-      }, {})
+          return {
+            id,
+            comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+            label: attributes.name,
+            rootPath: 'assignedTags',
+            selected: false,
+            memberOf: groupKey
+          }
+        })
     },
 
     categoryFieldsAvailable () {
@@ -298,10 +230,6 @@ export default {
         field: category.attributes.name,
         label: category.attributes.name
       }))
-    },
-
-    filterCategoriesToBeDisplayed () {
-      return Object.values(this.allFilterCategories).filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     headerFields () {
@@ -317,13 +245,6 @@ export default {
       }
 
       return [institutionField, ...categoryFields, actionField]
-    },
-
-    isQueryApplied () {
-      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
-      const isSearchApplied = this.searchTerm !== ''
-
-      return isFilterApplied || isSearchApplied
     },
 
     institutionList () {
@@ -354,23 +275,12 @@ export default {
         .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
-    queryIds () {
-      let ids = []
-      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
-
-      if (isFilterApplied) {
-        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
-      }
-
-      return ids
+    isSearchApplied () {
+      return this.searchTerm !== ''
     },
 
     selectableColumns () {
       return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
-    },
-
-    selectedFilterCategories () {
-      return this.currentlySelectedFilterCategories
     },
 
     tagList () {
@@ -395,10 +305,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
-    ]),
-
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
     }),
@@ -407,12 +313,6 @@ export default {
       fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
       restoreInstitutionFromInitial: 'restoreFromInitial'
-    }),
-
-    ...mapMutations('FilterFlyout', {
-      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
-      setIsFilterFlyoutLoading: 'setIsLoading',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     ...mapMutations('InvitableInstitution', {
@@ -445,7 +345,9 @@ export default {
       })
 
       this.saveInvitableInstitution(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
         .catch(err => {
           this.restoreInstitutionFromInitial(id)
           console.error(err)
@@ -456,60 +358,10 @@ export default {
     },
 
     /**
-     * Set appliedFilterQuery and request filtered institutions
-     * @param filter {Object} Object of objects as expected by json api, i.e.
-     * {
-     *    [id]: {
-     *      condition: {
-     *        path: <string>,
-     *        value: <string>
-     *      }
-     *    }
-     * }
-     * @param categoryId {String}
+     * Format date for display
+     * @param {string} d - Date string to format
+     * @returns {string} Formatted date
      */
-    applyFilterQuery (filter, categoryId) {
-      this.setAppliedFilterQuery(filter)
-      this.setFilterQueryInLocalStorage('filterQuery', JSON.stringify(this.filterQuery))
-      this.getInstitutionsByPage(1, categoryId)
-    },
-
-    checkIfDisabled (categoryId) {
-      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
-    },
-
-    getSelectedOptionsCount (categoryId) {
-      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
-    },
-
-    createFilterOptions (params) {
-      const { categoryId, isInitialWithQuery } = params
-      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
-      const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
-
-      if (Object.keys(filterOptions).length > 0) {
-        filterOptions = Object.values(filterOptions).map(option => {
-          const { id, attributes } = option
-          const { name } = attributes
-          const selected = selectedFilterOptionIds.includes(id)
-
-          return {
-            id,
-            label: name,
-            selected
-          }
-        })
-      }
-
-      this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
-      this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-
-      if (isInitialWithQuery) {
-        this.setFilterOptionsFromFilterQuery()
-      }
-    },
-
     date (d) {
       return formatDate(d)
     },
@@ -522,7 +374,10 @@ export default {
       // Initialize editingInstitutionTags with categoryId
       this.institutionTagCategoriesValues.forEach(category => {
         if (!this.editingInstitutionTags[category.id]) {
-          this.$set(this.editingInstitutionTags, category.id, [])
+          this.editingInstitutionTags = {
+            ...this.editingInstitutionTags,
+            [category.id]: []
+          }
         }
       })
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
@@ -542,7 +397,7 @@ export default {
       })
     },
 
-    getInstitutionsByPage (page, categoryId = null) {
+    getInstitutionsByPage (page) {
       const args = {
         page: {
           number: page,
@@ -578,19 +433,7 @@ export default {
         ].join()
       }
 
-      if (Object.keys(this.filterQuery).length > 0) {
-        args.filter = {
-          ...args.filter,
-          ...this.filterQuery
-        }
-      }
-
       return this.fetchInvitableInstitution(args)
-        .then(() => {
-          if (categoryId) {
-            this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-          }
-        })
         .catch(err => {
           console.error(err)
         })
@@ -622,25 +465,11 @@ export default {
 
           if (isInitial) {
             this.setInitiallySelectedColumns()
-            this.setInitiallySelectedFilterCategories()
-            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
           }
         })
         .catch(err => {
           console.error(err)
         })
-    },
-
-    getFilterQueryFromLocalStorage () {
-      const filterQueryInStorage = localStorage.getItem('filterQuery')
-
-      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
-    },
-
-    getInitiallySelectedFilterCategoriesFromLocalStorage () {
-      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
-
-      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
     },
 
     getTagById (tagId) {
@@ -653,18 +482,12 @@ export default {
         .map(el => el.name)
     },
 
-    handleChange (filterCategoryName, isSelected) {
-      this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
-      this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
-    },
-
     handleReset () {
       this.searchTerm = ''
       this.getInstitutionsByPage(1)
     },
 
     handleSearch (searchTerm) {
-      this.isLoading = true
       this.searchTerm = searchTerm
 
       this.getInstitutionsByPage(1)
@@ -673,69 +496,8 @@ export default {
         })
     },
 
-    resetFilterQueryInLocalStorage () {
-      localStorage.setItem('filterQuery', JSON.stringify({}))
-    },
-
-    resetQuery () {
-      this.searchTerm = ''
-      Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
-        const filterFlyoutComponentExists = typeof this.$refs.filterFlyout[idx] !== 'undefined'
-        const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-
-        if (filterFlyoutComponentExists) {
-          this.$refs.filterFlyout[idx].reset()
-          const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
-
-          if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
-            const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-            const payload = selectedFilterOptions.reduce((acc, el) => {
-              acc[el.condition.value] = el
-
-              return acc
-            }, {})
-
-            this.updateFilterQuery(payload)
-          }
-        }
-      })
-
-      this.resetFilterQueryInLocalStorage()
-      this.appliedFilterQuery = {}
-      this.getInstitutionsByPage(1)
-    },
-
-    /**
-     *
-     * @param filter {Object} Object of filter objects as expected by json api, i.e.
-     * {
-     *    [id]: {
-     *      condition: {
-     *        path: <string>,
-     *        value: <string>
-     *      }
-     *    }
-     * }
-     */
-    setAppliedFilterQuery (filter) {
-      // Remove groups from filter
-      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
-      const isReset = Object.keys(selectedFilterOptions).length === 0
-      const isAppliedFilterQueryEmpty = Object.keys(this.appliedFilterQuery).length === 0
-
-      if (!isReset && isAppliedFilterQueryEmpty) {
-        Object.values(selectedFilterOptions).forEach(option => {
-          this.$set(this.appliedFilterQuery, option.condition.value, option)
-        })
-      } else if (isReset) {
-        const filtersWithConditions = Object.fromEntries(
-          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
-        )
-
-        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
-      } else {
-        this.appliedFilterQuery = selectedFilterOptions
-      }
+    resetSearch () {
+      this.$refs.searchField.handleReset()
     },
 
     separateByCommas (institutionTags) {
@@ -754,113 +516,14 @@ export default {
       this.currentlySelectedColumns = selectedColumns
     },
 
-    setCurrentlySelectedFilterCategories (selectedCategories) {
-      this.currentlySelectedFilterCategories = selectedCategories
-    },
-
-    setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
-      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
-        .filter(id => id.includes('_group'))
-        .map(id => id.replace('_group', ''))
-
-      categoryIdsWithSelectedFilterOptions.forEach(id => {
-        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
-          .filter(el => el.condition?.memberOf === `${id}_group`)
-          .map(el => el.condition.value)
-
-        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
-      })
-    },
-
-    /**
-     * Sets appliedFilterQuery if a filterQuery is stored in localStorage
-     * appliedFilterQuery is then used to create querIds
-     * queryIds are passed as initialQueryIds to FilterFlyout
-     * on mounted of the FilterFlyout, the filterOptions are then requested and created
-     * The selected filter option ids are written to the store
-     * the watcher in FilterFlyout is triggered and updates the currentQuery
-     * with the selected filter option ids from localStorage
-     */
-    setAppliedFilterQueryFromStorage () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
-
-      this.setAppliedFilterQuery(filterQueryFromStorage)
-    },
-
-    setFilterQueryFromStorage () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
-      const filterIds = Object.keys(filterQueryFromStorage)
-
-      if (filterIds.length > 0) {
-        filterIds.forEach(id => {
-          const payload = { [id]: filterQueryFromStorage[id] }
-
-          if (filterQueryFromStorage[id].condition) {
-            this.updateFilterQuery(payload)
-          }
-        })
-      }
-    },
-
-    setFilterQueryInLocalStorage () {
-      localStorage.setItem('filterQuery', JSON.stringify(this.filterQuery))
-    },
-
     setInitiallySelectedColumns () {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
-    },
-
-    setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
-      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
-    },
-
-    setInitiallySelectedFilterCategories () {
-      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
-
-      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
-    },
-
-    toggleAllSelectedFilterCategories () {
-      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
-      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
-      const categoriesWithSelectedOptions = []
-
-      selectedFilterOptions.forEach(option => {
-        const categoryId = option.condition.memberOf.replace('_group', '')
-        const category = this.allFilterCategories[categoryId]
-
-        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
-          categoriesWithSelectedOptions.push(category.label)
-        }
-      })
-
-      this.currentlySelectedFilterCategories = allSelected
-        ? categoriesWithSelectedOptions
-        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
-    },
-
-    /**
-     * Adds or removes a single fliterCategory to/from currentlySelectedFilterCategories
-     * @param filterCategoryName {String}
-     * @param isSelected {Boolean}
-     */
-    updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
-      if (isSelected) {
-        this.currentlySelectedFilterCategories.push(filterCategoryName)
-      } else {
-        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
-      }
     }
   },
 
   mounted () {
-    this.isLoading = true
-    this.setFilterQueryFromStorage()
-    this.setAppliedFilterQueryFromStorage()
-
     const promises = [
       this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true)

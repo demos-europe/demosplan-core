@@ -31,13 +31,13 @@
         v-for="role in roles"
         :key="role.value">
         <input
-          type="radio"
-          :data-cy="`roleInput-${role.dataCy}`"
           name="r_role"
-          :value="role.value"
-          @change="() => $emit('role-changed', currentRole)"
+          type="radio"
+          v-model="currentRole"
+          :data-cy="`roleInput:${role.dataCy}`"
           :id="`r_role_${role.value}`"
-          v-model="currentRole"><!--
+          :value="role.value"
+          @change="() => $emit('role-changed', currentRole)"><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">
@@ -142,6 +142,7 @@
       <dp-input
         v-for="(element, index) in generalElements(idx)"
         v-bind="element"
+        v-model="submitterData[element.field]"
         class="layout__item u-1-of-2 u-mb-0_75"
         :key="`${element.id}_${index}`" />
     </div>
@@ -430,7 +431,7 @@ export default {
           return
         }
 
-        this.submitterData = this.submitter.submitter
+        this.submitterData = { ...this.submitter.submitter }
       },
       deep: true
     }
@@ -519,7 +520,8 @@ export default {
             required: isRequiredInFormDefinition,
             type: curr.type,
             width: curr.width,
-            dataCy: curr.dataCy
+            dataCy: curr.dataCy,
+            field: curr.field
           })
         }
         return acc

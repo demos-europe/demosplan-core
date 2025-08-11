@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -198,6 +199,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $user = $this->userHandler->changeEmailValidate($user, $key);
 
             if ($user instanceof User) {
+                // Invalidate the token to prevent reuse by setting lastLogin to current time
+                $user->setLastLogin(new DateTime());
+                // Save the user through the user service
+                $this->userService->updateUserObject($user);
                 $this->getMessageBag()->add('confirm', 'confirm.email.changed', ['emailAddress' => $user->getEmail()]);
 
                 return $this->redirectToRoute('DemosPlan_user_portal');
@@ -224,7 +229,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $requestPost = $request->request;
 
         if ($requestPost->has('email')) {
-            $email = $requestPost->get('email');
+            $email = $requestPost->get('email', '');
             if (is_string($email)) {
                 // avoid brute force attacks
                 $limiter = $userRegisterLimiter->create($request->getClientIp());
@@ -353,11 +358,14 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $useIdp = true;
         }
 
+        $useAzureSso = $parameterBag->get('azure_sso_enabled');
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
                 'useIdp'          => $useIdp,
+                'useAzureSso'     => $useAzureSso,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
@@ -373,7 +381,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Logout via security system.
      */
-    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
+    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout', options: ['expose' => true])]
     public function logoutAction(): void
     {
         // special cases are handled by the LogoutSubscriber
@@ -468,6 +476,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
             $userService->changePassword($uId, '', $newPassword, false);
             $this->userHandler->setAccessConfirmed($user);
+
+            // Invalidate the token to prevent reuse by setting lastLogin to current time
+            $user->setLastLogin(new DateTime());
+            $this->userService->updateUserObject($user);
 
             $this->messageBag->add('confirm', 'user.password.set');
 

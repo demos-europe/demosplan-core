@@ -45,29 +45,44 @@
 
       <header
         v-if="loggedIn === false && showHeader"
+        :class="prefixClass('c-statement__header mb-2')"
         role="banner"
-        :class="prefixClass('c-statement__header u-mb-0_5')">
-        <dp-multistep-nav
-          :active-step="step"
-          :class="prefixClass('pb-0')"
-          :steps="[{
-            label: Translator.trans('statement.yours'),
-            icon: commentingIcon,
-            title: Translator.trans('statement.modal.step.write')
-          }, {
-            label: Translator.trans('personal.data'),
-            icon: 'fa-user',
-            title: Translator.trans('statement.modal.step.personal.data')
-          }, {
-            label: Translator.trans('recheck'),
-            icon: 'fa-check',
-            title: Translator.trans('statement.modal.step.recheck')
-          }]"
-          @change-step="val => step = val" />
+      >
+        <!-- Desktop -->
+        <div :class="prefixClass('c-statement__formnav tablet-desktop')">
+          <dp-multistep-nav
+            :active-step="step"
+            :class="prefixClass('pb-0')"
+            :steps="stepsData"
+            @change-step="val => step = val" />
+        </div>
+
+        <!-- Mobile -->
+        <div :class="prefixClass('c-statement__formnav mobile')">
+          <div :class="prefixClass('mb-0.5 text-muted')">
+            Schritt {{ step + 1 }} von {{ stepsData.length }}
+          </div>
+
+          <div :class="prefixClass('mb-3 flex items-center gap-2')">
+            <i
+              v-if="stepsData[step].icon"
+              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
+              aria-hidden="true" />
+            <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
+              {{ stepsData[step].label }}
+            </h3>
+          </div>
+
+          <dp-progress-bar
+            :class="prefixClass('p-0 pb-3 border-0')"
+            :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
+            hide-percentage
+          />
+        </div>
       </header>
 
       <dp-inline-notification
-        :class="prefixClass('mt-3 mb-2')"
+        :class="prefixClass('mb-2')"
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
@@ -79,7 +94,7 @@
         data-dp-validate="statementForm">
         <dp-inline-notification
           v-if="loggedIn === false"
-          :class="prefixClass('mt-3')"
+          :class="prefixClass('mb-2')"
           type="info">
           <p
             v-if="statementFormHintStatement"
@@ -90,7 +105,7 @@
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mt-3 mb-2')"
+          :class="prefixClass('mb-2')"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
@@ -114,17 +129,18 @@
             }"
             value="0" />
           <dp-radio
-            :disabled="canNotBeNegativeReport"
-            name="r_isNegativeReport"
             id="negative_report_true"
-            data-cy="statementModal:indicationerror"
             :checked="formData.r_isNegativeReport === '1'"
-            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            data-cy="statementModal:indicationerror"
+            :disabled="canNotBeNegativeReport"
             :label="{
               hint: Translator.trans('link.title.indicationerror'),
               text: Translator.trans('indicationerror')
             }"
-            value="1" />
+            name="r_isNegativeReport"
+            value="1"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+          />
         </div>
 
         <div :class="prefixClass('c-statement__text')">
@@ -133,11 +149,9 @@
             for="statementText"
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
+            id="statementText"
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
-            hidden-input="r_text"
-            id="statementText"
-            ref="statementEditor"
             :readonly="formData.r_isNegativeReport === '1'"
             :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
@@ -145,6 +159,8 @@
               strikethrough: true
             }"
             :value="formData.r_text || ''"
+            hidden-input="r_text"
+            ref="statementEditor"
             @input="val => setStatementData({r_text: val})" />
         </div>
         <div
@@ -413,7 +429,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
+          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -421,7 +437,7 @@
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
@@ -430,7 +446,7 @@
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="statementForm"
             @click="validateStatementStep">
             {{ Translator.trans('continue.personal_data') }}
@@ -472,61 +488,92 @@
             v-cleanhtml="createErrorMessage('submitterForm')" />
         </div>
 
+        <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
-          aria-required="true"
+          v-if="allowAnonymousStatements"
+          id="personalInfoFieldset"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
-          id="personalInfoFieldset"
+          aria-required="true"
           role="radiogroup"
-          required>
+          required
+        >
           <div
-            aria-live="polite"
-            aria-relevant="all"
             :class="[
               formData.r_useName === '1' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]"
-            aria-labelledby="statement-detail-post-publicly">
+            aria-labelledby="statement-detail-post-publicly"
+            aria-live="polite"
+            aria-relevant="all"
+          >
             <dp-radio
+              id="r_useName_1"
               :checked="formData.r_useName === '1'"
               :class="prefixClass('mb-1')"
-              data-cy="submitPublicly"
-              id="r_useName_1"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
               }"
+              data-cy="submitPublicly"
               name="r_useName"
               value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})" />
+              @change="val => setPrivacyPreference({r_useName: '1'})"
+            />
+
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
               <component
                 v-for="formDefinition in personalDataFormDefinitions"
-                :is="formDefinition.component"
-                :draft-statement-id="draftStatementId"
-                :required="formDefinition.required"
-                :form-options="formOptions"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-                :key="formDefinition.key" />
+                :draft-statement-id="draftStatementId"
+                :form-options="formOptions"
+                :is="formDefinition.component"
+                :key="formDefinition.key"
+                :required="formDefinition.required"
+              />
             </div>
           </div>
+
           <div
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]">
             <dp-radio
-              aria-labelledby="statement-detail-post-anonymously"
-              :checked="formData.r_useName === '0'"
-              data-cy="submitAnonymously"
               id="r_useName_0"
+              :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
+              aria-labelledby="statement-detail-post-anonymously"
+              data-cy="submitAnonymously"
               name="r_useName"
               value="0"
-              @change="val => setPrivacyPreference({r_useName: '0'})" />
+              @change="val => setPrivacyPreference({r_useName: '0'})"
+            />
+          </div>
+        </fieldset>
+
+        <!-- Show the form directly if anonymous statements are not allowed -->
+        <fieldset
+          v-else
+          id="personalInfoFieldset"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-4')"
+          aria-required="true"
+        >
+          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <div :class="prefixClass('layout mb-3')">
+            <component
+              v-for="formDefinition in personalDataFormDefinitions"
+              :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+              :draft-statement-id="draftStatementId"
+              :form-options="formOptions"
+              :is="formDefinition.component"
+              :key="formDefinition.key"
+              :required="formDefinition.required"
+            />
           </div>
         </fieldset>
 
@@ -535,14 +582,25 @@
           :is="formDefinition.component"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text-right mt-3')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToStatement"
             type="button"
+            @click="goToPreviousStep"
+          >
+            {{ Translator.trans('go.back.to.statement') }}
+          </button>
+
+          <button
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             data-cy="submitterForm"
-            :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
-            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
+            type="button"
+            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)"
+          >
             {{ Translator.trans('continue.submission') }}
           </button>
         </div>
@@ -554,6 +612,7 @@
         data-dp-validate="recheckForm">
         <statement-modal-recheck
           @edit-input="handleEditInput"
+          :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
@@ -601,17 +660,26 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('text-right')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
+          <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToPersonalData"
+            type="button"
+            @click.prevent="goToPreviousStep">
+            {{ Translator.trans('go.back.to.personal.data') }}
+          </button>
+
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
-            type="button"
-            data-cy="sendStatementNow"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary')"
-            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
+            data-cy="sendStatementNow"
+            type="button"
+            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))"
+          >
             {{ Translator.trans('statement.submit.now') }}
           </button>
         </div>
@@ -676,7 +744,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -686,6 +753,7 @@ import {
   DpLoading,
   DpModal,
   DpMultistepNav,
+  DpProgressBar,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
@@ -733,6 +801,7 @@ export default {
     DpLoading,
     DpModal,
     DpMultistepNav,
+    DpProgressBar,
     DpRadio,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -762,6 +831,12 @@ export default {
   mixins: [dpValidateMixin, prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     counties: {
       type: Array,
       required: false,
@@ -845,6 +920,12 @@ export default {
     },
 
     publicParticipationPublicationEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
       default: false
@@ -1005,6 +1086,22 @@ export default {
       return this.feedbackFormFields.map(el => {
         return { ...el, ...this.availableFormComponents[el.name] }
       })
+    },
+
+    stepsData () {
+      return [{
+        label: Translator.trans('statement.yours'),
+        icon: this.commentingIcon,
+        title: Translator.trans('statement.modal.step.write')
+      }, {
+        label: Translator.trans('personal.data'),
+        icon: 'fa-user',
+        title: Translator.trans('statement.modal.step.personal.data')
+      }, {
+        label: Translator.trans('recheck'),
+        icon: 'fa-check',
+        title: Translator.trans('statement.modal.step.recheck')
+      }]
     }
   },
 
@@ -1075,8 +1172,7 @@ export default {
         method: 'GET',
         url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
       })
-        .then(checkResponse)
-        .then(data => {
+        .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
 
           if (draftExists === false) {
@@ -1104,6 +1200,12 @@ export default {
             this.toggleModal(false)
           }
         })
+    },
+
+    goToPreviousStep () {
+      if (this.step > 0) {
+        this.step -= 1
+      }
     },
 
     /*
@@ -1550,6 +1652,10 @@ export default {
   },
 
   mounted () {
+    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
+      this.setPrivacyPreference({ r_useName: '1' })
+    }
+
     // Set data from map
     this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
       this.setStatementData(data)
