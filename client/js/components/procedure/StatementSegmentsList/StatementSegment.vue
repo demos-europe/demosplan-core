@@ -399,7 +399,6 @@
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBadge,
@@ -712,7 +711,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
@@ -877,6 +875,8 @@ export default {
         }
       }
 
+      this.removeComments(updatedSegment.relationships)
+
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id
@@ -899,7 +899,6 @@ export default {
         : { id: this.segment.id }
 
       this.saveSegmentAction(savePayload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
@@ -1050,7 +1049,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.isFullscreen = false
           this.isEditing = false

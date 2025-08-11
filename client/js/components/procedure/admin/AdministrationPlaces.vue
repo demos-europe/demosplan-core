@@ -150,7 +150,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpButtonRow,
@@ -288,8 +287,8 @@ export default {
         },
         sort: 'sortIndex'
       }))
-        .then(response => {
-          const places = response.data.data
+        .then(({ data }) => {
+          const places = data.data
 
           places.forEach((place) => {
             this.places.push({
@@ -398,15 +397,13 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
-        .then(checkResponse)
-        .catch((err) => console.error(err))
-        .finally(response => {
-          if (response?.errors?.length > 0) {
-            return
-          }
+        .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
           this.setEditMode(rowData.id, false)
           this.updatePlaceData(rowData.id)
+        })
+        .catch(err => {
+          console.error(err)
         })
     },
 
