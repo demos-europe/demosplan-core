@@ -113,6 +113,21 @@
 }
 
 
+/*Suche*/
+.cv-statement-list .bx--search .bx--search-input {
+    border: none !important;
+}
+
+.cv-export-btn,
+.cv-add-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.75rem 1rem !important;
+  gap: 2rem !important;
+}
+
+
 
 
 
