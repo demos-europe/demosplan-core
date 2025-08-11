@@ -643,10 +643,10 @@ feature_admin_export_procedure:
     label: 'Is export of procedures allowed in general.'
     loginRequired: true
     parent: feature_admin
-feature_admin_export_original_statement_csv:
+feature_admin_export_original_statement:
     expose: true
-    label: 'Export Original Statements as CSV'
-    description: 'Export Original Statements as CSV in the detail view of a procedure.'
+    label: 'Export Original Statements in any format'
+    description: 'Export Original Statements in the detail view of a procedure.'
     loginRequired: true
     parent: feature_admin
 feature_admin_export_procedure_in_detail_view:
@@ -718,6 +718,12 @@ feature_assign_system_roles:
     label: 'Vergebe Systemrollen wie Support, Redakteur etc. an User'
     loginRequired: true
     parent: feature_assign_roles
+feature_auto_logout_warning:
+    description: |
+        A notification is enabled, reminding the user of the log out that is going to happen automatically in time.
+    expose: true
+    label: 'Remind the user of the upcoming automatic log out'
+    loginRequired: true
 feature_auto_switch_element_state:
     description: |
         The FP can pick a date and time on which the state of the element will be switched.
@@ -901,6 +907,10 @@ feature_export_protocol:
     label: 'Exportieren des Verfahrensprotokolls'
     loginRequired: true
     parent: area_admin_protocol
+feature_feedback_on_statement_controllable:
+    description: 'Enables the user to control whether feedback on statements is enabled or not.'
+    label: 'Control feedback on statements'
+    loginRequired: true
 feature_forum_dev_release_edit:
     description: 'Enables an user to edit the release entries in the development forum, which is sort of an parent entry for user-story discussions'
     label: 'edit release entry in development forum section'
@@ -1211,6 +1221,13 @@ feature_map_layer_legend_file:
     expose: true
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
+    parent: area_map_participation_area
+feature_map_layer_preview:
+    description: |-
+        Enable a preview for layer selection of external WMS services as an admin.
+    expose: true
+    label: 'Enables WMS layer preview during selection'
+    loginRequired: true
     parent: area_map_participation_area
 feature_map_max_extent:
     description: |-
@@ -2942,6 +2959,11 @@ field_statement_votes:
     label: 'Vote for statement (as a citizen)'
     loginRequired: true
     parent: field_statement
+field_submit_anonymous_statements:
+    description: 'Allow anonymous statements to be submitted in the public view.'
+    label: 'Allow anonymous statements'
+    loginRequired: true
+    expose: true
 field_vote_advice_docx:
     description: 'Show Abwägungsvorschlag (vote advice) in all docx exports'
     label: 'Show the vote advice (the short, predefined text, not the editable one) in the Docx exports'

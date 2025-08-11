@@ -27,9 +27,11 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -44,7 +46,7 @@ use function array_key_exists;
 /**
  * Class EntityContentChangeService.
  */
-class EntityContentChangeService extends CoreService
+class EntityContentChangeService
 {
     /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
@@ -68,6 +70,8 @@ class EntityContentChangeService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CurrentUserService $currentUserService,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -178,7 +182,7 @@ class EntityContentChangeService extends CoreService
                 );
             }
         } catch (Exception $e) {
-            $this->getLogger()->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
+            $this->logger->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
             throw $e;
         }
     }
@@ -354,7 +358,7 @@ class EntityContentChangeService extends CoreService
             );
             $this->entityContentChangeRepository->persistAndDelete($entries, []);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Unable on addEntityContentChangeEntry. ', [$e]);
+            $this->logger->warning('Unable on addEntityContentChangeEntry. ', [$e]);
             throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.');
         }
     }
@@ -438,7 +442,7 @@ class EntityContentChangeService extends CoreService
             $changedEntityField,
             $contentChange,
             $changer,
-            $this->getDoctrine()->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
+            $this->doctrine->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
             $creationDate,
             $isCustomFieldChange
         );

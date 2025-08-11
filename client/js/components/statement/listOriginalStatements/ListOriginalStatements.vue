@@ -9,14 +9,13 @@
       class="u-mt" />
 
     <template v-else>
-      <template v-if="hasPermission('feature_admin_export_original_statement_csv')">
+      <template v-if="hasPermission('feature_admin_export_original_statement')">
         <div v-if="!selectedItemsCount">
-          <dp-button
-            class="mt-4"
-            data-cy="exportCsv"
-            :text="Translator.trans('export.verb')"
-            variant="subtle"
-            @click="handleExport" />
+          <export-flyout
+            class="block mt-1"
+            csv
+            docx
+            @export="type => handleExport(type)" />
         </div>
 
         <dp-bulk-edit-header
@@ -24,11 +23,11 @@
           class="layout__item w-full mt-2"
           :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
           @reset-selection="resetSelection">
-          <dp-button
-            data-cy="exportCsv"
-            :text="Translator.trans('export.verb')"
-            variant="subtle"
-            @click="handleExport" />
+          <export-flyout
+            class="inline-block top-[-3px]"
+            csv
+            docx
+            @export="type => handleExport(type)" />
         </dp-bulk-edit-header>
       </template>
 
@@ -89,7 +88,7 @@
           v-slot:flyout="{ externId, id }">
           <dp-flyout>
             <a
-              class="u-pt-0"
+              class="block u-pt-0 leading-[2] whitespace-nowrap"
               :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
               {{ Translator.trans('statement.anonymize', { externId: externId }) }}
             </a>
@@ -265,11 +264,9 @@
 <script>
 import {
   formatDate as _formatDate,
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
-  DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
@@ -282,6 +279,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
+import ExportFlyout from './ExportFlyout'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
@@ -289,13 +287,13 @@ export default {
 
   components: {
     DpBulkEditHeader,
-    DpButton,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
     DpLoading,
     DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
-    DpPager
+    DpPager,
+    ExportFlyout
   },
 
   directives: {
@@ -351,6 +349,7 @@ export default {
           label: Translator.trans('procedure.public.phase')
         }
       ],
+      isExpanded: false,
       isLoading: false,
       pagination: {}
     }
@@ -467,7 +466,7 @@ export default {
       return selectedStatementIds
     },
 
-    handleExport () {
+    handleExport (type) {
       const payload = {
         filter: {
           sameProcedure: {
@@ -503,7 +502,11 @@ export default {
         })
       }
 
-      window.location.href = Routing.generate('dplan_original_statement_csv_export', payload)
+      const url = type === 'docx'
+        ? 'dplan_original_statement_docx_export'
+        : 'dplan_original_statement_csv_export'
+
+      window.location.href = Routing.generate(url, payload)
     },
 
     toggleIsFullTextDisplayed (originalStatementId, isFullTextDisplayed, fullText = null) {
@@ -546,7 +549,6 @@ export default {
           }
         }
       })
-        .then(response => checkResponse(response))
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
           this.allItemsCount = this.allOriginalStatementIds.length
@@ -711,7 +713,7 @@ export default {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
 
-    if (hasPermission('feature_admin_export_original_statement_csv')) {
+    if (hasPermission('feature_admin_export_original_statement')) {
       this.fetchOriginalStatementIds()
     }
   }
