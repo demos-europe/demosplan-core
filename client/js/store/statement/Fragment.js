@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
@@ -225,9 +225,8 @@ export default {
       params.append('delete', 'delete')
 
       return dpApi.post(url, params)
-        .then(checkResponse)
-        .then(response => {
-          if (response.code === 200 && response.success === true) {
+        .then(({ data }) => {
+          if (data.code === 200 && data.success === true) {
             commit('deleteFragment', { statementId, fragmentId })
             dplan.notify.notify('confirm', Translator.trans('confirm.fragment.deleted'))
             return Promise.resolve(true)
@@ -250,8 +249,7 @@ export default {
       }
 
       return dpApi.get(url)
-        .then(checkResponse)
-        .then((response) => commit('loadFragmentsToStore', { fragments: response.data, statementId: data.statementId }))
+        .then(({ data }) => commit('loadFragmentsToStore', { fragments: data.data, statementId: data.statementId }))
     },
 
     /**
@@ -310,14 +308,13 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           let updateObject = {}
           if (assigneeId === '' || assigneeId == null) {
             updateObject = { fragmentId, statementId, assignee: { id: '', name: '', orgaName: '', uId: '' } }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           } else {
-            const assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            const assignee = { id: data.data.id, uId: data.data.id, name: data.data.attributes.name, orgaName: data.data.attributes.orgaName }
             updateObject = { fragmentId, statementId, assignee }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           }
@@ -420,11 +417,10 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           const dataToUpdate = {}
-          const responseAttributes = response.data.attributes
-          const responseRelationships = response.data.relationships
+          const responseAttributes = response.data.data.attributes
+          const responseRelationships = response.data.data.relationships
 
           // If we update element/paragraph/document we have only id in data and we want to update title too so we set it as data field to get the value from response in the loop below
           if (hasOwnProp(data, 'elementId')) {
@@ -515,7 +511,7 @@ export default {
           }
 
           //  Keep id to find fragment in mutation
-          dataToUpdate.fragmentId = response.data.id
+          dataToUpdate.fragmentId = response.data.data.id
           dataToUpdate.statementId = responseRelationships.statement.data.id
 
           //  Update store

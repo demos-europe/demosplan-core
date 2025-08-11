@@ -20,16 +20,18 @@ All rights reserved
       <dp-input
         v-if="isStatementManual ? true : !editable"
         id="statementAuthoredDate"
-        class="o-form__group-item"
+        class="o-form__group-item mb-2"
         data-cy="statementEntry:authoredDate"
         disabled
         :label="{
           text: Translator.trans('statement.date.authored')
         }"
-        :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
+        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
 
       <!-- authoredDate: if not manual statement -->
-      <div v-else>
+      <div
+        v-else
+        class="mb-2">
         <dp-label
           :text="Translator.trans('statement.date.authored')"
           for="authoredDateDatepicker" />
@@ -52,7 +54,7 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.submitted')
         }"
-        :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
+        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
 
       <!-- submitDate: if not manual statement -->
       <div v-else>
@@ -81,15 +83,28 @@ All rights reserved
         :options="submitTypeOptions" />
 
       <dp-input
+        v-if="editable"
         id="statementInternId"
-        v-model="localStatement.attributes.internId"
         class="mb-2"
+        v-model="localStatement.attributes.internId"
         data-cy="statementEntry:internId"
         :disabled="!editable"
         :label="{
           text: Translator.trans('internId')
         }"
-        width="w-1/4" />
+      />
+
+      <dp-input
+        v-else
+        id="statementInternId"
+        class="mb-2"
+        :model-value="localStatement.attributes.internId || '-'"
+        data-cy="statementEntry:internId"
+        disabled
+        :label="{
+          text: Translator.trans('internId')
+        }"
+      />
 
       <template v-if="hasPermission('field_statement_phase')">
         <dp-select
@@ -134,6 +149,7 @@ import {
   DpTextArea,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapState } from 'vuex'
 export default {
   name: 'StatementEntry',
 
@@ -178,6 +194,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     availableProcedurePhases () {
       const phases = this.statement.attributes?.availableProcedurePhases || []
 
@@ -227,7 +247,26 @@ export default {
       if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
         this.syncAuthorAndSubmitter()
       }
-      this.$emit('save', this.localStatement)
+
+      // Get current statement from store (includes any relationship changes from other components)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          authoredDate: this.localStatement.attributes.authoredDate,
+          submitDate: this.localStatement.attributes.submitDate,
+          submitType: this.localStatement.attributes.submitType,
+          internId: this.localStatement.attributes.internId,
+          procedurePhase: this.localStatement.attributes.procedurePhase,
+          memo: this.localStatement.attributes.memo,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setDate (val, field) {

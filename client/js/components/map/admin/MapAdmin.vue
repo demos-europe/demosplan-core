@@ -29,6 +29,7 @@
         }" />
     </div>
     <map-view
+      v-if="mapSettingsLoaded"
       ref="mapView"
       :bounding-box="boundingBoxAsPolygon"
       class="layout__item w-1/1 u-pb"
@@ -115,7 +116,7 @@
   </div>
 </template>
 <script>
-import { checkResponse, dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import convertExtentToObject from '../map/utils/convertExtentToObject'
@@ -159,6 +160,7 @@ export default {
           strokeLineWidth: 3
         })
       },
+      mapSettingsLoaded: false,
       procedureMapSettings: {
         id: '',
         type: 'ProcedureMapSetting',
@@ -283,7 +285,6 @@ export default {
       }
 
       dpApi.patch(url, {}, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
           this.$refs.mapView.$refs.map.getMapOptions()
@@ -302,6 +303,7 @@ export default {
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
+    this.mapSettingsLoaded = true
   }
 }
 </script>

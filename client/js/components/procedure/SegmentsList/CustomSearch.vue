@@ -18,8 +18,8 @@
         <dp-flyout
           align="left"
           data-cy="customSearch:searchCustomLimitFields"
-          class="top-px right-0 absolute"
-          :has-menu="false"
+          class="top-0.5 right-0"
+          position="absolute"
           :padded="false">
           <template v-slot:trigger>
             <dp-icon
@@ -77,7 +77,6 @@
 
 <script>
 import {
-  checkResponse,
   DpCheckbox,
   DpDetails,
   DpFlyout,
@@ -204,9 +203,8 @@ export default {
      */
     setFields () {
       dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
-        .then(checkResponse)
-        .then((response) => {
-          const fields = response[0].result
+        .then(response => {
+          const fields = response.data[0].result
           // The response has to be transformed as the rpc sends the ids as keys.
           this.fields = Object.keys(fields).map((field) => {
             return {

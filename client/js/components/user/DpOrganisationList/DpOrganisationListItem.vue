@@ -55,7 +55,7 @@
         :organisation-id="organisation.id"
         @addon-update="updateAddonPayload"
         @addonOptions:loaded="setAdditionalFieldOptions"
-        @organisation-update="updateOrganisation" />
+        @organisation:update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -129,9 +129,9 @@ export default {
 
   emits: [
     'addonOptions:loaded',
-    'get-items',
+    'items:get',
     'item:selected',
-    'organisation-reset'
+    'organisation:reset'
   ],
 
   data () {
@@ -215,13 +215,13 @@ export default {
         }
       })
 
-      return addonRequest.then(checkResponse)
+      return addonRequest
     },
 
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation-reset')
+          this.$root.$emit('organisation:reset')
           this.isOpen = !this.isOpen
         })
     },
@@ -248,7 +248,6 @@ export default {
 
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*
@@ -260,7 +259,7 @@ export default {
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') === 'undefined') ||
             (typeof Object.keys(this.organisations).find(id => id === this.organisation.id) !== 'undefined' &&
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') !== 'undefined')) {
-            this.$root.$emit('get-items')
+            this.$root.$emit('items:get')
           }
         })
     },

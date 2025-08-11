@@ -1,4 +1,4 @@
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import convertExtentToFlatArray from '@DpJs/components/map/map/utils/convertExtentToFlatArray'
 
 export default {
@@ -17,7 +17,7 @@ export default {
   },
 
   actions: {
-    fetchLayers ({ commit }, procedureId) {
+    fetchLayers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'GisLayer' })
 
       const params = {
@@ -36,7 +36,6 @@ export default {
       }
 
       return dpApi.get(url, params)
-        .then(response => checkResponse(response))
     },
 
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
@@ -87,9 +86,8 @@ export default {
         }
 
         return dpApi.get(url, params)
-          .then(response => checkResponse(response))
           .then(response => {
-            const data = response.included[0].attributes
+            const data = response.data.included[0].attributes
             const defaultBoundingBox = convertExtentToFlatArray(data.defaultBoundingBox) ?? []
             const defaultMapExtent = convertExtentToFlatArray(data.defaultMapExtent) ?? []
 
@@ -108,7 +106,7 @@ export default {
                 scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
                 territory: data.territory ?? {}
               },
-              id: response.included[0].id,
+              id: response.data.included[0].id,
               type: 'ProcedureMapSetting'
             }
 
