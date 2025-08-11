@@ -272,9 +272,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
 
-            $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->setPhaseObject(new ProcedurePhase('configuration', ''));
             $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
-            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase('configuration', ''));
             $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
                 $procedureMaster->getPublicParticipationPhaseObject()
             );
@@ -800,6 +800,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             }
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
+            }
+            if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
+                $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
+            }
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
             }
             if (array_key_exists('pictogramCopyright', $data['settings'])) {
                 $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
@@ -1354,6 +1360,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
+        $now = Carbon::now()->getTimestamp();
         $query = $this->createFluentQuery();
         $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
@@ -1362,15 +1369,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['phase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['phase', 'designatedPhase'])
             ->propertyIsNotNull(['phase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['phase', 'designatedSwitchDateTimestamp']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDateTimestamp'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['publicParticipationPhase', 'designatedSwitchDateTimestamp']);
 
         return $query->getEntities();
     }

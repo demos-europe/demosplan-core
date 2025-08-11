@@ -88,7 +88,7 @@
           v-slot:flyout="{ externId, id }">
           <dp-flyout>
             <a
-              class="u-pt-0"
+              class="block u-pt-0 leading-[2] whitespace-nowrap"
               :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
               {{ Translator.trans('statement.anonymize', { externId: externId }) }}
             </a>
@@ -264,7 +264,6 @@
 <script>
 import {
   formatDate as _formatDate,
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -550,7 +549,6 @@ export default {
           }
         }
       })
-        .then(response => checkResponse(response))
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
           this.allItemsCount = this.allOriginalStatementIds.length
@@ -715,7 +713,7 @@ export default {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
 
-    if (hasPermission('feature_admin_export_original_statement_csv')) {
+    if (hasPermission('feature_admin_export_original_statement')) {
       this.fetchOriginalStatementIds()
     }
   }

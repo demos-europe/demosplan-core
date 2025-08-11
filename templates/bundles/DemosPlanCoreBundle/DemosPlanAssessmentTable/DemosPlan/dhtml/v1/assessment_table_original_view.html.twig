@@ -30,7 +30,7 @@
                 total: parseInt('{{ templateVars.totalResults|default(0) }}')
             }"
             procedure-id="{{ templateVars.table.procedure.ident }}">
-            <template v-slot:filter="{ allItemsOnPageSelected, procedureId, copyStatements, toggleExportModal }">
+            <template v-slot:filter="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId, toggleExportModal }">
                 {# filters + sorting #}
                 {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_filter.html.twig' %}
             </template>

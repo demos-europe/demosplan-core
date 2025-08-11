@@ -28,7 +28,7 @@ use Twig\Error\SyntaxError;
 /**
  * Class EntityContentChangeDisplayService.
  */
-class EntityContentChangeDisplayService extends CoreService
+class EntityContentChangeDisplayService
 {
     /** @var EntityContentChangeService */
     protected $entityContentChangeService;

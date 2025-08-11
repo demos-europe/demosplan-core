@@ -895,49 +895,62 @@ class AssessmentTableServiceOutput
     public function collectClusterOrgaOutputForExport($item)
     {
         $departments = collect([]);
-        $translator = $this->translator;
         foreach ($item['cluster'] as $clusteredStatement) {
-            if (array_key_exists('publicStatement', $clusteredStatement)
-                && Statement::EXTERNAL === $clusteredStatement['publicStatement']) {
-                // set 'Bürger'
-                $key = $translator->trans('public').': '.$translator->trans(
-                    'role.citizen'
-                );
-            } else {
-                // set OrgaName
-                $clusteredStatement['oName'] =
-                    (!array_key_exists(
-                        'oName',
-                        $clusteredStatement
-                    ) || '' == $clusteredStatement['oName']) ?
-                        $translator->trans('not.specified') :
-                        $clusteredStatement['oName'];
-
-                // set DepartmentName
-                $clusteredStatement['dName'] =
-                    (!array_key_exists(
-                        'dName',
-                        $clusteredStatement
-                    ) || '' == $clusteredStatement['dName']) ?
-                        $translator->trans('not.specified') :
-                        $clusteredStatement['dName'];
-
-                $key = $translator->trans(
-                    'institution'
-                ).': '.$clusteredStatement['oName'].', '.$clusteredStatement['dName'];
-            }
-
-            // collect usernames in departments of orgas
-            // if orga + department not already in collection:
-            if (!$departments->has($key)) {
-                $departments->put($key, collect([]));
-            }
-
-            // collect names of users under orga+department
-            $departments->get($key)->push($clusteredStatement['uName']);
+            $key = $this->generateDepartmentKey($clusteredStatement);
+            $this->addUserToDepartment($departments, $key, $clusteredStatement['uName']);
         }
 
         return $departments;
+    }
+
+    /**
+     * Generate department key for clustered statement.
+     */
+    private function generateDepartmentKey(array $clusteredStatement): string
+    {
+        if ($this->isPublicStatement($clusteredStatement)) {
+            return $this->translator->trans('public').': '.$this->translator->trans('role.citizen');
+        }
+
+        $orgaName = $this->getFieldValueOrDefault($clusteredStatement, 'oName');
+        $departmentName = $this->getFieldValueOrDefault($clusteredStatement, 'dName');
+
+        return $this->translator->trans('institution').': '.$orgaName.', '.$departmentName;
+    }
+
+    /**
+     * Check if statement is from public/citizen.
+     */
+    private function isPublicStatement(array $clusteredStatement): bool
+    {
+        return array_key_exists('publicStatement', $clusteredStatement)
+            && Statement::EXTERNAL === $clusteredStatement['publicStatement'];
+    }
+
+    /**
+     * Get field value or return default "not specified" translation.
+     */
+    private function getFieldValueOrDefault(array $clusteredStatement, string $fieldName): string
+    {
+        return (!array_key_exists($fieldName, $clusteredStatement) || '' == $clusteredStatement[$fieldName])
+            ? $this->translator->trans('not.specified')
+            : $clusteredStatement[$fieldName];
+    }
+
+    /**
+     * Add user to department collection.
+     */
+    private function addUserToDepartment(Collection $departments, string $key, string $userName): void
+    {
+        if (!$departments->has($key)) {
+            $departments->put($key, collect([]));
+        }
+
+        /** @var Collection|null $department */
+        $department = $departments->get($key);
+        if ($department instanceof Collection) {
+            $department->push($userName);
+        }
     }
 
     /**

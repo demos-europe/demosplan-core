@@ -76,7 +76,7 @@
       :procedure-id="procedureId" />
 
     <slot
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
+      v-bind="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId }"
       name="filter"
       :toggle-export-modal="toggleExportModal" />
 
@@ -129,7 +129,7 @@
           :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
-          @add-to-selection="addToSelectionAction"
+          @add-to-selection="() => addToSelectionAction({ id: statement.id})"
           @remove-from-selection="removeFromSelectionAction" />
       </tbody>
     </table>
@@ -222,7 +222,12 @@ export default {
 
     allItemsOnPageSelected () {
       return Object.keys(this.statements).length === 0 ? false : Object.keys(this.statements).every(stn => Object.keys(this.selectedElements).includes(stn))
+    },
+
+    isNoItemSelected () {
+      return Object.keys(this.selectedElements).length === 0
     }
+
   },
 
   methods: {
@@ -261,12 +266,14 @@ export default {
     },
 
     copyStatements () {
-      if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
-        this.action = 'copy'
-        this.$nextTick(() => {
-          this.$refs.bpform.submit()
-        })
+      if (!dpconfirm(Translator.trans('check.entries.marked.copy'))) {
+        return
       }
+
+      this.action = 'copy'
+      this.$nextTick(() => {
+        this.$refs.bpform.submit()
+      })
     },
 
     handlePageChange (newPage) {
