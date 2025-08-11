@@ -154,7 +154,7 @@
             class="w-12"
             :id="`customFieldSelect:${customField.id}`"
             :disabled="!hasSegments"
-            :options="customField.options"
+            :options="customField.optionLabels"
             v-model="customField.selected" />
         </action-stepper-action>
       </div>
@@ -517,6 +517,7 @@ export default {
           selected: null,
           checked: false,
           success: false,
+          optionLabels: customField.attributes.options.map((option) => option.label),
           options: customField.attributes.options,
           label: customField.attributes.name,
           id: customField.id
@@ -542,10 +543,11 @@ export default {
       }
 
       if (this.customFieldsCheckedAndSelected.length > 0) {
-        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected }) => {
+        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected, options }) => {
+          const selectedOption = options.find((option) => option.label === selected)
           return {
             id,
-            value: selected
+            value: selectedOption.id
           }
         })
       }
