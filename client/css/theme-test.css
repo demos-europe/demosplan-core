@@ -33,6 +33,15 @@
     border-top: 1px solid #e0e0e0; /* default border--top style */
 }
 
+/* Procedure Name - Original Classes */
+.dp-procedure-name {
+    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-10_25 */
+    color: #6f6f6f;
+    display: inline-block;
+    padding-top: 0.5rem;
+    margin-bottom: 10.25rem;
+}
+
 .dp-page-header {
     /* Original classes: border--bottom u-mb u-pb-0_5 flow-root */
     border-bottom: 1px solid #e0e0e0;
@@ -107,6 +116,31 @@
     line-height: 1.4;
 }
 
+/* Header Layout - All 3 elements in one row */
+.cv-statement-list .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cv-statement-list .main-title {
+    margin: 0;
+    flex: 1;
+}
+
+.cv-statement-list .cv-switch-label {
+    font-size: 1rem;
+    color: #161616;
+    font-weight: normal;
+    margin: 0 2rem;
+}
+
+/* Content Switcher Styling */
+.cv-statement-list .bx--content-switcher {
+    width: fit-content !important;
+}
+
 .cv-statement-list .bx--btn--tertiary {
     display: flex !important;
     justify-content: space-between !important;
@@ -131,7 +165,6 @@
   padding: 0.75rem 1rem !important;
   gap: 2rem !important;
 }
-
 
 
 

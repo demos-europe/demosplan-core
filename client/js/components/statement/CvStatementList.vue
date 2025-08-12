@@ -9,13 +9,32 @@ All rights reserved
 
 <template>
   <div class="cv-statement-list">
-    <h2>Stellungnahmen zum aktuellen Verfahren</h2>
+    <!-- Single Header Row with all 3 elements -->
+    <div class="header-row">
+      <h4 class="main-title">Stellungnahmen zum aktuellen Verfahren</h4>
+      <span class="cv-switch-label">Darstellung</span>
 
+      <!-- Content Switcher -->
+    <cv-content-switcher @selected="onTabSwitch">
+      <cv-content-switcher-button
+        content-selector=".statements-content"
+        :selected="activeTab === 'statements'">
+        Gesamte Stellungnahmen
+      </cv-content-switcher-button>
+      <cv-content-switcher-button
+        content-selector=".sections-content"
+        :selected="activeTab === 'sections'">
+        Aufteilung in Abschnitte
+      </cv-content-switcher-button>
+    </cv-content-switcher>
+    </div>
+
+    <!-- Tab Content -->
     <cv-data-table
+      v-if="activeTab === 'statements'"
       v-model:rows-selected="selectedRows"
       :columns="columns"
       :data="statements">
-
 
       <template #actions>
         <cv-search
@@ -35,7 +54,7 @@ All rights reserved
         </cv-button>
       </template>
 
-      <!-- DAS HIER HINZUFÜGEN für Checkboxen: -->
+      <!-- Checkboxen: -->
       <template #batch-actions>
       </template>
 
@@ -61,6 +80,11 @@ All rights reserved
         </cv-data-table-row>
       </template>
     </cv-data-table>
+
+    <!-- Sections Content -->
+    <div v-if="activeTab === 'sections'">
+      <p>Aufteilung in Abschnitte Content - Coming Soon</p>
+    </div>
   </div>
 </template>
 
@@ -71,7 +95,9 @@ import {
   CvDataTableRow,
   CvDataTableCell,
   CvSearch,
-  CvTag
+  CvTag,
+  CvContentSwitcher,
+  CvContentSwitcherButton
 } from '@carbon/vue'
 import DocumentAdd16 from '@carbon/icons-vue/es/document--add/16'
 import Export16 from '@carbon/icons-vue/es/export/16'
@@ -89,6 +115,8 @@ export default {
     CvDataTableCell,
     CvSearch,
     CvTag,
+    CvContentSwitcher,
+    CvContentSwitcherButton,
     DocumentAdd16,
     Export16,
     Filter16,
@@ -109,6 +137,7 @@ export default {
 
   data() {
     return {
+      activeTab: 'statements',
       columns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -239,6 +268,14 @@ export default {
         },
         include: ['segments'].join()
       })
+    },
+
+    onTabSwitch(selectedButton) {
+      if (selectedButton.includes('statements')) {
+        this.activeTab = 'statements'
+      } else if (selectedButton.includes('sections')) {
+        this.activeTab = 'sections'
+      }
     }
   },
 
