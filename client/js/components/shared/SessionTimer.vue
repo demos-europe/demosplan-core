@@ -59,7 +59,7 @@ export default {
     },
 
     isWarning () {
-      return this.timeLeft <= 10 * millisecondsPerMinute
+      return this.timeLeft <= 3 * millisecondsPerMinute
     },
 
     shouldShowTimer () {
@@ -92,9 +92,13 @@ export default {
     formatTimeString ({ hours, minutes, seconds }) {
       const pad = (num) => String(num).padStart(2, '0')
 
-      return hours > 0
-        ? `${ hours }:${ pad(minutes) }:${ pad(seconds) }`
-        : `${ pad(minutes) }:${ pad(seconds) }`
+      if (hours > 0) {
+        return `${ hours } h ${ pad(minutes) } min`
+      } else if (minutes >= 3) {
+        return `${ pad(minutes) } min`
+      } else {
+        return `${ pad(minutes) } min ${ pad(seconds) } sec`
+      }
     },
 
     getTimeUnits (milliseconds) {
@@ -115,8 +119,8 @@ export default {
 
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
-      this.tenMinutesThreshold = timestampInMsecs - (10 * millisecondsPerMinute)
-      this.threeMinutesThreshold = timestampInMsecs - (3 * millisecondsPerMinute)
+      this.tenMinutesThreshold = timestampInMsecs - (11 * millisecondsPerMinute) // only MIN are rendered (10 min), so warning comes at 10:59
+      this.threeMinutesThreshold = timestampInMsecs - (4 * millisecondsPerMinute)
       this.updateTimer()
       this.intervalId = setInterval(this.updateTimer, millisecondsPerSecond)
     },
