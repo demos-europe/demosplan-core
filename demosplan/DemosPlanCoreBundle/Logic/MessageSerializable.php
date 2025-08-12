@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use Stringable;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use JsonSerializable;
+use Stringable;
 
 /**
  * ViewObject for Messages.
@@ -27,6 +27,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     public function __construct(protected $severity, protected $text, protected $textParameters = [])
     {
     }
+
     /**
      * @param string $severity
      * @param string $text           #TranslationKey
@@ -38,53 +39,47 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         return new self($severity, $text, $textParameters);
     }
-    /**
-     * @return string
-     */
-    public function getSeverity()
+
+    public function getSeverity(): string
     {
         return $this->severity;
     }
+
     /**
      * @param string $severity
-     *
-     * @return MessageSerializable
      */
-    public function setSeverity($severity)
+    public function setSeverity($severity): MessageSerializableInterface
     {
         $this->severity = $severity;
 
         return $this;
     }
-    /**
-     * @return string
-     */
-    public function getText()
+
+    public function getText(): string
     {
         return $this->text;
     }
+
     /**
      * @param string $text
-     *
-     * @return MessageSerializable
      */
-    public function setText($text)
+    public function setText($text): MessageSerializableInterface
     {
         $this->text = $text;
 
         return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->text;
     }
-    /**
-     * @return array
-     */
-    public function getTextParameters()
+
+    public function getTextParameters(): array
     {
         return $this->textParameters;
     }
+
     /**
      * @param array $textParameters
      */
@@ -92,6 +87,7 @@ class MessageSerializable implements JsonSerializable, MessageSerializableInterf
     {
         $this->textParameters = $textParameters;
     }
+
     public function jsonSerialize(): array
     {
         return ['message' => $this->text, 'severity' => $this->severity];
