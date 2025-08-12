@@ -544,7 +544,8 @@ export default {
 
       if (this.customFieldsCheckedAndSelected.length > 0) {
         params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected, options }) => {
-          const selectedOption = options.find((option) => option.label === selected)
+          const selectedOption = options.find(option => option.label === selected)
+
           return {
             id,
             value: selectedOption.id
