@@ -214,7 +214,7 @@
             :key="customField.field"
             v-slot:[customField.field]="rowData">
             <div>
-              {{ getCustomFieldOptionLabel(rowData, customField) }}
+              {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
             </div>
           </template>
           <template v-slot:flyout="rowData">
@@ -714,14 +714,14 @@ export default {
         })
     },
 
-    getCustomFieldOptionLabel (rowData, selectedCustomField) {
-      const customFieldOptionId = rowData.attributes.customFields?.find(el => el.id === selectedCustomField.fieldId)?.value || ''
+    getCustomFieldOptionLabel (customFields, fieldId) {
+      const customFieldOptionId = customFields?.find(el => el.id === fieldId)?.value || ''
 
       if (customFieldOptionId === '') {
         return ''
       }
 
-      return this.customFields[selectedCustomField.fieldId].attributes.options.find((option) => option.id === customFieldOptionId).label
+      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
     getCustomFields () {
