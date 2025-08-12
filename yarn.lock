@@ -131,15 +131,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-plugin@npm:^7.25.9":
-  version: 7.27.0
-  resolution: "@babel/eslint-plugin@npm:7.27.0"
+"@babel/eslint-plugin@npm:^7.27.1":
+  version: 7.27.1
+  resolution: "@babel/eslint-plugin@npm:7.27.1"
   dependencies:
     eslint-rule-composer: "npm:^0.3.0"
   peerDependencies:
     "@babel/eslint-parser": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/1444f0a6721ebe5c490d7b45e2ef389c19e95c72e872aa149c7c42c787cb4a72f5c1852efa4ac35a23de735d83fd949411417bbb0299aa43b6252897a99c52f2
+  checksum: 10c0/b313bb01071b807940ec1cceb74fba16b4fda9ea14c19d4b8636716ac0d4ddfa09324af4c14e895121c18991e57b09d1a22b524449c17911d44b0b8f71fb8779
   languageName: node
   linkType: hard
 
@@ -13115,7 +13115,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.28.0"
     "@babel/eslint-parser": "npm:^7.28.0"
-    "@babel/eslint-plugin": "npm:^7.25.9"
+    "@babel/eslint-plugin": "npm:^7.27.1"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.27.1"
