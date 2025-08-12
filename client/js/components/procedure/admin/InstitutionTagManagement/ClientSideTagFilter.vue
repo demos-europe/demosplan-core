@@ -115,7 +115,7 @@ export default {
       type: Boolean,
       required: false,
       default: false
-    },
+    }
   },
 
   emits: [
@@ -167,7 +167,7 @@ export default {
 
     selectedFilterCategories () {
       return this.currentlySelectedFilterCategories
-    },
+    }
   },
 
   watch: {

@@ -548,7 +548,6 @@ export default {
         })
     },
 
-
     fetchCustomFields () {
       const payload = {
         id: this.procedure.id,

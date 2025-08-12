@@ -63,7 +63,7 @@
                 type="hidden"
                 :name="switchDateId"
                 :value="switchDate"
-              />
+              >
             </div><!--
          --><div class="layout__item w-1/3 pl-2">
               <dp-label
@@ -295,7 +295,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           const date = new Date(newVal)
-          
+
           if (!isNaN(date.getTime())) {
             this.startDate = this.formatDateToGerman(date)
           }
@@ -314,7 +314,7 @@ export default {
 
       if (germanDate.includes('.')) {
         const [day, month, year] = germanDate.split('.')
-        
+
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
       }
 
@@ -326,7 +326,7 @@ export default {
       const day = date.getDate().toString().padStart(2, '0')
       const month = (date.getMonth() + 1).toString().padStart(2, '0')
       const year = date.getFullYear()
-      
+
       return `${day}.${month}.${year}`
     },
 
@@ -413,7 +413,7 @@ export default {
 
       if (this.switchDate) {
         const date = new Date(this.switchDate)
-        
+
         if (!isNaN(date.getTime())) {
           this.startDate = this.formatDateToGerman(date)
         }
