@@ -34,7 +34,9 @@ All rights reserved
       v-if="activeTab === 'statements'"
       v-model:rows-selected="selectedRows"
       :columns="columns"
-      :data="statements">
+      :data="statements"
+      sortable
+      @sort="onSort">
 
       <template #actions>
         <cv-search
@@ -79,13 +81,13 @@ All rights reserved
     </cv-data-table>
 
     <cv-pagination
-      v-if="statements.length > 0 && pagination.totalPages > 1"
+      v-if="statements.length > 0"
       :page="pagination.currentPage"
       :page-sizes="[10, 25, 50, 100]"
       :page-size="pagination.perPage"
       :total-items="pagination.total"
       @change="onPaginationChange"
-      class="cv-pagination u-mt" />
+      class="cv-pagination" />
   </div>
 
 
@@ -148,7 +150,7 @@ export default {
     return {
       activeTab: 'statements',
       columns: [
-        { key: 'id', label: 'ID' },
+        { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
         { key: 'author', label: 'Einreicher*in' },
         { key: 'text', label: 'Text' },
@@ -163,6 +165,9 @@ export default {
       selectedRows: [],
       searchValue: '',
       filterActive: false,
+      searchFieldsSelected: ['text'], // Nur Text-Suche erstmal
+      sortBy: '',
+      sortDirection: ''
     }
   },
 
@@ -180,7 +185,7 @@ export default {
       }
 
       // Mapping von API-Daten zu Component-Format
-      return rawData.map(stmt => {
+      let mappedData = rawData.map(stmt => {
         // Verschiedene Wege, die Segments zu finden
         const segments = stmt.relationships?.segments?.data ||
                          stmt.relationships?.statementFragments?.data ||
@@ -195,6 +200,7 @@ export default {
 
         return {
           id: stmt.attributes?.externId || stmt.id,
+          numericId: this.extractNumericId(stmt.attributes?.externId || stmt.attributes?.internId || stmt.id),
           status: this.mapApiStatusToDisplay(stmt.attributes.status),
           statusDate: stmt.attributes.submitDate,
           author: `${stmt.attributes.authorName}\n${this.formatDate(stmt.attributes.authoredDate)}`,
@@ -202,6 +208,17 @@ export default {
           sections: segments.length > 0 ? segments.length : '-'
         }
       })
+
+      // Client-seitige numerische ID-Sortierung wenn aktiv
+      if (this.sortBy === 0 && this.sortDirection) {
+        mappedData.sort((a, b) => {
+          const aId = a.numericId
+          const bId = b.numericId
+          return this.sortDirection === 'ascending' ? aId - bId : bId - aId
+        })
+      }
+
+      return mappedData
     }
   },
 
@@ -213,11 +230,19 @@ export default {
 
     applySearch(term, page = 1) {
       console.log('applySearch called with term:', term, 'page:', page, 'size:', this.pagination.perPage)
+
+      // Prüfen ob sich der Suchbegriff geändert hat
+      const searchChanged = term !== this.searchValue
       this.searchValue = term
 
+      // Bei geändertem Suchbegriff IMMER zu Seite 1, sonst verwende angegebene Seite
+      const targetPage = searchChanged ? 1 : page
+
       this.fetchStatements({
-        page: { number: page, size: this.pagination.perPage },
-        search: { value: this.searchValue },
+        page: { number: targetPage, size: this.pagination.perPage },
+        search: {
+          value: this.searchValue
+        },
         filter: {
           procedureId: {
             condition: {
@@ -226,7 +251,7 @@ export default {
             }
           }
         },
-        sort: '-submitDate,id', // Default sort mit secondary sort für Konsistenz
+        sort: this.getSortString(), // Dynamic sort basierend auf UI-Auswahl
         include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
         fields: {
           Statement: [
@@ -293,14 +318,14 @@ export default {
     onPaginationChange(event) {
       console.log('Pagination change event:', event)
       console.log('Current pagination state:', this.pagination)
-      
+
       // Carbon Vue Pagination Format: { start, page, length }
       if (event.length !== this.pagination.perPage) {
-        // Page size changed
+        // Page size changed - zurück zu Seite 1
         this.pagination.perPage = event.length
-        this.applySearch(this.searchValue, 1) // Reset to page 1
+        this.applySearch(this.searchValue, 1)
       } else {
-        // Page changed
+        // Page changed - bei Suche bleibt Search aktiv über alle Seiten
         this.applySearch(this.searchValue, event.page)
       }
     },
@@ -317,6 +342,39 @@ export default {
         },
         include: ['segments'].join()
       })
+    },
+
+    onSort(sortBy) {
+      console.log('Sort event received:', sortBy)
+
+      // Toggle sort direction if same column, otherwise set to ascending
+      if (this.sortBy === sortBy.index) {
+        this.sortDirection = this.sortDirection === 'ascending' ? 'descending' : 'ascending'
+      } else {
+        this.sortBy = sortBy.index
+        this.sortDirection = 'ascending'
+      }
+
+      console.log('Sort state:', { sortBy: this.sortBy, direction: this.sortDirection })
+
+      // Suche mit neuer Sortierung anwenden
+      this.applySearch(this.searchValue, 1)
+    },
+
+    extractNumericId(id) {
+      // Extrahiert Zahlen aus IDs wie "M1", "M7", "M123" -> 1, 7, 123
+      const match = String(id).match(/\d+/)
+      return match ? parseInt(match[0]) : 0
+    },
+
+    getSortString() {
+      if (this.sortBy === 0 && this.sortDirection) { // ID column (index 0)
+        // Für alphanumerische IDs nutzen wir client-seitige Sortierung
+        // API-Sortierung ausschalten für diesen Fall
+        return '-submitDate,id'
+      }
+      // Default sort wenn keine ID-Sortierung aktiv
+      return '-submitDate,id'
     },
 
     onTabSwitch(selectedButton) {
