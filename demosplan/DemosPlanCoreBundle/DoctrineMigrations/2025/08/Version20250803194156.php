@@ -17,12 +17,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20250409185422 extends AbstractMigration
+class Version20250803194156 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-15442: Readjustment of procedure-customer relationship in code seems to lead to this rename, without further impact.
-        To keep the diff in sync, allow this renaming.';
+        return 'refs DPLAN-16177: Add designated_switch_date_timestamp to procedure_phase table for date comparison';
     }
 
     /**
@@ -32,12 +31,7 @@ class Version20250409185422 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $procedureTable = $schema->getTable('_procedure');
-
-        // Check if the old index exists before trying to rename it
-        if ($procedureTable->hasIndex('fk_d1a01d0281398e09')) {
-            $this->addSql('ALTER TABLE _procedure RENAME INDEX fk_d1a01d0281398e09 TO IDX_D1A01D0281398E09');
-        }
+        $this->addSql('ALTER TABLE procedure_phase ADD designated_switch_date_timestamp INT DEFAULT NULL');
     }
 
     /**
@@ -47,12 +41,7 @@ class Version20250409185422 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $procedureTable = $schema->getTable('_procedure');
-
-        // Check if the new index exists before trying to rename it back
-        if ($procedureTable->hasIndex('IDX_D1A01D0281398E09')) {
-            $this->addSql('ALTER TABLE _procedure RENAME INDEX IDX_D1A01D0281398E09 TO fk_d1a01d0281398e09');
-        }
+        $this->addSql('ALTER TABLE procedure_phase DROP designated_switch_date_timestamp');
     }
 
     /**

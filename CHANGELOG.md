@@ -5,7 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-## v4.10.0 (2025-07-30)
+## v4.10.0 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.9.1 (2025-08-07)
+- Fix time based procedure phase switch
+
 ## v4.9.0 (2025-07-30)
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements
