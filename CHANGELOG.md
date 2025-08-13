@@ -5,9 +5,11 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-## v4.10.0 (2025-08-13)
+
+## v4.10.1 (2025-08-13)
 - Display Keycloak logout countdown warning in the header and logout automatically
 
+## v4.10.0 (2025-07-30)
 ## v4.9.1 (2025-08-07)
 - Fix time based procedure phase switch
 
