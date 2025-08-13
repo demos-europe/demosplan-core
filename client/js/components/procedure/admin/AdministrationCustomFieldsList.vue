@@ -164,7 +164,7 @@ export default {
         '',
         ''
       ],
-      expandedFields: {},
+      expandedFields: {}
     }
   },
 
@@ -204,6 +204,8 @@ export default {
               open: this.expandedFields[id] || false
             }
           }
+
+          return undefined
         })
         .filter(field => field !== undefined)
     },

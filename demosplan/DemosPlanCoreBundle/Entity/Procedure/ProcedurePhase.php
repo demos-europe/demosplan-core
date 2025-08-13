@@ -52,12 +52,12 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(name="phase_key", type="string", nullable=false)
      */
-    protected string $key;
+    protected string $key = 'configuration';
 
     /**
      * Virtual Property bound on phase configuration in procedurephases.yml.
      */
-    protected string $permissionSet;
+    protected string $permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
 
     /**
      * @ORM\Column(type="string", length=25, nullable=false, options={"default":""})
@@ -129,7 +129,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Assert\Positive]
     protected int $iteration = 1;
 
-    public function __construct(string $key = 'configuration', string $step = '')
+    public function __construct(string $key, string $step)
     {
         $this->key = $key;
         $this->step = $step;
@@ -180,6 +180,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getStartDate(): DateTime
     {
+        if (!isset($this->startDate)) {
+            $this->startDate = new DateTime();
+        }
+
         return $this->startDate;
     }
 
@@ -190,6 +194,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getEndDate(): DateTime
     {
+        if (!isset($this->endDate)) {
+            $this->endDate = new DateTime();
+        }
+
         return $this->endDate;
     }
 
@@ -200,6 +208,10 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function getCreationDate(): DateTime
     {
+        if (!isset($this->creationDate)) {
+            $this->creationDate = new DateTime();
+        }
+
         return $this->creationDate;
     }
 
@@ -278,8 +290,8 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedSwitchDateTimestamp = $sourcePhase->designatedSwitchDateTimestamp;
         $this->designatedPhase = $sourcePhase->designatedPhase;
         $this->permissionSet = $sourcePhase->permissionSet;
-        $this->startDate = $sourcePhase->startDate;
-        $this->endDate = $sourcePhase->endDate;
+        $this->startDate = $sourcePhase->getStartDate();
+        $this->endDate = $sourcePhase->getEndDate();
     }
 
     public function getIteration(): int
