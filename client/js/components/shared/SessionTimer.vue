@@ -59,7 +59,7 @@ export default {
     },
 
     isWarning () {
-      return this.timeLeft <= 10 * millisecondsPerMinute
+      return this.timeLeft <= 3 * millisecondsPerMinute
     },
 
     shouldShowTimer () {
