@@ -838,7 +838,7 @@ export default {
           customFields: Object.values(this.customFieldValues).map(option => ({
             id: option.fieldId,
             value: this.getCustomFieldValueForPayload(option)
-          }))
+          })).filter(option => option.value !== 'undefined')
         }
       }
 
@@ -1130,7 +1130,7 @@ export default {
       const selectedOption = this.customFields[customFieldValue.fieldId]?.attributes.options.find(option => option.label === customFieldValue.name)
 
       // Return null for unassigned options instead of 'UNASSIGNED'
-      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption.id
+      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
     }
   },
 
