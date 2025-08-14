@@ -28,17 +28,13 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
-use EDT\JsonApi\ApiDocumentation\DefaultField;
-use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\CreationDataInterface;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Elastica\Index;
 use InvalidArgumentException;
 
@@ -205,10 +201,10 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
         $configBuilder->roles
             ->updatable([], [], function (User $user, array $newRoles): array {
-                    $this->updateRoles($user, $newRoles);
+                $this->updateRoles($user, $newRoles);
 
-                    return [];
-                }
+                return [];
+            }
             )
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
             ->readable(false, function (User $user): array {
@@ -301,7 +297,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 function (CreationDataInterface $entityData): array {
                     $attributes = $entityData->getAttributes();
                     $login = $attributes[$this->email->getAsNamesInDotNotation()];
-                    
+
                     return [$login, []];
                 }
             )
@@ -315,7 +311,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     throw new InvalidArgumentException('User is only allowed to administrate users of their own organisation.');
                 }
             }
-            
+
             $this->userRepository->persistEntities([$user]);
             $this->userHandler->inviteUser($user);
 
