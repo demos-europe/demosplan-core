@@ -50,34 +50,18 @@
     display: flow-root;
 }
 
-/* Breadcrumb: Change CSS triangle icons to slash separators */
-.o-breadcrumb li + li::before {
-    content: '/';
-    border: none;           /* remove CSS triangle */
-}
-
-/* Breadcrumb: Replace last item text with procedure name */
-.o-breadcrumb li:last-child a[aria-current="page"] {
-    font-size: 0 !important;           /* Hide original text */
-    overflow: visible !important;       /* Allow pseudo-element to show */
-}
-
-.o-breadcrumb li:last-child a[aria-current="page"]::after {
-    content: attr(data-procedure-name) !important; /* Use data attribute */
-    font-size: 1rem !important;        /* Restore normal font size */
-    color: inherit !important;
-    display: inline !important;
-}
-
-
-
-
-
-
-
-
-
 /*CvStatementList*/
+
+
+
+
+
+
+
+
+
+/*Colors that differ from Carbon Design System because of the older version we need to use */
+
 :root {
     --dp-orange-20: #ffd9be;
     --dp-orange-70: #8A3800;
@@ -85,29 +69,28 @@
     --dp-green-70: #325F26;
     --dp-primary-blue: #1E3A8A;
 }
-
 /* Carbon Tag Overrides for colors that differ in our carbon version */
+
 .cv-statement-list .status-editing {
     background-color: var(--dp-orange-20) !important;
     color: var(--dp-orange-70) !important;
 }
-
 .cv-statement-list .status-completed {
     background-color: var(--dp-green-10) !important;
     color: var(--dp-green-70) !important;
 }
 
-/* Carbon Tag Overrides for row-size */
+/* Carbon Tag Overrides for table */
+
 .cv-statement-list .bx--data-table td {
     padding: 15px !important;
     vertical-align: top !important;
 }
 
-/* Remove padding around cv-data-table */
 .bx--tab-content {
     padding: 0 !important;
+    background-color: #f4f4f4 !important;
 }
-
 .cv-statement-list .text-content {
     overflow: hidden;
     display: -webkit-box;
@@ -117,13 +100,13 @@
 }
 
 /* Header Layout - All 3 elements in one row */
+
 .cv-statement-list .cv-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 25px 0;
+    padding: 25px 0;
 }
-
 .cv-statement-list .main-title {
     margin: 0;
     flex: 1;
@@ -137,10 +120,10 @@
 }
 
 /* Content Switcher Styling */
+
 .cv-statement-list .bx--content-switcher {
     width: fit-content !important;
 }
-
 .cv-statement-list .bx--btn--tertiary {
     display: flex !important;
     justify-content: space-between !important;
@@ -151,12 +134,11 @@
     background-color: var(--dp-primary-blue) !important;
 }
 
+/* Search */
 
-/*Suche*/
 .cv-statement-list .bx--search .bx--search-input {
     border: none !important;
 }
-
 .cv-export-btn,
 .cv-add-btn {
   display: flex !important;
@@ -166,11 +148,99 @@
   gap: 2rem !important;
 }
 
+/* Expandable Rows - Verstecke Sortier-Icons für Expand-Spalte */
+
+.bx--table-header-label[data-column-id="expand"] svg {
+    display: none !important;
+}
+/* Falls data-column-id nicht funktioniert, versuche über th position */
+
+.bx--data-table th:nth-child(6) svg {
+    display: none !important;
+}
+/* Verstecke Checkboxen in expanded rows */
+
+.expanded-row .bx--checkbox {
+    display: none !important;
+}
+.expanded-row .bx--table-column-checkbox {
+    display: none !important;
+}
+/* Checkbox-Alignment korrigieren - direkter Zugriff auf die Checkbox-Wrapper */
+
+#cv-statement-table .bx--table-column-checkbox {
+    text-align: left !important;
+    padding-left: 20px !important;
+}
+.cv-container {
+    padding: 8px 24px;
+}
+
+/* Pagination */
 
 .bx--pagination {
     margin-top: 0;
 }
 
+/* "Items per page" zu "Elemente pro Seite" ändern - alle Labels in pagination left */
+.bx--pagination__left label {
+    font-size: 0 !important;
+}
+
+.bx--pagination__left label::before {
+    content: 'Elemente pro Seite:';
+    font-size: 14px !important;
+}
+
+/* Weiter-Button auf letzter Seite deaktivieren */
+.cv-statement-list .bx--pagination[data-last-page="true"] .bx--pagination__button--forward {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+}
+
+.cv-statement-list .bx--pagination[data-last-page="true"] .bx--pagination__button--forward:hover {
+    cursor: not-allowed !important;
+    opacity: 0.3 !important;
+}
+
+
+/*Breadcrumb tbd*/
+
+/* Breadcrumb: Change CSS triangle icons to slash separators */
+.o-breadcrumb li + li::before {
+    content: '/';
+    border: none;           /* remove CSS triangle */
+}
+
+.o-breadcrumb li a {
+    color: var(--dp-primary-blue) !important;
+}
+
+/* Breadcrumb: Replace last item text with procedure name */
+.o-breadcrumb li:last-child a[aria-current="page"] {
+    font-size: 0 !important;           /* Hide original text */
+    overflow: visible !important;       /* Allow pseudo-element to show */
+}
+
+.o-breadcrumb li:last-child
+a[aria-current="page"]::after {
+    content: attr(data-procedure-name) !important;
+    font-size: 1rem !important;
+    display: inline !important;
+}
+
+/* Letztes Element: kein Slash */
+.o-breadcrumb li:last-child::before {
+    content: '' !important;
+}
+
+.o-breadcrumb li:nth-last-child(2) a {
+    color: var(--dp-carbon-gray-100) !important;
+    text-decoration: none !important;
+    text-decoration-color: var(--cds-text-primary) !important;
+    text-decoration-line: none !important;
+    pointer-events: none !important;
+}
 
 
 
