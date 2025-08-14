@@ -27,6 +27,9 @@ class CustomFieldOption
         return $this->label;
     }
 
+    /**
+    * @return array{id : string, label : string}
+    */
     public function toJson(): array
     {
         return [
