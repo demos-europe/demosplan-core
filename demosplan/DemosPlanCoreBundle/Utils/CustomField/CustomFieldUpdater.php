@@ -73,9 +73,14 @@ class CustomFieldUpdater
         $customField->setOptions($updatedOptions);
     }
 
+    /**
+    * @param CustomFieldOption[] $currentOptions
+    * @param CustomFieldOption[] $newOptions
+    * @return CustomFieldOption[]
+    */
     private function processOptionsUpdate(array $currentOptions, array $newOptions): array
     {
-        $currentOptionsById = collect($currentOptions)->keyBy(fn ($option) => $option->getId());
+        $currentOptionsById = collect($currentOptions)->keyBy(fn (CustomFieldOption $option) => $option->getId());
 
         return collect($newOptions)
             ->map(function (array $newOption) use ($currentOptionsById) {
