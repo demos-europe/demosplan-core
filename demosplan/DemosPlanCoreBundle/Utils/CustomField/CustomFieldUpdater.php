@@ -48,7 +48,7 @@ class CustomFieldUpdater
         return $customField;
     }
 
-    private function updateBasicFields($customField, array $attributes): void
+    private function updateBasicFields(CustomFieldInterface $customField, array $attributes): void
     {
         if (isset($attributes['name'])) {
             $customField->setName($attributes['name']);
