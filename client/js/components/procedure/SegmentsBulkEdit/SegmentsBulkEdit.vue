@@ -548,7 +548,7 @@ export default {
 
           return {
             id,
-            value: selectedOption.id
+            value: selectedOption?.id
           }
         })
       }
