@@ -10,9 +10,8 @@ All rights reserved
 <template>
   <div class="cv-statement-list">
     <div class="cv-container">
-    <!-- Single Header Row with all 3 elements -->
     <div class="cv-header-row">
-      <h4 class="main-title">Stellungnahmen zum aktuellen Verfahren</h4>
+      <h4 class="cv-main-title">Stellungnahmen zum aktuellen Verfahren</h4>
       <span class="cv-switch-label">Darstellung</span>
 
       <!-- Content Switcher -->
@@ -32,13 +31,15 @@ All rights reserved
 
     <!-- Tab Content -->
     <cv-data-table
-      id="cv-statement-table"
       v-if="activeTab === 'statements'"
-      v-model:rows-selected="selectedRows"
       :columns="columns"
+      batch-cancel-label="Abbrechen"
       :data="statements"
+      id="cv-statement-table"
+      :rows-selected="selectedRows"
       sortable
-      @sort="onSort">
+      @sort="onSort"
+>
 
       <template #actions>
         <cv-search
@@ -55,16 +56,28 @@ All rights reserved
         </cv-button>
       </template>
 
-      <!-- Checkboxen: -->
+      <!-- Batch Actions -->
       <template #batch-actions>
+        <cv-button kind="primary" size="md">
+          Aufteilung überprüfen
+        </cv-button>
+        <cv-button kind="primary" size="md">
+          Aufteilung so akzeptieren
+        </cv-button>
+        <cv-button kind="primary" size="md">
+          Bearbeiten
+        </cv-button>
+        <cv-button kind="primary" size="md">
+          Löschen
+        </cv-button>
       </template>
 
-
-
-      <!-- Custom Data Slot mit Status Tags -->
+      <!-- Custom Data Slot mit direkter Checkbox-Überwachung -->
       <template #data>
         <template v-for="(statement, index) in statements" :key="index">
-          <cv-data-table-row :value="statement.id">
+          <cv-data-table-row
+            :value="String(statement.id)"
+            :id="`row-${statement.id}`">
             <cv-data-table-cell>{{ statement.id }}</cv-data-table-cell>
             <cv-data-table-cell>
               {{ formatDate(statement.statusDate) }}
@@ -76,7 +89,7 @@ All rights reserved
             </cv-data-table-cell>
             <cv-data-table-cell>{{ statement.author }}</cv-data-table-cell>
             <cv-data-table-cell>
-              <div class="text-content">
+              <div class="cv-text-content">
                 {{ statement.text }}
               </div></cv-data-table-cell>
             <cv-data-table-cell>{{ statement.sections }}</cv-data-table-cell>
@@ -89,19 +102,15 @@ All rights reserved
                 <ChevronDown16 :style="{ transform: expandedRows.includes(statement.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
               </cv-button>
             </cv-data-table-cell>
-
           </cv-data-table-row>
 
-          <!-- Expanded Content Row (manuell eingefügt) -->
-          <cv-data-table-row v-if="expandedRows.includes(statement.id)" class="expanded-row" :selectable="false">
+          <!-- Expanded Content Row -->
+          <cv-data-table-row v-if="expandedRows.includes(statement.id)" class="cv-expanded-row" :selectable="false">
             <cv-data-table-cell :colspan="6">
-              <div class="expanded-statement-content">
-                <!-- Statement Metadaten -->
-                <div class="statement-metadata">
+              <div class="cv-expanded-statement-content">
+                <div class="cv-statement-metadata">
                   <h4>Statement Details</h4>
-
-                  <!-- Zwei-spaltige Metadaten -->
-                  <div class="metadata-layout">
+                  <div class="cv-metadata-layout">
                     <div>
                       <dl style="margin: 0;">
                         <dt><strong>Statement ID:</strong></dt>
@@ -121,11 +130,9 @@ All rights reserved
                       </dl>
                     </div>
                   </div>
-
-                  <!-- Vollständiger Text -->
                   <div style="margin-top: 16px;">
                     <h5>Vollständiger Text:</h5>
-                    <div class="statement-full-text" style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                    <div class="cv-statement-full-text" style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0;">
                       <div v-html="statement.text"></div>
                     </div>
                   </div>
@@ -140,13 +147,18 @@ All rights reserved
     <cv-pagination
       v-if="pagination.totalPages > 1"
       :page="pagination.currentPage"
-      :page-sizes="[10, 25, 50, 100]"
-      :page-size="pagination.perPage"
-      :total-items="pagination.total"
-      :number-of-pages="pagination.totalPages"
+      :page-sizes="computedPageSizes"
+      :number-of-items="pagination.total"
+      page-sizes-label="Elemente pro Seite:"
       @change="onPaginationChange"
-      class="cv-pagination"
-      :key="`pagination_${pagination.currentPage}_${pagination.totalPages}_${pagination.perPage}`" />
+      class="cv-pagination">
+      <template #range-text="{ scope }">
+        {{ scope.start }}-{{ scope.end }} von {{ scope.items }} Elementen
+      </template>
+      <template #of-n-pages="{ scope }">
+        von {{ scope.pages }} Seiten
+      </template>
+    </cv-pagination>
     </div>
   </div>
 
@@ -160,8 +172,6 @@ All rights reserved
 <script>
 import {
   CvButton,
-  CvBreadcrumb,
-  CvBreadcrumbItem,
   CvDataTable,
   CvDataTableRow,
   CvDataTableCell,
@@ -236,7 +246,8 @@ export default {
       filterActive: false,
       sortBy: '',
       sortDirection: '',
-      expandedRows: [] // Track welche Rows expandiert sind
+      expandedRows: [], // Track welche Rows expandiert sind
+      lastPaginationEventTime: 0 // Debouncing für Pagination Events
     }
   },
 
@@ -247,34 +258,24 @@ export default {
 
     statements() {
       const rawData = Object.values(this.statementsObject) || []
-
-      // Mapping von API-Daten zu Component-Format
-      let mappedData = rawData.map(stmt => {
-        // Verschiedene Wege, die Segments zu finden
-        const segments = stmt.relationships?.segments?.data ||
-                         stmt.relationships?.statementFragments?.data ||
-                         stmt.segments?.data ||
-                         stmt.segments ||
-                         stmt.statementFragments?.data ||
-                         stmt.statementFragments ||
-                         []
-
-        console.log(`Statement ${stmt.id} segments debug:`, segments)
-        console.log(`Statement ${stmt.id} full relationships:`, stmt.relationships)
-
+      return rawData.map(stmt => {
+        const segmentsCount = stmt.relationships?.segments?.data?.length || 0
         return {
           id: stmt.attributes?.externId || stmt.id,
           status: this.mapApiStatusToDisplay(stmt.attributes.status),
           statusDate: stmt.attributes.submitDate,
           author: `${stmt.attributes.authorName}\n${this.formatDate(stmt.attributes.authoredDate)}`,
           text: stmt.attributes?.text || stmt.text,
-          sections: segments.length > 0 ? segments.length : '-'
+          sections: segmentsCount > 0 ? segmentsCount : '-'
         }
       })
+    },
 
-      // Keine client-seitige Sortierung mehr - alles server-seitig wie ListStatements.vue
-
-      return mappedData
+    computedPageSizes() {
+      return [10, 25, 50, 100].map(size => ({
+        value: size,
+        selected: size === this.pagination.perPage
+      }))
     }
   },
 
@@ -285,8 +286,6 @@ export default {
     }),
 
     applySearch(term, page = 1) {
-      console.log('applySearch called with term:', term, 'page:', page, 'size:', this.pagination.perPage)
-
       // Prüfen ob sich der Suchbegriff geändert hat
       const searchChanged = term !== this.searchValue
       this.searchValue = term
@@ -294,7 +293,6 @@ export default {
       // Bei geändertem Suchbegriff IMMER zu Seite 1, sonst verwende angegebene Seite
       const targetPage = searchChanged ? 1 : page
 
-      console.log('📡 API call with page:', targetPage, 'size:', this.pagination.perPage)
       this.fetchStatements({
         page: { number: targetPage, size: this.pagination.perPage },
         search: {
@@ -319,10 +317,7 @@ export default {
           SourceStatementAttachment: ['file'].join()
         }
       }).then(response => {
-        console.log('📨 API Response pagination:', response?.meta?.pagination)
         if (response?.meta?.pagination) {
-          console.log('📨 API returned per_page:', response.meta.pagination.per_page, 'total_pages:', response.meta.pagination.total_pages)
-          console.log('🔧 Before update - local perPage:', this.pagination.perPage)
 
           // Verwende API totalPages wenn perPage übereinstimmt, sonst berechne neu
           const shouldUseApiPages = response.meta.pagination.per_page === this.pagination.perPage
@@ -337,7 +332,6 @@ export default {
             total: response.meta.pagination.total,
             totalPages: finalTotalPages
           }
-          console.log('✅ Final pagination state:', this.pagination)
         }
       })
     },
@@ -383,33 +377,34 @@ export default {
     },
 
     onPaginationChange(event) {
-      console.log('Pagination change event:', event)
-      console.log('Current pagination state:', this.pagination)
+      const now = Date.now()
 
-      // Carbon Vue Pagination Format: { start, page, length }
-      if (event.length && event.length !== this.pagination.perPage) {
-        // Page size changed - zurück zu Seite 1
-        console.log('🔄 Page size change: from', this.pagination.perPage, 'to', event.length)
-        
-        // Sofort perPage aktualisieren
-        this.pagination.perPage = event.length
-        this.pagination.currentPage = 1
-        
-        console.log('🔄 Updated local pagination:', this.pagination)
-        console.log('🔄 About to call API with size:', this.pagination.perPage)
-        
-        // Force re-render der Pagination-Komponente durch nextTick
-        this.$nextTick(() => {
-          this.applySearch(this.searchValue, 1)
-        })
-      } else if (event.page) {
-        // Page changed - begrenzt auf tatsächlich verfügbare Seiten
+      // Priorisiere Seitenwechsel über Größenänderungen
+      if (event.page && event.page !== this.pagination.currentPage) {
+        // Page Navigation - ignoriere gleichzeitige length Events
+
         const maxPage = this.pagination.totalPages
         const targetPage = Math.max(1, Math.min(event.page, maxPage))
 
-        console.log('Requested page:', event.page, 'Max page:', maxPage, 'Target page:', targetPage)
-
         this.applySearch(this.searchValue, targetPage)
+
+      } else if (event.length && event.length !== this.pagination.perPage) {
+        // Page size change - nur wenn kein page Event gleichzeitig
+
+        // Debounce für size changes
+        if (now - this.lastPaginationEventTime < 100) {
+          return
+        }
+
+        this.lastPaginationEventTime = now
+
+        // Akzeptiere alle validen Dropdown-Werte
+        if ([10, 25, 50, 100].includes(event.length)) {
+          this.pagination.perPage = event.length
+          this.pagination.currentPage = 1
+
+          this.applySearch(this.searchValue, 1)
+        }
       }
     },
 
@@ -428,8 +423,6 @@ export default {
     },
 
     onSort(sortBy) {
-      console.log('Sort event received:', sortBy)
-
       // Toggle sort direction if same column, otherwise set to ascending
       if (this.sortBy === sortBy.index) {
         this.sortDirection = this.sortDirection === 'ascending' ? 'descending' : 'ascending'
@@ -437,8 +430,6 @@ export default {
         this.sortBy = sortBy.index
         this.sortDirection = 'ascending'
       }
-
-      console.log('Sort state:', { sortBy: this.sortBy, direction: this.sortDirection })
 
       // Suche mit neuer Sortierung anwenden
       this.applySearch(this.searchValue, 1)
@@ -495,6 +486,52 @@ export default {
       this.applySearch(this.searchValue, 1)
     },
 
+
+    setupCheckboxListeners() {
+      // Wait for DOM to be fully rendered with statements
+      this.$nextTick(() => {
+        const checkboxes = document.querySelectorAll('#cv-statement-table .bx--table-column-checkbox input[type="checkbox"]')
+
+        checkboxes.forEach((checkbox, index) => {
+          checkbox.addEventListener('change', (event) => {
+            const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
+
+            if (event.target.checked) {
+              if (!this.selectedRows.includes(rowValue)) {
+                this.selectedRows.push(rowValue)
+              }
+            } else {
+              const index = this.selectedRows.indexOf(rowValue)
+              if (index > -1) {
+                this.selectedRows.splice(index, 1)
+              }
+            }
+
+            this.updateBatchActionsVisibility()
+          })
+        })
+      })
+    },
+
+    updateBatchActionsVisibility() {
+      const batchActions = document.querySelector('.bx--batch-actions')
+      if (batchActions) {
+        if (this.selectedRows.length > 0) {
+          batchActions.setAttribute('aria-hidden', 'false')
+          batchActions.classList.add('bx--batch-actions--active')
+
+          // Update Carbon's internal counter
+          const itemsSelectedSpan = batchActions.querySelector('[data-items-selected]')
+          if (itemsSelectedSpan) {
+            itemsSelectedSpan.textContent = `${this.selectedRows.length} items selected`
+          }
+        } else {
+          batchActions.setAttribute('aria-hidden', 'true')
+          batchActions.classList.remove('bx--batch-actions--active')
+        }
+      }
+    },
+
     replacePaginationText() {
       // Replace "Page" with "Seite" in pagination
       const pageTexts = document.querySelectorAll('.bx--pagination__right .bx--pagination__text')
@@ -521,11 +558,23 @@ export default {
         paginationEl.removeAttribute('data-last-page')
       }
     }
+  },
 
+  watch: {
+    statements: {
+      handler(newStatements) {
+        if (newStatements.length > 0) {
+          // Re-setup checkbox listeners when statements are loaded
+          this.$nextTick(() => {
+            this.setupCheckboxListeners()
+          })
+        }
+      },
+      deep: true
+    }
   },
 
   mounted() {
-    // Statt fester size: 100
     this.fetchStatements({
       page: { number: 1, size: this.pagination.perPage },
       filter: {

@@ -2,12 +2,11 @@
 
 .dp-header-title {
     /* Original classes: font-size-h1 align-bottom inline-block u-m-0 */
-    font-size: 2rem; /* h1 size */
+    font-size: 32px; /* h1 size */
     vertical-align: bottom;
     display: inline-block;
     margin: 0;
 }
-
 
 .dp-list-statements-fullscreen-overlay {
     @apply fixed top-0 left-0 flex flex-col w-full h-full z-fixed bg-surface;
@@ -20,7 +19,7 @@
 .dp-pagination-container {
     /* Original: flex mt-2 */
     display: flex;
-    margin-top: 0.5rem;
+    margin-top: 8px;
 }
 
 .dp-pager-component {
@@ -38,60 +37,55 @@
     /* Original classes: color--grey inline-block u-pt-0_5 u-mb-10_25 */
     color: #6f6f6f;
     display: inline-block;
-    padding-top: 0.5rem;
-    margin-bottom: 10.25rem;
+    padding-top: 8px;
+    margin-bottom: 164px;
 }
 
 .dp-page-header {
-    /* Original classes: border--bottom u-mb u-pb-0_5 flow-root */
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    display: flow-root;
+    padding: 8px 24px;
 }
 
 /*CvStatementList*/
 
-
-
-
-
-
-
-
-
 /*Colors that differ from Carbon Design System because of the older version we need to use */
-
 :root {
     --dp-orange-20: #ffd9be;
     --dp-orange-70: #8A3800;
     --dp-green-10: #DCFDD4;
     --dp-green-70: #325F26;
     --dp-primary-blue: #1E3A8A;
+    --dp-primary: #0f62fe;
+    --dp-primary-hover: #0353e9;
 }
-/* Carbon Tag Overrides for colors that differ in our carbon version */
 
+.cv-container {
+    padding: 8px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flow-root;
+}
+
+/* Carbon Tag Overrides for colors that differ in our carbon version */
 .cv-statement-list .status-editing {
     background-color: var(--dp-orange-20) !important;
     color: var(--dp-orange-70) !important;
 }
+
 .cv-statement-list .status-completed {
     background-color: var(--dp-green-10) !important;
     color: var(--dp-green-70) !important;
 }
 
 /* Carbon Tag Overrides for table */
-
 .cv-statement-list .bx--data-table td {
     padding: 15px !important;
     vertical-align: top !important;
 }
-
 .bx--tab-content {
     padding: 0 !important;
     background-color: #f4f4f4 !important;
 }
-.cv-statement-list .text-content {
+
+.cv-statement-list .cv-text-content {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 4;
@@ -99,31 +93,30 @@
     line-height: 1.4;
 }
 
-/* Header Layout - All 3 elements in one row */
-
 .cv-statement-list .cv-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 25px 0;
 }
-.cv-statement-list .main-title {
+
+.cv-statement-list .cv-main-title {
     margin: 0;
     flex: 1;
 }
 
 .cv-statement-list .cv-switch-label {
-    font-size: 1rem;
+    font-size: 16px;
     color: #161616;
     font-weight: normal;
-    margin: 0 2rem;
+    margin: 0 32px;
 }
 
 /* Content Switcher Styling */
-
 .cv-statement-list .bx--content-switcher {
     width: fit-content !important;
 }
+
 .cv-statement-list .bx--btn--tertiary {
     display: flex !important;
     justify-content: space-between !important;
@@ -132,79 +125,52 @@
 
 .bx--btn--primary {
     background-color: var(--dp-primary-blue) !important;
+    border: none;
 }
 
 /* Search */
-
 .cv-statement-list .bx--search .bx--search-input {
     border: none !important;
 }
+
 .cv-export-btn,
 .cv-add-btn {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 0.75rem 1rem !important;
-  gap: 2rem !important;
+  padding: 12px 16px !important;
+  gap: 32px !important;
 }
 
-/* Expandable Rows - Verstecke Sortier-Icons für Expand-Spalte */
-
-.bx--table-header-label[data-column-id="expand"] svg {
-    display: none !important;
-}
-/* Falls data-column-id nicht funktioniert, versuche über th position */
-
-.bx--data-table th:nth-child(6) svg {
-    display: none !important;
-}
-/* Verstecke Checkboxen in expanded rows */
-
+/* Hide checkboxes in expanded rows */
 .expanded-row .bx--checkbox {
     display: none !important;
 }
 .expanded-row .bx--table-column-checkbox {
     display: none !important;
 }
-/* Checkbox-Alignment korrigieren - direkter Zugriff auf die Checkbox-Wrapper */
 
+/* Checkbox-Alignment */
 #cv-statement-table .bx--table-column-checkbox {
     text-align: left !important;
     padding-left: 20px !important;
 }
-.cv-container {
-    padding: 8px 24px;
-}
 
 /* Pagination */
-
 .bx--pagination {
     margin-top: 0;
 }
 
-/* "Items per page" zu "Elemente pro Seite" ändern - alle Labels in pagination left */
-.bx--pagination__left label {
-    font-size: 0 !important;
+/* Batch Actions - Align buttons to the right and change background color */
+.bx--batch-actions {
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: var(--dp-primary-blue) !important;
 }
 
-.bx--pagination__left label::before {
-    content: 'Elemente pro Seite:';
-    font-size: 14px !important;
+.bx--batch-summary {
+    background-color: var(--dp-primary-blue) !important;
 }
-
-/* Weiter-Button auf letzter Seite deaktivieren */
-.cv-statement-list .bx--pagination[data-last-page="true"] .bx--pagination__button--forward {
-    opacity: 0.3 !important;
-    cursor: not-allowed !important;
-}
-
-.cv-statement-list .bx--pagination[data-last-page="true"] .bx--pagination__button--forward:hover {
-    cursor: not-allowed !important;
-    opacity: 0.3 !important;
-}
-
-
-/*Breadcrumb tbd*/
 
 /* Breadcrumb: Change CSS triangle icons to slash separators */
 .o-breadcrumb li + li::before {
@@ -225,7 +191,7 @@
 .o-breadcrumb li:last-child
 a[aria-current="page"]::after {
     content: attr(data-procedure-name) !important;
-    font-size: 1rem !important;
+    font-size: 16px !important;
     display: inline !important;
 }
 
