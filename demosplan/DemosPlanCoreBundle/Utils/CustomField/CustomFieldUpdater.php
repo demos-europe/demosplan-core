@@ -28,6 +28,7 @@ class CustomFieldUpdater
     public function updateCustomField(string $entityId, array $attributes): CustomFieldInterface
     {
         // Get the CustomFieldConfiguration from database
+        /** @var CustomFieldConfiguration $customFieldConfiguration */
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
 
         if (!$customFieldConfiguration) {
