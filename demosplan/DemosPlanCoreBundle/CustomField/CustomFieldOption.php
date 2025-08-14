@@ -38,6 +38,9 @@ class CustomFieldOption
         ];
     }
 
+    /**
+    * @param array{id : string, label : string} $json
+    */
     public function fromJson(array $json): void
     {
         $this->id = $json['id'];
