@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldOption
 {
-    protected string $id;
-    protected string $label;
+    protected string $id = '';
+    protected string $label = '';
 
     public function getId(): string
     {
