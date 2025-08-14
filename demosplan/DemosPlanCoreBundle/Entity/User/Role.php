@@ -193,4 +193,9 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->groupName;
     }
+
+    public function removeUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer)
+    {
+        $this->userRoleInCustomers->removeElement($userRoleInCustomer);
+    }
 }
