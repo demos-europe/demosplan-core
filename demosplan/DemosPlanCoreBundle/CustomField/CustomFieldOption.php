@@ -28,8 +28,8 @@ class CustomFieldOption
     }
 
     /**
-    * @return array{id : string, label : string}
-    */
+     * @return array{id : string, label : string}
+     */
     public function toJson(): array
     {
         return [
@@ -39,8 +39,8 @@ class CustomFieldOption
     }
 
     /**
-    * @param array{id : string, label : string} $json
-    */
+     * @param array{id : string, label : string} $json
+     */
     public function fromJson(array $json): void
     {
         $this->id = $json['id'];
