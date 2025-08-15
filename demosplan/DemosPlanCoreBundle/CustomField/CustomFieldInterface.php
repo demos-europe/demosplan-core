@@ -21,7 +21,7 @@ interface CustomFieldInterface
 {
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,
-        // 'dropdown' => DropdownField::class,
+        'multiSelect' => MultiSelectField::class,
         // Add other custom field types here
     ];
 
