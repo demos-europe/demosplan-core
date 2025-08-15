@@ -76,7 +76,7 @@ export default {
   data () {
     return {
       layer: null,
-      source: null,
+      source: null
     }
   },
 

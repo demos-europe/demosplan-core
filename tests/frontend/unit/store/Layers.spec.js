@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import { createStore } from 'vuex'
 import { apiData } from '../__mocks__/layer_json.mock'
+import { createStore } from 'vuex'
 import Layers from '@DpJs/store/map/Layers'
 
 let StubStore

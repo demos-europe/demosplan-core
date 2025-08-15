@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldOption
 {
-    protected string $id;
-    protected string $label;
+    protected string $id = '';
+    protected string $label = '';
 
     public function getId(): string
     {
@@ -27,6 +27,9 @@ class CustomFieldOption
         return $this->label;
     }
 
+    /**
+     * @return array{id : string, label : string}
+     */
     public function toJson(): array
     {
         return [
@@ -35,6 +38,9 @@ class CustomFieldOption
         ];
     }
 
+    /**
+     * @param array{id : string, label : string} $json
+     */
     public function fromJson(array $json): void
     {
         $this->id = $json['id'];

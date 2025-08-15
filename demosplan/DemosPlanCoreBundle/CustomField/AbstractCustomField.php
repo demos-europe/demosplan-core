@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -23,6 +25,8 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     abstract public function isValueValid(string $value): bool;
 
+    abstract protected function validateFieldSpecific(array $options): void;
+
     public function validate(?array $newOptions = null): void
     {
         $options = $newOptions ?? $this->getOptions();
@@ -32,8 +36,6 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
         $this->validateFieldSpecific($options);
     }
-
-    abstract protected function validateFieldSpecific(array $options): void;
 
     private function validateBasicStructure(array $options): void
     {

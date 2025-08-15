@@ -16,6 +16,10 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
+
+    demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
+
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
@@ -63,6 +67,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
+
+    DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService
 
     DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
@@ -268,6 +275,10 @@ services:
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureAuthenticator: ~
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureUserBadgeCreator: ~
+
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
     demosplan\DemosPlanCoreBundle\EventListener\ApcuClearListener:
@@ -398,7 +409,6 @@ services:
         arguments:
             $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService: ~
 
@@ -491,7 +501,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Router:
@@ -655,7 +664,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
@@ -805,10 +813,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         arguments:
             $esProcedurePersister: '@fos_elastica.object_persister.procedures'
@@ -827,7 +833,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler:
@@ -876,11 +881,9 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler:
@@ -894,7 +897,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
@@ -907,7 +909,6 @@ services:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsStatementType', [ '@fos_elastica.index.statements' ]]
@@ -928,7 +929,6 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
@@ -1113,7 +1113,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
 
@@ -1127,7 +1126,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         public: true
 
     demosplan\DemosPlanCoreBundle\Logic\User\BrandingService:

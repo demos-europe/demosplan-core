@@ -477,13 +477,15 @@ export default {
     sendDeleteVote () {
       const promises = this.votesToDelete.map(vote => {
         // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
-        this.deleteStatementVoteAction(vote.id)
+        return this.deleteStatementVoteAction(vote.id)
           .then(() => {
             this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+
             return true
           })
           .catch(() => {
             dplan.notify.error(Translator.trans('error.api.generic'))
+
             return false
           })
       }).filter(Boolean) // Remove undefined values
@@ -495,10 +497,12 @@ export default {
       const promises = Object.values(this.initialVotes).map(vote => {
         const { id, attributes } = vote
         const currentVote = this.votes[id]
+
         if (currentVote) {
           const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
+
           if (hasChanged) {
-            this.saveStatementVoteAction(vote.id)
+            return this.saveStatementVoteAction(vote.id)
               .then(() => {
                 return true
               })
@@ -507,7 +511,11 @@ export default {
                 return false
               })
           }
+
+          return undefined
         }
+
+        return undefined
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
