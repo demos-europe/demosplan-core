@@ -659,7 +659,7 @@
 </template>
 
 <script>
-import { dpApi, DpContextualHelp, formatDate, hasOwnProp, DpTooltip } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -849,7 +849,7 @@ export default {
         : Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
     },
 
-    statementDateTooltipContent() {
+    statementDateTooltipContent () {
       const parts = []
 
       // Add authored date if available
@@ -870,7 +870,7 @@ export default {
       return parts.join('<br>')
     },
 
-    authorTooltipContent() {
+    authorTooltipContent () {
       if (!this.hasOwnProp(this.statement, 'initialOrganisationName')) {
         return ''
       }
@@ -884,7 +884,7 @@ export default {
       return parts.filter(part => part).join('<br>')
     },
 
-    getOrganizationTooltipParts() {
+    getOrganizationTooltipParts () {
       const parts = []
 
       if (!this.statement.isSubmittedByCitizen && !this.hasUserOrganisationAccess) {
@@ -899,7 +899,7 @@ export default {
       return parts
     },
 
-    getSubmittedAuthorTooltipParts() {
+    getSubmittedAuthorTooltipParts () {
       const parts = []
 
       if (this.statement.submitName) {
@@ -913,7 +913,7 @@ export default {
       return parts
     },
 
-    getUserFieldsTooltipParts() {
+    getUserFieldsTooltipParts () {
       const parts = []
       const userFields = [
         { permission: 'field_statement_user_state', value: this.statement.userState, label: 'state' },
@@ -931,11 +931,11 @@ export default {
       return parts
     },
 
-    hasUserOrganisationAccess() {
+    hasUserOrganisationAccess () {
       return this.hasPermission('field_statement_user_organisation') && this.statement.userOrganisation
     },
 
-    isAnonymousCitizen() {
+    isAnonymousCitizen () {
       return this.statement.submitName === '' &&
              (this.statement.authorName === '' || this.statement.anonymous) &&
              this.statement.isSubmittedByCitizen

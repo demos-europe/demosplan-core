@@ -298,7 +298,7 @@ export default {
         url: this.url,
         layers: this.layersInputValue,
         mapOrder: 1,
-        layerType: 'overlay',
+        layerType: 'overlay'
       }]
     },
 

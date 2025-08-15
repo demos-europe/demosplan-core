@@ -183,8 +183,9 @@ import {
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { mapState } from 'vuex'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+
 export default {
   name: 'StatementSubmitter',
 
@@ -293,7 +294,7 @@ export default {
       return (isDisabled && (!value || value.trim() === '')) ? '-' : value
     },
 
-    getSubmitterNameValue() {
+    getSubmitterNameValue () {
       if (this.isSubmitterAnonymized()) {
         return Translator.trans('anonymized')
       }

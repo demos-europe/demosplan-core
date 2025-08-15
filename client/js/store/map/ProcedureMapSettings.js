@@ -1,5 +1,5 @@
-import { dpApi } from '@demos-europe/demosplan-ui'
 import convertExtentToFlatArray from '@DpJs/components/map/map/utils/convertExtentToFlatArray'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
