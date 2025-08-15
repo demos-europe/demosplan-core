@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use Illuminate\Support\Collection;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldUpdater
@@ -73,9 +72,7 @@ class CustomFieldUpdater
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->validate($updatedOptions);
         $customField->setOptions($updatedOptions);
-
     }
-
 
     /**
      * @param CustomFieldOption[] $currentOptions
