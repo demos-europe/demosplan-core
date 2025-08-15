@@ -78,7 +78,7 @@
     "intl-messageformat": "^10.7.14",
     "ismobilejs": "^1.1.1",
     "jquery": "^3.7.1",
-    "js-base64": "^3.7.7",
+    "js-base64": "^3.7.8",
     "json-api-normalizer": "^1.0.4",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
