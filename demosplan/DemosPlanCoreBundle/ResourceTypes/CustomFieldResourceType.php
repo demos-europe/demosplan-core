@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
@@ -115,7 +116,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(
-                static fn (CustomFieldInterface $customField): array => array_map(static fn ($option) => $option->toJson(), $customField->getOptions())
+                static fn (CustomFieldInterface $customField): array => array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
             )
             ->addPathCreationBehavior()
             ->addPathUpdateBehavior();

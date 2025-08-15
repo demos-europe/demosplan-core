@@ -90,7 +90,7 @@ const webpackDefaultPlugins = [
       {
         from: 'addons/vendor/demos-europe/**/public/files/*',
         to: `${config.projectRoot}/web/files/[name][ext]`,
-        force: true, // overwrite existing files
+        force: true, // Overwrite existing files
         noErrorOnMissing: true
       },
       {

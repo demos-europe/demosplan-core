@@ -563,7 +563,9 @@
           :class="prefixClass('mt-4')"
           aria-required="true"
         >
-          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <legend class="sr-only">
+            {{ Translator.trans('personal.data') }}
+          </legend>
           <div :class="prefixClass('layout mb-3')">
             <component
               v-for="formDefinition in personalDataFormDefinitions"

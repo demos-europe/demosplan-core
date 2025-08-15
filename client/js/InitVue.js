@@ -32,6 +32,7 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
@@ -96,6 +97,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('RegisterFlyout', RegisterFlyout)
     app.component('DpContextualHelp', DpContextualHelp)
+
+    if (window.hasPermission('feature_auto_logout_warning')) {
+      app.component('SessionTimer', SessionTimer)
+    }
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {
