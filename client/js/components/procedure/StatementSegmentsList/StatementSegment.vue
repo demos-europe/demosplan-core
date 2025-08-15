@@ -875,6 +875,8 @@ export default {
         }
       }
 
+      this.removeComments(updatedSegment.relationships)
+
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id

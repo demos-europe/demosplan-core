@@ -29,5 +29,4 @@ const stores = {
   FilterFlyout: FilterFlyoutStore
 }
 
-
 initialize(components, stores, apiStores)
