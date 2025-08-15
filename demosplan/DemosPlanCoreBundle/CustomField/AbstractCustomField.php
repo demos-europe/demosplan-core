@@ -15,7 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 /**
- * Provide the generalized hashing functionality for stored queries.
+ * Base class that validates custom field options
+ * and requires subclasses to implement value validation.
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
