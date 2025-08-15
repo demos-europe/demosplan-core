@@ -16,12 +16,12 @@ COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
-RUN npm install --ignore-scripts -g corepack && \
-    corepack enable && yarn set version 4.2.2 && \
-    npm i --ignore-scripts -g n && \
+RUN npm install --ignore-scripts -g n && \
     rm -rf /root/.npm && \
-# Install specific node version
-    n 20.18.1
+# Install specific node version first
+    n 20.18.1 && \
+    npm install --ignore-scripts -g corepack && \
+    corepack enable && yarn set version 4.2.2
 
 WORKDIR /srv/www
 
@@ -141,7 +141,9 @@ RUN rm -rf /srv/www/var/cache/* && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \
-    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
+    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt&& \
+    # avoid conflict with the default www.conf
+    rm /etc/php/8.2/fpm/pool.d/www.conf
 
 # run as rootless container
 USER www-data

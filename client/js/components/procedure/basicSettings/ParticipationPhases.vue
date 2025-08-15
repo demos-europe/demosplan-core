@@ -28,7 +28,7 @@
         pattern="^[1-9][0-9]*$"
         required
         width="w-4/12"
-       />
+      />
     </div>
 
     <dp-inline-notification

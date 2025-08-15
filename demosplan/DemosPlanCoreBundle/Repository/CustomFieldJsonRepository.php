@@ -37,7 +37,16 @@ class CustomFieldJsonRepository implements RepositoryInterface
 
     public function getEntityByIdentifier(string $id, array $conditions, array $identifierPropertyPath): object
     {
-        throw new InvalidArgumentException();
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($id);
+
+        if (!$customFieldConfiguration) {
+            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$id}' not found");
+        }
+
+        $customField = $customFieldConfiguration->getConfiguration();
+        $customField->setId($customFieldConfiguration->getId());
+
+        return $customField;
     }
 
     public function getEntitiesByIdentifiers(array $identifiers, array $conditions, array $sortMethods, array $identifierPropertyPath): array

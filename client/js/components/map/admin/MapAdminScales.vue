@@ -5,6 +5,7 @@
       class="mb-0"
       v-text="Translator.trans('map.scales')" />
     <dp-multiselect
+      id="r_scales"
       v-model="scales"
       label="label"
       data-cy="map:mapAdminScales"
