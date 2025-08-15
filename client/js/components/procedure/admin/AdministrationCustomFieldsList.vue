@@ -5,7 +5,7 @@
       data-cy="places:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
-      :message="Translator.trans('segments.fields.edit.info')"
+      :message="Translator.trans(helpText)"
       type="info" />
 
     <create-custom-field-form
@@ -328,6 +328,28 @@ export default {
           colClass: 'u-5-of-12'
         }
       ]
+    },
+
+    /**
+    * Map text to permission. If there is more than one, return generic text.
+    */
+    helpText () {
+      const permissionToText = {
+        field_segments_custom_fields: 'segments.fields.edit.info',
+        field_statements_custom_fields: 'statements.fields.edit.info'
+      }
+
+      const truePermissions = Object.keys(permissionToText).filter(permission =>
+        this.hasPermission(permission)
+      )
+
+      if (truePermissions.length > 1) {
+        return 'custom.fields.edit.info'
+      } else if (truePermissions.length === 1) {
+        return permissionToText[truePermissions[0]]
+      }
+
+      return ''
     },
 
     helpTextDismissibleKey () {

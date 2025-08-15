@@ -838,6 +838,7 @@ counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
 create.note: "Notiz anlegen"
 current.online.participation: "<strong>Aktuelle</strong> Online-Beteiligungen"
+custom.fields.edit.info: "Hier können Sie die konfigurierbaren Felder für dieses Verfahren anpassen."
 custom.field.edit.message.warning: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird."
 customer: |
     {count, plural,
@@ -3430,6 +3431,7 @@ statement.feedback.postal: "Ich möchte eine Rückmeldung zu meiner Stellungnahm
 statement.feedback.select.type: "Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten"
 statement.field.is.disabled: "Die Felder der Stellungnahme lassen sich nur anpassen, wenn das Feld \"Beteiligung auf unangemeldete Nutzende beschränken\" aktiviert ist."
 statements.fields.configurable: "Konfigurierbare Stellungnahmefelder"
+statements.fields.edit.info: "Hier können Sie die Felder anpassen, die beim Verfassen einer Stellungnahme in einem Verfahren verfügbar sind."
 statement.fieldset.citizenXorOrgaAndOrgaName: "Angabe zur Rolle (Bürger*in / Organisation) inklusive Name der Organisation"
 statement.fieldset.countyReference: "Ortsbezug der Stellungnahme - Kreis"
 statement.fieldset.emailAddress: "E-Mail Adresse"
