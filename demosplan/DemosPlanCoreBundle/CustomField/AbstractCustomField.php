@@ -27,25 +27,23 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     abstract protected function validateFieldSpecific(array $options): void;
 
-    public function validate(?array $newOptions = null): void
+    public function validate(array $newOptions): void
     {
-        $options = $newOptions ?? $this->getOptions();
+        $this->validateBasicStructure($newOptions);
+        $this->validateOptionIds($newOptions);
 
-        $this->validateBasicStructure($options);
-        $this->validateOptionIds($options);
-
-        $this->validateFieldSpecific($options);
+        $this->validateFieldSpecific($newOptions);
     }
 
-    private function validateBasicStructure(array $options): void
+    public function validateBasicStructure(array $newOptions): void
     {
         // Check all options have non-empty labels
-        if (!collect($options)->every(fn ($option) => isset($option['label']) && !empty(trim($option['label'])))) {
+        if (!collect($newOptions)->every(fn ($option) => !empty(trim($option->getLabel())))) {
             throw new InvalidArgumentException('All options must have a non-empty label');
         }
 
         // Check for duplicate labels using Collections
-        $labels = collect($options)->pluck('label')->map('trim');
+        $labels = collect($newOptions)->map(fn($option) => $option->getLabel())->map('trim');
         if ($labels->count() !== $labels->unique()->count()) {
             throw new InvalidArgumentException('Option labels must be unique');
         }
@@ -54,8 +52,8 @@ abstract class AbstractCustomField implements CustomFieldInterface
     private function validateOptionIds(array $newOptions): void
     {
         collect($newOptions)
-            ->filter(fn ($option) => isset($option['id']))
-            ->pluck('id')
+            ->filter(fn ($option) => $option->getId())
+            ->map(fn($option) => $option->getId())
             ->each(function ($id) {
                 if (null === $this->getCustomOptionValueById($id)) {
                     throw new InvalidArgumentException("Invalid option ID: {$id}");

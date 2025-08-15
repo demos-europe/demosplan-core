@@ -37,6 +37,7 @@ class CustomFieldFactory
         if (isset($attributes['options']) && method_exists($customField, 'setOptions')) {
             // Transform options to the new format if they come as strings
             $options = $this->normalizeOptions($attributes['options']);
+            $customField->validateBasicStructure($options);
             $customField->setOptions($options);
         }
 
