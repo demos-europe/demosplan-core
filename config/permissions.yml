@@ -2736,7 +2736,7 @@ field_segments_custom_fields:
     label: 'Custom fields for segments'
     expose: true
     loginRequired: true
-field_statement_custom_fields:
+field_statements_custom_fields:
     description: 'Allow to add and edit custom fields to statements'
     label: 'Custom fields for statements'
     expose: true
