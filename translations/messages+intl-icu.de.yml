@@ -838,6 +838,7 @@ counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
 create.note: "Notiz anlegen"
 current.online.participation: "<strong>Aktuelle</strong> Online-Beteiligungen"
+custom.field.edit.message.warning: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird."
 customer: |
     {count, plural,
         =0 {Bundesland}
@@ -2377,6 +2378,7 @@ on: "am"
 opacity.percent: "Deckkraft in %"
 opacity: "Deckkraft"
 option.add: "Option hinzufügen"
+option.delete: "Option entfernen"
 option.empty: "-"
 options: "Optionen"
 orga.edit: "Organisation bearbeiten"
