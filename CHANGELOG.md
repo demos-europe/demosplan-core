@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Allow to edit custom field type singleSelect
 
 ## v4.10.1 (2025-08-13)
 - Display Keycloak logout countdown warning in the header and logout automatically
