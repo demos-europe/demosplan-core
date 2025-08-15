@@ -185,7 +185,7 @@
           <dp-confirm-dialog
             ref="confirmDialog"
             data-cy="customFields:saveEditConfirm"
-            :message="Translator.trans('custom.field.edit.message.warning')" />
+            :message="Translator.trans(warningMessage)" />
 
           <button
             v-if="!rowData.open"
@@ -267,6 +267,16 @@ export default {
   data () {
     return {
       customFieldItems: [],
+      enabledFieldsTextConfig: {
+        field_segments_custom_fields: {
+          info: 'segments.fields.edit.info',
+          warning: 'segments.field.edit.message.warning'
+        },
+        field_statements_custom_fields: {
+          info: 'statements.fields.edit.info',
+          warning: 'statements.fields.edit.message.warning'
+        }
+      },
       initialRowData: {},
       isLoading: false,
       isNewFieldFormOpen: false,
@@ -330,30 +340,16 @@ export default {
       ]
     },
 
-    /**
-    * Map text to permission. If there is more than one, return generic text.
-    */
     helpText () {
-      const permissionToText = {
-        field_segments_custom_fields: 'segments.fields.edit.info',
-        field_statements_custom_fields: 'statements.fields.edit.info'
-      }
-
-      const truePermissions = Object.keys(permissionToText).filter(permission =>
-        this.hasPermission(permission)
-      )
-
-      if (truePermissions.length > 1) {
-        return 'custom.fields.edit.info'
-      } else if (truePermissions.length === 1) {
-        return permissionToText[truePermissions[0]]
-      }
-
-      return ''
+      return this.getTextForEnabledFieldTypes('info', 'custom.fields.edit.info')
     },
 
     helpTextDismissibleKey () {
       return 'customFieldsHint'
+    },
+
+    warningMessage () {
+      return this.getTextForEnabledFieldTypes('warning', 'custom.fields.edit.message.warning')
     }
   },
 
@@ -485,6 +481,34 @@ export default {
 
     getIndexOfRowData (rowData) {
       return this.customFieldItems.findIndex(el => el.id === rowData.id)
+    },
+
+    /**
+     * Returns appropriate text based on which custom field types are enabled in the project
+     * @param textType {String} The type of text to retrieve (e.g., 'info', 'warning')
+     * @param multiplePermissionsText {String} Text to return when multiple field types are enabled
+     * @returns {String} The appropriate text message or empty string
+     */
+    getTextForEnabledFieldTypes (textType, multiplePermissionsText) {
+      const permissionToText = {}
+
+      Object.keys(this.permissionTextConfig).forEach(permission => {
+        if (this.permissionTextConfig[permission][textType]) {
+          permissionToText[permission] = this.permissionTextConfig[permission][textType]
+        }
+      })
+
+      const truePermissions = Object.keys(permissionToText).filter(permission =>
+        this.hasPermission(permission)
+      )
+
+      if (truePermissions.length > 1) {
+        return multiplePermissionsText
+      } else if (truePermissions.length === 1) {
+        return permissionToText[truePermissions[0]]
+      }
+
+      return ''
     },
 
     hideOptions (rowData) {
