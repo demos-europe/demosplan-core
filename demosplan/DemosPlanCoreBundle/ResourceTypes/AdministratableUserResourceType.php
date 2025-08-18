@@ -36,6 +36,7 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Elastica\Index;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use InvalidArgumentException;
 
 /**
@@ -350,7 +351,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $nullEqualsSucceed = $this->userHandler->wipeUsersById([$userId]);
         if (null !== $nullEqualsSucceed) {
             // messageBag for errors has been filled already
-            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $userId));
+            throw new BadRequestException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $userId));
         }
         // messageBag with confirmation has been filled already
     }

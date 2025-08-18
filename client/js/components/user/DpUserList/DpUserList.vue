@@ -212,17 +212,34 @@ export default {
 
       if (!isConfirmed) return
 
+      let successCount = 0
+      let errorCount = 0
+
       const deleteResults = await Promise.allSettled( /* ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
         ids.map(async id => {
           try {
-            await this.deleteAdministratableUser(id)
-            delete this.itemSelections[id]
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+            const response = await this.deleteAdministratableUser(id)
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              delete this.itemSelections[id]
+              successCount++
+            }
           } catch (error) {
             console.error(`Failed to delete user with ID ${id}:`, error)
+            errorCount++
           }
         })
       )
+
+      // Show appropriate messages
+      if (successCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+      }
+      if (errorCount > 0) {
+        dplan.notify.notify('error', Translator.trans('error.delete.user'))
+      }
 
       // Reload items only if at least one deletion was successful
       if (deleteResults.some(result => result.status === 'fulfilled')) {
