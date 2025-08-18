@@ -34,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
@@ -41,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
@@ -62,18 +62,18 @@ use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
-    use CanTransformRequestVariablesTrait;
-
     public function __construct(ApiLoggerInterface $apiLogger,
-        PrefilledTypeProvider $resourceTypeProvider,
-        FieldsValidator $fieldsValidator,
-        private readonly TranslatorInterface $translator,
-        LoggerInterface $logger,
-        GlobalConfigInterface $globalConfig,
-        MessageBagInterface $messageBag,
-        SchemaPathProcessor $schemaPathProcessor,
-        MessageFormatter $messageFormatter,
-        private readonly RoleHandler $roleHandler,
+                                PrefilledTypeProvider $resourceTypeProvider,
+                                FieldsValidator $fieldsValidator,
+                                private readonly TranslatorInterface $translator,
+                                LoggerInterface $logger,
+                                GlobalConfigInterface $globalConfig,
+                                MessageBagInterface $messageBag,
+                                SchemaPathProcessor $schemaPathProcessor,
+                                MessageFormatter $messageFormatter,
+                                private readonly RoleHandler $roleHandler,
+                                private readonly RequestDataHandler $requestDataHandler,
+
     ) {
         parent::__construct($apiLogger, $resourceTypeProvider, $fieldsValidator, $translator, $logger, $globalConfig, $messageBag, $schemaPathProcessor, $messageFormatter);
     }
@@ -131,9 +131,9 @@ class DemosPlanOrganisationAPIController extends APIController
     ) {
         try {
             if (false === $permissions->hasPermissions(
-                ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
-                'OR'
-            )) {
+                    ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
+                    'OR'
+                )) {
                 // The orgalist is required. If it's not loaded, there's no point in having this route.
                 throw new AccessDeniedException('User has no access rights to get $orgalist.');
             }
@@ -351,11 +351,11 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
-        UserHandler $userHandler,
-        CustomerHandler $customerHandler,
-        PermissionsInterface $permissions,
-        AccessControlService $accessControlPermission,
-        EventDispatcherInterface $eventDispatcher)
+                                     UserHandler $userHandler,
+                                     CustomerHandler $customerHandler,
+                                     PermissionsInterface $permissions,
+                                     AccessControlService $accessControlPermission,
+                                     EventDispatcherInterface $eventDispatcher)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -364,7 +364,7 @@ class DemosPlanOrganisationAPIController extends APIController
             $resourceObject = $this->requestData->getObjectToCreate();
             $orgaDataArray = $userHandler->getOrgaArrayFromResourceObject($resourceObject);
 
-            $orgaDataArray = $this->transformRequestVariables($orgaDataArray);
+            $orgaDataArray = $this->requestDataHandler->transformRequestVariables($orgaDataArray);
             // user who are allowed to add users may set their visibility
             $orgaDataArray['updateShowlist'] = true;
 

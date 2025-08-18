@@ -222,9 +222,6 @@ services:
     DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator
 
-    DemosEurope\DemosplanAddon\Logic\Request\RequestDataHandler:
-        class: demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler
-
     DemosEurope\DemosplanAddon\Permission\Validation\PermissionFilterValidatorInterface:
         class: demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver
 

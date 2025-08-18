@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +31,6 @@ use function array_key_exists;
 
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
-    use CanTransformRequestVariablesTrait;
 
     /**
      * Renders the admin view of a single tag.
@@ -164,7 +162,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         string $procedureId,
     ): Response {
         $anchor = '';
-        $requestPost = $this->transformRequestVariables($request->request->all());
+        $requestPost = $this->requestDataHandler->transformRequestVariables($request->request->all());
         $requestPost['r_importCsv'] = $fileUploadService->prepareFilesUpload($request, 'r_importCsv');
 
         // Check if we need to import tags

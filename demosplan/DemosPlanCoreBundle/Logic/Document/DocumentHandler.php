@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;

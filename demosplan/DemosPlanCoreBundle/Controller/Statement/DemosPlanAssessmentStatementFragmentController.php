@@ -373,7 +373,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 return $this->renderJson([], 500, false, 500);
             }
 
-            $namespacedParams = $this->transformRequestVariables($requestPost);
+            $namespacedParams = $this->requestDataHandler->transformRequestVariables($requestPost);
             $updateData = $namespacedParams[$fragmentId];
             // add archived user name
             $user = $currentUser->getUser();
@@ -613,7 +613,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         Request $request,
         $isReviewer = false
     ) {
-        $data = $this->transformRequestVariables($request->request->all());
+        $data = $this->requestDataHandler->transformRequestVariables($request->request->all());
 
         $anchor = '';
         $user = $currentUser->getUser();
