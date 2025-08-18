@@ -102,7 +102,6 @@ export default {
       filterValue: '',
       headerItems: [
         { label: 'Name', width: 'u-1-of-4' },
-        { label: 'Login', width: 'u-1-of-4' },
         { label: 'E-Mail', width: 'u-1-of-4' }
       ],
       isFiltered: false,
@@ -149,8 +148,19 @@ export default {
       }
 
       return this.deleteUser(id)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+        .then((response) => {
+          // Check if the HTTP response indicates an error
+          if (response && (response.status >= 400 || response.ok === false)) {
+            // HTTP error status, show error message
+            dplan.notify.notify('error', Translator.trans('error.delete.user'))
+          } else {
+            // Successful deletion, show success message
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to delete user:', error)
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
         })
     },
 
@@ -159,11 +169,30 @@ export default {
         return
       }
 
-      ids.map(id => {
+      let successCount = 0
+      let errorCount = 0
+
+      Promise.allSettled(ids.map(id => {
         return this.deleteUser(id)
-          .then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          .then((response) => {
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              successCount++
+            }
           })
+          .catch((error) => {
+            console.error('Failed to delete user:', error)
+            errorCount++
+          })
+      })).then(() => {
+        if (successCount > 0) {
+          dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+        }
+        if (errorCount > 0) {
+          dplan.notify.notify('error', Translator.trans('error.delete.user'))
+        }
       })
     },
 
@@ -223,9 +252,9 @@ export default {
             memberOf: 'name'
           }
         }
-        filter[`login_${idx}`] = {
+        filter[`email_${idx}`] = {
           condition: {
-            path: 'login',
+            path: 'email',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             memberOf: 'name'

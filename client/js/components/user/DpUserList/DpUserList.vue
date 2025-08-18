@@ -198,23 +198,52 @@ export default {
     }),
     ...mapActions('User', {
       userList: 'list',
-      deleteUser: 'delete'
+      deleteAdministratableUser: 'delete'
     }),
 
-    deleteItems (ids) {
-      if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
-      } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
-          ids.forEach(id => {
-            this.deleteUser(id)
-              .then(() => {
-                // Remove deleted item from itemSelections
-                delete this.itemSelections[id]
-                dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
-              })
-          })
-        }
+    async deleteItems (ids) {
+      if (!this.selectedItems.length) {
+        return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
+      }
+
+      const isConfirmed = window.dpconfirm(
+        Translator.trans('check.user.delete', { count: this.selectedItems.length })
+      )
+
+      if (!isConfirmed) return
+
+      let successCount = 0
+      let errorCount = 0
+
+      const deleteResults = await Promise.allSettled( /* ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+        ids.map(async id => {
+          try {
+            const response = await this.deleteAdministratableUser(id)
+            // Check if the HTTP response indicates an error
+            if (response && (response.status >= 400 || response.ok === false)) {
+              errorCount++
+            } else {
+              delete this.itemSelections[id]
+              successCount++
+            }
+          } catch (error) {
+            console.error(`Failed to delete user with ID ${id}:`, error)
+            errorCount++
+          }
+        })
+      )
+
+      // Show appropriate messages
+      if (successCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+      }
+      if (errorCount > 0) {
+        dplan.notify.notify('error', Translator.trans('error.delete.user'))
+      }
+
+      // Reload items only if at least one deletion was successful
+      if (deleteResults.some(result => result.status === 'fulfilled')) {
+        this.loadItems()
       }
     },
 
