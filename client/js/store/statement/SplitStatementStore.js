@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -364,7 +364,7 @@ const SplitStatementStore = {
           ].join()
         }
       }))
-        .then((response) => {
+        .then(response => {
           commit('setProperty', { prop: 'statement', val: response.data.data })
         })
     },
@@ -453,24 +453,33 @@ const SplitStatementStore = {
       dataToSend.attributes.segments = state.segmentsWithText
       dataToSend.attributes.statementText = state.statementText
 
-      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', { statementId: state.statementId, procedureId: state.procedureId }), {}, { data: dataToSend })
-        .then(checkResponse)
-        .then((response) => {
-          if (response.data.nextStatementId !== '') {
+      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
+        statementId: state.statementId,
+        procedureId: state.procedureId
+      }), {}, { data: dataToSend })
+        .then(response => {
+          if (response.data.data.nextStatementId !== '') {
             const form = document.createElement('form')
-            const path = Routing.generate('dplan_drafts_list_claim', { statementId: response.data.nextStatementId, procedureId: state.procedureId })
+            const path = Routing.generate('dplan_drafts_list_claim', {
+              statementId: response.data.data.nextStatementId,
+              procedureId: state.procedureId
+            })
+
             form.setAttribute('action', path)
             form.setAttribute('method', 'post')
             document.body.appendChild(form)
+
             form.submit()
           } else {
             window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: state.procedureId })
           }
+
           return Promise.resolve(true)
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
           commit('setProperty', { prop: 'segments', val: state.initialSegments })
+
           return Promise.reject(err)
         })
     },

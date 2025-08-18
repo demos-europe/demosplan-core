@@ -9,6 +9,7 @@
         {% block content %}
             <idp-login-form
                 :is-idp="{{ useIdp|json_encode }}"
+                :is-azure-sso="{{ useAzureSso|json_encode }}"
                 idp-login-path="{{ gatewayURL }}"
                 csrf-token="{{ csrf_token('authenticate')|json_encode }}">
                 {# Using the |raw filter in this special case is needed, as html tags are returned. #}

@@ -213,11 +213,14 @@
             v-for="customField in selectedCustomFields"
             :key="customField.field"
             v-slot:[customField.field]="rowData">
-            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
+            <div>
+              {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
+            </div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   action: 'editText',
                   procedureId: procedureId,
@@ -230,6 +233,7 @@
               </a>
               <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   procedureId: procedureId,
                   segment: rowData.id,
@@ -242,13 +246,14 @@
               <!-- Version history view -->
               <button
                 type="button"
-                class="btn--blank o-link--default"
+                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
                 @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
                 {{ Translator.trans('history') }}
               </button>
               <a
                 v-if="hasPermission('feature_read_source_statement_via_api')"
+                class="block leading-[2] whitespace-nowrap"
                 :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
@@ -279,7 +284,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -702,12 +706,22 @@ export default {
 
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
-        .then(response => checkResponse(response))
-        .then(response => {
-          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+        .then(({ data }) => {
+          const allSegments = data[0]?.result ?? []
+
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFieldOptionLabel (customFields, fieldId) {
+      const customFieldOptionId = customFields?.find(el => el.id === fieldId)?.value || ''
+
+      if (customFieldOptionId === '') {
+        return ''
+      }
+
+      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
     getCustomFields () {
@@ -819,9 +833,8 @@ export default {
       }
 
       dpRpc('segments.facets.list', requestParams, 'filterList')
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
             const groupedOptions = []
@@ -979,11 +992,10 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
-        .then(response => {
-          if (response) {
-            this.updateQueryHashInURL(oldQueryHash, response)
-            this.currentQueryHash = response
+        .then(({ data }) => {
+          if (data) {
+            this.updateQueryHashInURL(oldQueryHash, data)
+            this.currentQueryHash = data
           }
         })
         .catch(err => console.log(err))

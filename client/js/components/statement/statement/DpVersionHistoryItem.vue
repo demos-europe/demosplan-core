@@ -183,7 +183,7 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpVersionHistoryItem',
@@ -238,7 +238,7 @@ export default {
       if (this.time.displayChange) {
         this.loadHistory()
           .then((response) => {
-            this.history = response.data
+            this.history = response.data.data
             this.isLoading = false
           })
       } else {
@@ -254,9 +254,6 @@ export default {
           procedureId: this.procedureId
         })
       })
-        .then(response => checkResponse(response))
-        .then(response => response)
-        .catch(error => checkResponse(error.response))
     }
   }
 }
