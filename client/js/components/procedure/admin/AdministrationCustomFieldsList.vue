@@ -9,8 +9,10 @@
       type="info" />
 
     <create-custom-field-form
+      :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
+      preselected-type="mehrfachauswahl"
       @save="customFieldData => saveNewField(customFieldData)">
       <div>
         <dp-label
