@@ -142,6 +142,15 @@
         </div>
       </template>
 
+      <template v-slot:type="rowData">
+        <div class="mt-1">
+          <dp-badge
+          color="default"
+          :text="rowData.type"
+          />
+        </div>
+      </template>
+
       <template v-slot:flyout="rowData">
         <div class="flex float-right">
           <button
@@ -222,6 +231,7 @@
 <script>
 import {
   dpApi,
+  DpBadge,
   DpButton,
   DpConfirmDialog,
   DpDataTable,
@@ -240,6 +250,7 @@ export default {
 
   components: {
     CreateCustomFieldForm,
+    DpBadge,
     DpButton,
     DpConfirmDialog,
     DpDataTable,
@@ -336,6 +347,11 @@ export default {
           field: 'description',
           label: Translator.trans('description'),
           colClass: 'u-5-of-12'
+        },
+        {
+          field: 'type',
+          label: Translator.trans('type'),
+          colClass: 'u-6-of-12'
         }
       ]
     },
@@ -532,6 +548,7 @@ export default {
               name,
               description,
               options: JSON.parse(JSON.stringify(options)),
+              type: 'Mehrfachauswahl',
               open: false,
               edit: false,
             }
