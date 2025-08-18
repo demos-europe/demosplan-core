@@ -460,7 +460,7 @@ class AssessmentHandler
 
     public function getAssessmentTableDefaultViewMode()
     {
-        $this->globalConfig->getAssessmentTableDefaultViewMode();
+        return $this->globalConfig->getAssessmentTableDefaultViewMode();
     }
 
     /**
