@@ -229,6 +229,16 @@ export default {
     procedureId: {
       required: true,
       type: String
+    },
+
+    localStorageKey: {
+      type: String,
+      default: 'statementList'
+    },
+
+    useLocalStorage: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -258,7 +268,7 @@ export default {
       expandedRows: [], // Track welche Rows expandiert sind
       lastPaginationEventTime: 0, // Debouncing für Pagination Events
       isColumnSelectorOpen: false,
-      visibleColumns: ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand'],
+      visibleColumns: [],
       selectableColumns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -561,6 +571,21 @@ export default {
       } else {
         this.visibleColumns.push(columnKey)
       }
+      this.saveColumnSelection()
+    },
+
+    saveColumnSelection() {
+      if (this.useLocalStorage) {
+        localStorage.setItem(this.localStorageKey, JSON.stringify(this.visibleColumns))
+      }
+    },
+
+    loadColumnSelection() {
+      if (this.useLocalStorage) {
+        const stored = localStorage.getItem(this.localStorageKey)
+        return stored ? JSON.parse(stored) : ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
+      }
+      return ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
     },
 
 
@@ -652,6 +677,9 @@ export default {
   },
 
   mounted() {
+    // Initialize visibleColumns from localStorage
+    this.visibleColumns = this.loadColumnSelection()
+    
     this.fetchStatements({
       page: { number: 1, size: this.pagination.perPage },
       filter: {
