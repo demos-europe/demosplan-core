@@ -492,9 +492,9 @@ export default {
     getTextForEnabledFieldTypes (textType, multiplePermissionsText) {
       const permissionToText = {}
 
-      Object.keys(this.permissionTextConfig).forEach(permission => {
-        if (this.permissionTextConfig[permission][textType]) {
-          permissionToText[permission] = this.permissionTextConfig[permission][textType]
+      Object.keys(this.enabledFieldsTextConfig).forEach(permission => {
+        if (this.enabledFieldsTextConfig[permission][textType]) {
+          permissionToText[permission] = this.enabledFieldsTextConfig[permission][textType]
         }
       })
 
