@@ -383,8 +383,13 @@ export default {
      */
     checkIfNameIsUnique (name) {
       const identicalNames = Object.values(this.customFields).filter(field => field.attributes.name === name)
+      const inEditMode = this.customFieldItems.filter(field => field.name === name && field.edit).length > 0
 
-      return identicalNames.length <= 0
+      if (!inEditMode) {
+        return identicalNames.length === 0
+      }
+
+      return identicalNames.length <= 1
     },
 
     /**
