@@ -75,10 +75,30 @@
     color: var(--dp-green-70) !important;
 }
 
+/* Confidence Tags */
+.cv-statement-list .cv-confidence-medium {
+    background-color: var(--dp-orange-20) !important;
+    color: var(--dp-orange-70) !important;
+}
+
 /* Carbon Tag Overrides for table */
 .cv-statement-list .bx--data-table td {
     padding: 15px !important;
     vertical-align: top !important;
+}
+
+.cv-statement-list .bx--data-table th,
+.cv-statement-list .bx--data-table td {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Fix ID column width to prevent shifting */
+#cv-statement-table th:nth-child(2),
+#cv-statement-table td:nth-child(2) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
 }
 .bx--tab-content {
     padding: 0 !important;
@@ -98,6 +118,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 25px 0;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .cv-statement-list .cv-main-title {
@@ -133,6 +155,22 @@
     border: none !important;
 }
 
+/* Fix MultiSelect Checkboxes */
+.bx--checkbox-wrapper .bx--checkbox-label::before {
+    border: 1px solid #8d8d8d !important;
+    background-color: white !important;
+}
+
+.bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::before {
+    background-color: #0f62fe !important;
+    border-color: #0f62fe !important;
+}
+
+.bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::after {
+    display: block !important;
+}
+
+#colSort,
 .cv-export-btn,
 .cv-add-btn {
   display: flex !important;
@@ -142,18 +180,46 @@
   gap: 32px !important;
 }
 
+/* Export Button - same colors as primary button */
+.cv-export-btn {
+  border: 1px solid var(--dp-primary-blue) !important;
+  color: var(--dp-primary-blue) !important;
+}
+
+.cv-export-btn:hover {
+  background-color: var(--dp-primary-blue) !important;
+  color: white !important;
+}
+
+#colSort{
+    background-color: #f4f4f4 !important;
+    border: none !important;
+    border-bottom: 1px solid #8d8d8d !important;
+    color: #161616 !important;
+}
+
+#colSort:hover {
+    color: #161616 !important;
+}
+
+
 /* Hide checkboxes in expanded rows */
-.expanded-row .bx--checkbox {
+.cv-expanded-row .bx--table-column-checkbox {
     display: none !important;
 }
-.expanded-row .bx--table-column-checkbox {
-    display: none !important;
+
+/* Fix expanded row content positioning */
+.cv-expanded-row td[colspan] {
+    padding-left: 75px !important; /* Match checkbox column width */
 }
 
 /* Checkbox-Alignment */
 #cv-statement-table .bx--table-column-checkbox {
     text-align: left !important;
     padding-left: 20px !important;
+    width: 60px !important; /* Fixed width to prevent shifting */
+    min-width: 60px !important;
+    max-width: 60px !important;
 }
 
 /* Pagination */
@@ -206,6 +272,140 @@ a[aria-current="page"]::after {
     text-decoration-color: var(--cds-text-primary) !important;
     text-decoration-line: none !important;
     pointer-events: none !important;
+}
+
+/* Custom Column Selector */
+.cv-column-selector {
+    position: relative;
+    display: inline-block;
+    z-index: 10000;
+}
+
+/* Ensure table actions container allows overflow */
+.bx--data-table-content .bx--data-table-header {
+    overflow: visible !important;
+}
+
+.bx--data-table-header__actions {
+    overflow: visible !important;
+}
+
+.cv-column-selector-trigger {
+    cursor: pointer;
+}
+
+.cv-column-selector-trigger .bx--btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 16px !important;
+    border: 1px solid var(--dp-primary-blue) !important;
+    color: var(--dp-primary-blue) !important;
+    background-color: white !important;
+}
+
+.cv-column-selector-trigger .bx--btn:hover {
+    background-color: var(--dp-primary-blue) !important;
+    color: white !important;
+}
+
+.cv-column-selector-dropdown-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    pointer-events: none !important;
+}
+
+.cv-column-selector-dropdown {
+    position: fixed !important;
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    z-index: 100000 !important;
+    min-width: 220px !important;
+    animation: fadeIn 0.15s ease-out !important;
+    pointer-events: all !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cv-column-selector-header {
+    display: none !important;
+}
+
+.cv-column-selector-options {
+    padding: 0 !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+}
+
+.cv-column-option-button.bx--btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    font-size: 14px !important;
+    color: #161616 !important;
+    width: 100% !important;
+    text-align: left !important;
+    border: none !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    background: white !important;
+    min-height: auto !important;
+    border-radius: 0 !important;
+}
+
+.cv-column-option-button.bx--btn:hover {
+    background-color: #f4f4f4 !important;
+}
+
+.cv-column-option-button.bx--btn:active,
+.cv-column-option-button.bx--btn:focus {
+    background-color: #e8e8e8 !important;
+    outline: none !important;
+}
+
+.cv-column-checkbox {
+    margin-right: 12px !important;
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+    border: 1px solid #8d8d8d !important;
+    background: white !important;
+    pointer-events: none !important;
+    appearance: none !important;
+    position: relative !important;
+}
+
+.cv-column-checkbox:checked {
+    background: #161616 !important;
+    border: 1px solid #161616 !important;
+}
+
+.cv-column-checkbox:checked::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 1px !important;
+    width: 4px !important;
+    height: 8px !important;
+    border: solid white !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) !important;
 }
 
 
