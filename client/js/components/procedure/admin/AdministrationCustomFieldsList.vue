@@ -383,6 +383,11 @@ export default {
      */
     checkIfNameIsUnique (name) {
       const identicalNames = Object.values(this.customFields).filter(field => field.attributes.name === name)
+      const inEditMode = this.customFieldItems.filter(field => field.name === name && field.edit).length > 0
+
+      if (!inEditMode) {
+        return identicalNames.length === 0
+      }
 
       return identicalNames.length <= 1
     },
@@ -673,7 +678,11 @@ export default {
 
       let isAnyOptionNameDuplicated = false
       customFieldOptions.forEach(option => {
-        if (option.label !== '') {
+        if (isAnyOptionNameDuplicated) {
+          /* since the array function forEach does not accept continue in its arrow function we have to use return,
+          also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Bad_continue for further info */
+          return
+        } else if (option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)
         }
       })
