@@ -272,25 +272,23 @@
         {% set filtered_legends = all_layers|filter(layer => '//' in layer.url and (layer.legend|default|getFile('size')|length > 0 or layer.legend|default|getFile('mimeType')|length > 0)) %}
         {% set layers_with_legend_files = [] %}
         {% for layer in filtered_legends %}
-            {% if layer.defaultVisibility == true %}
-                {# Transform object to be consumable by vue component #}
-                {% set layers_with_legend_files = layers_with_legend_files|merge([{
-                    name: layer.name,
-                    legend: {
-                        hash: layer.legend|getFile('hash'),
-                        mimeType: layer.legend|getFile('mimeType'),
-                        fileSize: layer.legend|getFile('size')
-                    }
-                }]) %}
-            {%  endif %}
+            {# Include all layers with legend files, regardless of defaultVisibility #}
+            {% set layers_with_legend_files = layers_with_legend_files|merge([{
+                name: layer.name,
+                legend: {
+                    hash: layer.legend|getFile('hash'),
+                    mimeType: layer.legend|getFile('mimeType'),
+                    fileSize: layer.legend|getFile('size')
+                }
+            }]) %}
         {% endfor %}
         {% if false == display_legend_box %}
             {% set display_legend_box = layers_with_legend_files|length > 0 %}
         {% endif %}
 
-        {# When fetching legends dynamically via getLegendGraphic, we need to display the box anyhow, as we cannot know, whether we have legends or not #}
+        {# Always show legend box if any layers exist or if getLegendGraphic is available #}
         {% if false == display_legend_box %}
-            {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') %}
+            {% set display_legend_box = hasPermission('feature_participation_area_procedure_detail_map_use_get_legend_graphic') or all_layers|length > 0 %}
         {% endif %}
 
         {# Statement tools #}

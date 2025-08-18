@@ -411,17 +411,17 @@ const LayersStore = {
 
         // Add each layer to GetLegendGraphic request
         layerParamSplit.forEach(item => {
-          if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + item + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
-            const legend = {
-              layerId: layer.id,
-              treeOrder: layer.attributes.treeOrder,
-              mapOrder: layer.attributes.mapOrder,
-              defaultVisibility: layer.attributes.hasDefaultVisibility,
-              url: legendUrl
-            }
-            commit('setLegend', legend)
+          // Always create legends for all layers, regardless of isEnabled status
+          const legendUrl = legendUrlBase + 'Layer=' + item + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+          const legend = {
+            layerId: layer.id,
+            treeOrder: layer.attributes.treeOrder,
+            mapOrder: layer.attributes.mapOrder,
+            defaultVisibility: layer.attributes.hasDefaultVisibility,
+            url: legendUrl
           }
+          commit('setLegend', legend)
+        }
         })
       }
     },
