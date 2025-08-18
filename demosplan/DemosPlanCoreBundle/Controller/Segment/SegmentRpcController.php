@@ -43,7 +43,7 @@ class SegmentRpcController extends APIController
         if ($procedureId !== $segmentListQuery->getProcedureId()) {
             throw new BadRequestException('Procedure ID given in HTTP header must match the procedure the query was originally created for');
         }
-        /* @var SegmentListQuery $segmentListQuery */
+        /** @var SegmentListQuery $segmentListQuery */
         $segmentListQuery->setFilter($filterArray);
         $segmentListQuery->setSearchPhrase($searchPhrase);
         $filterSetService->findOrCreateFromQuery($segmentListQuery);
