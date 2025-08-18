@@ -455,10 +455,10 @@ export default {
         sort: 'name',
         filter: filterObject,
         fields: {
-          Customer: orgaFields.Customer.join(),
-          Orga: orgaFields.Orga.join(),
-          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
-          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
         },
         include: includeFields.join()
       })
@@ -473,10 +473,10 @@ export default {
           number: page
         },
         fields: {
-          Customer: orgaFields.Customer.join(),
-          Orga: orgaFields.Orga.join(),
-          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
-          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
         },
         sort: 'name',
         filter: {
@@ -509,10 +509,10 @@ export default {
           number: page
         },
         fields: {
-          Customer: orgaFields.Customer.join(),
-          Orga: orgaFields.Orga.join(),
-          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
-          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
         },
         sort: 'name',
         include: includeFields.join()
