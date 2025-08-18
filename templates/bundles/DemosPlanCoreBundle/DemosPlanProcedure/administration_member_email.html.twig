@@ -123,7 +123,17 @@
 
         {% set emailText = templateVars.procedure.settings.emailText|default %}
         {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') and templateVars.emailTextAdded is defined %}
-            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br %}
+            {# Remove existing footer to replace with updated one #}
+            {% set footerMarker = '---------' %}
+            {% set hasExistingFooter = false %}
+            {% if emailText and footerMarker in emailText %}
+                {% set emailTextParts = emailText|split(footerMarker) %}
+                {% set emailText = emailTextParts[0]|trim %}
+                {% set hasExistingFooter = true %}
+            {% endif %}
+            {# Add current footer with selected TÖBs - no br/br if footer existed #}
+            {% set spacing = hasExistingFooter ? '' : '<br/><br/>' %}
+            {% set emailText = emailText ~ spacing ~ templateVars.emailTextAdded|wysiwyg|nl2br %}
         {% endif %}
 
         <div class="{{ 'u-mb-0_75'|prefixClass }}">
