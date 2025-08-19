@@ -14,25 +14,26 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Throwable;
 
 class GeodatenzentrumAddressSearchService
-    /**
-     * Geodatenzentrum returns the following json data format:
-     * [
-     * {
-     * "address": {
-     * "strasse": "Unter den Linden",
-     * "hausnummer": "77",
-     * "postleitzahl": "10117",
-     * "stadt": "Berlin",
-     * "bundesland": "Berlin"
-     * },
-     * "lat": 52.5170365,
-     * "lon": 13.3888599
-     * // ... potentially other fields
-     * }
-     * // ... more results
-     * ]
+/*
+ * Geodatenzentrum returns the following json data format:
+ * [
+ * {
+ * "address": {
+ * "strasse": "Unter den Linden",
+ * "hausnummer": "77",
+ * "postleitzahl": "10117",
+ * "stadt": "Berlin",
+ * "bundesland": "Berlin"
+ * },
+ * "lat": 52.5170365,
+ * "lon": 13.3888599
+ * // ... potentially other fields
+ * }
+ * // ... more results
+ * ]
  */
 {
     private const GEODATENZENTRUM_ADDRESS_SEARCH = 'https://sg.geodatenzentrum.de/gdz_ortssuche__353cdae2-2c78-1654-c1f0-85192cfa13d6';
@@ -42,38 +43,37 @@ class GeodatenzentrumAddressSearchService
         private readonly LoggerInterface $logger,
     ) {
     }
+
     /**
-     * search for addresses using the Geodatenzentrum search service. Enables search by street names and not only zip code
-     * @param string $query // search query
-     * @param int    $limit // max number of results to return
-     * @param array|null $maxExtent // limits result to a geographical area
+     * search for addresses using the Geodatenzentrum search service. Enables search by street names and not only zip code.
      *
-     * @return array
+     * @param string     $query     // search query
+     * @param int        $limit     // max number of results to return
+     * @param array|null $maxExtent // limits result to a geographical area
      */
     public function searchAddress($query, $limit = 20, $maxExtent = null): array
     {
-        try{
+        try {
             $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, [
                 'query' => [
-                    'q' => $query,
-                    'format' => 'json',
-                    'limit' => $limit,
-                    'countrycodes'=>'de'
-                ]
+                    'q'           => $query,
+                    'format'      => 'json',
+                    'limit'       => $limit,
+                    'countrycodes'=> 'de',
+                ],
             ]);
             $result = $response->toArray();
             $formattedResult = array_map([$this, 'formatResult'], $result);
 
-            if(null !== $maxExtent) {
-                $formattedResult= $this->filterByExtent($formattedResult, $maxExtent);
+            if (null !== $maxExtent) {
+                $formattedResult = $this->filterByExtent($formattedResult, $maxExtent);
             }
-            return $formattedResult;
 
-        } catch (\Throwable $e) {
+            return $formattedResult;
+        } catch (Throwable $e) {
             $this->logger->error($e->getMessage());
 
             return [];
-
         }
     }
 
@@ -90,15 +90,15 @@ class GeodatenzentrumAddressSearchService
         $longitude = $result['lon'] ?? null;
 
         return [
-            'strasse' => $street,
-            'hausnummer' => $houseNumber,
+            'strasse'      => $street,
+            'hausnummer'   => $houseNumber,
             'postleitzahl' => $postcode,
-            'stadt' => $city,
-            'bundesland' => $federalState,
-            'lat' => $latitude,
-            'lon' => $longitude,
-            //former searchCity function compatibility fields:
-            'postcode' => $postcode,
+            'stadt'        => $city,
+            'bundesland'   => $federalState,
+            'lat'          => $latitude,
+            'lon'          => $longitude,
+            // former searchCity function compatibility fields:
+            'postcode'      => $postcode,
             'municipalCode' => null,
         ];
     }
