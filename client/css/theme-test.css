@@ -413,5 +413,9 @@ a[aria-current="page"]::after {
 }
 
 
+#footer {
+    display:none;
+}
+
 
 

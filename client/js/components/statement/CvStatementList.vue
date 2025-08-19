@@ -251,13 +251,15 @@ export default {
     return {
       activeTab: 'statements',
       headerCheckboxHandler: null, // Store handler for cleanup
+      clientSortField: null, // Für client-side sorting
+      clientSortDirection: null,
       columns: [
         { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
         { key: 'author', label: 'Einreicher*in' },
-        { key: 'institution', label: 'Institution' },
+        { key: 'institution', label: 'Institution', sortable: true },
         { key: 'sections', label: 'Abschnitte', headingStyle: { 'pointer-events': 'none' } },
-        { key: 'confidence', label: 'Konfidenz'},
+        { key: 'confidence', label: 'Konfidenz', sortable: true },
         { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
       ],
       pagination: {
@@ -293,7 +295,7 @@ export default {
 
     statements() {
       const rawData = Object.values(this.statementsObject) || []
-      return rawData.map(stmt => {
+      let processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
         return {
           id: stmt.attributes?.externId || stmt.id,
@@ -307,6 +309,48 @@ export default {
           confidence: Math.floor(Math.random() * 100) + 1 // Dummy: 1-100%
         }
       })
+      
+      // Client-side sorting
+      if (this.clientSortField === 'id') {
+        // Numerische ID-Sortierung
+        processedData.sort((a, b) => {
+          const numA = this.extractNumericId(a.id)
+          const numB = this.extractNumericId(b.id)
+          
+          return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
+        })
+      } else if (this.clientSortField === 'status') {
+        // Logische Status-Sortierung
+        const statusOrder = { 'Neu': 1, 'In Bearbeitung': 2, 'Abgeschlossen': 3 }
+        processedData.sort((a, b) => {
+          const orderA = statusOrder[a.status] || 999
+          const orderB = statusOrder[b.status] || 999
+          
+          return this.clientSortDirection === 'ascending' ? orderA - orderB : orderB - orderA
+        })
+      } else if (this.clientSortField === 'institution') {
+        // Alphabetische Institution-Sortierung
+        processedData.sort((a, b) => {
+          const instA = (a.institution || '').toLowerCase()
+          const instB = (b.institution || '').toLowerCase()
+          
+          if (this.clientSortDirection === 'ascending') {
+            return instA.localeCompare(instB)
+          } else {
+            return instB.localeCompare(instA)
+          }
+        })
+      } else if (this.clientSortField === 'confidence') {
+        // Numerische Konfidenz-Sortierung (höchste zuerst ist sinnvoller)
+        processedData.sort((a, b) => {
+          const confA = a.confidence || 0
+          const confB = b.confidence || 0
+          
+          return this.clientSortDirection === 'ascending' ? confA - confB : confB - confA
+        })
+      }
+      
+      return processedData
     },
 
     computedPageSizes() {
@@ -501,13 +545,32 @@ export default {
 
         // Mapping von Column Index zu API Field
         const sortFieldMap = {
-          0: 'internId',           // ID column
-          1: 'status',             // Status column
+          0: null,                 // ID column - client-side numerische Sortierung
+          1: null,                 // Status column - client-side logische Sortierung
           2: 'submitName',         // Author column
-          3: 'text',               // Text column
-          4: null                  // Sections column - API unterstützt kein segments sort
+          3: null,                 // Institution - client-side alphabetisch
+          4: null,                 // Sections column - not sortable
+          5: null                  // Confidence - client-side numerisch
         }
 
+        // Client-side sortieren
+        if (this.sortBy === 0) {
+          this.sortStatementsClientSide('id')
+          return '-submitDate,id' // Fallback API sort
+        }
+        if (this.sortBy === 1) {
+          this.sortStatementsClientSide('status')
+          return '-submitDate,id' // Fallback API sort
+        }
+        if (this.sortBy === 3) {
+          this.sortStatementsClientSide('institution')
+          return '-submitDate,id' // Fallback API sort
+        }
+        if (this.sortBy === 5) {
+          this.sortStatementsClientSide('confidence')
+          return '-submitDate,id' // Fallback API sort
+        }
+        
         const field = sortFieldMap[this.sortBy]
         return field ? `${direction}${field}` : '-submitDate,id'
       }
@@ -532,6 +595,13 @@ export default {
         // Row ist kollabiert - expandieren
         this.expandedRows.push(rowId)
       }
+    },
+
+    sortStatementsClientSide(sortField) {
+      // Set client-side sorting parameters
+      this.clientSortField = sortField
+      this.clientSortDirection = this.sortDirection
+      // computed property statements() wird automatisch neu berechnet
     },
 
     toggleFilter() {
