@@ -408,6 +408,10 @@ a[aria-current="page"]::after {
     transform: rotate(45deg) !important;
 }
 
+.bx--content-switcher-btn {
+    min-width: fit-content !important;
+}
+
 
 
 

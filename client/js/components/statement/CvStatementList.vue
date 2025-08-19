@@ -19,12 +19,12 @@ All rights reserved
       <cv-content-switcher-button
         content-selector=".statements-content"
         :selected="activeTab === 'statements'">
-        Gesamte Stellungnahmen
+        Stellungnahmen
       </cv-content-switcher-button>
       <cv-content-switcher-button
         content-selector=".sections-content"
         :selected="activeTab === 'sections'">
-        Aufteilung in Abschnitte
+        Abschnitte
       </cv-content-switcher-button>
     </cv-content-switcher>
     </div>
@@ -59,7 +59,7 @@ All rights reserved
         <cv-button kind="tertiary" class="cv-export-btn">
           Exportieren <Export16 />
         </cv-button>
-        <cv-button kind="primary" class="cv-add-btn" @click="createNewStatement">
+        <cv-button kind="primary" class="cv-add-btn" @click="openImportModal">
           Neue Stellungnahme hinzufügen <DocumentAdd16 />
         </cv-button>
       </template>
@@ -93,7 +93,12 @@ All rights reserved
                 :kind="getStatusType(statement.status)"
                 :class="getStatusClass(statement.status)" />
             </cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('author')">{{ statement.author }}</cv-data-table-cell>
+            <cv-data-table-cell v-if="visibleColumns.includes('author')">
+              <div class="cv-author-cell">
+                <div class="cv-author-name">{{ statement.author }}</div>
+                <div class="cv-author-date">{{ statement.authorDate }}</div>
+              </div>
+            </cv-data-table-cell>
             <cv-data-table-cell v-if="visibleColumns.includes('institution')">{{ statement.institution }}</cv-data-table-cell>
             <cv-data-table-cell v-if="visibleColumns.includes('sections')">{{ statement.sections }}</cv-data-table-cell>
             <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
@@ -245,6 +250,7 @@ export default {
   data() {
     return {
       activeTab: 'statements',
+      headerCheckboxHandler: null, // Store handler for cleanup
       columns: [
         { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
@@ -293,7 +299,8 @@ export default {
           id: stmt.attributes?.externId || stmt.id,
           status: this.mapApiStatusToDisplay(stmt.attributes.status),
           statusDate: stmt.attributes.submitDate,
-          author: `${stmt.attributes.authorName}\n${this.formatDate(stmt.attributes.authoredDate)}`,
+          author: stmt.attributes.authorName,
+          authorDate: this.formatDate(stmt.attributes.authoredDate),
           institution: stmt.attributes?.initialOrganisationName || '-',
           text: stmt.attributes?.text || stmt.text, // Für expanded row
           sections: segmentsCount > 0 ? segmentsCount : '-',
@@ -590,11 +597,66 @@ export default {
 
 
     setupCheckboxListeners() {
+      console.log('setupCheckboxListeners called')
       // Wait for DOM to be fully rendered with statements
       this.$nextTick(() => {
+        console.log('DOM is ready, looking for checkboxes')
+        // Header checkbox für "Select All" - Debug multiple selectors
+        const headerSelectors = [
+          '#cv-statement-table .bx--table-head .bx--table-column-checkbox input',
+          '#cv-statement-table thead .bx--table-column-checkbox input',
+          '#cv-statement-table .bx--data-table-header .bx--table-column-checkbox input',
+          '#cv-statement-table th .bx--table-column-checkbox input'
+        ]
+
+        let headerCheckbox = null
+        for (const selector of headerSelectors) {
+          headerCheckbox = document.querySelector(selector)
+          if (headerCheckbox) {
+            console.log('Found header checkbox with selector:', selector)
+            break
+          }
+        }
+
+        if (headerCheckbox) {
+          // Remove existing listeners to prevent conflicts
+          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+
+          this.headerCheckboxHandler = (event) => {
+            console.log('Header checkbox clicked, checked:', event.target.checked)
+            console.log('Current statements count:', this.statements.length)
+
+            if (event.target.checked) {
+              // Alle Rows auswählen
+              this.selectedRows = this.statements.map(s => String(s.id))
+              console.log('Selected all rows:', this.selectedRows)
+            } else {
+              // Alle Rows abwählen
+              this.selectedRows = []
+              console.log('Deselected all rows')
+            }
+            this.updateBatchActionsVisibility()
+            this.updateRowCheckboxes()
+          }
+
+          headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
+        } else {
+          console.log('Header checkbox not found with any selector')
+          // Debug: Show all checkboxes found
+          const allCheckboxes = document.querySelectorAll('#cv-statement-table input[type="checkbox"]')
+          console.log('All checkboxes found:', allCheckboxes.length)
+          allCheckboxes.forEach((cb, index) => {
+            console.log(`Checkbox ${index}:`, cb.closest('tr')?.getAttribute('class') || 'no-tr', cb.closest('th')?.getAttribute('class') || 'no-th')
+          })
+        }
+
+        // Individual row checkboxes
         const checkboxes = document.querySelectorAll('#cv-statement-table .bx--table-column-checkbox input[type="checkbox"]')
 
         checkboxes.forEach((checkbox, index) => {
+          // Skip header checkbox (already handled above)
+          if (checkbox.closest('.bx--table-head')) return
+
           checkbox.addEventListener('change', (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
 
@@ -610,6 +672,7 @@ export default {
             }
 
             this.updateBatchActionsVisibility()
+            this.updateHeaderCheckboxState()
           })
         })
       })
@@ -632,6 +695,35 @@ export default {
           batchActions.classList.remove('bx--batch-actions--active')
         }
       }
+    },
+
+    updateHeaderCheckboxState() {
+      const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
+      if (headerCheckbox) {
+        const totalRows = this.statements.length
+        const selectedCount = this.selectedRows.length
+
+        if (selectedCount === 0) {
+          headerCheckbox.checked = false
+          headerCheckbox.indeterminate = false
+        } else if (selectedCount === totalRows) {
+          headerCheckbox.checked = true
+          headerCheckbox.indeterminate = false
+        } else {
+          headerCheckbox.checked = false
+          headerCheckbox.indeterminate = true
+        }
+      }
+    },
+
+    updateRowCheckboxes() {
+      const checkboxes = document.querySelectorAll('#cv-statement-table .bx--data-table tbody .bx--table-column-checkbox input')
+      checkboxes.forEach((checkbox) => {
+        const rowValue = checkbox.closest('tr')?.getAttribute('data-value')
+        if (rowValue) {
+          checkbox.checked = this.selectedRows.includes(rowValue)
+        }
+      })
     },
 
     replacePaginationText() {
@@ -679,7 +771,7 @@ export default {
   mounted() {
     // Initialize visibleColumns from localStorage
     this.visibleColumns = this.loadColumnSelection()
-    
+
     this.fetchStatements({
       page: { number: 1, size: this.pagination.perPage },
       filter: {
