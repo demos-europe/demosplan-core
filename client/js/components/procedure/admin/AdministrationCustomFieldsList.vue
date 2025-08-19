@@ -100,25 +100,24 @@
             v-for="(option, index) in newRowData.options"
             :key="index"
             class="mb-1">
-              <div class="flex">
-                <dp-input
-                  v-model="newRowData.options[index].label"
-                  :id="`option:${index}`"
-                  :key="`option:${index}`"
-                  required
-                />
+            <div class="flex">
+              <dp-input
+                v-model="newRowData.options[index].label"
+                :id="`option:${index}`"
+                :key="`option:${index}`"
+                required
+              />
 
-                <dp-button
-                  v-if="index >= rowData.options.length"
-                  class="w-[20px] inline-block ml-1"
-                  :data-cy="`customFields:removeOptionInput:${option.label}`"
-                  hide-text
-                  icon="x"
-                  :text="Translator.trans('remove')"
-                  variant="subtle"
-                  @click="deleteOptionOnEdit(index)"
-                />
-              </div>
+              <dp-button
+                class="w-[20px] inline-block ml-1"
+                :data-cy="`customFields:removeOptionInput:${option.label}`"
+                hide-text
+                icon="x"
+                :text="Translator.trans('remove')"
+                variant="subtle"
+                @click="deleteOptionOnEdit(index)"
+              />
+            </div>
           </li>
           <li>
             <dp-button
@@ -185,7 +184,7 @@
           <dp-confirm-dialog
             ref="confirmDialog"
             data-cy="customFields:saveEditConfirm"
-            :message="Translator.trans('custom.field.edit.message.warning')" />
+            :message="Translator.trans('custom_field.edit.message.warning')" />
 
           <button
             v-if="!rowData.open"
@@ -404,6 +403,10 @@ export default {
     },
 
     deleteOptionOnEdit (index) {
+      if (this.newRowData.options.length < 3) {
+        return dplan.notify.error(Translator.trans('error.custom_field.minimum.option.count'))
+      }
+
       this.newRowData.options.splice(index, 1)
     },
 
