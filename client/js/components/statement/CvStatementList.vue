@@ -10,13 +10,13 @@ All rights reserved
 <template>
   <div class="cv-statement-list">
     <div class="cv-container">
-      <div class="cv-header-row">
+<!--      <div class="cv-header-row">
         <h4 class="cv-main-title">
           Stellungnahmen zum aktuellen Verfahren
         </h4>
         <span class="cv-switch-label">Darstellung</span>
 
-        <!-- Content Switcher -->
+        &lt;!&ndash; Content Switcher &ndash;&gt;
         <cv-content-switcher @selected="onTabSwitch">
           <cv-content-switcher-button
             content-selector=".statements-content"
@@ -29,7 +29,7 @@ All rights reserved
             Abschnitte
           </cv-content-switcher-button>
         </cv-content-switcher>
-      </div>
+      </div>-->
 
       <!-- Tab Content -->
       <cv-data-table
@@ -71,8 +71,7 @@ All rights reserved
           </cv-button>
           <cv-button
             kind="primary"
-            class="cv-add-btn"
-            @click="createNewStatement">
+            class="cv-add-btn">
             Neue Stellungnahme hinzufügen <DocumentAdd16 />
           </cv-button>
         </template>
@@ -183,9 +182,10 @@ All rights reserved
   </div>
 
   <!-- Sections Content -->
-  <div v-if="activeTab === 'sections'">
-    <p>Aufteilung in Abschnitte Content - Coming Soon</p>
-  </div>
+  <cv-segment-list
+    v-if="activeTab === 'sections'"
+    :current-user-id="currentUserId"
+    :procedure-id="procedureId" />
 
   <!-- Column Selector Dropdown (rendered outside table) -->
   <div
@@ -231,6 +231,7 @@ import {
 } from '@carbon/vue'
 import { mapActions, mapState } from 'vuex'
 import ChevronDown16 from '@carbon/icons-vue/es/chevron--down/16'
+import CvSegmentList from './segments/CvSegmentList'
 import DocumentAdd16 from '@carbon/icons-vue/es/document--add/16'
 import Export16 from '@carbon/icons-vue/es/export/16'
 
@@ -244,6 +245,7 @@ export default {
     CvDataTableCell,
     CvPagination,
     CvSearch,
+    CvSegmentList,
     CvTag,
     CvContentSwitcher,
     CvContentSwitcherButton,
@@ -459,13 +461,6 @@ export default {
           }
         }
       })
-    },
-
-    createNewStatement () {
-      const hasSimplifiedCreate = hasPermission('feature_simplified_new_statement_create')
-      const route = hasSimplifiedCreate ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted'
-
-      window.location.href = Routing.generate(route, { procedureId: this.procedureId })
     },
 
     formatDate (dateString) {

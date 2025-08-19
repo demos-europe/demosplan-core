@@ -12,6 +12,8 @@
  */
 
 import CvStatementList from '@DpJs/components/statement/CvStatementList'
+import CvStatementSegmentContainer from '@DpJs/components/statement/CvStatementSegmentContainer'
+import CvSegmentList from '@DpJs/components/statement/segments/CvSegmentList'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
@@ -19,8 +21,10 @@ import ListStatements from '@DpJs/components/statement/listStatements/ListStatem
 const components = {
   ListOriginalStatements,
   CvStatementList,
+  CvStatementSegmentContainer,
+  CvSegmentList,
   ListStatements
 }
-const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
+const apiStores = ['AssignableUser', 'Statement', 'StatementSegment', 'OriginalStatement']
 
 initialize(components, {}, apiStores)
