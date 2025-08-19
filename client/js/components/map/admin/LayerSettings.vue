@@ -98,15 +98,11 @@
             icon="warning-circle"
           />
 
-          <i
-            :aria-label="Translator.trans('layer.remove')"
+          <button
             class="multiselect__tag-icon"
-            role="button"
-            tabindex="0"
+            type="button"
             @click="props.remove(props.option)"
-            @keydown.enter="props.remove(props.option)"
-            @keydown.space.prevent="props.remove(props.option)"
-          ></i>
+          ></button>
         </span>
       </template>
     </dp-multiselect>
