@@ -1,0 +1,1 @@
+/home/caro/Development/demos-mcp/azure-devops-mcp-wrapper.sh
