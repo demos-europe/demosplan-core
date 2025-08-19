@@ -25,31 +25,30 @@ class CustomFieldDeleter
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly SegmentRepository $segmentRepository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
     public function deleteCustomField(string $entityId): void
     {
         $customFieldConfiguration = $this->getCustomFieldConfiguration($entityId);
-        
+
         // Remove all segment usages of this custom field
         $this->removeSegmentUsages($entityId);
-        
+
         // Delete the custom field configuration
         $this->customFieldConfigurationRepository->delete($customFieldConfiguration->getId());
         $this->entityManager->flush();
     }
 
-
     private function getCustomFieldConfiguration(string $entityId): CustomFieldConfiguration
     {
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
-        
+
         if (!$customFieldConfiguration) {
             throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
         }
-        
+
         return $customFieldConfiguration;
     }
 
@@ -57,7 +56,7 @@ class CustomFieldDeleter
     {
         // Get all segments that have this custom field
         $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-        
+
         foreach ($segments as $segment) {
             $customFields = $segment->getCustomFields();
             if ($customFields instanceof CustomFieldValuesList) {
@@ -69,8 +68,7 @@ class CustomFieldDeleter
                 }
             }
         }
-        
+
         $this->entityManager->flush();
     }
-
 }
