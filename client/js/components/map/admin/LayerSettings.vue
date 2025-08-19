@@ -259,7 +259,9 @@ export default {
       name: this.initName,
       projection: this.initProjection || window.dplan.defaultProjectionLabel,
       projectionOptions: this.availableProjections,
+      serviceError: false,
       serviceType: this.initServiceType || 'wms',
+      unavailableLayers: [],
       url: this.initUrl,
       version: this.initVersion || '1.3.0'
     }
@@ -349,6 +351,8 @@ export default {
       }
 
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -365,6 +369,8 @@ export default {
       this.filterMatrixSetByLayers()
       this.filterProjectionsByMatrixSet()
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -467,6 +473,7 @@ export default {
           return response.text()
         })
         .then(capabilities => {
+          this.serviceError = false
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
           this.currentCapabilities = parser.read(capabilities)
@@ -474,12 +481,15 @@ export default {
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
+          } else {
+            this.validateSavedLayersAvailability()
           }
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
           dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           this.clearSelections()
+          this.serviceError = true
         })
         .finally(() => {
           this.isLoading = false
@@ -551,7 +561,30 @@ export default {
       }
 
       this.getLayerCapabilities()
-    }
+    },
+
+    validateSavedLayersAvailability () {
+      if (this.layers.length === 0) {
+        return
+      }
+
+      const savedLayers = this.layers.map(layer => layer.label)
+
+      if (this.layersOptions.length === 0) {
+        this.unavailableLayers = savedLayers
+
+        return
+      }
+
+      const availableLayerOptions = this.layersOptions.map(option => option.label)
+      const outdatedLayers = savedLayers.filter(savedName => !availableLayerOptions.includes(savedName))
+
+      if (outdatedLayers.length > 0) {
+        this.unavailableLayers = outdatedLayers
+      } else {
+        this.unavailableLayers = []
+      }
+    },
   },
 
   mounted () {
