@@ -14,12 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -28,7 +28,7 @@ class CustomFieldUpdater
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly SegmentRepository $segmentRepository,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -114,14 +114,13 @@ class CustomFieldUpdater
 
     /**
      * @param CustomFieldOption[] $currentOptions
-     * @param array $newOptions
+     *
      * @return string[]
      */
     private function findDeletedOptionIds(array $currentOptions, array $newOptions): array
     {
-        $currentOptionIds = array_map(fn(CustomFieldOption $option) => $option->getId(), $currentOptions);
-        $newOptionIds = array_filter(array_map(fn($option) => $option['id'] ?? null, $newOptions));
-
+        $currentOptionIds = array_map(fn (CustomFieldOption $option) => $option->getId(), $currentOptions);
+        $newOptionIds = array_filter(array_map(fn ($option) => $option['id'] ?? null, $newOptions));
         return array_diff($currentOptionIds, $newOptionIds);
     }
 
@@ -134,8 +133,8 @@ class CustomFieldUpdater
             $customFields = $segment->getCustomFields();
             if ($customFields instanceof CustomFieldValuesList) {
                 $customFieldValue = $customFields->findById($customFieldId);
-                if ($customFieldValue instanceof CustomFieldValue &&
-                    in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
+                if ($customFieldValue instanceof CustomFieldValue
+                    && in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
                     // Remove the entire custom field value if it references a deleted option
                     $customFields->removeCustomFieldValue($customFieldValue);
                     $customFields->reindexValues();
