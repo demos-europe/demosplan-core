@@ -15,7 +15,9 @@ use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
+use Geocoder\Geocoder;
 use Psr\Log\LoggerInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 
 class LocationService
 {
@@ -24,7 +26,11 @@ class LocationService
      */
     protected $em;
 
-    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly LoggerInterface $logger,
+        private readonly GeodatenzentrumAddressSearchService $geodatenzentrumAddressSearchService,
+    )
     {
         $this->em = $registry->getManager();
     }
@@ -47,6 +53,29 @@ class LocationService
             return ['body' => $locations];
         } catch (Exception $e) {
             $this->logger->error('Fehler bei searchCity: ', [$e]);
+
+            return ['body' => []];
+        }
+    }
+
+    /**
+     * Get an address suggestion by typing in a street name.
+     *
+     * @param string     $searchString
+     * @param int        $limit
+     * @param array|null $maxExtent
+     *
+     * @return array
+     */
+    public function searchAddress($searchString, $limit = 20, $maxExtent = null)
+    {
+        try {
+            $locations = $this->geodatenzentrumAddressSearchService
+                ->searchAddress($searchString, $limit, $maxExtent);
+
+            return ['body' => $locations];
+        } catch (Exception $e) {
+            $this->logger->error('Fehler bei der Adresssuche: ', [$e]);
 
             return ['body' => []];
         }
