@@ -86,7 +86,30 @@
       @input="filterMatrixSetByLayers"
       @selectAll="selectAllLayers"
       @deselectAll="deselectAllLayers"
-    />
+    >
+
+      <template #tag="{ props }">
+        <span class="multiselect__tag">
+          {{ props.option.label }}
+          <dp-contextual-help
+            v-if="unavailableLayers.includes(props.option.label) || serviceError"
+            :class="prefixClass('ml-1 mb-0.5 text-message-severe')"
+            :text="serviceError ? Translator.trans('map.service.unreachable') : Translator.trans('layer.no.longer.included.in.map.service')"
+            icon="warning-circle"
+          />
+
+          <i
+            :aria-label="Translator.trans('layer.remove')"
+            class="multiselect__tag-icon"
+            role="button"
+            tabindex="0"
+            @click="props.remove(props.option)"
+            @keydown.enter="props.remove(props.option)"
+            @keydown.space.prevent="props.remove(props.option)"
+          ></i>
+        </span>
+      </template>
+    </dp-multiselect>
 
     <input
       :value="layersInputValue"
@@ -147,7 +170,7 @@
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpContextualHelp, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 import { defineAsyncComponent } from 'vue'
 
@@ -157,11 +180,14 @@ export default {
   components: {
     DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
+    DpContextualHelp,
     DpInput,
     DpLabel,
     DpMultiselect,
     DpSelect
   },
+
+  mixins: [ prefixClassMixin ],
 
   props: {
     availableProjections: {
@@ -553,6 +579,7 @@ export default {
       const serviceKey = 'SERVICE='
       // Find existing Key
       const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
+
       if (this.url.match(serviceParam).length > 0) {
         this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
       } else {
