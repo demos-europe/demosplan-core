@@ -144,11 +144,11 @@
         </div>
       </template>
 
-      <template v-slot:type="rowData">
+      <template v-slot:fieldType="rowData">
         <div class="mt-1">
           <dp-badge
           color="default"
-          :text="rowData.type"
+          :text="rowData.fieldType"
           />
         </div>
       </template>
@@ -351,7 +351,7 @@ export default {
           colClass: 'u-5-of-12'
         },
         {
-          field: 'type',
+          field: 'fieldType',
           label: Translator.trans('type'),
           colClass: 'u-6-of-12'
         }
@@ -544,13 +544,14 @@ export default {
           if (field) {
             const { id, attributes } = field
             const { description, name, options } = attributes
+            const { description, name, fieldType, options } = attributes
 
             return {
               id,
               name,
               description,
+              fieldType: 'multiSelect', //keep until BE ready
               options: JSON.parse(JSON.stringify(options)),
-              type: 'Mehrfachauswahl',
               open: false,
               edit: false,
             }

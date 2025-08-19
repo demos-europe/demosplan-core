@@ -40,7 +40,7 @@
           id="newFieldType"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldType"
-          v-model="customField.type"
+          v-model="customField.fieldType"
           :label="{
             text: Translator.trans('type'),
             tooltip: Translator.trans('explanation.customfield.type')
@@ -119,16 +119,16 @@ export default {
       customField: {
         name: '',
         description: '',
-        type: this.preselectedType
+        fieldType: this.preselectedType
       },
       isOpen: false,
       typeOptions: [
         {
-          value: 'mehrfachauswahl',
+          value: 'multiSelect',
           label: 'Mehrfachauswahl'
         },
         {
-          value: 'einzelauswahl',
+          value: 'singleSelect',
           label: 'Einzelauswahl'
         }
       ]
@@ -173,7 +173,7 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
-      this.customField.type = this.preselectedType
+      this.customField.fieldType = this.preselectedType
     }
   }
 }
