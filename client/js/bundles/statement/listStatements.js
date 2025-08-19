@@ -25,6 +25,6 @@ const components = {
   CvSegmentList,
   ListStatements
 }
-const apiStores = ['AssignableUser', 'Statement', 'StatementSegment', 'OriginalStatement']
+const apiStores = ['AssignableUser', 'Statement', 'StatementSegment', 'OriginalStatement', 'Tag', 'Place']
 
 initialize(components, {}, apiStores)

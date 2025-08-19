@@ -65,18 +65,21 @@
 }
 
 /* Carbon Tag Overrides for colors that differ in our carbon version */
-.cv-statement-list .status-editing {
+.cv-statement-list .status-editing,
+.cv-segment-list .status-editing {
     background-color: var(--dp-orange-20) !important;
     color: var(--dp-orange-70) !important;
 }
 
-.cv-statement-list .status-completed {
+.cv-statement-list .status-completed,
+.cv-segment-list .status-completed {
     background-color: var(--dp-green-10) !important;
     color: var(--dp-green-70) !important;
 }
 
 /* Confidence Tags */
-.cv-statement-list .cv-confidence-medium {
+.cv-statement-list .cv-confidence-medium,
+.cv-segment-list .cv-confidence-medium {
     background-color: var(--dp-orange-20) !important;
     color: var(--dp-orange-70) !important;
 }

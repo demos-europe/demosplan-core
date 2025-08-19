@@ -54,8 +54,6 @@ All rights reserved
             <div
               class="cv-column-selector-trigger"
               @click="toggleColumnSelector"
-              @keydown.enter="toggleColumnSelector"
-              @keydown.space="toggleColumnSelector"
               ref="columnTrigger">
               <cv-button
                 id="colSort"
