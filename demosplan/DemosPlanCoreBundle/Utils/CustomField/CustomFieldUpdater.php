@@ -121,6 +121,7 @@ class CustomFieldUpdater
     {
         $currentOptionIds = array_map(fn (CustomFieldOption $option) => $option->getId(), $currentOptions);
         $newOptionIds = array_filter(array_map(fn ($option) => $option['id'] ?? null, $newOptions));
+
         return array_diff($currentOptionIds, $newOptionIds);
     }
 
