@@ -16,13 +16,19 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldUpdater
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
-    {
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly SegmentRepository $segmentRepository,
+        private readonly EntityManagerInterface $entityManager
+    ) {
     }
 
     public function updateCustomField(string $entityId, array $attributes): CustomFieldInterface
@@ -69,6 +75,15 @@ class CustomFieldUpdater
         $customField->validate($newOptions);
 
         $currentOptions = $customField->getOptions();
+        
+        // Find which options are being deleted
+        $deletedOptionIds = $this->findDeletedOptionIds($currentOptions, $newOptions);
+        
+        // Update segment usages to remove references to deleted options
+        if (!empty($deletedOptionIds)) {
+            $this->updateSegmentUsagesForDeletedOptions($customField->getId(), $deletedOptionIds);
+        }
+        
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->setOptions($updatedOptions);
     }
@@ -94,5 +109,40 @@ class CustomFieldUpdater
                 return $customFieldOption;
             })
             ->toArray();
+    }
+
+    /**
+     * @param CustomFieldOption[] $currentOptions
+     * @param array $newOptions
+     * @return string[]
+     */
+    private function findDeletedOptionIds(array $currentOptions, array $newOptions): array
+    {
+        $currentOptionIds = array_map(fn(CustomFieldOption $option) => $option->getId(), $currentOptions);
+        $newOptionIds = array_filter(array_map(fn($option) => $option['id'] ?? null, $newOptions));
+        
+        return array_diff($currentOptionIds, $newOptionIds);
+    }
+
+    private function updateSegmentUsagesForDeletedOptions(string $customFieldId, array $deletedOptionIds): void
+    {
+        // Get all segments that have this custom field
+        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
+        
+        foreach ($segments as $segment) {
+            $customFields = $segment->getCustomFields();
+            if ($customFields instanceof CustomFieldValuesList) {
+                $customFieldValue = $customFields->findById($customFieldId);
+                if ($customFieldValue instanceof CustomFieldValue && 
+                    in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
+                    // Remove the entire custom field value if it references a deleted option
+                    $customFields->removeCustomFieldValue($customFieldValue);
+                    $customFields->reindexValues();
+                    $segment->setCustomFields($customFields);
+                }
+            }
+        }
+        
+        $this->entityManager->flush();
     }
 }

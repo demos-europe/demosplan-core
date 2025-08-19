@@ -99,6 +99,25 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Find all segments that have a custom field with the given ID.
+     *
+     * @return array<Segment>
+     */
+    public function findSegmentsWithCustomField(string $customFieldId): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        
+        return $qb
+            ->select('segment')
+            ->from(Segment::class, 'segment')
+            ->where('segment.customFields IS NOT NULL')
+            ->andWhere('JSON_CONTAINS(segment.customFields, :customFieldSearch, \'$[*].id\')')
+            ->setParameter('customFieldSearch', '"' . $customFieldId . '"')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
      *
      * @param array<int, string> $segmentIds

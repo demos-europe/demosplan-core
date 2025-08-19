@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
@@ -41,6 +42,7 @@ use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\JsonApi\RequestHandling\EmptyEntity;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
@@ -73,6 +75,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
         private readonly CustomFieldUpdater $customFieldUpdater,
+        private readonly CustomFieldDeleter $customFieldDeleter,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly Reindexer $reindexer,
         private readonly CurrentUserInterface $currentUser)
@@ -168,7 +171,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isDeleteAllowed(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function isGetAllowed(): bool
@@ -268,10 +271,19 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
     {
-        // Update the fields from the request
+        // Update the fields from the request, and deletes non included but previously persisted options and removes their usages from segments
         $attributes = $entityData->getAttributes();
         $customField = $this->customFieldUpdater->updateCustomField($entityId, $attributes);
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
+    }
+
+    public function deleteEntity(string $entityId): void
+    {
+        $this->getTransactionService()->executeAndFlushInTransaction(
+            function () use ($entityId): void {
+                $this->customFieldDeleter->deleteCustomField($entityId);
+            }
+        );
     }
 }
