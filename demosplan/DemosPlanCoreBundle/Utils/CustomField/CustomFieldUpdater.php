@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
@@ -75,15 +76,15 @@ class CustomFieldUpdater
         $customField->validate($newOptions);
 
         $currentOptions = $customField->getOptions();
-        
+
         // Find which options are being deleted
         $deletedOptionIds = $this->findDeletedOptionIds($currentOptions, $newOptions);
-        
+
         // Update segment usages to remove references to deleted options
         if (!empty($deletedOptionIds)) {
             $this->updateSegmentUsagesForDeletedOptions($customField->getId(), $deletedOptionIds);
         }
-        
+
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->setOptions($updatedOptions);
     }
@@ -120,7 +121,7 @@ class CustomFieldUpdater
     {
         $currentOptionIds = array_map(fn(CustomFieldOption $option) => $option->getId(), $currentOptions);
         $newOptionIds = array_filter(array_map(fn($option) => $option['id'] ?? null, $newOptions));
-        
+
         return array_diff($currentOptionIds, $newOptionIds);
     }
 
@@ -128,12 +129,12 @@ class CustomFieldUpdater
     {
         // Get all segments that have this custom field
         $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-        
+
         foreach ($segments as $segment) {
             $customFields = $segment->getCustomFields();
             if ($customFields instanceof CustomFieldValuesList) {
                 $customFieldValue = $customFields->findById($customFieldId);
-                if ($customFieldValue instanceof CustomFieldValue && 
+                if ($customFieldValue instanceof CustomFieldValue &&
                     in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
                     // Remove the entire custom field value if it references a deleted option
                     $customFields->removeCustomFieldValue($customFieldValue);
@@ -142,7 +143,7 @@ class CustomFieldUpdater
                 }
             }
         }
-        
+
         $this->entityManager->flush();
     }
 }
