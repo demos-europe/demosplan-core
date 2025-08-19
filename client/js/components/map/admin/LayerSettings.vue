@@ -88,7 +88,7 @@
       @deselectAll="deselectAllLayers"
     >
 
-      <template #tag="{ props }">
+      <template v-slot:tag="{ props }">
         <span class="multiselect__tag">
           {{ props.option.label }}
           <dp-contextual-help
