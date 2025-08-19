@@ -106,13 +106,13 @@ class SegmentRepository extends CoreRepository
     public function findSegmentsWithCustomField(string $customFieldId): array
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        
+
         return $qb
             ->select('segment')
             ->from(Segment::class, 'segment')
             ->where('segment.customFields IS NOT NULL')
             ->andWhere('JSON_CONTAINS(segment.customFields, :customFieldSearch, \'$[*].id\')')
-            ->setParameter('customFieldSearch', '"' . $customFieldId . '"')
+            ->setParameter('customFieldSearch', '"'.$customFieldId.'"')
             ->getQuery()
             ->getResult();
     }
