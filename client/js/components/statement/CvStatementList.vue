@@ -10,152 +10,188 @@ All rights reserved
 <template>
   <div class="cv-statement-list">
     <div class="cv-container">
-    <div class="cv-header-row">
-      <h4 class="cv-main-title">Stellungnahmen zum aktuellen Verfahren</h4>
-      <span class="cv-switch-label">Darstellung</span>
+      <div class="cv-header-row">
+        <h4 class="cv-main-title">
+          Stellungnahmen zum aktuellen Verfahren
+        </h4>
+        <span class="cv-switch-label">Darstellung</span>
 
-      <!-- Content Switcher -->
-    <cv-content-switcher @selected="onTabSwitch">
-      <cv-content-switcher-button
-        content-selector=".statements-content"
-        :selected="activeTab === 'statements'">
-        Stellungnahmen
-      </cv-content-switcher-button>
-      <cv-content-switcher-button
-        content-selector=".sections-content"
-        :selected="activeTab === 'sections'">
-        Abschnitte
-      </cv-content-switcher-button>
-    </cv-content-switcher>
-    </div>
+        <!-- Content Switcher -->
+        <cv-content-switcher @selected="onTabSwitch">
+          <cv-content-switcher-button
+            content-selector=".statements-content"
+            :selected="activeTab === 'statements'">
+            Stellungnahmen
+          </cv-content-switcher-button>
+          <cv-content-switcher-button
+            content-selector=".sections-content"
+            :selected="activeTab === 'sections'">
+            Abschnitte
+          </cv-content-switcher-button>
+        </cv-content-switcher>
+      </div>
 
-    <!-- Tab Content -->
-    <cv-data-table
-      v-if="activeTab === 'statements'"
-      :columns="filteredColumns"
-      batch-cancel-label="Abbrechen"
-      :data="statements"
-      id="cv-statement-table"
-      :rows-selected="selectedRows"
-      sortable
-      @sort="onSort"
->
-
-      <template #actions>
-        <cv-search
-          light
-          placeholder="Suchen"
-          :value="searchValue"
-          @input="applySearch"
-        />
-        <!-- Custom Column Selector Button -->
-        <div class="cv-column-selector">
-          <div class="cv-column-selector-trigger" @click="toggleColumnSelector" ref="columnTrigger">
-            <cv-button id="colSort" kind="ghost">
-              Spalten anpassen <ChevronDown16 />
-            </cv-button>
-          </div>
-        </div>
-        <cv-button kind="tertiary" class="cv-export-btn">
-          Exportieren <Export16 />
-        </cv-button>
-        <cv-button kind="primary" class="cv-add-btn" @click="openImportModal">
-          Neue Stellungnahme hinzufügen <DocumentAdd16 />
-        </cv-button>
-      </template>
-
-      <!-- Batch Actions -->
-      <template #batch-actions>
-        <cv-button kind="primary" size="default">
-          Aufteilung überprüfen
-        </cv-button>
-        <cv-button kind="primary" size="default">
-          Aufteilung so akzeptieren
-        </cv-button>
-        <cv-button kind="primary" size="default">
-          Bearbeiten
-        </cv-button>
-        <cv-button kind="primary" size="default">
-          Löschen
-        </cv-button>
-      </template>
-
-      <!-- Custom Data Slot mit direkter Checkbox-Überwachung -->
-      <template #data>
-        <template v-for="(statement, index) in statements" :key="index">
-          <cv-data-table-row
-            :value="String(statement.id)"
-            :id="`row-${statement.id}`">
-            <cv-data-table-cell v-if="visibleColumns.includes('id')">{{ statement.id }}</cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('status')">
-              <cv-tag
-                :label="statement.status"
-                :kind="getStatusType(statement.status)"
-                :class="getStatusClass(statement.status)" />
-            </cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('author')">
-              <div class="cv-author-cell">
-                <div class="cv-author-name">{{ statement.author }}</div>
-                <div class="cv-author-date">{{ statement.authorDate }}</div>
-              </div>
-            </cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('institution')">{{ statement.institution }}</cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('sections')">{{ statement.sections }}</cv-data-table-cell>
-            <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
-              <cv-tag
-                :label="`${statement.confidence}%`"
-                :kind="getConfidenceType(statement.confidence)"
-                :class="getConfidenceClass(statement.confidence)" />
-            </cv-data-table-cell>
-
-            <cv-data-table-cell v-if="visibleColumns.includes('expand')">
+      <!-- Tab Content -->
+      <cv-data-table
+        v-if="activeTab === 'statements'"
+        :columns="filteredColumns"
+        batch-cancel-label="Abbrechen"
+        :data="statements"
+        id="cv-statement-table"
+        :rows-selected="selectedRows"
+        sortable
+        @sort="onSort"
+      >
+        <template v-slot:actions>
+          <cv-search
+            light
+            placeholder="Suchen"
+            :value="searchValue"
+            @input="applySearch"
+          />
+          <!-- Custom Column Selector Button -->
+          <div class="cv-column-selector">
+            <div
+              class="cv-column-selector-trigger"
+              @click="toggleColumnSelector"
+              @keydown.enter="toggleColumnSelector"
+              @keydown.space="toggleColumnSelector"
+              ref="columnTrigger">
               <cv-button
-                kind="ghost"
-                size="sm"
-                @click="toggleRowExpansion(statement.id)"
-                :aria-label="`Expand row ${statement.id}`">
-                <ChevronDown16 :style="{ transform: expandedRows.includes(statement.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
+                id="colSort"
+                kind="ghost">
+                Spalten anpassen <ChevronDown16 />
               </cv-button>
-            </cv-data-table-cell>
-          </cv-data-table-row>
-
-          <!-- Expanded Content Row -->
-          <cv-data-table-row v-if="expandedRows.includes(statement.id)" class="cv-expanded-row">
-            <cv-data-table-cell :colspan="visibleColumns.length">
-              <div v-html="statement.text"></div>
-            </cv-data-table-cell>
-          </cv-data-table-row>
+            </div>
+          </div>
+          <cv-button
+            kind="tertiary"
+            class="cv-export-btn">
+            Exportieren <Export16 />
+          </cv-button>
+          <cv-button
+            kind="primary"
+            class="cv-add-btn"
+            @click="createNewStatement">
+            Neue Stellungnahme hinzufügen <DocumentAdd16 />
+          </cv-button>
         </template>
-      </template>
-    </cv-data-table>
 
-    <cv-pagination
-      v-if="pagination.totalPages > 1"
-      :page="pagination.currentPage"
-      :page-sizes="computedPageSizes"
-      :number-of-items="pagination.total"
-      page-sizes-label="Elemente pro Seite:"
-      @change="onPaginationChange"
-      class="cv-pagination">
-      <template #range-text="{ scope }">
-        {{ scope.start }}-{{ scope.end }} von {{ scope.items }} Elementen
-      </template>
-      <template #of-n-pages="{ scope }">
-        von {{ scope.pages }} Seiten
-      </template>
-    </cv-pagination>
+        <!-- Batch Actions -->
+        <template v-slot:batch-actions>
+          <cv-button
+            kind="primary"
+            size="default">
+            Aufteilung überprüfen
+          </cv-button>
+          <cv-button
+            kind="primary"
+            size="default">
+            Aufteilung so akzeptieren
+          </cv-button>
+          <cv-button
+            kind="primary"
+            size="default">
+            Bearbeiten
+          </cv-button>
+          <cv-button
+            kind="primary"
+            size="default">
+            Löschen
+          </cv-button>
+        </template>
 
+        <!-- Custom Data Slot mit direkter Checkbox-Überwachung -->
+        <template v-slot:data>
+          <template
+            v-for="(statement, index) in statements"
+            :key="index">
+            <cv-data-table-row
+              :value="String(statement.id)"
+              :id="`row-${statement.id}`">
+              <cv-data-table-cell v-if="visibleColumns.includes('id')">
+                {{ statement.id }}
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="visibleColumns.includes('status')">
+                <cv-tag
+                  :label="statement.status"
+                  :kind="getStatusType(statement.status)"
+                  :class="getStatusClass(statement.status)" />
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="visibleColumns.includes('author')">
+                <div class="cv-author-cell">
+                  <div class="cv-author-name">
+                    {{ statement.author }}
+                  </div>
+                  <div class="cv-author-date">
+                    {{ statement.authorDate }}
+                  </div>
+                </div>
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="visibleColumns.includes('institution')">
+                {{ statement.institution }}
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="visibleColumns.includes('sections')">
+                {{ statement.sections }}
+              </cv-data-table-cell>
+              <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
+                <cv-tag
+                  :label="`${statement.confidence}%`"
+                  :kind="getConfidenceType(statement.confidence)"
+                  :class="getConfidenceClass(statement.confidence)" />
+              </cv-data-table-cell>
+
+              <cv-data-table-cell v-if="visibleColumns.includes('expand')">
+                <cv-button
+                  kind="ghost"
+                  size="sm"
+                  @click="toggleRowExpansion(statement.id)"
+                  :aria-label="`Expand row ${statement.id}`">
+                  <ChevronDown16 :style="{ transform: expandedRows.includes(statement.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
+                </cv-button>
+              </cv-data-table-cell>
+            </cv-data-table-row>
+
+            <!-- Expanded Content Row -->
+            <cv-data-table-row
+              v-if="expandedRows.includes(statement.id)"
+              class="cv-expanded-row">
+              <cv-data-table-cell :colspan="visibleColumns.length">
+                <div v-html="statement.text" />
+              </cv-data-table-cell>
+            </cv-data-table-row>
+          </template>
+        </template>
+      </cv-data-table>
+
+      <cv-pagination
+        v-if="pagination.totalPages > 1"
+        :page="pagination.currentPage"
+        :page-sizes="computedPageSizes"
+        :number-of-items="pagination.total"
+        page-sizes-label="Elemente pro Seite:"
+        @change="onPaginationChange"
+        class="cv-pagination">
+        <template v-slot:range-text="{ scope }">
+          {{ scope.start }}-{{ scope.end }} von {{ scope.items }} Elementen
+        </template>
+        <template v-slot:of-n-pages="{ scope }">
+          von {{ scope.pages }} Seiten
+        </template>
+      </cv-pagination>
     </div>
   </div>
 
-
   <!-- Sections Content -->
-    <div v-if="activeTab === 'sections'">
-      <p>Aufteilung in Abschnitte Content - Coming Soon</p>
-    </div>
+  <div v-if="activeTab === 'sections'">
+    <p>Aufteilung in Abschnitte Content - Coming Soon</p>
+  </div>
 
   <!-- Column Selector Dropdown (rendered outside table) -->
-  <div v-if="isColumnSelectorOpen" class="cv-column-selector-dropdown-overlay" ref="columnDropdown">
+  <div
+    v-if="isColumnSelectorOpen"
+    class="cv-column-selector-dropdown-overlay"
+    ref="columnDropdown">
     <div class="cv-column-selector-dropdown">
       <div class="cv-column-selector-header">
         <span>Spalten auswählen</span>
@@ -171,8 +207,9 @@ All rights reserved
             type="checkbox"
             :checked="visibleColumns.includes(column.key)"
             class="cv-column-checkbox"
+            :aria-label="`Toggle ${column.label} column`"
             readonly
-          />
+          >
           {{ column.label }}
         </cv-button>
       </div>
@@ -183,24 +220,19 @@ All rights reserved
 <script>
 import {
   CvButton,
+  CvContentSwitcher,
+  CvContentSwitcherButton,
   CvDataTable,
-  CvDataTableRow,
   CvDataTableCell,
-  CvDataTableHeader,
-  CvDataTableHeaderCell,
+  CvDataTableRow,
   CvPagination,
   CvSearch,
-  CvTag,
-  CvContentSwitcher,
-  CvContentSwitcherButton
+  CvTag
 } from '@carbon/vue'
+import { mapActions, mapState } from 'vuex'
+import ChevronDown16 from '@carbon/icons-vue/es/chevron--down/16'
 import DocumentAdd16 from '@carbon/icons-vue/es/document--add/16'
 import Export16 from '@carbon/icons-vue/es/export/16'
-import Filter16 from '@carbon/icons-vue/es/filter/16'
-import Search16 from '@carbon/icons-vue/es/search/16'
-import ChevronDown16 from '@carbon/icons-vue/es/chevron--down/16'
-import Settings16 from '@carbon/icons-vue/es/settings/16'
-import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'CvStatementList',
@@ -210,8 +242,6 @@ export default {
     CvDataTable,
     CvDataTableRow,
     CvDataTableCell,
-    CvDataTableHeader,
-    CvDataTableHeaderCell,
     CvPagination,
     CvSearch,
     CvTag,
@@ -219,10 +249,7 @@ export default {
     CvContentSwitcherButton,
     DocumentAdd16,
     Export16,
-    Filter16,
-    Search16,
-    ChevronDown16,
-    Settings16
+    ChevronDown16
   },
 
   props: {
@@ -247,11 +274,11 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       activeTab: 'statements',
       headerCheckboxHandler: null, // Store handler for cleanup
-      clientSortField: null, // Für client-side sorting
+      clientSortField: null, // For client-side sorting
       clientSortDirection: null,
       columns: [
         { key: 'id', label: 'ID', sortable: true },
@@ -270,11 +297,10 @@ export default {
       },
       selectedRows: [],
       searchValue: '',
-      filterActive: false,
       sortBy: '',
       sortDirection: '',
-      expandedRows: [], // Track welche Rows expandiert sind
-      lastPaginationEventTime: 0, // Debouncing für Pagination Events
+      expandedRows: [], // Track which rows are expanded
+      lastPaginationEventTime: 0, // Debouncing for pagination events
       isColumnSelectorOpen: false,
       visibleColumns: [],
       selectableColumns: [
@@ -293,9 +319,9 @@ export default {
       statementsObject: 'items'
     }),
 
-    statements() {
+    statements () {
       const rawData = Object.values(this.statementsObject) || []
-      let processedData = rawData.map(stmt => {
+      const processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
         return {
           id: stmt.attributes?.externId || stmt.id,
@@ -304,36 +330,36 @@ export default {
           author: stmt.attributes.authorName,
           authorDate: this.formatDate(stmt.attributes.authoredDate),
           institution: stmt.attributes?.initialOrganisationName || '-',
-          text: stmt.attributes?.text || stmt.text, // Für expanded row
+          text: stmt.attributes?.text || stmt.text, // For expanded row
           sections: segmentsCount > 0 ? segmentsCount : '-',
           confidence: Math.floor(Math.random() * 100) + 1 // Dummy: 1-100%
         }
       })
-      
+
       // Client-side sorting
       if (this.clientSortField === 'id') {
-        // Numerische ID-Sortierung
+        // ID sorting
         processedData.sort((a, b) => {
           const numA = this.extractNumericId(a.id)
           const numB = this.extractNumericId(b.id)
-          
+
           return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
         })
       } else if (this.clientSortField === 'status') {
-        // Logische Status-Sortierung
-        const statusOrder = { 'Neu': 1, 'In Bearbeitung': 2, 'Abgeschlossen': 3 }
+        // Status sorting
+        const statusOrder = { Neu: 1, 'In Bearbeitung': 2, Abgeschlossen: 3 }
         processedData.sort((a, b) => {
           const orderA = statusOrder[a.status] || 999
           const orderB = statusOrder[b.status] || 999
-          
+
           return this.clientSortDirection === 'ascending' ? orderA - orderB : orderB - orderA
         })
       } else if (this.clientSortField === 'institution') {
-        // Alphabetische Institution-Sortierung
+        // Institution sorting
         processedData.sort((a, b) => {
           const instA = (a.institution || '').toLowerCase()
           const instB = (b.institution || '').toLowerCase()
-          
+
           if (this.clientSortDirection === 'ascending') {
             return instA.localeCompare(instB)
           } else {
@@ -341,27 +367,41 @@ export default {
           }
         })
       } else if (this.clientSortField === 'confidence') {
-        // Numerische Konfidenz-Sortierung (höchste zuerst ist sinnvoller)
+        // Confidence sorting
         processedData.sort((a, b) => {
           const confA = a.confidence || 0
           const confB = b.confidence || 0
-          
+
           return this.clientSortDirection === 'ascending' ? confA - confB : confB - confA
         })
       }
-      
+
       return processedData
     },
 
-    computedPageSizes() {
+    computedPageSizes () {
       return [10, 25, 50, 100].map(size => ({
         value: size,
         selected: size === this.pagination.perPage
       }))
     },
 
-    filteredColumns() {
+    filteredColumns () {
       return this.columns.filter(column => this.visibleColumns.includes(column.key))
+    }
+  },
+
+  watch: {
+    statements: {
+      handler (newStatements) {
+        if (newStatements.length > 0) {
+          // Re-setup checkbox listeners when statements are loaded
+          this.$nextTick(() => {
+            this.setupCheckboxListeners()
+          })
+        }
+      },
+      deep: true
     }
   },
 
@@ -371,12 +411,12 @@ export default {
       fetchStatements: 'list'
     }),
 
-    applySearch(term, page = 1) {
-      // Prüfen ob sich der Suchbegriff geändert hat
+    applySearch (term, page = 1) {
+      // Check if the search term has changed
       const searchChanged = term !== this.searchValue
       this.searchValue = term
 
-      // Bei geändertem Suchbegriff IMMER zu Seite 1, sonst verwende angegebene Seite
+      // Always go to page 1 when search term changes, otherwise use specified page
       const targetPage = searchChanged ? 1 : page
 
       this.fetchStatements({
@@ -392,7 +432,7 @@ export default {
             }
           }
         },
-        sort: this.getSortString(), // Dynamic sort basierend auf UI-Auswahl
+        sort: this.getSortString(), // Dynamic sort based on UI selection
         include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
         fields: {
           Statement: [
@@ -404,14 +444,13 @@ export default {
         }
       }).then(response => {
         if (response?.meta?.pagination) {
-
-          // Verwende API totalPages wenn perPage übereinstimmt, sonst berechne neu
+          // Use API totalPages if perPage matches, otherwise recalculate
           const shouldUseApiPages = response.meta.pagination.per_page === this.pagination.perPage
           const finalTotalPages = shouldUseApiPages
             ? response.meta.pagination.total_pages
             : Math.ceil(response.meta.pagination.total / this.pagination.perPage)
 
-          // Behalte immer den lokalen perPage-Wert bei - die API könnte den alten Wert zurücksenden
+          // Always keep local perPage value - API might send back old value
           this.pagination = {
             ...this.pagination,
             currentPage: response.meta.pagination.current_page,
@@ -422,81 +461,74 @@ export default {
       })
     },
 
-    createNewStatement() {
+    createNewStatement () {
       const hasSimplifiedCreate = hasPermission('feature_simplified_new_statement_create')
       const route = hasSimplifiedCreate ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted'
 
       window.location.href = Routing.generate(route, { procedureId: this.procedureId })
     },
 
-    formatDate(dateString) {
+    formatDate (dateString) {
       if (!dateString) return ''
       const date = new Date(dateString)
-      return date.toLocaleDateString('de-DE')  // DD.MM.YYYY Format
+      return date.toLocaleDateString('de-DE')
     },
 
-    getConfidenceType(confidence) {
-      if (confidence <= 33) return 'red'        // Niedrig = Carbon Rot 🔴
-      if (confidence <= 66) return 'warm-gray'  // Medium = Warm-Gray + Custom Orange 🟠
-      return 'green'                           // Hoch = Carbon Grün 🟢
+    getConfidenceType (confidence) {
+      if (confidence <= 33) return 'red'
+      if (confidence <= 66) return 'warm-gray' // Medium = Warm-Gray + Custom Orange 🟠
+      return 'green'
     },
 
-    getConfidenceClass(confidence) {
+    getConfidenceClass (confidence) {
       if (confidence <= 33) return ''
       if (confidence <= 66) return 'cv-confidence-medium'
       return ''
     },
 
-    getStatusType(status) {
+    getStatusType (status) {
       const statusMap = {
-        'Neu': 'blue',               // Carbon Standard
-        'In Bearbeitung': 'gray',    // CSS Override to 'orange'
-        'Abgeschlossen': 'gray'      // CSS Override zu 'green'
+        Neu: 'blue', // Carbon Standard
+        'In Bearbeitung': 'gray', // CSS Override to 'orange'
+        Abgeschlossen: 'gray' // CSS Override to 'green'
       }
       return statusMap[status] || 'gray'
     },
 
-    getStatusClass(status) {
+    getStatusClass (status) {
       const classMap = {
         'In Bearbeitung': 'status-editing',
-        'Abgeschlossen': 'status-completed'
+        Abgeschlossen: 'status-completed'
       }
-      return classMap[status] || '';
+      return classMap[status] || ''
     },
 
-    // Status von API-Format zu Display-Format
-    mapApiStatusToDisplay(apiStatus) {
+    // Status Mapping
+    mapApiStatusToDisplay (apiStatus) {
       const statusMap = {
-        'new': 'Neu',
-        'processing': 'In Bearbeitung',
-        'completed': 'Abgeschlossen'
+        new: 'Neu',
+        processing: 'In Bearbeitung',
+        completed: 'Abgeschlossen'
       }
       return statusMap[apiStatus] || apiStatus
     },
 
-    onPaginationChange(event) {
+    onPaginationChange (event) {
       const now = Date.now()
 
-      // Priorisiere Seitenwechsel über Größenänderungen
       if (event.page && event.page !== this.pagination.currentPage) {
-        // Page Navigation - ignoriere gleichzeitige length Events
-
         const maxPage = this.pagination.totalPages
         const targetPage = Math.max(1, Math.min(event.page, maxPage))
 
         this.applySearch(this.searchValue, targetPage)
-
       } else if (event.length && event.length !== this.pagination.perPage) {
-        // Page size change - nur wenn kein page Event gleichzeitig
-
-        // Debounce für size changes
+        // Debounce for size changes
         if (now - this.lastPaginationEventTime < 100) {
           return
         }
 
         this.lastPaginationEventTime = now
 
-        // Akzeptiere alle validen Dropdown-Werte
         if ([10, 25, 50, 100].includes(event.length)) {
           this.pagination.perPage = event.length
           this.pagination.currentPage = 1
@@ -506,21 +538,7 @@ export default {
       }
     },
 
-    resetSearch() {
-      this.searchValue = ''
-      this.fetchStatements({
-        page: {
-          number: 1,
-          size: 100
-        },
-        search: {
-          value: ''
-        },
-        include: ['segments'].join()
-      })
-    },
-
-    onSort(sortBy) {
+    onSort (sortBy) {
       // Toggle sort direction if same column, otherwise set to ascending
       if (this.sortBy === sortBy.index) {
         this.sortDirection = this.sortDirection === 'ascending' ? 'descending' : 'ascending'
@@ -529,28 +547,26 @@ export default {
         this.sortDirection = 'ascending'
       }
 
-      // Suche mit neuer Sortierung anwenden
       this.applySearch(this.searchValue, 1)
     },
 
-    extractNumericId(id) {
-      // Extrahiert Zahlen aus IDs wie "M1", "M7", "M123" -> 1, 7, 123
+    extractNumericId (id) {
       const match = String(id).match(/\d+/)
       return match ? parseInt(match[0]) : 0
     },
 
-    getSortString() {
+    getSortString () {
       if (this.sortBy !== '' && this.sortDirection) {
         const direction = this.sortDirection === 'ascending' ? '' : '-'
 
-        // Mapping von Column Index zu API Field
+        // Mapping from Column Index to API Field
         const sortFieldMap = {
-          0: null,                 // ID column - client-side numerische Sortierung
-          1: null,                 // Status column - client-side logische Sortierung
-          2: 'submitName',         // Author column
-          3: null,                 // Institution - client-side alphabetisch
-          4: null,                 // Sections column - not sortable
-          5: null                  // Confidence - client-side numerisch
+          0: null,
+          1: null,
+          2: 'submitName',
+          3: null,
+          4: null,
+          5: null
         }
 
         // Client-side sortieren
@@ -570,15 +586,15 @@ export default {
           this.sortStatementsClientSide('confidence')
           return '-submitDate,id' // Fallback API sort
         }
-        
+
         const field = sortFieldMap[this.sortBy]
         return field ? `${direction}${field}` : '-submitDate,id'
       }
-      // Default sort wenn keine Sortierung aktiv
+      // Default sort when no sorting is active
       return '-submitDate,id'
     },
 
-    onTabSwitch(selectedButton) {
+    onTabSwitch (selectedButton) {
       if (selectedButton.includes('statements')) {
         this.activeTab = 'statements'
       } else if (selectedButton.includes('sections')) {
@@ -586,31 +602,25 @@ export default {
       }
     },
 
-    toggleRowExpansion(rowId) {
+    toggleRowExpansion (rowId) {
       const index = this.expandedRows.indexOf(rowId)
       if (index > -1) {
-        // Row ist expandiert - kollabieren
+        // Row is expanded - collapse
         this.expandedRows.splice(index, 1)
       } else {
-        // Row ist kollabiert - expandieren
+        // Row is collapsed - expand
         this.expandedRows.push(rowId)
       }
     },
 
-    sortStatementsClientSide(sortField) {
+    sortStatementsClientSide (sortField) {
       // Set client-side sorting parameters
       this.clientSortField = sortField
       this.clientSortDirection = this.sortDirection
-      // computed property statements() wird automatisch neu berechnet
+      // Computed property statements() will be automatically recalculated
     },
 
-    toggleFilter() {
-      this.filterActive = !this.filterActive
-      // Filter logic hier - z.B. nur "Neu" Status
-      this.applySearch(this.searchValue, 1)
-    },
-
-    toggleColumnSelector() {
+    toggleColumnSelector () {
       this.isColumnSelectorOpen = !this.isColumnSelectorOpen
       if (this.isColumnSelectorOpen) {
         this.$nextTick(() => {
@@ -622,7 +632,7 @@ export default {
       }
     },
 
-    positionDropdown() {
+    positionDropdown () {
       if (this.$refs.columnTrigger && this.$refs.columnDropdown) {
         const triggerRect = this.$refs.columnTrigger.getBoundingClientRect()
         const dropdown = this.$refs.columnDropdown.querySelector('.cv-column-selector-dropdown')
@@ -634,7 +644,7 @@ export default {
       }
     },
 
-    handleOutsideClick(event) {
+    handleOutsideClick (event) {
       if (this.$refs.columnTrigger && !this.$refs.columnTrigger.contains(event.target) &&
           this.$refs.columnDropdown && !this.$refs.columnDropdown.contains(event.target)) {
         this.isColumnSelectorOpen = false
@@ -642,7 +652,7 @@ export default {
       }
     },
 
-    toggleColumn(columnKey) {
+    toggleColumn (columnKey) {
       if (this.visibleColumns.includes(columnKey)) {
         this.visibleColumns = this.visibleColumns.filter(key => key !== columnKey)
       } else {
@@ -651,13 +661,13 @@ export default {
       this.saveColumnSelection()
     },
 
-    saveColumnSelection() {
+    saveColumnSelection () {
       if (this.useLocalStorage) {
         localStorage.setItem(this.localStorageKey, JSON.stringify(this.visibleColumns))
       }
     },
 
-    loadColumnSelection() {
+    loadColumnSelection () {
       if (this.useLocalStorage) {
         const stored = localStorage.getItem(this.localStorageKey)
         return stored ? JSON.parse(stored) : ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
@@ -665,13 +675,12 @@ export default {
       return ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
     },
 
-
-    setupCheckboxListeners() {
+    setupCheckboxListeners () {
       console.log('setupCheckboxListeners called')
       // Wait for DOM to be fully rendered with statements
       this.$nextTick(() => {
         console.log('DOM is ready, looking for checkboxes')
-        // Header checkbox für "Select All" - Debug multiple selectors
+        // Header checkbox for "Select All" - Debug multiple selectors
         const headerSelectors = [
           '#cv-statement-table .bx--table-head .bx--table-column-checkbox input',
           '#cv-statement-table thead .bx--table-column-checkbox input',
@@ -693,37 +702,24 @@ export default {
           headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
 
           this.headerCheckboxHandler = (event) => {
-            console.log('Header checkbox clicked, checked:', event.target.checked)
-            console.log('Current statements count:', this.statements.length)
-
             if (event.target.checked) {
-              // Alle Rows auswählen
+              // Check all rows
               this.selectedRows = this.statements.map(s => String(s.id))
-              console.log('Selected all rows:', this.selectedRows)
             } else {
-              // Alle Rows abwählen
+              // Uncheck all rows
               this.selectedRows = []
-              console.log('Deselected all rows')
             }
             this.updateBatchActionsVisibility()
             this.updateRowCheckboxes()
           }
 
           headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
-        } else {
-          console.log('Header checkbox not found with any selector')
-          // Debug: Show all checkboxes found
-          const allCheckboxes = document.querySelectorAll('#cv-statement-table input[type="checkbox"]')
-          console.log('All checkboxes found:', allCheckboxes.length)
-          allCheckboxes.forEach((cb, index) => {
-            console.log(`Checkbox ${index}:`, cb.closest('tr')?.getAttribute('class') || 'no-tr', cb.closest('th')?.getAttribute('class') || 'no-th')
-          })
         }
 
         // Individual row checkboxes
         const checkboxes = document.querySelectorAll('#cv-statement-table .bx--table-column-checkbox input[type="checkbox"]')
 
-        checkboxes.forEach((checkbox, index) => {
+        checkboxes.forEach((checkbox) => {
           // Skip header checkbox (already handled above)
           if (checkbox.closest('.bx--table-head')) return
 
@@ -748,7 +744,7 @@ export default {
       })
     },
 
-    updateBatchActionsVisibility() {
+    updateBatchActionsVisibility () {
       const batchActions = document.querySelector('.bx--batch-actions')
       if (batchActions) {
         if (this.selectedRows.length > 0) {
@@ -767,7 +763,7 @@ export default {
       }
     },
 
-    updateHeaderCheckboxState() {
+    updateHeaderCheckboxState () {
       const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
       if (headerCheckbox) {
         const totalRows = this.statements.length
@@ -786,7 +782,7 @@ export default {
       }
     },
 
-    updateRowCheckboxes() {
+    updateRowCheckboxes () {
       const checkboxes = document.querySelectorAll('#cv-statement-table .bx--data-table tbody .bx--table-column-checkbox input')
       checkboxes.forEach((checkbox) => {
         const rowValue = checkbox.closest('tr')?.getAttribute('data-value')
@@ -796,8 +792,7 @@ export default {
       })
     },
 
-    replacePaginationText() {
-      // Replace "Page" with "Seite" in pagination
+    replacePaginationText () {
       const pageTexts = document.querySelectorAll('.bx--pagination__right .bx--pagination__text')
       pageTexts.forEach(element => {
         if (element.textContent.includes('Page')) {
@@ -824,21 +819,7 @@ export default {
     }
   },
 
-  watch: {
-    statements: {
-      handler(newStatements) {
-        if (newStatements.length > 0) {
-          // Re-setup checkbox listeners when statements are loaded
-          this.$nextTick(() => {
-            this.setupCheckboxListeners()
-          })
-        }
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
+  mounted () {
     // Initialize visibleColumns from localStorage
     this.visibleColumns = this.loadColumnSelection()
 
@@ -877,16 +858,14 @@ export default {
     })
   },
 
-  updated() {
+  updated () {
     this.$nextTick(() => {
       this.replacePaginationText()
     })
   },
 
-  beforeUnmount() {
+  beforeUnmount () {
     document.removeEventListener('click', this.handleOutsideClick)
   }
 }
 </script>
-
-
