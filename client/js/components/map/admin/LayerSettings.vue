@@ -507,8 +507,6 @@ export default {
           if (this.currentCapabilities !== null) {
             this.version = this.currentCapabilities.version
             this.serviceType === 'wmts' ? this.extractDataFromWMTSCapabilities() : this.extractDataFromWMSCapabilities()
-          } else {
-            this.validateSavedLayersAvailability()
           }
         })
         .catch(() => {
