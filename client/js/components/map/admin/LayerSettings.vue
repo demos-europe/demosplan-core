@@ -94,7 +94,7 @@
           <dp-contextual-help
             v-if="unavailableLayers.includes(props.option.label) || serviceError"
             :class="prefixClass('ml-1 mb-0.5 text-message-severe')"
-            :text="serviceError ? Translator.trans('map.service.unreachable') : Translator.trans('layer.no.longer.included.in.map.service')"
+            :text="serviceError ? Translator.trans('map.service.unreachable') : Translator.trans('layer.unavailable')"
             icon="warning-circle"
           />
 
