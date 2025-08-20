@@ -11,13 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Location;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
-use Geocoder\Geocoder;
 use Psr\Log\LoggerInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 
 class LocationService
 {
@@ -30,8 +29,7 @@ class LocationService
         ManagerRegistry $registry,
         private readonly LoggerInterface $logger,
         private readonly GeodatenzentrumAddressSearchService $geodatenzentrumAddressSearchService,
-    )
-    {
+    ) {
         $this->em = $registry->getManager();
     }
 
@@ -41,8 +39,6 @@ class LocationService
      * @param string     $searchString
      * @param int        $limit
      * @param array|null $maxExtent
-     *
-     * @return array
      */
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
