@@ -163,7 +163,7 @@
       </template>
 
       <template v-slot:required="rowData">
-        <div class="mt-1">
+        <div v-if="isStatementField" class="mt-1">
           {{rowData.required ? Translator.trans('yes') : Translator.trans('no')}}
         </div>
       </template>
@@ -363,7 +363,7 @@ export default {
     },
 
     headerFields () {
-      return [
+      const fields = [
         {
           field: 'name',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
@@ -383,13 +383,18 @@ export default {
           field: 'fieldType',
           label: Translator.trans('type'),
           colClass: 'u-6-of-12'
-        },
-        {
+        }
+      ]
+
+      if (this.isStatementField) {
+        fields.push({
           field: 'required',
           label: Translator.trans('field.required'),
           colClass: 'u-7-of-12'
-        }
-      ]
+        })
+      }
+
+      return fields
     },
 
     helpText () {
