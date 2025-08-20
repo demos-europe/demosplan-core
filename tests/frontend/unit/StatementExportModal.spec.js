@@ -1,15 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import { enableAutoUnmount } from '@vue/test-utils'
-import { sessionStorageMock } from './__mocks__/sessionStorage.mock'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 
 describe('StatementExportModal', () => {
-  Object.defineProperty(window, 'sessionStorage', {
-    value: sessionStorageMock
-  })
-
   let wrapper
 
   const findCheckboxes = () => {
