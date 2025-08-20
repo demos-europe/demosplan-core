@@ -663,7 +663,7 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    async toggleCategoryAlternately ({ dispatch, state, commit }, layer) {
+    async toggleCategoryAlternatively ({ dispatch, state, commit }, layer) {
       const toggledCatId = await dispatch('findMostParentCategory', layer)
         .catch(() => {
           console.error('Error finding most parent category for layer:', layer.id)
@@ -720,7 +720,7 @@ const LayersStore = {
         // If the Layer has a visibilityGroupId, we toggle the whole group
         await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
       } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
-        dispatch('toggleCategoryAlternately', layer)
+        dispatch('toggleCategoryAlternatively', layer)
       } else {
         commit('setLayerState', { id, key: 'isVisible', value: isVisible })
 

@@ -368,12 +368,12 @@ describe('Layers Actions', () => {
     })
   })
 
-  describe('toggleCategoryAlternatevely', () => {
+  describe('toggleCategoryAlternatively', () => {
     it('should toggle category alternatively', async () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
       const layer = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
 
-      await StubStore.dispatch('Layers/toggleCategoryAlternately', layer)
+      await StubStore.dispatch('Layers/toggleCategoryAlternatively', layer)
 
       expect(dispatchSpy).toHaveBeenCalledWith('Layers/findMostParentCategory', layer)
     })
