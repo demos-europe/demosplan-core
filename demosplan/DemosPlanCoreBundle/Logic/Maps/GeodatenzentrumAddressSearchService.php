@@ -16,8 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
-class GeodatenzentrumAddressSearchService
-/*
+class GeodatenzentrumAddressSearchService /*
  * Geodatenzentrum returns the following json data format:
  * [
  * {
@@ -43,14 +42,13 @@ class GeodatenzentrumAddressSearchService
         private readonly LoggerInterface $logger,
     ) {
     }
+
     /**
      * search for addresses using the Geodatenzentrum search service. Enables search by street names and not only zip code.
      *
      * @param string     $query     // search query
      * @param int        $limit     // max number of results to return
      * @param array|null $maxExtent // limits result to a geographical area
-     *
-     * @return array
      */
     public function searchAddress($query, $limit = 20, $maxExtent = null): array
     {
