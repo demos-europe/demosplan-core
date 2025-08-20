@@ -27,9 +27,8 @@ const UserFormFields = {
 
   actions: {
     fetchOrgaSuggestions ({ commit }) {
-      if (hasPermission('area_organisations') || hasPermission('feature_organisation_user_list')) {
-        const url = Routing.generate('dplan_api_organisation_list') + '?' + qs.stringify({ page: { number: 1, size: 500 } }) + '&' + qs.stringify({ include: 'departments' })
-        dpApi.get(url).then((response) => {
+      const url = '/api/2.0/Orga?' + qs.stringify({ include: 'departments,masterToeb', fields: { Orga: 'departments,masterToeb,name' } })
+      dpApi.get(url).then((response) => {
           const organisations = []
           const inclDepartments = {}
 
@@ -53,7 +52,6 @@ const UserFormFields = {
 
           commit('setOrgaSuggestions', organisations)
         })
-      }
     }
   },
 
