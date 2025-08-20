@@ -320,7 +320,8 @@ export default {
           label: ''
         }
       ],
-      newRowData: {}
+      newRowData: {},
+      required: false
     }
   },
 
