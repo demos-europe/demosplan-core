@@ -2039,15 +2039,17 @@ export default {
      * Toggles the visibility of a layer by its ID.
      * If `newState` is not provided, it will toggle the current visibility state.
      *
-     * @param layerId
-     * @param newState
+     * @param {string} layerId
+     * @param {boolean} newVisibilityState
      */
-    toggleLayer (layerId) {
-      if (!this.map) return
+    toggleLayer (layerId, newVisibilityState) {
+      if (!this.map) {
+        return
+      }
 
       const layerGroup = this.map.getLayerGroup()
       const layer = this.findBy(layerGroup, 'name', layerId)
-      const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
+      const stateSetter = (typeof newVisibilityState !== 'undefined') ? newVisibilityState : (layer.getVisible() === false)
 
       if (layer) {
         layer.setVisible(stateSetter)
