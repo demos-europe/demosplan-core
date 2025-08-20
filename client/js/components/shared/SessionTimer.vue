@@ -35,9 +35,9 @@ export default {
     DpIcon
   },
 
-  mixins: [ prefixClassMixin ],
+  mixins: [prefixClassMixin],
 
-  data() {
+  data () {
     return {
       intervalId: null,
       timeLeft: 0,
@@ -59,7 +59,7 @@ export default {
     },
 
     isWarning () {
-      return this.timeLeft <= 10 * millisecondsPerMinute
+      return this.timeLeft <= 3 * millisecondsPerMinute
     },
 
     shouldShowTimer () {
@@ -93,8 +93,8 @@ export default {
       const pad = (num) => String(num).padStart(2, '0')
 
       return hours > 0
-        ? `${ hours }:${ pad(minutes) }:${ pad(seconds) }`
-        : `${ pad(minutes) }:${ pad(seconds) }`
+        ? `${hours}:${pad(minutes)}:${pad(seconds)}`
+        : `${pad(minutes)}:${pad(seconds)}`
     },
 
     getTimeUnits (milliseconds) {
@@ -105,7 +105,7 @@ export default {
       return { hours, minutes, seconds }
     },
 
-    async handleSessionTimeout() {
+    async handleSessionTimeout () {
       try {
         window.location.href = this.Routing.generate('DemosPlan_user_logout')
       } catch (error) {

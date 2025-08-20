@@ -63,21 +63,32 @@ class LogoutSubscriber implements EventSubscriberInterface
             $response = $this->redirectToRoute('core_home');
         }
 
-        // let oauth identity provider handle logout when defined
-        if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
-            $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
-            $event->getRequest()->getSession()->invalidate();
-            $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-            $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+        // let oauth identity provider handle logout when defined and user was provided by identity provider
+        $user = $event->getToken()?->getUser();
+        if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
+            // Keycloak logout
+            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
+                $event->getRequest()->getSession()->invalidate();
+                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+                $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
-            // add additional parameters to keycloak logout url for redirect
-            try {
-                $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
-                $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
-            } catch (Exception $e) {
-                $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                // add additional parameters to keycloak logout url for redirect
+                    try {
+                        $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                } catch (Exception $e) {
+                    $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                }
+                $response = $this->redirect($logoutRoute);
             }
-            $response = $this->redirect($logoutRoute);
+
+            // Azure AD logout (Front-Channel logout)
+            if ('' !== $this->parameterBag->get('oauth_azure_logout_route')) {
+                $logoutRoute = $this->parameterBag->get('oauth_azure_logout_route');
+                $this->logger->info('Redirecting to Azure AD for logout initial', [$logoutRoute]);
+                $response = $this->redirect($logoutRoute);
+            }
         }
 
         if ($this->permissions->hasPermission('feature_has_logout_landing_page')) {

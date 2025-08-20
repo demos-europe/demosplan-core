@@ -50,6 +50,9 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             return;
         }
 
+        if ($this->ozgKeycloakLogoutManager->shouldSkipInProductionWithoutKeycloak()) {
+            return;
+        }
         // Only handle main requests
         if (!$event->isMainRequest()) {
             return;

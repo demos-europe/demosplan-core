@@ -338,6 +338,8 @@ parameters:
     # LocationUpdateService::repopulateDatabase()
     use_opengeodb: true
 
+    # should the azure Authentication be used?
+    azure_sso_enabled: false
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
@@ -350,6 +352,10 @@ parameters:
     oauth_keycloak_logout_route: ''
     # roles may be granted via keycloak groups
     keycloak_group_role_string: ''
+
+    # Azure AD logout route for Front-Channel logout like
+    # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
+    oauth_azure_logout_route: ''
 
     # Set users with permissions to alter Database
     database_install_user: ""
