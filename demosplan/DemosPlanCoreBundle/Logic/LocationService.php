@@ -60,6 +60,7 @@ class LocationService
 
     /**
      * Get an address suggestion by typing in a street name.
+     * Uses the Geocoder API for autosuggestions, and local DB for municipal code requests
      *
      * @param string     $searchString
      * @param int        $limit
@@ -67,13 +68,18 @@ class LocationService
      *
      * @return array
      */
-    public function searchAddress($searchString, $limit = 20, $maxExtent = null)
+    public function searchAddressHybrid($searchString, $limit = 20, $maxExtent = null)
     {
         try {
             $locations = $this->geodatenzentrumAddressSearchService
                 ->searchAddress($searchString, $limit, $maxExtent);
+            // return results from Geocoder API
+            if(!empty($locations)) {
 
-            return ['body' => $locations];
+                return ['body' => $locations];
+            }
+            // use local db for municipal code requests
+            return ['body' => $this->searchCity($searchString, $limit, $maxExtent)['body']];
         } catch (Exception $e) {
             $this->logger->error('Fehler bei der Adresssuche: ', [$e]);
 

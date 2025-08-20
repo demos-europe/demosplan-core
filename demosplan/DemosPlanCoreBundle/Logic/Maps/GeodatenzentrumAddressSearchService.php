@@ -88,6 +88,7 @@ class GeodatenzentrumAddressSearchService
         $federalState = $address['bundesland'] ?? '';
         $latitude = $result['lat'] ?? null;
         $longitude = $result['lon'] ?? null;
+        $municipalCode = $result['municipal'] ?? null;
 
         return [
             'strasse' => $street,
@@ -99,7 +100,7 @@ class GeodatenzentrumAddressSearchService
             'lon' => $longitude,
             //former searchCity function compatibility fields:
             'postcode' => $postcode,
-            'municipalCode' => null,
+            'municipalCode' => $municipalCode,
         ];
     }
 }
