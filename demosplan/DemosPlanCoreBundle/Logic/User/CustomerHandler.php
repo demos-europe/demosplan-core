@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -32,7 +31,6 @@ class CustomerHandler
 
     public function __construct(
         CustomerService $customerService,
-        MessageBagInterface $messageBag,
         private readonly PermissionsInterface $permissions,
         private readonly ValidatorInterface $validator)
     {

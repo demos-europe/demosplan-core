@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -43,7 +42,6 @@ class StatementAnonymizeHandler
     ];
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUserInterface,
         private readonly ManagerRegistry $doctrine,
         private readonly PermissionsInterface $permissions,
         private readonly StatementAnonymizeService $statementAnonymizeService,

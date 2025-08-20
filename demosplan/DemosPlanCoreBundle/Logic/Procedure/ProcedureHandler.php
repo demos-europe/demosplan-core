@@ -90,7 +90,7 @@ class ProcedureHandler implements ProcedureHandlerInterface
         private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,

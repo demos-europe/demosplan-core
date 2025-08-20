@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -90,7 +89,6 @@ class DraftStatementHandler
         FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
         MailService $mailService,
-        MessageBagInterface $messageBag,
         ProcedureHandler $procedureHandler,
         RouterInterface $router,
         TranslatorInterface $translator,
