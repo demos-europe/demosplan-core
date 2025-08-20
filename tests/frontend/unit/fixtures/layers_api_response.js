@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-// Pseudonymized API response fixture for layers testing
 export const layersApiResponse = {
   data: [{
     type: 'GisLayerCategory',
