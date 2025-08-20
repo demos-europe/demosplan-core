@@ -7,11 +7,11 @@
  * All rights reserved
  */
 
-import { apiData } from '../__mocks__/layer_json.mock'
+import { apiData } from '../fixtures/layer_json'
 import { createStore } from 'vuex'
 import { dpApi } from '@demos-europe/demosplan-ui'
 import Layers from '@DpJs/store/map/Layers'
-import { mockLayersApiResponse } from '../__mocks__/layers_api_response.mock'
+import { layersApiResponse } from '../fixtures/layers_api_response'
 
 let StubStore
 
@@ -78,8 +78,8 @@ describe('Layers Actions', () => {
     StubStore = createStore({})
     StubStore.registerModule('Layers', Layers)
     // Setup store with mock data
-    StubStore.commit('Layers/updateApiData', mockLayersApiResponse)
-    StubStore.commit('Layers/saveOriginalState', mockLayersApiResponse)
+    StubStore.commit('Layers/updateApiData', layersApiResponse)
+    StubStore.commit('Layers/saveOriginalState', layersApiResponse)
 
     // Reset all mocks
     jest.clearAllMocks()
@@ -129,23 +129,25 @@ describe('Layers Actions', () => {
     it('should save all layers and categories', async () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
+      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/saveAll')
 
       // Should dispatch save for each included element
-      const includedCount = mockLayersApiResponse.included.length
-      // Each save triggers a 'get' dispatch, and each 'get' triggers a 'buildLegends' dispatch
-      // So we have: saveAll + (save + get + buildLegends) * includedCount
+      const includedCount = layersApiResponse.included.length
+      /*
+       * Each save triggers a 'get' dispatch, and each 'get' triggers a 'buildLegends' dispatch
+       * So we have: saveAll + (save + get + buildLegends) * includedCount
+       */
       expect(dispatchSpy).toHaveBeenCalledTimes(1 + (includedCount * 3))
     })
   })
 
   describe('save', () => {
     it('should save a GisLayer resource', async () => {
-      const layerResource = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
+      const layerResource = layersApiResponse.included.find(item => item.type === 'GisLayer')
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
+      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', layerResource)
 
@@ -162,9 +164,9 @@ describe('Layers Actions', () => {
     })
 
     it('should save a GisLayerCategory resource', async () => {
-      const categoryResource = mockLayersApiResponse.included.find(item => item.type === 'GisLayerCategory')
+      const categoryResource = layersApiResponse.included.find(item => item.type === 'GisLayerCategory')
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
+      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', categoryResource)
 
@@ -181,13 +183,13 @@ describe('Layers Actions', () => {
     })
 
     it('should refresh data and clear active layer after successful save', async () => {
-      const layerResource = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
+      const layerResource = layersApiResponse.included.find(item => item.type === 'GisLayer')
 
       // Set a procedureId, which is required for the 'get' action called in the 'save' action
       StubStore.commit('Layers/setProcedureId', 'test-procedure-id')
 
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
+      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', layerResource)
 
@@ -375,7 +377,7 @@ describe('Layers Actions', () => {
   describe('toggleCategoryAlternatively', () => {
     it('should toggle category alternatively', async () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
-      const layer = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
+      const layer = layersApiResponse.included.find(item => item.type === 'GisLayer')
 
       await StubStore.dispatch('Layers/toggleCategoryAlternatively', layer)
 
