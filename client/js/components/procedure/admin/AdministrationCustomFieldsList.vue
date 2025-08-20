@@ -17,6 +17,7 @@
       <div>
           <dp-checkbox
           v-if="isStatementField"
+          v-model="required"
           class="mb-2"
           id="requiredCheckbox"
           :label="{
@@ -158,6 +159,12 @@
           color="default"
           :text="fieldTypeText(rowData.fieldType)"
           />
+        </div>
+      </template>
+
+      <template v-slot:required="rowData">
+        <div class="mt-1">
+          {{rowData.required ? Translator.trans('yes') : Translator.trans('no')}}
         </div>
       </template>
 
@@ -376,6 +383,11 @@ export default {
           field: 'fieldType',
           label: Translator.trans('type'),
           colClass: 'u-6-of-12'
+        },
+        {
+          field: 'required',
+          label: Translator.trans('field.required'),
+          colClass: 'u-7-of-12'
         }
       ]
     },
@@ -577,6 +589,7 @@ export default {
               name,
               description,
               fieldType: 'multiSelect', //keep until BE ready
+              required: true, //keep until BE ready
               options: JSON.parse(JSON.stringify(options)),
               open: false,
               edit: false,
