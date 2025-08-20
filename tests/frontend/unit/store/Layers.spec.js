@@ -239,7 +239,6 @@ describe('Layers Actions', () => {
         setToVisible: true
       })
 
-      console.log(StubStore.state.Layers.layerStates)
       expect(StubStore.state.Layers.layerStates['base-layer-1']?.isVisible).toBe(true)
       expect(StubStore.state.Layers.layerStates['base-layer-2']?.isVisible).not.toBe(true)
       expect(StubStore.state.Layers.layerStates['base-layer-3']?.isVisible).not.toBe(true)
