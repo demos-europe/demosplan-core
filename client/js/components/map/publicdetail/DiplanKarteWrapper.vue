@@ -20,9 +20,9 @@
     <diplan-karte
       v-if="isStoreAvailable"
       :geojson="drawing"
-      profile="beteiligung"
       enable-searchbar
       enable-toolbar
+      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
