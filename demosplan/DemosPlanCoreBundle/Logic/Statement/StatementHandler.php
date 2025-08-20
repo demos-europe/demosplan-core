@@ -103,6 +103,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\CountyNotificationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
+use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -135,6 +136,7 @@ use function is_string;
 class StatementHandler implements StatementHandlerInterface
 {
     use RefreshElasticsearchIndexTrait;
+    use IsProfilableTrait;
 
     /** @var DraftStatementService */
     protected $draftStatementService;
@@ -249,7 +251,7 @@ class StatementHandler implements StatementHandlerInterface
         StatementService $statementService,
         TagService $tagService,
         private readonly TranslatorInterface $translator,
-        public readonly RequestDataHandler $requestDataHandler,
+        private readonly RequestDataHandler $requestDataHandler,
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,

@@ -57,6 +57,8 @@ use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\EmailAddressVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
+use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -156,6 +158,7 @@ class UserHandler implements UserHandlerInterface
         private readonly LoggerInterface $logger,
         UserService $userService,
         ValidatorInterface $validator,
+        private readonly RequestDataHandler $requestDataHandler,
     ) {
         $this->customerService = $customerService;
         $this->draftStatementService = $draftStatementService;
@@ -283,7 +286,7 @@ class UserHandler implements UserHandlerInterface
      */
     public function addUser(ParameterBag $request): ?User
     {
-        $data = $this->transformRequestVariables($request->all());
+        $data = $this->requestDataHandler->transformRequestVariables($request->all());
         $mandatoryErrors = $this->validateUserData($data);
 
         if (array_key_exists('email', $data)) {
@@ -594,7 +597,7 @@ class UserHandler implements UserHandlerInterface
      */
     public function handleSaveAllUsers($requestData)
     {
-        $data = $this->transformRequestVariables($requestData->all());
+        $data = $this->requestDataHandler->transformRequestVariables($requestData->all());
 
         foreach ($data as $ident => $user) {
             $result = $this->updateUser($ident, $user);
@@ -894,7 +897,7 @@ class UserHandler implements UserHandlerInterface
      */
     public function handleSaveSingleUser($userIdent, ParameterBag $requestData)
     {
-        $data = $this->transformRequestVariables($requestData->all());
+        $data = $this->requestDataHandler->transformRequestVariables($requestData->all());
         $result = $this->updateUser($userIdent, $data[$userIdent]);
 
         if ($result instanceof User) {
@@ -1101,7 +1104,7 @@ class UserHandler implements UserHandlerInterface
      */
     protected function handleSaveAllOrgas(ParameterBag $requestData)
     {
-        $data = $this->transformRequestVariables($requestData->all());
+        $data = $this->requestDataHandler->transformRequestVariables($requestData->all());
 
         $duplicatedOrgaId = $this->checkDuplicateSlugs($data);
         if (null !== $duplicatedOrgaId) {
@@ -1233,7 +1236,7 @@ class UserHandler implements UserHandlerInterface
     protected function handleSaveSingleOrga($ident, ParameterBag $data)
     {
         try {
-            $transformedData = $this->transformRequestVariables($data->all());
+            $transformedData = $this->requestDataHandler->transformRequestVariables($data->all());
             $updatedOrga = $this->updateOrga($ident, $transformedData[$ident]);
 
             if (null !== $updatedOrga) {
@@ -1287,7 +1290,7 @@ class UserHandler implements UserHandlerInterface
      */
     protected function handleSaveAllDepartments(ParameterBag $requestData)
     {
-        $data = $this->transformRequestVariables($requestData->all());
+        $data = $this->requestDataHandler->transformRequestVariables($requestData->all());
 
         foreach ($data as $ident => $department) {
             try {
@@ -1412,7 +1415,7 @@ class UserHandler implements UserHandlerInterface
     protected function handleSaveSingleDepartment($ident, ParameterBag $data)
     {
         try {
-            $transformedData = $this->transformRequestVariables($data->all());
+            $transformedData = $this->requestDataHandler->transformRequestVariables($data->all());
             $result = $this->updateDepartment($ident, $transformedData[$ident]);
 
             if (array_key_exists('mandatoryfieldwarning', $result)) {

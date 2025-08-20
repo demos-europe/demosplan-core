@@ -64,6 +64,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
@@ -153,7 +154,8 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
-        private readonly CurrentProcedureService $currentProcedureService
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly RequestDataHandler $requestDataHandler,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -1483,6 +1485,7 @@ class DemosPlanProcedureController extends BaseController
         FileUploadService $fileUploadService,
         Request $request,
         ServiceStorage $serviceStorage,
+        RequestDataHandler $requestDataHandler,
         $procedure,
     ) {
         $currentProcedure = $currentProcedureService->getProcedureArray();
@@ -1699,7 +1702,7 @@ class DemosPlanProcedureController extends BaseController
                         return $this->redirectToRoute('core_home');
                     }
 
-                    $statementHandler->requestDataHandler->setRequestValues($requestPost);
+                    $this->requestDataHandler->setRequestValues($requestPost);
                     try {
                         $savedStatement = $statementHandler->savePublicStatement($procedureId);
                         $templateVars['confirmationText'] =

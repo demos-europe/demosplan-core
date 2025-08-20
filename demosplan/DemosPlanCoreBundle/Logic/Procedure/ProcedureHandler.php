@@ -128,7 +128,7 @@ class ProcedureHandler implements ProcedureHandlerInterface
     {
         $templatefilters = [];
         $returnVars = [];
-        $requestValues = $this->getRequestValues();
+        $requestValues = $this->requestDataHandler->getRequestValues();
 
         // initialize storage and output
         $serviceOutput = $this->serviceOutput;
@@ -1014,27 +1014,5 @@ class ProcedureHandler implements ProcedureHandlerInterface
     public function setRequestValues(array $values): void
     {
         $this->requestDataHandler->setRequestValues($values);
-    }
-
-    /**
-     * Get all request values.
-     *
-     * @return array<string, mixed>
-     */
-    public function getRequestValues(): array
-    {
-        return $this->requestDataHandler->getRequestValues();
-    }
-
-    /**
-     * Transform request variables.
-     *
-     * @param array<string, mixed> $variables
-     *
-     * @return array<string, mixed>
-     */
-    public function transformRequestVariables(array $variables): array
-    {
-        return $this->requestDataHandler->transformRequestVariables($variables);
     }
 }

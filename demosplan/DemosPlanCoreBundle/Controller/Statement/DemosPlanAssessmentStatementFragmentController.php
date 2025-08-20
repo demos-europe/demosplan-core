@@ -62,7 +62,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
     public function __construct(
         private readonly PermissionsInterface $permissions,
         private readonly StatementHandler $statementHandler,
-        private readonly requestDataHandler $requestDataHandler,
+        private readonly RequestDataHandler $requestDataHandler,
     )
     {
         parent::__construct($permissions);
@@ -181,7 +181,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['formAction'] = $router->generate('DemosPlan_statement_fragment_update_redirect_fragment_reviewer').'?'.http_build_query($pagerQuerystring);
 
         $requestPost = $this->rememberFilters($request);
-        $statementHandler->requestDataHandler->setRequestValues($requestPost);
+        $this->requestDataHandler->setRequestValues($requestPost);
 
         $departmentId = $currentUser->getUser()->getDepartmentId();
 
@@ -278,7 +278,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $requestPost[str_replace('_', '.', (string) $filterName)] = $value;
         }
 
-        $statementHandler->requestDataHandler->setRequestValues($requestPost);
+        $this->requestDataHandler->setRequestValues($requestPost);
         $result = $statementHandler->getStatementFragmentsDepartment($departmentId);
 
         $templateVars['list'] = $result;
