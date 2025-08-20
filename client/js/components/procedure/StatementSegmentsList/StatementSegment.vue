@@ -399,7 +399,6 @@
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBadge,
@@ -573,7 +572,12 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        const opts = [...el.attributes.options].map(opt => ({
+          fieldId: el.id,
+          id: `${el.id}:${opt.label}`,
+          name: opt.label
+        }))
+
         opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
@@ -712,7 +716,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
@@ -732,6 +735,18 @@ export default {
     closeRecommendationModalAfterInsert () {
       this.toggleRecommendationModal()
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    },
+
+    getCurrentSelectedOption (fieldId) {
+      const selectedOption = this.customFields[fieldId].attributes.options?.find(
+        option => option.id === this.segment.attributes.customFields?.find(
+          customFieldIdValue => customFieldIdValue.id === fieldId)?.value)
+
+      if (!selectedOption) {
+        return
+      }
+
+      return selectedOption
     },
 
     handleTabChange (id) {
@@ -767,6 +782,20 @@ export default {
         .then(() => {
           this.setSelectedAssignee()
         })
+    },
+
+    initCustomFieldValues () {
+      Object.values(this.customFields).map((field) => {
+        const selectedOption = this.getCurrentSelectedOption(field.id)
+
+        if (selectedOption) {
+          this.customFieldValues[field.id] = {
+            fieldId: field.id,
+            id: selectedOption.id + ":" + selectedOption.label,
+            name: selectedOption.label,
+          }
+        }
+      })
     },
 
     initPlaces () {
@@ -835,7 +864,7 @@ export default {
           customFields: Object.values(this.customFieldValues).map(option => ({
             id: option.fieldId,
             value: this.getCustomFieldValueForPayload(option)
-          }))
+          })).filter(option => option.value !== 'undefined')
         }
       }
 
@@ -877,6 +906,8 @@ export default {
         }
       }
 
+      this.removeComments(updatedSegment.relationships)
+
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id
@@ -899,7 +930,6 @@ export default {
         : { id: this.segment.id }
 
       this.saveSegmentAction(savePayload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
@@ -1050,7 +1080,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.isFullscreen = false
           this.isEditing = false
@@ -1125,15 +1154,18 @@ export default {
     },
 
     // Helper to get the custom field value from an option
-    getCustomFieldValueForPayload (option) {
+    getCustomFieldValueForPayload (customFieldValue) {
+      const selectedOption = this.customFields[customFieldValue.fieldId]?.attributes.options.find(option => option.label === customFieldValue.name)
+
       // Return null for unassigned options instead of 'UNASSIGNED'
-      return option.value === 'UNASSIGNED' ? null : option.name
+      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
     }
   },
 
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
+    this.initCustomFieldValues()
 
     if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()

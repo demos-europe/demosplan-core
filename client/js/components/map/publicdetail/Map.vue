@@ -36,12 +36,14 @@ import { addProjection, Projection, transform } from 'ol/proj'
 import { Attribution, FullScreen, MousePosition, OverviewMap, ScaleLine } from 'ol/control'
 import { Circle, Fill, Stroke, Style } from 'ol/style'
 import { defaults as defaultInteractions, DragZoom, Draw } from 'ol/interaction'
-import { dpApi, DpAutocomplete, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAutocomplete, externalApi, formatDate, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { Circle as GCircle, LineString as GLineString, Polygon as GPolygon } from 'ol/geom'
 import { GeoJSON, WMTSCapabilities } from 'ol/format'
 import { getArea, getLength } from 'ol/sphere'
 import { Map, View } from 'ol'
+import { mapActions, mapState } from 'vuex'
 import { TileWMS, WMTS } from 'ol/source'
+import DomPurify from 'dompurify'
 import { easeOut } from 'ol/easing'
 import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
@@ -84,6 +86,11 @@ export default {
     getFeatureInfoUrlPlanningArea: {
       type: String,
       default: ''
+    },
+
+    layerGroupsAlternateVisibility: {
+      type: Boolean,
+      default: false
     },
 
     mapDanmarkLayer: {
@@ -180,6 +187,8 @@ export default {
   },
 
   computed: {
+    ...mapState('Layers', ['layerStates']),
+
     featureInfoUrl () {
       /**
        * ProcedureSettings.featureInfoUrl holds GetFeatureInfo service method getUrl() return value,
@@ -288,7 +297,24 @@ export default {
     }
   },
 
+  watch: {
+    layerStates: {
+      handler () {
+        Object.keys(this.layerStates).forEach(layerId => {
+          const layer = this.layerStates[layerId]
+
+          this.toggleLayer(layerId, false, layer.isVisible)
+        })
+      },
+      deep: true
+    }
+  },
+
   methods: {
+    ...mapActions('Layers', {
+      getLayers: 'get'
+    }),
+
     addCustomLayerToggleButton ({ id, layerName, activated }) {
       const element = document.getElementById(id)
       //  Add click handler if button is present in DOM
@@ -318,8 +344,8 @@ export default {
         this.handleZoom(1, duration)
       })
 
-      for (let i = 0; i < mapCustomZoomReset.length; i++) {
-        mapCustomZoomReset[i].addEventListener('click', () => {
+      for (const element of mapCustomZoomReset) {
+        element.addEventListener('click', () => {
           this.map.getView().fit(this.initialExtent, { duration })
         })
       }
@@ -603,7 +629,6 @@ export default {
       let hasBplan = false
       let hasScope = false
       let i = 0
-      const tempLayers = []
       let layer
       let layerId
       let overlayLayer
@@ -618,7 +643,7 @@ export default {
 
         const isHiddenPrintLayer = layer.attributes.isEnabled === false && layer.attributes.isPrint
 
-        layerId = layer.id.replace(/-/g, '')
+        layerId = layer.id
         opacity = opacities['GisLayerlayer' + layerId] / 100
 
         overlayLayer = this.createLayer({ layer, opacity, visibility: !isHiddenPrintLayer })
@@ -648,15 +673,7 @@ export default {
         }
 
         this.overlayLayers.push(overlayLayer)
-
-        tempLayers.push({
-          id: layer.id,
-          treeOrder: layer.attributes.treeOrder,
-          mapOrder: layer.attributes.mapOrder,
-          defaultVisibility: layer.attributes.hasDefaultVisibility
-        })
       }
-      tempLayers.sort((a, b) => a.treeOrder - b.treeOrder)
 
       this.overlayLayerGroup = new LayerGroup({
         layers: this.overlayLayers.reverse(),
@@ -808,47 +825,81 @@ export default {
         const viewResolution = this.mapview.getResolution()
 
         // Use prerendered html by default
-        let infoFormat = 'text/html'
+        const infoFormat = 'text/html'
 
-        const remappedUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
-        ).split('?')[1]
+        if (PROJECT && PROJECT === 'robobsh') {
+          const remappedUrl = getFeatureinfoSource
+            .getSource()
+            .getFeatureInfoUrl(coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat })
+            .split('?')[1]
 
-        if (remappedUrl) {
-          const getData = { params: remappedUrl }
+          if (remappedUrl) {
+            // This triggers getFeatureInfoByType() in GetFeatureInfo service
+            const getData = {
+              params: remappedUrl,
+              infotype: 'criteria'
+            }
 
-          //  This triggers getFeatureInfoByType() in GetFeatureInfo service
-          if (PROJECT && PROJECT === 'robobsh') {
-            getData.infotype = 'criteria'
-          }
+            //  Open Popup with loading state
+            this.resetPopup()
+            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+            this.showPopup('criteriaPopup', '', coordinate)
+            //  Add progress indicator (.o-spinner on same element required)
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
 
-          //  Open Popup with loading state
-          this.resetPopup()
-          $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
-          this.showPopup('criteriaPopup', '', coordinate)
-          //  Add progress indicator (.o-spinner on same element required)
-          $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
+            dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
+              .then(response => {
+                const parsedData = JSON.parse(response.data)
+                if (parsedData.code === 100 && parsedData.success) {
+                  if (parsedData.body !== null) {
+                    let popupContent = ''
+                    popupContent = parsedData.body
 
-          dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
-            .then(response => {
-              const parsedData = JSON.parse(response.data)
-              if (parsedData.code === 100 && parsedData.success) {
-                if (parsedData.body !== null) {
-                  let popupContent = ''
-                  popupContent = parsedData.body
+                    if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
+                      popupContent = Translator.trans('map.getfeatureinfo.none')
+                    }
 
-                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
-                    popupContent = Translator.trans('map.getfeatureinfo.none')
+                    this.showPopup('criteriaPopup', popupContent, coordinate)
+                  } else {
+                    this.showPopupError('empty', coordinate)
                   }
-
-                  this.showPopup('criteriaPopup', popupContent, coordinate)
                 } else {
-                  this.showPopupError('empty', coordinate)
+                  this.showPopupError('failed', coordinate)
                 }
-              } else {
+              })
+          }
+        } else {
+          const featureInfoUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
+            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
+          )
+
+          if (featureInfoUrl) {
+            //  Open Popup with loading state
+            this.resetPopup()
+            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+            this.showPopup('criteriaPopup', '', coordinate)
+            //  Add progress indicator (.o-spinner on same element required)
+            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
+
+            // Make direct request to featureInfoUrl using externalApi
+            externalApi(featureInfoUrl)
+              .then(async response => {
+                let popupContent = await response.text()
+
+                if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
+                  popupContent = Translator.trans('map.getfeatureinfo.none')
+                } else {
+                  // Sanitize HTML content to prevent XSS
+                  popupContent = DomPurify.sanitize(popupContent)
+                }
+
+                this.showPopup('criteriaPopup', popupContent, coordinate)
+              })
+              .catch(error => {
+                console.error('Feature info request failed:', error)
                 this.showPopupError('failed', coordinate)
-              }
-            })
+              })
+          }
         }
       }
 
@@ -877,7 +928,7 @@ export default {
           opacity: 1,
           type: 'overlay',
           source: new TileWMS({
-            url: 'http://temporary.de'
+            url: 'https://temporary.de'
           })
         })
 
@@ -1809,25 +1860,24 @@ export default {
 
       while (l--) {
         layer = layers[l]
-        id = layer.type + 'layer' + layer.id.replaceAll('-', '')
+        id = layer.type + 'layer' + layer.id // .replaceAll('-', '')
         this.opacities[id] = layer.attributes.opacity && typeof layer.attributes.opacity === 'number' ? layer.attributes.opacity : 100
       }
     },
 
     createParser () {
-      /*
-       * Von SH festgelegte Scales #11229. Berechnet via OL2 OpenLayers.Util.getResolutionFromScale(scales[i],'m');
-       * List der zur Verfügung stehenden Resolutions
-       */
-
       this.parser = new WMTSCapabilities()
     },
 
     setLayerSource (layer) {
       if (layer.getSource() === null) {
-        const layerObj = this.layers.find(el => el.id.replace(/-/g, '') === layer.get('name'))
-        const source = this.createLayerSource(layerObj)
-        layer.setSource(source)
+        const layerObj = this.layers.find(el => el.id.replaceAll('-', '') === layer.get('name'))
+
+        if (layerObj) {
+          const source = this.createLayerSource(layerObj)
+
+          layer.setSource(source)
+        }
       }
     },
 
@@ -1946,6 +1996,7 @@ export default {
       if (typeof element === 'undefined') {
         return
       }
+
       if (visible === true) {
         element.classList.add(this.prefixClass('is-active'))
       } else if (visible === false) {
@@ -1953,60 +2004,100 @@ export default {
       } else {
         element.classList.toggle(this.prefixClass('is-active'))
       }
+
       const newState = element.classList.contains(this.prefixClass('is-active'))
+      let layerId = null
+
       this.toggleLayer(layerName, false, newState)
-      // If item is in a visibility group, also toggle other items in that group
+
       if (element.id === 'territorySwitcher' && hasOwnProp(this.scope, 'id')) {
-        const layerId = this.scope.id.replace(/-/g, '')
-        if (this.scope.attributes?.visibilityGroupId) {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId, isVisible: newState })
-        } else {
-          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
-        }
+        layerId = this.scope.id.replace(/-/g, '')
+      } else if (hasOwnProp(this.bPlan, 'id')) {
+        layerId = this.bPlan.id.replace(/-/g, '')
       }
-      if (element.id === 'bplanSwitcher' && hasOwnProp(this.bPlan, 'id')) {
-        const layerId = this.bPlan.id.replace(/-/g, '')
-        if (this.bPlan.attributes?.visibilityGroupId ) {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId, isVisible: newState })
-        } else {
-          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
-        }
+
+      this.updateLayerVisibility({ id: layerId, isVisible: newState, layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility })
+    },
+
+    toggleLayer (layerId, toggleExclusive, newVisibilityState) {
+      if (!this.map) return
+
+      const layerGroup = this.map.getLayerGroup()
+      const layer = this.findBy(layerGroup, 'name', layerId.replace(/-/g, ''))
+
+      if (toggleExclusive === true) {
+        this.toggleLayerExclusively(layerGroup)
+      } else if (layer) {
+        const isVisible = (typeof newVisibilityState !== 'undefined') ? newVisibilityState : (layer.getVisible() === false)
+
+        layer.setVisible(isVisible)
       }
     },
 
-    toggleLayer (layerId, toggleExclusive = false, newState) {
-      if (typeof this.map === 'undefined') return
+    toggleLayerExclusively (layerGroup) {
+      const baseLayerGroup = this.findBy(layerGroup, 'name', 'baseLayerGroup')
 
-      const layerGroup = this.map.getLayerGroup()
-      const layer = this.findBy(layerGroup, 'name', layerId)
+      if (baseLayerGroup) {
+        const layers = baseLayerGroup.getLayers().getArray()
+        const len = layers.length
 
-      if (toggleExclusive === true) {
-        const baseLayerGroup = this.findBy(layerGroup, 'name', 'baseLayerGroup')
-        if (baseLayerGroup) {
-          const layers = baseLayerGroup.getLayers().getArray()
-          const len = layers.length
-          //  Hide all baselayers except those which have to be shown additionally
-          for (let i = 0; i < len; i++) {
-            if (layers[i].get('doNotToggleLayer') !== true) {
-              layers[i].setVisible(false)
-            }
-          }
-          if (layer) {
-            this.setLayerSource(layer)
-            layer.setVisible(true)
+        //  Hide all baselayers except those which have to be shown additionally
+        for (let i = 0; i < len; i++) {
+          if (layers[i].get('doNotToggleLayer') !== true) {
+            layers[i].setVisible(false)
           }
         }
-      } else {
-        const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
+
         if (layer) {
-          layer.setVisible(stateSetter)
+          this.setLayerSource(layer)
+          layer.setVisible(true)
         }
       }
     }
   },
 
   mounted () {
-    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
+    const payload = {
+      procedureId: this.procedureId,
+      fields: {
+        GisLayerCategory: [
+          'categories',
+          'gisLayers',
+          'hasDefaultVisibility',
+          'isVisible',
+          'name',
+          'layerWithChildrenHidden',
+          'parentId',
+          'treeOrder'
+        ].join(),
+        GisLayer: [
+          'canUserToggleVisibility',
+          'categoryId',
+          'contextualHelp',
+          'hasDefaultVisibility',
+          'isBaseLayer',
+          'isBplan',
+          'isEnabled',
+          'isMinimap',
+          'isPrint',
+          'isScope',
+          'layerVersion',
+          'layers',
+          'layerType',
+          'mapOrder',
+          'name',
+          'opacity',
+          'projectionLabel',
+          'serviceType',
+          'tileMatrixSet',
+          'treeOrder',
+          'url',
+          'visibilityGroupId'
+        ].join()
+      }
+    }
+
+    this.getLayers(payload).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))

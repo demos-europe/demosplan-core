@@ -178,16 +178,18 @@ All rights reserved
       </dp-editable-list>
 
       <!-- Anonymous voters -->
-      <div class="w-1/4">
+      <div class="mt-4">
+        <dp-label
+          class="mb-0.5"
+          for="numberOfAnonymVotes"
+          :text="Translator.trans('statement.voter.anonym')"
+        />
         <dp-input
           id="numberOfAnonymVotes"
+          class="w-1/12"
           v-model.number="localStatement.attributes.numberOfAnonymVotes"
-          class="mt-4"
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
-          :label="{
-            text: Translator.trans('statement.voter.anonym')
-          }"
           name="numberOfAnonymVotes"
           type="number" />
       </div>
@@ -208,6 +210,7 @@ import {
   DpButtonRow,
   DpEditableList,
   DpInput,
+  DpLabel,
   DpLoading,
   DpRadio,
   dpValidateMixin
@@ -222,6 +225,7 @@ export default {
   components: {
     DpButtonRow,
     DpEditableList,
+    DpLabel,
     DpLoading,
     DpInput,
     DpRadio,
@@ -473,13 +477,15 @@ export default {
     sendDeleteVote () {
       const promises = this.votesToDelete.map(vote => {
         // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
-        this.deleteStatementVoteAction(vote.id)
+        return this.deleteStatementVoteAction(vote.id)
           .then(() => {
             this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+
             return true
           })
           .catch(() => {
             dplan.notify.error(Translator.trans('error.api.generic'))
+
             return false
           })
       }).filter(Boolean) // Remove undefined values
@@ -491,10 +497,12 @@ export default {
       const promises = Object.values(this.initialVotes).map(vote => {
         const { id, attributes } = vote
         const currentVote = this.votes[id]
+
         if (currentVote) {
           const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
+
           if (hasChanged) {
-            this.saveStatementVoteAction(vote.id)
+            return this.saveStatementVoteAction(vote.id)
               .then(() => {
                 return true
               })
@@ -503,7 +511,11 @@ export default {
                 return false
               })
           }
+
+          return undefined
         }
+
+        return undefined
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))

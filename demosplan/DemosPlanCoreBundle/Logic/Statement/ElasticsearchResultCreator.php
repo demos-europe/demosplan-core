@@ -18,10 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -36,10 +36,11 @@ use Elastica\Query\BoolQuery;
 use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
-class ElasticsearchResultCreator extends CoreService
+class ElasticsearchResultCreator
 {
     // Values that are === NULL instead of "" (empty string) if they are missing
     private const NULL_VALUES = [
@@ -115,6 +116,8 @@ class ElasticsearchResultCreator extends CoreService
         private readonly ParagraphService $paragraphService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly DepartmentRepository $departmentRepository,
+        private readonly ProfilerService $profilerService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -658,7 +661,7 @@ class ElasticsearchResultCreator extends CoreService
             $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $this->logger->info('Received invalid Page for pagination', [$e]);
                 $paginator->setCurrentPage(1);
@@ -1314,7 +1317,7 @@ class ElasticsearchResultCreator extends CoreService
             $elasticsearchResultStatement->setPager($paginator);
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
 
@@ -1343,7 +1346,7 @@ class ElasticsearchResultCreator extends CoreService
         if (\is_array($searchFields) && 1 === count($searchFields) && '' === $searchFields[0]) {
             $searchFields = [];
         }
-        $this->profilerStart('ES');
+        $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
         if (\is_string($search) && 0 < \strlen($search)) {

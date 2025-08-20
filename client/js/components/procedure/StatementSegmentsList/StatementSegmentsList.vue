@@ -60,7 +60,7 @@
         <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
-              class="o-flyout__trigger u-ph-0_25 line-height--2"
+              class="rounded-button px-1 py-0.5 leading-[2] whitespace-nowrap text-interactive hover:text-interactive-hover hover:bg-interactive-subtle-hover active:text-interactive-active active:bg-interactive-subtle-active"
               :assigned-id="currentAssignee.id"
               :assigned-name="currentAssignee.name"
               :assigned-organisation="currentAssignee.orgaName"
@@ -115,9 +115,7 @@
             </dp-flyout>
           </li>
           <li>
-            <dp-flyout
-              ref="metadataFlyout"
-              :has-menu="false">
+            <dp-flyout ref="metadataFlyout">
               <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
@@ -176,7 +174,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpFlyout,
   DpSlidebar,
@@ -535,7 +532,6 @@ export default {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => { checkResponse(response) })
         .then(() => {
           const dataToUpdate = this.setDataToUpdate(true)
 
@@ -551,7 +547,6 @@ export default {
           this.isLoading = false
         })
     },
-
 
     fetchCustomFields () {
       const payload = {
@@ -857,7 +852,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
-        .then(response => checkResponse(response))
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
 
@@ -893,12 +887,14 @@ export default {
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
-        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+        if (response?.attributes) {
+          this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+        }
       })
 
     this.fetchLayers(this.procedureId)
       .then(response => {
-        this.procedureMapSettings.layers = response.data
+        this.procedureMapSettings.layers = response.data.data
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })

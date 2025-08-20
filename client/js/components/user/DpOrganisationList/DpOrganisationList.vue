@@ -9,17 +9,23 @@
 
 <template>
   <div class="u-mt-0_5">
-    <!-- List of pending organisations (if orga-self-registration is active) -->
+    <!-- Pending organisations list (renders only when the orga-self-registration feature is enabled) -->
     <template v-if="hasPermission('area_organisations_applications_manage')">
       <h3>
         {{ Translator.trans('organisations.pending') }}
       </h3>
-
-      <!-- currently bound to isLoading of organisations -->
-      <dp-loading
-        v-if="pendingOrganisationsLoading"
-        class="u-ml u-mt u-mb-2" />
-      <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
+      <template v-if="pendingOrganisationsLoading">
+        <dp-loading
+          v-if="isInitialLoad"
+          class="u-ml u-mt u-mb-2" />
+        <dp-skeleton-box
+          v-else
+          class="u-mb-0_5"
+          v-for="(idx) in pendingOrgs"
+          :key="`skeleton:${idx}`"
+          height="54px" />
+      </template>
+      <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
           class="o-list o-list--card u-mb"
           data-cy="pendingOrganisationList">
@@ -109,21 +115,22 @@
       v-if="noResults"
       class="u-mt-0_75"
       v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
-    <!-- list -->
-    <template v-if="isLoading && isInitialLoad">
-      <dp-loading class="u-ml u-mt" />
-    </template>
-    <template v-if="isLoading && !isInitialLoad">
+
+    <!-- Organisations list -->
+    <template v-if="isLoading">
+      <dp-loading
+        v-if="isInitialLoad"
+        class="u-ml u-mt u-mb-2" />
       <dp-skeleton-box
+        v-else
         class="u-mb-0_5"
-        v-for="(item, idx) in items"
+        v-for="(idx) in items"
         :key="`skeleton:${idx}`"
         height="54px" />
     </template>
-
     <div
-      class="layout"
-      v-if="false === isLoading">
+      v-else
+      class="layout">
       <div
         class="layout__item u-1-of-1"
         data-cy="organisationList">
@@ -179,8 +186,6 @@ const orgaFieldsArrays = {
   ],
   Orga: [
     'addressExtension',
-    'branding',
-    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -204,7 +209,7 @@ const orgaFieldsArrays = {
     'showlist',
     'showname',
     'state',
-    'statusInCustomer',
+    'statusInCustomers',
     'street',
     'submissionType',
     'types'
@@ -213,6 +218,11 @@ const orgaFieldsArrays = {
     'customer',
     'status'
   ]
+}
+
+if (hasPermission('feature_orga_branding_edit')) {
+  orgaFieldsArrays.Branding = ['cssvars']
+  orgaFieldsArrays.Orga.push('branding')
 }
 
 if (hasPermission('feature_manage_procedure_creation_permission')) {
@@ -224,6 +234,16 @@ const orgaFields = {
   Customer: orgaFieldsArrays.Customer.join(),
   Orga: orgaFieldsArrays.Orga.join(),
   OrgaStatusInCustomer: orgaFieldsArrays.OrgaStatusInCustomer.join()
+}
+
+const includeFields = [
+  'currentSlug',
+  'statusInCustomers.customer',
+  'statusInCustomers'
+]
+
+if (hasPermission('feature_orga_branding_edit')) {
+  includeFields.push('branding')
 }
 
 export default {
@@ -387,7 +407,7 @@ export default {
 
       Promise.all(deleteOrganisations)
         .then(() => {
-          this.getItemsByPage()
+          this.fetchPendingAndAllOrganisations()
         })
     },
 
@@ -434,8 +454,13 @@ export default {
         },
         sort: 'name',
         filter: filterObject,
-        fields: orgaFields,
-        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
+        },
+        include: includeFields.join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -447,7 +472,12 @@ export default {
         page: {
           number: page
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
+        },
         sort: 'name',
         filter: {
           namefilter: {
@@ -458,15 +488,16 @@ export default {
             }
           }
         },
-        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: includeFields.join()
       })
         .then(() => {
-          this.pendingOrganisationsLoading = false
-          this.isLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+          this.noResults = Object.keys(this.items || {}).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -477,13 +508,43 @@ export default {
         page: {
           number: page
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {})
+        },
         sort: 'name',
-        include: ['branding', 'currentSlug', 'statusInCustomers', 'statusInCustomers.customer'].join()
+        include: includeFields.join()
       })
         .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
           this.pendingOrganisationsLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+        })
+    },
+
+    fetchPendingAndAllOrganisations (page) {
+      page = page || this.currentPage
+      this.pendingOrganisationsLoading = true
+
+      this.pendingOrganisationList({
+        page: {
+          number: page
+        },
+        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+      })
+        .then(() => {
+          this.getItemsByPage(page)
+        })
+        .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
+          this.pendingOrganisationsLoading = false
         })
     },
 
@@ -527,26 +588,10 @@ export default {
   },
 
   mounted () {
-    this.pendingOrganisationList({
-      include: ['currentSlug', 'orgasInCustomer.customer'].join()
-    }).then(() => {
-      this.getItemsByPage(1)
-    }).then(() => {
-      this.pendingOrgs = this.pendingOrganisations || {}
-    })
+    this.fetchPendingAndAllOrganisations(1)
 
-    this.$root.$on('get-items', () => {
-      this.isLoading = true
-      this.pendingOrgs = {}
-      this.pendingOrganisationList({
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
-      }).then(() => {
-        this.getItemsByPage()
-      })
-        .then(() => {
-          this.pendingOrgs = this.pendingOrganisations
-          this.pendingOrganisationsLoading = false
-        })
+    this.$root.$on('items:get', () => {
+      this.fetchPendingAndAllOrganisations()
     })
   }
 }

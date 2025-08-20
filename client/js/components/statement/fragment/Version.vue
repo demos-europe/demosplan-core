@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 import DpFragmentStatus from './Status'
 
 export default {
@@ -174,9 +174,8 @@ export default {
       }
 
       dpApi.get(url)
-        .then(checkResponse)
-        .then(responseData => {
-          this.items = responseData.data
+        .then(({ data }) => {
+          this.items = data.data
           this.items.pop()
         })
         .catch(() => {

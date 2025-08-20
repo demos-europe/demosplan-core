@@ -9,7 +9,7 @@
     <!-- Location reference -->
     <div
       v-if="hasPermission('field_statement_polygon')"
-      class="font-semibold mb-1">
+      class="font-semibold mb-0.5">
       {{ Translator.trans('location') }}
     </div>
 
@@ -27,7 +27,9 @@
             :procedure-id="procedureId" />
         </template>
         <template v-else>
-          -
+          <p class="color-text-muted">
+            -
+          </p>
         </template>
       </div>
 
