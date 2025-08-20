@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Throwable;
 
 class GeodatenzentrumAddressSearchService
 /*
@@ -30,7 +30,7 @@ class GeodatenzentrumAddressSearchService
  * },
  * "lat": 52.5170365,
  * "lon": 13.3888599
- * // ... potentially other fields
+ * // ... other fields
  * }
  * // ... more results
  * ]
@@ -52,7 +52,7 @@ class GeodatenzentrumAddressSearchService
      *
      * @return array
      */
-    public function searchAddress($query, $limit = 20, $maxExtent = null): array
+    public function searchAddress($query, $limit = 20): array
     {
         try {
             $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, [
@@ -64,15 +64,11 @@ class GeodatenzentrumAddressSearchService
                 ],
             ]);
             $result = $response->toArray();
-            $formattedResult = array_map([$this, 'formatResult'], $result);
 
-            if (null !== $maxExtent) {
-                $formattedResult = $this->filterByExtent($formattedResult, $maxExtent);
-            }
+            return array_map([$this, 'formatResult'], $result);
 
-            return $formattedResult;
-        } catch (Throwable $e) {
-            $this->logger->error($e->getMessage());
+        } catch (Exception $e) {
+            $this->logger->error('Fehler bei searchAddress: ', [$e]);
 
             return [];
         }

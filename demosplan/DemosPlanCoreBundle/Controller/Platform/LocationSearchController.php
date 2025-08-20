@@ -38,7 +38,7 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-            $restResponse = $locationService->searchCity($query['query'], $limit);
+            $restResponse = $locationService->searchAddressHybrid($query['query'], $limit);
             $result = $restResponse['body'] ?? [];
 
             $suggestions = [];
@@ -48,7 +48,7 @@ class LocationSearchController extends BaseController
                 if (isset($result[$i])) {
                     $entry = $result[$i];
                     $suggestions[] = [
-                        'value' => $entry['postcode'].' '.$entry['name'],
+                        'value' => $entry['hausnummer'].' '.$entry['strasse'].' '.$entry['postleitzahl'].' '.$entry['stadt'],
                         'data'  => $entry,
                     ];
                 }

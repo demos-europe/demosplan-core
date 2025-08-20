@@ -68,7 +68,7 @@ class LocationService
     {
         try {
             $locations = $this->geodatenzentrumAddressSearchService
-                ->searchAddress($searchString, $limit, $maxExtent);
+                ->searchAddress($searchString, $limit);
             // return results from Geocoder API
             if(!empty($locations)) {
 
