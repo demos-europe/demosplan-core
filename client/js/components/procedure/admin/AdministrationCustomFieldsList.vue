@@ -12,7 +12,7 @@
       :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
-      preselected-type="mehrfachauswahl"
+      preselected-type="multiSelect"
       @save="customFieldData => saveNewField(customFieldData)">
       <div>
         <dp-label
@@ -148,7 +148,7 @@
         <div class="mt-1">
           <dp-badge
           color="default"
-          :text="rowData.fieldType"
+          :text="fieldTypeText(rowData.fieldType)"
           />
         </div>
       </template>
@@ -287,7 +287,7 @@ export default {
         },
         field_statements_custom_fields: {
           info: 'statements.fields.edit.info',
-          warning: 'statements.fields.edit.message.warning'
+          warning: 'statements.field.edit.message.warning'
         }
       },
       initialRowData: {},
@@ -330,6 +330,18 @@ export default {
           return this.newRowData.options
         }
         return rowData.open ? rowData.options : rowData.options.slice(0, 2)
+      }
+    },
+
+    fieldTypeText () {
+      const fieldTypeMap = {
+        'multiSelect': 'custom.field.type.multiSelect',
+        'singleSelect': 'custom.field.type.singleSelect'
+      }
+
+      return (fieldType) => {
+        const translationKey = fieldTypeMap[fieldType]
+        return translationKey ? Translator.trans(translationKey) : fieldType
       }
     },
 
@@ -543,8 +555,8 @@ export default {
         .map(field => {
           if (field) {
             const { id, attributes } = field
-            const { description, name, options } = attributes
             const { description, name, fieldType, options } = attributes
+            console.log(fieldType)
 
             return {
               id,
