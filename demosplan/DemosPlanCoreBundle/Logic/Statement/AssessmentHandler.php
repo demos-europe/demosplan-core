@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
@@ -69,7 +68,6 @@ class AssessmentHandler
         private readonly CurrentUserInterface $currentUser,
         private readonly GlobalConfig $globalConfig,
         HashedQueryService $filterSetService,
-        MessageBagInterface $messageBag,
         private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
         private readonly ProcedureService $procedureService,
         private readonly RouterInterface $router,
