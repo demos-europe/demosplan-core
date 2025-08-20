@@ -2383,7 +2383,7 @@ class StatementHandler implements StatementHandlerInterface
                         'exception'   => $e->getMessage(),
                         'trace'       => $e->getTraceAsString(),
                     ]);
-                    $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
+                    $this->messageBag->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
                 }
                 $lastTopic = $currentTopicTitle;
