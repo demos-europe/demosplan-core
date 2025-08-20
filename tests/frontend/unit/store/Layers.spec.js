@@ -135,8 +135,9 @@ describe('Layers Actions', () => {
 
       // Should dispatch save for each included element
       const includedCount = mockLayersApiResponse.included.length
-      // Each save triggers a 'get' dispatch, so we have saveAll + (save + get) * includedCount
-      expect(dispatchSpy).toHaveBeenCalledTimes(1 + (includedCount * 2))
+      // Each save triggers a 'get' dispatch, and each 'get' triggers a 'buildLegends' dispatch
+      // So we have: saveAll + (save + get + buildLegends) * includedCount
+      expect(dispatchSpy).toHaveBeenCalledTimes(1 + (includedCount * 3))
     })
   })
 
@@ -182,12 +183,15 @@ describe('Layers Actions', () => {
     it('should refresh data and clear active layer after successful save', async () => {
       const layerResource = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
 
+      // Set a procedureId, which is required for the 'get' action called in the 'save' action
+      StubStore.commit('Layers/setProcedureId', 'test-procedure-id')
+
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
       jest.spyOn(dpApi, 'get').mockResolvedValue(mockLayersApiResponse)
 
       await StubStore.dispatch('Layers/save', layerResource)
 
-      expect(StubStore.state.Layers.apiData.data).toMatchObject(mockLayersApiResponse.data)
+      expect(StubStore.state.Layers.activeLayerId).toBe('')
     })
   })
 

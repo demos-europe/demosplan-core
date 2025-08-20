@@ -329,6 +329,10 @@ const LayersStore = {
      * @returns {void}
      */
     setVisibilityGroups (state) {
+      if (!state.apiData.included) {
+        return
+      }
+
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
         return !!elem.attributes.visibilityGroupId
       })
@@ -524,7 +528,7 @@ const LayersStore = {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
         .then(() => {
-          dispatch('get', state.procedureId)
+          dispatch('get', { procedureId: state.procedureId })
             .then(() => {
               commit('setActiveLayerId', '')
             })
