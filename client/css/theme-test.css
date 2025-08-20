@@ -85,20 +85,25 @@
 }
 
 /* Carbon Tag Overrides for table */
-.cv-statement-list .bx--data-table td {
+.cv-statement-list .bx--data-table td,
+.cv-segment-list .bx--data-table td {
     padding: 15px !important;
     vertical-align: top !important;
 }
 
 .cv-statement-list .bx--data-table th,
-.cv-statement-list .bx--data-table td {
+.cv-statement-list .bx--data-table td,
+.cv-segment-list .bx--data-table th,
+.cv-segment-list .bx--data-table td {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
 
 /* Fix ID column width to prevent shifting */
 #cv-statement-table th:nth-child(2),
-#cv-statement-table td:nth-child(2) {
+#cv-statement-table td:nth-child(2),
+#cv-segment-table th:nth-child(2),
+#cv-segment-table td:nth-child(2) {
     width: 80px !important;
     min-width: 80px !important;
     max-width: 80px !important;
@@ -216,8 +221,18 @@
     padding-left: 75px !important; /* Match checkbox column width */
 }
 
+/* Segment list text content styling */
+.cv-segment-list .cv-text-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
 /* Checkbox-Alignment */
-#cv-statement-table .bx--table-column-checkbox {
+#cv-statement-table .bx--table-column-checkbox,
+#cv-segment-table .bx--table-column-checkbox {
     text-align: left !important;
     padding-left: 20px !important;
     width: 60px !important; /* Fixed width to prevent shifting */

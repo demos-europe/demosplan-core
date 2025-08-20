@@ -709,12 +709,10 @@ export default {
           headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
         }
 
-        // Individual row checkboxes
-        const checkboxes = document.querySelectorAll('#cv-statement-table .bx--table-column-checkbox input[type="checkbox"]')
+        // Individual row checkboxes - exclude header checkbox
+        const checkboxes = document.querySelectorAll('#cv-statement-table tbody .bx--table-column-checkbox input[type="checkbox"]')
 
         checkboxes.forEach((checkbox) => {
-          // Skip header checkbox (already handled above)
-          if (checkbox.closest('.bx--table-head')) return
 
           checkbox.addEventListener('change', (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value

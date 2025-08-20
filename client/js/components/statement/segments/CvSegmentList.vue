@@ -16,14 +16,16 @@ All rights reserved
         batch-cancel-label="Abbrechen"
         :data="segments"
         id="cv-segment-table"
+        :rows-selected="selectedRows"
         sortable
+        @sort="onSort"
       >
         <template v-slot:actions>
           <cv-search
             light
             placeholder="Suchen"
             :value="searchValue"
-            @input="updateSearch"
+            @input="applySearch"
           />
           <div class="cv-column-selector">
             <div
@@ -37,6 +39,30 @@ All rights reserved
               </cv-button>
             </div>
           </div>
+        </template>
+
+        <!-- Batch Actions -->
+        <template v-slot:batch-actions>
+          <cv-button
+              kind="primary"
+              size="default">
+            Aufteilung überprüfen
+          </cv-button>
+          <cv-button
+              kind="primary"
+              size="default">
+            Aufteilung so akzeptieren
+          </cv-button>
+          <cv-button
+            kind="primary"
+            size="default">
+            Bearbeiten
+          </cv-button>
+          <cv-button
+            kind="primary"
+            size="default">
+            Löschen
+          </cv-button>
         </template>
 
         <!-- Custom Data Slot -->
@@ -96,6 +122,25 @@ All rights reserved
                 {{ segment.textModule }}
               </cv-data-table-cell>
 
+              <cv-data-table-cell v-if="visibleColumns.includes('expand')">
+                <cv-button
+                  kind="ghost"
+                  size="sm"
+                  @click="toggleRowExpansion(segment.id)"
+                  :aria-label="`Expand row ${segment.id}`">
+                  <ChevronDown16 :style="{ transform: expandedRows.includes(segment.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
+                </cv-button>
+              </cv-data-table-cell>
+
+            </cv-data-table-row>
+
+            <!-- Expanded Content Row -->
+            <cv-data-table-row
+              v-if="expandedRows.includes(segment.id)"
+              class="cv-expanded-row">
+              <cv-data-table-cell :colspan="visibleColumns.length">
+                <div v-html="segment.text" />
+              </cv-data-table-cell>
             </cv-data-table-row>
           </template>
         </template>
@@ -194,7 +239,13 @@ export default {
     return {
       searchValue: '',
       isColumnSelectorOpen: false,
-      visibleColumns: ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule'],
+      selectedRows: [],
+      sortBy: '',
+      sortDirection: '',
+      headerCheckboxHandler: null,
+      expandedRows: [], // Track which rows are expanded
+      lastPaginationEventTime: 0, // Debouncing for pagination events
+      visibleColumns: ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand'],
       columns: [
         { key: 'externId', label: 'ID' },
         { key: 'statementStatus', label: 'Stn.-Status' },
@@ -203,7 +254,8 @@ export default {
         { key: 'keywords', label: 'Schlagworte' },
         { key: 'confidence', label: 'Konfidenz' },
         { key: 'topic', label: 'Thema' },
-        { key: 'textModule', label: 'Textbaustein' }
+        { key: 'textModule', label: 'Textbaustein' },
+        { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
       ],
       selectableColumns: [
         { key: 'externId', label: 'ID' },
@@ -243,27 +295,27 @@ export default {
 
     segments () {
       const segmentValues = Object.values(this.segmentsObject)
-      
+
       if (segmentValues.length === 0) {
         return []
       }
-      
+
       return segmentValues.map(segment => {
         // Get related statement data
         const parentStatement = this.statementsObject[segment.relationships?.parentStatement?.data?.id]
-        
+
         // Get place name for processing step
         const placeId = segment.relationships?.place?.data?.id
         const place = placeId ? this.placesObject[placeId] : null
-        
+
         // Get tags for keywords
         const tagIds = segment.relationships?.tags?.data?.map(tag => tag.id) || []
         const tags = tagIds.map(id => this.tagsObject[id]).filter(tag => tag)
-        
+
         // Get textModule from first tag's boilerplate
         const firstTagWithBoilerplate = tags.find(tag => tag?.relationships?.boilerplate)
         const textModule = firstTagWithBoilerplate?.relationships?.boilerplate?.attributes?.title || '-'
-        
+
         return {
           id: segment.id,
           externId: segment.attributes?.externId || '-',
@@ -271,13 +323,14 @@ export default {
           submitter: parentStatement?.attributes?.authorName || parentStatement?.attributes?.submitName || '-',
           organisation: parentStatement?.attributes?.initialOrganisationName || '',
           processingStep: place?.attributes?.name || '-',
-          keywords: tags.map(tag => ({ 
-            id: tag.id, 
-            title: tag.attributes?.title || '' 
+          keywords: tags.map(tag => ({
+            id: tag.id,
+            title: tag.attributes?.title || ''
           })),
           confidence: Math.floor(Math.random() * 100) + 1, // Dummy data
           topic: 'Umweltschutz', // Dummy data
-          textModule
+          textModule,
+          text: segment.attributes?.text || '' // For expanded row
         }
       })
     },
@@ -291,6 +344,20 @@ export default {
 
     filteredColumns () {
       return this.columns.filter(column => this.visibleColumns.includes(column.key))
+    }
+  },
+
+  watch: {
+    segments: {
+      handler (newSegments) {
+        if (newSegments.length > 0) {
+          // Re-setup checkbox listeners when segments are loaded
+          this.$nextTick(() => {
+            this.setupCheckboxListeners()
+          })
+        }
+      },
+      deep: true
     }
   },
 
@@ -392,17 +459,178 @@ export default {
       // TODO: Save to localStorage if needed
     },
 
-    updateSearch (term) {
+    applySearch (term, page = 1) {
+      // Check if the search term has changed
+      const searchChanged = term !== this.searchValue
       this.searchValue = term
-      // TODO: Implement search functionality
+
+      // Always go to page 1 when search term changes, otherwise use specified page
+      const targetPage = searchChanged ? 1 : page
+
+      this.fetchSegmentData(targetPage)
     },
 
     onPaginationChange (event) {
-      // TODO: Implement pagination
-      console.log('Pagination change:', event)
+      const now = Date.now()
+
+      if (event.page && event.page !== this.pagination.currentPage) {
+        const maxPage = this.pagination.totalPages
+        const targetPage = Math.max(1, Math.min(event.page, maxPage))
+        this.applySearch(this.searchValue, targetPage)
+      } else if (event.length && event.length !== this.pagination.perPage) {
+        // Debounce for size changes
+        if (now - this.lastPaginationEventTime < 100) {
+          return
+        }
+
+        this.lastPaginationEventTime = now
+
+        if ([10, 25, 50, 100].includes(event.length)) {
+          this.pagination.perPage = event.length
+          this.pagination.currentPage = 1
+          this.applySearch(this.searchValue, 1)
+        }
+      }
     },
 
-    fetchSegmentData () {
+    onSort (sortBy) {
+      // Toggle sort direction if same column, otherwise set to ascending
+      if (this.sortBy === sortBy.index) {
+        this.sortDirection = this.sortDirection === 'ascending' ? 'descending' : 'ascending'
+      } else {
+        this.sortBy = sortBy.index
+        this.sortDirection = 'ascending'
+      }
+      // TODO: Implement sorting
+    },
+
+    setupCheckboxListeners () {
+      console.log('setupCheckboxListeners called')
+      // Wait for DOM to be fully rendered with segments
+      this.$nextTick(() => {
+        console.log('DOM is ready, looking for checkboxes')
+        // Header checkbox for "Select All" - Debug multiple selectors
+        const headerSelectors = [
+          '#cv-segment-table .bx--table-head .bx--table-column-checkbox input',
+          '#cv-segment-table thead .bx--table-column-checkbox input',
+          '#cv-segment-table .bx--data-table-header .bx--table-column-checkbox input',
+          '#cv-segment-table th .bx--table-column-checkbox input'
+        ]
+
+        let headerCheckbox = null
+        for (const selector of headerSelectors) {
+          headerCheckbox = document.querySelector(selector)
+          if (headerCheckbox) {
+            console.log('Found header checkbox with selector:', selector)
+            break
+          }
+        }
+
+        if (headerCheckbox) {
+          // Remove existing listeners to prevent conflicts
+          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+
+          this.headerCheckboxHandler = (event) => {
+            if (event.target.checked) {
+              // Check all rows
+              this.selectedRows = this.segments.map(s => String(s.id))
+            } else {
+              // Uncheck all rows
+              this.selectedRows = []
+            }
+            this.updateBatchActionsVisibility()
+            this.updateRowCheckboxes()
+          }
+
+          headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
+        }
+
+        // Individual row checkboxes - exclude header checkbox
+        const checkboxes = document.querySelectorAll('#cv-segment-table tbody .bx--table-column-checkbox input[type="checkbox"]')
+
+        checkboxes.forEach((checkbox) => {
+
+          checkbox.addEventListener('change', (event) => {
+            const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
+
+            if (event.target.checked) {
+              if (!this.selectedRows.includes(rowValue)) {
+                this.selectedRows.push(rowValue)
+              }
+            } else {
+              const index = this.selectedRows.indexOf(rowValue)
+              if (index > -1) {
+                this.selectedRows.splice(index, 1)
+              }
+            }
+
+            this.updateBatchActionsVisibility()
+            this.updateHeaderCheckboxState()
+          })
+        })
+      })
+    },
+
+    updateBatchActionsVisibility () {
+      const batchActions = document.querySelector('#cv-segment-table .bx--batch-actions')
+      if (batchActions) {
+        if (this.selectedRows.length > 0) {
+          batchActions.setAttribute('aria-hidden', 'false')
+          batchActions.classList.add('bx--batch-actions--active')
+
+          // Update Carbon's internal counter
+          const itemsSelectedSpan = batchActions.querySelector('[data-items-selected]')
+          if (itemsSelectedSpan) {
+            itemsSelectedSpan.textContent = `${this.selectedRows.length} items selected`
+          }
+        } else {
+          batchActions.setAttribute('aria-hidden', 'true')
+          batchActions.classList.remove('bx--batch-actions--active')
+        }
+      }
+    },
+
+    updateHeaderCheckboxState () {
+      const headerCheckbox = document.querySelector('#cv-segment-table .bx--table-head .bx--table-column-checkbox input')
+      if (headerCheckbox) {
+        const totalRows = this.segments.length
+        const selectedCount = this.selectedRows.length
+
+        if (selectedCount === 0) {
+          headerCheckbox.checked = false
+          headerCheckbox.indeterminate = false
+        } else if (selectedCount === totalRows) {
+          headerCheckbox.checked = true
+          headerCheckbox.indeterminate = false
+        } else {
+          headerCheckbox.checked = false
+          headerCheckbox.indeterminate = true
+        }
+      }
+    },
+
+    updateRowCheckboxes () {
+      const checkboxes = document.querySelectorAll('#cv-segment-table .bx--data-table tbody .bx--table-column-checkbox input')
+      checkboxes.forEach((checkbox) => {
+        const rowValue = checkbox.closest('tr')?.getAttribute('data-value')
+        if (rowValue) {
+          checkbox.checked = this.selectedRows.includes(rowValue)
+        }
+      })
+    },
+
+    toggleRowExpansion (rowId) {
+      const index = this.expandedRows.indexOf(rowId)
+      if (index > -1) {
+        // Row is expanded - collapse
+        this.expandedRows.splice(index, 1)
+      } else {
+        // Row is collapsed - expand
+        this.expandedRows.push(rowId)
+      }
+    },
+
+    fetchSegmentData (page = 1) {
       const payload = {
         include: [
           'place',
@@ -411,7 +639,7 @@ export default {
           'parentStatement'
         ].join(),
         page: {
-          number: this.pagination.currentPage,
+          number: page,
           size: this.pagination.perPage
         },
         filter: {
@@ -427,12 +655,13 @@ export default {
           Place: ['name'].join(),
           Statement: [
             'status',
-            'authorName', 
+            'authorName',
             'submitName',
             'initialOrganisationName'
           ].join(),
           StatementSegment: [
             'externId',
+            'text',
             'parentStatement',
             'place',
             'tags'
@@ -447,14 +676,29 @@ export default {
         }
       }
 
+      // Add search parameter if search term exists
+      if (this.searchValue && this.searchValue.trim() !== '') {
+        payload.search = {
+          value: this.searchValue
+          // No fieldsToSearch - let backend search all fields like SegmentsList does
+        }
+      }
+
       this.fetchSegments(payload)
         .then(response => {
           if (response?.meta?.pagination) {
+            // Use API totalPages if perPage matches, otherwise recalculate
+            const shouldUseApiPages = response.meta.pagination.per_page === this.pagination.perPage
+            const finalTotalPages = shouldUseApiPages
+              ? response.meta.pagination.total_pages
+              : Math.ceil(response.meta.pagination.total / this.pagination.perPage)
+
+            // Always keep local perPage value - API might send back old value
             this.pagination = {
               ...this.pagination,
               currentPage: response.meta.pagination.current_page,
               total: response.meta.pagination.total,
-              totalPages: response.meta.pagination.total_pages
+              totalPages: finalTotalPages
             }
           }
         })
@@ -468,6 +712,11 @@ export default {
     // Load initial data
     this.fetchPlaces() // Load places for processingStep
     this.fetchSegmentData() // Load segments with all related data
+
+    // Setup checkbox listeners after initial data load
+    this.$nextTick(() => {
+      this.setupCheckboxListeners()
+    })
   },
 
   beforeUnmount () {
