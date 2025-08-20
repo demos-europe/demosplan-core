@@ -102,7 +102,6 @@ export default {
   data () {
     return {
       showOpacityControl: false,
-      showVisibilityGroup: false,
       tooltipExpanded: false
     }
   },
@@ -113,12 +112,13 @@ export default {
     ]),
 
     ...mapGetters('Layers', [
+      'element',
       'isLayerVisible',
       'isVisibilityGroupVisible'
     ]),
 
     contextualHelpText () {
-      const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
+      const contextualHelp = this.element({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
@@ -145,7 +145,7 @@ export default {
     },
 
     showVisibilityGroup () {
-      this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
+      return this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
     },
 
     statusAriaText () {
@@ -175,10 +175,7 @@ export default {
     ]),
 
     ...mapMutations('Layers', [
-      'removeVisibleLayer',
-      'removeVisibleVisibilityGroup',
       'setLayerState',
-      'setVisibleVisibilityGroup',
       'updateState'
     ]),
 
@@ -190,7 +187,6 @@ export default {
       } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
-        // If(this.isVisible && false === this.showVisibilityGroup)
         return 'fa-eye'
       }
     },
@@ -200,7 +196,7 @@ export default {
         return
       }
 
-      this.$store.dispatch('Layers/updateLayerVisibility', {
+      this.updateLayerVisibility({
         id: this.layer.id,
         isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
@@ -224,13 +220,7 @@ export default {
       const val = e.target.value
       if (isNaN(val * 1)) return false
 
-      this.$store.commit('Layers/setLayerState', { id: this.layer.id, key: 'opacity', value: val })
-    },
-
-    showVisibilityGroupLayer (visibilityGroupId, calleeId, hoverState) {
-      if (calleeId !== this.layer.id && visibilityGroupId === this.layer.attributes.visibilityGroupId) {
-        this.showVisibilityGroup = hoverState
-      }
+      this.setLayerState({ id: this.layer.id, key: 'opacity', value: val })
     },
 
     toggleOpacityControl (overObject) {
