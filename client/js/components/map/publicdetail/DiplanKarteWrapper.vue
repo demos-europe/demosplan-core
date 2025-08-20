@@ -21,6 +21,8 @@
       v-if="isStoreAvailable"
       :geojson="drawing"
       profile="beteiligung"
+      enable-searchbar
+      enable-toolbar
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
