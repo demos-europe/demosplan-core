@@ -46,9 +46,8 @@ class GeodatenzentrumAddressSearchService /*
     /**
      * search for addresses using the Geodatenzentrum search service. Enables search by street names and not only zip code.
      *
-     * @param string     $query     // search query
-     * @param int        $limit     // max number of results to return
-     * @param array|null $maxExtent // limits result to a geographical area
+     * @param string $query // search query
+     * @param int    $limit // max number of results to return
      */
     public function searchAddress($query, $limit = 20): array
     {
@@ -64,7 +63,6 @@ class GeodatenzentrumAddressSearchService /*
             $result = $response->toArray();
 
             return array_map([$this, 'formatResult'], $result);
-
         } catch (Exception $e) {
             $this->logger->error('Fehler bei searchAddress: ', [$e]);
 
