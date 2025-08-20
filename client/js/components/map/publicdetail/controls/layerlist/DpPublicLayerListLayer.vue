@@ -37,13 +37,13 @@
           min="0"
           max="100"
           step="2"
-          v-model="opacity"
+          :value="opacity"
           :aria-label="layer.attributes.name + ' ' + Translator.trans('opacity.percent')"
           aria-valuemin="0"
           aria-valuemax="100"
           aria-orientation="horizontal"
           @input="setOpacity"
-          @change="setAndSaveOpacity"
+          @change="setOpacity"
           @focus="toggleOpacityControl(true)"
           @blur="toggleOpacityControl(false)"
           @click.stop="">
@@ -82,28 +82,10 @@ export default {
       required: true
     },
 
-    visible: {
-      type: Boolean,
-      required: true,
-      default: true
-    },
-
-    layerType: {
-      type: String,
-      required: false,
-      default: 'overlay'
-    },
-
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
       default: false
-    },
-
-    parentIsVisible: {
-      type: Boolean,
-      required: false,
-      default: true
     }
   },
 
@@ -114,15 +96,12 @@ export default {
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:toggleVisibiltyGroup',
-    'layer-opacity:change',
-    'layer-opacity:changed'
+    'layer:toggleVisibiltyGroup'
   ],
 
   data () {
     return {
       showOpacityControl: false,
-      opacity: 100,
       tooltipExpanded: false
     }
   },
@@ -133,12 +112,13 @@ export default {
     ]),
 
     ...mapGetters('Layers', [
+      'element',
       'isLayerVisible',
       'isVisibilityGroupVisible'
     ]),
 
     contextualHelpText () {
-      const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
+      const contextualHelp = this.element({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
@@ -152,6 +132,10 @@ export default {
       return this.tooltipExpanded === false ? this.layer.attributes.name : ''
     },
 
+    opacity () {
+      return this.layerStates[this.layer.id]?.opacity
+    },
+
     statusIcon () {
       return this.setStatusIcon()
     },
@@ -161,7 +145,7 @@ export default {
     },
 
     showVisibilityGroup () {
-      this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
+      return this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
     },
 
     statusAriaText () {
@@ -191,10 +175,7 @@ export default {
     ]),
 
     ...mapMutations('Layers', [
-      'removeVisibleLayer',
-      'removeVisibleVisibilityGroup',
       'setLayerState',
-      'setVisibleVisibilityGroup',
       'updateState'
     ]),
 
@@ -206,7 +187,6 @@ export default {
       } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
-        // If(this.isVisible && false === this.showVisibilityGroup)
         return 'fa-eye'
       }
     },
@@ -216,12 +196,11 @@ export default {
         return
       }
 
-      // Toggle overlays
       this.updateLayerVisibility({
         id: this.layer.id,
-        isVisible: typeof isVisible !== 'undefined' ? isVisible : !this.isVisible,
+        isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
-        exclusively: this.layer.attributes.isBaseLayer
+        exclusively: this.layer.attributes.layerType === 'base'
       })
     },
 
@@ -238,21 +217,10 @@ export default {
     },
 
     setOpacity (e) {
-      let val = e.target.value
-      this.$store.commit('Layers/setAttributeForLayer', { id: this.layer.id, attribute: 'opacity', value: val })
-
+      const val = e.target.value
       if (isNaN(val * 1)) return false
 
-      val /= 100
-      this.$root.$emit('layer-opacity:change', { id: this.layer.id, opacity: val })
-    },
-
-    saveOpacity () {
-      this.$root.$emit('layer-opacity:changed', { id: this.layer.id, opacity: this.opacity })
-    },
-
-    setAndSaveOpacity (e) {
-      this.setOpacity(e).saveOpacity()
+      this.setLayerState({ id: this.layer.id, key: 'opacity', value: val })
     },
 
     toggleOpacityControl (overObject) {
@@ -268,14 +236,6 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  },
-
-  created () {
-    this.opacity = this.layer.attributes.opacity
-
-    if (this.visible) {
-      this.setLayerState({ id: this.layer.id, key: 'isVisible', value: true })
     }
   }
 }

@@ -791,8 +791,8 @@ export default {
         if (selectedOption) {
           this.customFieldValues[field.id] = {
             fieldId: field.id,
-            id: selectedOption.id + ":" + selectedOption.label,
-            name: selectedOption.label,
+            id: selectedOption.id + ':' + selectedOption.label,
+            name: selectedOption.label
           }
         }
       })
