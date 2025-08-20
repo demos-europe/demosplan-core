@@ -31,7 +31,6 @@ use function array_key_exists;
 
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
-
     /**
      * Renders the admin view of a single tag.
      *

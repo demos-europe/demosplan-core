@@ -33,9 +33,9 @@ use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class AssessmentHandler
 {
@@ -65,21 +65,21 @@ class AssessmentHandler
     protected $simpleSpreadsheetService;
 
     public function __construct(
-        AssessmentTableServiceOutput                         $assessmentTableServiceOutput,
-        private readonly CurrentUserInterface                $currentUser,
-        private readonly GlobalConfig                        $globalConfig,
-        HashedQueryService                                   $filterSetService,
-        MessageBagInterface                                  $messageBag,
+        AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly GlobalConfig $globalConfig,
+        HashedQueryService $filterSetService,
+        MessageBagInterface $messageBag,
         private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
-        private readonly ProcedureService                    $procedureService,
-        private readonly RouterInterface                     $router,
-        SimpleSpreadsheetService                             $simpleSpreadsheetService,
-        StatementFragmentService                             $statementFragmentService,
-        StatementService                                     $statementService,
-        TranslatorInterface                                  $translator,
-        UserFilterSetService                                 $userFilterSetService,
+        private readonly ProcedureService $procedureService,
+        private readonly RouterInterface $router,
+        SimpleSpreadsheetService $simpleSpreadsheetService,
+        StatementFragmentService $statementFragmentService,
+        StatementService $statementService,
+        TranslatorInterface $translator,
+        UserFilterSetService $userFilterSetService,
         private readonly RequestStack $requestStack,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->filterSetService = $filterSetService;

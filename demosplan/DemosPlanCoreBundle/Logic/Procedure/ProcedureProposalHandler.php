@@ -24,7 +24,7 @@ class ProcedureProposalHandler
         private readonly ArrayHelper $arrayHelper,
         private readonly ProcedureProposalService $procedureProposalService,
         private readonly ApiResourceService $resourceService,
-        private readonly MapService $mapService
+        private readonly MapService $mapService,
     ) {
     }
 

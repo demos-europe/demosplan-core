@@ -14,10 +14,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ParagraphHandler implements ParagraphHandlerInterface
 {
@@ -26,7 +25,7 @@ class ParagraphHandler implements ParagraphHandlerInterface
         protected readonly ParagraphRepository $paragraphRepository,
         private readonly FlashMessageHandler $flashMessageHandler,
         private readonly TranslatorInterface $translator,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
     ) {
     }
 

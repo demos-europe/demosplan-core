@@ -63,8 +63,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         private readonly PermissionsInterface $permissions,
         private readonly StatementHandler $statementHandler,
         private readonly RequestDataHandler $requestDataHandler,
-    )
-    {
+    ) {
         parent::__construct($permissions);
     }
 
@@ -85,7 +84,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         Request $request,
         StatementHandler $statementHandler,
         string $statementId,
-        string $procedure
+        string $procedure,
     ) {
         try {
             $templateVars = [];
@@ -260,7 +259,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         MunicipalityService $municipalityService,
         PriorityAreaService $priorityAreaService,
         Request $request,
-        RouterInterface $router
+        RouterInterface $router,
     ) {
         $pagerQuerystring = collect($request->query->all())->only(['r_limit', 'page'])->all();
         $templateVars = [];
@@ -528,7 +527,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         Request $request,
         StatementHandler $statementHandler,
         string $procedure,
-        string $statementId
+        string $statementId,
     ) {
         try {
             $postRequest = $request->request;
@@ -611,7 +610,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         CurrentUserService $currentUser,
         StatementFragmentService $statementFragmentService,
         Request $request,
-        $isReviewer = false
+        $isReviewer = false,
     ) {
         $data = $this->requestDataHandler->transformRequestVariables($request->request->all());
 
@@ -695,7 +694,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         StatementHandler $statementHandler,
         StatementService $statementService,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): JsonResponse {
         try {
             $rParams = $assessmentTableServiceOutput->getFormValues($request->request->all());
@@ -766,7 +765,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         CurrentUserService $currentUser,
         Request $request,
         NameGenerator $nameGenerator,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $vars = $request->request->all();
         $fragmentIds = [];

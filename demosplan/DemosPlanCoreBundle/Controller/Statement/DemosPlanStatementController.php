@@ -52,6 +52,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
@@ -72,7 +73,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use Exception;
 use RuntimeException;
 use Symfony\Component\Finder\SplFileInfo;
@@ -113,9 +113,8 @@ class DemosPlanStatementController extends BaseController
         private readonly MailService $mailService,
         private readonly PermissionsInterface $permissions,
         private readonly NameGenerator $nameGenerator,
-        protected readonly RequestDataHandler $requestDataHandler
-    )
-    {
+        protected readonly RequestDataHandler $requestDataHandler,
+    ) {
     }
 
     /**

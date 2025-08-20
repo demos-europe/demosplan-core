@@ -87,9 +87,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -101,11 +101,11 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourc
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
+use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\CountyNotificationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
-use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
@@ -261,7 +261,7 @@ class StatementHandler implements StatementHandlerInterface
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly ManagerRegistry $doctrine,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         $this->assignService = $assignService;
         $this->countyService = $countyService;

@@ -11,8 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -171,8 +169,6 @@ class StatementFilterHandler
 
     /**
      * Get form option from globally defined parameter.
-     *
-     * @param string $key
      *
      * @return mixed|null
      */

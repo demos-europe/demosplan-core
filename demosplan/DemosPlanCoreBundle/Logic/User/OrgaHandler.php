@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-
 class OrgaHandler
 {
     public function __construct(
@@ -31,7 +30,7 @@ class OrgaHandler
         private readonly MessageBagInterface $messageBag,
         private readonly TranslatorInterface $translator,
         private readonly CurrentUserInterface $currentUser,
-        private readonly GlobalConfigInterface $globalConfig
+        private readonly GlobalConfigInterface $globalConfig,
     ) {
     }
 

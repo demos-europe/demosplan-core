@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\ORM\ORMException;
@@ -34,6 +33,7 @@ class NewsHandler
     final public const NEWS_DESCRIPTION_MAX_LENGTH = 65535;
     /** @var int Do not increase over 65535 as this is the maximum in the database */
     final public const NEWS_TEXT_MAX_LENGTH = 65535;
+
     public function __construct(
         private readonly ArrayHelper $arrayHelper,
         private readonly ContentService $contentService,

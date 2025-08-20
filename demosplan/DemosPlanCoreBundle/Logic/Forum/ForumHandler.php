@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
-use Psr\Log\LoggerInterface;
 
 class ForumHandler
 {
@@ -55,7 +55,7 @@ class ForumHandler
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
         UserService $userService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         $this->forumService = $forumService;
         $this->mailService = $mailService;
@@ -665,7 +665,7 @@ class ForumHandler
     protected function sendNotificationEmailToModerator(
         $mailTemplateVars,
         $vars,
-        $allUsersWithRole
+        $allUsersWithRole,
     ) {
         // Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
         if (isset($mailTemplateVars['userStory'])) {
@@ -722,7 +722,7 @@ class ForumHandler
     protected function sendNotificationEmailToAuthor(
         $data,
         $mailTemplateVars,
-        $vars
+        $vars,
     ) {
         // Besorge dir auch die Flags des Users
         /** @var User $starterEntryAuthor */

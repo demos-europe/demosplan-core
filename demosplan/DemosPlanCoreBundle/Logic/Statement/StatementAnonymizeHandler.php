@@ -46,7 +46,7 @@ class StatementAnonymizeHandler
         private readonly CurrentUserInterface $currentUserInterface,
         private readonly ManagerRegistry $doctrine,
         private readonly PermissionsInterface $permissions,
-        private readonly StatementAnonymizeService $statementAnonymizeService
+        private readonly StatementAnonymizeService $statementAnonymizeService,
     ) {
     }
 

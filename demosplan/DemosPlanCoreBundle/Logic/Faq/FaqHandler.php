@@ -31,9 +31,9 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
-use Psr\Log\LoggerInterface;
 
 class FaqHandler implements FaqHandlerInterface
 {

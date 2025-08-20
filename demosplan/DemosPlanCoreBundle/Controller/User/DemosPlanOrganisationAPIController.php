@@ -63,17 +63,16 @@ use Webmozart\Assert\Assert;
 class DemosPlanOrganisationAPIController extends APIController
 {
     public function __construct(ApiLoggerInterface $apiLogger,
-                                PrefilledTypeProvider $resourceTypeProvider,
-                                FieldsValidator $fieldsValidator,
-                                private readonly TranslatorInterface $translator,
-                                LoggerInterface $logger,
-                                GlobalConfigInterface $globalConfig,
-                                MessageBagInterface $messageBag,
-                                SchemaPathProcessor $schemaPathProcessor,
-                                MessageFormatter $messageFormatter,
-                                private readonly RoleHandler $roleHandler,
-                                private readonly RequestDataHandler $requestDataHandler,
-
+        PrefilledTypeProvider $resourceTypeProvider,
+        FieldsValidator $fieldsValidator,
+        private readonly TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor,
+        MessageFormatter $messageFormatter,
+        private readonly RoleHandler $roleHandler,
+        private readonly RequestDataHandler $requestDataHandler,
     ) {
         parent::__construct($apiLogger, $resourceTypeProvider, $fieldsValidator, $translator, $logger, $globalConfig, $messageBag, $schemaPathProcessor, $messageFormatter);
     }
@@ -131,9 +130,9 @@ class DemosPlanOrganisationAPIController extends APIController
     ) {
         try {
             if (false === $permissions->hasPermissions(
-                    ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
-                    'OR'
-                )) {
+                ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
+                'OR'
+            )) {
                 // The orgalist is required. If it's not loaded, there's no point in having this route.
                 throw new AccessDeniedException('User has no access rights to get $orgalist.');
             }
@@ -351,11 +350,11 @@ class DemosPlanOrganisationAPIController extends APIController
      */
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
-                                     UserHandler $userHandler,
-                                     CustomerHandler $customerHandler,
-                                     PermissionsInterface $permissions,
-                                     AccessControlService $accessControlPermission,
-                                     EventDispatcherInterface $eventDispatcher)
+        UserHandler $userHandler,
+        CustomerHandler $customerHandler,
+        PermissionsInterface $permissions,
+        AccessControlService $accessControlPermission,
+        EventDispatcherInterface $eventDispatcher)
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
