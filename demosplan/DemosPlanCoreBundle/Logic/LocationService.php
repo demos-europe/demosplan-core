@@ -56,7 +56,7 @@ class LocationService
 
     /**
      * Get an address suggestion by typing in a street name.
-     * Uses the Geocoder API for autosuggestions, and local DB for municipal code requests
+     * Uses the Geocoder API for autosuggestions, and local DB for municipal code requests.
      *
      * @param string     $searchString
      * @param int        $limit
@@ -70,10 +70,10 @@ class LocationService
             $locations = $this->geodatenzentrumAddressSearchService
                 ->searchAddress($searchString, $limit);
             // return results from Geocoder API
-            if(!empty($locations)) {
-
+            if (!empty($locations)) {
                 return ['body' => $locations];
             }
+
             // use local db for municipal code requests
             return ['body' => $this->searchCity($searchString, $limit, $maxExtent)['body']];
         } catch (Exception $e) {
