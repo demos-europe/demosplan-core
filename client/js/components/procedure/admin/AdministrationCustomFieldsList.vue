@@ -15,6 +15,14 @@
       preselected-type="multiSelect"
       @save="customFieldData => saveNewField(customFieldData)">
       <div>
+          <dp-checkbox
+          v-if="isStatementField"
+          class="mb-2"
+          id="requiredCheckbox"
+          :label="{
+            text: Translator.trans('statements.fields.configurable.required')
+          }"
+          />
         <dp-label
           class="mb-1"
           required
@@ -235,6 +243,7 @@ import {
   dpApi,
   DpBadge,
   DpButton,
+  DpCheckbox,
   DpConfirmDialog,
   DpDataTable,
   DpIcon,
@@ -254,6 +263,7 @@ export default {
     CreateCustomFieldForm,
     DpBadge,
     DpButton,
+    DpCheckbox,
     DpConfirmDialog,
     DpDataTable,
     DpIcon,
@@ -376,6 +386,10 @@ export default {
 
     helpTextDismissibleKey () {
       return 'customFieldsHint'
+    },
+
+    isStatementField () {
+      return this.hasPermission('field_statements_custom_fields')
     },
 
     warningMessage () {
