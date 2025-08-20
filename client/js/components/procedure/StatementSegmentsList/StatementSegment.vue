@@ -785,17 +785,18 @@ export default {
     },
 
     initCustomFieldValues () {
-      Object.values(this.customFields).map((field) => {
-        const selectedOption = this.getCurrentSelectedOption(field.id)
+      Object.values(this.customFields)
+        .forEach(field => {
+          const selectedOption = this.getCurrentSelectedOption(field.id)
 
-        if (selectedOption) {
-          this.customFieldValues[field.id] = {
-            fieldId: field.id,
-            id: selectedOption.id + ':' + selectedOption.label,
-            name: selectedOption.label
+          if (selectedOption) {
+            this.customFieldValues[field.id] = {
+              fieldId: field.id,
+              id: `${selectedOption.id}:${selectedOption.label}`,
+              name: selectedOption.label
+            }
           }
-        }
-      })
+        })
     },
 
     initPlaces () {
