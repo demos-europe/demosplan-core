@@ -27,6 +27,7 @@
       <dp-button
         :text="Translator.trans('invitable_institution.add')"
         data-cy="addPublicAgency"
+        rounded
         @click="addPublicInterestBodies(selectedItems)" />
       <a
         :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
