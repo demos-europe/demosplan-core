@@ -70,9 +70,9 @@ class LocationService
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
         try {
-            $locations = $this->getLocationRepository()
-                ->searchCity($searchString, $limit, $maxExtent);
-
+//            $locations = $this->getLocationRepository()
+//                ->searchCity($searchString, $limit, $maxExtent);
+            $locations = $this->geodatenzentrumAddressSearchService->searchAddress($searchString, $limit, $maxExtent);
             return ['body' => $locations];
         } catch (Exception $e) {
             $this->logger->error('Fehler bei searchCity: ', [$e]);

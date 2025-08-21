@@ -35,7 +35,7 @@ class GeodatenzentrumAddressSearchService /*
  * ]
  */
 {
-    private const GEODATENZENTRUM_ADDRESS_SEARCH = 'https://sg.geodatenzentrum.de/gdz_ortssuche__353cdae2-2c78-1654-c1f0-85192cfa13d6';
+    private const GEODATENZENTRUM_ADDRESS_SEARCH = 'https://sg.geodatenzentrum.de/gdz_ortssuche__353cdae2-2c78-1654-c1f0-85192cfa13d6/geosearch?count=5';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -54,15 +54,16 @@ class GeodatenzentrumAddressSearchService /*
         try {
             $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, [
                 'query' => [
-                    'q'           => $query,
+                    'query'       => $query,
                     'format'      => 'json',
                     'limit'       => $limit,
                     'countrycodes'=> 'de',
                 ],
             ]);
+            $url = $response->getInfo('url');
             $result = $response->toArray();
 
-            return array_map([$this, 'formatResult'], $result);
+            return array_map([$this, 'formatResult'], $result['features']);
         } catch (Exception $e) {
             $this->logger->error('Fehler bei searchAddress: ', [$e]);
 
@@ -73,27 +74,29 @@ class GeodatenzentrumAddressSearchService /*
     // returning not only data from Geodatenzentrum, but also data to match searchCity function requests
     private function formatResult(array $result): array
     {
-        $address = $result['address'] ?? [];
-        $street = $address['strasse'] ?? '';
-        $houseNumber = $address['hausnummer'] ?? '';
-        $postcode = $address['postleitzahl'] ?? '';
-        $city = $address['stadt'] ?? '';
-        $federalState = $address['bundesland'] ?? '';
-        $latitude = $result['lat'] ?? null;
-        $longitude = $result['lon'] ?? null;
-        $municipalCode = $result['municipal'] ?? null;
+        $addressData = $result['properties'];
+        $address = $addressData['text'] ?? [];
+        $street = $addressData['strasse'] ?? '';
+        $houseNumber = $addressData['haus'] ?? '';
+        $postcode = $addressData['plz'] ?? '';
+        $city = $addressData['ort'] ?? '';
+        $federalState = $addressData['bundesland'] ?? '';
+        $longitude = $result['geometry']['coordinates'][0] ?? null;
+        $latitude = $result['geometry']['coordinates'][1] ?? null;
+        $municipalCode = $addressData['ags'] ?? null;
 
-        return [
-            'strasse'      => $street,
-            'hausnummer'   => $houseNumber,
-            'postleitzahl' => $postcode,
-            'stadt'        => $city,
-            'bundesland'   => $federalState,
+        $suggestion = [
+            'name'      => $street,
+            'housenumber'   => $houseNumber,
+            'postcode' => $postcode,
+            'city'        => $city,
+            'state'   => $federalState,
             'lat'          => $latitude,
             'lon'          => $longitude,
             // former searchCity function compatibility fields:
-            'postcode'      => $postcode,
             'municipalCode' => $municipalCode,
         ];
+
+        return $suggestion;
     }
 }

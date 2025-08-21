@@ -516,19 +516,20 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 $pointDest = $proj4->transform($proj3857, $pointSrc)->toArray();
                 $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] = $pointDest[0];
                 $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] = $pointDest[1];
+                //this is the logic which filters out any point outside the map extent, temp. disabling for testing
                 if (null !== $maxExtent) {
                     if ($entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] > $maxExtent[0]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] < $maxExtent[2]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
                         $filteredSuggestions[] = [
-                            'value' => $entry['postcode'].' '.$entry['name'],
+                            'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
                             'data'  => $entry,
                         ];
                     }
                 } else {
                     $filteredSuggestions[] = [
-                        'value' => $entry['postcode'].' '.$entry['name'],
+                        'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
                         'data'  => $entry,
                     ];
                 }
