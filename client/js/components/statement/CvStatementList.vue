@@ -33,7 +33,6 @@ All rights reserved
 
       <!-- Tab Content -->
       <cv-data-table
-        v-if="activeTab === 'statements'"
         :columns="filteredColumns"
         batch-cancel-label="Abbrechen"
         :data="statements"

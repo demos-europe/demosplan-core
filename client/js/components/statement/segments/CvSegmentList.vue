@@ -70,18 +70,18 @@ All rights reserved
           <template v-for="(segment, index) in segments" :key="index">
             <cv-data-table-row :value="String(segment.id)">
 
-              <cv-data-table-cell v-if="visibleColumns.includes('externId')">
+              <cv-data-table-cell v-show="visibleColumns.includes('externId')">
                 {{ segment.externId }}
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('statementStatus')">
+              <cv-data-table-cell v-show="visibleColumns.includes('statementStatus')">
                 <cv-tag
                   :label="segment.statementStatus"
                   :kind="getStatusType(segment.statementStatus)"
                   :class="getStatusClass(segment.statementStatus)" />
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('submitter')">
+              <cv-data-table-cell v-show="visibleColumns.includes('submitter')">
                 <div class="cv-submitter-cell">
                   <div class="cv-submitter-name">
                     {{ segment.submitter }}
@@ -92,11 +92,11 @@ All rights reserved
                 </div>
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('processingStep')">
+              <cv-data-table-cell v-show="visibleColumns.includes('processingStep')">
                 {{ segment.processingStep }}
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('keywords')">
+              <cv-data-table-cell v-show="visibleColumns.includes('keywords')">
                 <div class="cv-keywords-cell">
                   <cv-tag
                     v-for="keyword in segment.keywords"
@@ -107,27 +107,27 @@ All rights reserved
                 </div>
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
+              <cv-data-table-cell v-show="visibleColumns.includes('confidence')">
                 <cv-tag
                   :label="`${segment.confidence}%`"
                   :kind="getConfidenceType(segment.confidence)"
                   :class="getConfidenceClass(segment.confidence)" />
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('topic')">
+              <cv-data-table-cell v-show="visibleColumns.includes('topic')">
                 {{ segment.topic }}
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('textModule')">
+              <cv-data-table-cell v-show="visibleColumns.includes('textModule')">
                 {{ segment.textModule }}
               </cv-data-table-cell>
 
-              <cv-data-table-cell v-if="visibleColumns.includes('expand')">
+              <cv-data-table-cell v-show="visibleColumns.includes('expand')">
                 <cv-button
                   kind="ghost"
                   size="sm"
                   @click="toggleRowExpansion(segment.id)"
-                  :aria-label="`Expand row ${segment.id}`">
+                  :aria-label="`Element ausklappen`">
                   <ChevronDown16 :style="{ transform: expandedRows.includes(segment.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
                 </cv-button>
               </cv-data-table-cell>
@@ -293,6 +293,10 @@ export default {
       placesObject: 'items'
     }),
 
+    ...mapState('Boilerplate', {
+      boilerplatesObject: 'items'
+    }),
+
     segments () {
       const segmentValues = Object.values(this.segmentsObject)
 
@@ -300,7 +304,7 @@ export default {
         return []
       }
 
-      return segmentValues.map(segment => {
+      return segmentValues.map((segment, index) => {
         // Get related statement data
         const parentStatement = this.statementsObject[segment.relationships?.parentStatement?.data?.id]
 
@@ -312,9 +316,18 @@ export default {
         const tagIds = segment.relationships?.tags?.data?.map(tag => tag.id) || []
         const tags = tagIds.map(id => this.tagsObject[id]).filter(tag => tag)
 
-        // Get textModule from first tag's boilerplate
-        const firstTagWithBoilerplate = tags.find(tag => tag?.relationships?.boilerplate)
-        const textModule = firstTagWithBoilerplate?.relationships?.boilerplate?.attributes?.title || '-'
+        // Get textModule from all tags with boilerplates
+        const tagsWithBoilerplates = tags.filter(tag => {
+          const boilerplateId = tag?.relationships?.boilerplate?.data?.id
+          return boilerplateId && this.boilerplatesObject[boilerplateId]
+        })
+
+        // Collect all boilerplate names
+        const textModules = tagsWithBoilerplates.map(tag =>
+          this.boilerplatesObject[tag.relationships.boilerplate.data.id]?.attributes?.title
+        ).filter(title => title)
+
+        const textModule = textModules.length > 0 ? textModules.join(', ') : '-'
 
         return {
           id: segment.id,
@@ -635,7 +648,7 @@ export default {
         include: [
           'place',
           'tags',
-          'tags.boilerplate',  // Include boilerplate for textModule
+          'tags.boilerplate',
           'parentStatement'
         ].join(),
         page: {
