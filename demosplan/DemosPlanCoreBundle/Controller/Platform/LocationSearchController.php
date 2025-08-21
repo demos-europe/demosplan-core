@@ -51,8 +51,8 @@ class LocationSearchController extends BaseController
 
             for ($i = 0; $i < $maxSuggestions; ++$i) {
                 if (isset($result[$i])) {
-                    $entry =  $result[$i];
-                    //check for Geocoder autosuggestions
+                    $entry = $result[$i];
+                    // check for Geocoder autosuggestions
                     if (isset($entry['strasse'])) {
                         $suggestions[] = [
                             'value' => $entry['strasse'].' '.$entry['hausnummer'].' '.$entry['postleitzahl'].' '.$entry['stadt'],
@@ -66,7 +66,6 @@ class LocationSearchController extends BaseController
                         ];
                     }
                 }
-
             }
 
             $response = [

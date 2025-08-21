@@ -37,8 +37,8 @@ class LocationService
      * Get an address suggestion by typing in a street name.
      * Uses the external Geocoder API for autosuggestions.
      *
-     * @param string     $searchString
-     * @param int        $limit
+     * @param string $searchString
+     * @param int    $limit
      *
      * @return array
      */
@@ -61,7 +61,7 @@ class LocationService
     }
 
     /**
-     * Get a City by Name or postal code. Database-based query
+     * Get a City by Name or postal code. Database-based query.
      *
      * @param string     $searchString
      * @param int        $limit
