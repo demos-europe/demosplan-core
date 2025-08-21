@@ -34,7 +34,34 @@ class LocationService
     }
 
     /**
-     * Get a City by Name or postal code.
+     * Get an address suggestion by typing in a street name.
+     * Uses the external Geocoder API for autosuggestions.
+     *
+     * @param string     $searchString
+     * @param int        $limit
+     *
+     * @return array
+     */
+    public function searchAddress($searchString, $limit = 20)
+    {
+        try {
+            $locations = $this->geodatenzentrumAddressSearchService
+                ->searchAddress($searchString, $limit);
+            // return results from Geocoder API
+            if (!empty($locations)) {
+                return ['body' => $locations];
+            }
+
+            return ['body' => []];
+        } catch (Exception $e) {
+            $this->logger->error('Fehler bei der Adresssuche: ', [$e]);
+
+            return ['body' => []];
+        }
+    }
+
+    /**
+     * Get a City by Name or postal code. Database-based query
      *
      * @param string     $searchString
      * @param int        $limit
@@ -49,35 +76,6 @@ class LocationService
             return ['body' => $locations];
         } catch (Exception $e) {
             $this->logger->error('Fehler bei searchCity: ', [$e]);
-
-            return ['body' => []];
-        }
-    }
-
-    /**
-     * Get an address suggestion by typing in a street name.
-     * Uses the Geocoder API for autosuggestions, and local DB for municipal code requests.
-     *
-     * @param string     $searchString
-     * @param int        $limit
-     * @param array|null $maxExtent
-     *
-     * @return array
-     */
-    public function searchAddressHybrid($searchString, $limit = 20, $maxExtent = null)
-    {
-        try {
-            $locations = $this->geodatenzentrumAddressSearchService
-                ->searchAddress($searchString, $limit);
-            // return results from Geocoder API
-            if (!empty($locations)) {
-                return ['body' => $locations];
-            }
-
-            // use local db for municipal code requests
-            return ['body' => $this->searchCity($searchString, $limit, $maxExtent)['body']];
-        } catch (Exception $e) {
-            $this->logger->error('Fehler bei der Adresssuche: ', [$e]);
 
             return ['body' => []];
         }
