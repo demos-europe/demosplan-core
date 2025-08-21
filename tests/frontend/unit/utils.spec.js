@@ -8,7 +8,7 @@
  */
 
 import { getResolutionsFromScales, getScalesAndResolutions } from '@DpJs/components/map/map/utils/utils'
-import ResponseAttributes from './__mocks__/dplan_api_map_options_admin.json'
+import ResponseAttributes from './fixtures/dplan_api_map_options_admin.json'
 
 describe('DpOlMap/utils', () => {
   /*
