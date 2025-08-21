@@ -87,7 +87,6 @@
       @selectAll="selectAllLayers"
       @deselectAll="deselectAllLayers"
     >
-
       <template v-slot:tag="{ props }">
         <span class="multiselect__tag">
           {{ props.option.label }}
@@ -183,7 +182,7 @@ export default {
     DpSelect
   },
 
-  mixins: [ prefixClassMixin ],
+  mixins: [prefixClassMixin],
 
   props: {
     availableProjections: {
@@ -605,7 +604,7 @@ export default {
       } else {
         this.unavailableLayers = []
       }
-    },
+    }
   },
 
   mounted () {
