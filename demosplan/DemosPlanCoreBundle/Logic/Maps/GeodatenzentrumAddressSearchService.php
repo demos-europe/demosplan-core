@@ -86,13 +86,13 @@ class GeodatenzentrumAddressSearchService /*
         $municipalCode = $addressData['ags'] ?? null;
 
         $suggestion = [
-            'name'      => $street,
+            'name'          => $street,
             'housenumber'   => $houseNumber,
-            'postcode' => $postcode,
-            'city'        => $city,
-            'state'   => $federalState,
-            'lat'          => $latitude,
-            'lon'          => $longitude,
+            'postcode'      => $postcode,
+            'city'          => $city,
+            'state'         => $federalState,
+            'lat'           => $latitude,
+            'lon'           => $longitude,
             // former searchCity function compatibility fields:
             'municipalCode' => $municipalCode,
         ];
