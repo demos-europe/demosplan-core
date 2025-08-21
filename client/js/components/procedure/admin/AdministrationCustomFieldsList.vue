@@ -494,6 +494,8 @@ export default {
               edit: false
             }
           }
+
+          return undefined
         })
         .filter(field => field !== undefined)
 
