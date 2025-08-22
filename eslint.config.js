@@ -11,6 +11,7 @@ module.exports = [
     name: 'app/files-to-ignore',
     ignores: [
       '**/.cache/**/*',
+      '**/addonDev/**/*',
       '**/addons/**/*',
       '**/client/js/legacy/**/*.js',
       '**/client/js/generated/*.js',
