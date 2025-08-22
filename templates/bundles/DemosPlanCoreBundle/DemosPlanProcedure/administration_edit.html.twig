@@ -338,19 +338,17 @@
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                                <textarea
-                                    class="o-form__control-textarea h-7"
+                                <dp-text-area
+                                    class="bg-surface"
                                     data-cy="internal:internalNote"
+                                    grow-to-parent
                                     id="r_desc"
-                                    name="r_desc">
-                                    {%- if proceduresettings.desc is defined %}
-                                        {{- proceduresettings.desc -}}
-                                    {% else %}
-                                        {{- 'notspecified'|trans -}}
-                                    {% endif -%}
-                                </textarea>
+                                    name="r_desc"
+                                    reduced-height
+                                    value="{{ proceduresettings.desc is defined ? proceduresettings.desc
+                                    : 'notspecified'|trans }}"
+                                />
                             </div>
-
                         </div>
 
                         <label class="o-wizard__mark u-mb-0">
@@ -983,7 +981,7 @@
                                     </label>
                                 {% else %}
                                     {# allow publishing the possibility of Feedback by default #}
-                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1"> }
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1">
                                 {% endif %}
 
                                 {% if hasPermission('field_submit_anonymous_statements') %}

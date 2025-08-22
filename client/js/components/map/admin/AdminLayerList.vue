@@ -205,22 +205,27 @@
         class="text-right mt-5 space-x-2"
         v-if="!isLoading">
         <dp-button
-          data-cy="adminLayerList:save"
           :busy="!isEditable"
           :text="Translator.trans('save')"
-          @click="saveOrder" />
+          data-cy="adminLayerList:save"
+          rounded
+          @click="saveOrder"
+        />
         <dp-button
-          data-cy="adminLayerList:saveAndReturn"
           :busy="!isEditable"
           :text="Translator.trans('save.and.return.to.list')"
-          @click="saveOrder(true)" />
-        <button
-          class="btn btn--secondary"
+          data-cy="adminLayerList:saveAndReturn"
+          rounded
+          @click="saveOrder(true)"
+        />
+        <dp-button
+          :text="Translator.trans('reset.order')"
+          color="secondary"
           data-cy="adminLayerList:resetOrder"
+          rounded
           type="reset"
-          @click.prevent="resetOrder">
-          {{ Translator.trans('reset.order') }}
-        </button>
+          @click.prevent="resetOrder"
+        />
       </div>
     </div>
   </div>
