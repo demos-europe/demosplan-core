@@ -16,28 +16,34 @@
 -->
 </documentation>
 <template>
-  <div
+  <button
     v-if="layer"
     :id="layer.id"
-    class="o-sortablelist__item py-2 pl-2 border--top"
+    type="button"
+    class="o-sortablelist__item py-2 pl-2 border--top w-full text-left"
     :class="{
       'is-active' : isActive,
-      'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
+      'cursor-pointer' : (!layer.attributes.isBaseLayer && layer.type !== 'GisLayerCategory' && !isChildOfCategoryThatAppearsAsLayer),
     }"
     data-cy="adminLayerListItem:setLayerActive"
+    :disabled="layer.attributes.isBaseLayer || layer.type === 'GisLayerCategory' || isChildOfCategoryThatAppearsAsLayer"
+    :aria-pressed="isActive"
+    :aria-label="layer.attributes.name + (isActive ? ' (active)' : ' (inactive)')"
     @click="setActiveState"
     @mouseover="mouseOverElement"
-    @mouseout="mouseOutElement">
-    <div class="c-at-item__row-icon inline-block">
+    @mouseout="mouseOutElement"
+    @focus="mouseOverElement"
+    @blur="mouseOutElement">
+    <span class="c-at-item__row-icon inline-block">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         aria-hidden="true"
         :title="Translator.trans('move')" />
-    </div><!--
- --><div
+    </span><!--
+ --><span
     class="inline-block layout--flush c-at-item__row"
     data-cy="mapLayerListItem">
-    <div
+    <span
       class="inline-block"
       :class="hasPermission('feature_map_layer_visibility') ? 'w-8/12 ' : 'w-10/12'">
       <!-- regular categories -->
@@ -87,23 +93,26 @@
         class="font-size-smaller">
         <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
       </span>
-    </div><!--
+    </span><!--
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
  --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
 <!--
     --><div class="inline-block w-1/12 text-right">
-      <a
+      <button
         v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
+        type="button"
         data-cy="adminLayerListItem:toggleVisibilityGroup"
-        class="w-full flex items-center justify-center"
+        class="w-full flex items-center justify-center cursor-pointer"
         :title="hintTextForLockedLayer"
-        @click.stop.prevent="toggleVisibilityGroup"
+        @click.stop="toggleVisibilityGroup"
         @mouseover="setIconHoverState"
-        @mouseout="unsetIconHoverState">
+        @mouseout="unsetIconHoverState"
+        @focus="setIconHoverState"
+        @blur="unsetIconHoverState">
         <i
           :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
           :class="[iconClass,showGroupableIcon]" />
-      </a>
+      </button>
     </div><!--
     --><div class="inline-block w-1/12 text-right">
       <input
@@ -129,12 +138,12 @@
       </div><!--
      -->
     </template><!--
-  --><div
+  --><span
       v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
       class="inline-block w-2/12 text-right">
       <!-- spacer for groups -->
-    </div><!--
-  --><div class="inline-block w-2/12 text-right">
+    </span><!--
+  --><span class="inline-block w-2/12 text-right">
       <a
         :href="editLink"
         data-cy="editLink">
@@ -153,8 +162,8 @@
           class="fa fa-trash"
           aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
         </button>
-      </div>
-    </div>
+      </span>
+    </span>
 
     <!-- recursive nesting inside -->
     <dp-draggable
@@ -200,7 +209,7 @@
         v-if="childElements.length <= 0"
         class="o-sortablelist__spacer" />
     </dp-draggable>
-  </div>
+  </button>
 </template>
 
 <script>
@@ -876,9 +885,9 @@ export default {
      */
     toggleVisibilityGroup () {
       /*
-       * If there is no active Layer the clicked Layer can't be grouped with it.
+       * If there is no active layer, the clicked layer can't be grouped with it.
        * so we set the clicked one as active instead
-       * base-layer can't be Group at all
+       * base-layer can't be grouped at all
        */
       let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? '' : this.activeLayer.attributes.visibilityGroupId
       this.preventActiveFromToggeling = true
