@@ -30,12 +30,13 @@
         rounded
         @click="addPublicInterestBodies(selectedItems)"
       />
-      <a
+      <dp-button
         :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+        :text="Translator.trans('abort.and.back')"
+        color="secondary"
         data-cy="organisationList:abortAndBack"
-        class="btn btn--secondary">
-        {{ Translator.trans('abort.and.back') }}
-      </a>
+        rounded
+      />
     </div>
   </div>
 </template>
