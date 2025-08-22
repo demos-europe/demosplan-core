@@ -17,22 +17,22 @@
       <div class="flex">
         <input
           v-if="editable && selectable"
-          type="checkbox"
           :id="`selected` + organisation.id"
+          type="checkbox"
           :checked="selected"
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
         <div
-          @click="isOpen = !isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
-          data-cy="organisationListTitle">
+          data-cy="organisationListTitle"
+          @click="isOpen = !isOpen">
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = !isOpen"
           type="button"
           data-cy="accordionToggleBtn"
-          class="btn--blank o-link--default">
+          class="btn--blank o-link--default"
+          @click="isOpen = !isOpen">
           <dp-icon
             aria-hidden="true"
             :aria-label="ariaLabel"

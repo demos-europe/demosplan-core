@@ -12,12 +12,12 @@
   <div class="inline-block">
     <!--if all chosen items are not in the procedure -->
     <button
+      v-if="Object.values(selectedElements).every(elem => elem.movedToProcedure === true)"
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
       disabled
-      :title="Translator.trans('statement.moved.not.editable')"
-      v-if="Object.values(this.selectedElements).every(elem => elem.movedToProcedure === true)">
+      :title="Translator.trans('statement.moved.not.editable')">
       <i
         aria-hidden="true"
         class="fa fa-pencil u-mr-0_125" />
@@ -25,11 +25,11 @@
     </button>
     <!--if all items are claimed and at least one statement in this procedure is chosen, go to group edit or if claiming is not enabled in project -->
     <a
+      v-else-if="editable || false === hasPermission('feature_statement_assignment')"
       role="button"
       class="btn--blank u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
-      :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })"
-      v-else-if="editable || false === hasPermission('feature_statement_assignment')">
+      :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })">
       <i
         aria-hidden="true"
         class="fa fa-pencil u-mr-0_125" />
@@ -37,11 +37,11 @@
     </a>
     <!--if at least one item is not claimed -->
     <button
+      v-else
       class="btn--blank o-link--default u-mr-0_5"
       type="button"
       data-cy="claimAll"
-      @click="claimAll"
-      v-else>
+      @click="claimAll">
       <dp-loading
         v-if="loading"
         class="inline-block"

@@ -52,6 +52,7 @@
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -60,8 +61,7 @@
       :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+      @size-change="handleSizeChange" />
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
@@ -86,8 +86,8 @@
       class="u-mt u-ml" />
 
     <table
-      :aria-label="Translator.trans('statements.original')"
       v-else-if="Object.keys(statements).length"
+      :aria-label="Translator.trans('statements.original')"
       class="c-at-orig">
       <colgroup>
         <col class="w-[10%]">
@@ -100,13 +100,13 @@
       <thead class="c-at-orig__header">
         <tr>
           <th
-            scope="col"
-            v-tooltip="Translator.trans('statement.id')">
+            v-tooltip="Translator.trans('statement.id')"
+            scope="col">
             {{ Translator.trans('id') }}
           </th>
           <th
-            scope="col"
-            v-tooltip="Translator.trans('statement.date.submitted')">
+            v-tooltip="Translator.trans('statement.date.submitted')"
+            scope="col">
             {{ Translator.trans('date') }}
           </th>
           <th scope="col">
@@ -124,9 +124,9 @@
       <tbody>
         <original-statements-table-item
           v-for="(statement, idx) in statements"
+          :key="idx"
           :current-table-view="currentTableView"
           :is-selected="getSelectionStateById(statement.id)"
-          :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
           @add-to-selection="() => addToSelectionAction({ id: statement.id})"

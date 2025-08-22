@@ -15,11 +15,11 @@
       {{ Translator.trans('coordinate.right.value') }}
     </label>
     <input
+      id="customLatitude"
+      v-model="latitudeValue"
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      id="customLatitude"
-      v-model="latitudeValue"
       class="c-ol-map__select w-9 u-mr">
 
     <label
@@ -28,18 +28,18 @@
       {{ Translator.trans('coordinate.top.value') }}
     </label>
     <input
+      id="customLongitude"
+      v-model="longitudeValue"
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      id="customLongitude"
-      v-model="longitudeValue"
       class="c-ol-map__select w-9 u-mr">
 
     <button
-      @click.prevent="addMarker"
-      :disabled="!isCoordinatesValid"
       ref="myBtnCoordinates"
-      class="btn btn--primary float-right">
+      :disabled="!isCoordinatesValid"
+      class="btn btn--primary float-right"
+      @click.prevent="addMarker">
       {{ Translator.trans('coordinate.location.submite') }}
     </button>
   </div>

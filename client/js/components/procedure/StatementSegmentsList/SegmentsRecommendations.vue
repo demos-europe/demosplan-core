@@ -18,10 +18,10 @@
         </div>
         <div class="segment-list-col--s">
           <button
+            v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')"
             class="segment-list-toggle-button btn--blank u-mh-auto"
             :class="{'reverse': isAllCollapsed === false}"
-            @click="toggleAll"
-            v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')">
+            @click="toggleAll">
             <i class="fa fa-arrow-up" />
             <i class="fa fa-arrow-down" />
           </button>

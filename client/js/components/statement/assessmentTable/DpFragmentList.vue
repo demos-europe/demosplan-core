@@ -22,24 +22,24 @@ Hopefully in the future we will be able to refactor this and write it in a corre
       class="u-p-0_5" />
 
     <p
-      class="u-ph-0_5 u-pt-0_5"
-      v-if="(hasOwnProp(fragmentsByStatement(statementId),'fragments') ? fragmentsByStatement(statementId).fragments.length : initialTotalFragmentsCount) === 0 && !fragmentsLoading ">
+      v-if="(hasOwnProp(fragmentsByStatement(statementId),'fragments') ? fragmentsByStatement(statementId).fragments.length : initialTotalFragmentsCount) === 0 && !fragmentsLoading "
+      class="u-ph-0_5 u-pt-0_5">
       {{ Translator.trans('no.fragments.available') }}
     </p>
 
     <p
-      class="u-ph-0_5 u-pt-0_5"
-      v-else-if="isFiltered && displayedFragments.length === 0 && !fragmentsLoading ">
+      v-else-if="isFiltered && displayedFragments.length === 0 && !fragmentsLoading "
+      class="u-ph-0_5 u-pt-0_5">
       {{ Translator.trans('autocomplete.noResults') }}
     </p>
 
     <dp-assessment-fragment
-      v-else
       v-for="(fragment, index) in displayedFragments"
+      v-else
+      :key="fragment.displayId"
       :class="{'border--bottom': displayedFragments.length - 1 > index}"
       :initial-fragment="fragment"
       :fragment-id="fragment.id"
-      :key="fragment.displayId"
       :statement="statement"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"

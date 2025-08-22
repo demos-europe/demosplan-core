@@ -12,13 +12,13 @@
     <div v-if="editable">
       <div class="flex items-baseline my-0.5">
         <input
+          id="publicCheck"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationPending"
-          id="publicCheck"
           name="r_publicVerified"
           type="radio"
           value="publication_pending"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicCheck"
@@ -29,13 +29,13 @@
 
       <div class="flex items-baseline mb-0.5">
         <input
+          id="publicVerify"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationApproved"
-          id="publicVerify"
           name="r_publicVerified"
           type="radio"
           value="publication_approved"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicVerify"
@@ -46,13 +46,13 @@
 
       <div class="flex items-baseline mb-0.5">
         <input
+          id="publicReject"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationRejected"
-          id="publicReject"
           name="r_publicVerified"
           type="radio"
           value="publication_rejected"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicReject"

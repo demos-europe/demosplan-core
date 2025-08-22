@@ -149,8 +149,8 @@
       </div>
 
       <div
-        :class="prefixClass('c-login-register__col c-login-register__col-right')"
-        v-if="hasPermission('feature_identity_broker_login')">
+        v-if="hasPermission('feature_identity_broker_login')"
+        :class="prefixClass('c-login-register__col c-login-register__col-right')">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
           v-text="Translator.trans('login.other_account')" />

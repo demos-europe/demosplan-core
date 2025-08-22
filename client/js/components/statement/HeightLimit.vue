@@ -3,12 +3,12 @@
     <text-content-renderer :text="currentText !== '' ? currentText : ' '" />
 
     <button
+      v-if="isShortened"
       class="btn--blank o-link--default"
       :data-cy="isExpanded ? 'showLessText' : 'showMoreText'"
       type="button"
       :aria-label="Translator.trans('aria.toggle')"
-      @click.stop="toggle"
-      v-if="isShortened">
+      @click.stop="toggle">
       {{ Translator.trans(isExpanded ? 'show.less' : 'show.more') }}
     </button>
   </div>

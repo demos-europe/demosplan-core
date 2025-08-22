@@ -110,15 +110,15 @@
 
     <!-- Table -->
     <dp-data-table
-      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
+      v-scroller
+      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       has-sticky-header
       :header-fields="headerFields"
       :is-selectable="isEditable === false"
       :items="onPageItems"
       :search-string="searchString"
       track-by="oId"
-      v-scroller
       @items-selected="setSelectedItems">
       <template
         v-for="headerField in headerFields"

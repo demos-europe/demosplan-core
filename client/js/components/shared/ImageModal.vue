@@ -4,8 +4,8 @@
     content-classes="w-fit"
     :data-cy="dataCy">
     <img
-      :alt="this.clickedImg.alt"
-      :src="this.clickedImg.src">
+      :alt="clickedImg.alt"
+      :src="clickedImg.src">
   </dp-modal>
 </template>
 <script>

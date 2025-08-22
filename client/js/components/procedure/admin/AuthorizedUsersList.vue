@@ -80,9 +80,9 @@
      --><div class="layout__item u-3-of-7">
           <dp-text-area
             id="memo"
+            v-model="newUser.note"
             :label="Translator.trans('memo')"
-            maxlength="1000"
-            v-model="newUser.note" />
+            maxlength="1000" />
         </div>
 
         <dp-button-row
@@ -116,8 +116,8 @@
       is-expandable
       is-sortable
       :table-items="tokens"
-      @updated:sortOrder="setSortOptions"
-      track-by="tokenId">
+      track-by="tokenId"
+      @updated:sortOrder="setSortOptions">
       <template v-slot:submitterName="rowData">
         <div class="o-hellip__wrapper">
           <div
@@ -256,9 +256,9 @@
                 </p>
               </div>
               <dp-text-area
+                :id="`note:${rowData.tokenId}`"
                 class="mb-3"
                 :disabled="!rowData.isEditable"
-                :id="`note:${rowData.tokenId}`"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"

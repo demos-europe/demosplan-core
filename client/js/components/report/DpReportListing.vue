@@ -14,8 +14,8 @@
 
   <div v-else>
     <div
-      class="float-right u-mt-0_25"
-      v-if="hasPermission('feature_export_protocol')">
+      v-if="hasPermission('feature_export_protocol')"
+      class="float-right u-mt-0_25">
       <a
         data-cy="exportTriggerPdf"
         :href="Routing.generate('dplan_export_report', { procedureId })">

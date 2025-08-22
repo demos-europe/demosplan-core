@@ -19,10 +19,10 @@
           v-if="isInitialLoad"
           class="u-ml u-mt u-mb-2" />
         <dp-skeleton-box
-          v-else
-          class="u-mb-0_5"
           v-for="(idx) in pendingOrgs"
+          v-else
           :key="`skeleton:${idx}`"
+          class="u-mb-0_5"
           height="54px" />
       </template>
       <template v-else-if="Object.keys(pendingOrgs).length">
@@ -76,14 +76,14 @@
         @update="handleFilter" />
 
       <div
-        class="block u-mb"
-        v-if="hasPermission('feature_orga_delete')">
+        v-if="hasPermission('feature_orga_delete')"
+        class="block u-mb">
         <div
           class="layout__item u-3-of-7 u-mt u-pl-0_5">
           <div class="o-form__element--checkbox">
             <input
-              type="checkbox"
               id="select_all"
+              type="checkbox"
               data-cy="allSelected"
               class="o-form__control-input"
               :checked="allSelected"
@@ -113,8 +113,8 @@
     </div>
     <div
       v-if="noResults"
-      class="u-mt-0_75"
-      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
+      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
+      class="u-mt-0_75" />
 
     <!-- Organisations list -->
     <template v-if="isLoading">
@@ -122,10 +122,10 @@
         v-if="isInitialLoad"
         class="u-ml u-mt u-mb-2" />
       <dp-skeleton-box
-        v-else
-        class="u-mb-0_5"
         v-for="(idx) in items"
+        v-else
         :key="`skeleton:${idx}`"
+        class="u-mb-0_5"
         height="54px" />
     </template>
     <div

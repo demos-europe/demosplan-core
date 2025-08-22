@@ -30,8 +30,8 @@
     <div class="text-right">
       <button
         type="button"
-        @click="saveAndReturn"
-        class="btn btn--primary">
+        class="btn btn--primary"
+        @click="saveAndReturn">
         {{ Translator.trans('add') }}
       </button>
     </div>

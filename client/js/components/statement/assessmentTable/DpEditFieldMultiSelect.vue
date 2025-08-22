@@ -18,12 +18,12 @@
     <template v-slot:display>
       <div>
         <ul
-          class="o-list o-list--csv"
-          v-if="0 < selected.length">
+          v-if="0 < selected.length"
+          class="o-list o-list--csv">
           <li
-            class="o-list__item o-hellip max-w-full"
             v-for="item in selected"
             :key="item.id"
+            class="o-list__item o-hellip max-w-full"
             v-text="item.name" />
         </ul>
         <span v-if="0 === selected.length || 'undefined' === typeof selected">-</span>

@@ -78,8 +78,8 @@
         </dl>
 
         <dl
-          class="description-list"
-          v-if="hasPermission('field_statement_memo')">
+          v-if="hasPermission('field_statement_memo')"
+          class="description-list">
           <dt>{{ Translator.trans('memo') }}:</dt>
           <dd class="max-h-12 overflow-auto">
             {{ memo }}

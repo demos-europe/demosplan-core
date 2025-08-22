@@ -26,11 +26,11 @@
       large
       :text="designatedSwitchDate" />
     <dp-toggle
+      v-model="itemEnabled"
+      v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')"
       class="u-mt-0_125"
       data-cy="categoryStatusSwitcher"
-      :disabled="element.attributes.designatedSwitchDate !== null"
-      v-model="itemEnabled"
-      v-tooltip="Translator.trans(itemEnabled ? 'published' : 'unpublished')" />
+      :disabled="element.attributes.designatedSwitchDate !== null" />
   </div>
 </template>
 

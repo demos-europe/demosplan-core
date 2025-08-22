@@ -23,19 +23,19 @@
             <button
               class="btn--blank o-link--default ml-auto"
               data-cy="customSearch:searchCustomToggleAll"
-              v-text="Translator.trans('toggle_all')"
-              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
+              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"
+              v-text="Translator.trans('toggle_all')" />
           </div>
 
           <!-- Checkboxes -->
           <div class="layout--flush">
             <dp-checkbox
               v-for="({label, value}, i) in filterCheckBoxesItems"
+              :id="'filteredCheckbox' + i"
+              :key="i"
               :checked="selectedFields.includes(value)"
               class="layout__item u-1-of-2"
               :data-cy="`searchModal:${value}`"
-              :id="'filteredCheckbox' + i"
-              :key="i"
               :label="{ text: Translator.trans(label) }"
               @change="handleChange(value, !selectedFields.includes(value))" />
           </div>

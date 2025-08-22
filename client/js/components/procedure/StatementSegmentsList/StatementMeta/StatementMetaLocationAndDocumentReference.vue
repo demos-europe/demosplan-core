@@ -48,23 +48,23 @@
 
         <dp-select
           v-if="paragraphOptions.length > 0"
+          v-model="selectedParagraphId"
           data-cy="statement:paragraphSelect"
           :label="{
             text: Translator.trans('paragraph')
           }"
           :options="paragraphOptions"
-          required
-          v-model="selectedParagraphId" />
+          required />
 
         <dp-select
           v-if="documentOptions.length > 0"
+          v-model="selectedDocumentId"
           data-cy="statement:documentSelect"
           :label="{
             text: Translator.trans('file')
           }"
           :options="documentOptions"
-          required
-          v-model="selectedDocumentId" />
+          required />
       </div>
 
       <dl

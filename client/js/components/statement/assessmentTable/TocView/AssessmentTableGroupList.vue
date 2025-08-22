@@ -11,8 +11,8 @@
   <ul class="o-list o-list--card">
     <assessment-table-group
       v-for="subgroup in subgroups"
-      :csrf-token="csrfToken"
       :key="`subGroup:${subgroup.title}`"
+      :csrf-token="csrfToken"
       :count="1"
       :group="subgroup" />
   </ul>

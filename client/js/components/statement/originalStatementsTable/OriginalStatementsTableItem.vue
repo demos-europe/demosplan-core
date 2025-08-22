@@ -9,8 +9,8 @@
 
 <template>
   <tr
-    class="c-at-orig__row"
-    :id="`itemdisplay_${statement.id}`">
+    :id="`itemdisplay_${statement.id}`"
+    class="c-at-orig__row">
     <td
       colspan="6"
       class="overflow-visible">
@@ -50,13 +50,13 @@
             <td>
               <label class="whitespace-nowrap u-m-0">
                 <input
+                  :id="`checkStatement:${statement.id}`"
                   type="checkbox"
                   name="item_check[]"
                   data-cy="originalStatementCheckItem"
-                  :id="`checkStatement:${statement.id}`"
                   :checked="isSelected"
-                  @change="toggleSelection"
-                  :value="statement.id">
+                  :value="statement.id"
+                  @change="toggleSelection">
                 {{ statement.externId }}
               </label>
             </td>
@@ -95,9 +95,9 @@
             :short-text="!statement.shortText ? statement.text : statement.shortText"
             :full-text="statement.text"
             :is-shortened="statement.textIsTruncated"
-            @heightLimit:toggle="loadFullText"
             element="statement"
             class="c-styled-html u-mr"
+            @heightLimit:toggle="loadFullText"
           />
         </div>
 

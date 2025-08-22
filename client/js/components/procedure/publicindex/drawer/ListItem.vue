@@ -12,15 +12,15 @@
     class="c-publicindex__list-item"
     data-cy="procedureListItem">
     <a
-      @click.prevent="showDetailView(procedure.id)"
       class="block o-link--default cursor-pointer o-hellip"
       data-cy="zoomIn"
-      href="#">
+      href="#"
+      @click.prevent="showDetailView(procedure.id)">
       {{ procedureName() }}
     </a>
     <span
-      class="block"
-      v-cleanhtml="procedurePeriod" />
+      v-cleanhtml="procedurePeriod"
+      class="block" />
     <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-puzzle-piece"
@@ -36,8 +36,8 @@
       {{ procedure.owningOrganisationName }}
     </span>
     <span
-      class="block"
-      v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
+      v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0"
+      class="block">
       <i
         class="c-publicindex__icon-content fa fa-comment-o"
         aria-hidden="true" />

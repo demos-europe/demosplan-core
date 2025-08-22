@@ -22,10 +22,10 @@
     <!-- Filter button to open modal -->
     <button
       type="button"
-      @click.prevent="openModal"
       :class="{'color-highlight': noFilterApplied === false }"
       class="btn--blank o-link--default inline-block u-mb-0 u-p-0 u-mt-0_125"
-      data-cy="openFilterModal">
+      data-cy="openFilterModal"
+      @click.prevent="openModal">
       <i
         class="fa fa-lg fa-filter"
         aria-hidden="true" />
@@ -111,8 +111,8 @@
         <!-- hidden selects so selected fields can be saved via form submit -->
         <select
           v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
-          :key="optionKey"
           :id="option.name"
+          :key="optionKey"
           :name="option.name"
           multiple
           style="display: none">
@@ -133,11 +133,11 @@
             :class="{'color--grey': noFilterSelected}">
             <input
               id="r_save_filter_set"
+              v-model="saveFilterSet"
               type="checkbox"
               name="r_save_filter_set"
               :disabled="noFilterSelected"
-              data-cy="saveFilterSet"
-              v-model="saveFilterSet">
+              data-cy="saveFilterSet">
             {{ Translator.trans('filter.saveFilterSet.label') }}
           </label>
         </template>
@@ -169,18 +169,18 @@
           class="u-pt-0_5">
           {{ Translator.trans('filter.saveFilterSet.label') }}
           <input
+            id="r_save_filter_set_name"
             class="layout__item u-mt-0_5"
             type="text"
-            id="r_save_filter_set_name"
             name="r_save_filter_set_name"
             data-cy="filterSetName"
             :value="filterSetName">
         </label>
 
         <div
-          class="visuallyhidden"
           v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-          :key="index">
+          :key="index"
+          class="visuallyhidden">
           <dp-filter-modal-select-item
             v-for="filterItem in filterByType(filterGroup.type)"
             :key="filterItem.id"

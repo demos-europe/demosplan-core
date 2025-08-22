@@ -22,8 +22,8 @@ statements and fragments is now in DpAssessmentTableCard.vue
   <div>
     <div class="o-switcher">
       <input
-        type="checkbox"
         :id="'switcher' + statementId"
+        type="checkbox"
         @change="toggle">
       <label :for="'switcher' + statementId">
         <span
@@ -49,9 +49,9 @@ statements and fragments is now in DpAssessmentTableCard.vue
         :for="'show-all-fragments' + statementId"
         class="inline-block u-mb-0">
         <input
+          :id="'show-all-fragments' + statementId"
           type="checkbox"
           name="show-all-fragments"
-          :id="'show-all-fragments' + statementId"
           @click="showAllFragments">
         {{ Translator.trans('show.all.fragments', { sum: totalFragmentsLength }) }}
       </label>

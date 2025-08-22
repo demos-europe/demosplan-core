@@ -22,10 +22,10 @@
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
         <dp-search-field
+          ref="searchField"
           class="h-fit mt-1 col-span-1 sm:col-span-3"
           data-cy="institutionList:searchField"
           input-width="u-1-of-1"
-          ref="searchField"
           @reset="handleReset"
           @search="val => handleSearch(val)" />
 

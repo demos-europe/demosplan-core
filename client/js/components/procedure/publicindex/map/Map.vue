@@ -9,16 +9,16 @@
 
 <template>
   <l-map
-    class="c-publicindex__map isolate"
+    v-if="hasPermission('feature_public_index_map')"
     ref="map"
+    class="c-publicindex__map isolate"
     :aria-label="Translator.trans('map')"
     :zoom="initialZoom"
     :center="initialLocation"
     :min-zoom="7"
     :max-zoom="18"
     :options="mapOptions"
-    :crs="mapCRS"
-    v-if="hasPermission('feature_public_index_map')">
+    :crs="mapCRS">
     <l-icon-default />
 
     <l-wms-tile-layer

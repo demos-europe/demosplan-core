@@ -10,8 +10,8 @@
 <template>
   <dp-modal
     ref="assignModal"
-    @modal:toggled="handleClose"
-    content-classes="u-1-of-2">
+    content-classes="u-1-of-2"
+    @modal:toggled="handleClose">
     <!-- modal header -->
     <template v-slot:header>
       {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}

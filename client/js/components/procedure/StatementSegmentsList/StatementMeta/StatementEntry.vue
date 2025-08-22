@@ -85,8 +85,8 @@ All rights reserved
       <dp-input
         v-if="editable"
         id="statementInternId"
-        class="mb-2"
         v-model="localStatement.attributes.internId"
+        class="mb-2"
         data-cy="statementEntry:internId"
         :disabled="!editable"
         :label="{

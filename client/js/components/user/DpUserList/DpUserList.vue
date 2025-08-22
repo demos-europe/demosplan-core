@@ -31,14 +31,14 @@
       class="u-ml u-mt" />
     <!-- List of all items -->
     <div
-      class="layout"
-      v-if="false === isLoading">
+      v-if="false === isLoading"
+      class="layout">
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
           <input
-            type="checkbox"
             id="select_all"
+            type="checkbox"
             data-cy="allSelected"
             :checked="allSelected"
             @change="dpToggleAll(!allSelected, items)">
@@ -77,9 +77,9 @@
         class="o-list o-list--card u-mb"
         data-cy="userList:userListWrapper">
         <dp-user-list-item
-          class="o-list__item"
           v-for="(item, idx, index) in items"
           :key="idx"
+          class="o-list__item"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"

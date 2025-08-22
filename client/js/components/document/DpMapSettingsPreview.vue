@@ -93,8 +93,8 @@
      --><div class="inline-block u-2-of-3">
         <dp-datepicker
           id="planstatus"
-          class="inline-block u-3-of-4"
           v-model="planstatus"
+          class="inline-block u-3-of-4"
           :calendars-before="2"
           :disabled="!isPlanStatusEditing"
           name="planstatus" /><!--

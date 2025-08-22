@@ -1,7 +1,7 @@
 <template>
   <li
-    :class="{'is-expanded': isOpen}"
-    v-cloak>
+    v-cloak
+    :class="{'is-expanded': isOpen}">
     <!--  item header  -->
     <div
       data-add-animation>

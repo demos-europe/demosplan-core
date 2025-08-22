@@ -90,8 +90,8 @@
           class="mb-3">
           <li
             v-for="attachment in localAttachments.additionalAttachments"
-            class="flex"
-            :key="attachment.hash">
+            :key="attachment.hash"
+            class="flex">
             <statement-meta-attachments-link
               :attachment="attachment"
               class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"

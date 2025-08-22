@@ -20,8 +20,8 @@
         @click="handleToggle">
         <div class="w-[20px] u-pv-0_25 inline-block">
           <input
-            type="checkbox"
             :id="`selected` + user.id"
+            type="checkbox"
             :checked="selected"
             :value="user.id"
             @click.stop="$emit('change')"
@@ -44,9 +44,9 @@
               type="button"
               title="Löschen"
               class="btn--blank o-link--default u-mr"
-              @click.prevent.stop="$emit('delete')"
               data-cy="deleteItem"
-              :aria-label="Translator.trans('item.delete')">
+              :aria-label="Translator.trans('item.delete')"
+              @click.prevent.stop="$emit('delete')">
               <i
                 class="fa fa-trash"
                 aria-hidden="true" />

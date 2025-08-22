@@ -66,15 +66,15 @@ All rights reserved
             :text="Translator.trans('on')"
             :for="dateId" />
           <dp-datepicker
+            :id="dateId"
+            v-model="changeDate"
             class="o-form__control-wrapper"
             required
-            :id="dateId"
             :name="dateId"
             :min-date="disabledDates.to"
             :disabled="active === false"
-            v-model="changeDate"
-            @change="dateChanged"
-            :calendars-after="2" />
+            :calendars-after="2"
+            @change="dateChanged" />
         </div><!--
      --><dp-select
           v-model="futureStatus"

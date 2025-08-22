@@ -19,19 +19,19 @@
     </div>
 
     <form
+      v-show="unfolded"
       data-dp-validate="customLayer"
-      :class="prefixClass('c-map__group c-map__group-item-color u-p-0_25')"
-      v-show="unfolded">
+      :class="prefixClass('c-map__group c-map__group-item-color u-p-0_25')">
       <layer-settings
+        ref="layerSettings"
         :available-projections="mappedAvailableProjections"
-        :show-xplan-default-layer="false"
-        ref="layerSettings" />
+        :show-xplan-default-layer="false" />
       <button
-        @click="dpValidateAction('customLayer', emitAddLayer, false)"
+        id="addCustomLayer"
         :class="prefixClass('btn btn--primary u-mb-0_25')"
         data-cy="customLayer:layerShow"
         type="button"
-        id="addCustomLayer">
+        @click="dpValidateAction('customLayer', emitAddLayer, false)">
         {{ Translator.trans('layer.show') }}
       </button>
     </form>

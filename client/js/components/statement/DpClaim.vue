@@ -42,13 +42,13 @@ the FB is ready with editing of fragments.
 <template>
   <!--data-assigned is needed for batch edit-->
   <button
+    v-tooltip="isLoading ? null : status.text"
     class="flex items-center space-inline-xs btn--blank o-link--default"
     :class="{'cursor-pointer' : false === isLoading}"
     :data-assigned="isAssignedToMe ? 'true' : 'false'"
-    @click.prevent.stop="updateAssignment"
     data-cy="claimIcon"
     :aria-label="status.text"
-    v-tooltip="isLoading ? null : status.text">
+    @click.prevent.stop="updateAssignment">
     <dp-loading
       v-if="isLoading"
       hide-label />

@@ -19,13 +19,13 @@
           <div class="inline-block u-mr-0_5">
             <input
               v-if="showCheckbox"
-              type="checkbox"
               :id="number"
+              type="checkbox"
               name="item_check[]"
               :value="id">
             <span
-              class="c-public-statement__tooltip"
-              v-tooltip="renderTooltipContent(tooltipContent)">
+              v-tooltip="renderTooltipContent(tooltipContent)"
+              class="c-public-statement__tooltip">
               <label
                 :for="number"
                 data-cy="statementNumber"
@@ -43,8 +43,8 @@
               class="btn--blank o-link--default"
               @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
               <i
-                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
-                v-tooltip="Translator.trans('unsaved.changes')" />
+                v-tooltip="Translator.trans('unsaved.changes')"
+                class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5" />
             </button>
           </div>
         </div><!--
@@ -106,9 +106,9 @@
           </div><!--
        --><div class="inline">
             <button
-              @click="isOpen = false === isOpen"
               type="button"
-              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle">
+              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle"
+              @click="isOpen = false === isOpen">
               <i
                 class="fa"
                 :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
@@ -183,8 +183,8 @@
             v-if="Object.keys(polygon).length > 0"
             class="btn--blank o-link--default"
             type="button"
-            @click.prevent.stop="$emit('open-map-modal', polygon)"
-            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
+            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
+            @click.prevent.stop="$emit('open-map-modal', polygon)">
             {{ Translator.trans('see') }}
           </button>
           <span v-else>
@@ -194,8 +194,8 @@
       </template>
     </div><!--
  --><div
-      class="u-1-of-1 c-public-statement__content-item"
-      v-if="priorityAreas !== null">
+      v-if="priorityAreas !== null"
+      class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('potential.areas') }}
       </div><!--
@@ -204,8 +204,8 @@
       </div>
     </div><!--
    --><div
-        class="u-1-of-1 c-public-statement__content-item"
-        v-if="county !== null">
+        v-if="county !== null"
+        class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('county') }}
       </div><!--
@@ -218,8 +218,8 @@
         {{ Translator.trans('attachments') }}
       </div><!--
    --><div
-        class="inline-block u-2-of-3 u-1-of-1-palm break-words"
-        v-cleanhtml="renderAttachments(attachments)" />
+        v-cleanhtml="renderAttachments(attachments)"
+        class="inline-block u-2-of-3 u-1-of-1-palm break-words" />
       </div>
     </div>
     <dp-inline-notification
@@ -234,8 +234,8 @@
         {{ Translator.trans('statementtext') }}
       </div>
       <div
-        class="c-styled-html"
-        v-cleanhtml="text" />
+        v-cleanhtml="text"
+        class="c-styled-html" />
     </div>
   </dp-table-card>
 </template>

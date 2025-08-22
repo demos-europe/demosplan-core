@@ -13,10 +13,10 @@
       {{ Translator.trans('filter') }}
     </legend>
     <select
-      class="o-form__control-select w-10"
       id="districtFilter"
-      @change="filterItems"
-      v-model="selectedDistrict">
+      v-model="selectedDistrict"
+      class="o-form__control-select w-10"
+      @change="filterItems">
       <option
         value="all"
         selected>
@@ -30,10 +30,10 @@
       </option>
     </select><!--
  --><select
-      class="o-form__control-select u-ml-0_5 w-10"
       id="documentFilter"
-      @change="filterItems"
-      v-model="selectedDocument">
+      v-model="selectedDocument"
+      class="o-form__control-select u-ml-0_5 w-10"
+      @change="filterItems">
       <option
         value="all"
         selected>

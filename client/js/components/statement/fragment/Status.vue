@@ -11,10 +11,10 @@
   <div>
     <!-- If component is used with :tooltip="false" -->
     <div
+      v-if="!tooltip"
       class="cursor-help"
       :class="{'c-at-item__badge': badge}"
-      :title="voteString"
-      v-if="!tooltip">
+      :title="voteString">
       <slot name="title" />
 
       <i

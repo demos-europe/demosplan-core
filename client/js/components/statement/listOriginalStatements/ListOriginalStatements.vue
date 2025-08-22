@@ -33,10 +33,10 @@
 
       <dp-pager
         v-if="pagination.currentPage && items.length > 0"
+        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
         :class="{ 'invisible': isLoading }"
         class="m-2"
         :current-page="pagination.currentPage"
-        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
         :limits="pagination.limits"
         :multi-page-all-selected="allSelectedVisually"
         :multi-page-selection-items-total="allItemsCount"
@@ -74,8 +74,8 @@
         </template>
         <template v-slot:shortText="{ shortText }">
           <div
-            class="line-clamp-3 c-styled-html"
-            v-cleanhtml="shortText" />
+            v-cleanhtml="shortText"
+            class="line-clamp-3 c-styled-html" />
         </template>
         <template v-slot:procedurePhase="{ procedurePhase }">
           <span
@@ -201,9 +201,9 @@
                   class="ml-0">
                   <a
                     v-for="(file, idx) in getGenericAttachments(id)"
+                    :key="idx"
                     class="block"
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
-                    :key="idx"
                     rel="noopener"
                     target="_blank"
                     :title="file.filename">

@@ -33,18 +33,18 @@
         <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
-              @change="resetSelectedProcedureId"
               value="accessibleProcedures"
-              required> {{ Translator.trans('procedure.accessible') }}
+              required
+              @change="resetSelectedProcedureId"> {{ Translator.trans('procedure.accessible') }}
           </label>
           <label class="u-mb-0_5 u-ml inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
               value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
           </label>
         </template>
@@ -54,9 +54,9 @@
           for="r_target_procedure">{{ Translator.trans('target.procedure') }}</label>
         <select
           id="r_target_procedure"
+          v-model="selectedProcedureId"
           name="r_target_procedure"
-          class="w-full u-mb"
-          v-model="selectedProcedureId">
+          class="w-full u-mb">
           <option value="">
             -
           </option>
@@ -71,8 +71,8 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          @click.prevent.stop="copyStatement"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
+          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          @click.prevent.stop="copyStatement">
           {{ Translator.trans('statement.copy.to.procedure.action') }}
         </button>
       </template>

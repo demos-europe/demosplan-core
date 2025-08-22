@@ -110,9 +110,9 @@
         type="checkbox"
         data-cy="adminLayerListItem:toggleDefaultVisibility"
         :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-        @change.prevent="toggleHasDefaultVisibility"
         :checked="hasDefaultVisibility"
-        :class="[iconClass, 'o-sortablelist__checkbox']">
+        :class="[iconClass, 'o-sortablelist__checkbox']"
+        @change.prevent="toggleHasDefaultVisibility">
       </div><!--
   -->
 </template><!--
@@ -159,11 +159,11 @@
     <!-- recursive nesting inside -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden) && showChildren"
+      :id="layer.id"
       class="layout ml-4 mt-1"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       :content-data="childElements"
-      :id="layer.id"
       @end="updateChildren">
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
@@ -181,18 +181,18 @@
     <!-- if special category that looks like an Layer and hides all his children -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
+      :id="layer.id"
       class="layout ml-4 mt-1"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       :content-data="childElements"
-      :id="layer.id"
       :node-id="layer.id"
       @end="updateChildren">
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
+        :key="item.id"
         :element="item"
         :index="idx"
-        :key="item.id"
         :layer-type="layerType"
         :parent-order-position="orderPosition"
         :sorting-type="sortingType" />

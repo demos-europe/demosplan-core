@@ -28,10 +28,10 @@
             <div>
               <div class="annotator__button-wrapper is-first">
                 <button
-                  @click="setInteraction('select')"
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'select'}"
-                  aria-labelledby="elementSelectLabel">
+                  aria-labelledby="elementSelectLabel"
+                  @click="setInteraction('select')">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 10 17"
@@ -50,24 +50,24 @@
                 </button>
               </div>
               <span
-                class="align-middle u-ml-0_5"
-                id="elementSelectLabel">
+                id="elementSelectLabel"
+                class="align-middle u-ml-0_5">
                 {{ Translator.trans('select.or.edit') }}
               </span>
             </div>
             <div>
               <div class="annotator__button-wrapper is-last">
                 <button
-                  @click="setInteraction('draw')"
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'draw'}"
-                  aria-labelledby="elementDrawLabel">
+                  aria-labelledby="elementDrawLabel"
+                  @click="setInteraction('draw')">
                   <i class="fa fa-plus" />
                 </button>
               </div>
               <span
-                class="align-middle u-ml-0_5"
-                id="elementDrawLabel">
+                id="elementDrawLabel"
+                class="align-middle u-ml-0_5">
                 {{ Translator.trans('element.add') }}
               </span>
             </div>
@@ -82,31 +82,31 @@
               </p>
               <div>
                 <button
-                  @click="deleteFeature(editingFeature)"
                   class="annotator__button btn btn--warning btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
-                  aria-labelledby="elementDeleteLabel">
+                  aria-labelledby="elementDeleteLabel"
+                  @click="deleteFeature(editingFeature)">
                   <i class="fa fa-trash" />
                 </button>
                 <span
+                  id="elementDeleteLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                  id="elementDeleteLabel">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                   {{ Translator.trans('element.delete') }}
                 </span>
               </div>
               <div>
                 <button
-                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
                   class="annotator__button btn btn--primary btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
-                  aria-labelledby="formatChangeLabel">
+                  aria-labelledby="formatChangeLabel"
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))">
                   <i class="fa fa-tag" />
                 </button>
                 <span
+                  id="formatChangeLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                  id="formatChangeLabel">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                   {{ Translator.trans('format.change') }}
                 </span>
               </div>

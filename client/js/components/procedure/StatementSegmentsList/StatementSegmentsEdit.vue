@@ -15,10 +15,10 @@
     <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
+        class="u-ph-0_25"
+        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         @mouseenter="hoveredSegment = segment.id"
         @mouseleave="hoveredSegment = null">
         <div
@@ -39,13 +39,13 @@
             class="inline-block break-words"
             style="width: 95%">
           <dp-edit-field
+            :ref="`editField_${segment.id}`"
             class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
             no-margin
             persist-icons
-            :ref="`editField_${segment.id}`"
             @reset="() => reset(segment.id)"
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">

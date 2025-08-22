@@ -9,8 +9,8 @@
 
 <template>
   <organisation-table
-    :header-fields="headerFields"
     ref="organisationTable"
+    :header-fields="headerFields"
     resource-type="InvitableToeb"
     :procedure-id="procedureId"
     @selected-items="setSelectedItems" />

@@ -43,9 +43,9 @@
         Vorschau:
       </label>
       <div
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
         id="previewField"
-        v-cleanhtml="previewValue" />
+        v-cleanhtml="previewValue"
+        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html" />
     </div>
   </div>
 </template>

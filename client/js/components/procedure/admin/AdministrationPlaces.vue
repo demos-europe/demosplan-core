@@ -20,8 +20,8 @@
       class="text-right">
       <dp-button
         data-cy="places:addPlace"
-        @click="addNewPlace = true"
-        :text="Translator.trans('places.addPlace')" />
+        :text="Translator.trans('places.addPlace')"
+        @click="addNewPlace = true" />
     </div>
     <div
       v-if="addNewPlace"
@@ -33,8 +33,8 @@
       <div class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
-          data-cy="places:newPlaceName"
           v-model="newPlace.name"
+          data-cy="places:newPlaceName"
           :label="{
             text: Translator.trans('name')
           }"
@@ -42,8 +42,8 @@
           required />
         <dp-input
           id="newPlaceDescription"
-          data-cy="places:newPlaceDescription"
           v-model="newPlace.description"
+          data-cy="places:newPlaceDescription"
           :label="{
             text: Translator.trans('description')
           }"
@@ -71,8 +71,8 @@
       :header-fields="headerFields"
       is-draggable
       :items="places"
-      @changed-order="changeManualsort"
-      track-by="id">
+      track-by="id"
+      @changed-order="changeManualsort">
       <template v-slot:header-solved="headerData">
         {{ headerData.label }}
         <dp-contextual-help
@@ -86,10 +86,10 @@
         <dp-input
           v-else
           id="editPlaceName"
+          v-model="newRowData.name"
           data-cy="places:editPlaceName"
           maxlength="250"
-          required
-          v-model="newRowData.name" />
+          required />
       </template>
       <template v-slot:description="rowData">
         <div
@@ -98,14 +98,14 @@
         <dp-input
           v-else
           id="editPlaceDescription"
+          v-model="newRowData.description"
           data-cy="places:editPlaceDescription"
-          maxlength="250"
-          v-model="newRowData.description" />
+          maxlength="250" />
       </template>
       <template v-slot:solved="rowData">
         <dp-checkbox
-          :disabled="!rowData.edit"
           id="editPlaceSolved"
+          :disabled="!rowData.edit"
           :checked="rowData.edit ? newRowData.solved : rowData.solved"
           @change="checked => newRowData.solved = checked" />
       </template>
@@ -134,8 +134,8 @@
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
-              @click="abort(rowData)"
-              :aria-label="Translator.trans('abort')">
+              :aria-label="Translator.trans('abort')"
+              @click="abort(rowData)">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />

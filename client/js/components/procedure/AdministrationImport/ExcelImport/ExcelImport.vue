@@ -13,15 +13,15 @@
       <template v-if="availableEntities.length > 1">
         <dp-radio
           v-for="(entity, index) in availableEntities"
-          :key="`entity_type_${entity.key}`"
           :id="entity.key"
+          :key="`entity_type_${entity.key}`"
           :checked="entity.key === active"
           :data-cy="`entity_type_${index}`"
-          @change="active = entity.key"
           :label="{
             text: radioLabel(entity)
           }"
-          :value="entity.key" />
+          :value="entity.key"
+          @change="active = entity.key" />
       </template>
       <p
         v-else

@@ -9,11 +9,11 @@
 
 <template>
   <div
-    class="convert-annotated-pdf"
-    ref="container">
+    ref="container"
+    class="convert-annotated-pdf">
     <div
-      class="column column--big"
       ref="leftColumn"
+      class="column column--big"
       :style="largeColumnStyle">
       <dp-loading v-if="isLoading" />
       <div

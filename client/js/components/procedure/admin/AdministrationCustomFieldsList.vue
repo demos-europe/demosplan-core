@@ -19,16 +19,16 @@
           :text="Translator.trans('options')" />
         <dp-input
           id="newFieldOption:1"
+          v-model="newFieldOptions[0].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption1"
-          v-model="newFieldOptions[0].label"
           maxlength="250"
           required />
         <dp-input
           id="newFieldOption:2"
+          v-model="newFieldOptions[1].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption2"
-          v-model="newFieldOptions[1].label"
           maxlength="250"
           required />
 
@@ -37,8 +37,8 @@
           :key="`option:${idx}`">
           <div class="w-[calc(100%-26px)] inline-block mb-2">
             <dp-input
-              v-model="newFieldOptions[idx + 2].label"
               :id="`option:${newFieldOptions[idx + 2].label}`"
+              v-model="newFieldOptions[idx + 2].label"
               :data-cy="`customFields:newFieldOption${idx + 2}`"
               maxlength="250" />
           </div>
@@ -72,8 +72,8 @@
       <template v-slot:name="rowData">
         <div v-if="rowData.edit">
           <dp-input
-            v-model="newRowData.name"
             id="customFieldName"
+            v-model="newRowData.name"
             required
           />
         </div>
@@ -101,9 +101,9 @@
             class="mb-1">
             <div class="flex">
               <dp-input
-                v-model="newRowData.options[index].label"
                 :id="`option:${index}`"
                 :key="`option:${index}`"
+                v-model="newRowData.options[index].label"
                 required
               />
 
@@ -172,9 +172,9 @@
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="customFields:abortEdit"
-              @click="abortFieldEdit(rowData)"
               :title="Translator.trans('abort')"
-              :aria-label="Translator.trans('abort')">
+              :aria-label="Translator.trans('abort')"
+              @click="abortFieldEdit(rowData)">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />

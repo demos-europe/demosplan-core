@@ -27,16 +27,16 @@
         data-cy="submitterList:selectableColumns"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
-        @selection-changed="setCurrentSelection"
         use-local-storage
-        local-storage-key="submitterList" />
+        local-storage-key="submitterList"
+        @selection-changed="setCurrentSelection" />
     </div>
 
     <dp-loading v-if="isLoading" />
     <template v-else>
       <dp-data-table
-        class="overflow-x-auto"
         v-if="items.length"
+        class="overflow-x-auto"
         :header-fields="headerFields"
         :items="items"
         track-by="id">
@@ -61,10 +61,10 @@
           <div
             class="o-hellip__wrapper">
             <div
-              v-text="internId"
-              class="o-hellip--nowrap text-right"
               v-tooltip="internId"
-              dir="rtl" />
+              class="o-hellip--nowrap text-right"
+              dir="rtl"
+              v-text="internId" />
           </div>
         </template>
       </dp-data-table>

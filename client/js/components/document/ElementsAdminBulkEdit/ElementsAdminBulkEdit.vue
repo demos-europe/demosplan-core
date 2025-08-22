@@ -21,8 +21,8 @@
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div
-        data-dp-validate="autoSwitchForm"
         v-if="hasPermission('feature_auto_switch_element_state')"
+        data-dp-validate="autoSwitchForm"
         class="border--bottom u-pt u-pb-0_5">
         <dp-checkbox
           id="autoSwitchAction"
@@ -38,10 +38,10 @@
           class="u-mv-0_5 flex space-inline-m">
           <dp-datetime-picker
             id="autoSwitchActionEnabledDatetime"
+            v-model="actions.setEnabled.datetime"
             :label="Translator.trans('phase.autoswitch.datetime')"
             :min-date="now"
-            required
-            v-model="actions.setEnabled.datetime" />
+            required />
           <dp-select
             v-model="actions.setEnabled.state"
             :label="{

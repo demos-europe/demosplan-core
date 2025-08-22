@@ -58,8 +58,8 @@
     </fieldset>
 
     <div
-      class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
-      ref="header">
+      ref="header"
+      class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25">
       <search-and-sorting
         :search-term="searchTerm"
         @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
@@ -70,9 +70,9 @@
           class="o-link--default u-mb-0"
           :class="{'color--grey': areFragmentsSelected}">
           <input
+            v-model="allItemsOnPageSelected"
             class="u-mr-0"
             type="checkbox"
-            v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
             :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
@@ -112,9 +112,9 @@
               </button>
 
               <div
+                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)"
                 class="c-actionmenu__menu"
-                role="menu"
-                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)">
+                role="menu">
                 <button
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"

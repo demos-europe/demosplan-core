@@ -49,7 +49,7 @@
       <div class="flex flex-col sm:flex-row justify-center">
         <a
           class="btn--blank o-link--default"
-          :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"
+          :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: faqItem.id})"
           :aria-label="Translator.trans('item.edit')"
           data-cy="editFaqItem">
           <i
@@ -58,10 +58,10 @@
         </a>
         <button
           type="button"
-          @click="deleteFaqItem"
           data-cy="deleteFaqItem"
           :aria-label="Translator.trans('item.delete')"
-          class="btn--blank o-link--default sm:ml-2">
+          class="btn--blank o-link--default sm:ml-2"
+          @click="deleteFaqItem">
           <i
             class="fa fa-trash"
             aria-hidden="true" />

@@ -11,8 +11,8 @@ All rights reserved
   <li class="flex items-start space-inline-xs u-pr-0_5">
     <div class="flex flex-nowrap">
       <button
-        :aria-label="Translator.trans('segment.recommendation.paste')"
         v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'z-ultimate' }"
+        :aria-label="Translator.trans('segment.recommendation.paste')"
         class="btn--blank color--grey"
         @click="$emit('insert-recommendation')">
         <i
@@ -41,14 +41,14 @@ All rights reserved
         :text="Translator.trans('segment.oracle.score', { score: recommendationScore })" />
     </div>
     <div
-      class="flex-grow"
-      v-cleanhtml="recommendationText" />
+      v-cleanhtml="recommendationText"
+      class="flex-grow" />
     <div class="flex flex-nowrap space-inline-s">
       <button
+        v-if="canExpand"
+        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'z-ultimate' }"
         class="btn--blank o-link--default"
         :aria-label="Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open')"
-        v-tooltip="{ boundariesElement: body, content: Translator.trans(isExpanded ? 'dropdown.close' : 'dropdown.open'), classes: 'z-ultimate' }"
-        v-if="canExpand"
         @click="toggleExpanded">
         <i
           aria-hidden="true"

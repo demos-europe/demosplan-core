@@ -13,11 +13,11 @@
       {{ Translator.trans('password.set.info') }}
     </p>
     <form
+      ref="changePasswordForm"
       :action="Routing.generate('DemosPlan_user_password_set', {'token': token, 'uId': userId})"
       class="u-mt space-stack-m"
       data-dp-validate="changePasswordForm"
-      method="POST"
-      ref="changePasswordForm">
+      method="POST">
       <input
         name="_token"
         type="hidden"

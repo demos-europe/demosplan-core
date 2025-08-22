@@ -106,8 +106,8 @@
       <dp-input
         v-if="hasPermission('field_organisation_phone')"
         id="orga_address_phone"
-        :class="prefixClass('mb-2')"
         v-model="organisation.phone"
+        :class="prefixClass('mb-2')"
         data-cy="organisationData:phone"
         :name="`${organisation.id}:address_phone`"
         :label="{

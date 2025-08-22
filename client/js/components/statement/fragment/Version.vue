@@ -12,8 +12,8 @@
     <!-- Toggle -->
     <a
       class="block cursor-pointer border--top u-pt-0_25"
-      @click="toggle"
-      :class="{'is-active-toggle': isActive}">
+      :class="{'is-active-toggle': isActive}"
+      @click="toggle">
       <i
         class="o-toggle__icon o-toggle__icon--caret u-pr-0_25"
         aria-hidden="true" />
@@ -35,8 +35,8 @@
       </div>
 
       <div
-        v-else
         v-for="item in items"
+        v-else
         :key="item.id"
         class="layout__item u-pl-0 u-pr-0_5 u-mv-0_25">
         <div class="border--bottom u-mb-0_25">
@@ -51,11 +51,11 @@
        --><div class="inline-block text-right u-3-of-4">
             <dp-fragment-status
               v-if="hasPermission('feature_statements_fragment_advice')"
+              v-once
               :status="item.voteAdvice === null ? '' : fixCompoundVotes(item.voteAdvice)"
               :tooltip="false"
               :badge="true"
-              class="inline-block u-mv-0_25 u-mh-0_5"
-              v-once>
+              class="inline-block u-mv-0_25 u-mh-0_5">
               <template v-slot:title>
                   {{ Translator.trans('fragment.voteAdvice.short') }}
               </template>
@@ -74,8 +74,8 @@
         </div>
 
         <div
-          class="cursor-help"
           v-cleanhtml="item.considerationAdvice ? item.considerationAdvice : item.consideration"
+          class="cursor-help"
           :title="Translator.trans('fragment.consideration')">
           {{ item.consideration }}
         </div>

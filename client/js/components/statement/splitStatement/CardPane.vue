@@ -14,10 +14,10 @@
     <card-pane-card
       v-for="segment in filteredSortedSegments"
       :key="'card' + segment.id + Math.random()"
+      ref="card"
       :segment="segment"
       :data-range="segment.id"
       :offset="offset"
-      ref="card"
       @card:checkOverlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
       @segment:edit="$emit('segment:edit', segment.id)"

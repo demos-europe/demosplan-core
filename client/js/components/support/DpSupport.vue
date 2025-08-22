@@ -43,8 +43,8 @@ All rights reserved
       {{ Translator.trans('support.technical') }}
     </h3>
     <div
-      class="lg:w-8/12"
-      v-if="hasPermission('feature_customer_support_technical_read')">
+      v-if="hasPermission('feature_customer_support_technical_read')"
+      class="lg:w-8/12">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{

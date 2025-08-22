@@ -38,8 +38,8 @@
         </label>
         <dp-editor
           ref="tiptap"
-          :procedure-id="procedureId"
           v-model="considerationAdvice"
+          :procedure-id="procedureId"
           :entity-id="fragmentId"
           :hidden-input="fragmentId + ':r_considerationAdvice'" />
       </template>
@@ -61,10 +61,10 @@
           </template>
         </dp-multiselect>
         <input
+          :id="fragmentId+':r_vote_advice'"
           type="hidden"
           :value="voteAdvice.title"
-          :name="fragmentId+':r_vote_advice'"
-          :id="fragmentId+':r_vote_advice'">
+          :name="fragmentId+':r_vote_advice'">
       </template>
 
       <div class="u-mt space-inline-s">

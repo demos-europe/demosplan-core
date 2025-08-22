@@ -13,8 +13,8 @@ All rights reserved
   </p>
 
   <organisation-table
-    :header-fields="headerFields"
     ref="organisationTable"
+    :header-fields="headerFields"
     resource-type="InvitedToeb"
     :procedure-id="procedureId"
     @selected-items="setSelectedItems">

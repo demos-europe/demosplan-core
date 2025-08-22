@@ -10,14 +10,14 @@
 <template>
   <!-- assessment table search and sorting header -->
   <div
-    class="layout--flush u-1-of-1"
-    v-cloak>
+    v-cloak
+    class="layout--flush u-1-of-1">
     <!-- info-box when elements are selected -->
     <dp-edit-selected-items-menu
+      ref="editSelectedItemsMenu"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
-      ref="editSelectedItemsMenu"
       @exportModal:toggle="tab => $emit('exportModal:toggle', tab)">
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->

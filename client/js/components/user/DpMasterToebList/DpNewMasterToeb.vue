@@ -12,17 +12,17 @@
     <!-- modal to add a new organisation -->
     <dp-new-orga-modal
       ref="newOrgaModal"
-      @save="addOrga"
-      :fields="fields" />
+      :fields="fields"
+      @save="addOrga" />
     <!-- button to trigger the "new orga modal" -->
     <button
       class="btn btn--primary"
       type="button"
-      @click="() => { $refs.newOrgaModal.toggleModal() }"
       aria-haspopup="true"
       aria-role="navigation"
       :aria-label="Translator.trans('organisation.add')"
-      aria-expanded="false">
+      aria-expanded="false"
+      @click="() => { $refs.newOrgaModal.toggleModal() }">
       {{ Translator.trans('organisation.add') }}
     </button>
   </div>

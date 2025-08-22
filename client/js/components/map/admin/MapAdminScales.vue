@@ -21,9 +21,9 @@
           {{ props.option.label }}
           <i
             aria-hidden="true"
-            @click="props.remove(props.option)"
             tabindex="1"
-            class="multiselect__tag-icon" />
+            class="multiselect__tag-icon"
+            @click="props.remove(props.option)" />
           <input
             type="hidden"
             :value="props.option.value"

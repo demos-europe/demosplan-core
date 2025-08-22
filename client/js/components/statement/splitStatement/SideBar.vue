@@ -22,7 +22,7 @@
         :available-tags="availableTags"
         :current-segment="currentSegment"
         :initial-segments="initialSegments"
-        :segment="this.editingSegment"
+        :segment="editingSegment"
         @remove="updateCurrentTags" />
       <floating-context-button
         class="right-[-24px] bottom-[-30px]"
@@ -43,8 +43,8 @@
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
-        @click="toggleVisibility('tags')"
-        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5">
+        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5"
+        @click="toggleVisibility('tags')">
         {{ Translator.trans('tags.select') }}
       </button>
 
@@ -55,10 +55,10 @@
           <!-- search available tags -->
           <search-select
             v-if="showCreateForm === false"
-            @open-create-form="showCreateForm = true"
             :selected="selectedTags"
             :place-holder="Translator.trans('tag.search')"
-            :options="searchableTags" />
+            :options="searchableTags"
+            @open-create-form="showCreateForm = true" />
 
           <!-- create tags + topics -->
           <dp-create-tag
@@ -73,18 +73,18 @@
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
+            :key="`category_${idx}`"
             :class="{'mb-1': idx < tagTopics.length + 1}"
             :dropdown-direction="idx < 6 ? 'bottom' : ''"
             :entity="topic"
-            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
-            :key="`category_${idx}`" />
+            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)" />
           <!-- uncategorized tags -->
           <tag-select
             v-if="tags.length > 0"
+            key="category_none"
             class="u-mb-0_5"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
-            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
-            key="category_none" />
+            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }" />
         </div>
       </div>
     </div>
@@ -107,8 +107,8 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
-        @click="toggleVisibility('placesAndAssignee')"
-        class="relative btn--blank o-link--default font-semibold text-left w-full">
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        @click="toggleVisibility('placesAndAssignee')">
         {{ Translator.trans('workflow.place') }}
       </button>
 

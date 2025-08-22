@@ -31,9 +31,9 @@
             @change="$emit('item:selected', user.id)">
         </div>
         <div
-          @click="isOpen = false === isOpen"
           class="cursor-pointer u-pv-0_75 u-ph-0_25 grow"
-          data-cy="organisationListTitle">
+          data-cy="organisationListTitle"
+          @click="isOpen = false === isOpen">
           <div
             data-cy="editItemToggle"
             class="layout">
@@ -41,8 +41,8 @@
               {{ user.attributes.firstname }} {{ user.attributes.lastname }}
             </div>
             <div
-              class="u-1-of-2 layout__item"
-              v-if="hasRoles">
+              v-if="hasRoles"
+              class="u-1-of-2 layout__item">
               <div
                 v-for="(role, idx) in userRoles"
                 :key="idx">
@@ -83,10 +83,10 @@
           </div>
         </div>
         <button
-          @click="isOpen = false === isOpen"
           type="button"
           data-cy="userListItemToggle"
-          class="btn--blank o-link--default u-pv-0_75">
+          class="btn--blank o-link--default u-pv-0_75"
+          @click="isOpen = false === isOpen">
           <dp-icon
             aria-hidden="true"
             :aria-label="ariaLabel"
@@ -100,10 +100,10 @@
       data-cy="userForm"
       data-dp-validate="userForm">
       <dp-user-form-fields
+        :ref="'user-form-fields-' + user.id"
         :user="user"
         :user-id="user.id"
-        @user:update="updateUser"
-        :ref="'user-form-fields-' + user.id" />
+        @user:update="updateUser" />
 
       <dp-button-row
         form-name="userForm"

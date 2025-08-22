@@ -2,9 +2,9 @@
   <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
-      class="flex-1"
       :id="`edit-${type}-${nodeElement.id}`"
-      v-model="unsavedItem.title" />
+      v-model="unsavedItem.title"
+      class="flex-1" />
     <div
       v-else
       class="flex-1 break-words"
@@ -64,8 +64,8 @@
         <button
           class="btn--blank o-link--default"
           :data-cy="`tags:abortEdit${type}`"
-          @click="abort"
-          :aria-label="Translator.trans('abort')">
+          :aria-label="Translator.trans('abort')"
+          @click="abort">
           <dp-icon
             aria-hidden="true"
             icon="xmark" />

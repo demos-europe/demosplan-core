@@ -30,6 +30,7 @@
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
+            :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             class="inline-block first:mr-1"
@@ -37,7 +38,6 @@
             :groups-object="filter.groupsObject"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
-            :key="`filter_${filter.labelTranslationKey}`"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
             :show-count="{
@@ -48,12 +48,12 @@
             @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
         </div>
         <dp-button
+          v-tooltip="Translator.trans('search.filter.reset')"
           class="ml-2 h-fit"
           data-cy="segmentsList:resetFilter"
           :disabled="noQuery"
           :text="Translator.trans('reset')"
           variant="outline"
-          v-tooltip="Translator.trans('search.filter.reset')"
           @click="resetQuery" />
         <dp-button
           class="ml-auto"
@@ -80,9 +80,9 @@
         class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
@@ -100,8 +100,8 @@
     </dp-sticky-element>
 
     <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
+      v-if="isLoading"
+      class="u-mt" />
 
     <template v-else>
       <template v-if="items.length > 0">
@@ -147,8 +147,8 @@
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
               <div
-                class="o-hellip--nowrap text-right"
                 v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
+                class="o-hellip--nowrap text-right"
                 dir="rtl">
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
               </div>

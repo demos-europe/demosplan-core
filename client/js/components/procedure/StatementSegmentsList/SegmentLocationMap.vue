@@ -30,6 +30,10 @@
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
             ref="drawPoint"
+            v-tooltip="{
+              content: Translator.trans('map.relation.set'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapRelation"
             :features="pointData"
             icon
@@ -37,38 +41,34 @@
             name="Point"
             :options="{ multiplePoints: true }"
             render-control
-            v-tooltip="{
-              content: Translator.trans('map.relation.set'),
-              classes: 'z-ultimate'
-            }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
           <dp-ol-map-draw-feature
-            data-cy="setMapLine"
             ref="drawLine"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_line'),
+              classes: 'z-ultimate'
+            }"
+            data-cy="setMapLine"
             :features="lineData"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'z-ultimate'
-            }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_polygon'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapTerritory"
             :features="polygonData"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'z-ultimate'
-            }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
           <dp-ol-map-edit-feature

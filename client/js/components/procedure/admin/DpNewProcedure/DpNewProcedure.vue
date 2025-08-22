@@ -9,12 +9,12 @@
 
 <template>
   <form
+    ref="newProcedureForm"
     :action="Routing.generate('DemosPlan_procedure_new')"
     data-dp-validate="newProcedureForm"
     enctype="multipart/form-data"
     method="post"
-    name="xsubmititem"
-    ref="newProcedureForm">
+    name="xsubmititem">
     <input
       type="hidden"
       name="_token"
@@ -64,12 +64,12 @@
 
         <dl>
           <dt
-            v-text="Translator.trans('public.participation.desc')"
-            class="weight--bold" />
+            class="weight--bold"
+            v-text="Translator.trans('public.participation.desc')" />
           <dd
-            v-text="Translator.trans('planningcause.select.hint')"
             id="js__plisPlanungsanlass"
-            class="u-m-0 lbl__hint" />
+            class="u-m-0 lbl__hint"
+            v-text="Translator.trans('planningcause.select.hint')" />
         </dl>
       </template>
 
@@ -179,8 +179,8 @@
 
         <p
           v-if="hasPermission('feature_use_plis')"
-          class="sr-only flash"
-          id="js__statusBox" />
+          id="js__statusBox"
+          class="sr-only flash" />
       </div>
 
       <div
@@ -205,8 +205,8 @@
           id="saveBtn"
           :text="Translator.trans('save')"
           type="submit"
-          @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
-          data-cy="newProcedureForm:saveNewProcedure" />
+          data-cy="newProcedureForm:saveNewProcedure"
+          @click.prevent="dpValidateAction('newProcedureForm', submit, false)" />
         <dp-button
           color="secondary"
           data-cy="newProcedureForm:abort"

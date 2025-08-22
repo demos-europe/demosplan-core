@@ -32,8 +32,8 @@
           @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
-        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
+        class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
@@ -50,9 +50,9 @@
         class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
@@ -150,8 +150,8 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 c-styled-html"
-            v-cleanhtml="text" />
+            v-cleanhtml="text"
+            class="line-clamp-3 c-styled-html" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
@@ -163,8 +163,8 @@
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
               data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
-              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
-              rel="noopener">
+              rel="noopener"
+              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)">
               {{ Translator.trans('split') }}
             </button>
             <a
@@ -269,8 +269,8 @@
               <a
                 v-if="statementsObject[id].attributes.textIsTruncated"
                 class="show-more cursor-pointer"
-                @click.prevent.stop="() => getStatementsFullText(id)"
-                rel="noopener">
+                rel="noopener"
+                @click.prevent.stop="() => getStatementsFullText(id)">
                 {{ Translator.trans('show.more') }}
               </a>
             </template>
@@ -278,8 +278,8 @@
               <div v-cleanhtml="statementsObject[id].attributes.isFulltextDisplayed ? fullText : text" />
               <a
                 class="cursor-pointer"
-                @click="() => toggleFulltext(id)"
-                rel="noopener">
+                rel="noopener"
+                @click="() => toggleFulltext(id)">
                 {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
               </a>
             </template>
@@ -290,7 +290,7 @@
       <dp-inline-notification
         v-else
         :class="{ 'mx-2': isFullscreen }"
-        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        :message="Translator.trans((searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: searchValue})"
         type="info" />
     </template>
   </div>

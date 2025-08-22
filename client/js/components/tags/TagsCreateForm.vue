@@ -11,8 +11,8 @@
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
         bold />
       <dp-input
-        v-model="newTag.title"
         id="new-tag-title"
+        v-model="newTag.title"
         class="mb-4"
         data-cy="tagsList:newTag:title"
         :label="{
@@ -53,8 +53,8 @@
         :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category')})"
         bold />
       <dp-input
-        v-model="newTopic.title"
         id="new-topic-title"
+        v-model="newTopic.title"
         class="mb-4"
         :label="{
           text: Translator.trans('title')
