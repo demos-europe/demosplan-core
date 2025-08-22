@@ -129,7 +129,6 @@ import {
   hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { dpValidateMixin } from '@demos-europe/demosplan-ui'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaFinalEmail from './StatementMetaFinalEmail'
