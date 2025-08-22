@@ -10,21 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Forum;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
-class ForumHandler extends CoreHandler
+class ForumHandler
 {
     /**
      * @var ForumService
@@ -51,12 +50,11 @@ class ForumHandler extends CoreHandler
         private readonly FlashMessageHandler $flashMessageHandler,
         ForumService $forumService,
         MailService $mailService,
-        MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
+        private readonly LoggerInterface $logger,
     ) {
-        parent::__construct($messageBag);
         $this->forumService = $forumService;
         $this->mailService = $mailService;
         $this->twig = $twig;
@@ -665,7 +663,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToModerator(
         $mailTemplateVars,
         $vars,
-        $allUsersWithRole
+        $allUsersWithRole,
     ) {
         // Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
         if (isset($mailTemplateVars['userStory'])) {
@@ -705,7 +703,7 @@ class ForumHandler extends CoreHandler
                     $vars
                 );
             } catch (Exception) {
-                $this->getLogger()->warning(sprintf('Email konnte nicht an den Moderator %s verschickt werden', $user['email']));
+                $this->logger->warning(sprintf('Email konnte nicht an den Moderator %s verschickt werden', $user['email']));
             }
         }
     }
@@ -722,7 +720,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToAuthor(
         $data,
         $mailTemplateVars,
-        $vars
+        $vars,
     ) {
         // Besorge dir auch die Flags des Users
         /** @var User $starterEntryAuthor */
@@ -752,7 +750,7 @@ class ForumHandler extends CoreHandler
                 $vars
             );
         } catch (Exception) {
-            $this->getLogger()->warning(sprintf('Email konnte nicht an den Autor %s verschickt werden', $data['starterEntryAuthor']['uemail']));
+            $this->logger->warning(sprintf('Email konnte nicht an den Autor %s verschickt werden', $data['starterEntryAuthor']['uemail']));
         }
     }
 

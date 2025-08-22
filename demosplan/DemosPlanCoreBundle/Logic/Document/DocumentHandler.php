@@ -11,14 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
@@ -26,14 +24,16 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class DocumentHandler extends CoreHandler
+class DocumentHandler
 {
     final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
     private const POSSIBLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
@@ -60,15 +60,15 @@ class DocumentHandler extends CoreHandler
         ElementsService $elementsService,
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
-        MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
         SingleDocumentHandler $singleDocumentHandler,
         private readonly SingleDocumentService $singleDocumentService,
         private readonly TranslatorInterface $translator,
         private readonly ValidatorInterface $validator,
+        private readonly LoggerInterface $logger,
+        private readonly RequestStack $requestStack,
     ) {
-        parent::__construct($messageBag);
         $this->elementsService = $elementsService;
         $this->singleDocumentHandler = $singleDocumentHandler;
     }
@@ -98,8 +98,8 @@ class DocumentHandler extends CoreHandler
             $this->logger->warning('Could not dump Statusfile: ', [$e]);
         }
 
-        $this->getSession()->set('bulkImportFilesTotal', 0);
-        $this->getSession()->set('bulkImportFilesProcessed', 0);
+        $this->requestStack->getSession()->set('bulkImportFilesTotal', 0);
+        $this->requestStack->getSession()->set('bulkImportFilesProcessed', 0);
 
         $startElementId = null;
         $fileDir = $this->elementImportDirToArray($importDir);
@@ -117,8 +117,8 @@ class DocumentHandler extends CoreHandler
             $errorReport
         );
 
-        $this->getSession()->remove('bulkImportFilesTotal');
-        $this->getSession()->remove('bulkImportFilesProcessed');
+        $this->requestStack->getSession()->remove('bulkImportFilesTotal');
+        $this->requestStack->getSession()->remove('bulkImportFilesProcessed');
 
         try {
             $this->defaultStorage->deleteDirectory($importDir);
@@ -236,12 +236,12 @@ class DocumentHandler extends CoreHandler
                     $createdDocuments[] = $singleDocument;
                     ++$singleDocumentIndex;
 
-                    $this->getSession()->set(
+                    $this->requestStack->getSession()->set(
                         'bulkImportFilesProcessed',
-                        $this->getSession()->get('bulkImportFilesProcessed') + 1
+                        $this->requestStack->getSession()->get('bulkImportFilesProcessed') + 1
                     );
                 } catch (VirusFoundException $e) {
-                    $this->getLogger()->error('Virus found in File ', [$e]);
+                    $this->logger->error('Virus found in File ', [$e]);
                     $errorReport[] = $this->translator
                         ->trans('warning.virus.found', ['filename' => $e->getMessage()]);
                 } catch (Exception $e) {
@@ -256,8 +256,8 @@ class DocumentHandler extends CoreHandler
                 // Schreibe den Status des Imports im ein temporäres File
                 $status = Json::encode(
                     [
-                        'bulkImportFilesTotal'     => $this->getSession()->get('bulkImportFilesTotal'),
-                        'bulkImportFilesProcessed' => $this->getSession()->get('bulkImportFilesProcessed'),
+                        'bulkImportFilesTotal'     => $this->requestStack->getSession()->get('bulkImportFilesTotal'),
+                        'bulkImportFilesProcessed' => $this->requestStack->getSession()->get('bulkImportFilesProcessed'),
                     ]
                 );
                 try {
@@ -344,7 +344,7 @@ class DocumentHandler extends CoreHandler
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session
-                $this->getSession()->set('bulkImportFilesTotal', $this->getSession()->get('bulkImportFilesTotal') + 1);
+                $this->requestStack->getSession()->set('bulkImportFilesTotal', $this->requestStack->getSession()->get('bulkImportFilesTotal') + 1);
             }
         }
         // Sortiere die Elements natürlichsprachig
