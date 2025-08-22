@@ -4417,18 +4417,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/drag-drop@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "@uppy/drag-drop@npm:4.1.1"
-  dependencies:
-    "@uppy/utils": "npm:^6.1.1"
-    preact: "npm:^10.5.13"
-  peerDependencies:
-    "@uppy/core": ^4.4.1
-  checksum: 10c0/d7932a58fe916cae9b7562368997274873339e7ae724d11b01c153260a7a1774ac92ee115c0dd5133b46649434f7a5c8003b0cf8aeed8779c5d646966803c6c3
-  languageName: node
-  linkType: hard
-
 "@uppy/drag-drop@npm:^4.1.2":
   version: 4.1.2
   resolution: "@uppy/drag-drop@npm:4.1.2"
@@ -4438,6 +4426,18 @@ __metadata:
   peerDependencies:
     "@uppy/core": ^4.4.4
   checksum: 10c0/9f729a7787ab505223c31b75dc790cf0a3f8f90466067cc8af67d40d7b9e92285dc364f048b0019b0d21521cd0438a62bd167369c9a32c093b93217d7bd900df
+  languageName: node
+  linkType: hard
+
+"@uppy/drag-drop@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@uppy/drag-drop@npm:4.2.2"
+  dependencies:
+    "@uppy/utils": "npm:^6.2.2"
+    preact: "npm:^10.5.13"
+  peerDependencies:
+    "@uppy/core": ^4.5.2
+  checksum: 10c0/77315d8870831c34238eb8d78cae1de953d1dec32c8e0a53bc133a67e63a92b59d89a077d33208c36520ed2191601bbd94be418080d8ba81b4d34a6759ef6099
   languageName: node
   linkType: hard
 
@@ -13472,7 +13472,7 @@ __metadata:
     "@tailwindcss/postcss": "npm:^4.1.7"
     "@types/leaflet": "npm:^1.9.20"
     "@uppy/core": "npm:^4.5.2"
-    "@uppy/drag-drop": "npm:^4.1.1"
+    "@uppy/drag-drop": "npm:^4.2.2"
     "@uppy/progress-bar": "npm:^4.2.1"
     "@vue/compat": "npm:3.5.18"
     "@vue/compiler-sfc": "npm:3.5.13"
