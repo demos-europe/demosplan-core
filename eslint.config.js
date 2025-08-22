@@ -1,5 +1,6 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
+const js = require('@eslint/js')
 // Commented Out until the issue below is solved: const pluginImportExtensions = require('eslint-plugin-import')
 
 module.exports = [
@@ -35,7 +36,33 @@ module.exports = [
       }
     }
   },
-  ...pluginVue.configs['flat/vue2-essential'],
+  {
+    name: 'app/js-recommended-rules',
+    files: ['**/*.js'],
+    languageOptions: {
+      globals: {
+        ...require('globals').node,
+        ...require('globals').browser,
+        ...require('globals').jest,
+        $: 'readonly',
+        jQuery: 'readonly',
+        // Webpack DefinePlugin globals
+        URL_PATH_PREFIX: 'readonly',
+        PROJECT: 'readonly',
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'readonly',
+        __VUE_OPTIONS_API__: 'readonly',
+        __VUE_PROD_DEVTOOLS__: 'readonly',
+        // DemosPlan specific globals
+        Translator: 'readonly',
+        Routing: 'readonly',
+        hasPermission: 'readonly',
+        dpconfirm: 'readonly',
+        dplan: 'readonly',
+      },
+    },
+    ...js.configs.recommended,
+  },
+  ...pluginVue.configs['flat/recommended'],
   ...pluginVueA11y.configs['flat/recommended'],
   // See below pluginImportExtensions.flatConfigs['recommended'],
   {
@@ -61,6 +88,13 @@ module.exports = [
       'multiline-comment-style': 'error',
       // Allow debugger during development
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+      // Allow unused function parameters in vuex actions/mutations
+      'no-unused-vars': ['error', {
+        'args': 'none',
+        'varsIgnorePattern': '^_',
+        'argsIgnorePattern': '^_|^(state|commit|dispatch|getters|rootState|rootGetters)$',
+        'caughtErrors': 'none' // Allow unused parameters in catch blocks
+      }],
       'sort-imports': ['error', { 'ignoreCase': true }],
       'no-useless-escape': 'error',
       // Allow lowerCamelCase string, or multiple lowerCamelCase strings separated by colon
@@ -122,4 +156,4 @@ module.exports = [
       'vuejs-accessibility/tabindex-no-positive': 'warn'
     },
   }
-];
+]
