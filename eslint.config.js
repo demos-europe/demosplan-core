@@ -97,10 +97,14 @@ module.exports = [
       }],
       'sort-imports': ['error', { 'ignoreCase': true }],
       'no-useless-escape': 'error',
-      // Allow lowerCamelCase string, or multiple lowerCamelCase strings separated by colon
+      /**
+       * Allow lowerCamelCase string, or multiple lowerCamelCase strings separated by colon
+       * Remove this rule and v-on-event-hyphenation after renaming all custom events to match the recommended format
+       */
       'vue/custom-event-name-casing': ['warn', 'camelCase', {
         'ignores': ['/^[a-z][a-zA-Z]*:?[[a-z][a-zA-Z]*]?$/']
       }],
+      'vue/v-on-event-hyphenation': 'off',
       'vue/html-closing-bracket-newline': ['off'],
       'vue/order-in-components': ['error', {
         'order': [
