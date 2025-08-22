@@ -145,7 +145,7 @@
         name="agencyMainEmailAddress[fullAddress]"
         required
         type="email"
-        :value="mainEmail" />
+        v-model="mainEmail" />
 
       <dp-text-area
         id="r_desc"
