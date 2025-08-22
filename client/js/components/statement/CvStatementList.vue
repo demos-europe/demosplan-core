@@ -12,21 +12,21 @@ All rights reserved
     <div class="cv-container">
       <div class="cv-header-row">
         <h4 class="cv-main-title">
-          Stellungnahmen zum aktuellen Verfahren
+          {{ localTranslations.mainTitle }}
         </h4>
-        <span class="cv-switch-label">Darstellung</span>
+        <span class="cv-switch-label">{{ localTranslations.displayLabel }}</span>
 
         <!-- Content Switcher -->
         <cv-content-switcher @selected="onTabSwitch">
           <cv-content-switcher-button
             content-selector=".statements-content"
             :selected="activeTab === 'statements'">
-            Stellungnahmen
+            {{ localTranslations.statementsTab }}
           </cv-content-switcher-button>
           <cv-content-switcher-button
             content-selector=".sections-content"
             :selected="activeTab === 'sections'">
-            Abschnitte
+            {{ localTranslations.segmentsTab }}
           </cv-content-switcher-button>
         </cv-content-switcher>
       </div>
@@ -35,7 +35,7 @@ All rights reserved
       <cv-data-table
         v-if="activeTab === 'statements'"
         :columns="filteredColumns"
-        batch-cancel-label="Abbrechen"
+        :batch-cancel-label="Translator.trans('abort')"
         :data="statements"
         id="cv-statement-table"
         :rows-selected="selectedRows"
@@ -45,7 +45,7 @@ All rights reserved
         <template v-slot:actions>
           <cv-search
             light
-            placeholder="Suchen"
+            :placeholder="Translator.trans('searching')"
             :value="searchValue"
             @input="applySearch"
           />
@@ -60,20 +60,20 @@ All rights reserved
               <cv-button
                 id="colSort"
                 kind="ghost">
-                Spalten anpassen <ChevronDown16 />
+                {{ localTranslations.adjustColumns }} <ChevronDown16 />
               </cv-button>
             </div>
           </div>
           <cv-button
             kind="tertiary"
             class="cv-export-btn">
-            Exportieren <Export16 />
+            {{ Translator.trans('export') }} <Export16 />
           </cv-button>
           <cv-button
             kind="primary"
             class="cv-add-btn"
             @click="createNewStatement">
-            Neue Stellungnahme hinzufügen <DocumentAdd16 />
+            {{ localTranslations.addNewStatement }} <DocumentAdd16 />
           </cv-button>
         </template>
 
@@ -82,26 +82,29 @@ All rights reserved
           <cv-button
             kind="primary"
             size="default">
-            Aufteilung überprüfen
+            {{ localTranslations.checkSegmentation }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Aufteilung so akzeptieren
+            {{ localTranslations.acceptSegmentation }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Bearbeiten
+            {{ Translator.trans('edit') }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Löschen
+            {{ Translator.trans('delete') }}
           </cv-button>
         </template>
 
-        <!-- Custom Data Slot mit direkter Checkbox-Überwachung -->
+        <!-- Custom Data Slot: Using v-slot:data instead of default table rows
+             because Carbon's native checkbox selection has known bugs with
+             dynamic data and custom row expansion. Manual checkbox handling
+             provides more reliable selection state management. -->
         <template v-slot:data>
           <template
             v-for="(statement, index) in statements"
@@ -115,8 +118,8 @@ All rights reserved
               <cv-data-table-cell v-if="visibleColumns.includes('status')">
                 <cv-tag
                   :label="statement.status"
-                  :kind="getStatusType(statement.status)"
-                  :class="getStatusClass(statement.status)" />
+                  :kind="statusTypes[statement.status] || 'gray'"
+                  :class="statusClasses[statement.status] || ''" />
               </cv-data-table-cell>
               <cv-data-table-cell v-if="visibleColumns.includes('author')">
                 <div class="cv-author-cell">
@@ -137,8 +140,8 @@ All rights reserved
               <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
                 <cv-tag
                   :label="`${statement.confidence}%`"
-                  :kind="getConfidenceType(statement.confidence)"
-                  :class="getConfidenceClass(statement.confidence)" />
+                  :kind="confidenceTypes[statement.confidenceType]"
+                  :class="confidenceClasses[statement.confidenceType] || ''" />
               </cv-data-table-cell>
 
               <cv-data-table-cell v-if="visibleColumns.includes('expand')">
@@ -146,7 +149,7 @@ All rights reserved
                   kind="ghost"
                   size="sm"
                   @click="toggleRowExpansion(statement.id)"
-                  :aria-label="`Expand row ${statement.id}`">
+                  :aria-label="Translator.trans('dropdown.open')">
                   <ChevronDown16 :style="{ transform: expandedRows.includes(statement.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
                 </cv-button>
               </cv-data-table-cell>
@@ -169,7 +172,7 @@ All rights reserved
         :page="pagination.currentPage"
         :page-sizes="computedPageSizes"
         :number-of-items="pagination.total"
-        page-sizes-label="Elemente pro Seite:"
+        :page-sizes-label="localTranslations.elementsPerPage"
         @change="onPaginationChange"
         class="cv-pagination">
         <template v-slot:range-text="{ scope }">
@@ -184,7 +187,7 @@ All rights reserved
 
   <!-- Sections Content -->
   <div v-if="activeTab === 'sections'">
-    <p>Aufteilung in Abschnitte Content - Coming Soon</p>
+    <p>{{ localTranslations.sectionsContent }}</p>
   </div>
 
   <!-- Column Selector Dropdown (rendered outside table) -->
@@ -194,7 +197,7 @@ All rights reserved
     ref="columnDropdown">
     <div class="cv-column-selector-dropdown">
       <div class="cv-column-selector-header">
-        <span>Spalten auswählen</span>
+        <span>{{ localTranslations.selectColumns }}</span>
       </div>
       <div class="cv-column-selector-options">
         <cv-button
@@ -207,7 +210,7 @@ All rights reserved
             type="checkbox"
             :checked="visibleColumns.includes(column.key)"
             class="cv-column-checkbox"
-            :aria-label="`Toggle ${column.label} column`"
+            :aria-label="localTranslations.selectColumn"
             readonly
           >
           {{ column.label }}
@@ -278,17 +281,9 @@ export default {
     return {
       activeTab: 'statements',
       headerCheckboxHandler: null, // Store handler for cleanup
+      checkboxListeners: [], // Track individual checkbox listeners for cleanup
       clientSortField: null, // For client-side sorting
       clientSortDirection: null,
-      columns: [
-        { key: 'id', label: 'ID', sortable: true },
-        { key: 'status', label: 'Stn.-Status' },
-        { key: 'author', label: 'Einreicher*in' },
-        { key: 'institution', label: 'Institution', sortable: true },
-        { key: 'sections', label: 'Abschnitte', headingStyle: { 'pointer-events': 'none' } },
-        { key: 'confidence', label: 'Konfidenz', sortable: true },
-        { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
-      ],
       pagination: {
         currentPage: 1,
         perPage: 10,
@@ -299,10 +294,19 @@ export default {
       searchValue: '',
       sortBy: '',
       sortDirection: '',
-      expandedRows: [], // Track which rows are expanded
+      expandedRows: [],
       lastPaginationEventTime: 0, // Debouncing for pagination events
       isColumnSelectorOpen: false,
       visibleColumns: [],
+      columns: [
+        { key: 'id', label: 'ID', sortable: true },
+        { key: 'status', label: 'Stn.-Status' },
+        { key: 'author', label: 'Einreicher*in' },
+        { key: 'institution', label: 'Institution', sortable: true },
+        { key: 'sections', label: 'Abschnitte', headingStyle: { 'pointer-events': 'none' } },
+        { key: 'confidence', label: 'Konfidenz', sortable: true },
+        { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
+      ],
       selectableColumns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -310,7 +314,48 @@ export default {
         { key: 'institution', label: 'Institution' },
         { key: 'sections', label: 'Abschnitte' },
         { key: 'confidence', label: 'Konfidenz' }
-      ]
+      ],
+      // Status mapping objects
+      statusTypes: {
+        'Neu': 'blue',
+        'In Bearbeitung': 'gray',
+        'Abgeschlossen': 'gray'
+      },
+      statusClasses: {
+        'In Bearbeitung': 'status-editing',
+        'Abgeschlossen': 'status-completed'
+      },
+      apiStatusLabels: {
+        new: Translator.trans('new'),
+        processing: Translator.trans('fragment.status.editing'),
+        completed: Translator.trans('terminated')
+      },
+      // Confidence mapping objects
+      confidenceTypes: {
+        low: 'red',      // <= 33%
+        medium: 'warm-gray', // 34-66%
+        high: 'green'    // >= 67%
+      },
+      confidenceClasses: {
+        medium: 'cv-confidence-medium'
+      },
+      // Local translations: Temporary storage for strings that don't have
+      // translation keys yet in messages+intl-icu.de.yml
+      localTranslations: {
+        confidence: 'Konfidenz',
+        mainTitle: 'Stellungnahmen zum aktuellen Verfahren',
+        displayLabel: 'Darstellung',
+        statementsTab: 'Stellungnahmen',
+        segmentsTab: 'Abschnitte',
+        adjustColumns: 'Spalten anpassen',
+        addNewStatement: 'Neue Stellungnahme hinzufügen',
+        checkSegmentation: 'Aufteilung überprüfen',
+        acceptSegmentation: 'Aufteilung so akzeptieren',
+        elementsPerPage: 'Elemente pro Seite:',
+        selectColumns: 'Spalten auswählen',
+        selectColumn: 'Spalte auswählen',
+        sectionsContent: 'Aufteilung in Abschnitte Content - Coming Soon'
+      }
     }
   },
 
@@ -319,20 +364,25 @@ export default {
       statementsObject: 'items'
     }),
 
+
     statements () {
       const rawData = Object.values(this.statementsObject) || []
       const processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
+        const confidence = Math.floor(Math.random() * 100) + 1 // TODO: Replace with real confidence values from API when available
+        const confidenceType = confidence <= 33 ? 'low' : confidence <= 66 ? 'medium' : 'high'
+
         return {
           id: stmt.attributes?.externId || stmt.id,
-          status: this.mapApiStatusToDisplay(stmt.attributes.status),
+          status: this.apiStatusLabels[stmt.attributes.status] || stmt.attributes.status,
           statusDate: stmt.attributes.submitDate,
           author: stmt.attributes.authorName,
           authorDate: this.formatDate(stmt.attributes.authoredDate),
           institution: stmt.attributes?.initialOrganisationName || '-',
           text: stmt.attributes?.text || stmt.text, // For expanded row
           sections: segmentsCount > 0 ? segmentsCount : '-',
-          confidence: Math.floor(Math.random() * 100) + 1 // Dummy: 1-100%
+          confidence: confidence,
+          confidenceType: confidenceType
         }
       })
 
@@ -346,7 +396,8 @@ export default {
           return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
         })
       } else if (this.clientSortField === 'status') {
-        // Status sorting
+        // Status sorting: Carbon table doesn't support semantic status sorting,
+        // so we handle it client-side with custom order
         const statusOrder = { Neu: 1, 'In Bearbeitung': 2, Abgeschlossen: 3 }
         processedData.sort((a, b) => {
           const orderA = statusOrder[a.status] || 999
@@ -406,7 +457,6 @@ export default {
   },
 
   methods: {
-    // Vuex Actions importieren
     ...mapActions('Statement', {
       fetchStatements: 'list'
     }),
@@ -436,9 +486,18 @@ export default {
         include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
         fields: {
           Statement: [
-            'authoredDate', 'authorName', 'externId', 'isSubmittedByCitizen',
-            'initialOrganisationName', 'internId', 'status', 'submitDate',
-            'submitName', 'text', 'textIsTruncated', 'segments'
+            'authoredDate',
+            'authorName',
+            'externId',
+            'isSubmittedByCitizen',
+            'initialOrganisationName',
+            'internId',
+            'status',
+            'submitDate',
+            'submitName',
+            'text',
+            'textIsTruncated',
+            'segments'
           ].join(),
           SourceStatementAttachment: ['file'].join()
         }
@@ -474,44 +533,6 @@ export default {
       return date.toLocaleDateString('de-DE')
     },
 
-    getConfidenceType (confidence) {
-      if (confidence <= 33) return 'red'
-      if (confidence <= 66) return 'warm-gray' // Medium = Warm-Gray + Custom Orange 🟠
-      return 'green'
-    },
-
-    getConfidenceClass (confidence) {
-      if (confidence <= 33) return ''
-      if (confidence <= 66) return 'cv-confidence-medium'
-      return ''
-    },
-
-    getStatusType (status) {
-      const statusMap = {
-        Neu: 'blue', // Carbon Standard
-        'In Bearbeitung': 'gray', // CSS Override to 'orange'
-        Abgeschlossen: 'gray' // CSS Override to 'green'
-      }
-      return statusMap[status] || 'gray'
-    },
-
-    getStatusClass (status) {
-      const classMap = {
-        'In Bearbeitung': 'status-editing',
-        Abgeschlossen: 'status-completed'
-      }
-      return classMap[status] || ''
-    },
-
-    // Status Mapping
-    mapApiStatusToDisplay (apiStatus) {
-      const statusMap = {
-        new: 'Neu',
-        processing: 'In Bearbeitung',
-        completed: 'Abgeschlossen'
-      }
-      return statusMap[apiStatus] || apiStatus
-    },
 
     onPaginationChange (event) {
       const now = Date.now()
@@ -556,41 +577,57 @@ export default {
     },
 
     getSortString () {
+      /**
+       * Converts Carbon table column sorting to API sort parameters.
+       *
+       * sortBy data flow:
+       * - Initialized as empty string in data()
+       * - Set to column index (number) by Carbon table's @sort event
+       * - Used here to determine API vs client-side sorting
+       *
+       * Mixed sorting approach needed because:
+       * - API supports limited sorting (only submitName field)
+       * - Custom sorts (ID extraction, status priority, institution names)
+       *   must be handled client-side
+       * - Always return API sort string for pagination consistency
+       */
       if (this.sortBy !== '' && this.sortDirection) {
         const direction = this.sortDirection === 'ascending' ? '' : '-'
 
-        // Mapping from Column Index to API Field
+        // Column index to API field mapping
+        // null = client-side sorting required
         const sortFieldMap = {
-          0: null,
-          1: null,
-          2: 'submitName',
-          3: null,
-          4: null,
-          5: null
+          0: null, // ID - extract numeric part client-side
+          1: null, // Status - custom priority order client-side
+          2: 'submitName', // Author - API supports this field
+          3: null, // Institution - name comparison client-side
+          4: null, // Sections - not sortable (display only)
+          5: null  // Confidence - dummy data, client-side for now
         }
 
-        // Client-side sortieren
+        // Handle client-side sorting columns (indices 0,1,3,5)
         if (this.sortBy === 0) {
           this.sortStatementsClientSide('id')
-          return '-submitDate,id' // Fallback API sort
+          return '-submitDate,id' // Fallback to keep pagination stable
         }
         if (this.sortBy === 1) {
           this.sortStatementsClientSide('status')
-          return '-submitDate,id' // Fallback API sort
+          return '-submitDate,id'
         }
         if (this.sortBy === 3) {
           this.sortStatementsClientSide('institution')
-          return '-submitDate,id' // Fallback API sort
+          return '-submitDate,id'
         }
         if (this.sortBy === 5) {
           this.sortStatementsClientSide('confidence')
-          return '-submitDate,id' // Fallback API sort
+          return '-submitDate,id'
         }
 
+        // Handle API-supported sorting (index 2 = submitName)
         const field = sortFieldMap[this.sortBy]
         return field ? `${direction}${field}` : '-submitDate,id'
       }
-      // Default sort when no sorting is active
+      // Default sort: newest statements first, then by ID for consistency
       return '-submitDate,id'
     },
 
@@ -676,26 +713,15 @@ export default {
     },
 
     setupCheckboxListeners () {
-      console.log('setupCheckboxListeners called')
-      // Wait for DOM to be fully rendered with statements
+      // Manual checkbox handling: Carbon's native selection has bugs with dynamic data
+      // and row expansion. We manually bind to checkbox events for reliable state management.
+      
+      // Clean up existing listeners first
+      this.removeCheckboxListeners()
+      
       this.$nextTick(() => {
-        console.log('DOM is ready, looking for checkboxes')
-        // Header checkbox for "Select All" - Debug multiple selectors
-        const headerSelectors = [
-          '#cv-statement-table .bx--table-head .bx--table-column-checkbox input',
-          '#cv-statement-table thead .bx--table-column-checkbox input',
-          '#cv-statement-table .bx--data-table-header .bx--table-column-checkbox input',
-          '#cv-statement-table th .bx--table-column-checkbox input'
-        ]
-
-        let headerCheckbox = null
-        for (const selector of headerSelectors) {
-          headerCheckbox = document.querySelector(selector)
-          if (headerCheckbox) {
-            console.log('Found header checkbox with selector:', selector)
-            break
-          }
-        }
+        // Header checkbox for "Select All"
+        const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
 
         if (headerCheckbox) {
           // Remove existing listeners to prevent conflicts
@@ -723,7 +749,7 @@ export default {
           // Skip header checkbox (already handled above)
           if (checkbox.closest('.bx--table-head')) return
 
-          checkbox.addEventListener('change', (event) => {
+          const handler = (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
 
             if (event.target.checked) {
@@ -739,9 +765,31 @@ export default {
 
             this.updateBatchActionsVisibility()
             this.updateHeaderCheckboxState()
-          })
+          }
+
+          checkbox.addEventListener('change', handler)
+          
+          // Track listener for cleanup
+          this.checkboxListeners.push({ element: checkbox, handler })
         })
       })
+    },
+
+    removeCheckboxListeners () {
+      // Remove all individual checkbox listeners
+      this.checkboxListeners.forEach(({ element, handler }) => {
+        element.removeEventListener('change', handler)
+      })
+      this.checkboxListeners = []
+      
+      // Remove header checkbox listener
+      if (this.headerCheckboxHandler) {
+        const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
+        if (headerCheckbox) {
+          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+        }
+        this.headerCheckboxHandler = null
+      }
     },
 
     updateBatchActionsVisibility () {

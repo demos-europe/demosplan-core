@@ -34,11 +34,11 @@
 
 /* Procedure Name - Original Classes */
 .dp-procedure-name {
-    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-10_25 */
+    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-0_25 */
     color: #6f6f6f;
     display: inline-block;
-    padding-top: 8px;
-    margin-bottom: 164px;
+    padding-top: 12px;
+    margin-bottom: 6px;
 }
 
 .dp-page-header {
