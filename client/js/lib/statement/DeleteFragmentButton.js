@@ -22,7 +22,6 @@ export default function DeleteFragmentButton () {
       event.preventDefault()
 
       // Dpconfirm() is set in window...
-      // eslint-disable-next-line no-undef
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {
         // Prepare the form-data
         const formData = new FormData()

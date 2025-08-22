@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-/* eslint-disable quote-props */
 module.exports = {
   extends: 'stylelint-config-standard-scss',
   ignoreFiles: [
