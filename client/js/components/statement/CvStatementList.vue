@@ -715,10 +715,10 @@ export default {
     setupCheckboxListeners () {
       // Manual checkbox handling: Carbon's native selection has bugs with dynamic data
       // and row expansion. We manually bind to checkbox events for reliable state management.
-      
+
       // Clean up existing listeners first
       this.removeCheckboxListeners()
-      
+
       this.$nextTick(() => {
         // Header checkbox for "Select All"
         const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
@@ -768,7 +768,7 @@ export default {
           }
 
           checkbox.addEventListener('change', handler)
-          
+
           // Track listener for cleanup
           this.checkboxListeners.push({ element: checkbox, handler })
         })
@@ -781,7 +781,7 @@ export default {
         element.removeEventListener('change', handler)
       })
       this.checkboxListeners = []
-      
+
       // Remove header checkbox listener
       if (this.headerCheckboxHandler) {
         const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
@@ -847,23 +847,6 @@ export default {
           element.textContent = element.textContent.replace('Page', 'Seite')
         }
       })
-
-      // Disable forward button on last page
-      const paginationEl = document.querySelector('.cv-statement-list .bx--pagination')
-      if (paginationEl && this.pagination.currentPage >= this.pagination.totalPages) {
-        paginationEl.setAttribute('data-last-page', 'true')
-
-        // Block clicks on forward button
-        const forwardBtn = paginationEl.querySelector('.bx--pagination__button--forward')
-        if (forwardBtn) {
-          forwardBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }, { once: false })
-        }
-      } else if (paginationEl) {
-        paginationEl.removeAttribute('data-last-page')
-      }
     }
   },
 
@@ -884,9 +867,18 @@ export default {
       include: ['segments'].join(),
       fields: {
         Statement: [
-          'authoredDate', 'authorName', 'externId', 'isSubmittedByCitizen',
-          'initialOrganisationName', 'internId', 'status', 'submitDate',
-          'submitName', 'text', 'textIsTruncated', 'segments'
+          'authoredDate',
+          'authorName',
+          'externId',
+          'isSubmittedByCitizen',
+          'initialOrganisationName',
+          'internId',
+          'status',
+          'submitDate',
+          'submitName',
+          'text',
+          'textIsTruncated',
+          'segments'
         ].join()
       }
     }).then(response => {
@@ -913,6 +905,7 @@ export default {
   },
 
   beforeUnmount () {
+    this.removeCheckboxListeners()
     document.removeEventListener('click', this.handleOutsideClick)
   }
 }

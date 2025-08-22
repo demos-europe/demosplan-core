@@ -35,7 +35,7 @@
 /* Procedure Name - Original Classes */
 .dp-procedure-name {
     /* Original classes: color--grey inline-block u-pt-0_5 u-mb-0_25 */
-    color: #6f6f6f;
+    color: var(--dp-tailwind-grey);
     display: inline-block;
     padding-top: 12px;
     margin-bottom: 6px;
@@ -56,6 +56,7 @@
     --dp-primary-blue: #1E3A8A;
     --dp-primary: #0f62fe;
     --dp-primary-hover: #0353e9;
+    --dp-tailwind-grey: #6f6f6f
 }
 
 .cv-container {
@@ -269,7 +270,6 @@ a[aria-current="page"]::after {
 .o-breadcrumb li:nth-last-child(2) a {
     color: var(--dp-carbon-gray-100) !important;
     text-decoration: none !important;
-    text-decoration-color: var(--cds-text-primary) !important;
     text-decoration-line: none !important;
     pointer-events: none !important;
 }
