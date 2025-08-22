@@ -626,6 +626,17 @@
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
                                 {% endif %}
+
+                                {% if hasPermission('feature_feedback_on_statement_controllable') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" {#  #}{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'checked' : '' }}>
+                                        {{ "public.participation.feedback"|trans }}
+                                    </label>
+                                {% else %}
+                                    {# allow publishing the possibility of Feedback by default #}
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1">
+                                {% endif %}
+
                             </div>
 
                             <label class="o-wizard__mark u-mb-0">
