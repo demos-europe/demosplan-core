@@ -737,6 +737,18 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
+    getCurrentSelectedOption (fieldId) {
+      const selectedOption = this.customFields[fieldId].attributes.options?.find(
+        option => option.id === this.segment.attributes.customFields?.find(
+          customFieldIdValue => customFieldIdValue.id === fieldId)?.value)
+
+      if (!selectedOption) {
+        return
+      }
+
+      return selectedOption
+    },
+
     handleTabChange (id) {
       this.activeId = id
     },
@@ -769,6 +781,21 @@ export default {
       })
         .then(() => {
           this.setSelectedAssignee()
+        })
+    },
+
+    initCustomFieldValues () {
+      Object.values(this.customFields)
+        .forEach(field => {
+          const selectedOption = this.getCurrentSelectedOption(field.id)
+
+          if (selectedOption) {
+            this.customFieldValues[field.id] = {
+              fieldId: field.id,
+              id: `${selectedOption.id}:${selectedOption.label}`,
+              name: selectedOption.label
+            }
+          }
         })
     },
 
@@ -1139,6 +1166,7 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
+    this.initCustomFieldValues()
 
     if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()

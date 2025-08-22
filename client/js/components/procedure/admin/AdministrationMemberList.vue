@@ -56,11 +56,12 @@ All rights reserved
         </button>
 
         <dp-button
-          class="btn btn--primary float-right"
-          data-cy="addPublicAgency"
           :href="addMemberPath"
           :text="Translator.trans('invitable_institution.add')"
-          variant="primary" />
+          class="btn btn--primary float-right"
+          data-cy="addPublicAgency"
+          rounded
+        />
       </div>
     </template>
   </organisation-table>

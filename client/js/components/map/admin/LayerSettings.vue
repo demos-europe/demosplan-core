@@ -86,7 +86,25 @@
       @input="filterMatrixSetByLayers"
       @selectAll="selectAllLayers"
       @deselectAll="deselectAllLayers"
-    />
+    >
+      <template v-slot:tag="{ props }">
+        <span class="multiselect__tag">
+          {{ props.option.label }}
+          <dp-contextual-help
+            v-if="unavailableLayers.includes(props.option.label) || serviceError"
+            :class="prefixClass('ml-1 mb-0.5 text-message-severe')"
+            :text="serviceError ? Translator.trans('map.service.unreachable') : Translator.trans('layer.unavailable')"
+            icon="warning-circle"
+          />
+
+          <button
+            class="multiselect__tag-icon"
+            type="button"
+            @click="props.remove(props.option)"
+          ></button>
+        </span>
+      </template>
+    </dp-multiselect>
 
     <input
       :value="layersInputValue"
@@ -147,7 +165,7 @@
 </template>
 
 <script>
-import { debounce, DpCheckbox, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi } from '@demos-europe/demosplan-ui'
+import { debounce, DpCheckbox, DpContextualHelp, DpInput, DpLabel, DpMultiselect, DpSelect, externalApi, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { WMSCapabilities, WMTSCapabilities } from 'ol/format'
 import { defineAsyncComponent } from 'vue'
 
@@ -157,11 +175,14 @@ export default {
   components: {
     DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
     DpCheckbox,
+    DpContextualHelp,
     DpInput,
     DpLabel,
     DpMultiselect,
     DpSelect
   },
+
+  mixins: [prefixClassMixin],
 
   props: {
     availableProjections: {
@@ -259,7 +280,9 @@ export default {
       name: this.initName,
       projection: this.initProjection || window.dplan.defaultProjectionLabel,
       projectionOptions: this.availableProjections,
+      serviceError: false,
       serviceType: this.initServiceType || 'wms',
+      unavailableLayers: [],
       url: this.initUrl,
       version: this.initVersion || '1.3.0'
     }
@@ -349,6 +372,8 @@ export default {
       }
 
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -365,6 +390,8 @@ export default {
       this.filterMatrixSetByLayers()
       this.filterProjectionsByMatrixSet()
       this.resetLayerSelection()
+      this.validateSavedLayersAvailability()
+
       if (this.initialLoad) {
         this.initialLoad = false
       }
@@ -467,6 +494,7 @@ export default {
           return response.text()
         })
         .then(capabilities => {
+          this.serviceError = false
           this.serviceType = hasWMTSType ? 'wmts' : 'wms'
           parser = this.serviceType === 'wmts' ? new WMTSCapabilities() : new WMSCapabilities()
           this.currentCapabilities = parser.read(capabilities)
@@ -480,6 +508,7 @@ export default {
           dplan.notify.error(Translator.trans('maplayer.capabilities.fetch.error'))
           dplan.notify.notify('warning', Translator.trans('maplayer.capabilities.fetch.warning.cors.policy'))
           this.clearSelections()
+          this.serviceError = true
         })
         .finally(() => {
           this.isLoading = false
@@ -543,6 +572,7 @@ export default {
       const serviceKey = 'SERVICE='
       // Find existing Key
       const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
+
       if (this.url.match(serviceParam).length > 0) {
         this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
       } else {
@@ -551,6 +581,29 @@ export default {
       }
 
       this.getLayerCapabilities()
+    },
+
+    validateSavedLayersAvailability () {
+      if (this.layers.length === 0) {
+        return
+      }
+
+      const savedLayers = this.layers.map(layer => layer.label)
+
+      if (this.layersOptions.length === 0) {
+        this.unavailableLayers = savedLayers
+
+        return
+      }
+
+      const availableLayerOptions = this.layersOptions.map(option => option.label)
+      const outdatedLayers = savedLayers.filter(savedName => !availableLayerOptions.includes(savedName))
+
+      if (outdatedLayers.length > 0) {
+        this.unavailableLayers = outdatedLayers
+      } else {
+        this.unavailableLayers = []
+      }
     }
   },
 

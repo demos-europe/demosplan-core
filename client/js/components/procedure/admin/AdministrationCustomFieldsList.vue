@@ -93,32 +93,31 @@
               {{ option.label }}
             </div>
           </li>
-
         </ul>
         <ul v-else>
           <li
             v-for="(option, index) in newRowData.options"
             :key="index"
             class="mb-1">
-              <div class="flex">
-                <dp-input
-                  v-model="newRowData.options[index].label"
-                  :id="`option:${index}`"
-                  :key="`option:${index}`"
-                  required
-                />
+            <div class="flex">
+              <dp-input
+                v-model="newRowData.options[index].label"
+                :id="`option:${index}`"
+                :key="`option:${index}`"
+                required
+              />
 
-                <dp-button
-                  v-if="index >= rowData.options.length"
-                  class="w-[20px] inline-block ml-1"
-                  :data-cy="`customFields:removeOptionInput:${option.label}`"
-                  hide-text
-                  icon="x"
-                  :text="Translator.trans('remove')"
-                  variant="subtle"
-                  @click="deleteOptionOnEdit(index)"
-                />
-              </div>
+              <dp-button
+                v-if="index >= rowData.options.length"
+                class="w-[20px] inline-block ml-1"
+                :data-cy="`customFields:removeOptionInput:${option.label}`"
+                hide-text
+                icon="x"
+                :text="Translator.trans('remove')"
+                variant="subtle"
+                @click="deleteOptionOnEdit(index)"
+              />
+            </div>
           </li>
           <li>
             <dp-button
@@ -348,7 +347,7 @@ export default {
 
   methods: {
     ...mapActions('CustomField', {
-      createCustomField: 'create',
+      createCustomField: 'create'
     }),
 
     ...mapActions('AdminProcedure', {
@@ -374,7 +373,7 @@ export default {
     },
 
     addOptionInputOnEdit () {
-      this.newRowData.options.push({ label: ''})
+      this.newRowData.options.push({ label: '' })
     },
 
     /**
@@ -416,7 +415,7 @@ export default {
     },
 
     editCustomField (rowData) {
-      let previouslyEditedUnsavedField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
+      const previouslyEditedUnsavedField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
 
       if (previouslyEditedUnsavedField) {
         this.resetEditedUnsavedField(previouslyEditedUnsavedField)
@@ -492,9 +491,11 @@ export default {
               description,
               options: JSON.parse(JSON.stringify(options)),
               open: false,
-              edit: false,
+              edit: false
             }
           }
+
+          return undefined
         })
         .filter(field => field !== undefined)
 
@@ -571,7 +572,7 @@ export default {
               const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
-              // fetch custom fields to get a consistent state for the custom fields
+              // Fetch custom fields to get a consistent state for the custom fields
               this.fetchCustomFields()
             })
         }
@@ -679,9 +680,11 @@ export default {
       let isAnyOptionNameDuplicated = false
       customFieldOptions.forEach(option => {
         if (isAnyOptionNameDuplicated) {
-          /* since the array function forEach does not accept continue in its arrow function we have to use return,
-          also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Bad_continue for further info */
-          return
+          /*
+           * Since the array function forEach does not accept continue in its arrow function we have to use return,
+           * also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Bad_continue for further info
+           */
+
         } else if (option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)
         }
