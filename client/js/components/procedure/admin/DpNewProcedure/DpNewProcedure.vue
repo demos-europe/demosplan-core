@@ -328,7 +328,10 @@ export default {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprintData = payload.value === this.masterBlueprintId ? this.emptyBlueprintData : await this.fetchBlueprintData(payload)
       this.description = blueprintData.description
-      this.mainEmail = blueprintData.agencyMainEmailAddress
+
+      if (blueprintData.agencyMainEmailAddress !== '') {
+        this.mainEmail = blueprintData.agencyMainEmailAddress
+      }
     },
 
     fetchBlueprintData (blueprintId) {
