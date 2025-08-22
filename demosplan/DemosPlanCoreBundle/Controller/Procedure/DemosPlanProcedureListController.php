@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -467,6 +468,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         Request $request,
         CurrentProcedureService $currentProcedureService,
         LocationService $locationService,
+        Permissions $permissions,
     ) {
         $this->profilerStart('Proj4ProfilerInit');
         $proj4 = new Proj4php();
@@ -490,7 +492,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $this->profilerStart('searchCity');
-            $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
+            if ($permissions->hasPermission('feature_geocoder_address_search')) {
+                $locationResponse = $locationService->searchAddress($requestGet['query'], $limit);
+            } else {
+                $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
+            }
             $this->profilerStop('searchCity');
 
             $result = $locationResponse['body'];

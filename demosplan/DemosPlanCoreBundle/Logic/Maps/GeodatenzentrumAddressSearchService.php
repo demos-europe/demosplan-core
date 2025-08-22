@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -40,6 +41,7 @@ class GeodatenzentrumAddressSearchService /*
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
+        private readonly Permissions $permissions,
     ) {
     }
 
@@ -51,6 +53,8 @@ class GeodatenzentrumAddressSearchService /*
      */
     public function searchAddress($query, $limit = 20): array
     {
+        $this->permissions->checkPermission('feature_geocoder_address_search');
+
         try {
             $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, [
                 'query' => [

@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
@@ -28,7 +28,7 @@ class LocationSearchController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
-    public function searchLocationJsonAction(Request $request, LocationService $locationService, GlobalConfigInterface $globalConfig): Response
+    public function searchLocationJsonAction(Request $request, LocationService $locationService, Permissions $permissions): Response
     {
         try {
             $query = $request->query->all();
@@ -39,7 +39,7 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-            if ('diplanbau' === $globalConfig->getProjectPrefix()) {
+            if ($permissions->hasPermission('feature_geocoder_address_search')) {
                 $restResponse = $locationService->searchAddress($query['query'], $limit);
             } else {
                 $restResponse = $locationService->searchCity($query['query'], $limit);

@@ -926,6 +926,11 @@ feature_forum_thread_edit:
     label: 'edit forum threads'
     loginRequired: true
     parent: area_development
+feature_geocoder_address_search:
+    description: 'Enables the address search via external API call to Geocoder. Provides an auto-suggestion for addresses.'
+    expose: false
+    label: 'Enables Geocoder address search'
+    loginRequired: false
 feature_gdpr_consent_revoke_by_token:
     description: 'When a statement is submitted the submitter may need to give his GDPR consent (depending feature_statement_gdpr_consent). When this permission is enabled a token is generated for statements submitted user with this permission enabled (if they have provided an email address). The token is send in the submission-confirm email address and can be used by anyone (if this permission is enabled) to open a site where they enters the token and their email address to revoke their GDPR consent which issues the anonymization of the statement. All statements copied from the original statement are affected too.'
     expose: false
