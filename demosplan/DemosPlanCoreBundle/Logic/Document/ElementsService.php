@@ -27,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -43,10 +42,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -55,7 +56,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
-class ElementsService extends CoreService implements ElementsServiceInterface
+class ElementsService implements ElementsServiceInterface
 {
     /**
      * @var SingleDocumentService
@@ -84,6 +85,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         private readonly ElementReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -470,7 +473,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getDocuments() as $singleDocument) {
                             $deletedDocument = $this->singleDocumentService->deleteSingleDocument($singleDocument->getId());
                             if (false === $deletedDocument) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Single Document %s. could not be deleted.',
                                     $singleDocument->getTitle()
                                 ));
@@ -483,7 +486,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
                     $paragraphDeleted = $this->paragraphService->deleteParaDocument($paragraphIds);
                     if (false === $paragraphDeleted) {
-                        $this->getLogger()->error(sprintf(
+                        $this->logger->error(sprintf(
                             'deleteElement: Error while deleting a Kapitel of the element with ID: %s',
                             $elementId
                         ));
@@ -494,7 +497,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getChildren() as $child) {
                             $deleted = $this->deleteElement($child->getId());
                             if (false === $deleted) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Element %s could not be deleted',
                                     $child->getTitle()
                                 ));
@@ -612,7 +615,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -630,11 +633,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
+            $this->logger->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
+            $this->logger->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
 
             return false;
         }
@@ -652,7 +655,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -666,11 +669,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
+            $this->logger->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
+            $this->logger->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
 
             return false;
         }

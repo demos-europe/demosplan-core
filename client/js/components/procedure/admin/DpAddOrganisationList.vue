@@ -27,13 +27,16 @@
       <dp-button
         :text="Translator.trans('invitable_institution.add')"
         data-cy="addPublicAgency"
-        @click="addPublicInterestBodies(selectedItems)" />
-      <a
+        rounded
+        @click="addPublicInterestBodies(selectedItems)"
+      />
+      <dp-button
         :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+        :text="Translator.trans('abort.and.back')"
+        color="secondary"
         data-cy="organisationList:abortAndBack"
-        class="btn btn--secondary">
-        {{ Translator.trans('abort.and.back') }}
-      </a>
+        rounded
+      />
     </div>
   </div>
 </template>
@@ -61,7 +64,6 @@ export default {
   data () {
     return {
       selectedItems: [],
-      searchTerm: '',
       headerFields: [
         {
           field: 'legalName',

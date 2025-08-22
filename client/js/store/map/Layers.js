@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const LayersStore = {
 
@@ -26,6 +26,7 @@ const LayersStore = {
     procedureId: '',
     layerStates: {},
     visibilityGroups: {},
+    visibleVisibilityGroups: [],
     draggableOptions: {},
     draggableOptionsForBaseLayer: {},
     isMapLoaded: false
@@ -100,7 +101,7 @@ const LayersStore = {
      */
     setLayerState (state, { id, key, value }) {
       if (!state.layerStates[id]) {
-        state.layerStates[id] = { }
+        state.layerStates[id] = {}
       }
 
       state.layerStates[id][key] = value
@@ -153,6 +154,20 @@ const LayersStore = {
     },
 
     /**
+     * Sets the initial state of a layer based on API data
+     *
+     * @param state
+     * @param data
+     *
+     * returns {void}
+     */
+    setInitialLayerState (state) {
+      state.apiData.included.forEach(elem => {
+        state.layerStates[elem.id] = { isVisible: elem.attributes.hasDefaultVisibility, opacity: elem.attributes.opacity }
+      })
+    },
+
+    /**
      * Adds a legend object to the legends array
      *
      * @param {Object} data - Legend object with layerId, treeOrder, mapOrder, defaultVisibility, url
@@ -173,11 +188,11 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    setAttributeForLayer (state, data) {
-      const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+    setAttributeForLayer (state, { id, attribute, value }) {
+      const index = state.apiData.included.findIndex(elem => elem.id === id)
 
       if (index >= 0) {
-        state.apiData.included[index].attributes[data.attribute] = data.value
+        state.apiData.included[index].attributes[attribute] = value
       }
     },
 
@@ -211,7 +226,6 @@ const LayersStore = {
 
         return
       }
-
       // From some legacy states, the oldCategoryId and newCategoryId can be 'noIdGiven'
       if (data.oldCategoryId === 'noIdGiven') {
         data.oldCategoryId = null
@@ -251,9 +265,9 @@ const LayersStore = {
           }
 
           /*
-           * We want only Layer from the same kind as the current element in the List.
+           * We want only layers from the same kind as the current element in the list.
            * And Categories are always for the overlay layers
-           * This is necessary because both base and overlay layers have the same root Category
+           * This is necessary because both base and overlay layers have the same root category
            */
           if (isBaseLayer === (el.attributes.layerType === 'base') || (!isBaseLayer && el.attributes.layerType === undefined)) {
             isInList++
@@ -275,11 +289,14 @@ const LayersStore = {
         })
         .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
 
-      // If Element is not in the list, we have to remove it from the old parent ...
+      // If element is not in the list, we have to remove it from the old parent ...
       if (oldCategory.id !== newCategory.id) {
         oldCategory.relationships[relationshipKey].data.splice(data.movedElement.oldIndex, 1)
         // And add it to the new List ...
-        newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
+        newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({
+          id: currentElement.id,
+          type: currentElement.type
+        }))
         // ... And set the new parentId or categoryId for the current element
         currentElement.attributes[parentIdKey] = newCategory.id
         // ... otherwise we have to move it
@@ -301,7 +318,7 @@ const LayersStore = {
      * @returns {void}
      */
     resetOrder (state) {
-      // We have to clone the original state because otherwise after the first reset the reactivity will bound these two objects and will cause changing of originalApiData anytime state.apiData changes
+      // Create copy to avoid mutating originalApiData
       state.apiData = JSON.parse(JSON.stringify(state.originalApiData))
       state.apiData.included.sort((a, b) => ('' + a.attributes.mapOrder).padEnd(21, 0) - ('' + b.attributes.mapOrder).padEnd(21, 0))
     },
@@ -312,6 +329,10 @@ const LayersStore = {
      * @returns {void}
      */
     setVisibilityGroups (state) {
+      if (!state.apiData.included) {
+        return
+      }
+
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
         return !!elem.attributes.visibilityGroupId
       })
@@ -333,9 +354,14 @@ const LayersStore = {
      */
     setMinimapBaseLayer (state, id) {
       const previousMinimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
-      if (previousMinimap) { previousMinimap.attributes.isMinimap = false }
 
-      if (id === '') { return }
+      if (previousMinimap) {
+        previousMinimap.attributes.isMinimap = false
+      }
+
+      if (id === '') {
+        return
+      }
 
       const newMinimap = state.apiData.included.find(elem => elem.id === id)
       newMinimap.attributes.isMinimap = true
@@ -349,7 +375,6 @@ const LayersStore = {
     setIsMapLoaded (state) {
       state.isMapLoaded = true
     }
-
   },
 
   actions: {
@@ -357,48 +382,17 @@ const LayersStore = {
      * Fetches layer data from the API for a specific procedure
      *
      * @param {string} procedureId - Procedure ID to fetch layers for
+     * @param {object} fields - Fields to include in the API request
      *
      * @returns {Promise} API response promise
      */
-    get ({ commit, dispatch }, procedureId) {
+    get ({ commit, dispatch }, { procedureId, fields = {} }) {
       commit('setProcedureId', procedureId)
 
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'GisLayerCategory',
         include: 'gisLayers',
-        fields: {
-          GisLayerCategory: [
-            'categories',
-            'gisLayers',
-            'hasDefaultVisibility',
-            'isVisible',
-            'name',
-            'layerWithChildrenHidden',
-            'parentId',
-            'treeOrder'
-          ].join(),
-          GisLayer: [
-            'canUserToggleVisibility',
-            'categoryId',
-            'contextualHelp',
-            'hasDefaultVisibility',
-            'isBaseLayer',
-            'isBplan',
-            'isEnabled',
-            'isMinimap',
-            'isPrint',
-            'isScope',
-            'layers',
-            'layerType',
-            'mapOrder',
-            'name',
-            'opacity',
-            'projectionLabel',
-            'treeOrder',
-            'url',
-            'visibilityGroupId'
-          ].join()
-        },
+        fields,
         filter: {
           name: {
             condition: {
@@ -408,8 +402,7 @@ const LayersStore = {
           }
         }
       }))
-        .then(checkResponse)
-        .then(data => {
+        .then(({ data }) => {
           commit('updateApiData', data)
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')
@@ -534,9 +527,8 @@ const LayersStore = {
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
-          dispatch('get', state.procedureId)
+          dispatch('get', { procedureId: state.procedureId })
             .then(() => {
               commit('setActiveLayerId', '')
             })
@@ -546,6 +538,9 @@ const LayersStore = {
         })
         .catch(err => {
           console.error('Error: save layer', err)
+        })
+        .finally(() => {
+          commit('setActiveLayerId', '')
         })
     },
 
@@ -567,16 +562,17 @@ const LayersStore = {
         id = element.categoryId
       }
 
-      return dpApi.delete(Routing.generate('api_resource_delete', {
-        resourceType: currentType,
-        resourceId: id
-      }))
-        .then(response => this.api.checkResponse(response, {
-          204: {
-            text: Translator.trans('confirm.gislayer.delete'),
-            type: 'confirm'
+      return dpApi.delete(
+        Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }),
+        {},
+        {
+          messages: {
+            204: {
+              text: Translator.trans('confirm.gislayer.delete'),
+              type: 'confirm'
+            }
           }
-        }))
+        })
         .then(() => {
           commit('removeElement', {
             id: element.id,
@@ -584,6 +580,161 @@ const LayersStore = {
             relationshipType: element.relationshipType
           })
         })
+    },
+
+    /**
+     * Recursively finds the topmost parent category for a given layer
+     *
+     * @param {Object} child - Layer/Category object to find parent for
+     *
+     * @returns {string} next category ID below the root category
+     */
+    findMostParentCategory ({ dispatch, state }, child) {
+      const rootId = state.apiData.data[0].id
+      const parentId = child.attributes.categoryId || child.attributes.parentId
+
+      if (parentId === rootId) {
+        return child.id
+      } else {
+        const parent = state.apiData.included.find(el => el.id === parentId)
+
+        // If the parent is not in the included list, it has to be the root category
+        if (!parent) {
+          return child.id
+        }
+
+        return dispatch('findMostParentCategory', parent)
+      }
+    },
+
+    /**
+     * Recursively toggles visibility of a category and all its children
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.id - Category ID
+     * @param {boolean} payload.value - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleCategoryAndItsChildren ({ dispatch, commit, state }, { id, isVisible }) {
+      const el = state.apiData.included.find(el => el.id === id)
+
+      commit('setLayerState', { id: el.id, key: 'isVisible', value: isVisible })
+
+      if (el.type === 'GisLayerCategory') {
+        el.relationships?.categories?.data.forEach(cat => {
+          dispatch('toggleCategoryAndItsChildren', { id: cat.id, isVisible })
+        })
+
+        el.relationships?.gisLayers?.data.forEach(layer => {
+          dispatch('toggleCategoryAndItsChildren', { id: layer.id, isVisible })
+        })
+      }
+    },
+
+    /**
+     * Toggles base layer visibility (only one base layer can be visible at a time)
+     *
+     * @param {string} id - Base layer ID
+     * @param {boolean} setToVisible - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleBaselayer ({ dispatch, state, commit }, { id, setToVisible }) {
+      // You can't toggle a base layer "off" if it is visible because we don't know which layer to show instead.
+      const currentBaseLayerIsVisible = state.layerStates[id]?.isVisible
+        ? true
+        : state.apiData.included.find(layer => layer.id === id).attributes.isVisible
+
+      if (!(currentBaseLayerIsVisible && setToVisible)) {
+        state.apiData.included.forEach(potentialBaseLayer => {
+          if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
+            commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
+          }
+
+          if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id === id) {
+            commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: true })
+          }
+        })
+      }
+    },
+
+    /**
+     * If the layer is an overlay and the flag hasAlternateVisibility is set, we need to hide all other categories and category-members
+     * that don't belong to the category of the current layer
+     *
+     * @param {Object} layer - layer object to toggle visibility for
+     *
+     * @returns {void}
+     */
+    async toggleCategoryAlternatively ({ dispatch, state, commit }, layer) {
+      const toggledCatId = await dispatch('findMostParentCategory', layer)
+        .catch(() => {
+          console.error('Error finding most parent category for layer:', layer.id)
+
+          return layer.id
+        })
+
+      dispatch('toggleCategoryAndItsChildren', { id: toggledCatId, isVisible: true })
+
+      state.apiData.data[0].relationships.categories.data
+        .filter(cat => cat.id !== toggledCatId)
+        .forEach(cat => {
+          dispatch('toggleCategoryAndItsChildren', { id: cat.id, isVisible: false })
+        })
+    },
+
+    /**
+     * Toggles visibility for all layers in a visibility group
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.visibilityGroupId - Visibility group ID
+     * @param {boolean} payload.value - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleVisiblityGroup ({ dispatch, state, commit }, { visibilityGroupId, value }) {
+      state.apiData.included.forEach(potentialGroupMember => {
+        if (potentialGroupMember.attributes.visibilityGroupId === visibilityGroupId) {
+          commit('setLayerState', { id: potentialGroupMember.id, key: 'isVisible', value })
+        }
+      })
+    },
+
+    /**
+     * Updates layer visibility with various logic modes (exclusive, grouped, etc.)
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.id - Layer ID
+     * @param {boolean} payload.value - Visibility value
+     * @param {boolean} payload.layerGroupsAlternateVisibility - Whether to use alternate visibility mode
+     * @param {boolean} payload.exclusively - Whether this is exclusive (base layer) mode
+     *
+     * @returns {void}
+     */
+    async updateLayerVisibility ({ dispatch, state, commit }, { id, isVisible, layerGroupsAlternateVisibility, exclusively }) {
+      const layer = state.apiData.included.find(layer => layer.id === id)
+      const parentId = layer.attributes.categoryId || layer.attributes.parentId
+      const rootId = state.apiData.data[0].id
+
+      // If it's a base layer, we toggle it exclusively
+      if (exclusively) {
+        await dispatch('toggleBaselayer', { id, setToVisible: isVisible })
+      } else if (layer.attributes.visibilityGroupId) {
+        // If the Layer has a visibilityGroupId, we toggle the whole group
+        await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
+      } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
+        dispatch('toggleCategoryAlternatively', layer)
+      } else {
+        commit('setLayerState', { id, key: 'isVisible', value: isVisible })
+
+        // If there is at least one visible layer, the parent category should be visible too
+        if (isVisible && parentId && parentId !== rootId) {
+          dispatch('updateLayerVisibility', { id: parentId, isVisible, layerGroupsAlternateVisibility, exclusively })
+        }
+
+        Promise.resolve()
+      }
     }
   },
 
@@ -592,8 +743,8 @@ const LayersStore = {
      * Gets the complete object for an element by ID and type
      *
      * @param {Object} element - Element identifier
-     * @param {string} element.id
-     * @param {string} element.type
+     * @param {string} element.id - Element ID
+     * @param {string} element.type - Element type
      *
      * @returns {Object} Complete element object or empty object if not found
      */
@@ -615,7 +766,7 @@ const LayersStore = {
     /**
      * Gets a filtered and sorted list of GIS layers
      *
-     * @param {string|undefined} [type] - Layer type filter ('overlay', 'base'. Can be undefined. Then it falls back to all layers)
+     * @param {string} [type] - Layer type filter ('overlay', 'base', etc.)
      *
      * @returns {Array} Array of GisLayer objects sorted by mapOrder
      */
@@ -658,6 +809,17 @@ const LayersStore = {
      */
     isLayerVisible: state => layerId => {
       return state.layerStates[layerId]?.isVisible || false
+    },
+
+    /**
+     * Gets the visibility state of a visibility group
+     *
+     * @param {string} visibilityGroupId - Visibility group ID
+     *
+     * @returns {boolean} Visibility group state
+     */
+    isVisibilityGroupVisible: state => visibilityGroupId => {
+      return state.visibleVisibilityGroups.includes(visibilityGroupId)
     },
 
     /**

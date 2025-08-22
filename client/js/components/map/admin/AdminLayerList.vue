@@ -205,22 +205,27 @@
         class="text-right mt-5 space-x-2"
         v-if="!isLoading">
         <dp-button
-          data-cy="adminLayerList:save"
           :busy="!isEditable"
           :text="Translator.trans('save')"
-          @click="saveOrder" />
+          data-cy="adminLayerList:save"
+          rounded
+          @click="saveOrder"
+        />
         <dp-button
-          data-cy="adminLayerList:saveAndReturn"
           :busy="!isEditable"
           :text="Translator.trans('save.and.return.to.list')"
-          @click="saveOrder(true)" />
-        <button
-          class="btn btn--secondary"
+          data-cy="adminLayerList:saveAndReturn"
+          rounded
+          @click="saveOrder(true)"
+        />
+        <dp-button
+          :text="Translator.trans('reset.order')"
+          color="secondary"
           data-cy="adminLayerList:resetOrder"
+          rounded
           type="reset"
-          @click.prevent="resetOrder">
-          {{ Translator.trans('reset.order') }}
-        </button>
+          @click.prevent="resetOrder"
+        />
       </div>
     </div>
   </div>
@@ -269,8 +274,7 @@ export default {
   computed: {
     ...mapState('Layers', [
       'draggableOptions',
-      'draggableOptionsForBaseLayer',
-      'draggableOptionsForCategorysWithHiddenLayers'
+      'draggableOptionsForBaseLayer'
     ]),
 
     ...mapGetters('Layers', [
@@ -353,9 +357,8 @@ export default {
       'setAttributeForLayer',
       'setChildrenFromCategory',
       'resetOrder',
-      'setDraggableOptions',
-      'setDraggableOptionsForBaseLayer',
-      'setMinimapBaseLayer'
+      'setMinimapBaseLayer',
+      'updateState'
     ]),
 
     updateChildren (ev) {
@@ -414,7 +417,40 @@ export default {
   },
 
   mounted () {
-    this.getLayers(this.procedureId)
+    const payload = {
+      procedureId: this.procedureId,
+      fields: {
+        GisLayerCategory: [
+          'categories',
+          'gisLayers',
+          'hasDefaultVisibility',
+          'isVisible',
+          'name',
+          'layerWithChildrenHidden',
+          'parentId',
+          'treeOrder'
+        ].join(),
+        GisLayer: [
+          'canUserToggleVisibility',
+          'categoryId',
+          'hasDefaultVisibility',
+          'isBaseLayer',
+          'isBplan',
+          'isEnabled',
+          'isMinimap',
+          'isPrint',
+          'isScope',
+          'layers',
+          'layerType',
+          'mapOrder',
+          'name',
+          'treeOrder',
+          'url',
+          'visibilityGroupId'
+        ].join()
+      }
+    }
+    this.getLayers(payload)
       .then(() => {
         this.isLoading = false
         this.currentMinimapLayer = this.minimapLayer
@@ -438,19 +474,22 @@ export default {
       dragClass: 'o-sortablelist__drag' // Class name for the dragging item
     }
 
-    this.setDraggableOptions({
-      ...basicOptions,
-      ...{
-        group: {
-          name: 'treeList',
-          revertClone: false,
-          pull: ['treeList'],
-          push: ['treeList']
+    this.updateState({
+      key: 'draggableOptions',
+      value: {
+        ...basicOptions,
+        ...{
+          group: {
+            name: 'treeList',
+            revertClone: false,
+            pull: ['treeList'],
+            push: ['treeList']
+          }
         }
       }
     })
 
-    this.setDraggableOptionsForBaseLayer(basicOptions)
+    this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
   }
 }
 </script>

@@ -218,6 +218,9 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             ->withRelatedProcedure($procedure->_real())
             ->asRadioButton('Color2')->create();
 
+        $customField1Option1 = $customField1->getConfiguration()->getOptions()[0];
+        $customField2Option3 = $customField2->getConfiguration()->getOptions()[2];
+
         $preUpdateContentChangeEntriesCount = $this->countEntries(EntityContentChange::class);
 
         $segments[0] = $segments[0]->_real();
@@ -231,8 +234,8 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $this->testUser,
             null,
             [
-                ['id' => $customField1->getId(), 'value' => 'orange'],
-                ['id' => $customField2->getId(), 'value' => 'red'],
+                ['id' => $customField1->getId(), 'value' => $customField1Option1->getId()],
+                ['id' => $customField2->getId(), 'value' => $customField2Option3->getId()],
             ]
         );
 
@@ -258,15 +261,19 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $newValuesOfHistoryOfSegment1[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
         }
 
+        $selectedOptionCustomField1Id = $segments[0]->getCustomFields()->findById($customField1->getId())->getValue();
+        $selectedOptionCustomField1Label = $customField1->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField1Id)->getLabel();
         self::assertEquals('', Json::decodeToArray($historyOfSegment1[0]->getContentChange())[0][0]['old']['lines'][0]);
         self::assertContains(
-            $segments[0]->getCustomFields()->findById($customField1->getId())->getValue(),
+            $selectedOptionCustomField1Label,
             $newValuesOfHistoryOfSegment1
         );
 
+        $selectedOptionCustomField2Id = $segments[0]->getCustomFields()->findById($customField2->getId())->getValue();
+        $selectedOptionCustomField2Label = $customField2->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField2Id)->getLabel();
         self::assertEquals('', Json::decodeToArray($historyOfSegment1[1]->getContentChange())[0][0]['old']['lines'][0]);
         self::assertContains(
-            $segments[0]->getCustomFields()->findById($customField2->getId())->getValue(),
+            $selectedOptionCustomField2Label,
             $newValuesOfHistoryOfSegment1
         );
 
@@ -286,15 +293,19 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $newValuesOfHistoryOfSegment2[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
         }
 
+        $selectedOptionCustomField1Id = $segments[1]->getCustomFields()->findById($customField1->getId())->getValue();
+        $selectedOptionCustomField1Label = $customField1->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField1Id)->getLabel();
         self::assertEquals('', Json::decodeToArray($historyOfSegment2[0]->getContentChange())[0][0]['old']['lines'][0]);
         self::assertContains(
-            $segments[1]->getCustomFields()->findById($customField1->getId())->getValue(),
+            $selectedOptionCustomField1Label,
             $newValuesOfHistoryOfSegment2
         );
 
+        $selectedOptionCustomField2Id = $segments[1]->getCustomFields()->findById($customField2->getId())->getValue();
+        $selectedOptionCustomField2Label = $customField2->getConfiguration()->getCustomOptionValueById($selectedOptionCustomField2Id)->getLabel();
         self::assertEquals('', Json::decodeToArray($historyOfSegment2[1]->getContentChange())[0][0]['old']['lines'][0]);
         self::assertContains(
-            $segments[1]->getCustomFields()->findById($customField2->getId())->getValue(),
+            $selectedOptionCustomField2Label,
             $newValuesOfHistoryOfSegment2
         );
     }

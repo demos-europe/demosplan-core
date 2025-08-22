@@ -1,5 +1,5 @@
 /**
- * (c) 2010-present DEMOS E-Partizipation GmbH.
+ * (c) 2010-present DEMOS plan GmbH.
  *
  * This file is part of the package demosplan,
  * for more information see the license file.
@@ -615,6 +615,10 @@ export const apiData = {
       }
     }
   }],
-  meta: { messages: { confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }] } },
+  meta: {
+    messages: {
+      confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }]
+    }
+  },
   jsonapi: { version: '1.0' }
 }

@@ -438,8 +438,6 @@ export default {
           targetProcedureId: data.procedureId
         })
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -458,7 +456,6 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection') // The selected statements were deleted, so we can completely reset selection
 
@@ -466,7 +463,7 @@ export default {
           data.relationships.statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
 
           // Transform newCluster from BE from JSON:API structure into our old structure
-          const transformedStatement = transformStatementStructure({ el: response.data, includes: response.included, meta: response.meta })
+          const transformedStatement = transformStatementStructure({ el: response.data.data, includes: response.data.included, meta: response.data.meta })
 
           // Add new cluster to store with addStatement mutation
           commit('addStatement', transformedStatement)
@@ -625,20 +622,19 @@ export default {
           include: includes.join(',')
         })
       })
-        .then(this.api.checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           performance.mark('start')
-          commit('updatePagination', response.meta.pagination)
+          commit('updatePagination', data.meta.pagination)
           commit('resetStatements')
-          commit('setFilteredState', response.meta.isFiltered)
-          commit('setInitStatements', response.meta.statementAssignments)
-          commit('setStatementGrouping', response.meta.grouping)
-          commit('updateFilterHash', response.meta.filterHash)
+          commit('setFilteredState', data.meta.isFiltered)
+          commit('setInitStatements', data.meta.statementAssignments)
+          commit('setStatementGrouping', data.meta.grouping)
+          commit('updateFilterHash', data.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
-          response.data.forEach(statement => {
-            const transformedStatement = prepareStatement({ el: statement, includes: response.included, meta: response.meta })
+          data.data.forEach(statement => {
+            const transformedStatement = prepareStatement({ el: statement, includes: data.included, meta: data.meta })
 
             if (hasOwnProp(state.selectedElements, transformedStatement.id)) {
               sessionStorageUpdates[transformedStatement.id] = transformedStatement
@@ -658,7 +654,7 @@ export default {
           performance.mark('end')
           performance.measure('dur', 'start', 'end')
 
-          return response
+          return data
         })
         .catch(e => {
           console.error(e)
@@ -683,8 +679,6 @@ export default {
           deleteVersionHistory: data.deleteVersionHistory
         }
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -757,7 +751,6 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let assignee = {}
           if (assigneeId === '' || assigneeId == null) {
@@ -765,7 +758,12 @@ export default {
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           } else {
-            assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            assignee = {
+              id: response.data.data.id,
+              uId: response.data.data.id,
+              name: response.data.data.attributes.name,
+              orgaName: response.data.data.attributes.orgaName
+            }
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           }
@@ -886,11 +884,10 @@ export default {
           'Content-type': 'application/json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let dataToUpdate = {}
           const updatedData = setUpdatedProps(data)
-          dataToUpdate = getDataFromResponse(response, dataToUpdate, updatedData)
+          dataToUpdate = getDataFromResponse(response.data, dataToUpdate, updatedData)
 
           /*
            * If paragraph or file was deleted by choosing an element without paragraphs or file,
@@ -933,7 +930,6 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection')
 

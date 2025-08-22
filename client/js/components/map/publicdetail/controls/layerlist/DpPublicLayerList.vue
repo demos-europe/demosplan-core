@@ -18,16 +18,18 @@
         :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
         :layer="layer"
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
-        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :parent-is-visible="parentIsVisible"
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)" />
       <dp-public-layer-list-category
         v-else
-        :key="`category:${layer.id}`"
         :group="layer"
+        :key="`category:${layer.id}`"
+        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
-        :visible="true"
-        :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
+        :parent-is-visible="parentIsVisible"
+        :visible="true" />
     </template>
   </ul>
 </template>
@@ -69,12 +71,20 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    parentIsVisible: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
 
-  emits: [
-    'layer:toggleLayer'
-  ],
+  data () {
+    return {
+      isLoading: true
+    }
+  },
 
   computed: {
     showBaseLayers () {
@@ -113,15 +123,52 @@ export default {
   watch: {
     isMapAndLayersReady: {
       handler () {
-        if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
-          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
-        }
+        if (!this.isLoading) return
+
+        this.isLoading = false
+        this.$store.commit('Layers/setInitialLayerState')
+
+        this.$nextTick(() => {
+          const firstActiveBaseLayerId = this.getFirstActiveBaseLayerId()
+
+          if (!firstActiveBaseLayerId) return
+
+          this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, setToVisible: true })
+        })
       },
       deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
   methods: {
+    /**
+     * Get the first active base layer ID from the list of layers.
+     *
+     * @return {string}
+     */
+    getFirstActiveBaseLayerId () {
+      const layers = this.layers
+      const l = layers.length
+
+      let i = 0
+      let layer
+      for (; i < l; i++) {
+        layer = layers[i]
+
+        if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
+          return layer.id
+        }
+      }
+
+      return this.layers.filter(layer => layer.attributes.layerType === 'base')[0]?.id || ''
+    },
+
+    /**
+     * Returns a prefixed class name for the given classList.
+     *
+     * @param {Array} classList - List of class names to prefix.
+     * @returns {Array} - Prefixed class names.
+     */
     prefixClass (classList) {
       return prefixClass(classList)
     }
