@@ -20,7 +20,8 @@ describe('AdminLayerList', () => {
 
   beforeEach(() => {
     mutations = {
-      setMinimapBaseLayer: jest.fn()
+      setMinimapBaseLayer: jest.fn(),
+      updateState: jest.fn()
     }
 
     actions = {

@@ -357,7 +357,7 @@
                 }"
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
-                :value="formData.r_represents"
+                :model-value="formData.r_represents"
                 @input="val => setStatementData({r_represents: val})" />
             </div>
           </fieldset>
@@ -563,7 +563,9 @@
           :class="prefixClass('mt-4')"
           aria-required="true"
         >
-          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <legend class="sr-only">
+            {{ Translator.trans('personal.data') }}
+          </legend>
           <div :class="prefixClass('layout mb-3')">
             <component
               v-for="formDefinition in personalDataFormDefinitions"

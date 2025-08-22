@@ -84,13 +84,6 @@ export default {
     }
   },
 
-  emits: [
-    'layer:hideOtherCategories',
-    'layer:showParent',
-    'layer:toggleChildCategories',
-    'layer:toggleChildLayer'
-  ],
-
   data () {
     return {
       unfolded: false,
@@ -103,6 +96,10 @@ export default {
   computed: {
     ...mapGetters('Layers', ['isLayerVisible', 'element', 'elementListForLayerSidebar', 'rootId']),
 
+    contextualHelpId () {
+      return 'contextualHelp' + this.group.id
+    },
+
     isTopLevelCategory () {
       return this.rootId === this.group.attributes.parentId
     },
@@ -112,7 +109,7 @@ export default {
     },
 
     layers () {
-      return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
+      return this.elementListForLayerSidebar(this.group.id, 'overlay', true)
     }
   },
 
@@ -133,44 +130,17 @@ export default {
 
     // Toggle self and children
     toggle () {
-      this.toggleCategoryAndItsChildren({ id: this.group.id, isVisible: !this.isVisible })
-    },
-
-    isParentOf (elementList, categoryId) {
-      let isParent = false
-
-      for (const key in elementList) {
-        //  Skip loop if the property is from prototype
-        if (hasOwnProp(elementList, key) === false) continue
-
-        const element = elementList[key]
-
-        //  If the currently looped category is the direct parent of the toggled layer, return here
-        if (element.type === 'GisLayerCategory' && element.id === categoryId) {
-          return true
-        }
-
-        //  If the currently looped category is not the parent of toggled layer, check its child categories
-        if (element.type === 'GisLayerCategory' && element.id !== categoryId) {
-          const elementList = this.elementListForLayerSidebar(element.id, 'overlay', true)
-
-          isParent = this.isParentOf(elementList, categoryId)
-        }
-      }
-
-      return isParent
+      this.$store.dispatch('Layers/updateLayerVisibility', {
+        id: this.group.id,
+        isVisible: !this.isVisible,
+        layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility
+      })
     }
   },
 
   mounted () {
-    if (this.group.attributes.isVisible) {
-      this.setLayerState({ id: this.group.id, key: 'isVisible', value: true })
-    }
-
     // Handle data for the category that has to appear as Layer and hides his children
-    if (this.group.attributes.layerWithChildrenHidden) {
-      this.appearsAsLayer = true
-      this.isVisible = this.group.attributes.hasDefaultVisibility
+    if (this.appearsAsLayer) {
       // Get contextualHelp from all children
       this.layers.forEach(el => {
         const contextualHelp = this.element({ id: el.id, type: 'ContextualHelp' })

@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import { DpInlineNotification, DpLoading, DpModal, hasOwnProp} from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {

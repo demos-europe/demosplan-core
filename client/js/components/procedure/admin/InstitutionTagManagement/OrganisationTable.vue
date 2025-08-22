@@ -11,7 +11,6 @@ All rights reserved
   <div
     ref="contentArea"
     class="mt-2">
-
     <dp-loading
       v-if="isLoading"
       class="mt-4" />

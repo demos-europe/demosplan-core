@@ -78,7 +78,7 @@
           type="email"
           :model-value="statement.r_email2"
           width="u-1-of-1-palm u-1-of-2"
-          @input="val => setStatementData({r_email2: val})" /><!--
+        @input="val => setStatementData({r_email2: val})" /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
           id="r_getEvaluation_snailmail"

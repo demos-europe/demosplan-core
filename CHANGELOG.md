@@ -5,11 +5,17 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Allow to edit custom field type singleSelect
+- Mark outdated map layers in the map settings
+
+## v4.10.1 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.10.0 (2025-07-30)
 ## v4.9.1 (2025-08-07)
 - Fix time based procedure phase switch
 
 ## v4.9.0 (2025-07-30)
-- Display Keycloak logout countdown warning in the header and logout automatically
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements
 - Migrate to Tailwind CSS v4
