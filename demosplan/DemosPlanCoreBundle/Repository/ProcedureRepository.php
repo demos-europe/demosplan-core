@@ -786,6 +786,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
             }
 
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
+
             $this->transferDesignatedExternalSwitch($procedureSettings, $data);
             $this->transferDesignatedInternalSwitch($procedureSettings, $data);
 

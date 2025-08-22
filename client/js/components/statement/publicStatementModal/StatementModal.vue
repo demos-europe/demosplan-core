@@ -497,6 +497,7 @@
           :is="formDefinition.component"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="formDefinition.required" />
         <div :class="prefixClass('text-right u-mt-0_5')">
           <button
@@ -803,6 +804,12 @@ export default {
     },
 
     publicParticipationPublicationEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
       default: false

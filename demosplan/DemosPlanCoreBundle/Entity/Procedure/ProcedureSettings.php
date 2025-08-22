@@ -336,6 +336,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     private $allowedSegmentAccessProcedures;
 
+    /**
+     * Enable publication of Feedback possibility.
+     *
+     * @ORM\Column(name="_p_public_participation_feedback_enabled", type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $publicParticipationFeedbackEnabled = false;
+
     public function __construct()
     {
         $this->allowedSegmentAccessProcedures = new ArrayCollection();
@@ -1121,5 +1128,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
         $this->designatedPublicPhaseChangeUser = $designatedPublicPhaseChangeUser;
 
         return $this;
+    }
+
+    public function setPublicParticipationFeedbackEnabled(bool $enabled): ProcedureSettingsInterface
+    {
+        $this->publicParticipationFeedbackEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function isPublicParticipationFeedbackEnabled(): bool
+    {
+        return $this->publicParticipationFeedbackEnabled;
     }
 }
