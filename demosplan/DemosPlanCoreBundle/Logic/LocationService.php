@@ -45,11 +45,11 @@ class LocationService
     public function searchAddress($searchString, $limit = 20)
     {
         $logContext = [
-            'service' => 'LocationService',
-            'method' => 'searchAddress',
-            'searchString' => $searchString,
-            'limit' => $limit,
-            'usingExternalApi' => true
+            'service'          => 'LocationService',
+            'method'           => 'searchAddress',
+            'searchString'     => $searchString,
+            'limit'            => $limit,
+            'usingExternalApi' => true,
         ];
 
         $this->logger->info('Starting address search via Geodatenzentrum API', $logContext);
@@ -64,8 +64,8 @@ class LocationService
                 $this->logger->info('Address search completed successfully with results', [
                     ...$logContext,
                     'resultCount' => $resultCount,
-                    'hasResults' => true,
-                    'firstResult' => $locations[0]['name'] ?? 'unknown'
+                    'hasResults'  => true,
+                    'firstResult' => $locations[0]['name'] ?? 'unknown',
                 ]);
 
                 return ['body' => $locations];
@@ -74,21 +74,20 @@ class LocationService
             $this->logger->info('Address search completed with no results', [
                 ...$logContext,
                 'resultCount' => 0,
-                'hasResults' => false,
-                'note' => 'This may be normal for very specific or non-existent addresses'
+                'hasResults'  => false,
+                'note'        => 'This may be normal for very specific or non-existent addresses',
             ]);
 
             return ['body' => []];
-
         } catch (Exception $e) {
             $this->logger->error('Address search failed via Geodatenzentrum API', [
                 ...$logContext,
-                'error' => $e->getMessage(),
-                'errorType' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'error'             => $e->getMessage(),
+                'errorType'         => get_class($e),
+                'file'              => $e->getFile(),
+                'line'              => $e->getLine(),
                 'fallbackAvailable' => false,
-                'troubleshooting' => 'Check external API availability and network connectivity'
+                'troubleshooting'   => 'Check external API availability and network connectivity',
             ]);
 
             return ['body' => []];
@@ -108,24 +107,24 @@ class LocationService
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
         $logContext = [
-            'service' => 'LocationService',
-            'method' => 'searchCity',
-            'searchString' => $searchString,
-            'limit' => $limit,
-            'maxExtent' => $maxExtent,
-            'usingExternalApi' => true,
-            'databaseSearchDisabled' => true
+            'service'                => 'LocationService',
+            'method'                 => 'searchCity',
+            'searchString'           => $searchString,
+            'limit'                  => $limit,
+            'maxExtent'              => $maxExtent,
+            'usingExternalApi'       => true,
+            'databaseSearchDisabled' => true,
         ];
 
         $this->logger->info('Starting city search - USING EXTERNAL API (database search disabled)', $logContext);
 
-        if ($maxExtent !== null) {
+        if (null !== $maxExtent) {
             $this->logger->warning('Map extent filtering requested but NOT SUPPORTED by external API', [
                 ...$logContext,
-                'impact' => 'Map extent parameter is ignored when using Geodatenzentrum API',
+                'impact'           => 'Map extent parameter is ignored when using Geodatenzentrum API',
                 'originalBehavior' => 'Database search supported geographic filtering via maxExtent',
-                'currentBehavior' => 'External API returns results without geographic filtering',
-                'recommendation' => 'Consider implementing client-side filtering if geographic bounds are critical'
+                'currentBehavior'  => 'External API returns results without geographic filtering',
+                'recommendation'   => 'Consider implementing client-side filtering if geographic bounds are critical',
             ]);
         }
 
@@ -136,46 +135,45 @@ class LocationService
 
             $this->logger->info('City search completed via external API', [
                 ...$logContext,
-                'resultCount' => $resultCount,
+                'resultCount'   => $resultCount,
                 'apiTransition' => [
-                    'from' => 'database query (LocationRepository::searchCity)',
-                    'to' => 'external Geodatenzentrum API (GeodatenzentrumAddressSearchService::searchAddress)',
+                    'from'              => 'database query (LocationRepository::searchCity)',
+                    'to'                => 'external Geodatenzentrum API (GeodatenzentrumAddressSearchService::searchAddress)',
                     'functionalChanges' => [
                         'mapExtentFiltering' => 'no longer available',
-                        'dataSource' => 'changed from internal database to external service',
-                        'dependency' => 'now requires external service availability'
-                    ]
+                        'dataSource'         => 'changed from internal database to external service',
+                        'dependency'         => 'now requires external service availability',
+                    ],
                 ],
-                'firstResult' => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null
+                'firstResult' => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null,
             ]);
 
             return ['body' => $locations];
-
         } catch (Exception $e) {
             $this->logger->error('City search failed via external API', [
                 ...$logContext,
-                'error' => $e->getMessage(),
-                'errorType' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'error'           => $e->getMessage(),
+                'errorType'       => get_class($e),
+                'file'            => $e->getFile(),
+                'line'            => $e->getLine(),
                 'fallbackOptions' => [
                     'databaseFallback' => 'Not implemented - would require uncommenting repository call',
-                    'currentBehavior' => 'Return empty results on external API failure',
-                    'riskAssessment' => 'Complete service failure if external API is unavailable'
+                    'currentBehavior'  => 'Return empty results on external API failure',
+                    'riskAssessment'   => 'Complete service failure if external API is unavailable',
                 ],
                 'troubleshooting' => [
                     'immediateSteps' => [
                         'Check Geodatenzentrum API status',
                         'Verify network connectivity to external service',
                         'Review API timeout settings (currently 30s)',
-                        'Check application logs for HTTP client errors'
+                        'Check application logs for HTTP client errors',
                     ],
                     'recoveryOptions' => [
                         'Consider implementing database fallback',
                         'Monitor external service uptime',
-                        'Implement circuit breaker pattern for resilience'
-                    ]
-                ]
+                        'Implement circuit breaker pattern for resilience',
+                    ],
+                ],
             ]);
 
             return ['body' => []];

@@ -64,12 +64,12 @@ class GeodatenzentrumAddressSearchService /*
     {
         $startTime = microtime(true);
         $logContext = [
-            'service' => 'GeodatenzentrumAddressSearchService',
-            'method' => 'searchAddress',
-            'query' => $query,
-            'limit' => $limit,
-            'maxExtent' => $maxExtent,
-            'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH
+            'service'      => 'GeodatenzentrumAddressSearchService',
+            'method'       => 'searchAddress',
+            'query'        => $query,
+            'limit'        => $limit,
+            'maxExtent'    => $maxExtent,
+            'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
         ];
 
         // Check permissions before making external API call
@@ -78,9 +78,9 @@ class GeodatenzentrumAddressSearchService /*
         } catch (Exception $permissionException) {
             $this->logger->error('Permission denied for address search', [
                 ...$logContext,
-                'error' => $permissionException->getMessage(),
-                'errorType' => 'PermissionException',
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                'error'          => $permissionException->getMessage(),
+                'errorType'      => 'PermissionException',
+                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
             ]);
             throw $permissionException;
         }
@@ -88,7 +88,7 @@ class GeodatenzentrumAddressSearchService /*
         try {
             $requestOptions = [
                 'timeout' => 30, // 30 second timeout for external API
-                'query' => [
+                'query'   => [
                     'query'        => $query,
                     'format'       => 'json',
                     'limit'        => $limit,
@@ -99,12 +99,13 @@ class GeodatenzentrumAddressSearchService /*
             $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, $requestOptions);
             $statusCode = $response->getStatusCode();
 
-            if ($statusCode !== 200) {
+            if (200 !== $statusCode) {
                 $this->logger->error('Geodatenzentrum API error - non-200 status', [
                     ...$logContext,
-                    'statusCode' => $statusCode,
-                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                    'statusCode'     => $statusCode,
+                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
                 ]);
+
                 return [];
             }
 
@@ -113,9 +114,10 @@ class GeodatenzentrumAddressSearchService /*
             if (!isset($result['features']) || !is_array($result['features'])) {
                 $this->logger->error('Geodatenzentrum API error - invalid response format', [
                     ...$logContext,
-                    'responseKeys' => array_keys($result),
-                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                    'responseKeys'   => array_keys($result),
+                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
                 ]);
+
                 return [];
             }
 
@@ -128,31 +130,30 @@ class GeodatenzentrumAddressSearchService /*
             }
 
             return $formattedResults;
-
         } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
             $statusCode = method_exists($e, 'getResponse') ? $e->getResponse()->getStatusCode() : 'unknown';
             $this->logger->error('Geodatenzentrum API request failed', [
                 ...$logContext,
-                'error' => $e->getMessage(),
-                'errorType' => get_class($e),
-                'statusCode' => $statusCode,
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                'error'          => $e->getMessage(),
+                'errorType'      => get_class($e),
+                'statusCode'     => $statusCode,
+                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
             ]);
-            return [];
 
+            return [];
         } catch (RedirectionExceptionInterface $e) {
             // Expected redirections are ignored, service continues normally
             return [];
-
         } catch (Throwable $e) {
             $this->logger->error('Unexpected error during Geodatenzentrum address search', [
                 ...$logContext,
-                'error' => $e->getMessage(),
-                'errorType' => get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                'error'          => $e->getMessage(),
+                'errorType'      => get_class($e),
+                'file'           => $e->getFile(),
+                'line'           => $e->getLine(),
+                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
             ]);
+
             return [];
         }
     }
@@ -183,7 +184,7 @@ class GeodatenzentrumAddressSearchService /*
             $municipalCode = $properties['ags'] ?? null;
 
             // Validate coordinate data
-            if ($longitude !== null && $latitude !== null && (!is_numeric($longitude) || !is_numeric($latitude))) {
+            if (null !== $longitude && null !== $latitude && (!is_numeric($longitude) || !is_numeric($latitude))) {
                 $longitude = null;
                 $latitude = null;
             }
@@ -199,16 +200,15 @@ class GeodatenzentrumAddressSearchService /*
                 // Former searchCity function compatibility fields:
                 'municipalCode' => $municipalCode,
             ];
-
         } catch (Throwable $e) {
             $this->logger->error('Failed to format Geodatenzentrum result', [
-                'service' => 'GeodatenzentrumAddressSearchService',
-                'method' => 'formatResult',
-                'error' => $e->getMessage(),
+                'service'   => 'GeodatenzentrumAddressSearchService',
+                'method'    => 'formatResult',
+                'error'     => $e->getMessage(),
                 'errorType' => get_class($e),
                 'rawResult' => $result,
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'file'      => $e->getFile(),
+                'line'      => $e->getLine(),
             ]);
 
             // Return safe fallback values on formatting failure
