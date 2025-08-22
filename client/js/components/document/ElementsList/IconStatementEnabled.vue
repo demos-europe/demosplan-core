@@ -10,13 +10,13 @@
 <template>
   <div>
     <i
+      v-tooltip="text"
       class="fa cursor-help"
       :class="{
         'fa-microphone color-message-success-fill': enabled,
         'fa-microphone-slash color-message-severe-fill': enabled === false
       }"
       aria-hidden="true"
-      v-tooltip="text"
     />
     <span
       class="sr-only"

@@ -98,8 +98,8 @@
             data-cy="searchProcedureMapForm:sort"
             name="sort"
             :class="prefixClass('o-form__control-select')"
-            @change="setValueAndSubmitForm($event, 'sort')"
-            :value="form.sort">
+            :value="form.sort"
+            @change="setValueAndSubmitForm($event, 'sort')">
             <option
               v-for="option in sortOptions"
               :key="'sort_' + option.value"
@@ -188,8 +188,8 @@
 
     <h2
       v-if="displayArsFilterHeader"
-      :class="prefixClass('u-pl')"
-      id="urlFilterResultsHeader">
+      id="urlFilterResultsHeader"
+      :class="prefixClass('u-pl')">
       {{ searchResultsHeader }}
     </h2>
     <div v-else>

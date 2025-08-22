@@ -38,8 +38,8 @@
       track-by="id">
       <template v-slot:beforeList>
         <button
-          @click="showInput"
-          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
+          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
+          @click="showInput">
           {{ Translator.trans('topic.new') }}
         </button>
       </template>
@@ -49,11 +49,11 @@
       v-else
       id="newTagTopic"
       ref="tagTopicInput"
-      class="u-mb-0_5"
-      @blur="handleClickOutside"
-      @reset="handleReset"
       v-model="tagTopic.title"
-      required />
+      class="u-mb-0_5"
+      required
+      @blur="handleClickOutside"
+      @reset="handleReset" />
 
     <addon-wrapper
       class="block mb-4"

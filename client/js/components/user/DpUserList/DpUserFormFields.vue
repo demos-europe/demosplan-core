@@ -97,7 +97,7 @@
 
     <!-- Role -->
     <div
-      v-if="organisations[this.currentUserOrga.id]"
+      v-if="organisations[currentUserOrga.id]"
       class="w-1/2 pr-3 mt-3">
       <label
         class="u-mt-0_75 mb-1.5"

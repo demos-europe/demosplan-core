@@ -26,7 +26,7 @@ All rights reserved
     <!--  In the following section, v-model is replaced with :value && @input to enable custom display of input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
-        v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
         id="statementDepartmentName"
         :disabled="!editable || !isStatementManual"
         :label="{
@@ -40,7 +40,7 @@ All rights reserved
 
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
-        v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="!localStatement.attributes.isSubmittedByCitizen"
         id="statementOrgaName"
         :disabled="!editable || !isStatementManual"
         :label="{
@@ -58,7 +58,7 @@ All rights reserved
         class="float-right mt-0.5"
       />
       <dp-input
-        v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+        v-if="hasPermission('field_statement_meta_submit_name') && statementFormDefinitions.name.enabled"
         id="statementSubmitterName"
         :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
         :label="{

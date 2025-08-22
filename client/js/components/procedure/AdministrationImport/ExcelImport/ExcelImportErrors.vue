@@ -32,8 +32,8 @@
           v-for="error in errorsByWorksheet(worksheet)"
           :key="`error:${error.id}`"
           class="u-p-0_5 u-mv-0_5 cursor-pointer"
-          @click="toggle(error.id)"
-          :class="itemClasses(error.id, worksheet)">
+          :class="itemClasses(error.id, worksheet)"
+          @click="toggle(error.id)">
           <div v-if="errors.length > 1">
             <dp-checkbox
               :id="`error:${error.id}`"

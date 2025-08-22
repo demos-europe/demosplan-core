@@ -57,8 +57,8 @@
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-          v-if="appliedQuery.length > 0">
+          v-if="appliedQuery.length > 0"
+          class="o-badge o-badge--small o-badge--transparent mb-px mr-1">
           {{ appliedQuery.length }}
         </span>
       </span>
@@ -71,11 +71,11 @@
     <div
       class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap">
       <dp-resettable-input
-        :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
+        v-model="searchTerm"
+        :data-cy="`searchField:${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
-        @reset="resetSearch"
-        v-model="searchTerm" />
+        @reset="resetSearch" />
     </div>
 
     <dp-loading
@@ -100,8 +100,8 @@
         </ul>
         <ul
           v-for="group in searchedGroupedOptions"
-          class="o-list line-height--1_6"
-          :key="`list_${group.id}}`">
+          :key="`list_${group.id}}`"
+          class="o-list line-height--1_6">
           <span class="font-size-small">
             {{ group.label }}
           </span>

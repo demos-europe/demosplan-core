@@ -13,8 +13,8 @@
     :class="{ 'is-open': isDrawerOpened }">
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
-        @procedure-search-focused="openDrawer"
-        :show-suggestions="false" />
+        :show-suggestions="false"
+        @procedure-search-focused="openDrawer" />
       <template v-if="!isLoading">
         <dp-handle
           data-cy="drawerToggle"
@@ -38,8 +38,8 @@
     <div class="bg-color--white u-p-0_5">
       <dp-loading v-if="isLoading" />
       <component
-        v-else
         :is="currentView"
+        v-else
         :procedure="procedureInDetailView" />
     </div>
   </div>

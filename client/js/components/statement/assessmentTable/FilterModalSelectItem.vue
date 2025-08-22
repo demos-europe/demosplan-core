@@ -63,10 +63,10 @@
               v-slot:beforeList>
               <li>
                 <button
-                  type="button"
-                  @click="toggleSorting(filterItem.id)"
                   v-cleanhtml="sortingLabel"
-                  class="btn--blank o-link--default" />
+                  type="button"
+                  class="btn--blank o-link--default"
+                  @click="toggleSorting(filterItem.id)" />
               </li>
             </template>
 

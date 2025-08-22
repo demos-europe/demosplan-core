@@ -47,9 +47,9 @@
 
       <dp-select
         id="r_copymaster"
+        v-model="selectedBlueprint"
         class="mt-4"
         data-cy="NewBlueprintForm:selectedBlueprint"
-        v-model="selectedBlueprint"
         :label="{
           hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
           text: Translator.trans('master')
@@ -73,6 +73,7 @@
 
         <dp-input
           :id="agencyMainEmailId"
+          v-model="mainEmail"
           class="mt-4"
           data-cy="agencyMainEmailAddress"
           :label="{
@@ -81,8 +82,7 @@
             tooltip: Translator.trans('email.procedure.agency.help')
           }"
           name="agencyMainEmailAddress[fullAddress]"
-          type="email"
-          v-model="mainEmail" />
+          type="email" />
 
         <dp-label
           class="mt-4"
@@ -98,10 +98,10 @@
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
+          id="r_publicParticipationContact"
           class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
-          id="r_publicParticipationContact"
           name="r_publicParticipationContact"
           :value="publicParticipationContact" />
 
@@ -123,10 +123,10 @@
 
         <div class="text-right space-inline-s">
           <input
+            id="saveButton"
             class="btn btn--primary"
             type="submit"
             :value="Translator.trans('save')"
-            id="saveButton"
             data-cy="NewBlueprintForm:saveButton">
 
           <a

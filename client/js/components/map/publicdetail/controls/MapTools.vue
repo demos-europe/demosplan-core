@@ -25,9 +25,9 @@
     </div>
 
     <ul
+      v-show="unfolded"
       id="mapTools"
-      :class="prefixClass('c-map__group')"
-      v-show="unfolded">
+      :class="prefixClass('c-map__group')">
       <li
         v-for="tool in toolList"
         :id="tool.id"

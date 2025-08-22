@@ -13,12 +13,12 @@
     <dp-table-card-list-header
       :items="headerItems"
       class="u-pt"
-      @reset-search="resetSearch"
-      @selectAll="val => dpToggleAll(val, users)"
-      @search="val => handleSearch(val)"
       search-placeholder="search.users"
       searchable
-      selectable>
+      selectable
+      @reset-search="resetSearch"
+      @selectAll="val => dpToggleAll(val, users)"
+      @search="val => handleSearch(val)">
       <template
         v-if="hasPermission('feature_user_delete')"
         v-slot:header-buttons>
@@ -51,11 +51,11 @@
         :key="user.id"
         :all-organisations="organisations"
         :user="user"
-        @delete="deleteSingelUser(user.id)"
         :is-open="expandedCardId === id"
+        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true"
+        @delete="deleteSingelUser(user.id)"
         @card:toggle="setExpandedCardId(id)"
-        @item:selected="dpToggleOne"
-        :selected="Object.hasOwn(itemSelections, user.id) && itemSelections[user.id] === true" />
+        @item:selected="dpToggleOne" />
     </ul>
 
     <!-- pager -->

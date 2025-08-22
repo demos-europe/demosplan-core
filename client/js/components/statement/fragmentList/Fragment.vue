@@ -10,9 +10,9 @@
 <template>
   <!-- item -->
   <article
-    class="c-at-item o-animate--bg-color u-mb-0_5"
     v-if="fragmentExists"
     :id="fragment.id || 0"
+    class="c-at-item o-animate--bg-color u-mb-0_5"
     :data-fragment-id="fragment.id || 0"
     :data-fragment-vote-advice="fragment.voteAdvice === null ? '' : fragment.voteAdvice">
     <!-- header -->
@@ -20,6 +20,7 @@
       <!-- claim, id, date created -->
       <div class="layout--flush weight--bold inline-block u-mv-0_25 u-mh-0_5 u-mr">
         <dp-claim
+          v-if="!isArchive && hasPermission('feature_statement_assignment')"
           class="c-at-item__row-icon inline-block"
           entity-type="fragment"
           :ignore-last-claimed="true"
@@ -30,7 +31,6 @@
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
           :last-claimed-user-id="fragment.lastClaimedUserId"
-          v-if="!isArchive && hasPermission('feature_statement_assignment')"
           @click="updateClaim" />
 
         <v-popover
@@ -42,8 +42,8 @@
               v-if="isArchive"
               class="c-at-item__row-icon inline-block">
               <input
-                type="checkbox"
                 :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
+                type="checkbox"
                 name="item_check[]"
                 :value="fragment.id || 0"
                 data-selection-checkbox
@@ -52,8 +52,8 @@
 
             <input
               v-else
-              type="checkbox"
               :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
+              type="checkbox"
               name="item_check[]"
               :value="fragment.id || 0"
               data-selection-checkbox
@@ -96,9 +96,9 @@
         <a
           class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_25 u-ph-0_5"
           :class="{'is-active-toggle': tab==='fragment'}"
-          @click="setActiveTab('fragment')"
           :href="`#fragment_${fragment.id || 0}`"
-          rel="noopener">
+          rel="noopener"
+          @click="setActiveTab('fragment')">
           <i
             class="fa fa-sitemap"
             aria-hidden="true" />
@@ -108,9 +108,9 @@
         <a
           class="c-at-item__tab-trigger o-link--icon inline-block u-pv-0_25 u-ph-0_5"
           :class="{'is-active-toggle': tab==='statement'}"
-          @click="setActiveTab('statement')"
           :href="`#statement_${fragment.id || 0}`"
-          rel="noopener">
+          rel="noopener"
+          @click="setActiveTab('statement')">
           <i
             class="fa fa-file-o"
             aria-hidden="true" />
@@ -134,8 +134,8 @@
     <!-- tab content: fragment -->
     <div
       v-if="tab==='fragment'"
-      class="layout--flush bg-color--grey-light-2"
-      :id="`#fragment_${fragment.id || 0}`">
+      :id="`#fragment_${fragment.id || 0}`"
+      class="layout--flush bg-color--grey-light-2">
       <!-- tags -->
       <dp-item-row
         icon="fa-tag"
@@ -166,9 +166,9 @@
 
       <!-- location -->
       <dp-item-row
+        v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea"
         icon="fa-map-marker"
-        title="location"
-        v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea">
+        title="location">
         <dl v-if="fragment.counties.length || fragment.priorityAreas.length || fragment.municipalities.length">
           <template v-if="fragment.counties.length">
             <dt class="layout__item u-1-of-6 weight--bold">
@@ -178,8 +178,8 @@
               <ul class="o-list o-list--csv">
                 <li
                   v-for="(county, idx) in fragment.counties"
-                  class="o-list__item"
                   :key="idx"
+                  class="o-list__item"
                   v-text="county.name" />
               </ul>
             </dd>
@@ -191,9 +191,9 @@
          --><dd class="layout__item u-5-of-6">
               <ul class="o-list o-list--csv">
                 <li
-                  class="o-list__item"
                   v-for="(priorityArea, idx) in fragment.priorityAreas"
                   :key="idx"
+                  class="o-list__item"
                   v-text="priorityArea.key" />
               </ul>
           </dd>
@@ -205,9 +205,9 @@
          --><dd class="layout__item u-5-of-6">
               <ul class="o-list o-list--csv">
                 <li
-                  class="o-list__item"
                   v-for="(municipality, idx) in fragment.municipalities"
                   :key="idx"
+                  class="o-list__item"
                   v-text="municipality.name" />
               </ul>
             </dd>
@@ -297,9 +297,9 @@
         class="u-pt-0"
         :border-bottom="!isArchive">
         <dp-fragment-versions
+          ref="history"
           :fragment-id="fragment.id"
-          :statement-id="fragment.statement.id"
-          ref="history" />
+          :statement-id="fragment.statement.id" />
       </dp-item-row>
 
       <!-- edit fragment -->
@@ -311,9 +311,9 @@
           <a
             class="inline-block cursor-pointer"
             :class="{ 'is-active-toggle': editing }"
-            @click="toggleEditing"
             rel="noopener"
-            :style="editable ? '' : 'opacity: .4 !important; pointer-events: none;'">
+            :style="editable ? '' : 'opacity: .4 !important; pointer-events: none;'"
+            @click="toggleEditing">
             <i
               class="o-toggle__icon o-toggle__icon--caret u-pl-0_25 u-pr-0_25"
               aria-hidden="true" />
@@ -323,11 +323,11 @@
 
         <!-- edit fragment: content -->
         <dp-item-row
+          v-if="editable && editing"
           title="fragment.consideration"
-          :border-bottom="false"
-          v-if="editable && editing">
+          :border-bottom="false">
           <dp-fragment-edit
-            @closeEditMode="closeEditMode"
+            ref="editor"
             :csrf-token="csrfToken"
             :fragment-id="fragment.id"
             :procedure-id="fragment.procedureId"
@@ -336,7 +336,7 @@
             :advice-values="adviceValues"
             :element-id="fragment.elementId"
             :paragraph-id="fragment.paragraphId"
-            ref="editor" />
+            @closeEditMode="closeEditMode" />
         </dp-item-row>
       </div>
     </div>
@@ -344,8 +344,8 @@
     <!-- tab content: statement -->
     <div
       v-if="tab==='statement'"
-      class="layout--flush bg-color--grey-light-2"
-      :id="`#statement_${fragment.id || 0}`">
+      :id="`#statement_${fragment.id || 0}`"
+      class="layout--flush bg-color--grey-light-2">
       <!-- tags -->
       <dp-item-row
         icon="fa-tag"
@@ -378,9 +378,9 @@
 
       <!-- location -->
       <dp-item-row
+        v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea"
         icon="fa-map-marker"
-        title="location"
-        v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea">
+        title="location">
         <dl v-if="fragment.statement.counties.length && fragment.statement.priorityAreas.length && fragment.statement.municipalities.length">
           <template v-if="fragment.statement.counties.length">
             <dt class="layout__item u-1-of-6 weight--bold">
@@ -467,9 +467,9 @@
 
       <!-- attached files -->
       <dp-item-row
+        v-if="fragment.statement && fragment.statement.files && fragment.statement.files.length"
         icon="fa-paperclip"
-        title="fragment.statement.files.uploaded"
-        v-if="fragment.statement && fragment.statement.files && fragment.statement.files.length">
+        title="fragment.statement.files.uploaded">
         <a
           v-for="file in statementFiles"
           :key="file.hash"

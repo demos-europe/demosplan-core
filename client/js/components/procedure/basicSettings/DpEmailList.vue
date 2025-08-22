@@ -10,14 +10,14 @@
 <template>
   <div>
     <dp-editable-list
+      ref="listComponent"
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
+      :translation-keys="translationKeys"
       @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
-      @show-update-form="showUpdateForm"
-      :translation-keys="translationKeys"
-      ref="listComponent">
+      @show-update-form="showUpdateForm">
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
@@ -31,10 +31,10 @@
       <template v-slot:form>
         <dp-input
           id="emailAddress"
+          v-model="formFields.mail"
           :data-cy="dataCy !== '' ? `${dataCy}:emailAddressInput` : `emailAddressInput`"
           :placeholder="Translator.trans('email.address')"
           type="email"
-          v-model="formFields.mail"
           width="u-1-of-2"
           @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
       </template>

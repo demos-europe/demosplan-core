@@ -10,11 +10,11 @@
 <template>
   <div>
     <form
+      ref="simplifiedNewStatementForm"
       :action="Routing.generate(submitRouteName, { procedureId })"
       data-dp-validate="simplifiedNewStatementForm"
       enctype="multipart/form-data"
-      method="post"
-      ref="simplifiedNewStatementForm">
+      method="post">
       <input
         type="hidden"
         name="r_action"
@@ -40,20 +40,20 @@
           :is-open="expandAll">
           <div class="u-mv">
             <dp-radio
+              :id="`${instanceId}r_role_0`"
               name="r_role"
               value="0"
               data-cy="roleInput:citizen"
-              :id="`${instanceId}r_role_0`"
               :label="{
                 text: Translator.trans('citizen')
               }"
               :checked="values.submitter.institution === false || values.submitter.institution === undefined"
               @change="setInstitutionValue(false)" />
             <dp-radio
+              :id="`${instanceId}r_role_1`"
               name="r_role"
               value="1"
               data-cy="roleInput:invitableInstitution"
-              :id="`${instanceId}r_role_1`"
               :label="{
                 text: Translator.trans('institution')
               }"
@@ -68,8 +68,8 @@
               :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
               <dp-input
                 id="r_orga_name"
-                data-cy="submitterForm:orgaName"
                 v-model="values.submitter.orga"
+                data-cy="submitterForm:orgaName"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
                   text: Translator.trans('institution')
@@ -77,8 +77,8 @@
                 name="r_orga_name" /><!--
            --><dp-input
                 id="r_orga_department_name"
-                data-cy="submitterForm:orgaDepartmentName"
                 v-model="values.submitter.department"
+                data-cy="submitterForm:orgaDepartmentName"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :label="{
                   text: Translator.trans('department')
@@ -91,8 +91,8 @@
               <div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_author_name"
-                  data-cy="submitterForm:authorName"
                   v-model="values.submitter.name"
+                  data-cy="submitterForm:authorName"
                   :label="{
                     text: Translator.trans('name')
                   }"
@@ -101,8 +101,8 @@
            --><div :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }">
                 <dp-input
                   id="r_orga_email"
-                  data-cy="submitterForm:orgaEmail"
                   v-model="values.submitter.email"
+                  data-cy="submitterForm:orgaEmail"
                   :label="{
                     text: Translator.trans('email')
                   }"
@@ -120,8 +120,8 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_street"
-                    data-cy="submitterForm:orgaStreet"
                     v-model="values.submitter.street"
+                    data-cy="submitterForm:orgaStreet"
                     class="o-form__group-item"
                     :label="{
                       text: Translator.trans('street')
@@ -129,8 +129,8 @@
                     name="r_orga_street" />
                   <dp-input
                     id="r_houseNumber"
-                    data-cy="submitterForm:houseNumber"
                     v-model="values.submitter.housenumber"
+                    data-cy="submitterForm:houseNumber"
                     class="o-form__group-item shrink"
                     :label="{
                       text: Translator.trans('street.number.short')
@@ -143,8 +143,8 @@
                 <div class="o-form__group">
                   <dp-input
                     id="r_orga_postalcode"
-                    data-cy="submitterForm:orgaPostalcode"
                     v-model="values.submitter.plz"
+                    data-cy="submitterForm:orgaPostalcode"
                     class="o-form__group-item shrink"
                     :label="{
                       text: Translator.trans('postalcode')
@@ -154,8 +154,8 @@
                     :size="5" />
                   <dp-input
                     id="r_orga_city"
-                    data-cy="submitterForm:orgaCity"
                     v-model="values.submitter.ort"
+                    data-cy="submitterForm:orgaCity"
                     class="o-form__group-item"
                     name="r_orga_city"
                     :label="{
@@ -167,14 +167,14 @@
               Note
            --><dp-text-area
                 v-if="hasPermission('field_statement_memo')"
+                id="r_memo"
+                v-model="values.memo"
                 data-cy="submitterForm:memo"
                 :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
                 :grow-to-parent="!fieldsFullWidth"
-                id="r_memo"
                 :label="Translator.trans('memo')"
                 name="r_memo"
-                reduced-height
-                v-model="values.memo" />
+                reduced-height />
             </div>
 
             <similar-statement-submitters
@@ -200,15 +200,15 @@
               :hint="Translator.trans('explanation.statement.date')"
               for="r_submitted_date" />
             <dp-datepicker
+              id="r_submitted_date"
+              v-model="values.submittedDate"
               class="o-form__control-wrapper"
               data-cy="submitterForm:submittedDate"
               name="r_submitted_date"
               value=""
               :calendars-before="2"
               :max-date="nowDate"
-              :min-date="values.authoredDate"
-              id="r_submitted_date"
-              v-model="values.submittedDate" />
+              :min-date="values.authoredDate" />
           </div><!--
        --><div
             class="u-mb"
@@ -218,14 +218,14 @@
               :hint="Translator.trans('explanation.statement.date.authored')"
               for="r_authored_date" />
             <dp-datepicker
+              id="r_authored_date"
+              v-model="values.authoredDate"
               class="o-form__control-wrapper"
               data-cy="submitterForm:authoredDate"
               name="r_authored_date"
               value=""
               :calendars-before="2"
-              :max-date="values.submittedDate || nowDate"
-              id="r_authored_date"
-              v-model="values.authoredDate" />
+              :max-date="values.submittedDate || nowDate" />
           </div>
 
           <!-- Art der Einreichung, Eingangsnummer -->
@@ -317,11 +317,11 @@
         required />
       <dp-editor
         ref="statementText"
+        v-model="values.text"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
         required
-        hidden-input="r_text"
-        v-model="values.text" />
+        hidden-input="r_text" />
 
       <slot />
 
@@ -333,8 +333,8 @@
           class="u-mt" />
 
         <dp-upload-files
-          class="u-mb"
           id="r_attachment_original"
+          class="u-mb"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
@@ -364,10 +364,10 @@
 
       <!-- When used from annotated pdf view, a hidden input with annotatedStatementPdf.id has to be sent to BE -->
       <input
+        v-if="documentId !== ''"
         type="hidden"
         name="r_annotated_statement_pdf_id"
-        :value="documentId"
-        v-if="documentId !== ''">
+        :value="documentId">
 
       <dp-button-row
         :busy="isSaving"

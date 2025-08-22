@@ -30,8 +30,8 @@
         <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
-            :key="key"
             :id="key"
+            :key="key"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
@@ -86,7 +86,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -105,7 +105,7 @@
             type="text"
             :width="column.width" />
         </div>
-        <fieldset v-if="this.active === 'zip' || isSingleStatementExport">
+        <fieldset v-if="active === 'zip' || isSingleStatementExport">
           <legend
             id="docxFileName"
             class="o-form__label text-base float-left mr-1"

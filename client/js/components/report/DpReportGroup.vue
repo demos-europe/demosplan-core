@@ -18,13 +18,13 @@
         track-by="id">
         <template v-slot:date="rowData">
           <span
-            v-text="createdDateItem(rowData)"
-            v-tooltip="createdDateTimeItem(rowData)" />
+            v-tooltip="createdDateTimeItem(rowData)"
+            v-text="createdDateItem(rowData)" />
         </template>
         <template v-slot:content="rowData">
           <div
-            class="break-words"
-            v-cleanhtml="rowData.attributes.message" />
+            v-cleanhtml="rowData.attributes.message"
+            class="break-words" />
         </template>
         <template v-slot:user="rowData">
           {{ rowData.attributes.createdByDataInputOrga ? rowData.attributes.orgaName : rowData.attributes.userName }}

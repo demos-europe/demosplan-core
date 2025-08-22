@@ -73,8 +73,8 @@
           <li>
             <statement-export-modal
               data-cy="statementSegmentsList:export"
-              @export="showHintAndDoExport"
-              is-single-statement-export />
+              is-single-statement-export
+              @export="showHintAndDoExport" />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -106,9 +106,9 @@
                   </span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
+                    :key="attachment.hash"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="attachment"
-                    :key="attachment.hash"
                     :procedure-id="procedure.id" />
                 </div>
               </template>

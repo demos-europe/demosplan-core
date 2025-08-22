@@ -35,8 +35,8 @@
       }"
       type="email" />
     <dp-editor
-      class="u-mb-0_75"
       v-model="contact.text"
+      class="u-mb-0_75"
       hidden-input="supportText"
       :toolbar-items="{
         fullscreenButton: true,
@@ -52,7 +52,7 @@
       @secondary-action="setFormFromStore">
       <dp-button
         color="secondary"
-        :disabled="this.contact.id === emptyContact.id"
+        :disabled="contact.id === emptyContact.id"
         :text="Translator.trans('delete')"
         @click.prevent="deleteContact" />
     </dp-button-row>

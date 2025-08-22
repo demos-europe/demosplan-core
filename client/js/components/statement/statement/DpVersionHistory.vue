@@ -53,8 +53,8 @@
         <template v-if="days.length">
           <dp-version-history-day
             v-for="(day, idx) in days"
-            :procedure-id="procedureId"
             :key="idx"
+            :procedure-id="procedureId"
             :date="day.attributes.day"
             :day="day"
             :all-times="times"

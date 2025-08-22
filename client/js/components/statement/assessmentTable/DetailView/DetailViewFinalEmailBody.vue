@@ -26,9 +26,9 @@
     <template v-slot:button>
       <button
         v-if="hasPermission('area_admin_boilerplates')"
+        v-tooltip="Translator.trans('boilerplate.insert')"
         :class="prefixClass('menubar__button')"
         type="button"
-        v-tooltip="Translator.trans('boilerplate.insert')"
         @click.stop="openBoilerPlate">
         <i :class="prefixClass('fa fa-puzzle-piece')" />
       </button>

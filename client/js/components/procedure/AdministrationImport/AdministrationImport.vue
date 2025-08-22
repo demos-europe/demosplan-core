@@ -16,15 +16,15 @@
       @change="setActiveTabId">
       <dp-tab
         v-for="(option, index) in availableImportOptions"
-        :key="index"
         :id="option.name"
+        :key="index"
         :is-active="activeTabId === option.name"
         :label="Translator.trans(option.title)">
         <slot>
           <keep-alive>
             <component
-              class="u-mt"
               :is="option.name"
+              class="u-mt"
               :demosplan-ui="demosplanUi"
               :csrf-token="csrfToken" />
           </keep-alive>

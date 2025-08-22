@@ -10,20 +10,20 @@
 <template>
   <li class="c-at-item">
     <a
-      class="o-link--offset"
-      :id="`viewMode_${elementId}`" />
+      :id="`viewMode_${elementId}`"
+      class="o-link--offset" />
 
     <component
-      v-if="depth > 0 && depth < 6"
       :is="headingTag"
+      v-if="depth > 0 && depth < 6"
       class="u-mt">
       {{ headingText }}
     </component>
     <ul class="o-list o-list--card">
       <dp-assessment-table-card
-        :csrf-token="csrfToken"
         v-for="(statement, idx) in statementsInOrder(statementIds)"
         :key="idx"
+        :csrf-token="csrfToken"
         class="o-list__item"
         :is-selected="getSelectionStateById(statement.id)"
         :statement-id="statement.id"

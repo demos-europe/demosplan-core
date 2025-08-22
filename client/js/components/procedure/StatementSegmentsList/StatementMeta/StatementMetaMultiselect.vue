@@ -6,8 +6,8 @@
       :text="label" />
     <dp-multiselect
       v-if="editable"
-      v-model="selectedItems"
       :id="name"
+      v-model="selectedItems"
       class="w-full inline-block"
       label="name"
       multiple
@@ -22,9 +22,9 @@
           {{ props.option.name }}
           <i
             aria-hidden="true"
-            @click="props.remove(props.option)"
             tabindex="1"
-            class="multiselect__tag-icon" />
+            class="multiselect__tag-icon"
+            @click="props.remove(props.option)" />
           <input
             type="hidden"
             :value="props.option.id"

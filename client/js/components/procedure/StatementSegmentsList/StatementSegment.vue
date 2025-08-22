@@ -9,12 +9,12 @@
 
 <template>
   <div
+    :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
-    @mouseleave="isHover = false"
-    :id="`segment_${segment.id}`">
+    @mouseleave="isHover = false">
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
       <v-popover
         :container="$refs.statementSegment"
@@ -23,7 +23,7 @@
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
           aria-hidden="true" />
-        <span>{{ this.segment.attributes.externId }}</span>
+        <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
           <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
             <dl>
@@ -106,9 +106,9 @@
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
+        v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')"
         :class="{ 'color--grey': visibleRecommendation === '' }"
-        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
-        v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')" />
+        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')" />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
@@ -156,10 +156,10 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
+                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
                   class="absolute right-4"
                   size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')"
-                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
+                  :text="Translator.trans('segment.oracle.beta')" />
               </div>
               <dp-tabs
                 v-if="recommendationTabAddonsLoaded"
@@ -167,8 +167,8 @@
                 @change="handleTabChange">
                 <dp-tab
                   v-for="addon in recommendationModalAddons"
-                  :key="addon.options.id"
                   :id="addon.options.id"
+                  :key="addon.options.id"
                   :is-active="activeId === addon.options.id"
                   :label="Translator.trans(addon.options.title)">
                   <slot>
@@ -188,19 +188,19 @@
           <template v-slot:button>
             <button
               v-if="hasPermission('area_admin_boilerplates')"
+              v-tooltip="Translator.trans('boilerplate.insert')"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:boilerplate"
               type="button"
-              v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
               v-if="hasRecommendationTabs"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:similarRecommendation"
               type="button"
-              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
@@ -224,9 +224,9 @@
             for="assignableUsersSegment" />
           <dp-multiselect
             id="assignableUsersSegment"
+            v-model="selectedAssignee"
             :options="assignableUsers"
             class="u-1-of-1"
-            v-model="selectedAssignee"
             label="name"
             track-by="id" />
           <dp-label
@@ -246,8 +246,8 @@
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
-                v-tooltip="prop.description"
-                :key="prop.id">
+                :key="prop.id"
+                v-tooltip="prop.description">
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
@@ -260,8 +260,8 @@
             <template v-slot:singleLabel="{ props }">
               <div
                 v-for="prop in props"
-                v-tooltip="prop.description"
-                :key="prop.id">
+                :key="prop.id"
+                v-tooltip="prop.description">
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
@@ -282,13 +282,13 @@
                 :for="field.id"
                 :text="field.attributes.name" />
               <dp-multiselect
-                allow-empty
                 :id="field.id"
+                allow-empty
                 :value="customFieldValues[field.id]"
-                @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id" />
+                track-by="id"
+                @select="(value) => setCustomFieldValue(value)" />
             </template>
           </template>
         </div>
@@ -307,13 +307,13 @@
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">
         <button
-          class="segment-list-toolbar__button btn--blank"
-          data-cy="editorFullscreen"
-          :aria-label="Translator.trans('editor.fullscreen')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('editor.fullscreen')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          data-cy="editorFullscreen"
+          :aria-label="Translator.trans('editor.fullscreen')"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
             class="inline-block"
@@ -323,13 +323,13 @@
 
         <button
           v-if="isAssignedToMe"
-          class="segment-list-toolbar__button btn btn--primary icon-only"
-          data-cy="segmentEdit"
-          :aria-label="Translator.trans('edit')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
+          class="segment-list-toolbar__button btn btn--primary icon-only"
+          data-cy="segmentEdit"
+          :aria-label="Translator.trans('edit')"
           @click="startEditing">
           <i
             class="fa fa-pencil"
@@ -337,16 +337,16 @@
         </button>
 
         <button
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('history')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('history')
           }"
-          @click.prevent="showSegmentVersionHistory"
-          data-cy="segmentVersionHistory">
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('history')"
+          data-cy="segmentVersionHistory"
+          @click.prevent="showSegmentVersionHistory">
           <dp-icon
             class="inline-block"
             icon="history" />
@@ -354,14 +354,14 @@
 
         <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('comments')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('comments')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('comments')"
           data-cy="segmentComments"
           @click.prevent="showComments">
           <i
@@ -375,14 +375,14 @@
         </button>
         <button
           v-if="hasPermission('feature_segment_polygon_read')"
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('public.participation.relation')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('public.participation.relation')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('public.participation.relation')"
           data-cy="segmentMap"
           @click.prevent="showMap">
           <dp-icon

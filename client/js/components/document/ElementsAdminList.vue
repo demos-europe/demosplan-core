@@ -35,9 +35,9 @@
         <button
           v-if="hasPermission('feature_admin_element_bulk_delete')"
           type="button"
-          @click="bulkDelete"
           class="btn--blank o-link--default u-mr-0_5"
-          :title="Translator.trans('plandocuments.delete')">
+          :title="Translator.trans('plandocuments.delete')"
+          @click="bulkDelete">
           <i
             aria-hidden="true"
             class="fa fa-trash u-mr-0_125" />

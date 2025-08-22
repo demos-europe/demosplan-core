@@ -38,8 +38,8 @@
 
       </span>
       <span
-        @click="appearsAsLayer ? toggle : fold"
-        :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
+        :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
+        @click="appearsAsLayer ? toggle : fold">
         {{ group.attributes.name }}
       </span>
       <dp-contextual-help

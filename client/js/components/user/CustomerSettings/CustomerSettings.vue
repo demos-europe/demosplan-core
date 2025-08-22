@@ -9,8 +9,8 @@
 
 <template>
   <div
-    data-dp-validate="customerSettings"
-    ref="customerSettings">
+    ref="customerSettings"
+    data-dp-validate="customerSettings">
     <dp-loading v-if="isLoading" />
 
     <template v-else>
@@ -49,8 +49,8 @@
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
         <dp-editor
           id="r_imprint"
-          data-cy="customerSettings:imprintTextEditor"
           v-model="customer.imprint"
+          data-cy="customerSettings:imprintTextEditor"
           hidden-input="r_imprint"
           :toolbar-items="{
             fullscreenButton: true,
@@ -78,8 +78,8 @@
           :text="Translator.trans('customer.data.protection.explanation')" />
         <dp-editor
           id="r_dataProtection"
-          data-cy="customerSettings:dataProtection"
           v-model="customer.dataProtection"
+          data-cy="customerSettings:dataProtection"
           hidden-input="r_dataProtection"
           :toolbar-items="{
             fullscreenButton: true,
@@ -164,8 +164,8 @@
           for="signLanguageOverviewDescription" />
         <dp-editor
           id="signLanguageOverviewDescription"
-          hidden-input="r_signLanguageOverviewDescription"
           v-model="customer.signLanguageOverviewDescription"
+          hidden-input="r_signLanguageOverviewDescription"
           :toolbar-items="{
             linkButton: true,
             headings: [2, 3, 4]
@@ -175,7 +175,7 @@
           v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
-          :current-customer-id="this.currentCustomerId"
+          :current-customer-id="currentCustomerId"
           :sign-language-overview-video="signLanguageOverviewVideo"
           :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"

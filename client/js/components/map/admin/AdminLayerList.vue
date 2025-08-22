@@ -40,8 +40,8 @@
             {{ Translator.trans('gislayer.create') }}
           </a>
           <template
-            v-slot:dropdown
-            v-if="hasPermission('feature_map_category')">
+            v-if="hasPermission('feature_map_category')"
+            v-slot:dropdown>
             <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
               {{ Translator.trans('maplayer.category.new') }}
             </a>
@@ -60,18 +60,18 @@
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
-          class="flex-1 w-2/3 text-right"
-          v-if="canHaveCategories">
+          v-if="canHaveCategories"
+          class="flex-1 w-2/3 text-right">
           <button
-            @click.prevent="setActiveTab('treeOrder')"
             class="btn--blank o-link--default"
-            :class="{'o-link--active':currentTab === 'treeOrder'}">
+            :class="{'o-link--active':currentTab === 'treeOrder'}"
+            @click.prevent="setActiveTab('treeOrder')">
             {{ Translator.trans('map.set.order.tree') }}
           </button>
           <button
-            @click.prevent="setActiveTab('mapOrder')"
             class="btn--blank o-link--default ml-4"
-            :class="{'o-link--active':currentTab === 'mapOrder'}">
+            :class="{'o-link--active':currentTab === 'mapOrder'}"
+            @click.prevent="setActiveTab('mapOrder')">
             {{ Translator.trans('map.set.order.map') }}
           </button>
         </div>
@@ -90,15 +90,15 @@
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
             <i
-              class="fa fa-link mr-2"
-              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
+              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }"
+              class="fa fa-link mr-2" />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
             <i
-              class="fa fa-eye mr-2"
-              v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+              v-tooltip="Translator.trans('explanation.gislayer.visibility')"
+              class="fa fa-eye mr-2" />
           </div>
 
           <div class="w-2/12 text-right">
@@ -107,19 +107,19 @@
         </div>
       </div>
       <dp-draggable
-        v-if="false === this.isLoading"
+        v-if="false === isLoading"
+        :id="rootId"
         :class="{ 'color--grey': false === isEditable }"
         :content-data="currentList"
-        :id="rootId"
         :opts="draggableOptions"
         @end="updateChildren">
         <admin-layer-list-item
           v-for="(item, idx) in currentList"
+          :key="item.id"
           data-cy="overlaysMapLayerListItem"
           :element="item"
           :index="idx"
           :is-loading="(false === isEditable)"
-          :key="item.id"
           layer-type="overlay"
           :parent-order-position="1"
           :sorting-type="currentTab" />
@@ -152,8 +152,8 @@
               v-if="hasPermission('feature_map_layer_visibility')"
               class="w-1/12 text-right">
               <i
-                class="fa fa-eye mr-2"
-                v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+                v-tooltip="Translator.trans('explanation.gislayer.visibility')"
+                class="fa fa-eye mr-2" />
             </div>
             <div class="w-1/12 text-right">
               {{ Translator.trans('edit') }}
@@ -161,18 +161,18 @@
           </div>
         </div>
         <dp-draggable
-          v-if="false === this.isLoading"
+          v-if="false === isLoading"
           :opts="draggableOptionsForBaseLayer"
           :content-data="currentBaseList"
           :class="{'color--grey': false === isEditable}"
           @end="updateChildren">
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
+            :key="item.id"
             data-cy="baseMapLayerListItem"
             :element="item"
             :index="idx"
             :is-loading="(false === isEditable)"
-            :key="item.id"
             layer-type="base"
             :sorting-type="currentTab" />
         </dp-draggable>
@@ -185,9 +185,9 @@
               {{ Translator.trans('map.base.minimap.hint') }}
             </p>
             <select
+              v-model="currentMinimapLayer"
               class="o-form__control-select w-1/2"
-              data-cy="adminLayerList:currentMinimapLayer"
-              v-model="currentMinimapLayer">
+              data-cy="adminLayerList:currentMinimapLayer">
               <option :value="{id: '', attributes: { name: 'default' }}">
                 {{ Translator.trans('selection.no') }}
               </option>
@@ -202,8 +202,8 @@
         </div>
       </template>
       <div
-        class="text-right mt-5 space-x-2"
-        v-if="!isLoading">
+        v-if="!isLoading"
+        class="text-right mt-5 space-x-2">
         <dp-button
           :busy="!isEditable"
           :text="Translator.trans('save')"

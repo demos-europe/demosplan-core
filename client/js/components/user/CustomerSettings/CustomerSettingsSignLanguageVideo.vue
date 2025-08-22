@@ -14,9 +14,9 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
+          :id="`file${video.file}`"
           class="shadow-sm h-fit w-12"
           :sources="videoSources"
-          :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />
 
         <dl class="description-list">
@@ -46,10 +46,10 @@
         required />
 
       <dp-upload-files
+        id="videoSrc"
         :allowed-file-types="['video/*']"
         :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
-        id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
         name="videoSrc"
@@ -64,12 +64,12 @@
 
       <dp-text-area
         id="videoDescription"
+        v-model="video.description"
         data-cy="customerSettings:videoDescription"
         :label="Translator.trans('video.description')"
         name="videoDescription"
         required
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoTitle!==''"
-        v-model="video.description"
         reduced-height />
 
       <dp-button-row

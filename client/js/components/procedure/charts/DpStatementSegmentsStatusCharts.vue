@@ -22,9 +22,9 @@
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
           v-for="(element, idx) in procedureStatistics"
-          :key="`statementCharts_${idx}`">
+          :key="`statementCharts_${idx}`"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2">
           <div
             :id="element.id"
             :data-items="JSON.stringify([{ label: element.label, count: element.count, percentage: element.percentage }])"

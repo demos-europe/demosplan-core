@@ -23,9 +23,9 @@
 <template>
   <div
     :class="prefixClass('c-map__unfold-button')"
+    draggable="true"
     @mousedown.prevent="startDrag"
-    @touchstart="startDrag"
-    draggable="true">
+    @touchstart="startDrag">
     <slot>
       <div :class="prefixClass('c-map__unfold-button-inner')">
         <i

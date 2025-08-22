@@ -12,8 +12,8 @@
       class="w-full mb-3">
       <dp-select
         id="orga_paperCopy"
-        :name="`${organisation.id}:paperCopy`"
         v-model="organisation.paperCopy"
+        :name="`${organisation.id}:paperCopy`"
         data-cy="organisationData:paperCopy:select"
         :label="{
           text: Translator.trans('copies.paper'),

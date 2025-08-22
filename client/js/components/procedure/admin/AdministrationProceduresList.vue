@@ -46,8 +46,8 @@
 
     <form
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
-      name="procedureForm"
-      ref="procedureForm">
+      ref="procedureForm"
+      name="procedureForm">
       <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
         data-cy="deleteProcedure"
@@ -70,7 +70,7 @@
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input
-        v-for="selectedItem in this.selectedItems"
+        v-for="selectedItem in selectedItems"
         :key="selectedItem"
         name="procedure_selected[]"
         type="hidden"
@@ -87,9 +87,9 @@
       :header-fields="headerFields"
       is-selectable
       :items="items"
-      @items-selected="setSelectedItems"
       :search-string="searchString"
-      track-by="id">
+      track-by="id"
+      @items-selected="setSelectedItems">
       <template
         v-if="showInternalPhases"
         v-slot:header-internalPhase>
@@ -133,8 +133,8 @@
         v-slot:count="{ statementsCount, originalStatementsCount }">
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
-          v-text="statementsCount"
-          class="text-center" />
+          class="text-center"
+          v-text="statementsCount" />
       </template>
 
       <template v-slot:internalPhase="{ internalPhase, internalStartDate, internalEndDate }">

@@ -35,14 +35,14 @@
 
     <dp-input
       id="r_mapAttribution"
+      v-model="mapAttribution"
       class="u-mb-0_75"
       data-cy="customerSettingsMap:mapAttribution"
       :label="{
         hint: `${Translator.trans('map.attribution.hint')} ${Translator.trans('map.attribution.placeholder')}`,
         text: Translator.trans('map.attribution')
       }"
-      name="r_mapAttribution"
-      v-model="mapAttribution" />
+      name="r_mapAttribution" />
 
     <p class="weight--bold u-mb-0">
       {{ Translator.trans('map.base.settings.preview') }}:

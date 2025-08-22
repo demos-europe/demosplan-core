@@ -16,7 +16,7 @@
       <div class="flex flex-col sm:flex-row justify-center">
         <a
           class="btn--blank o-link--default"
-          :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: this.faqCategoryItem.id})"
+          :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: faqCategoryItem.id})"
           :aria-label="Translator.trans('item.edit')"
           data-cy="editCategoryItem">
           <i
@@ -27,7 +27,7 @@
           <a
             v-if="categoryChildren.length === 0"
             class="btn--blank o-link--default"
-            :href="Routing.generate('DemosPlan_faq_administration_category_delete', {categoryId: this.faqCategoryItem.id})"
+            :href="Routing.generate('DemosPlan_faq_administration_category_delete', {categoryId: faqCategoryItem.id})"
             :aria-label="Translator.trans('item.delete')"
             data-cy="deleteCategoryItem">
             <i

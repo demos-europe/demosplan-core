@@ -24,46 +24,46 @@
         <!-- Assign user -->
         <action-stepper-action
           v-if="hasPermission('feature_statement_assignment')"
-          v-model="actions.assignSegment.checked"
           id="selectAssignAction"
+          v-model="actions.assignSegment.checked"
           :label="Translator.trans('assign.for.editing')"
         >
           <dp-multiselect
-            class="w-12"
             id="assignSegment"
+            v-model="actions.assignSegment.selected"
+            class="w-12"
             :disabled="!hasSegments"
             :options="assignableUsers"
-            v-model="actions.assignSegment.selected"
             label="name"
             track-by="id" />
         </action-stepper-action>
 
         <!-- Assign place/status -->
         <action-stepper-action
-          v-model="actions.assignPlace.checked"
           id="selectAssignPlaceAction"
+          v-model="actions.assignPlace.checked"
           :label="Translator.trans('segments.bulk.edit.place.add')">
           <dp-multiselect
-            class="w-12"
             id="assignPlace"
+            v-model="actions.assignPlace.selected"
+            class="w-12"
             :disabled="!hasPlaces"
             :options="places"
-            v-model="actions.assignPlace.selected"
             label="name"
             track-by="id" />
         </action-stepper-action>
 
         <!-- Add tags -->
         <action-stepper-action
-          v-model="actions.addTags.checked"
           id="selectAddTagsAction"
+          v-model="actions.addTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.add')">
           <dp-multiselect
             id="addTags"
+            v-model="actions.addTags.selected"
             multiple
             :disabled="!hasSegments"
             :options="filteredTagsByTopic"
-            v-model="actions.addTags.selected"
             label="title"
             track-by="id"
             group-values="tags"
@@ -73,15 +73,15 @@
 
         <!-- Remove tags -->
         <action-stepper-action
-          v-model="actions.deleteTags.checked"
           id="selectDeleteTagsAction"
+          v-model="actions.deleteTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.delete')">
           <dp-multiselect
             id="deleteTags"
+            v-model="actions.deleteTags.selected"
             multiple
             :disabled="!hasSegments"
             :options="filteredTagsByTopic"
-            v-model="actions.deleteTags.selected"
             label="title"
             track-by="id"
             group-values="tags"
@@ -91,8 +91,8 @@
 
         <!-- Append text to recommendation -->
         <action-stepper-action
-          v-model="actions.addRecommendations.checked"
           id="selectAddRecommendationAction"
+          v-model="actions.addRecommendations.checked"
           :label="Translator.trans('segments.bulk.edit.recommendations.add')">
           <div class="u-mb-0_5">
             <dp-radio
@@ -133,10 +133,10 @@
             <template v-slot:button>
               <button
                 v-if="hasPermission('area_admin_boilerplates')"
+                v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 :disabled="!hasSegments"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')"
                 @click.stop="openBoilerPlate">
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
@@ -146,15 +146,15 @@
         <!--Custom Fields-->
         <action-stepper-action
           v-for="customField in actions.customFields"
+          :id="customField.id"
           :key="`customField:${customField.id}`"
           v-model="customField.checked"
-          :id="customField.id"
           :label="customField.label">
           <dp-multiselect
-            class="w-12"
-            v-model="customField.selected"
-            :disabled="!hasSegments"
             :id="`customFieldSelect:${customField.id}`"
+            v-model="customField.selected"
+            class="w-12"
+            :disabled="!hasSegments"
             :options="customField.optionLabels"
           />
         </action-stepper-action>
@@ -264,8 +264,8 @@
         :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', { count: segments.length })"
         :description-success="addRecommendationsSuccess">
         <p
-          v-html="actions.addRecommendations.text"
-          class="u-mt-0_5" />
+          class="u-mt-0_5"
+          v-html="actions.addRecommendations.text" />
       </action-stepper-response>
 
       <action-stepper-response

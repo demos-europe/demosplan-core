@@ -17,15 +17,15 @@
 <template>
   <div>
     <dp-ol-map
-      :procedure-id="procedureId"
       ref="map"
+      :procedure-id="procedureId"
       :map-options="mapOptions"
       :small="small"
       :is-valid="requiredMapIsValid"
       :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }">
       <template
-        v-slot:controls
-        v-if="editable">
+        v-if="editable"
+        v-slot:controls>
         <dp-procedure-coordinate-input
           v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
@@ -45,15 +45,15 @@
             @tool:setPoint="checkProcedureValidation"
             @tool:activated="setDrawingActive" />
           <dp-ol-map-drag-zoom
-            :class="prefixClass('u-mb-0_5')"
             ref="dragzoom"
+            :class="prefixClass('u-mb-0_5')"
             @tool:activated="newValue => isDrawingActive = !newValue" />
         </div>
       </template>
 
       <dp-ol-map-layer-vector
-        :features="featuresFromCoordinate"
         ref="procedureCoordinateDrawer"
+        :features="featuresFromCoordinate"
         name="procedureCoordinateDrawer"
         @layer:features:changed="updateProcedureCoordinate" />
     </dp-ol-map>
@@ -63,8 +63,8 @@
          other form elements (that do not share the vue context) also need to be validated. -->
     <template v-if="hasPermission('feature_procedure_require_location')">
       <input
-        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         v-model="currentProcedureCoordinate"
+        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         name="r_coordinate"
         required
         type="hidden">

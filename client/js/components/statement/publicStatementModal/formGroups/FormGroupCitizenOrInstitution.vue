@@ -13,8 +13,8 @@
       <div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
         <div :class="prefixClass('layout')">
           <p
-            :class="prefixClass('layout__item u-1-of-2 weight--bold u-mb-0')"
-            id="submitterRoleLabel">
+            id="submitterRoleLabel"
+            :class="prefixClass('layout__item u-1-of-2 weight--bold u-mb-0')">
             {{ Translator.trans('submitter') }}
             <span
               v-if="required"
@@ -37,8 +37,8 @@
                 }"
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'citizen'"
-                @change="() => { setStatementData({r_submitter_role: 'citizen'}) }"
-                value="citizen" />
+                value="citizen"
+                @change="() => { setStatementData({r_submitter_role: 'citizen'}) }" />
             </div><!--
          --><div :class="prefixClass('layout__item u-1-of-2 u-1-of-1-lap-down')">
               <dp-radio
@@ -48,8 +48,8 @@
                 }"
                 name="r_submitter_role"
                 :checked="statement.r_submitter_role === 'publicagency'"
-                @change="() => { setStatementData({r_submitter_role: 'publicagency'}) }"
-                value="publicagency" />
+                value="publicagency"
+                @change="() => { setStatementData({r_submitter_role: 'publicagency'}) }" />
             </div>
           </fieldset>
         </div>

@@ -20,8 +20,8 @@
 <template>
   <button
     type="button"
-    @click="setExtent"
-    class="btn--blank u-ml-0_5 o-link--default weight--bold">
+    class="btn--blank u-ml-0_5 o-link--default weight--bold"
+    @click="setExtent">
     {{ Translator.trans(translationKey) }}
   </button>
 </template>

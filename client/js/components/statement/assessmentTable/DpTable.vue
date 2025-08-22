@@ -10,13 +10,13 @@
 <template>
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
+    v-cloak
     id="start"
+    ref="root"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
     :data-statement-admin-container="procedureId"
     name="bpform"
-    method="post"
-    ref="root"
-    v-cloak>
+    method="post">
     <input
       type="hidden"
       name="r_ident"
@@ -61,6 +61,7 @@
     <!-- Top pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -69,8 +70,7 @@
       :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+      @size-change="handleSizeChange" />
 
     <!-- Export modal -->
     <export-modal
@@ -113,11 +113,11 @@
 
     <!-- filters + sorting -->
     <assessment-table-filter
+      ref="filter"
       :has-changed-statements="hasChangedStatements"
       :assessment-export-options="assessmentExportOptions"
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
-      ref="filter"
       @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
       @handle-sort-change="option => handleSortChange(option)" />
 
@@ -141,10 +141,10 @@
         v-for="element in selectedElements"
         :key="`selectedElement:${element.id}`">
         <input
+          :id="element.id + ':item_check[]'"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :id="element.id + ':item_check[]'"
           :checked="true"
           :data-extid="element.extid"
           :value="element.id">
@@ -155,11 +155,11 @@
         v-for="element in selectedFragments"
         :key="`selectedFragment:${element.id}`">
         <input
+          :id="element.id + ':item_check[]'"
+          :key="`selectedFragmentInput:${element.id}`"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :key="`selectedFragmentInput:${element.id}`"
-          :id="element.id + ':item_check[]'"
           :checked="true"
           :value="element.id">
         <div :data-assigned="element.assignee.id === currentUserId" />
@@ -171,8 +171,8 @@
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
       <dp-assessment-table-card
-        v-else
         v-for="statement in statements"
+        v-else
         :ref="'itemdisplay_' + statement.id"
         :key="`statement:${statement.id}`"
         class="o-list__item"
@@ -193,8 +193,8 @@
         <!-- empty state message with link to list of original statements -->
         <p
           v-if="filterSet.userWarning"
-          class="flash flash-warning"
-          v-cleanhtml="Translator.trans(filterSet.userWarning)" />
+          v-cleanhtml="Translator.trans(filterSet.userWarning)"
+          class="flash flash-warning" />
 
         <p
           v-else
@@ -222,6 +222,7 @@
     <!-- bottom pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager2_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pb-0_5 text-right"
       :current-page="pagination.current_page"
@@ -230,8 +231,7 @@
       :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager2_${pagination.current_page}_${pagination.count}`" />
+      @size-change="handleSizeChange" />
   </form>
 </template>
 

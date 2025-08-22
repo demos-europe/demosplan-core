@@ -16,10 +16,10 @@
         class="inline-block w-[20px] u-pv-0_25"
         @change="val => $emit('selectAll', val)" /><!--
     --><div
-        class="layout__item weight--bold u-pv-0_5"
-        :class="[item.classes ? item.classes : '', item.width ? item.width : '']"
         v-for="(item, idx) in items"
-        :key="idx">
+        :key="idx"
+        class="layout__item weight--bold u-pv-0_5"
+        :class="[item.classes ? item.classes : '', item.width ? item.width : '']">
         {{ item.label }}
       </div>
     </div>

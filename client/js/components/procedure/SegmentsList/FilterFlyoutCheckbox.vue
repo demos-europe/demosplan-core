@@ -10,8 +10,8 @@
 <template>
   <li>
     <input
-      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :id="`${instance}_id_${option.id}`"
+      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
       type="checkbox"

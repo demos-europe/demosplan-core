@@ -10,8 +10,8 @@
 <template>
   <div
     v-if="procedures.length"
-    class="u-mv-0_25"
-    v-scroller>
+    v-scroller
+    class="u-mv-0_25">
     <ul
       class="u-m-0 u-pb-0_25"
       data-cy="procedureList">

@@ -24,16 +24,16 @@
         :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]">
         <!-- Editing -->
         <div
-          class="c-edit-field__editing"
-          v-if="editable && editingEnabled">
+          v-if="editable && editingEnabled"
+          class="c-edit-field__editing">
           <slot name="edit" />
         </div>
         <!-- Displaying value in non-edit mode, also toggles edit mode -->
         <div
+          v-if="!editable || !editingEnabled"
           :class="{'cursor-pointer': editable}"
           :title="Translator.trans('edit.entity', { entity: translatedLabel })"
-          @click="toggleEditing"
-          v-if="!editable || !editingEnabled">
+          @click="toggleEditing">
           <slot name="display" />
         </div>
         <!-- Edit Trigger -->
@@ -49,8 +49,8 @@
                 type="button"
                 :title="Translator.trans('save')"
                 class="btn--blank o-link--default"
-                @click="save"
-                data-cy="saveField">
+                data-cy="saveField"
+                @click="save">
                 <i
                   aria-hidden="true"
                   class="fa fa-check" />
@@ -66,10 +66,10 @@
               </button>
             </template>
             <button
+              v-if="false === editingEnabled"
               type="button"
               data-cy="toggleEditing"
               :disabled="!editable"
-              v-if="false === editingEnabled"
               :title="editable ? Translator.trans('edit.entity', {entity: translatedLabel}) : Translator.trans('locked.title')"
               class="btn--blank o-link--default"
               @click="toggleEditing">

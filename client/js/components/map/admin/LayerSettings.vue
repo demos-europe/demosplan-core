@@ -101,7 +101,7 @@
             class="multiselect__tag-icon"
             type="button"
             @click="props.remove(props.option)"
-          ></button>
+          />
         </span>
       </template>
     </dp-multiselect>

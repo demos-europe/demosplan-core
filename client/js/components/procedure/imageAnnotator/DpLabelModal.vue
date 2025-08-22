@@ -22,8 +22,8 @@
         placeholder="-"
         :options="labels" />
       <button
-        @click="setLabel"
-        class="btn btn--primary">
+        class="btn btn--primary"
+        @click="setLabel">
         {{ Translator.trans('accept') }}
       </button>
     </div>

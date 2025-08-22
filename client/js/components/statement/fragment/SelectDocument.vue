@@ -18,10 +18,10 @@
     </slot>
     <div :class="selectboxWrapperClasses">
       <select
+        :id="elementsInputName"
         v-model="currentElementId"
         class="o-form__control-select"
-        :name="elementsInputName"
-        :id="elementsInputName">
+        :name="elementsInputName">
         <option value="">
           -
         </option>
@@ -43,10 +43,10 @@
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="paragraphsInputName"
           v-model="currentParagraphId"
           class="o-form__control-select"
-          :name="paragraphsInputName"
-          :id="paragraphsInputName">
+          :name="paragraphsInputName">
           <option value="">
             -
           </option>
@@ -69,10 +69,10 @@
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="fileInputName"
           v-model="currentFileId"
           class="layout__item"
-          :name="fileInputName"
-          :id="fileInputName">
+          :name="fileInputName">
           <option value="">
             -
           </option>

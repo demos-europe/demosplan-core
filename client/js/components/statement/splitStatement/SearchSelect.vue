@@ -23,8 +23,8 @@
       @input="updateSelected">
       <template v-slot:option="{ props }">
         <input
-          type="checkbox"
           :id="`tag_${props.option.id}`"
+          type="checkbox"
           :checked="typeof selected.find(el => el.id === props.option.id || el.attributes.title === props.option.title) !== 'undefined'"
           :value="props.option.id">
         <label
@@ -35,8 +35,8 @@
       </template>
       <template v-slot:beforeList>
         <button
-          @click="$emit('open-create-form')"
-          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
+          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
+          @click="$emit('open-create-form')">
           {{ Translator.trans('tag.topic.new') }}
         </button>
       </template>

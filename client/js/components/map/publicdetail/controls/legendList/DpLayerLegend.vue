@@ -24,8 +24,8 @@
 
     <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
       <ul
-        :class="prefixClass('c-map__group js__mapLayerLegends')"
-        v-show="unfolded">
+        v-show="unfolded"
+        :class="prefixClass('c-map__group js__mapLayerLegends')">
         <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
             :class="prefixClass('c-map__group-item block')"

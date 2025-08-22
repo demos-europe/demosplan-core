@@ -10,13 +10,13 @@
 <template>
   <div>
     <i
+      v-tooltip="text"
       class="fa cursor-help"
       :class="{
         'fa-check color-message-success-fill': published,
         'fa-times-circle color-message-severe-fill': published === false
       }"
       aria-hidden="true"
-      v-tooltip="text"
     />
     <span
       class="sr-only"

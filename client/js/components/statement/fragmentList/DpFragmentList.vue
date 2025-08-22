@@ -11,10 +11,10 @@
   <section class="u-mb">
     <template v-if="fragments.length">
       <dp-statement-fragment
-        :csrf-token="csrfToken"
-        :is-archive="isArchive"
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
+        :csrf-token="csrfToken"
+        :is-archive="isArchive"
         :fragment-id="missKeyValue(fragment.id, 0)"
         :statement-id="missKeyValue(fragment.statement.id, 0)"
         :current-user-id="currentUserId"

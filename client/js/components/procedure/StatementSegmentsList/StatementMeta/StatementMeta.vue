@@ -37,8 +37,8 @@
             <button
               class="text-left"
               role="menuitem"
-              v-text="Translator.trans(entry.transKey)"
-              @click="setActiveItem(entry.id)" />
+              @click="setActiveItem(entry.id)"
+              v-text="Translator.trans(entry.transKey)" />
           </li>
         </ul>
       </div>

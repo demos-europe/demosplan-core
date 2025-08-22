@@ -52,8 +52,8 @@
 
       <dp-input
         v-if="!procedureMapSettings.attributes.useGlobalInformationUrl && hasPermission('feature_map_feature_info')"
-        v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
+        v-model="procedureMapSettings.attributes.informationUrl"
         class="u-mb"
         data-cy="map:informationUrl"
         :label="{

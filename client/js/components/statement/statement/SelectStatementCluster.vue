@@ -14,11 +14,11 @@
 
     <!-- hidden input with userId-->
     <input
+      v-if="hasPermission('feature_statement_assignment')"
+      id="currentUser"
       type="hidden"
       :value="currentUserId"
-      id="currentUser"
-      name="currentUser"
-      v-if="hasPermission('feature_statement_assignment')">
+      name="currentUser">
 
     <!-- hidden input with assigneeId of selected statement cluster-->
     <input
@@ -31,13 +31,13 @@
     <!-- select statement cluster -->
     <dp-multiselect
       id="clusters-single-select"
+      ref="multiselect"
       v-model="selected"
       :allow-empty="false"
       class="u-1-of-1 u-mr-0_75 show-error-from-sibling"
       data-cy="clustersSingleSelect"
       :custom-label="option =>`${option.externId ? option.externId : ''} ${option.name ? option.name : ''}`"
       :options="clusterList"
-      ref="multiselect"
       track-by="id"
       @input="closeMultiselect">
       <template v-slot:option="{ props }">
@@ -46,9 +46,9 @@
       </template>
     </dp-multiselect>
     <input
+      id="r_head_statement"
       type="hidden"
       name="r_head_statement"
-      id="r_head_statement"
       :value="inputValue">
 
     <!-- claim icon for selected statement cluster -->
@@ -56,6 +56,8 @@
       v-if="hasPermission('feature_statement_assignment')"
       class="layout__item u-1-of-1 u-pt-0_25 u-pl-0">
       <dp-claim
+        v-if="'' !== inputValue"
+        :key="selected.assignee.id"
         class="c-at-item__row-icon inline-block"
         entity-type="statement"
         :ignore-last-claimed="false"
@@ -65,9 +67,7 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
-        v-if="'' !== inputValue"
-        @click="updateClaim"
-        :key="selected.assignee.id" />
+        @click="updateClaim" />
       <p
         v-if="currentUserId !== selected.assignee.id && inputValue !== ''"
         class="inline-block lbl__hint u-n-ml-0_5">

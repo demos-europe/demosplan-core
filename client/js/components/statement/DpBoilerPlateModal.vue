@@ -13,9 +13,9 @@
     content-classes="u-1-of-2">
     <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
     <dp-boiler-plate
+      ref="boilerplateDropdown"
       :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
       :boiler-plates="displayedBoilerplates"
-      ref="boilerplateDropdown"
       group-values="boilerplates"
       group-label="groupName"
       :group-select="false"

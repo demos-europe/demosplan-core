@@ -24,8 +24,8 @@
           </span>
         </h3>
         <p
-          class="u-m-0 inline"
-          v-cleanhtml="period" />
+          v-cleanhtml="period"
+          class="u-m-0 inline" />
       </li>
       <li>
         <h3 class="u-m-0 inline">

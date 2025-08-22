@@ -12,11 +12,11 @@
         v-text="item.name" />
       <dp-input
         v-else
-        data-cy="tagListItem:tagName"
         id="tagName"
+        v-model="name"
+        data-cy="tagListItem:tagName"
         maxlength="250"
-        required
-        v-model="name" />
+        required />
     </div>
     <div class="flex">
       <template v-if="!isEditing">

@@ -52,9 +52,9 @@
         <template v-slot:button>
           <button
             v-if="boilerPlate"
+            v-tooltip="Translator.trans('boilerplate.insert')"
             :class="prefixClass('menubar__button')"
             type="button"
-            v-tooltip="Translator.trans('boilerplate.insert')"
             @click.stop="openBoilerPlate">
             <i :class="prefixClass('fa fa-puzzle-piece')" />
           </button>
@@ -76,8 +76,8 @@
     </div>
 
     <div
-      class="relative u-pr"
-      v-else>
+      v-else
+      class="relative u-pr">
       <template v-if="shortText !== ''">
         <height-limit
           class="c-styled-html"
@@ -88,13 +88,13 @@
           @heightLimit:toggle="update"
           @click="toggleEditMode" />
         <button
+          v-if="!loading"
           type="button"
           :disabled="!editable"
           class="c-edit-field__trigger btn--blank o-link--default"
-          v-if="!loading"
-          @click.prevent.stop="toggleEditMode"
           :title="Translator.trans(editable ? editLabel : 'locked.title')"
-          data-cy="toggleTipTapEditMode">
+          data-cy="toggleTipTapEditMode"
+          @click.prevent.stop="toggleEditMode">
           <i
             class="fa fa-pencil"
             aria-hidden="true" />

@@ -30,8 +30,8 @@
           aria-hidden="true" />
       </button>
       <span
-        :class="prefixClass('c-map__opacity-control u-ml-0_5')"
-        v-show="showOpacityControl && isVisible">
+        v-show="showOpacityControl && isVisible"
+        :class="prefixClass('c-map__opacity-control u-ml-0_5')">
         <input
           type="range"
           min="0"
@@ -50,8 +50,8 @@
       </span>
     </span>
     <span
-      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
-      v-show="!showOpacityControl">
+      v-show="!showOpacityControl"
+      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
       {{ layer.attributes.name }}
     </span>
     <dp-contextual-help

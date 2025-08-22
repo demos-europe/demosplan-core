@@ -37,11 +37,11 @@
 
     <!-- Version history view -->
     <button
+      v-if="hasPermission('feature_statement_content_changes_view')"
       type="button"
       class="btn--blank o-link--default leading-[2] whitespace-nowrap"
-      v-if="hasPermission('feature_statement_content_changes_view')"
-      @click.prevent="showVersionHistory"
-      data-cy="versionHistory">
+      data-cy="versionHistory"
+      @click.prevent="showVersionHistory">
       {{ Translator.trans('history') }}
     </button>
 
@@ -96,9 +96,9 @@
 
     <!-- Delete fragment (fragment entity only) -->
     <button
+      v-if="entity === 'fragment'"
       type="button"
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-      v-if="entity === 'fragment'"
       :disabled="fragmentAssigneeId !== currentUserId"
       :title="fragmentAssigneeId === currentUserId ? false : Translator.trans('locked.title')"
       v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment-delete', entityId) } : {}">

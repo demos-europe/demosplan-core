@@ -35,12 +35,12 @@
       </h3>
       <!--ASSIGN TO OTHER-->
       <div
-        class="border--bottom u-mb"
-        v-if="hasPermission('feature_statement_assignment')">
+        v-if="hasPermission('feature_statement_assignment')"
+        class="border--bottom u-mb">
         <input
-          type="checkbox"
           id="r_new_assignee"
-          v-model="options.newAssignee.checked">
+          v-model="options.newAssignee.checked"
+          type="checkbox">
         <label
           for="r_new_assignee"
           class="inline-block">
@@ -76,9 +76,9 @@
       <!--CONSIDERATION-->
       <div class="border--bottom u-mb">
         <input
-          type="checkbox"
           id="r_consideration"
-          v-model="options.consideration.checked">
+          v-model="options.consideration.checked"
+          type="checkbox">
         <label
           for="r_consideration"
           class="inline-block">
@@ -109,9 +109,9 @@
             <template v-slot:button>
               <button
                 v-if="hasPermission('area_admin_boilerplates')"
+                v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')"
                 @click.stop="openBoilerPlate">
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
@@ -202,9 +202,9 @@
         {{ Translator.trans('confirm.saved.plural') }}
       </h3>
       <p
-        class="flash-confirm u-p-0_5"
         v-for="option in checkedOptions"
-        :key="option">
+        :key="option"
+        class="flash-confirm u-p-0_5">
         <i
           class="fa fa-check fa-lg"
           aria-hidden="true" />

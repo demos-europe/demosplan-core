@@ -9,10 +9,10 @@
 
 <template>
   <div
+    :id="'tag_' + segment.id"
     class="card space-stack-xs"
     :class="{ 'highlighted': isHighlighted }"
     :style="{ top: offsetTop, left: (position * 5) + 'px', 'margin-top': (position * 5) + 'px' }"
-    :id="'tag_' + segment.id"
     @focusin="$emit('focusin')"
     @focusout="$emit('focusout')"
     @mouseenter="$emit('mouseenter')"

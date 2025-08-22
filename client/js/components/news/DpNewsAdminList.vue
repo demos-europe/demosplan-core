@@ -18,16 +18,16 @@ All rights reserved
       </a>
     </div>
     <dp-bulk-edit-header
-      class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
+      class="layout__item u-12-of-12"
       :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
       @reset-selection="resetSelection">
       <button
         class="btn-icns u-m-0"
         name="newsdelete"
         data-cy="deleteSelectedNews"
-        @click.prevent="deleteEntries"
-        type="button">
+        type="button"
+        @click.prevent="deleteEntries">
         <i
           aria-hidden="true"
           class="fa fa-times u-mr-0_125" />

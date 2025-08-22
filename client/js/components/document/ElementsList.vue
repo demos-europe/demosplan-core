@@ -40,8 +40,8 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
-            class="whitespace-pre-line"
-            v-cleanhtml="nodeElement.attributes.text" />
+            v-cleanhtml="nodeElement.attributes.text"
+            class="whitespace-pre-line" />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <file-info

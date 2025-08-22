@@ -7,12 +7,12 @@
       :key="`tag_${idx}`"
       :class="assignTagSizeClasses(tag,idx)">
       <div
+        v-tooltip="tag.tagName"
         :class="[
           'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
           isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
           isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
-        ]"
-        v-tooltip="tag.tagName">
+        ]">
         <span class="overflow-hidden text-ellipsis">
           {{ tag.tagName }}
         </span>

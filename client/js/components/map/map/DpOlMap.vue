@@ -68,8 +68,8 @@
             name="controls" />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
+              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
                 return Routing.generate(_options.autoSuggest.serviceUrlPath, {
@@ -85,8 +85,8 @@
               @selected="zoomToSuggestion" />
 
             <dp-ol-map-scale-select
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
-              v-if="_options.scaleSelect" />
+              v-if="_options.scaleSelect"
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')" />
           </div>
         </div>
 
@@ -116,10 +116,10 @@
 
       <!-- Map container -->
       <div
+        :id="mapId"
         ref="mapContainer"
         data-cy="map:mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
-        :id="mapId">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />

@@ -27,10 +27,10 @@
     </div>
     <button
       v-if="isFullscreenRow"
+      v-tooltip="Translator.trans('fullscreen')"
       :aria-label="Translator.trans('fullscreen')"
       class="btn--blank absolute right-1 top-1 z-above-zero"
       data-cy="rowFullscreen"
-      v-tooltip="Translator.trans('fullscreen')"
       @click.stop.prevent="toggleFullscreen">
       <dp-icon
         aria-hidden="true"

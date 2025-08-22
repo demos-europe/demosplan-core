@@ -17,7 +17,7 @@
           <dp-inline-notification
             v-if="!isLoading && availablePlaces.length < 1"
             class="mt-3 mb-2"
-            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }) })"
+            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: procedureId }) })"
             type="warning" />
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
@@ -92,20 +92,20 @@
             <dp-loading class="u-mt u-ml" />
           </div>
           <main
+            v-else-if="initialData"
             ref="main"
-            class="container pt-2"
-            v-else-if="initialData">
+            class="container pt-2">
             <segmentation-editor
+              :init-statement-text="initText ?? ''"
+              :segments="segments"
+              :range-change-callback="handleSegmentChanges"
+              :class="{ 'is-fullwidth': !showTags }"
               @prosemirror:initialized="runPostInitTasks"
               @prosemirror:maxRange="setMaxRange"
               @focus="event => handleMouseOver(event)"
               @focusout="handleMouseLeave"
               @mouseover="event => handleMouseOver(event)"
-              @mouseleave="handleMouseLeave"
-              :init-statement-text="initText ?? ''"
-              :segments="segments"
-              :range-change-callback="handleSegmentChanges"
-              :class="{ 'is-fullwidth': !showTags }" />
+              @mouseleave="handleMouseLeave" />
 
             <transition
               name="slide-fade"
@@ -113,8 +113,8 @@
               <card-pane
                 v-if="showTags && editModeActive === false && maxRange"
                 id="cardPane"
-                class="u-ml"
                 :key="tagsCounter"
+                class="u-ml"
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
@@ -132,9 +132,9 @@
                 :offset="headerOffset">
                 <side-bar
                   id="sideBar"
+                  ref="sideBar"
                   class="u-mb-0_25"
                   :offset="headerOffset"
-                  ref="sideBar"
                   @abort="abortEdit"
                   @keydown.esc="toggleSideBar"
                   @save="save(editingSegment)" />
@@ -146,11 +146,11 @@
             v-if="editModeActive === false"
             class="button-container">
             <dp-button
-              @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
               data-cy="statementSplitComplete"
-              variant="outline" />
+              variant="outline"
+              @click="saveAndFinish" />
           </div>
         </div>
       </transition>

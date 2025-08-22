@@ -10,8 +10,8 @@
 <template>
   <div aria-hidden="true">
     <dp-autocomplete
-      :class="prefixClass('c-map__autocomplete')"
       v-if="hasPermission('feature_map_search_location')"
+      :class="prefixClass('c-map__autocomplete')"
       :options="autocompleteOptions"
       :model-value="selectedValue"
       :route-generator="(searchString) => {

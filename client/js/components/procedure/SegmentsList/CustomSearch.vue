@@ -35,17 +35,17 @@
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
-                v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.length < fields.length)" />
+                @click="toggleAllFields(selectedFields.length < fields.length)"
+                v-text="Translator.trans('toggle_all')" />
             </div>
             <div
-              class="o-list--col-3"
-              v-if="isLoading === false">
+              v-if="isLoading === false"
+              class="o-list--col-3">
               <dp-checkbox
                 v-for="({label, value}, i) in fields"
-                :data-cy="'customSearch:' + value"
                 :id="value"
                 :key="i"
+                :data-cy="'customSearch:' + value"
                 :checked="selectedFields.includes(value)"
                 :label="{
                   text: Translator.trans(label)

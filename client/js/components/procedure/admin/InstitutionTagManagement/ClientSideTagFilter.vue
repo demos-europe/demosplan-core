@@ -28,13 +28,13 @@ All rights reserved
           <button
             class="btn--blank o-link--default ml-auto"
             data-cy="clientSideTagFilter:toggleFilterCategories"
-            v-text="Translator.trans('toggle_all')"
-            @click="toggleAllCategories" />
+            @click="toggleAllCategories"
+            v-text="Translator.trans('toggle_all')" />
           <div v-if="!isLoading">
             <dp-checkbox
               v-for="category in filterCategories"
-              :key="category.id"
               :id="`filterCategorySelect:${category.label}`"
+              :key="category.id"
               :checked="selectedFilterCategories.includes(category.label)"
               :data-cy="`clientSideTagFilter:filterCategoriesSelect:${category.label}`"
               :disabled="checkIfDisabled(appliedFilterQuery, category.id)"
@@ -63,12 +63,12 @@ All rights reserved
   </div>
 
   <dp-button
+    v-tooltip="Translator.trans('search.filter.reset')"
     class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
     data-cy="ClientSideTagFilter:resetFilter"
     :disabled="!isQueryApplied"
     :text="Translator.trans('reset')"
     variant="outline"
-    v-tooltip="Translator.trans('search.filter.reset')"
     @click="reset" />
 </template>
 

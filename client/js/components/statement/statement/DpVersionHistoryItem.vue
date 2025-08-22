@@ -34,8 +34,8 @@
 
         <tbody>
           <tr
-            @click="getContent"
-            class="o-sortablelist__item cursor-pointer">
+            class="o-sortablelist__item cursor-pointer"
+            @click="getContent">
             <!-- time -->
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
@@ -66,8 +66,8 @@
               <ul class="o-list o-list--csv">
                 <li
                   v-for="field in time.fieldNames"
-                  class="o-list__item"
                   :key="field"
+                  class="o-list__item"
                   data-cy="historyField">
                   {{ Translator.trans(field) }}
                 </li>
@@ -90,13 +90,13 @@
                 <thead>
                   <tr class="sr-only">
                     <th
-                      colspan="4"
-                      v-if="isOpen && isLoading">
+                      v-if="isOpen && isLoading"
+                      colspan="4">
                       {{ Translator.trans('loading') }}
                     </th>
                     <th
-                      colspan="4"
-                      v-if="isOpen && !isLoading">
+                      v-if="isOpen && !isLoading"
+                      colspan="4">
                       {{ Translator.trans('dropdown.open') }}
                     </th>
                   </tr>
@@ -112,8 +112,8 @@
                     </td>
 
                     <td
-                      colspan="4"
-                      v-if="isOpen && !isLoading">
+                      v-if="isOpen && !isLoading"
+                      colspan="4">
                       <table v-if="time.displayChange">
                         <thead>
                           <tr class="sr-only">
@@ -138,10 +138,10 @@
                             </td>
                             <td
                               v-if="content !== null && content !== ''"
+                              v-cleanhtml="content"
                               style="width: 79%;"
                               class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
-                              data-cy="contentChange"
-                              v-cleanhtml="content" />
+                              data-cy="contentChange" />
                             <td
                               v-else-if="content === null"
                               style="width: 82%;"
