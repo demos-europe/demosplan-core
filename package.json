@@ -58,7 +58,7 @@
     "@masterportal/masterportalapi": "2.49.0",
     "@sentry/browser": "^9.24.0",
     "@sentry/tracing": "^7.120.3",
-    "@tailwindcss/postcss": "^4.1.7",
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/leaflet": "^1.9.20",
     "@uppy/core": "^4.5.2",
     "@uppy/drag-drop": "^4.2.2",
