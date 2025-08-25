@@ -317,13 +317,13 @@ export default {
       ],
       // Status mapping objects
       statusTypes: {
-        'Neu': 'blue',
+        Neu: 'blue',
         'In Bearbeitung': 'gray',
-        'Abgeschlossen': 'gray'
+        Abgeschlossen: 'gray'
       },
       statusClasses: {
         'In Bearbeitung': 'status-editing',
-        'Abgeschlossen': 'status-completed'
+        Abgeschlossen: 'status-completed'
       },
       apiStatusLabels: {
         new: Translator.trans('new'),
@@ -332,15 +332,17 @@ export default {
       },
       // Confidence mapping objects
       confidenceTypes: {
-        low: 'red',      // <= 33%
+        low: 'red', // <= 33%
         medium: 'warm-gray', // 34-66%
-        high: 'green'    // >= 67%
+        high: 'green' // >= 67%
       },
       confidenceClasses: {
         medium: 'cv-confidence-medium'
       },
-      // Local translations: Temporary storage for strings that don't have
-      // translation keys yet in messages+intl-icu.de.yml
+      /*
+       * Local translations: Temporary storage for strings that don't have
+       * translation keys yet in messages+intl-icu.de.yml
+       */
       localTranslations: {
         confidence: 'Konfidenz',
         mainTitle: 'Stellungnahmen zum aktuellen Verfahren',
@@ -381,8 +383,8 @@ export default {
           institution: stmt.attributes?.initialOrganisationName || '-',
           text: stmt.attributes?.text || stmt.text, // For expanded row
           sections: segmentsCount > 0 ? segmentsCount : '-',
-          confidence: confidence,
-          confidenceType: confidenceType
+          confidence,
+          confidenceType
         }
       })
 
@@ -396,8 +398,10 @@ export default {
           return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
         })
       } else if (this.clientSortField === 'status') {
-        // Status sorting: Carbon table doesn't support semantic status sorting,
-        // so we handle it client-side with custom order
+        /*
+         * Status sorting: Carbon table doesn't support semantic status sorting,
+         * so we handle it client-side with custom order
+         */
         const statusOrder = { Neu: 1, 'In Bearbeitung': 2, Abgeschlossen: 3 }
         processedData.sort((a, b) => {
           const orderA = statusOrder[a.status] || 999
@@ -533,7 +537,6 @@ export default {
       return date.toLocaleDateString('de-DE')
     },
 
-
     onPaginationChange (event) {
       const now = Date.now()
 
@@ -594,15 +597,17 @@ export default {
       if (this.sortBy !== '' && this.sortDirection) {
         const direction = this.sortDirection === 'ascending' ? '' : '-'
 
-        // Column index to API field mapping
-        // null = client-side sorting required
+        /*
+         * Column index to API field mapping
+         * null = client-side sorting required
+         */
         const sortFieldMap = {
           0: null, // ID - extract numeric part client-side
           1: null, // Status - custom priority order client-side
           2: 'submitName', // Author - API supports this field
           3: null, // Institution - name comparison client-side
           4: null, // Sections - not sortable (display only)
-          5: null  // Confidence - dummy data, client-side for now
+          5: null // Confidence - dummy data, client-side for now
         }
 
         // Handle client-side sorting columns (indices 0,1,3,5)
@@ -713,10 +718,12 @@ export default {
     },
 
     setupCheckboxListeners () {
-      // Manual checkbox handling: Carbon's native selection has bugs with dynamic data
-      // and row expansion. We manually bind to checkbox events for reliable state management.
-
-      // Clean up existing listeners first
+      /*
+       * Manual checkbox handling: Carbon's native selection has bugs with dynamic data
+       * and row expansion. We manually bind to checkbox events for reliable state management.
+       *
+       * Clean up existing listeners first
+       */
       this.removeCheckboxListeners()
 
       this.$nextTick(() => {
