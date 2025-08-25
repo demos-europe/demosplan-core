@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Location;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -24,29 +25,153 @@ class LocationService
      */
     protected $em;
 
-    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly LoggerInterface $logger,
+        private readonly GeodatenzentrumAddressSearchService $geodatenzentrumAddressSearchService,
+    ) {
         $this->em = $registry->getManager();
     }
 
     /**
-     * Get a City by Name or postal code.
+     * Get an address suggestion by typing in a street name.
+     * Uses the external Geodatenzentrum API for autosuggestions.
      *
-     * @param string     $searchString
-     * @param int        $limit
-     * @param array|null $maxExtent
+     * @param string $searchString Search query for address
+     * @param int    $limit        Maximum number of results to return
      *
-     * @return array
+     * @return array Array containing search results
      */
+    public function searchAddress($searchString, $limit = 20)
+    {
+        $logContext = [
+            'service'          => 'LocationService',
+            'method'           => 'searchAddress',
+            'searchString'     => $searchString,
+            'limit'            => $limit,
+            'usingExternalApi' => true,
+        ];
+
+        $this->logger->info('Starting address search via Geodatenzentrum API', $logContext);
+
+        try {
+            $locations = $this->geodatenzentrumAddressSearchService
+                ->searchAddress($searchString, $limit);
+
+            $resultCount = count($locations);
+
+            if (!empty($locations)) {
+                $this->logger->info('Address search completed successfully with results', [
+                    ...$logContext,
+                    'resultCount' => $resultCount,
+                    'hasResults'  => true,
+                    'firstResult' => $locations[0]['name'] ?? 'unknown',
+                ]);
+
+                return ['body' => $locations];
+            }
+
+            $this->logger->info('Address search completed with no results', [
+                ...$logContext,
+                'resultCount' => 0,
+                'hasResults'  => false,
+                'note'        => 'This may be normal for very specific or non-existent addresses',
+            ]);
+
+            return ['body' => []];
+        } catch (Exception $e) {
+            $this->logger->error('Address search failed via Geodatenzentrum API', [
+                ...$logContext,
+                'error'             => $e->getMessage(),
+                'errorType'         => get_class($e),
+                'file'              => $e->getFile(),
+                'line'              => $e->getLine(),
+                'fallbackAvailable' => false,
+                'troubleshooting'   => 'Check external API availability and network connectivity',
+            ]);
+
+            return ['body' => []];
+        }
+    }
+    /**
+     * Get a City by Name or postal code.
+     *  CRITICAL CHANGE: Now uses external Geodatenzentrum API instead of database query.
+     *
+     * @param string $searchString Search query for city/location
+     * @param int $limit Maximum number of results to return
+     * @param array|null $maxExtent Optional map extent for filtering (NOT SUPPORTED by external API)
+     * @return array|null Array containing search results or null on failure
+ */
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
+        $logContext = [
+            'service'                => 'LocationService',
+            'method'                 => 'searchCity',
+            'searchString'           => $searchString,
+            'limit'                  => $limit,
+            'maxExtent'              => $maxExtent,
+            'usingExternalApi'       => true,
+            'databaseSearchDisabled' => true,
+        ];
+
+        $this->logger->info('Starting city search - USING EXTERNAL API (database search disabled)', $logContext);
+
+        if (null !== $maxExtent) {
+            $this->logger->warning('Map extent filtering requested but NOT SUPPORTED by external API', [
+                ...$logContext,
+                'impact'           => 'Map extent parameter is ignored when using Geodatenzentrum API',
+                'originalBehavior' => 'Database search supported geographic filtering via maxExtent',
+                'currentBehavior'  => 'External API returns results without geographic filtering',
+                'recommendation'   => 'Consider implementing client-side filtering if geographic bounds are critical',
+            ]);
+        }
+
         try {
-            $locations = $this->getLocationRepository()
-                ->searchCity($searchString, $limit, $maxExtent);
+            $locations = $this->geodatenzentrumAddressSearchService->searchAddress($searchString, $limit, $maxExtent);
+            $resultCount = count($locations);
+
+            $this->logger->info('City search completed via external API', [
+                ...$logContext,
+                'resultCount'   => $resultCount,
+                'apiTransition' => [
+                    'from'              => 'database query (LocationRepository::searchCity)',
+                    'to'                => 'external Geodatenzentrum API (GeodatenzentrumAddressSearchService::searchAddress)',
+                    'functionalChanges' => [
+                        'mapExtentFiltering' => 'no longer available',
+                        'dataSource'         => 'changed from internal database to external service',
+                        'dependency'         => 'now requires external service availability',
+                    ],
+                ],
+                'firstResult' => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null,
+            ]);
 
             return ['body' => $locations];
         } catch (Exception $e) {
-            $this->logger->error('Fehler bei searchCity: ', [$e]);
+            $this->logger->error('City search failed via external API', [
+                ...$logContext,
+                'error'           => $e->getMessage(),
+                'errorType'       => get_class($e),
+                'file'            => $e->getFile(),
+                'line'            => $e->getLine(),
+                'fallbackOptions' => [
+                    'databaseFallback' => 'Not implemented - would require uncommenting repository call',
+                    'currentBehavior'  => 'Return empty results on external API failure',
+                    'riskAssessment'   => 'Complete service failure if external API is unavailable',
+                ],
+                'troubleshooting' => [
+                    'immediateSteps' => [
+                        'Check Geodatenzentrum API status',
+                        'Verify network connectivity to external service',
+                        'Review API timeout settings (currently 30s)',
+                        'Check application logs for HTTP client errors',
+                    ],
+                    'recoveryOptions' => [
+                        'Consider implementing database fallback',
+                        'Monitor external service uptime',
+                        'Implement circuit breaker pattern for resilience',
+                    ],
+                ],
+            ]);
 
             return ['body' => []];
         }

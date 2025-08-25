@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use Exception;
@@ -27,7 +28,7 @@ class LocationSearchController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
-    public function searchLocationJsonAction(Request $request, LocationService $locationService): Response
+    public function searchLocationJsonAction(Request $request, LocationService $locationService, CurrentUserInterface $currentUser): Response
     {
         try {
             $query = $request->query->all();
@@ -38,7 +39,11 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-            $restResponse = $locationService->searchCity($query['query'], $limit);
+            if ($currentUser->hasPermission('feature_geocoder_address_search')) {
+                $restResponse = $locationService->searchAddress($query['query'], $limit);
+            } else {
+                $restResponse = $locationService->searchCity($query['query'], $limit);
+            }
             $result = $restResponse['body'] ?? [];
 
             $suggestions = [];
@@ -47,10 +52,19 @@ class LocationSearchController extends BaseController
             for ($i = 0; $i < $maxSuggestions; ++$i) {
                 if (isset($result[$i])) {
                     $entry = $result[$i];
-                    $suggestions[] = [
-                        'value' => $entry['postcode'].' '.$entry['name'],
-                        'data'  => $entry,
-                    ];
+                    // check for Geocoder autosuggestions
+                    if (isset($entry['name'])) {
+                        $suggestions[] = [
+                            'value' => $entry['name'].' '.$entry['housenumber'].' '.$entry['postcode'].' '.$entry['city'],
+                            'data'  => $entry,
+                        ];
+                    } else {
+                        // searchCity DB suggestions
+                        $suggestions[] = [
+                            'value' => ($entry['name'] ?? '').' '.($entry['postcode'] ?? ''),
+                            'data'  => $entry,
+                        ];
+                    }
                 }
             }
 
