@@ -85,7 +85,7 @@
 
                         {% block breadcrumb %}
                             <div class="dp-breadcrumb-container flex items-center justify-between u-pv-0_25">
-                                <nav class="o-breadcrumb" aria-label="Breadcrumb">
+                                <nav class="dp-breadcrumb" aria-label="Breadcrumb">
                                     {# Wenn ein Breadcrumbobjekt explizit übergeben wurde, stelle dieses dar, ansonsten das Standardobjekt #}
                                     {% if (templateVars.breadcrumb is defined) %}
                                         {{ templateVars.breadcrumb.markup(currentUser, breadcrumbTitle|default(''), proceduresettings|default(null))|wysiwyg }}
@@ -109,7 +109,7 @@
                         {# Name of procedure #}
                         <div class="dp-procedure-name-container">
                             {% if proceduresettings.name|default != '' %}
-                                <span class="color--grey inline-block u-pt-0_5 u-mb-10_25">
+                                <span class="dp-procedure-name">
                                     {{ proceduresettings.name|default }}
                                 </span>
                             {% else %}
