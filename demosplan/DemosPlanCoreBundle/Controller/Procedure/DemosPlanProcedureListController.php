@@ -467,6 +467,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         Request $request,
         CurrentProcedureService $currentProcedureService,
         LocationService $locationService,
+        CurrentUserInterface $currentUser,
     ) {
         $this->profilerStart('Proj4ProfilerInit');
         $proj4 = new Proj4php();
@@ -490,7 +491,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $this->profilerStart('searchCity');
-            $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
+            if ($currentUser->hasPermission('feature_geocoder_address_search')) {
+                $locationResponse = $locationService->searchAddress($requestGet['query'], $limit);
+            } else {
+                $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
+            }
             $this->profilerStop('searchCity');
 
             $result = $locationResponse['body'];
@@ -522,13 +527,13 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
                         $filteredSuggestions[] = [
-                            'value' => $entry['postcode'].' '.$entry['name'],
+                            'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
                             'data'  => $entry,
                         ];
                     }
                 } else {
                     $filteredSuggestions[] = [
-                        'value' => $entry['postcode'].' '.$entry['name'],
+                        'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
                         'data'  => $entry,
                     ];
                 }
