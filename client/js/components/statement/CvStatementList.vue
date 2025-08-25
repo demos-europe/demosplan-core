@@ -465,19 +465,9 @@ export default {
       fetchStatements: 'list'
     }),
 
-    applySearch (term, page = 1) {
-      // Check if the search term has changed
-      const searchChanged = term !== this.searchValue
-      this.searchValue = term
-
-      // Always go to page 1 when search term changes, otherwise use specified page
-      const targetPage = searchChanged ? 1 : page
-
-      this.fetchStatements({
-        page: { number: targetPage, size: this.pagination.perPage },
-        search: {
-          value: this.searchValue
-        },
+    handleFetchStatements (options = {}) {
+      const defaultOptions = {
+        page: { number: 1, size: this.pagination.perPage },
         filter: {
           procedureId: {
             condition: {
@@ -486,7 +476,6 @@ export default {
             }
           }
         },
-        sort: this.getSortString(), // Dynamic sort based on UI selection
         include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
         fields: {
           Statement: [
@@ -504,6 +493,26 @@ export default {
             'segments'
           ].join(),
           SourceStatementAttachment: ['file'].join()
+        },
+        sort: this.getSortString()
+      }
+
+      const mergedOptions = { ...defaultOptions, ...options }
+      return this.fetchStatements(mergedOptions)
+    },
+
+    applySearch (term, page = 1) {
+      // Check if the search term has changed
+      const searchChanged = term !== this.searchValue
+      this.searchValue = term
+
+      // Always go to page 1 when search term changes, otherwise use specified page
+      const targetPage = searchChanged ? 1 : page
+
+      this.handleFetchStatements({
+        page: { number: targetPage, size: this.pagination.perPage },
+        search: {
+          value: this.searchValue
         }
       }).then(response => {
         if (response?.meta?.pagination) {
@@ -861,34 +870,7 @@ export default {
     // Initialize visibleColumns from localStorage
     this.visibleColumns = this.loadColumnSelection()
 
-    this.fetchStatements({
-      page: { number: 1, size: this.pagination.perPage },
-      filter: {
-        procedureId: {
-          condition: {
-            path: 'procedure.id',
-            value: this.procedureId
-          }
-        }
-      },
-      include: ['segments'].join(),
-      fields: {
-        Statement: [
-          'authoredDate',
-          'authorName',
-          'externId',
-          'isSubmittedByCitizen',
-          'initialOrganisationName',
-          'internId',
-          'status',
-          'submitDate',
-          'submitName',
-          'text',
-          'textIsTruncated',
-          'segments'
-        ].join()
-      }
-    }).then(response => {
+    this.handleFetchStatements().then(response => {
       if (response?.meta?.pagination) {
         this.pagination = {
           currentPage: response.meta.pagination.current_page,
