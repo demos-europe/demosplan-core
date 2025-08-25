@@ -214,9 +214,6 @@ export default {
     ...mapActions('AdministratableUser', {
       createUser: 'create'
     }),
-    ...mapActions('UserFormFields', [
-      'fetchOrgaSuggestions'
-    ]),
 
     ...mapMutations('AdministratableUser', {
       updateAdministratableUser: 'setItem'
@@ -328,10 +325,6 @@ export default {
     update (item) {
       this.item = item
     }
-  },
-
-  mounted () {
-    this.fetchOrgaSuggestions()
   }
 }
 </script>
