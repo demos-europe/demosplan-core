@@ -124,6 +124,7 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
+thenetworg/oauth2-azure: MIT
 timeweb/phpstan-enum: MIT
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
@@ -134,4 +135,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 03.06.2025 07:02
+As of 25.08.2025 07:02
