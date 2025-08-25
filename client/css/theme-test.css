@@ -136,7 +136,7 @@
 
 .cv-statement-list .cv-switch-label {
     font-size: 16px;
-    color: var(--dp-carbon-gray-100);
+    color: var(--dp-gray-100);
     font-weight: normal;
     margin: 0 32px;
 }
@@ -169,8 +169,8 @@
 }
 
 .bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::before {
-    background-color: var(--dp-carbon-gray-100) !important;
-    border-color: var(--dp-carbon-gray-100) !important;
+    background-color: var(--dp-gray-100) !important;
+    border-color: var(--dp-gray-100) !important;
 }
 
 .bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::after {
@@ -199,14 +199,14 @@
 }
 
 #colSort{
-    background-color: var(--dp-white) !important;
+    background-color: var(--dp-gray-10) !important;
     border: none !important;
     border-bottom: 1px solid var(--dp-gray-60) !important;
-    color: var(--dp-carbon-gray-100) !important;
+    color: var(--dp-gray-100) !important;
 }
 
 #colSort:hover {
-    color: var(--dp-carbon-gray-100) !important;
+    color: var(--dp-gray-100) !important;
 }
 
 
@@ -274,7 +274,7 @@ a[aria-current="page"]::after {
 }
 
 .o-breadcrumb li:nth-last-child(2) a {
-    color: var(--dp-carbon-gray-100) !important;
+    color: var(--dp-gray-100) !important;
     text-decoration: none !important;
     pointer-events: none !important;
 }
@@ -306,12 +306,12 @@ a[aria-current="page"]::after {
     padding: 8px 16px !important;
     border: 1px solid var(--dp-primary-blue) !important;
     color: var(--dp-primary-blue) !important;
-    background-color: var(--dp-white) !important;
+    background-color: var(--dp-gray-10) !important;
 }
 
 .cv-column-selector-trigger .bx--btn:hover {
     background-color: var(--dp-primary-blue) !important;
-    color: var(--dp-white) !important;
+    color: var(--dp-gray-10) !important;
 }
 
 .cv-column-selector-dropdown-overlay {
@@ -364,7 +364,7 @@ a[aria-current="page"]::after {
     padding: 12px 16px !important;
     margin: 0 !important;
     font-size: 14px !important;
-    color: var(--dp-carbon-gray-100) !important;
+    color: var(--dp-gray-100) !important;
     width: 100% !important;
     text-align: left !important;
     border: none !important;
@@ -375,7 +375,7 @@ a[aria-current="page"]::after {
 }
 
 .cv-column-option-button.bx--btn:hover {
-    background-color: var(--dp-gray-10) !important;
+    background-color: var(--dp-gray-20) !important;
 }
 
 .cv-column-option-button.bx--btn:active,
