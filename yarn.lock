@@ -4491,6 +4491,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/progress-bar@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "@uppy/progress-bar@npm:4.3.2"
+  dependencies:
+    "@uppy/utils": "npm:^6.2.2"
+    preact: "npm:^10.5.13"
+  peerDependencies:
+    "@uppy/core": ^4.5.2
+  checksum: 10c0/5d99dc9a6f256b8d92663376f9c72c363a1dfe62c2e2691578f3db04a637c941f6db7a0c5107a5ccc5823c982743aa74727a249c538a8839722b1a9213ca7c78
+  languageName: node
+  linkType: hard
+
 "@uppy/store-default@npm:^4.2.0":
   version: 4.2.0
   resolution: "@uppy/store-default@npm:4.2.0"
@@ -13508,7 +13520,7 @@ __metadata:
     "@types/leaflet": "npm:^1.9.20"
     "@uppy/core": "npm:^4.5.2"
     "@uppy/drag-drop": "npm:^4.2.2"
-    "@uppy/progress-bar": "npm:^4.2.1"
+    "@uppy/progress-bar": "npm:^4.3.2"
     "@vue/compat": "npm:3.5.18"
     "@vue/compiler-sfc": "npm:3.5.13"
     "@vue/test-utils": "npm:^2.4.6"
