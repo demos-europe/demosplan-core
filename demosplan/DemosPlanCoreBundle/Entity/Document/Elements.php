@@ -654,7 +654,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         return new FileInfo(
             $fileStringParts[1] ?? '',
             $fileStringParts[0] ?? '',
-            (int)($fileStringParts[2] ?? ''),
+            (int) ($fileStringParts[2] ?? ''),
             $fileStringParts[3] ?? '',
             'missing',
             'missing',

@@ -24,7 +24,7 @@ class CustomFieldType extends JsonType
     final public const DPLAN_STORED_QUERY = 'dplan.custom_field_configuration';
 
     private const TYPE_CLASSES = [
-        RadioButtonField::class
+        RadioButtonField::class,
     ];
 
     public function loadFromJson(

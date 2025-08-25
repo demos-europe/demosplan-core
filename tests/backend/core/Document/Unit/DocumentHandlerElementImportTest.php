@@ -10,20 +10,19 @@
 
 namespace Tests\Core\Document\Unit;
 
-use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\StorageAttributes;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * Tests for the elementImportDirToArray method in DocumentHandler
+ * Tests for the elementImportDirToArray method in DocumentHandler.
  */
 class DocumentHandlerElementImportTest extends TestCase
 {
@@ -69,7 +68,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Creates a mock DirectoryListing that iterates over the provided items
+     * Creates a mock DirectoryListing that iterates over the provided items.
      */
     private function createMockListing(array $items): DirectoryListing
     {
@@ -77,7 +76,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Test that a simple file structure is correctly converted to an array
+     * Test that a simple file structure is correctly converted to an array.
      */
     public function testSimpleStructure(): void
     {
@@ -110,7 +109,7 @@ class DocumentHandlerElementImportTest extends TestCase
 
     /**
      * Test that a nested directory structure is correctly converted to an array
-     * without duplicating files at the root level
+     * without duplicating files at the root level.
      */
     public function testNestedStructure(): void
     {
@@ -124,7 +123,7 @@ class DocumentHandlerElementImportTest extends TestCase
 
         $this->defaultStorage->expects($this->exactly(3))
             ->method('listContents')
-            ->willReturnCallback(function($path, $deep) use ($baseDir, $nestedDir, $nestedDir2, $dirAttributes, $fileAttributes1) {
+            ->willReturnCallback(function ($path, $deep) use ($baseDir, $nestedDir, $nestedDir2, $dirAttributes, $fileAttributes1) {
                 if ($path === $baseDir) {
                     return $this->createMockListing([$dirAttributes, $fileAttributes1]);
                 }
@@ -139,6 +138,7 @@ class DocumentHandlerElementImportTest extends TestCase
                         new FileAttributes('tmp/import/456/Ordner 2/Anlage 13/document2.pdf'),
                     ]);
                 }
+
                 return $this->createMockListing([]);
             });
 
@@ -157,8 +157,8 @@ class DocumentHandlerElementImportTest extends TestCase
         $this->assertCount(2, $result);
 
         // Find elements by type
-        $files = array_filter($result, fn($item) => !$item['isDir']);
-        $dirs = array_filter($result, fn($item) => $item['isDir']);
+        $files = array_filter($result, fn ($item) => !$item['isDir']);
+        $dirs = array_filter($result, fn ($item) => $item['isDir']);
 
         // Check that we have one file and one directory
         $this->assertCount(1, $files);
@@ -188,7 +188,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Test that files are not duplicated at root level when they belong to subdirectories
+     * Test that files are not duplicated at root level when they belong to subdirectories.
      */
     public function testNoDuplicatedFiles(): void
     {
@@ -203,7 +203,7 @@ class DocumentHandlerElementImportTest extends TestCase
         // Setup directory structure
         $this->defaultStorage->expects($this->exactly(3))
             ->method('listContents')
-            ->willReturnCallback(function($path, $deep) use ($importDir, $folder1, $folder2, $dir1Attributes, $dir2Attributes) {
+            ->willReturnCallback(function ($path, $deep) use ($importDir, $folder1, $folder2, $dir1Attributes, $dir2Attributes) {
                 if ($path === $importDir) {
                     return $this->createMockListing([$dir1Attributes, $dir2Attributes]);
                 }
@@ -221,6 +221,7 @@ class DocumentHandlerElementImportTest extends TestCase
                         new FileAttributes('tmp/import/789/Ordner 2/file4.pdf'),
                     ]);
                 }
+
                 return $this->createMockListing([]);
             });
 
@@ -255,7 +256,7 @@ class DocumentHandlerElementImportTest extends TestCase
         $this->assertEquals('file4.pdf', $dir2['entries'][1]['title']);
 
         // Verify no files at root level
-        $filesAtRoot = array_filter($result, fn($item) => !$item['isDir']);
+        $filesAtRoot = array_filter($result, fn ($item) => !$item['isDir']);
         $this->assertCount(0, $filesAtRoot);
     }
 }

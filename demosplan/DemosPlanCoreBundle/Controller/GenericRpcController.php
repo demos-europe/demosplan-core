@@ -34,7 +34,7 @@ class GenericRpcController extends BaseController
         CurrentProcedureService $currentProcedureService,
         Request $request,
         RpcErrorGenerator $errorGenerator,
-        RpcMethodSolverStrategy $rpcMethodSolverStrategy
+        RpcMethodSolverStrategy $rpcMethodSolverStrategy,
     ): JsonResponse {
         try {
             $procedure = $currentProcedureService->getProcedure();
@@ -52,7 +52,7 @@ class GenericRpcController extends BaseController
 
     private function handleException(
         RpcErrorGenerator $errorGenerator,
-        Exception $e
+        Exception $e,
     ): JsonResponse {
         $this->logger->error('RPC Route Exception', [$e]);
 

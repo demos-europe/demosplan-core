@@ -36,13 +36,13 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
             'organisations'         => $element->getOrganisationNames(true),
             'keyOfInternalPhase'    => $element->getProcedure()->getPhase(),
             'keyOfEternalPhase'     => $element->getProcedure()->getPublicParticipationPhase(),
-            //The translation of the time the report is created is the important one, not the key
+            // The translation of the time the report is created is the important one, not the key
             'nameOfInternalPhase'   => $element->getProcedure()->getPhaseName(),
             'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseName(),
         ];
     }
 
-    public function createElementEntry(Elements $element, string $reportCategory, int $date = null): ReportEntry
+    public function createElementEntry(Elements $element, string $reportCategory, ?int $date = null): ReportEntry
     {
         $data = $this->createMessageData($element);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;

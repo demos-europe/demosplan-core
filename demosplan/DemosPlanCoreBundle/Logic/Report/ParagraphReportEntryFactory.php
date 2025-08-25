@@ -34,7 +34,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
             'visible'                   => $paragraph->getVisible(),
             'keyOfInternalPhase'        => $paragraph->getProcedure()->getPhase(),
             'keyOfEternalPhase'         => $paragraph->getProcedure()->getPublicParticipationPhase(),
-            //The translation of the time the report is created is the important one, not the key
+            // The translation of the time the report is created is the important one, not the key
             'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseName(),
             'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseName(),
         ];
@@ -43,7 +43,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
     public function createParagraphEntry(
         Paragraph $paragraph,
         string $reportCategory,
-        int $date = null
+        ?int $date = null,
     ): ReportEntry {
         $data = $this->createMessageData($paragraph);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;

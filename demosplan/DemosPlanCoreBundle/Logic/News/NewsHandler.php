@@ -58,7 +58,7 @@ class NewsHandler extends CoreHandler
         MessageBagInterface $messageBag,
         PermissionsInterface $permissions,
         ProcedureNewsService $procedureNewsService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;

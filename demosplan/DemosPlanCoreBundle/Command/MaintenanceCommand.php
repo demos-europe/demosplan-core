@@ -95,7 +95,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /** @var Proj */
     protected $targetProjection;
 
-
     /** @var ProcedureRepository */
     protected $procedureRepository;
 

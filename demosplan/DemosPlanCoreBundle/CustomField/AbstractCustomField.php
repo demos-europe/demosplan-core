@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
-
     protected string $name = '';
 
     protected string $description = '';
