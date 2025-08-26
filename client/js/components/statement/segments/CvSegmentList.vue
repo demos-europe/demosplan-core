@@ -29,12 +29,18 @@ All rights reserved
           />
           <div class="cv-column-selector">
             <div
-                class="cv-column-selector-trigger"
-                @click="toggleColumnSelector"
-                ref="columnTrigger">
+              class="cv-column-selector-trigger"
+              @click="toggleColumnSelector"
+              @keydown.enter="toggleColumnSelector"
+              @keydown.space="toggleColumnSelector"
+              tabindex="0"
+              role="button"
+              :aria-expanded="isColumnSelectorOpen"
+              aria-label="Spalten anpassen"
+              ref="columnTrigger">
               <cv-button
-                  id="colSort"
-                  kind="ghost">
+                id="colSort"
+                kind="ghost">
                 Spalten anpassen <ChevronDown16 />
               </cv-button>
             </div>
@@ -44,13 +50,13 @@ All rights reserved
         <!-- Batch Actions -->
         <template v-slot:batch-actions>
           <cv-button
-              kind="primary"
-              size="default">
+            kind="primary"
+            size="default">
             Aufteilung überprüfen
           </cv-button>
           <cv-button
-              kind="primary"
-              size="default">
+            kind="primary"
+            size="default">
             Aufteilung so akzeptieren
           </cv-button>
           <cv-button
@@ -68,9 +74,10 @@ All rights reserved
 
         <!-- Custom Data Slot -->
         <template v-slot:data>
-          <template v-for="(segment, index) in segments" :key="index">
+          <template
+            v-for="(segment, index) in segments"
+            :key="index">
             <cv-data-table-row :value="String(segment.id)">
-
               <cv-data-table-cell v-show="visibleColumns.includes('externId')">
                 {{ segment.externId }}
               </cv-data-table-cell>
@@ -87,7 +94,9 @@ All rights reserved
                   <div class="cv-submitter-name">
                     {{ segment.submitter }}
                   </div>
-                  <div class="cv-submitter-org" v-if="segment.organisation">
+                  <div
+                    class="cv-submitter-org"
+                    v-if="segment.organisation">
                     {{ segment.organisation }}
                   </div>
                 </div>
@@ -132,7 +141,6 @@ All rights reserved
                   <ChevronDown16 :style="{ transform: expandedRows.includes(segment.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
                 </cv-button>
               </cv-data-table-cell>
-
             </cv-data-table-row>
 
             <!-- Expanded Content Row -->
@@ -215,16 +223,14 @@ import {
   CvSearch,
   CvTag
 } from '@carbon/vue'
+import { dpRpc, tableSelectAllItems } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { tableSelectAllItems, dpRpc } from '@demos-europe/demosplan-ui'
 import ChevronDown16 from '@carbon/icons-vue/lib/chevron--down/16'
 import CvMultiselectModal from '@DpJs/components/statement/CvMultiselectModal'
 import lscache from 'lscache'
 
 export default {
   name: 'CvSegmentList',
-
-  mixins: [tableSelectAllItems],
 
   components: {
     ChevronDown16,
@@ -237,6 +243,8 @@ export default {
     CvSearch,
     CvTag
   },
+
+  mixins: [tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -397,7 +405,7 @@ export default {
     selectedItemIds () {
       const currentPageIds = this.segments.map(s => String(s.id))
       const allSelectedIds = Object.keys(this.currentlySelectedItems)
-      
+
       // Only return IDs that are actually on the current page
       return allSelectedIds.filter(id => currentPageIds.includes(id))
     }
@@ -610,7 +618,7 @@ export default {
 
       // Remove existing listeners to prevent conflicts
       headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
-      
+
       this.headerCheckboxHandler = this.createHeaderCheckboxHandler()
       headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
     },
@@ -633,6 +641,7 @@ export default {
     createHeaderCheckboxHandler () {
       return (event) => {
         const selectAll = event.target.checked
+        // Use custom method to select only current page (not all pages like SegmentsList)
         this.handleSelectCurrentPageOnly(selectAll)
         this.updateBatchActionsVisibility()
         this.updateRowCheckboxes()
@@ -721,6 +730,10 @@ export default {
     },
 
     handleSelectCurrentPageOnly (selectAll) {
+      /*
+       * Custom method to select only current page items
+       * Unlike handleSelectAll() from mixin, this doesn't select across all pages
+       */
       if (selectAll) {
         // Select only the visible segments on current page
         this.segments.forEach(segment => {
@@ -734,7 +747,7 @@ export default {
       }
     },
 
-    openEditModal() {
+    openEditModal () {
       if (this.selectedItemsCount === 0) {
         // Show notification that no segments are selected
         if (window.dplan && window.dplan.notify) {
@@ -749,7 +762,7 @@ export default {
       this.isEditModalVisible = true
     },
 
-    async handleModalSave(formData) {
+    async handleModalSave (formData) {
       this.isEditModalVisible = false
 
       const selectedSegmentIds = this.getSelectedSegmentIds()
@@ -768,7 +781,7 @@ export default {
       }
     },
 
-    getSelectedSegmentIds() {
+    getSelectedSegmentIds () {
       if (this.trackDeselected) {
         const allIds = Object.keys(this.segmentsObject)
         return allIds.filter(id => !this.toggledItems.some(item => String(item.id) === id))
@@ -777,12 +790,16 @@ export default {
       }
     },
 
-    buildBulkEditParams(selectedSegmentIds, formData) {
+    buildBulkEditParams (selectedSegmentIds, formData) {
+      /*
+       * Build RPC parameters - ALL required fields according to JSON schema
+       * Unlike SegmentsBulkEdit, this modal only handles assignee/place changes
+       */
       const params = {
-        addTagIds: [],
-        removeTagIds: [],
+        addTagIds: [], // Required by schema - empty because this modal doesn't handle tags
+        removeTagIds: [], // Required by schema - empty because this modal doesn't handle tags
         segmentIds: selectedSegmentIds,
-        recommendationTextEdit: {
+        recommendationTextEdit: { // Required by schema - empty because this modal doesn't handle recommendations
           text: '',
           attach: true
         }
@@ -803,7 +820,7 @@ export default {
       return params
     },
 
-    async executeBulkEdit(bulkEditParams) {
+    async executeBulkEdit (bulkEditParams) {
       const response = await dpRpc('segment.bulk.edit', bulkEditParams)
       const rpcResult = response.data && response.data[0] && response.data[0].result
       if (rpcResult !== 'ok') {
@@ -812,50 +829,54 @@ export default {
       return response
     },
 
-    async handleBulkEditSuccess(selectedSegmentIds) {
+    async handleBulkEditSuccess (selectedSegmentIds) {
+      // Clear selection using mixin method
       this.resetSelection()
+
+      // Clear localStorage like in SegmentsList to ensure reactive updates
       lscache.remove(`${this.procedureId}:toggledSegments`)
       lscache.remove(`${this.procedureId}:allSegments`)
 
       this.showSuccess(`${selectedSegmentIds.length} Segment(e) wurden erfolgreich aktualisiert.`)
 
+      // Force reactive update by refreshing data and triggering re-render
       await this.fetchSegmentData(this.pagination.currentPage)
-      this.$forceUpdate()
+      this.$forceUpdate() // Force Vue to re-render component
+
+      // Also refresh related stores that might have stale data
       this.fetchPlaces()
       this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
     },
 
-    handleBulkEditError(error) {
+    handleBulkEditError (error) {
       console.error('Error saving segments via RPC:', error)
-      const errorMessage = error.message === 'RPC call failed with result: undefined' 
+      const errorMessage = error.message === 'RPC call failed with result: undefined'
         ? 'RPC-Aufruf fehlgeschlagen. Bitte versuchen Sie es erneut.'
         : 'Fehler beim Speichern der Segmente.'
       this.showError(errorMessage)
     },
 
-    showWarning(message) {
+    showWarning (message) {
       if (window.dplan && window.dplan.notify) {
         window.dplan.notify.notify('warning', message)
       }
     },
 
-    showSuccess(message) {
+    showSuccess (message) {
       if (window.dplan && window.dplan.notify) {
         window.dplan.notify.notify('confirm', message)
       }
     },
 
-    showError(message) {
+    showError (message) {
       if (window.dplan && window.dplan.notify) {
         window.dplan.notify.notify('error', message)
       }
     },
 
-
-    handleModalCancel() {
+    handleModalCancel () {
       this.isEditModalVisible = false
     },
-
 
     fetchSegmentData (page = 1) {
       const payload = {
@@ -897,10 +918,10 @@ export default {
           ].join(),
           Tag: [
             'title',
-            'boilerplate'  // Include boilerplate relationship
+            'boilerplate' // Include boilerplate relationship
           ].join(),
           Boilerplate: [
-            'title'  // Include boilerplate title for textModule
+            'title' // Include boilerplate title for textModule
           ].join()
         }
       }
