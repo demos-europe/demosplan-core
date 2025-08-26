@@ -56,7 +56,7 @@ export default {
 
     phoneIsRequired () {
       return this.required && this.statement.r_useName === '1' && this.statement.r_email === ''
-    }
-  }
+    },
+  },
 }
 </script>

@@ -26,7 +26,7 @@ export default {
     addonProps: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     /**
@@ -35,24 +35,24 @@ export default {
     hookName: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     refComponent: {
       type: String,
       required: false,
-      default: 'Addon'
-    }
+      default: 'Addon',
+    },
   },
 
   emits: [
-    'addons:loaded'
+    'addons:loaded',
   ],
 
   data () {
     return {
       demosplanUi: shallowRef(demosplanUi),
-      loadedAddons: []
+      loadedAddons: [],
     }
   },
 
@@ -62,12 +62,12 @@ export default {
         addons.forEach(addon => {
           this.loadedAddons.push({
             component: shallowRef(window[addon.name].default),
-            name: addon.name
+            name: addon.name,
           })
         })
 
         this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
       })
-  }
+  },
 }
 </script>

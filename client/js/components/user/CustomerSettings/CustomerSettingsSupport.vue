@@ -99,7 +99,7 @@ const emptyCustomer = {
   phoneNumber: '',
   eMailAddress: '',
   text: '',
-  visible: false
+  visible: false,
 }
 export default {
   name: 'CustomerSettingsSupport',
@@ -109,7 +109,7 @@ export default {
     DpCheckbox,
     DpEditableList,
     DpEditor,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -124,15 +124,15 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('contact.update'),
         noEntries: Translator.trans('contact.no_entries'),
-        delete: Translator.trans('contact.delete')
+        delete: Translator.trans('contact.delete'),
       },
-      updating: false
+      updating: false,
     }
   },
 
   computed: {
     ...mapState('CustomerContact', {
-      contacts: 'items'
+      contacts: 'items',
     }),
 
     titlesInUsePattern () {
@@ -141,7 +141,7 @@ export default {
         .map(contact => contact.attributes.title)
 
       return `^(?!(?:${usedTitle.join('|')})$)`
-    }
+    },
   },
 
   methods: {
@@ -149,11 +149,11 @@ export default {
       createContact: 'create',
       fetchContacts: 'list',
       deleteContact: 'delete',
-      saveContact: 'save'
+      saveContact: 'save',
     }),
 
     ...mapMutations('CustomerContact', {
-      updateContact: 'setItem'
+      updateContact: 'setItem',
     }),
 
     reset () {
@@ -170,8 +170,8 @@ export default {
           phoneNumber: this.customerContact.phoneNumber ?? null,
           text: this.customerContact.text ?? null,
           visible: this.customerContact.visible,
-          eMailAddress: this.customerContact.eMailAddress ?? null
-        }
+          eMailAddress: this.customerContact.eMailAddress ?? null,
+        },
       }
 
       if (id === 'new') {
@@ -205,9 +205,9 @@ export default {
             'phoneNumber',
             'text',
             'visible',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       })
     },
 
@@ -234,13 +234,13 @@ export default {
         eMailAddress: currentData.eMailAddress ?? '',
         text: currentData.text ?? '',
         visible: currentData.visible,
-        id
+        id,
       }
-    }
+    },
   },
 
   mounted () {
     this.getContacts()
-  }
+  },
 }
 </script>

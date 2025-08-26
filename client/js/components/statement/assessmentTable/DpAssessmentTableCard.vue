@@ -682,29 +682,29 @@ export default {
     DpItemRow,
     EditableText,
     TableCardFlyoutMenu,
-    DpTooltip
+    DpTooltip,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: 'statementCard'
+      default: 'statementCard',
     },
 
     isSelected: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     /*
@@ -713,14 +713,14 @@ export default {
      */
     statementProcedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
     'statement:addToSelection',
     'statement:updated',
-    'statement:removeFromSelection'
+    'statement:removeFromSelection',
   ],
 
   data () {
@@ -730,7 +730,7 @@ export default {
       tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
-      placeholderStatementId: null
+      placeholderStatementId: null,
     }
   },
 
@@ -750,7 +750,7 @@ export default {
       'priorityAreas',
       'procedureId',
       'status',
-      'tags'
+      'tags',
     ]),
     ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
     ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
@@ -764,8 +764,8 @@ export default {
         'publicParticipationPublicationEnabled',
         'statements',
         'viewMode',
-        'statementFormDefinitions'
-      ]
+        'statementFormDefinitions',
+      ],
     ),
 
     /*
@@ -844,9 +844,9 @@ export default {
     },
 
     statementDetailPath () {
-      return (this.statement.isCluster)
-        ? Routing.generate('DemosPlan_cluster_view', { statement: this.statementId, procedureId: this.procedureId, isCluster: true })
-        : Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
+      return (this.statement.isCluster) ?
+        Routing.generate('DemosPlan_cluster_view', { statement: this.statementId, procedureId: this.procedureId, isCluster: true }) :
+        Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
     },
 
     statementDateTooltipContent () {
@@ -878,7 +878,7 @@ export default {
       const parts = [
         ...this.getOrganizationTooltipParts, // Add organization info
         ...this.getSubmittedAuthorTooltipParts, // Add submitted author info
-        ...this.getUserFieldsTooltipParts // Add user fields
+        ...this.getUserFieldsTooltipParts, // Add user fields
       ]
 
       return parts.filter(part => part).join('<br>')
@@ -919,7 +919,7 @@ export default {
         { permission: 'field_statement_user_state', value: this.statement.userState, label: 'state' },
         { permission: 'field_statement_user_group', value: this.statement.userGroup, label: 'group' },
         { permission: 'field_statement_user_organisation', value: this.statement.userOrganisation, label: 'organisation' },
-        { permission: 'field_statement_user_position', value: this.statement.userPosition, label: 'position' }
+        { permission: 'field_statement_user_position', value: this.statement.userPosition, label: 'position' },
       ]
 
       userFields.forEach(field => {
@@ -939,7 +939,7 @@ export default {
       return this.statement.submitName === '' &&
              (this.statement.authorName === '' || this.statement.anonymous) &&
              this.statement.isSubmittedByCitizen
-    }
+    },
 
   },
 
@@ -948,25 +948,25 @@ export default {
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
-      'resetSelection'
+      'resetSelection',
     ]),
 
     ...mapActions('Statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
-      'setAssigneeAction'
+      'setAssigneeAction',
     ]),
 
     ...mapMutations('AssessmentTable', [
       'setModalProperty',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('Statement', [
       'addStatement',
       'updateStatement',
-      'replaceStatement'
+      'replaceStatement',
     ]),
 
     fetchStatementFragments () {
@@ -1037,15 +1037,15 @@ export default {
     preparePayload (data, propType, fieldName) {
       let payload = {
         id: data.id,
-        type: 'Statement'
+        type: 'Statement',
       }
 
       if (propType === 'attribute') {
         payload = {
           ...payload,
           attributes: {
-            [fieldName]: data[fieldName]
-          }
+            [fieldName]: data[fieldName],
+          },
         }
       }
 
@@ -1060,16 +1060,16 @@ export default {
               elements: {
                 data: {
                   id: data.elements,
-                  type: 'Elements'
-                }
+                  type: 'Elements',
+                },
               },
               paragraph: {
-                data: null
+                data: null,
               },
               document: {
-                data: null
-              }
-            }
+                data: null,
+              },
+            },
           }
 
           this.resetRelatedFields()
@@ -1086,11 +1086,11 @@ export default {
                   data: data[fieldName].map(el => {
                     return {
                       id: el,
-                      type
+                      type,
                     }
-                  })
-                }
-              }
+                  }),
+                },
+              },
             }
           }
 
@@ -1101,10 +1101,10 @@ export default {
                 [fieldName]: {
                   data: {
                     id: data[fieldName],
-                    type
-                  }
-                }
-              }
+                    type,
+                  },
+                },
+              },
             }
           }
         }
@@ -1157,7 +1157,7 @@ export default {
               const tags = Object.values(updated.tags).map(tag => {
                 return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
                   tag: tag.id,
-                  procedure: this.procedureId
+                  procedure: this.procedureId,
                 }))
                   .then(data => {
                     if (data.data.code === 100 && data.data.success) {
@@ -1177,9 +1177,9 @@ export default {
                 .then(() => {
                   if (textToBeAdded !== '') {
                     // If there is no input, we want to overwrite the 'k.A.' default string
-                    fieldToUpdate.$data.fullText !== 'k.A.'
-                      ? fieldToUpdate.$data.fullText += textToBeAdded
-                      : fieldToUpdate.$data.fullText = textToBeAdded
+                    fieldToUpdate.$data.fullText !== 'k.A.' ?
+                      fieldToUpdate.$data.fullText += textToBeAdded :
+                      fieldToUpdate.$data.fullText = textToBeAdded
 
                     fieldToUpdate.$data.isEditing = true
                     dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
@@ -1237,7 +1237,7 @@ export default {
           extid: this.extid,
           movedToProcedure: (this.statement.movedToProcedureId !== ''),
           assignee: this.statement.assignee,
-          isCluster: this.statement.isCluster
+          isCluster: this.statement.isCluster,
         }
         // Make sure that no fragments are checked if we check statement (fragments may not be loaded at this point so the checkbox in TableCard will not be disabled)
         this.resetSelection()
@@ -1288,7 +1288,7 @@ export default {
           this.updatingClaimState = false
           this.$root.$emit('entity:updated', this.statementId, 'statement')
         })
-    }
+    },
   },
 
   mounted () {
@@ -1310,6 +1310,6 @@ export default {
         this.toggleView(mutation.payload.val)
       }
     })
-  }
+  },
 }
 </script>

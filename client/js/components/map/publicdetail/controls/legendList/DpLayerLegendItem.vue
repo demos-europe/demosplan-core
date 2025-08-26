@@ -31,13 +31,13 @@ export default {
     legend: {
       required: true,
       type: Object,
-      default: () => { return { layerId: '', url: '#' } }
-    }
+      default: () => { return { layerId: '', url: '#' } },
+    },
   },
 
   data () {
     return {
-      isBroken: false
+      isBroken: false,
     }
   },
 
@@ -46,7 +46,7 @@ export default {
 
     isVisible () {
       return this.isLayerVisible(this.legend.layerId)
-    }
+    },
   },
 
   methods: {
@@ -56,7 +56,7 @@ export default {
 
     deleteImage () {
       this.isBroken = true
-    }
-  }
+    },
+  },
 }
 </script>

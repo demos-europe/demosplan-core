@@ -395,7 +395,7 @@ import {
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin
-  , hasOwnProp
+  , hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
@@ -410,7 +410,7 @@ const submitterProperties = {
   name: '',
   orga: '',
   ort: '',
-  plz: ''
+  plz: '',
 }
 
 export default {
@@ -431,7 +431,7 @@ export default {
       return DpEditor
     }),
     DpUploadFiles,
-    SimilarStatementSubmitters
+    SimilarStatementSubmitters,
   },
 
   mixins: [dpValidateMixin],
@@ -440,36 +440,36 @@ export default {
     allowFileUpload: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentProcedurePhase: {
       type: String,
       required: false,
-      default: 'analysis'
+      default: 'analysis',
     },
 
     documentId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     expandAll: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     fieldsFullWidth: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initValues: {
@@ -481,50 +481,50 @@ export default {
         submittedDate: '',
         tags: [],
         text: '',
-        submitter: submitterProperties
-      })
+        submitter: submitterProperties,
+      }),
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementImportEmailId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     submitRouteName: {
       type: String,
       required: false,
-      default: 'dplan_simplified_new_statement_create'
+      default: 'dplan_simplified_new_statement_create',
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -538,8 +538,8 @@ export default {
         submittedDate: '',
         tags: [],
         text: '',
-        submitter: submitterProperties
-      }
+        submitter: submitterProperties,
+      },
     }
   },
 
@@ -571,7 +571,7 @@ export default {
       }
 
       return day + '.' + month + '.' + date.getFullYear()
-    }
+    },
   },
 
   watch: {
@@ -580,8 +580,8 @@ export default {
       handler () {
         this.setInitialValues()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -627,7 +627,7 @@ export default {
         this.isSaving = true
         this.$refs.simplifiedNewStatementForm.submit()
       }, false)
-    }
+    },
   },
 
   created () {
@@ -641,6 +641,6 @@ export default {
     if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
       this.values.authoredDate = dayjs(this.values.submitter.date).format('DD.MM.YYYY')
     }
-  }
+  },
 }
 </script>

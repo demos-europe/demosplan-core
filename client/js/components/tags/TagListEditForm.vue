@@ -84,7 +84,7 @@ import {
   DpConfirmDialog,
   DpContextualHelp,
   DpIcon,
-  DpInput
+  DpInput,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
@@ -96,43 +96,43 @@ export default {
     DpConfirmDialog,
     DpContextualHelp,
     DpIcon,
-    DpInput
+    DpInput,
   },
 
   props: {
     isInEditState: {
       type: String,
-      required: true
+      required: true,
     },
 
     nodeElement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     type: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'abort',
     'delete',
     'edit',
-    'save'
+    'save',
   ],
 
   data () {
     return {
       unsavedItem: {
-        title: ''
-      }
+        title: '',
+      },
     }
   },
 
@@ -158,9 +158,9 @@ export default {
       const isTagTopic = type === 'TagTopic'
       const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
 
-      return isTagTopic
-        ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
-        : Translator.trans('check.tag.delete', { tag: attributes.title })
+      return isTagTopic ?
+        Translator.trans(topicConfirmMessage, { topic: attributes.title }) :
+        Translator.trans('check.tag.delete', { tag: attributes.title })
     },
 
     editItem () {
@@ -171,7 +171,7 @@ export default {
     saveItem () {
       const isTitleChanged = this.nodeElement.attributes.title !== this.unsavedItem.title
       this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type, isTitleChanged })
-    }
-  }
+    },
+  },
 }
 </script>

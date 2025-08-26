@@ -213,44 +213,44 @@ export default {
   name: 'AdminLayerListItem',
 
   components: {
-    DpDraggable
+    DpDraggable,
   },
 
   props: {
     element: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     sortingType: {
       required: false,
       type: String,
-      default: 'treeOrder'
+      default: 'treeOrder',
     },
 
     layerType: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isLoading: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     parentOrderPosition: {
       required: false,
       type: Number,
-      default: 1
+      default: 1,
     },
 
     index: {
       required: false,
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
 
   data () {
@@ -258,7 +258,7 @@ export default {
       drag: false,
       preventActiveFromToggeling: false,
       iconClass: 'mb-0 ml-4',
-      showChildren: true
+      showChildren: true,
     }
   },
 
@@ -267,7 +267,7 @@ export default {
       // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
-        type: 'GisLayerCategory'
+        type: 'GisLayerCategory',
       })
       if (typeof parentLayer !== 'undefined') {
         return parentLayer
@@ -469,7 +469,7 @@ export default {
     activeLayer () {
       return this.$store.getters['Layers/element']({
         id: this.$store.state.Layers.activeLayerId,
-        type: 'GisLayer'
+        type: 'GisLayer',
       }) || { attributes: {} }
     },
 
@@ -481,7 +481,7 @@ export default {
     visibilityGroupIdOfHoveredLayer () {
       return this.$store.getters['Layers/attributeForElement']({
         id: this.hoverLayerId,
-        attribute: 'visibilityGroupId'
+        attribute: 'visibilityGroupId',
       })
     },
 
@@ -661,18 +661,18 @@ export default {
         return Routing.generate('DemosPlan_map_administration_gislayer_category_edit', {
           gislayerCategoryId: this.layer.id,
           procedureId: this.procedureId,
-          r_layerWithChildrenHidden: this.layer.attributes.layerWithChildrenHidden
+          r_layerWithChildrenHidden: this.layer.attributes.layerWithChildrenHidden,
         })
       } else {
         return Routing.generate('DemosPlan_map_administration_gislayer_edit', {
           gislayerID: this.layer.id,
-          procedure: this.procedureId
+          procedure: this.procedureId,
         })
       }
     },
 
     ...mapState('Layers', ['draggableOptions']),
-    ...mapGetters('Layers', ['elementListForLayerSidebar'])
+    ...mapGetters('Layers', ['elementListForLayerSidebar']),
   },
 
   watch: {
@@ -680,14 +680,14 @@ export default {
       handler () {
         this.setOrderPosition()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
     parentOrderPosition: {
       handler () {
         this.setOrderPosition()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -695,7 +695,7 @@ export default {
       'setAttributeForLayer',
       'setChildrenFromCategory',
       'setHoverLayerIconIsHovered',
-      'updateState'
+      'updateState',
     ]),
 
     updateChildren (event) {
@@ -705,10 +705,10 @@ export default {
         movedElement: {
           id: event.item.id,
           newIndex: event.newIndex,
-          oldIndex: event.oldIndex
+          oldIndex: event.oldIndex,
         },
         orderType: this.sortingType,
-        parentOrder: this.layer.attributes.treeOrder
+        parentOrder: this.layer.attributes.treeOrder,
       })
     },
 
@@ -735,14 +735,14 @@ export default {
           id: this.layer.id,
           categoryId: this.layer.id,
           route: 'layer_category',
-          relationshipType: 'categories'
+          relationshipType: 'categories',
         }
       } else {
         deleteData = {
           id: this.layer.id,
           categoryId: this.layer.attributes.categoryId,
           route: 'layer',
-          relationshipType: 'gisLayers'
+          relationshipType: 'gisLayers',
         }
       }
       this.$store.dispatch('Layers/deleteElement', deleteData)
@@ -753,7 +753,7 @@ export default {
       this.setAttributeForLayer({
         id: this.layer.id,
         attribute: 'hasDefaultVisibility',
-        value: this.layer.attributes.hasDefaultVisibility
+        value: this.layer.attributes.hasDefaultVisibility,
       })
 
       // Adjust children of Category if the Category hides them.
@@ -774,7 +774,7 @@ export default {
         this.setAttributeForLayer({
           id: el.id,
           attribute: 'hasDefaultVisibility',
-          value: this.layer.attributes.hasDefaultVisibility
+          value: this.layer.attributes.hasDefaultVisibility,
         })
 
         /*
@@ -785,7 +785,7 @@ export default {
         this.setAttributeForLayer({
           id: el.id,
           attribute: 'visibilityGroupId',
-          value: ''
+          value: '',
         })
       })
     },
@@ -813,7 +813,7 @@ export default {
       this.setAttributeForLayer({
         id: this.element.id,
         attribute: this.sortingType,
-        value: ((this.parentOrderPosition * 100) + (this.index + 1))
+        value: ((this.parentOrderPosition * 100) + (this.index + 1)),
       })
     },
 
@@ -862,7 +862,7 @@ export default {
       this.setAttributeForLayer({
         id: this.layer.id,
         attribute: 'hasDefaultVisibility',
-        value: (this.layer.attributes.hasDefaultVisibility === false)
+        value: (this.layer.attributes.hasDefaultVisibility === false),
       })
 
       // If the Category hides his children we have to change the Value for the Children too so it will work in public detail
@@ -898,12 +898,12 @@ export default {
         this.setAttributeForLayer({
           id: this.activeLayer.id,
           attribute: 'visibilityGroupId',
-          value: newVisibilityGroupId
+          value: newVisibilityGroupId,
         })
         this.setAttributeForLayer({
           id: this.layer.id,
           attribute: 'visibilityGroupId',
-          value: newVisibilityGroupId
+          value: newVisibilityGroupId,
         })
       } else if (this.layer.attributes.visibilityGroupId === newVisibilityGroupId) {
         /*
@@ -912,21 +912,21 @@ export default {
          */
         const relatedLayers = this.$store.getters['Layers/elementsListByAttribute']({
           type: 'visibilityGroupId',
-          value: newVisibilityGroupId
+          value: newVisibilityGroupId,
         })
         if (relatedLayers.length <= 2) {
           for (let i = 0; i < relatedLayers.length; i++) {
             this.setAttributeForLayer({
               id: relatedLayers[i].id,
               attribute: 'visibilityGroupId',
-              value: null
+              value: null,
             })
           }
         } else {
           this.setAttributeForLayer({
             id: this.layer.id,
             attribute: 'visibilityGroupId',
-            value: null
+            value: null,
           })
         }
       } else {
@@ -934,14 +934,14 @@ export default {
         this.setAttributeForLayer({
           id: this.layer.id,
           attribute: 'visibilityGroupId',
-          value: newVisibilityGroupId
+          value: newVisibilityGroupId,
         })
       }
-    }
+    },
   },
 
   beforeCreate () {
     this.$options.components.AdminLayerListItem = AdminLayerListItem
-  }
+  },
 }
 </script>

@@ -122,70 +122,70 @@ import { mapMutations } from 'vuex'
 
 export default {
   components: {
-    DpFlyout
+    DpFlyout,
   },
 
   props: {
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     // Type of the entity (statement or fragment)
     entity: {
       required: true,
-      type: String
+      type: String,
     },
 
     // Id of the entity that the menu belongs to (statement or fragment)
     entityId: {
       required: true,
-      type: String
+      type: String,
     },
 
     // Needed if entity is a fragment
     externId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     fragmentAssigneeId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isCluster: {
       required: false,
       type: [Boolean, String],
-      default: true
+      default: true,
     },
 
     statementDetailPath: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     // Needed if entity is a fragment
     statementId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     statementOriginalId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     /*
@@ -195,8 +195,8 @@ export default {
     statementProcedureId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
@@ -204,24 +204,24 @@ export default {
     'show-slidebar',
     'statement:copy',
     'statement:move',
-    'version:history'
+    'version:history',
   ],
 
   data () {
     return {
-      procedureId: this.$store.state.Statement.procedureId
+      procedureId: this.$store.state.Statement.procedureId,
     }
   },
 
   computed: {
     hasActions () {
       return hasPermission('feature_statement_assignment') || hasPermission('feature_statements_fragment_add') || (hasPermission('feature_statement_move_to_procedure') && this.isCluster === false)
-    }
+    },
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setModalProperty'
+      'setModalProperty',
     ]),
 
     showVersionHistory () {
@@ -237,10 +237,10 @@ export default {
           entityType: entity,
           initialAssigneeId: assigneeId,
           parentStatementId: this.statementId,
-          show: true
-        }
+          show: true,
+        },
       })
-    }
-  }
+    },
+  },
 }
 </script>

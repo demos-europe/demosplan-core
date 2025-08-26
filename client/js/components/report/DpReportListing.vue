@@ -149,19 +149,19 @@ export default {
 
   components: {
     DpLoading,
-    DpReportGroup
+    DpReportGroup,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      isFirstLoad: true
+      isFirstLoad: true,
     }
   },
 
@@ -170,62 +170,62 @@ export default {
       generalItems: 'items',
       generalCurrentPage: 'currentPage',
       generalTotalPages: 'totalPages',
-      generalLoading: 'loading'
+      generalLoading: 'loading',
     }),
     ...mapState('report/publicPhase', {
       publicPhaseItems: 'items',
       publicPhaseCurrentPage: 'currentPage',
       publicPhaseTotalPages: 'totalPages',
-      publicPhaseLoading: 'loading'
+      publicPhaseLoading: 'loading',
     }),
     ...mapState('report/invitations', {
       invitationsItems: 'items',
       invitationsCurrentPage: 'currentPage',
       invitationsTotalPages: 'totalPages',
-      invitationsLoading: 'loading'
+      invitationsLoading: 'loading',
     }),
     ...mapState('report/registerInvitations', {
       registerInvitationsItems: 'items',
       registerInvitationsCurrentPage: 'currentPage',
       registerInvitationsTotalPages: 'totalPages',
-      registerInvitationsLoading: 'loading'
+      registerInvitationsLoading: 'loading',
     }),
     ...mapState('report/finalMails', {
       finalMailsItems: 'items',
       finalMailsCurrentPage: 'currentPage',
       finalMailsTotalPages: 'totalPages',
-      finalMailsLoading: 'loading'
+      finalMailsLoading: 'loading',
     }),
     ...mapState('report/statements', {
       statementsItems: 'items',
       statementsCurrentPage: 'currentPage',
       statementsTotalPages: 'totalPages',
-      statementsLoading: 'loading'
+      statementsLoading: 'loading',
     }),
     ...mapState('report/elements', {
       elementsItems: 'items',
       elementsCurrentPage: 'currentPage',
       elementsTotalPages: 'totalPages',
-      elementsLoading: 'loading'
+      elementsLoading: 'loading',
     }),
     ...mapState('report/singleDocuments', {
       singleDocumentsItems: 'items',
       singleDocumentsCurrentPage: 'currentPage',
       singleDocumentsTotalPages: 'totalPages',
-      singleDocumentsLoading: 'loading'
+      singleDocumentsLoading: 'loading',
     }),
     ...mapState('report/paragraphs', {
       paragraphsItems: 'items',
       paragraphsCurrentPage: 'currentPage',
       paragraphsTotalPages: 'totalPages',
-      paragraphsLoading: 'loading'
+      paragraphsLoading: 'loading',
     }),
     ...mapState('report/drawings', {
       drawingsItems: 'items',
       drawingsCurrentPage: 'currentPage',
       drawingsTotalPages: 'totalPages',
-      drawingsLoading: 'loading'
-    })
+      drawingsLoading: 'loading',
+    }),
   },
 
   methods: {
@@ -239,7 +239,7 @@ export default {
       listElements: 'report/elements/list',
       listSingleDocuments: 'report/singleDocuments/list',
       listParagraphs: 'report/paragraphs/list',
-      listDrawings: 'report/drawings/list'
+      listDrawings: 'report/drawings/list',
     }),
 
     handlePageChange (group, page) {
@@ -248,15 +248,15 @@ export default {
       return this[actionName]({
         procedureId: this.procedureId,
         page: {
-          number: page
-        }
+          number: page,
+        },
       })
         .then(() => {
           if (!this.isFirstLoad) {
             scrollTo('#report__' + group)
           }
         })
-    }
+    },
   },
 
   mounted () {
@@ -270,7 +270,7 @@ export default {
       'elements',
       'single_documents',
       'paragraphs',
-      'drawings'
+      'drawings',
     ]
       .filter(groupName => {
         /*
@@ -290,6 +290,6 @@ export default {
       .map(groupName => {
         return this.handlePageChange(groupName, 1)
       })).then(() => { this.isFirstLoad = false })
-  }
+  },
 }
 </script>

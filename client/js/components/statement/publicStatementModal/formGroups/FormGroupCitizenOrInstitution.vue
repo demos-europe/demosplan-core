@@ -76,9 +76,9 @@ export default {
   name: 'FormGroupCitizenOrInstitution',
 
   components: {
-    DpRadio
+    DpRadio,
   },
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

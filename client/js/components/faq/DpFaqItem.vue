@@ -80,24 +80,24 @@ export default {
 
   components: {
     DpMultiselect,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     availableGroupOptions: {
       type: Array,
-      required: true
+      required: true,
     },
 
     faqItem: {
       type: Object,
-      required: true
+      required: true,
     },
 
     parentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -112,16 +112,16 @@ export default {
        */
       isFaqEnabled: false,
       isQueueProcessing: false,
-      queue: []
+      queue: [],
     }
   },
 
   computed: {
     ...mapState('Faq', {
-      faqItems: 'items'
+      faqItems: 'items',
     }),
     ...mapState('FaqCategory', {
-      faqCategories: 'items'
+      faqCategories: 'items',
     }),
 
     currentParentItem () {
@@ -148,22 +148,22 @@ export default {
       return {
         fpVisible: faq.fpVisible,
         invitableInstitutionVisible: faq.invitableInstitutionVisible,
-        publicVisible: faq.publicVisible
+        publicVisible: faq.publicVisible,
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Faq', {
       deleteFaq: 'delete',
       restoreFaqAction: 'restoreFromInitial',
-      saveFaq: 'save'
+      saveFaq: 'save',
     }),
     ...mapMutations('Faq', {
-      updateFaq: 'setItem'
+      updateFaq: 'setItem',
     }),
     ...mapMutations('FaqCategory', {
-      updateCategory: 'setItem'
+      updateCategory: 'setItem',
     }),
 
     handleToggle (isEnabled) {
@@ -174,8 +174,8 @@ export default {
           type,
           attributes: {
             ...attributes,
-            enabled: isEnabled
-          }
+            enabled: isEnabled,
+          },
         }
 
         this.updateFaq({ ...faqCopy, id: faqCopy.id })
@@ -200,7 +200,7 @@ export default {
       const selectedGroups = val.reduce((acc, group) => {
         return {
           ...acc,
-          ...{ [group.id]: true }
+          ...{ [group.id]: true },
         }
       }, {})
       let newSelection = {}
@@ -269,11 +269,11 @@ export default {
         this.isQueueProcessing = false
         this.processQueue()
       })
-    }
+    },
   },
 
   mounted () {
     this.isFaqEnabled = this.faqItem.attributes.enabled
-  }
+  },
 }
 </script>

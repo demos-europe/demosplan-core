@@ -25,8 +25,8 @@ export default {
   props: {
     selectedTags: {
       type: Array,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

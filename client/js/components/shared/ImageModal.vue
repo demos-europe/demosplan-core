@@ -15,23 +15,23 @@ export default {
   name: 'ImageModal',
 
   components: {
-    DpModal
+    DpModal,
   },
 
   props: {
     dataCy: {
       type: String,
       required: false,
-      default: 'imageModal'
-    }
+      default: 'imageModal',
+    },
   },
 
   data () {
     return {
       clickedImg: {
         alt: '',
-        src: ''
-      }
+        src: '',
+      },
     }
   },
 
@@ -46,7 +46,7 @@ export default {
       this.clickedImg.src = target.src
       this.clickedImg.alt = target.alt
       this.$refs.imgModal.toggle()
-    }
-  }
+    },
+  },
 }
 </script>

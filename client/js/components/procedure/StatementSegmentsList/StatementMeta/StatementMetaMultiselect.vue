@@ -54,7 +54,7 @@
 <script>
 import {
   DpLabel,
-  DpMultiselect
+  DpMultiselect,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -62,48 +62,48 @@ export default {
 
   components: {
     DpLabel,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     label: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     name: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     options: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     value: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'change'
+    'change',
   ],
 
   data () {
     return {
-      selectedItems: this.value
+      selectedItems: this.value,
     }
   },
 
@@ -113,7 +113,7 @@ export default {
       return this.value.filter(item => {
         return this.options.some(option => option.name === item.name)
       })
-    }
-  }
+    },
+  },
 }
 </script>

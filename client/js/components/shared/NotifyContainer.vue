@@ -33,7 +33,7 @@ export default {
   name: 'NotifyContainer',
 
   components: {
-    DpNotification
+    DpNotification,
   },
 
   mixins: [prefixClassMixin],
@@ -42,13 +42,13 @@ export default {
     notifications: {
       type: [Object, Array],
       required: false,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   data () {
     return {
-      isVisible: true
+      isVisible: true,
     }
   },
 
@@ -61,7 +61,7 @@ export default {
 
     messageRole () {
       return (this.isVisible) ? 'status' : 'none'
-    }
+    },
   },
 
   methods: {
@@ -84,7 +84,7 @@ export default {
               type,
               text: message.message || '',
               linkUrl: message.linkUrl || '',
-              linkText: message.linkText || ''
+              linkText: message.linkText || '',
             })
           }
         }
@@ -94,11 +94,11 @@ export default {
 
     removeMessage (message) {
       this.remove(message)
-    }
+    },
   },
 
   created () {
     this.init()
-  }
+  },
 }
 </script>

@@ -225,36 +225,36 @@ export default {
     DpModal,
     DpLoading,
     DpTab,
-    DpTabs
+    DpTabs,
   },
 
   props: {
     appliedFilterOptions: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     filterHash: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     original: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
-    'close'
+    'close',
   ],
 
   data () {
@@ -266,7 +266,7 @@ export default {
       saveFilterSet: false,
       saveFilterSetView: false,
       selectedOptions: [],
-      selectedUserFilterSet: {}
+      selectedUserFilterSet: {},
     }
   },
 
@@ -274,7 +274,7 @@ export default {
     ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
-      filterOptionsSelected: 'selectedOptions'
+      filterOptionsSelected: 'selectedOptions',
     }),
 
     ...mapGetters('Filter', {
@@ -284,7 +284,7 @@ export default {
       // All selected filter options
       selectedFilterOptions: 'selectedFilterOptions',
       // Selected options for filterHash
-      allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName'
+      allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName',
     }),
 
     /**
@@ -332,7 +332,7 @@ export default {
 
     userFilterSetSaveEnabled () {
       return (this.original === false && hasPermission('feature_procedure_user_filter_sets'))
-    }
+    },
   },
 
   watch: {
@@ -341,7 +341,7 @@ export default {
         // If no filter is selected, uncheck the filter.saveFilterSet checkbox
         this.saveFilterSet = false
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
 
     },
 
@@ -349,8 +349,8 @@ export default {
       handler () {
         this.selectedOptions = this.selectedFilterOptions
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -359,18 +359,18 @@ export default {
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
       'removeUserFilterSetAction',
-      'updateBaseState'
+      'updateBaseState',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions',
-      'setLoading'
+      'setLoading',
     ]),
 
     back () {
@@ -512,13 +512,13 @@ export default {
 
     userFilterSetFilterHash (userFilterSet) {
       return this.getFilterHash(userFilterSet)
-    }
+    },
   },
 
   mounted () {
     this.$root.$on('assessment-table-loaded', () => {
       this.disabledOpenModalButton = false
     })
-  }
+  },
 }
 </script>

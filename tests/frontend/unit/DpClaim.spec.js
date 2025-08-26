@@ -20,8 +20,8 @@ describe('DpClaim', () => {
         currentUserId: '1',
         currentUserName: 'Aktueller Benutzer',
         lastClaimedUserId: '',
-        entityType: 'fragment'
-      }
+        entityType: 'fragment',
+      },
     })
 
     // Should show open lock if assignedId is not set - lastClaimed doesn't matter.
@@ -30,7 +30,7 @@ describe('DpClaim', () => {
     // Should show claimed if assignedId equals UserId (fragments) - lastClaimed doesn't matter.
     await wrapper.setProps({
       currentUserId: '1',
-      assignedId: '1'
+      assignedId: '1',
     })
     expect(wrapper.vm.status).toEqual({ icon: 'fa-user', text: 'statement.fragment.assignment.assigned.self' })
 
@@ -38,7 +38,7 @@ describe('DpClaim', () => {
     await wrapper.setProps({
       currentUserId: '2',
       assignedId: '1',
-      lastClaimedUserId: '3'
+      lastClaimedUserId: '3',
     })
 
     expect(wrapper.vm.status).toEqual({ icon: 'fa-lock', text: 'statement.fragment.assignment.assigned' })
@@ -47,7 +47,7 @@ describe('DpClaim', () => {
     await wrapper.setProps({
       currentUserId: '2',
       assignedId: '1',
-      lastClaimedUserId: '2'
+      lastClaimedUserId: '2',
     })
     expect(wrapper.vm.status).toEqual({ icon: 'fa-user-o', text: 'statement.fragment.assignment.assigned.self.delegated.locked' })
 
@@ -55,7 +55,7 @@ describe('DpClaim', () => {
     await wrapper.setProps({
       currentUserId: '2',
       assignedId: '',
-      lastClaimedUserId: '2'
+      lastClaimedUserId: '2',
     })
     expect(wrapper.vm.status).toEqual({ icon: 'fa-user-o', text: 'statement.fragment.assignment.assigned.self.delegated.unlocked' })
   })

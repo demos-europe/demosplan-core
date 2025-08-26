@@ -49,14 +49,14 @@ export default {
   components: {
     DpBoilerPlate,
     DpButtonRow,
-    DpModal
+    DpModal,
   },
 
   props: {
     // Needed to get boilerplates from BE via store
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     /**
@@ -65,18 +65,18 @@ export default {
     boilerPlateType: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     editorId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'insert'
+    'insert',
   ],
 
   data () {
@@ -84,7 +84,7 @@ export default {
       // Needed to make sure boilerplates are loaded from the BE before <dp-boiler-plate> component is mounted
       boilerPlatesLoaded: false,
       // The boilerplate text emitted from dp-boiler-plate, then emitted to TipTapTextEditor.vue on click of 'insert' button
-      textToBeAdded: ''
+      textToBeAdded: '',
     }
   },
 
@@ -115,7 +115,7 @@ export default {
         boilerplateString = this.boilerPlateType.map(bp => Translator.trans(bp)).join(', ')
       }
       return boilerplateString
-    }
+    },
   },
 
   methods: {
@@ -140,13 +140,13 @@ export default {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggle()
       }
-    }
+    },
   },
 
   created () {
     if (this.getBoilerplatesRequestFired === false) {
       this.getBoilerPlates(this.procedureId)
     }
-  }
+  },
 }
 </script>

@@ -53,7 +53,7 @@ export default {
   name: 'AssessmentTableGroup',
 
   components: {
-    DpAssessmentTableCard
+    DpAssessmentTableCard,
   },
 
   mixins: [tocViewGroupMixin],
@@ -61,14 +61,14 @@ export default {
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapGetters('Statement', [
       'getSelectionStateById',
-      'statementsInOrder'
+      'statementsInOrder',
     ]),
 
     /**
@@ -93,14 +93,14 @@ export default {
      */
     statementIds () {
       return this.group ? this.group.entries : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', [
       'addToSelectionAction',
-      'removeFromSelectionAction'
-    ])
-  }
+      'removeFromSelectionAction',
+    ]),
+  },
 }
 </script>

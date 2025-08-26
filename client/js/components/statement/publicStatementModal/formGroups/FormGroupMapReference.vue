@@ -135,7 +135,7 @@ export default {
   name: 'FormGroupMapReference',
 
   components: {
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin],
@@ -144,30 +144,30 @@ export default {
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     disabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'statement-modal:goto-tab'
+    'statement-modal:goto-tab',
   ],
 
   computed: {
@@ -175,7 +175,7 @@ export default {
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
-    }
+    },
   },
 
   methods: {
@@ -184,7 +184,7 @@ export default {
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
       this.$root.$emit('statement-modal:goto-tab', tabName)
-    }
-  }
+    },
+  },
 }
 </script>

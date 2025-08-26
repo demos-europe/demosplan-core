@@ -173,7 +173,7 @@ import {
   DpLabel,
   DpMultiselect,
   hasOwnProp,
-  Tooltip
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AssignedTags from './AssignedTags'
@@ -194,39 +194,39 @@ export default {
     DpMultiselect,
     FloatingContextButton,
     SearchSelect,
-    TagSelect
+    TagSelect,
   },
 
   directives: {
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     offset: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'abort',
     'save',
-    'save-and-finish'
+    'save-and-finish',
   ],
 
   data () {
     return {
       isCollapsed: {
         tags: true,
-        placesAndAssignee: false
+        placesAndAssignee: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
       showCreateForm: false,
       showFloatingContextButton: {
         tags: false,
-        placesAndAssignee: false
-      }
+        placesAndAssignee: false,
+      },
     }
   },
 
@@ -242,7 +242,7 @@ export default {
       procedureId: 'procedureId',
       segment: 'segmentById',
       tagTopics: 'tagTopics',
-      tags: 'uncategorizedTags'
+      tags: 'uncategorizedTags',
     }),
 
     assigneeNeedsUpdate () {
@@ -294,16 +294,16 @@ export default {
 
     selectedTags () {
       return this.editingSegment ? this.editingSegment.tags.map(el => this.availableTags.find(tag => tag.id === el.id || tag.attributes.title === el.tagName)) : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
     ...mapMutations('SplitStatement', [
       'locallyUpdateSegments',
-      'setProperty'
+      'setProperty',
     ]),
 
     toggleVisibility (section) {
@@ -386,11 +386,11 @@ export default {
 
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.locallyUpdateSegments([this.editingSegment])
-    }
+    },
   },
 
   mounted () {
     this.setInitialValues()
-  }
+  },
 }
 </script>

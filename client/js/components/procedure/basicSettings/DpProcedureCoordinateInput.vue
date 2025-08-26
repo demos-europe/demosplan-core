@@ -56,18 +56,18 @@ export default {
     coordinate: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'input'
+    'input',
   ],
 
   data () {
     return {
       latitudeValue: '', // 568400.97
-      longitudeValue: '' // 5923963.03
+      longitudeValue: '', // 5923963.03
     }
   },
 
@@ -76,7 +76,7 @@ export default {
       const lat = this.convertToFloat(this.latitudeValue)
       const lon = this.convertToFloat(this.longitudeValue)
       return Number(lat) === lat && Number(lon) === lon
-    }
+    },
   },
 
   watch: {
@@ -84,8 +84,8 @@ export default {
       handler (coordinates) {
         this.updateCoordinates(coordinates)
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -94,8 +94,8 @@ export default {
       proj4.defs([
         [
           'EPSG:25832',
-          '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs'
-        ]
+          '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs',
+        ],
       ])
 
       this.$emit('input', proj4('EPSG:25832', window.dplan.defaultProjectionLabel, [this.convertToFloat(this.latitudeValue), this.convertToFloat(this.longitudeValue)]))
@@ -111,12 +111,12 @@ export default {
 
     convertToFloat (val) {
       return parseFloat((val + '').replace(',', '.'))
-    }
+    },
   },
 
   mounted () {
     //  Setup state + behavior
     this.updateCoordinates(this.coordinate)
-  }
+  },
 }
 </script>

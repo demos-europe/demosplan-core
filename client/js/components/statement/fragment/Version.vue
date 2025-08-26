@@ -93,41 +93,41 @@ export default {
 
   components: {
     DpFragmentStatus,
-    DpLoading
+    DpLoading,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     fragmentId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isReviewer: {
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   data: function () {
     return {
       isActive: false,
-      items: null
+      items: null,
     }
   },
 
@@ -164,12 +164,12 @@ export default {
 
       if (this.isReviewer) {
         url = Routing.generate('dplan_assessment_fragment_get_consideration_versions_reviewer', {
-          fragmentId: this.fragmentId
+          fragmentId: this.fragmentId,
         })
       } else {
         url = Routing.generate('dplan_assessment_fragment_get_consideration_versions', {
           fragmentId: this.fragmentId,
-          ident: this.procedureId
+          ident: this.procedureId,
         })
       }
 
@@ -182,7 +182,7 @@ export default {
           //  An error message is displayed in the component
           this.items = false
         })
-    }
-  }
+    },
+  },
 }
 </script>

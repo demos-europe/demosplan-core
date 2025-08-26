@@ -115,30 +115,30 @@ export default {
     name: {
       required: false,
       type: String,
-      default: uuid()
+      default: uuid(),
     },
 
     // Required to target a Layer with Vector-Featurs
     target: {
       required: true,
-      type: [String, Array]
+      type: [String, Array],
     },
 
     initActive: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     defaultControl: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'setDrawingActive'
+    'setDrawingActive',
   ],
 
   data () {
@@ -156,7 +156,7 @@ export default {
           }
 
           return true
-        }
+        },
       }),
       modifyInteraction: null,
       currentlyActive: this.initActive,
@@ -164,7 +164,7 @@ export default {
       layerNameOfSelectedFeature: '',
       disabled: true,
       zIndexUltimate: false,
-      targets: Array.isArray(this.target) ? this.target : [this.target]
+      targets: Array.isArray(this.target) ? this.target : [this.target],
     }
   },
 
@@ -175,7 +175,7 @@ export default {
 
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -284,7 +284,7 @@ export default {
       this.$nextTick(() => {
         this.map.render()
       })
-    }
+    },
   },
 
   mounted () {
@@ -298,6 +298,6 @@ export default {
     if (this.getZIndex(this.$refs.rootElement) > 9999) {
       this.zIndexUltimate = true
     }
-  }
+  },
 }
 </script>

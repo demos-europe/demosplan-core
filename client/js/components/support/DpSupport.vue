@@ -72,19 +72,19 @@ export default {
       email: '',
       phoneNumber: '',
       reachability: {},
-      title: ''
+      title: '',
     }
   },
 
   computed: {
     ...mapState('CustomerContact', {
-      contacts: 'items'
-    })
+      contacts: 'items',
+    }),
   },
 
   methods: {
     ...mapActions('CustomerContact', {
-      fetchContacts: 'list'
+      fetchContacts: 'list',
     }),
 
     fetchCustomerContactsData () {
@@ -94,9 +94,9 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       }
 
       if (hasPermission('feature_customer_support_contact_administration')) {
@@ -106,19 +106,19 @@ export default {
             onlyVisible: {
               condition: {
                 path: 'visible',
-                value: 1
-              }
-            }
-          }
+                value: 1,
+              },
+            },
+          },
         }
       }
 
       this.fetchContacts(params)
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomerContactsData()
-  }
+  },
 }
 </script>

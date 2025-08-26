@@ -106,30 +106,30 @@ export default {
 
   components: {
     DpEditFieldSingleSelect: () => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DpJs/components/statement/assessmentTable/DpEditFieldSingleSelect'),
-    DpTableCard
+    DpTableCard,
   },
 
   props: {
     allOrganisations: {
       type: Array,
-      required: true
+      required: true,
     },
 
     isOpen: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     user: {
       type: Object,
-      default: () => ({ })
-    }
+      default: () => ({ }),
+    },
   },
 
   emits: [
@@ -138,7 +138,7 @@ export default {
     'delete',
     'item:selected',
     'reset',
-    'save-success'
+    'save-success',
   ],
 
   data () {
@@ -148,13 +148,13 @@ export default {
       // Options for department select
       availableDepartments: [],
       // Options for organisation select
-      availableOrganisations: []
+      availableOrganisations: [],
     }
   },
 
   computed: {
     ...mapState('Department', {
-      departmentsList: 'items'
+      departmentsList: 'items',
     }),
 
     getOrgaId () {
@@ -164,25 +164,25 @@ export default {
     isInstitution () {
       const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
       return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
-    }
+    },
   },
 
   methods: {
     ...mapActions('AdministratableUser', {
-      saveUserAction: 'save'
+      saveUserAction: 'save',
     }),
 
     initialUserDepartment () {
       return {
         id: this.user?.relationships?.orga.data?.id,
-        title: this.getDepartmentName()
+        title: this.getDepartmentName(),
       }
     },
 
     initialUserOrganisation () {
       return {
         id: this.user?.relationships?.orga.data?.id,
-        title: this.getOrgaName()
+        title: this.getOrgaName(),
       }
     },
 
@@ -207,7 +207,7 @@ export default {
         if (org.id === this.currentOrganisation.id) {
           this.currentOrganisation = {
             ...this.currentOrganisation,
-            departments: org.departments
+            departments: org.departments,
           }
         }
         // Convert to required format
@@ -280,18 +280,18 @@ export default {
             orga: {
               data: {
                 id: this.currentOrganisation.id,
-                type: 'Orga'
-              }
+                type: 'Orga',
+              },
             },
             department: {
               data: {
                 id: this.currentDepartment.id,
-                type: 'Department'
-              }
-            }
+                type: 'Department',
+              },
+            },
           },
-          type: 'AdministratableUser'
-        }
+          type: 'AdministratableUser',
+        },
       }
 
       return dpApi.patch(url,
@@ -300,8 +300,8 @@ export default {
         {
           messages: {
             200: { type: 'confirm', text: 'info.user.updated' },
-            204: { type: 'confirm', text: 'info.user.updated' }
-          }
+            204: { type: 'confirm', text: 'info.user.updated' },
+          },
         })
         .then(() => {
           this.$root.$emit('save-success')
@@ -338,11 +338,11 @@ export default {
      */
     updateRelationship (prop, val) {
       this[prop] = val
-    }
+    },
   },
 
   mounted () {
     this.setInitialUserData()
-  }
+  },
 }
 </script>

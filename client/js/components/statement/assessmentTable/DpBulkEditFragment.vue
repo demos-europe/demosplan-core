@@ -240,7 +240,7 @@ export default {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    })
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -249,24 +249,24 @@ export default {
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     filterHash: {
       required: false,
       type: String,
-      default: () => { return '' }
+      default: () => { return '' },
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -282,7 +282,7 @@ export default {
           isValid: () => this.options.newAssignee.value !== '',
           elementToReceiveErrorBorder: '.multiselect__tags',
           errorNotification: 'user.choose.from.list',
-          successMessage: 'confirm.fragments.assignment.changed'
+          successMessage: 'confirm.fragments.assignment.changed',
         },
         consideration: {
           checked: false,
@@ -290,11 +290,11 @@ export default {
           isValid: () => this.options.consideration.value !== '',
           elementToReceiveErrorBorder: '.editor__content',
           errorNotification: 'consideration.text.add.error',
-          successMessage: 'consideration.text.added'
-        }
+          successMessage: 'consideration.text.added',
+        },
       },
       isLoading: false,
-      isError: false // Shows if the save action failed or not (to display the link back to assessment table on error)
+      isError: false, // Shows if the save action failed or not (to display the link back to assessment table on error)
     }
   },
 
@@ -317,13 +317,13 @@ export default {
       return {
         markedStatementFragmentsCount: this.selectedFragmentsCount,
         statementFragmentIds: this.selectedFragmentsIds,
-        ...(this.options.consideration.checked && { considerationAddition: this.options.consideration.value })
+        ...(this.options.consideration.checked && { considerationAddition: this.options.consideration.value }),
       }
     },
 
     payloadRelationships () {
       return {
-        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
+        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } }),
       }
     },
 
@@ -335,7 +335,7 @@ export default {
       const ids = []
       Object.keys(this.selectedFragments).forEach((elem) => ids.push(elem))
       return ids
-    }
+    },
   },
 
   methods: {
@@ -398,8 +398,8 @@ export default {
           id: uuid(),
           type: 'statement-fragment-update',
           attributes: this.payloadAttributes,
-          relationships: this.payloadRelationships
-        }
+          relationships: this.payloadRelationships,
+        },
       }
       return dpApi.post(Routing.generate('dplan_api_assessment_table_statement_fragment_update_create'),
         {}, payload)
@@ -425,7 +425,7 @@ export default {
     },
 
     ...mapActions('Fragment', ['setSelectedFragmentsAction']),
-    ...mapMutations('Fragment', ['setProcedureId'])
+    ...mapMutations('Fragment', ['setProcedureId']),
   },
 
   created () {
@@ -438,7 +438,7 @@ export default {
     //  Get selected statements from the store
     this.setProcedureId(this.procedureId)
     this.setSelectedFragmentsAction()
-  }
+  },
 
 }
 </script>

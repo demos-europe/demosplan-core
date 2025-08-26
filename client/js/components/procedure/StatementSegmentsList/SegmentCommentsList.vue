@@ -71,30 +71,30 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment'))
+    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')),
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('SegmentSlidebar', [
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
-      'statementId'
+      'statementId',
     ]),
 
     comments () {
@@ -121,25 +121,25 @@ export default {
 
     segment () {
       return this.segments[this.commentsList.segmentId] || null
-    }
+    },
   },
 
   methods: {
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('SegmentComment', {
-      listComments: 'list'
+      listComments: 'list',
     }),
 
     ...mapMutations('SegmentSlidebar', [
-      'setContent'
+      'setContent',
     ]),
 
     toggleForm () {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, showForm: !this.showForm } })
-    }
-  }
+    },
+  },
 }
 </script>

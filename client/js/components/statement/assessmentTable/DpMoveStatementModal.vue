@@ -117,30 +117,30 @@ export default {
   components: {
     DpInlineNotification,
     DpModal,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     accessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     inaccessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   emits: [
-    'statement:moveToProcedure'
+    'statement:moveToProcedure',
   ],
 
   data () {
@@ -150,7 +150,7 @@ export default {
       selectedProcedureId: '',
       statementId: null,
       statementFragments: [],
-      deleteVersionHistory: false
+      deleteVersionHistory: false,
     }
   },
 
@@ -184,7 +184,7 @@ export default {
     selectedProcedureName () {
       //  Get the object corresponding with the current selection
       return this.selectedProcedureId ? this.availableProcedures[this.selectedProcedureId].name : ''
-    }
+    },
   },
 
   watch: {
@@ -193,8 +193,8 @@ export default {
         //  Reset selection when radio list changes
         this.selectedProcedureId = ''
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -260,7 +260,7 @@ export default {
       this.$store.dispatch('Statement/moveStatementAction', {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId,
-        deleteVersionHistory: this.deleteVersionHistory
+        deleteVersionHistory: this.deleteVersionHistory,
       })
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
@@ -271,7 +271,7 @@ export default {
               movedStatementId: response.data.movedStatementId,
               placeholderStatementId: response.data.placeholderStatementId,
               movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name
+              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
             }
 
             // Handle update of assessment table ui from TableCard.vue
@@ -283,12 +283,12 @@ export default {
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
           this.toggleModal(null)
         })
-    }
+    },
   },
 
   mounted () {
     //  Emitted from TableCard.vue
     this.$root.$on('moveStatement:toggle', (statementId) => this.toggleModal(statementId))
-  }
+  },
 }
 </script>

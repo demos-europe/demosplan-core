@@ -189,43 +189,43 @@ export default {
   name: 'DpVersionHistoryItem',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     time: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
     return {
       history: null,
       isLoading: true,
-      isOpen: false
+      isOpen: false,
     }
   },
 
   computed: {
     timeCreated () {
       return formatDate(this.time.created, 'HH:mm:ss')
-    }
+    },
   },
 
   methods: {
@@ -251,10 +251,10 @@ export default {
         method: 'GET',
         url: Routing.generate('dplan_api_history_of_all_fields_of_specific_datetime', {
           entityContentChangeId: this.time.anyEntityContentChangeIdOfThisChangeInstance,
-          procedureId: this.procedureId
-        })
+          procedureId: this.procedureId,
+        }),
       })
-    }
-  }
+    },
+  },
 }
 </script>

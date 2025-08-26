@@ -82,19 +82,19 @@ export default {
   components: {
     DpBulkEditHeader,
     DpNewsItemStatus,
-    DpDataTable
+    DpDataTable,
   },
 
   props: {
     initList: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -103,35 +103,35 @@ export default {
       headerFields: [
         { field: 'title', label: 'Überschrift' },
         { field: 'enabled', label: 'Status' },
-        { field: 'picture', label: 'Bild' }
+        { field: 'picture', label: 'Bild' },
       ],
-      selectedItems: []
+      selectedItems: [],
     }
   },
 
   computed: {
     pathForNewsCreation () {
-      return this.procedureId !== ''
-        ? Routing.generate('DemosPlan_news_administration_news_new_get', { procedure: this.procedureId })
-        : Routing.generate('DemosPlan_globalnews_administration_news_new_get')
+      return this.procedureId !== '' ?
+        Routing.generate('DemosPlan_news_administration_news_new_get', { procedure: this.procedureId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news_new_get')
     },
 
     shouldBeSelected () {
-      return !this.selectedItems
-        ? {}
-        : this.selectedItems.reduce((acc, el) => {
+      return !this.selectedItems ?
+        {} :
+        this.selectedItems.reduce((acc, el) => {
           return {
             ...acc,
-            [el]: true
+            [el]: true,
           }
         }, {})
     },
 
     updateRoute () {
-      return (this.procedureId !== '')
-        ? Routing.generate('DemosPlan_news_administration_news', { procedure: this.procedureId })
-        : Routing.generate('DemosPlan_globalnews_administration_news')
-    }
+      return (this.procedureId !== '') ?
+        Routing.generate('DemosPlan_news_administration_news', { procedure: this.procedureId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news')
+    },
   },
 
   methods: {
@@ -173,9 +173,9 @@ export default {
     },
 
     generateEditPath (id, pId) {
-      return this.procedureId !== ''
-        ? Routing.generate('DemosPlan_news_administration_news_edit_get', { newsID: id, procedure: pId })
-        : Routing.generate('DemosPlan_globalnews_administration_news_edit_get', { newsID: id })
+      return this.procedureId !== '' ?
+        Routing.generate('DemosPlan_news_administration_news_edit_get', { newsID: id, procedure: pId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news_edit_get', { newsID: id })
     },
 
     setItemStatus (value, id) {
@@ -207,7 +207,7 @@ export default {
     updateList () {
       const payload = {
         manualsort: this.list.map(el => el.ident).toString(', '),
-        r_enable: this.list.filter(el => el.enabled).map(el => el.ident)
+        r_enable: this.list.filter(el => el.enabled).map(el => el.ident),
       }
 
       return makeFormPost(payload, this.updateRoute)
@@ -219,7 +219,7 @@ export default {
 
     setShouldBeSelected (items) {
       this.selectedItems = items
-    }
-  }
+    },
+  },
 }
 </script>

@@ -98,7 +98,7 @@ export default {
 
   components: {
     AddonWrapper,
-    DpButton
+    DpButton,
   },
 
   props: {
@@ -108,14 +108,14 @@ export default {
      */
     offset: {
       type: Number,
-      required: true
+      required: true,
     },
 
     segment: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   emits: [
@@ -126,7 +126,7 @@ export default {
     'mouseleave',
     'segment:confirm',
     'segment:delete',
-    'segment:edit'
+    'segment:edit',
   ],
 
   data () {
@@ -134,7 +134,7 @@ export default {
       isFocused: false,
       isMouseEvent: false,
       offsetTop: 0,
-      position: 0
+      position: 0,
     }
   },
 
@@ -144,7 +144,7 @@ export default {
       'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegmentId',
-      'editModeActive'
+      'editModeActive',
     ]),
 
     assigneeName () {
@@ -161,7 +161,7 @@ export default {
       const place = this.availablePlaces.find(place => place.id === this.segment.place.id)
 
       return place ? place.name : ''
-    }
+    },
   },
 
   methods: {
@@ -174,7 +174,7 @@ export default {
       }
 
       this.$emit('card:checkOverlap')
-    }
+    },
   },
 
   mounted () {
@@ -208,7 +208,7 @@ export default {
         this.calculateCardPosition()
       }
     })
-  }
+  },
 }
 
 </script>

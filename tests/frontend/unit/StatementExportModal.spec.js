@@ -11,14 +11,14 @@ describe('StatementExportModal', () => {
     return {
       censoredCitizen: wrapper.find('#censoredCitizen'),
       censoredInstitution: wrapper.find('#censoredInstitution'),
-      obscured: wrapper.find('#obscured')
+      obscured: wrapper.find('#obscured'),
     }
   }
 
   const defaultDocxHeaders = {
     col1: null,
     col2: null,
-    col3: null
+    col3: null,
   }
 
   const defaultPayload = {
@@ -26,13 +26,13 @@ describe('StatementExportModal', () => {
     fileNameTemplate: null,
     isCitizenDataCensored: false,
     isInstitutionDataCensored: false,
-    isObscured: false
+    isObscured: false,
   }
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
-        isSingleStatementExport: false
+        isSingleStatementExport: false,
       },
       global: {
         renderStubDefaultSlot: true,
@@ -40,11 +40,11 @@ describe('StatementExportModal', () => {
           'dp-modal': {
             template: '<div><slot /></div>',
             methods: {
-              toggle: jest.fn()
-            }
-          }
-        }
-      }
+              toggle: jest.fn(),
+            },
+          },
+        },
+      },
     })
 
     window.sessionStorage.clear()
@@ -94,7 +94,7 @@ describe('StatementExportModal', () => {
 
   it('renders checkboxes for isCitizenDataCensored, isInstitutionDataCensored and isObscure when export type is not xlsx', async () => {
     await wrapper.setData({
-      active: 'docx_normal'
+      active: 'docx_normal',
     })
     const { censoredCitizen, censoredInstitution, obscured } = findCheckboxes()
 
@@ -118,7 +118,7 @@ describe('StatementExportModal', () => {
     const payload = {
       ...defaultPayload,
       route: 'dplan_statement_segments_export',
-      shouldConfirm: true
+      shouldConfirm: true,
     }
 
     expect(exportEvent).toBeTruthy()
@@ -129,12 +129,12 @@ describe('StatementExportModal', () => {
     const docxColumns = {
       col1: { title: null },
       col2: { title: 'Test Column Title' },
-      col3: { title: null }
+      col3: { title: null },
     }
     const docxHeaders = Object.fromEntries(Object.entries(docxColumns).map(([key, value]) => [key, value.title]))
 
     wrapper.setData({
-      docxColumns
+      docxColumns,
     })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
@@ -142,7 +142,7 @@ describe('StatementExportModal', () => {
       ...defaultPayload,
       route: 'dplan_statement_segments_export',
       docxHeaders,
-      shouldConfirm: true
+      shouldConfirm: true,
     }
 
     expect(exportEvent).toBeTruthy()
@@ -157,7 +157,7 @@ describe('StatementExportModal', () => {
       ...defaultPayload,
       route: 'dplan_statement_xls_export',
       docxHeaders: null,
-      shouldConfirm: false
+      shouldConfirm: false,
     }
 
     expect(exportEvent).toBeTruthy()
@@ -167,7 +167,7 @@ describe('StatementExportModal', () => {
   it('emits export event with isCitizenDataCensored true if censoredCitizen is selected', () => {
     wrapper.setData({
       active: 'docx_normal',
-      isCitizenDataCensored: true
+      isCitizenDataCensored: true,
     })
     wrapper.vm.handleExport()
 
@@ -176,7 +176,7 @@ describe('StatementExportModal', () => {
       ...defaultPayload,
       isCitizenDataCensored: true,
       route: 'dplan_statement_segments_export',
-      shouldConfirm: true
+      shouldConfirm: true,
     }
 
     expect(exportEvent).toBeTruthy()
@@ -187,7 +187,7 @@ describe('StatementExportModal', () => {
     wrapper.setData({
       active: 'docx_normal',
       isCitizenDataCensored: false,
-      isInstitutionDataCensored: true
+      isInstitutionDataCensored: true,
     })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
@@ -200,14 +200,14 @@ describe('StatementExportModal', () => {
       shouldConfirm: true,
       isCitizenDataCensored: false,
       isInstitutionDataCensored: true,
-      isObscured: false
+      isObscured: false,
     })
   })
 
   it('emits export event with isObscured true if obscured checkbox is selected', () => {
     wrapper.setData({
       active: 'docx_normal',
-      isObscure: true
+      isObscure: true,
     })
     wrapper.vm.handleExport()
 
@@ -221,7 +221,7 @@ describe('StatementExportModal', () => {
       shouldConfirm: true,
       isCitizenDataCensored: false,
       isInstitutionDataCensored: false,
-      isObscured: true
+      isObscured: true,
     })
   })
 

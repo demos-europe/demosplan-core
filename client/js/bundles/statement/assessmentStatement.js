@@ -24,14 +24,14 @@ import VoterStore from '@DpJs/store/statement/Voter'
 const stores = {
   AssessmentTable: AssessmentTableStore,
   Statement: StatementStore,
-  Voter: VoterStore
+  Voter: VoterStore,
 }
 
 const components = {
   DetailView,
   DpEditor,
   DpLabel,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 if (hasPermission('area_admin_boilerplates')) {

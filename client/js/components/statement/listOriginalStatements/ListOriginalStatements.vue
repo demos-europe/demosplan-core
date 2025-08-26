@@ -275,7 +275,7 @@ import {
   dpRpc,
   hasAnyPermissions,
   hasOwnProp,
-  tableSelectAllItems
+  tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -293,28 +293,28 @@ export default {
     DpLoading,
     DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
-    ExportFlyout
+    ExportFlyout,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [
     paginationMixin,
-    tableSelectAllItems
+    tableSelectAllItems,
   ],
 
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -323,41 +323,41 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       headerFields: [
         {
           field: 'externId',
           label: Translator.trans('id'),
-          colClass: 'w-2'
+          colClass: 'w-2',
         },
         {
           field: 'submitDate',
           label: Translator.trans('date'),
-          colClass: 'w-8'
+          colClass: 'w-8',
         },
         {
           field: 'submitter',
-          label: Translator.trans('submitter.invitable_institution')
+          label: Translator.trans('submitter.invitable_institution'),
         },
         {
           field: 'shortText',
-          label: Translator.trans('text')
+          label: Translator.trans('text'),
         },
         {
           field: 'procedurePhase',
-          label: Translator.trans('procedure.public.phase')
-        }
+          label: Translator.trans('procedure.public.phase'),
+        },
       ],
       isExpanded: false,
       isLoading: false,
-      pagination: {}
+      pagination: {},
     }
   },
 
   computed: {
     ...mapState('OriginalStatement', {
-      originalStatements: 'items'
+      originalStatements: 'items',
     }),
 
     // Needs to be named items for tableSelectAllItems mixin to work
@@ -366,7 +366,7 @@ export default {
         .map(originalStatement => {
           return {
             id: originalStatement.id,
-            ...originalStatement.attributes
+            ...originalStatement.attributes,
           }
         })
         .sort((a, b) => {
@@ -376,16 +376,16 @@ export default {
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationOriginalStatementList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('OriginalStatement', {
-      fetchOriginalStatements: 'list'
+      fetchOriginalStatements: 'list',
     }),
 
     ...mapMutations('OriginalStatement', {
-      setOriginalStatement: 'set'
+      setOriginalStatement: 'set',
     }),
 
     fetchOriginalStatementById (originalStatementId) {
@@ -393,8 +393,8 @@ export default {
         resourceType: 'OriginalStatement',
         resourceId: originalStatementId,
         fields: {
-          OriginalStatement: ['fullText'].join()
-        }
+          OriginalStatement: ['fullText'].join(),
+        },
       }))
     },
 
@@ -421,11 +421,11 @@ export default {
       const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta.get()
       const {
-        isSubmittedByCitizen
+        isSubmittedByCitizen,
       } = originalStatement.attributes
       const {
         authorName,
-        orgaName
+        orgaName,
       } = originalStatementMeta.attributes
 
       // Statement Institution
@@ -457,9 +457,9 @@ export default {
       if (areSomeDeselectedAfterSelectAll) {
         const areNoneDeselected = this.toggledItems.length === 0
 
-        selectedStatementIds = areNoneDeselected
-          ? this.allOriginalStatementIds
-          : this.allOriginalStatementIds
+        selectedStatementIds = areNoneDeselected ?
+          this.allOriginalStatementIds :
+          this.allOriginalStatementIds
             .filter(id => !toggledIds.includes(id))
       }
 
@@ -472,12 +472,12 @@ export default {
           sameProcedure: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         },
         procedureId: this.procedureId,
-        sort: '-submitDate'
+        sort: '-submitDate',
       }
 
       if (this.selectedItemsCount !== 0 && this.selectedItemsCount < this.allItemsCount) {
@@ -485,9 +485,9 @@ export default {
           ...payload.filter,
           statementFilterGroup: {
             group: {
-              conjunction: this.trackDeselected ? 'AND' : 'OR'
-            }
-          }
+              conjunction: this.trackDeselected ? 'AND' : 'OR',
+            },
+          },
         }
 
         this.toggledItems.forEach(item => {
@@ -496,15 +496,15 @@ export default {
               memberOf: 'statementFilterGroup',
               operator: this.trackDeselected ? '<>' : '=',
               path: 'id',
-              value: item.id
-            }
+              value: item.id,
+            },
           }
         })
       }
 
-      const url = type === 'docx'
-        ? 'dplan_original_statement_docx_export'
-        : 'dplan_original_statement_csv_export'
+      const url = type === 'docx' ?
+        'dplan_original_statement_docx_export' :
+        'dplan_original_statement_csv_export'
 
       window.location.href = Routing.generate(url, payload)
     },
@@ -518,8 +518,8 @@ export default {
         attributes: {
           ...originalStatement.attributes,
           ...(fullText && { fullText }),
-          isFulltextDisplayed: isFullTextDisplayed
-        }
+          isFulltextDisplayed: isFullTextDisplayed,
+        },
       })
     },
 
@@ -544,10 +544,10 @@ export default {
           sameProcedure: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
-        }
+              value: this.procedureId,
+            },
+          },
+        },
       })
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
@@ -591,21 +591,21 @@ export default {
       const originalStatement = this.originalStatements[originalStatementId]
       const genericAttachments = originalStatement.relationships.genericAttachments?.data.length > 0 ? originalStatement.relationships.genericAttachments.list() : []
 
-      return Object.values(genericAttachments).length > 0
-        ? Object.values(genericAttachments)
+      return Object.values(genericAttachments).length > 0 ?
+        Object.values(genericAttachments)
           .map(attachment => {
             const file = attachment.relationships.file.data ? attachment.relationships.file.get() : null
 
-            return file
-              ? {
-                  filename: file.attributes.filename,
-                  hash: file.attributes.hash,
-                  id: attachment.id
-                }
-              : null
+            return file ?
+              {
+                filename: file.attributes.filename,
+                hash: file.attributes.hash,
+                id: attachment.id,
+              } :
+              null
           })
-          .filter(file => file !== null)
-        : []
+          .filter(file => file !== null) :
+        []
     },
 
     getOrganisationName (originalStatementId) {
@@ -648,7 +648,7 @@ export default {
         'sourceAttachment',
         'shortText',
         'submitDate',
-        'textIsTruncated'
+        'textIsTruncated',
       ]
 
       if (hasAnyPermissions([
@@ -662,34 +662,34 @@ export default {
       const statementMetaFields = [
         'authorName',
         'orgaDepartmentName',
-        'orgaName'
+        'orgaName',
       ]
 
       return {
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         fields: {
           ElementsDetails: ['title'].join(),
           File: [
             'filename',
-            'hash'
+            'hash',
           ].join(),
           GenericStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           OriginalStatement: originalStatementFields.join(),
           ParagraphVersion: [
-            'title'
+            'title',
           ].join(),
           SourceStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           StatementMeta: statementMetaFields.join(),
           SingleDocument: [
-            'title'
-          ].join()
+            'title',
+          ].join(),
         },
         include: [
           'document',
@@ -699,14 +699,14 @@ export default {
           'meta',
           'paragraph',
           'sourceAttachment',
-          'sourceAttachment.file'
-        ].join()
+          'sourceAttachment.file',
+        ].join(),
       }
     },
 
     toggleLocationModal (locationReference) {
       this.$refs.mapModal.toggleModal(locationReference)
-    }
+    },
   },
 
   mounted () {
@@ -716,6 +716,6 @@ export default {
     if (hasPermission('feature_admin_export_original_statement')) {
       this.fetchOriginalStatementIds()
     }
-  }
+  },
 }
 </script>

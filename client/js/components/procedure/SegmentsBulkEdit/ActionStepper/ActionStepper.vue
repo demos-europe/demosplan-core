@@ -68,41 +68,41 @@ export default {
   name: 'ActionStepper',
 
   components: {
-    DpButton
+    DpButton,
   },
 
   props: {
     busy: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     valid: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     returnLink: {
       required: true,
-      type: String
+      type: String,
     },
 
     selectedElements: {
       required: true,
-      type: Number
+      type: Number,
     },
 
     step: {
       required: false,
       type: Number,
-      default: 1
-    }
+      default: 1,
+    },
   },
 
   emits: [
     'apply',
     'confirm',
-    'edit'
+    'edit',
   ],
 
   computed: {
@@ -117,10 +117,10 @@ export default {
         return Translator.trans([
           'bulk.edit.title.actions.choose',
           'bulk.edit.title.actions.apply',
-          'confirm.saved.plural'
+          'confirm.saved.plural',
         ][this.step - 1], { count: this.selectedElements })
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -100,49 +100,49 @@ export default {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
-    VotingStatus
+    VotingStatus,
   },
 
   props: {
     editable: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     filesLength: {
       type: String,
-      default: '0'
+      default: '0',
     },
 
     isManual: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     publicVerified: {
       type: String,
-      default: ''
+      default: '',
     },
 
     publicVerifiedTransKey: {
       type: String,
-      default: ''
+      default: '',
     },
 
     submitterEmail: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'update'
+    'update',
   ],
 
   data () {
     return {
       checked: 'publication_pending',
-      emailText: Translator.trans('publication.rejection.email.text')
+      emailText: Translator.trans('publication.rejection.email.text'),
     }
   },
 
@@ -162,7 +162,7 @@ export default {
 
     showEmailField () {
       return this.isManual === false && this.submitterEmail !== '' && hasPermission('feature_statements_publication_request_approval_or_rejection_notification_email')
-    }
+    },
   },
 
   mounted () {
@@ -170,6 +170,6 @@ export default {
     if (this.publicVerified !== '') {
       this.checked = this.publicVerified
     }
-  }
+  },
 }
 </script>

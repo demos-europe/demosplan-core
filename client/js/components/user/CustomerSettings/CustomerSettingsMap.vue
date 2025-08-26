@@ -87,38 +87,38 @@ export default {
   components: {
     DpButtonRow,
     DpInput,
-    DpOlMap
+    DpOlMap,
   },
 
   props: {
     currentCustomerId: {
       required: true,
-      type: String
+      type: String,
     },
 
     initLayerUrl: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initLayer: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initMapAttribution: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapExtent: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -126,27 +126,27 @@ export default {
       mapAttribution: this.initMapAttribution,
       baseLayerLayers: this.initLayer,
       baseLayerUrl: this.initLayerUrl,
-      mapKey: 0
+      mapKey: 0,
     }
   },
 
   computed: {
     ...mapState('Customer', {
-      customerItems: 'items'
+      customerItems: 'items',
     }),
 
     attributionControl () {
       return new Attribution({ collapsible: false })
-    }
+    },
   },
 
   methods: {
     ...mapActions('Customer', {
-      saveCustomer: 'save'
+      saveCustomer: 'save',
     }),
 
     ...mapMutations('Customer', {
-      updateCustomer: 'setItem'
+      updateCustomer: 'setItem',
     }),
 
     debounceUpdate: debounce(({ id, value }) => {
@@ -177,14 +177,14 @@ export default {
           ...this.customerItems[this.currentCustomerId].attributes,
           baseLayerLayers,
           baseLayerUrl,
-          mapAttribution
-        }
+          mapAttribution,
+        },
       }
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
       })
-    }
-  }
+    },
+  },
 }
 </script>

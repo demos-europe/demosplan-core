@@ -38,17 +38,17 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpInput
+    DpInput,
   },
 
   props: {
-    tokenLength: length
+    tokenLength: length,
   },
 
   data () {
     return {
       currentToken: '',
-      notification: null
+      notification: null,
     }
   },
 
@@ -77,7 +77,7 @@ export default {
       } else {
         this.notification = null
       }
-    }
-  }
+    },
+  },
 }
 </script>

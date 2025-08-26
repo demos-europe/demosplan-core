@@ -55,64 +55,64 @@ import { mapGetters } from 'vuex'
 export default {
   components: {
     'dp-assessment-fragment': Fragment,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     isFiltered: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserName: {
       type: String,
-      required: true
+      required: true,
     },
 
     lastClaimedUserId: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
 
     initialTotalFragmentsCount: {
       type: Number,
       required: false,
-      default: 0
+      default: 0,
     },
 
     initialFilteredFragmentsCount: {
       type: Number,
       required: false,
-      default: 0
+      default: 0,
     },
 
     fragmentsLoading: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
     return {
-      showAll: this.isFiltered === false
+      showAll: this.isFiltered === false,
     }
   },
 
@@ -147,13 +147,13 @@ export default {
 
     statement () {
       return this.fragmentsByStatement(this.statementId).statement
-    }
+    },
   },
 
   methods: {
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
-    }
+    },
   },
 
   created () {
@@ -162,6 +162,6 @@ export default {
       this.$refs.considerationAdvice.content = data.considerationAdvice
       this.$refs.history.load()
     })
-  }
+  },
 }
 </script>

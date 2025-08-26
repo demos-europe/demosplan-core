@@ -16,13 +16,13 @@ const UserFormFields = {
   name: 'UserFormFields',
 
   state: {
-    orgaSuggestions: []
+    orgaSuggestions: [],
   },
 
   mutations: {
     setOrgaSuggestions (state, organisations) {
       state.orgaSuggestions = organisations
-    }
+    },
   },
 
   actions: {
@@ -54,12 +54,12 @@ const UserFormFields = {
           commit('setOrgaSuggestions', organisations)
         })
       }
-    }
+    },
   },
 
   getters: {
-    getOrgaSuggestions: state => state.orgaSuggestions
-  }
+    getOrgaSuggestions: state => state.orgaSuggestions,
+  },
 }
 
 export default UserFormFields

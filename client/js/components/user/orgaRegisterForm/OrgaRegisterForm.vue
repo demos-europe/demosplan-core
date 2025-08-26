@@ -180,7 +180,7 @@ import {
   DpButton,
   DpCheckbox,
   DpInput,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -189,7 +189,7 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin],
@@ -197,13 +197,13 @@ export default {
   props: {
     customer: {
       type: String,
-      required: true
+      required: true,
     },
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 
 }
 </script>

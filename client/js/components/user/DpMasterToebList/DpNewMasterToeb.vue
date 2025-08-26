@@ -36,23 +36,23 @@ export default {
   name: 'DpNewMasterToeb',
 
   components: {
-    DpNewOrgaModal
+    DpNewOrgaModal,
   },
 
   props: {
     fields: {
       type: Array,
-      required: true
+      required: true,
     },
 
     boolToStringFields: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'orga-added'
+    'orga-added',
   ],
 
   methods: {
@@ -65,7 +65,7 @@ export default {
       const initialPayload = {
         oId: '',
         field: 'orgaName',
-        value: newOrgaCpy.orgaName
+        value: newOrgaCpy.orgaName,
       }
 
       makeFormPost(initialPayload, Routing.generate('DemosPlan_user_mastertoeblist_add_ajax')).then((response) => {
@@ -85,13 +85,13 @@ export default {
             {
               oId: orga.ident,
               field: key,
-              value: orga[key]
+              value: orga[key],
             },
-            Routing.generate('DemosPlan_user_mastertoeblist_update_ajax')
+            Routing.generate('DemosPlan_user_mastertoeblist_update_ajax'),
           )
-        })
+        }),
       )
-    }
-  }
+    },
+  },
 }
 </script>

@@ -35,7 +35,7 @@ export default {
   components: {
     DpCheckbox,
     DpSearchField,
-    DpStickyElement
+    DpStickyElement,
   },
 
   props: {
@@ -45,7 +45,7 @@ export default {
      */
     items: {
       type: Array,
-      required: true
+      required: true,
     },
 
     /**
@@ -53,12 +53,12 @@ export default {
      */
     searchable: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     searchPlaceholder: {
       type: String,
-      default: ''
+      default: '',
     },
 
     /**
@@ -66,14 +66,14 @@ export default {
      */
     selectable: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'search',
     'selectAll',
-    'reset-search'
-  ]
+    'reset-search',
+  ],
 }
 </script>

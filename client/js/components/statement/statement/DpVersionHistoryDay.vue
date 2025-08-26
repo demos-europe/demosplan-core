@@ -61,42 +61,42 @@ export default {
   name: 'DpVersionHistoryDay',
 
   components: {
-    DpVersionHistoryItem
+    DpVersionHistoryItem,
   },
 
   props: {
     allTimes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     date: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     day: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      formattedDate: formatDate(this.date)
+      formattedDate: formatDate(this.date),
     }
   },
 
@@ -112,7 +112,7 @@ export default {
         })
       })
       return filteredTimes
-    }
-  }
+    },
+  },
 }
 </script>

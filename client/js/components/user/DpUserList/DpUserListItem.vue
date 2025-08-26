@@ -128,7 +128,7 @@ export default {
     DpButtonRow,
     DpIcon,
     DpTableCard,
-    DpUserFormFields
+    DpUserFormFields,
   },
 
   mixins: [dpValidateMixin],
@@ -137,37 +137,37 @@ export default {
     filterValue: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // User from store
     user: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   emits: [
-    'item:selected'
+    'item:selected',
   ],
 
   data () {
     return {
       isOpen: false,
       editMode: false,
-      isLoading: true
+      isLoading: true,
     }
   },
 
   computed: {
     ...mapState('Role', {
-      roles: 'items'
+      roles: 'items',
     }),
 
     ariaLabel () {
@@ -223,13 +223,13 @@ export default {
         names = roles.map(role => role.attributes.name)
       }
       return names
-    }
+    },
   },
 
   methods: {
     ...mapActions('AdministratableUser', {
       saveUserAction: 'save',
-      restoreUser: 'restoreFromInitial'
+      restoreUser: 'restoreFromInitial',
     }),
 
     ...mapMutations('AdministratableUser', ['setItem']),
@@ -264,7 +264,7 @@ export default {
 
     updateUser (payload) {
       this.setItem({ ...payload })
-    }
-  }
+    },
+  },
 }
 </script>

@@ -50,33 +50,33 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     availableScales: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     selectedScales: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
     'change',
     'suitableScalesChange',
-    'update'
+    'update',
   ],
 
   data () {
     return {
       areScalesSuitable: false,
-      scales: this.selectedScales
+      scales: this.selectedScales,
     }
   },
 
@@ -85,8 +85,8 @@ export default {
       handler (newVal) {
         this.scales = newVal
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -123,13 +123,13 @@ export default {
       this.sortSelected()
       this.$emit('suitableScalesChange', this.areScalesSuitable)
       this.$emit('update', scales)
-    }
+    },
   },
 
   mounted () {
     this.areScalesSuitable = this.checkIfScalesAreSuitable()
     this.sortSelected()
     this.$emit('suitableScalesChange', this.areScalesSuitable)
-  }
+  },
 }
 </script>

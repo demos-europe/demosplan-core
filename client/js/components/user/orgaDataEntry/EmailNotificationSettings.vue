@@ -89,38 +89,38 @@ export default {
 
   components: {
     DpInput,
-    DpCheckbox
+    DpCheckbox,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     user: {
       type: Object,
-      required: true
+      required: true,
     },
 
     willReceiveNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     hasNotificationSection: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
     hasNotificationSectionPermission () {
       return (this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')) ||
         (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
-    }
-  }
+    },
+  },
 }
 </script>

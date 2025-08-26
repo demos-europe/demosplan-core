@@ -312,7 +312,7 @@ import {
   DpStickyElement,
   formatDate,
   sessionStorageMixin,
-  tableSelectAllItems
+  tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
@@ -339,11 +339,11 @@ export default {
     DpStickyElement,
     StatementExportModal,
     StatementMetaData,
-    StatusBadge
+    StatusBadge,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
@@ -351,7 +351,7 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -361,19 +361,19 @@ export default {
     isSourceAndCoupledProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -382,7 +382,7 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       isFullscreen: false,
       headerFields: [
@@ -391,7 +391,7 @@ export default {
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
-        { field: 'segmentsCount', label: Translator.trans('segments') }
+        { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
       pagination: {},
       searchFields: [
@@ -405,7 +405,7 @@ export default {
         'orgaPostalCode',
         'statementId',
         'statementText',
-        'typeOfSubmission'
+        'typeOfSubmission',
       ],
       searchFieldsSelected: null,
       searchValue: '',
@@ -418,35 +418,35 @@ export default {
         { value: '-internId', label: Translator.trans('sort.internId.descending') },
         { value: 'internId', label: Translator.trans('sort.internId.ascending') },
         { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
-        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') }
-      ]
+        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
+      ],
     }
   },
 
   computed: {
     ...mapState('AssignableUser', {
-      assignableUsersObject: 'items'
+      assignableUsersObject: 'items',
     }),
 
     ...mapState('Orga', {
-      orgaObject: 'items'
+      orgaObject: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
-      isLoading: 'loading'
+      isLoading: 'loading',
     }),
 
     assignableUsers () {
-      return Object.keys(this.assignableUsersObject).length
-        ? Object.values(this.assignableUsersObject)
+      return Object.keys(this.assignableUsersObject).length ?
+        Object.values(this.assignableUsersObject)
           .map(user => ({
             name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id
-          }))
-        : []
+            id: user.id,
+          })) :
+        []
     },
 
     exportRoute: function () {
@@ -456,26 +456,26 @@ export default {
             procedureId: {
               condition: {
                 path: 'procedure.id',
-                value: this.procedureId
-              }
-            }
+                value: this.procedureId,
+              },
+            },
           },
           procedureId: this.procedureId,
           search: {
             value: this.searchValue,
-            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
           },
           sort: this.selectedSort,
           isObscured,
           isInstitutionDataCensored,
-          isCitizenDataCensored
+          isCitizenDataCensored,
         }
 
         if (docxHeaders) {
           parameters.tableHeaders = {
             col1: docxHeaders.col1,
             col2: docxHeaders.col2,
-            col3: docxHeaders.col3
+            col3: docxHeaders.col3,
           }
         }
 
@@ -497,29 +497,29 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            originalPdf
+            originalPdf,
           }
         })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
     }),
 
     ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     assigneeId (statement) {
@@ -539,14 +539,14 @@ export default {
           return {
             id: statement.relationships.assignee.data.id,
             name: 'Benutzer',
-            orgaName: 'unbekannt'
+            orgaName: 'unbekannt',
           }
         }
 
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
-          orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+          orgaName: assigneeOrga ? assigneeOrga.attributes.name : '',
 
         }
       }
@@ -554,7 +554,7 @@ export default {
       return {
         id: '',
         name: '',
-        orgaName: ''
+        orgaName: '',
       }
     },
 
@@ -628,11 +628,11 @@ export default {
               assignee: {
                 data: {
                   type: 'Claim',
-                  id: this.currentUserId
-                }
-              }
-            }
-          }
+                  id: this.currentUserId,
+                },
+              },
+            },
+          },
         }
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
@@ -673,10 +673,10 @@ export default {
           id: statementId,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
         .catch((err) => {
@@ -719,7 +719,7 @@ export default {
         // Relationships:
         'assignee',
         'sourceAttachment',
-        'segments'
+        'segments',
       ]
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
@@ -731,33 +731,33 @@ export default {
       this.fetchStatements({
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         search: {
           value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
         },
         filter: {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         },
         sort: this.selectedSort,
         include: [
           'segments',
           'assignee',
           'sourceAttachment',
-          'sourceAttachment.file'
+          'sourceAttachment.file',
         ].join(),
         fields: {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
-            'file'
-          ].join()
-        }
+            'file',
+          ].join(),
+        },
       }).then((data) => {
         /**
          * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -807,8 +807,8 @@ export default {
         dry: isDry,
         search: {
           value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        }
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
+        },
       }
 
       /*
@@ -819,8 +819,8 @@ export default {
       if (this.toggledItems.length > 0) {
         filterForToggledItems.statementFilterGroup = {
           group: {
-            conjunction: this.trackDeselected ? 'AND' : 'OR'
-          }
+            conjunction: this.trackDeselected ? 'AND' : 'OR',
+          },
         }
         this.toggledItems.forEach((item, idx) => {
           filterForToggledItems['statement_' + idx] = {
@@ -828,8 +828,8 @@ export default {
               path: 'id',
               value: item.id,
               memberOf: 'statementFilterGroup',
-              operator: this.trackDeselected ? '<>' : '='
-            }
+              operator: this.trackDeselected ? '<>' : '=',
+            },
           }
         })
       }
@@ -841,9 +841,9 @@ export default {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         }
       } else if (this.trackDeselected) {
         // All but deselected
@@ -851,10 +851,10 @@ export default {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
+              value: this.procedureId,
+            },
           },
-          ...filterForToggledItems
+          ...filterForToggledItems,
         }
       } else {
         // Only selected
@@ -952,7 +952,7 @@ export default {
         // Override the default success callback to display a custom message
         this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
           200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
         })
 
         this.deleteStatement(id)
@@ -972,19 +972,19 @@ export default {
 
     updateSearchFields (selectedFields) {
       this.searchFieldsSelected = selectedFields
-    }
+    },
   },
 
   mounted () {
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {
-        Orga: 'name'
-      }
+        Orga: 'name',
+      },
     })
     this.initPagination()
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
-  }
+  },
 }
 </script>

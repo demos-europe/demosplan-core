@@ -50,42 +50,42 @@ export default {
 
   components: {
     DpEditableList,
-    DpInput
+    DpInput,
   },
 
   props: {
     allowUpdatesFromOutside: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initEmails: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     formFieldName: {
       type: String,
       required: false,
-      default: 'agencyExtraEmailAddresses[][fullAddress]'
-    }
+      default: 'agencyExtraEmailAddresses[][fullAddress]',
+    },
   },
 
   emits: [
-    'saved'
+    'saved',
   ],
 
   data () {
     return {
       formFields: {
-        mail: ''
+        mail: '',
       },
       itemIndex: null,
       emails: this.initEmails,
@@ -95,8 +95,8 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('email.address.update'),
         noEntries: Translator.trans('email.address.no'),
-        delete: Translator.trans('email.address.delete')
-      }
+        delete: Translator.trans('email.address.delete'),
+      },
     }
   },
 
@@ -107,14 +107,14 @@ export default {
           this.emails = newVal
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     addElement () {
       this.emails.push({
-        mail: this.formFields.mail
+        mail: this.formFields.mail,
       })
     },
 
@@ -158,7 +158,7 @@ export default {
 
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
-    }
-  }
+    },
+  },
 }
 </script>

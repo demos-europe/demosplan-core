@@ -45,44 +45,44 @@ export default {
 
   components: {
     DpPublicLayerListCategory,
-    DpPublicLayerListLayer
+    DpPublicLayerListLayer,
   },
 
   props: {
     layers: {
       type: Array,
       required: true,
-      default: () => []
+      default: () => [],
     },
 
     unfolded: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     layerType: {
       type: String,
       required: false,
-      default: 'overlay'
+      default: 'overlay',
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     parentIsVisible: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
 
   data () {
     return {
-      isLoading: true
+      isLoading: true,
     }
   },
 
@@ -117,7 +117,7 @@ export default {
     },
 
     ...mapState('Layers', ['isMapLoaded']),
-    ...mapGetters('Layers', ['element'])
+    ...mapGetters('Layers', ['element']),
   },
 
   watch: {
@@ -136,8 +136,8 @@ export default {
           this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, setToVisible: true })
         })
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -171,11 +171,11 @@ export default {
      */
     prefixClass (classList) {
       return prefixClass(classList)
-    }
+    },
   },
 
   beforeCreate () {
     this.$options.components.dpPublicLayerListCategory = DpPublicLayerListCategory
-  }
+  },
 }
 </script>

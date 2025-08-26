@@ -36,18 +36,18 @@ export default function DeleteFragmentButton () {
             messages: {
               200: {
                 text: Translator.trans('confirm.fragment.deleted'),
-                type: 'confirm'
+                type: 'confirm',
               },
               204: {
                 text: Translator.trans('confirm.fragment.deleted'),
-                type: 'confirm'
+                type: 'confirm',
               },
               400: {
                 text: Translator.trans('error.delete'),
-                type: 'error'
-              }
-            }
-          }
+                type: 'error',
+              },
+            },
+          },
         })
           .then(({ data }) => {
             if (data.data.code === 200 && data.data.success === true) {

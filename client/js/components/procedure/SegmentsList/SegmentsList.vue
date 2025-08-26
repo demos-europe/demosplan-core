@@ -298,7 +298,7 @@ import {
   DpStickyElement,
   hasOwnProp,
   tableSelectAllItems,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
@@ -331,11 +331,11 @@ export default {
     StatementMetaTooltip,
     StatusBadge,
     TextContentRenderer,
-    VPopover
+    VPopover,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
@@ -343,7 +343,7 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -366,24 +366,24 @@ export default {
     filters: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialFilter: {
       type: [Object, Array],
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialSearchTerm: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -394,7 +394,7 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
@@ -405,63 +405,63 @@ export default {
         { field: 'text', label: Translator.trans('text'), colWidth: '200px' },
         { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px' },
         { field: 'tags', label: Translator.trans('segment.tags') },
-        { field: 'place', label: Translator.trans('workflow.place') }
+        { field: 'place', label: Translator.trans('workflow.place') },
       ],
       isLoading: true,
       lsKey: {
         // LocalStorage keys
         allSegments: `${this.procedureId}:allSegments`,
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
-        toggledSegments: `${this.procedureId}:toggledSegments`
+        toggledSegments: `${this.procedureId}:toggledSegments`,
       },
       pagination: {},
       searchTerm: this.initialSearchTerm,
-      searchFieldsSelected: []
+      searchFieldsSelected: [],
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
-      'getIsExpandedByCategoryId'
+      'getIsExpandedByCategoryId',
     ]),
 
     ...mapState('AssignableUser', {
-      assignableUsersObject: 'items'
+      assignableUsersObject: 'items',
     }),
 
     ...mapState('CustomField', {
-      customFields: 'items'
+      customFields: 'items',
     }),
 
     ...mapState('Orga', {
-      orgaObject: 'items'
+      orgaObject: 'items',
     }),
 
     ...mapState('StatementSegment', {
-      segmentsObject: 'items'
+      segmentsObject: 'items',
     }),
 
     ...mapState('Statement', {
-      statementsObject: 'items'
+      statementsObject: 'items',
     }),
 
     ...mapState('Tag', {
-      tagsObject: 'items'
+      tagsObject: 'items',
     }),
 
     ...mapState('Place', {
-      placesObject: 'items'
+      placesObject: 'items',
     }),
 
     assignableUsers () {
-      return Object.keys(this.assignableUsersObject).length
-        ? Object.values(this.assignableUsersObject)
+      return Object.keys(this.assignableUsersObject).length ?
+        Object.values(this.assignableUsersObject)
           .map(user => ({
             name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id
-          }))
-        : []
+            id: user.id,
+          })) :
+        []
     },
 
     availableHeaderFields () {
@@ -474,12 +474,12 @@ export default {
         .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
         .map(customField => ({
           field: `customField_${customField.id}`,
-          label: customField.attributes.name
+          label: customField.attributes.name,
         }))
 
       return [
         ...this.headerFields,
-        ...selectedCustomFields
+        ...selectedCustomFields,
       ]
     },
 
@@ -498,13 +498,13 @@ export default {
     },
 
     places () {
-      return Object.keys(this.placesObject).length
-        ? Object.values(this.placesObject)
+      return Object.keys(this.placesObject).length ?
+        Object.values(this.placesObject)
           .map(place => ({
             name: place.attributes.name,
-            id: place.id
-          }))
-        : []
+            id: place.id,
+          })) :
+        []
     },
 
     queryIds () {
@@ -536,7 +536,7 @@ export default {
 
       return [
         ...staticColumns,
-        ...customFields
+        ...customFields,
       ]
     },
 
@@ -550,42 +550,42 @@ export default {
         .map(customField => {
           return {
             field: `customField_${customField.id}`,
-            fieldId: customField.id
+            fieldId: customField.id,
           }
         })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
     }),
 
     ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get'
+      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
+      'updateFilterQuery',
     ]),
 
     ...mapActions('Place', {
-      fetchPlaces: 'list'
+      fetchPlaces: 'list',
     }),
 
     ...mapActions('StatementSegment', {
-      fetchSegments: 'list'
+      fetchSegments: 'list',
     }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
+      setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
     applyQuery (page) {
@@ -598,9 +598,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'parentStatement.procedure.id',
-            value: this.procedureId
-          }
-        }
+            value: this.procedureId,
+          },
+        },
       }
       const statementSegmentFields = [
         'assignee',
@@ -610,7 +610,7 @@ export default {
         'place',
         'tags',
         'text',
-        'recommendation'
+        'recommendation',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -623,23 +623,23 @@ export default {
           'place',
           'tags',
           'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file'
+          'parentStatement.sourceAttachment.file',
         ].join(),
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
           File: [
-            'hash'
+            'hash',
           ].join(),
           GenericStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           Place: [
-            'name'
+            'name',
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -659,18 +659,18 @@ export default {
             'status',
             'submitDate',
             'submitName',
-            'submitType'
+            'submitType',
           ].join(),
           StatementSegment: statementSegmentFields.join(),
           Tag: [
-            'title'
-          ].join()
-        }
+            'title',
+          ].join(),
+        },
       }
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
-          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
       this.isLoading = true
@@ -691,7 +691,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter,
-            search: payload.search
+            search: payload.search,
           })
         })
         .finally(() => {
@@ -729,17 +729,17 @@ export default {
         id: this.procedureId,
         fields: {
           AdminProcedure: [
-            'segmentCustomFields'
+            'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
-            'options'
-          ].join()
+            'options',
+          ].join(),
         },
         include: [
-          'segmentCustomFields'
-        ].join()
+          'segmentCustomFields',
+        ].join(),
       }
 
       this.getCustomFieldsForProcedure(payload)
@@ -820,11 +820,11 @@ export default {
           sameProcedure: {
             condition: {
               path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         },
-        path
+        path,
       }
 
       // We have to set the searchPhrase to null if its empty to satisfy the backend
@@ -863,7 +863,7 @@ export default {
                       description,
                       id,
                       label,
-                      selected
+                      selected,
                     }
                   }
 
@@ -876,7 +876,7 @@ export default {
                   const group = {
                     id,
                     label,
-                    options: filterOptions
+                    options: filterOptions,
                   }
 
                   groupedOptions.push(group)
@@ -894,7 +894,7 @@ export default {
                   description,
                   label,
                   selected,
-                  ungrouped: true
+                  ungrouped: true,
                 })
               }
             })
@@ -906,7 +906,7 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: result.meta.unassigned_selected
+                selected: result.meta.unassigned_selected,
               })
             }
 
@@ -920,18 +920,18 @@ export default {
 
               this.setInitialFlyoutFilterIds({
                 categoryId: category.id,
-                filterIds: currentFlyoutFilterIds
+                filterIds: currentFlyoutFilterIds,
               })
             }
 
             this.setGroupedFilterOptions({
               categoryId: category.id,
-              groupedOptions
+              groupedOptions,
             })
 
             this.setUngroupedFilterOptions({
               categoryId: category.id,
-              options: ungroupedOptions
+              options: ungroupedOptions,
             })
 
             this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
@@ -954,7 +954,7 @@ export default {
     storeToggledSegments () {
       lscache.set(this.lsKey.toggledSegments, {
         trackDeselected: this.trackDeselected,
-        toggledSegments: this.toggledItems
+        toggledSegments: this.toggledItems,
       })
     },
 
@@ -1014,7 +1014,7 @@ export default {
       this.searchTerm = term
       this.resetSelection()
       this.applyQuery(1)
-    }
+    },
   },
 
   mounted () {
@@ -1038,6 +1038,6 @@ export default {
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
-  }
+  },
 }
 </script>

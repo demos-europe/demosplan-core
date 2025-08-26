@@ -405,7 +405,7 @@ import {
   DpCheckbox,
   DpModal,
   DpRadio,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -415,36 +415,36 @@ export default {
     DpButton,
     DpCheckbox,
     DpModal,
-    DpRadio
+    DpRadio,
   },
 
   props: {
     currentTableSort: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     hasSelectedElements: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     //  Export options that define which formats / fields to display
     options: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     view: {
       required: true,
-      type: String
+      type: String,
       // Validator: ['assessment_table', 'original_statements', 'fragment_list'].includes
     },
 
@@ -456,12 +456,12 @@ export default {
     viewMode: {
       required: false,
       type: String,
-      default: 'view_mode_default'
-    }
+      default: 'view_mode_default',
+    },
   },
 
   emits: [
-    'submit'
+    'submit',
   ],
 
   data () {
@@ -488,7 +488,7 @@ export default {
       exportChoice: data,
       isOpenModal: false,
       currentTab: null,
-      minHeight: 0
+      minHeight: 0,
     }
   },
 
@@ -533,9 +533,9 @@ export default {
     },
 
     isDocxSortTypeByParagraphChecked () {
-      return this.exportChoice.docx.exportType === 'statementsAndFragments'
-        ? this.exportChoice.docx.sortType === 'byParagraphFragmentsOnly'
-        : this.exportChoice.docx.sortType === 'byParagraph'
+      return this.exportChoice.docx.exportType === 'statementsAndFragments' ?
+        this.exportChoice.docx.sortType === 'byParagraphFragmentsOnly' :
+        this.exportChoice.docx.sortType === 'byParagraph'
     },
 
     pdfTemplateOptions () {
@@ -585,7 +585,7 @@ export default {
 
     zipTemplateOptions () {
       return this.getTemplateOptions(this.options.zip)
-    }
+    },
   },
 
   methods: {
@@ -607,9 +607,9 @@ export default {
     },
 
     handleDocxSortTypeByParagraphChange () {
-      this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments'
-        ? 'byParagraphFragmentsOnly'
-        : 'byParagraph'
+      this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
+        'byParagraphFragmentsOnly' :
+        'byParagraph'
     },
 
     handleSubmit () {
@@ -644,7 +644,7 @@ export default {
         if (searchField.checked) {
           checkedSearchFields.push(searchField.id)
         }
-      }
+      },
       )
       return checkedSearchFields.join()
     },
@@ -653,7 +653,7 @@ export default {
       const oldAction = document.bpform.action
 
       document.bpform.action = Routing.generate(this.route, {
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       })
 
       // Set data params
@@ -710,11 +710,11 @@ export default {
         tabContent.style.display = ''
       })
       this.minHeight = Math.max.apply(null, contentHeights) + 155
-    }
+    },
   },
 
   mounted () {
     this.currentTab = this.defaultTab
-  }
+  },
 }
 </script>

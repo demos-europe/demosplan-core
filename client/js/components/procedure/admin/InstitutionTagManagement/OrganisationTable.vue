@@ -159,7 +159,7 @@ import {
   DpDataTable,
   DpLoading,
   DpPager,
-  DpSearchField
+  DpSearchField,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
@@ -173,7 +173,7 @@ export default {
     DpDataTable,
     DpLoading,
     DpPager,
-    DpSearchField
+    DpSearchField,
   },
 
   mixins: [paginationMixin],
@@ -181,23 +181,23 @@ export default {
   props: {
     headerFields: {
       type: Array,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     resourceType: {
       type: String,
       required: true,
-      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value)
-    }
+      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value),
+    },
   },
 
   emits: [
-    'selectedItems'
+    'selectedItems',
   ],
 
   data () {
@@ -205,32 +205,32 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 50
+        perPage: 50,
       },
       filteredItems: null,
       isLoading: true,
       locationContactFields: ['street', 'postalcode', 'city'],
       pagination: {},
       searchTerm: '',
-      selectedItems: []
+      selectedItems: [],
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
+      filterQuery: 'getFilterQuery',
     }),
 
     ...mapState('InstitutionLocationContact', {
-      institutionLocationContactItems: 'items'
+      institutionLocationContactItems: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTagItems: 'items'
+      institutionTagItems: 'items',
     }),
 
     allFilterCategories () {
@@ -246,7 +246,7 @@ export default {
             label: attributes.name,
             rootPath: 'assignedTags',
             selected: false,
-            memberOf: groupKey
+            memberOf: groupKey,
           }
         })
     },
@@ -284,7 +284,7 @@ export default {
         const tagReferences = item.relationships.assignedTags?.data || []
         const institutionTags = tagReferences.map(tag => ({
           id: tag.id,
-          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
+          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound'),
         }))
 
         return {
@@ -293,20 +293,20 @@ export default {
 
           // Add icon for hasReceivedInvitationMailInCurrentProcedurePhase
           hasReceivedInvitationMailInCurrentProcedurePhase:
-            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase
-              ? '<i class="fa fa-check-circle text-[#4c8b22]" ></i>'
-              : '',
+            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase ?
+              '<i class="fa fa-check-circle text-[#4c8b22]" ></i>' :
+              '',
           originalStatementsCountInProcedure: item.attributes.originalStatementsCountInProcedure ||
             '-',
           competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
-          locationContacts: locationContact
-            ? {
-                id: locationContact.id,
-                ...locationContact.attributes
-              }
-            : null,
+          locationContacts: locationContact ?
+            {
+              id: locationContact.id,
+              ...locationContact.attributes,
+            } :
+            null,
           assignedTags: institutionTags,
-          hasNoEmail
+          hasNoEmail,
         }
       })
     },
@@ -335,12 +335,12 @@ export default {
 
     totalPages () {
       return this.pagination.totalPages || 0
-    }
+    },
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
 
     getInstitutionTagCategories (isInitial = false) {
@@ -353,19 +353,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           // Copy the object to avoid issues with filter requests that update the categories in the store
@@ -384,27 +384,27 @@ export default {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
-        { permission: 'field_organisation_competence', value: 'competenceDescription' }
+        { permission: 'field_organisation_competence', value: 'competenceDescription' },
       ]
 
       const permissionChecksContact = [
-        { permission: 'field_organisation_phone', value: 'phone' }
+        { permission: 'field_organisation_phone', value: 'phone' },
       ]
 
-      const includeParams = hasPermission('feature_institution_tag_read')
-        ? ['locationContacts', 'assignedTags']
-        : ['locationContacts']
+      const includeParams = hasPermission('feature_institution_tag_read') ?
+        ['locationContacts', 'assignedTags'] :
+        ['locationContacts']
 
       const requestParams = {
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         include: includeParams.join(),
         fields: {
           [this.resourceType]: this.apiRequestFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
-          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
-        }
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join(),
+        },
       }
 
       if (hasPermission('feature_institution_tag_read')) {
@@ -418,9 +418,9 @@ export default {
               path: 'legalName',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
-          }
+              memberOf: 'searchFieldsGroup',
+            },
+          },
         }
 
         if (hasPermission('field_organisation_competence')) {
@@ -429,8 +429,8 @@ export default {
               path: 'competenceDescription',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
@@ -440,15 +440,15 @@ export default {
               path: 'assignedTags.name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
         filters.searchFieldsGroup = {
           group: {
-            conjunction: 'OR'
-          }
+            conjunction: 'OR',
+          },
         }
 
         requestParams.filter = filters
@@ -526,7 +526,7 @@ export default {
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
-    }
+    },
   },
 
   mounted () {
@@ -534,13 +534,13 @@ export default {
     this.getInstitutionsWithContacts()
 
     const promises = [
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

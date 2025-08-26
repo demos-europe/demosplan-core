@@ -181,7 +181,7 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
@@ -193,7 +193,7 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpInput,
-    SimilarStatementSubmitters
+    SimilarStatementSubmitters,
   },
 
   mixins: [dpValidateMixin],
@@ -202,38 +202,38 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      localStatement: null
+      localStatement: null,
     }
   },
 
   computed: {
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     isStatementManual () {
@@ -284,7 +284,7 @@ export default {
         this.localStatement.attributes.submitterRole !== 'publicagency'
 
       return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
-    }
+    },
   },
 
   methods: {
@@ -331,8 +331,8 @@ export default {
           initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
           initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
           initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
-          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity
-        }
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity,
+        },
       }
 
       this.$emit('save', updatedStatement)
@@ -340,11 +340,11 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    }
+    },
   },
 
   created () {
     this.setInitValues()
-  }
+  },
 }
 </script>

@@ -236,7 +236,7 @@ import {
   DpLoading,
   hasOwnProp,
   makeFormPost,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 
@@ -247,7 +247,7 @@ export default {
     DpAutocomplete,
     DpContextualHelp,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [prefixClassMixin],
@@ -255,54 +255,54 @@ export default {
   props: {
     countyCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     filters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initDisplayArsFilterHeader: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     initSearchTerm: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalities: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     orgaSlug: {
       type: String,
       default: '',
-      required: false
+      required: false,
     },
 
     searchResultsHeader: {
       type: String,
-      default: ''
+      default: '',
     },
 
     sortOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     useOpenGeoDb: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -320,11 +320,11 @@ export default {
         ...this.filters.reduce((acc, filter) => {
           acc[filter.name] = ''
           return acc
-        }, {})
+        }, {}),
       },
       autocompleteOptions: [],
       displayArsFilterHeader: this.initDisplayArsFilterHeader,
-      showFilter: true
+      showFilter: true,
     }
   },
 
@@ -339,7 +339,7 @@ export default {
 
     isSearch () {
       return this.currentSearch !== Translator.trans('entries.all.dative')
-    }
+    },
   },
 
   methods: {
@@ -501,7 +501,7 @@ export default {
             .replace('___end___', mapVars[index].publicParticipationEndDate)
             .replace('___phase___', mapVars[index].publicParticipationPhaseName)
             .replace('___shortText___', mapVars[index].externalDesc)
-          , '___procedureUrl___', mapVars[index].procedureUrl
+          , '___procedureUrl___', mapVars[index].procedureUrl,
           ))
         marker.key = mapVars[index].procedureId
         window.markersLayer.addLayer(marker)
@@ -516,7 +516,7 @@ export default {
       } else {
         this.autocompleteOptions = []
       }
-    }
+    },
   },
 
   mounted () {
@@ -529,6 +529,6 @@ export default {
     }
 
     this.submitForm()
-  }
+  },
 }
 </script>

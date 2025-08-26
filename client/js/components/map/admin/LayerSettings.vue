@@ -179,7 +179,7 @@ export default {
     DpInput,
     DpLabel,
     DpMultiselect,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [prefixClassMixin],
@@ -188,74 +188,74 @@ export default {
     availableProjections: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     hasPreview: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initLayers: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initMatrixSet: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initProjection: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initServiceType: {
       type: String,
       required: false,
-      default: 'wms'
+      default: 'wms',
     },
 
     initUrl: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initVersion: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     showXplanDefaultLayer: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     xplanDefaultLayer: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -270,11 +270,11 @@ export default {
       initialLoad: true,
       isLoading: true,
       layersOptions: [],
-      layers: this.initLayers
-        ? this.initLayers
+      layers: this.initLayers ?
+        this.initLayers
           .split(',')
-          .map(el => ({ label: el.trim(), value: el.trim() }))
-        : [],
+          .map(el => ({ label: el.trim(), value: el.trim() })) :
+        [],
       matrixSet: this.initMatrixSet,
       matrixSetOptions: [],
       name: this.initName,
@@ -284,7 +284,7 @@ export default {
       serviceType: this.initServiceType || 'wms',
       unavailableLayers: [],
       url: this.initUrl,
-      version: this.initVersion || '1.3.0'
+      version: this.initVersion || '1.3.0',
     }
   },
 
@@ -321,7 +321,7 @@ export default {
         url: this.url,
         layers: this.layersInputValue,
         mapOrder: 1,
-        layerType: 'overlay'
+        layerType: 'overlay',
       }]
     },
 
@@ -331,7 +331,7 @@ export default {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
       return serviceTypeOptions
-    }
+    },
   },
 
   methods: {
@@ -364,7 +364,7 @@ export default {
         if (this.projectionOptions.length === 0) {
           dplan.notify.warning(Translator.trans('error.map.layer.projections.none', {
             projectionsFromSource: availableCRS.join(', '),
-            availableProjectionsFromSystem: this.availableProjections.join(', ')
+            availableProjectionsFromSystem: this.availableProjections.join(', '),
           }))
         } else if (this.findProjectionInOptions() === false) {
           this.projection = this.projectionOptions[0].value
@@ -604,11 +604,11 @@ export default {
       } else {
         this.unavailableLayers = []
       }
-    }
+    },
   },
 
   mounted () {
     this.getLayerCapabilities()
-  }
+  },
 }
 </script>

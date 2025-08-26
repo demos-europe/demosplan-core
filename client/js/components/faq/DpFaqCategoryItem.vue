@@ -48,17 +48,17 @@ export default {
   props: {
     faqCategoryItem: {
       type: Object,
-      required: true
+      required: true,
     },
 
     categoryChildren: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
-    deleteCategoryItem () {}
-  }
+    deleteCategoryItem () {},
+  },
 }
 </script>

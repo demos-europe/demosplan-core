@@ -81,57 +81,57 @@ export default {
     DpButtonRow,
     DpIcon,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
-    DpTableCard
+    DpTableCard,
   },
 
   mixins: [dpValidateMixin],
 
   inject: [
-    'writableFields'
+    'writableFields',
   ],
 
   props: {
     additionalFieldOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     selectable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     moduleName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'addonOptions:loaded',
     'items:get',
     'item:selected',
-    'organisation:reset'
+    'organisation:reset',
   ],
 
   data () {
@@ -142,21 +142,21 @@ export default {
         initValue: '',
         resourceType: '',
         url: '',
-        value: ''
+        value: '',
       },
       isOpen: false,
       isLoading: true,
-      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
+      moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
     }
   },
 
   computed: {
     ...mapState('Orga', {
-      organisations: 'items'
+      organisations: 'items',
     }),
 
     ...mapState('Orga/Pending', {
-      pendingOrganisations: 'items'
+      pendingOrganisations: 'items',
     }),
 
     ariaLabel () {
@@ -176,7 +176,7 @@ export default {
 
     icon () {
       return this.isOpen ? 'chevron-up' : 'chevron-down'
-    }
+    },
   },
 
   methods: {
@@ -184,17 +184,17 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update'
-          ? undefined
-          : {
-              orga: {
-                data: {
-                  type: 'Orga',
-                  id: this.organisation.id
-                }
-              }
+        relationships: this.addonPayload.url === 'api_resource_update' ?
+          undefined :
+          {
+            orga: {
+              data: {
+                type: 'Orga',
+                id: this.organisation.id,
+              },
             },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {})
+          },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
       }
     },
 
@@ -203,16 +203,16 @@ export default {
 
       const addonRequest = dpApi({
         headers: {
-          ...(dplan.csrfToken && { 'x-csrf-token': dplan.csrfToken }) // TODO: should be adjusted in UI: api2defaultHeaders
+          ...(dplan.csrfToken && { 'x-csrf-token': dplan.csrfToken }), // TODO: should be adjusted in UI: api2defaultHeaders
         },
         method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
         url: Routing.generate(this.addonPayload.url, {
           resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
         }),
         data: {
-          data: payload
-        }
+          data: payload,
+        },
       })
 
       return addonRequest
@@ -291,9 +291,9 @@ export default {
         options: {
           attributes: {
             full: ['registrationStatuses'],
-            unchanged: additionalAttributes
-          }
-        }
+            unchanged: additionalAttributes,
+          },
+        },
       })
     },
 
@@ -307,7 +307,7 @@ export default {
 
     updateOrganisation (payload) {
       this.setItem({ ...payload, id: payload.id })
-    }
-  }
+    },
+  },
 }
 </script>

@@ -68,7 +68,7 @@ const emptyContact = {
   phoneNumber: '',
   eMailAddress: '',
   text: '',
-  id: 'new'
+  id: 'new',
 }
 export default {
   name: 'CustomerSettingsloginSupport',
@@ -77,7 +77,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpEditor,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -93,16 +93,16 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('contact.update'),
         noEntries: Translator.trans('contact.no_entries'),
-        delete: Translator.trans('contact.delete')
+        delete: Translator.trans('contact.delete'),
       },
-      updating: false
+      updating: false,
     }
   },
 
   computed: {
     ...mapState('CustomerLoginSupportContact', {
-      contacts: 'items'
-    })
+      contacts: 'items',
+    }),
   },
 
   methods: {
@@ -110,11 +110,11 @@ export default {
       create: 'create',
       delete: 'delete',
       fetch: 'list',
-      save: 'save'
+      save: 'save',
     }),
 
     ...mapMutations('CustomerLoginSupportContact', {
-      update: 'setItem'
+      update: 'setItem',
     }),
 
     checkIfContactIsEmpty () {
@@ -145,9 +145,9 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       }).then(() => {
         this.setFormFromStore()
       })
@@ -157,15 +157,15 @@ export default {
       const contact = Object.values(this.contacts)[0]
       const attrs = contact?.attributes || { ...this.emptyContact }
 
-      this.contact = contact
-        ? {
-            eMailAddress: attrs.eMailAddress || '',
-            id: contact?.id || emptyContact.id,
-            phoneNumber: attrs.phoneNumber,
-            text: attrs.text || '',
-            title: attrs.title
-          }
-        : { ...this.emptyContact }
+      this.contact = contact ?
+        {
+          eMailAddress: attrs.eMailAddress || '',
+          id: contact?.id || emptyContact.id,
+          phoneNumber: attrs.phoneNumber,
+          text: attrs.text || '',
+          title: attrs.title,
+        } :
+        { ...this.emptyContact }
     },
 
     updateContact () {
@@ -184,8 +184,8 @@ export default {
           title: this.contact.title,
           phoneNumber: this.contact.phoneNumber,
           text: this.contact.text ? this.contact.text : null,
-          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null
-        }
+          eMailAddress: this.contact.eMailAddress ? this.contact.eMailAddress : null,
+        },
       }
 
       if (id === emptyContact.id) {
@@ -202,11 +202,11 @@ export default {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           })
       }
-    }
+    },
   },
 
   mounted () {
     this.getContacts()
-  }
+  },
 }
 </script>

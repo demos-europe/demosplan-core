@@ -288,7 +288,7 @@ import {
   DpRadio,
   dpRpc,
   hasOwnProp,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
@@ -317,11 +317,11 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    SelectedTagsList
+    SelectedTagsList,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [prefixClassMixin],
@@ -329,8 +329,8 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -342,29 +342,29 @@ export default {
           success: false,
           // To toggle radio button checked and the isTextAttached value will be send to BE
           isTextAttached: true,
-          isTextReplaced: false
+          isTextReplaced: false,
         },
         addTags: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         assignPlace: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         assignSegment: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
         deleteTags: {
           selected: [],
           checked: false,
-          success: false
+          success: false,
         },
-        customFields: []
+        customFields: [],
       },
       assignableUsers: [],
       busy: false,
@@ -372,21 +372,21 @@ export default {
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       step: 1,
       places: [],
-      segments: []
+      segments: [],
     }
   },
 
   computed: {
     ...mapState('CustomField', {
-      customFieldItems: 'items'
+      customFieldItems: 'items',
     }),
 
     ...mapState('Tag', {
-      tagsItems: 'items'
+      tagsItems: 'items',
     }),
 
     ...mapState('TagTopic', {
-      tagTopicsItems: 'items'
+      tagTopicsItems: 'items',
     }),
 
     addOrReplaceRecommendationMessage () {
@@ -430,11 +430,11 @@ export default {
     },
 
     customFieldsCheckedAndSelected () {
-      return hasPermission('field_segments_custom_fields')
-        ? this.actions.customFields.filter(customField => {
+      return hasPermission('field_segments_custom_fields') ?
+        this.actions.customFields.filter(customField => {
           return customField.checked && customField.selected
-        })
-        : []
+        }) :
+        []
     },
 
     deleteTagsCheckedAndSelected () {
@@ -464,9 +464,9 @@ export default {
             .map(tag => {
               return {
                 title: tag.attributes.title,
-                id: tag.id
+                id: tag.id,
               }
-            })
+            }),
         }
       })
     },
@@ -496,20 +496,20 @@ export default {
 
     topics () {
       return Object.values(this.tagTopicsItems)
-    }
+    },
   },
 
   methods: {
     ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get'
+      getAdminProcedureWithFields: 'get',
     }),
 
     ...mapActions('Tag', {
-      listTags: 'list'
+      listTags: 'list',
     }),
 
     ...mapActions('TagTopic', {
-      listTagTopics: 'list'
+      listTagTopics: 'list',
     }),
 
     addCustomFieldsToActions () {
@@ -521,7 +521,7 @@ export default {
           optionLabels: customField.attributes.options.map((option) => option.label),
           options: customField.attributes.options,
           selected: null,
-          success: false
+          success: false,
         })
       })
     },
@@ -539,8 +539,8 @@ export default {
         // Text of DpEditor and attach bool to determine if the text is replaced or attached - default: true
         recommendationTextEdit: {
           text: this.actions.addRecommendations.text,
-          attach: this.actions.addRecommendations.isTextAttached
-        }
+          attach: this.actions.addRecommendations.isTextAttached,
+        },
       }
 
       if (this.customFieldsCheckedAndSelected.length > 0) {
@@ -549,7 +549,7 @@ export default {
 
           return {
             id,
-            value: selectedOption?.id
+            value: selectedOption?.id,
           }
         })
       }
@@ -597,14 +597,14 @@ export default {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-              id: assignableUser.id
+              id: assignableUser.id,
             }
           })
 
           // Add option to set unassigned to segments
           this.assignableUsers.push({
             name: Translator.trans('not.assigned'),
-            id: null
+            id: null,
           })
         })
     },
@@ -617,15 +617,15 @@ export default {
         id: this.procedureId,
         fields: {
           AdminProcedure: [
-            'segmentCustomFields'
+            'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
-            'options'
-          ].join()
+            'options',
+          ].join(),
         },
-        include: ['segmentCustomFields'].join()
+        include: ['segmentCustomFields'].join(),
       }
 
       return this.getAdminProcedureWithFields(payload)
@@ -635,14 +635,14 @@ export default {
     fetchPlaces () {
       const url = Routing.generate('api_resource_list', {
         resourceType: 'Place',
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       })
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
               id: place.id,
-              name: place.attributes.name
+              name: place.attributes.name,
             }
           })
         })
@@ -673,7 +673,7 @@ export default {
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
-          queryHash: currentQueryHash
+          queryHash: currentQueryHash,
         })
       }
     },
@@ -694,7 +694,7 @@ export default {
           this.segments = segments.toggledSegments.length === 0 ? allSegments : allSegments.filter(segment => !toggledIds.includes(segment))
         }
       }
-    }
+    },
   },
 
   created () {
@@ -706,7 +706,7 @@ export default {
     const promises = [
       this.listTagTopics({ include: 'tag' }),
       this.listTags({ include: 'topic' }),
-      this.fetchPlaces()
+      this.fetchPlaces(),
     ]
 
     if (hasPermission('feature_statement_assignment')) {
@@ -726,6 +726,6 @@ export default {
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

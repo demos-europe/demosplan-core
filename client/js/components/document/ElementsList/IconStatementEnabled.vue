@@ -31,14 +31,14 @@ export default {
   props: {
     enabled: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     text () {
       return Translator.trans(this.enabled ? 'statement.possible' : 'statement.not.possible')
-    }
-  }
+    },
+  },
 }
 </script>

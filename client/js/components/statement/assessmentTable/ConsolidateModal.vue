@@ -210,7 +210,7 @@ import {
   DpModal,
   DpMultiselect,
   handleResponseMessages,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
@@ -218,7 +218,7 @@ import DpSelectStatementCluster from '@DpJs/components/statement/statement/Selec
 const emptyAssignee = {
   id: '',
   name: '',
-  organisation: ''
+  organisation: '',
 }
 
 export default {
@@ -228,14 +228,14 @@ export default {
     DpButton,
     DpModal,
     DpMultiselect,
-    DpSelectStatementCluster
+    DpSelectStatementCluster,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -250,19 +250,19 @@ export default {
       validations: {
         headStatement: true,
         selection: true,
-        cluster: true
-      }
+        cluster: true,
+      },
     }
   },
 
   computed: {
     ...mapState('AssessmentTable', [
-      'currentUserId'
+      'currentUserId',
     ]),
 
     ...mapState('Statement', [
       'selectedElements',
-      'statements'
+      'statements',
     ]),
 
     selectedStatements: {
@@ -280,8 +280,8 @@ export default {
                 // Shows if element is on page. Will break if store contains more statements than on page
                 hiddenElement: Object.keys(this.statements).indexOf(statement.id) === -1,
                 id: statement.id,
-                movedToProcedure: statement.movedToProcedureId !== ''
-              }
+                movedToProcedure: statement.movedToProcedureId !== '',
+              },
             }
           })
           .reduce((element, accumulator) => {
@@ -294,7 +294,7 @@ export default {
           this.$refs.clusterSelect.selected = this.$refs.clusterSelect.emptyCluster
           this.setClusterSelection(this.$refs.clusterSelect.emptyCluster)
         }
-      }
+      },
     },
     initClusterList () {
       return Object.values(this.allClustersInProcedure).map(stn => ({ id: stn.id, assignee: stn.attributes.assignee ? stn.attributes.assignee : emptyAssignee, externId: stn.attributes.externId, name: stn.attributes.name }))
@@ -316,23 +316,23 @@ export default {
 
     selectionHasGroups () {
       return this.selectedStatements.filter(statement => statement.isCluster).length !== 0
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', [
       'createClusterAction',
-      'updateClusterAction'
+      'updateClusterAction',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setModalProperty'
+      'setModalProperty',
     ]),
 
     ...mapMutations('Statement', [
       'addElementToSelection',
       'removeElementFromSelection',
-      'replaceElementSelection'
+      'replaceElementSelection',
     ]),
 
     buildJsonApiCluster (method) {
@@ -356,13 +356,13 @@ export default {
         ...type,
         attributes: {
           ...clusterName,
-          ...headStatementId
+          ...headStatementId,
         },
         relationships: {
           statements: {
-            data: [...this.selectedStatementsAsRelationship]
-          }
-        }
+            data: [...this.selectedStatementsAsRelationship],
+          },
+        },
       }
     },
 
@@ -398,13 +398,13 @@ export default {
         include: 'Claim',
         fields: {
           Cluster: [
-            'assignee'
+            'assignee',
           ].join(),
           Claim: [
             'name',
-            'orgaName'
-          ].join()
-        }
+            'orgaName',
+          ].join(),
+        },
       }
       return dpApi.get(url, params)
         .then(response => response.data.data)
@@ -464,9 +464,9 @@ export default {
       }
       // Submit data depending on consolidationMethod
       this.isLoading = true;
-      (this.consolidationMethod === 'consolidateStatements'
-        ? this.createClusterAction(this.buildJsonApiCluster('post'))
-        : this.updateClusterAction(this.buildJsonApiCluster('patch')))
+      (this.consolidationMethod === 'consolidateStatements' ?
+        this.createClusterAction(this.buildJsonApiCluster('post')) :
+        this.updateClusterAction(this.buildJsonApiCluster('patch')))
         .then((response) => {
           this.isLoading = false
           this.resetModal()
@@ -480,14 +480,14 @@ export default {
           }
         })
         .catch(e => handleResponseMessages(e.response.data.meta))
-    }
+    },
   },
 
   mounted () {
     this.$nextTick(() => {
       this.handleOpenModal()
     })
-  }
+  },
 
 }
 </script>
