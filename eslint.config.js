@@ -155,7 +155,7 @@ module.exports = [
        * Remove this rule and v-on-event-hyphenation after renaming all custom events to match the recommended format
        */
       'vue/custom-event-name-casing': ['warn', 'camelCase', {
-        'ignores': ['/^[a-z][a-zA-Z]*:?[[a-z][a-zA-Z]*]?$/']
+        'ignores': ['/^[a-z][a-zA-Z]*(?::[a-z][a-zA-Z]*)?$/']
       }],
       'vue/v-on-event-hyphenation': 'off',
       'vue/html-closing-bracket-newline': ['off'],
