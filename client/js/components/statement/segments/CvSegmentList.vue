@@ -455,12 +455,12 @@ export default {
       return ''
     },
 
-    getKeywordType (keyword) {
+    getKeywordType () {
       // Use warm-gray for keywords like in CvStatementList confidence tags
       return 'warm-gray'
     },
 
-    getKeywordClass (keyword) {
+    getKeywordClass () {
       // Add custom class for additional styling if needed
       return 'cv-keyword-tag'
     },
@@ -903,7 +903,7 @@ export default {
   mounted () {
     // Initialize visibleColumns from localStorage
     this.visibleColumns = this.loadColumnSelection()
-    
+
     // Load initial data
     this.fetchPlaces() // Load places for processingStep
     this.fetchAssignableUsers({ // Load assignable users for logging
