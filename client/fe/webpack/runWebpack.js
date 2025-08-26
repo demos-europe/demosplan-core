@@ -184,12 +184,12 @@ function showErrorMessage (err, stats) {
 
 function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConfig, webpackRunner) {
   if (mode === 'build') {
-    log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${project} in ${chalk.bold(webpackConfig[0].mode)} mode`))
+    log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
     webpackRunner.run(userFeedbackCallback)
   }
 
   if (mode === 'watch') {
-    log(chalk.green(`Begin ${chalk.bold('watching')} frontend assets for ${project} in ${chalk.bold(webpackConfig[0].mode)} mode`))
+    log(chalk.green(`Begin ${chalk.bold('watching')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
     webpackRunner.watch({
       aggregateTimeout: 1000
     }, userFeedbackCallback)
