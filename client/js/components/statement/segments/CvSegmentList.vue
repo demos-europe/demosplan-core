@@ -16,7 +16,7 @@ All rights reserved
         batch-cancel-label="Abbrechen"
         :data="segments"
         id="cv-segment-table"
-        :rows-selected="selectedRows"
+        :rows-selected="selectedItemIds"
         sortable
         @sort="onSort"
       >
@@ -216,11 +216,15 @@ import {
   CvTag
 } from '@carbon/vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { tableSelectAllItems, dpRpc } from '@demos-europe/demosplan-ui'
 import ChevronDown16 from '@carbon/icons-vue/lib/chevron--down/16'
 import CvMultiselectModal from '@DpJs/components/statement/CvMultiselectModal'
+import lscache from 'lscache'
 
 export default {
   name: 'CvSegmentList',
+
+  mixins: [tableSelectAllItems],
 
   components: {
     ChevronDown16,
@@ -382,6 +386,20 @@ export default {
 
     filteredColumns () {
       return this.columns.filter(column => this.visibleColumns.includes(column.key))
+    },
+
+    // Required by tableSelectAllItems mixin
+    items () {
+      return this.segments
+    },
+
+    // Convert mixin selection to Carbon Vue format - ONLY current page items!
+    selectedItemIds () {
+      const currentPageIds = this.segments.map(s => String(s.id))
+      const allSelectedIds = Object.keys(this.currentlySelectedItems)
+      
+      // Only return IDs that are actually on the current page
+      return allSelectedIds.filter(id => currentPageIds.includes(id))
     }
   },
 
@@ -394,6 +412,20 @@ export default {
             this.setupCheckboxListeners()
           })
         }
+      },
+      deep: true
+    },
+
+    // Sync selectedRows with mixin state when page changes
+    selectedItemIds: {
+      handler (newSelectedIds) {
+        // Update local selectedRows to match mixin selection for current page
+        this.selectedRows = [...newSelectedIds]
+        this.$nextTick(() => {
+          this.updateBatchActionsVisibility()
+          this.updateHeaderCheckboxState()
+          this.updateRowCheckboxes()
+        })
       },
       deep: true
     }
@@ -590,12 +622,13 @@ export default {
 
           this.headerCheckboxHandler = (event) => {
             if (event.target.checked) {
-              // Check all rows
-              this.selectedRows = this.segments.map(s => String(s.id))
+              // "Select All" - only select visible items on current page
+              this.handleSelectCurrentPageOnly(true)
             } else {
-              // Uncheck all rows
-              this.selectedRows = []
+              // "Deselect All" 
+              this.handleSelectCurrentPageOnly(false)
             }
+            // selectedRows will be updated by the watch automatically
             this.updateBatchActionsVisibility()
             this.updateRowCheckboxes()
           }
@@ -610,18 +643,14 @@ export default {
 
           checkbox.addEventListener('change', (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
+            const segment = this.segments.find(s => String(s.id) === rowValue)
 
-            if (event.target.checked) {
-              if (!this.selectedRows.includes(rowValue)) {
-                this.selectedRows.push(rowValue)
-              }
-            } else {
-              const index = this.selectedRows.indexOf(rowValue)
-              if (index > -1) {
-                this.selectedRows.splice(index, 1)
-              }
+            if (segment) {
+              // Use mixin for multi-page selection logic
+              this.handleToggleItem([segment], event.target.checked)
             }
 
+            // selectedRows will be updated by the watch automatically
             this.updateBatchActionsVisibility()
             this.updateHeaderCheckboxState()
           })
@@ -632,14 +661,15 @@ export default {
     updateBatchActionsVisibility () {
       const batchActions = document.querySelector('#cv-segment-table .bx--batch-actions')
       if (batchActions) {
-        if (this.selectedRows.length > 0) {
+        // Use mixin's selectedItemsCount for multi-page count
+        if (this.selectedItemsCount > 0) {
           batchActions.setAttribute('aria-hidden', 'false')
           batchActions.classList.add('bx--batch-actions--active')
 
-          // Update Carbon's internal counter
+          // Update Carbon's internal counter with multi-page count
           const itemsSelectedSpan = batchActions.querySelector('[data-items-selected]')
           if (itemsSelectedSpan) {
-            itemsSelectedSpan.textContent = `${this.selectedRows.length} items selected`
+            itemsSelectedSpan.textContent = `${this.selectedItemsCount} items selected`
           }
         } else {
           batchActions.setAttribute('aria-hidden', 'true')
@@ -688,8 +718,22 @@ export default {
       }
     },
 
+    handleSelectCurrentPageOnly (selectAll) {
+      if (selectAll) {
+        // Select only the visible segments on current page
+        this.segments.forEach(segment => {
+          this.handleToggleItem([segment], true)
+        })
+      } else {
+        // Deselect only the visible segments on current page
+        this.segments.forEach(segment => {
+          this.handleToggleItem([segment], false)
+        })
+      }
+    },
+
     openEditModal() {
-      if (this.selectedRows.length === 0) {
+      if (this.selectedItemsCount === 0) {
         // Show notification that no segments are selected
         if (window.dplan && window.dplan.notify) {
           window.dplan.notify.notify('error', 'Bitte wählen Sie mindestens ein Segment zum Bearbeiten aus.')
@@ -703,122 +747,96 @@ export default {
       this.isEditModalVisible = true
     },
 
-    handleModalSave(formData) {
+    async handleModalSave(formData) {
       // Close modal first
       this.isEditModalVisible = false
 
-      // Update each selected segment - based on StatementSegment.vue logic
-      const savePromises = this.selectedRows.map(segmentId => {
-        return this.updateSingleSegment(segmentId, formData)
-      })
-
-      // Execute all saves
-      Promise.all(savePromises)
-        .then(() => {
-          // Success notification
-          if (window.dplan && window.dplan.notify) {
-            window.dplan.notify.notify('confirm', `${this.selectedRows.length} Segment(e) wurden erfolgreich aktualisiert.`)
-          }
-
-          // Clear selection
-          this.selectedRows = []
-          this.updateBatchActionsVisibility()
-          this.updateHeaderCheckboxState()
-
-          // Refresh data to show changes
-          this.fetchSegmentData(this.pagination.currentPage)
-        })
-        .catch((error) => {
-          console.error('Error saving segments:', error)
-          if (window.dplan && window.dplan.notify) {
-            window.dplan.notify.notify('error', 'Fehler beim Speichern der Segmente.')
-          }
-        })
-    },
-
-    updateSingleSegment(segmentId, formData) {
-      const segment = this.segmentsObject[segmentId]
-      if (!segment) {
-        console.error('Segment not found:', segmentId)
-        return Promise.reject(new Error(`Segment ${segmentId} not found`))
+      // Get all selected segment IDs using mixin logic
+      let selectedSegmentIds
+      if (this.trackDeselected) {
+        // All items except deselected ones
+        const allIds = Object.keys(this.segmentsObject)
+        selectedSegmentIds = allIds.filter(id => !this.toggledItems.some(item => String(item.id) === id))
+      } else {
+        // Only explicitly selected items
+        selectedSegmentIds = this.toggledItems.map(item => String(item.id))
       }
 
-      // Log old assignee
-      const oldAssigneeId = segment.relationships?.assignee?.data?.id
-      const oldAssigneeUser = oldAssigneeId ? this.assignableUserItems[oldAssigneeId] : null
-      const oldAssigneeName = oldAssigneeUser ?
-        oldAssigneeUser.attributes.firstname + ' ' + oldAssigneeUser.attributes.lastname :
-        'Nicht zugewiesen'
+      if (selectedSegmentIds.length === 0) {
+        if (window.dplan && window.dplan.notify) {
+          window.dplan.notify.notify('warning', 'Keine Segmente ausgewählt.')
+        }
+        return
+      }
 
-      // Log new assignee
-      const newAssigneeName = formData.selectedAssignee?.name || 'Nicht zugewiesen'
+      // Build RPC parameters for bulk edit - ALL required fields according to schema
+      const bulkEditParams = {
+        // Required fields
+        addTagIds: [], // Empty array - we're not adding tags in this modal
+        removeTagIds: [], // Empty array - we're not removing tags in this modal
+        segmentIds: selectedSegmentIds,
+        recommendationTextEdit: {
+          text: '', // Empty text - we're not editing recommendations in this modal
+          attach: true // Default value
+        }
+      }
 
-      // Log old processing step
-      const oldPlaceId = segment.relationships?.place?.data?.id
-      const oldPlace = oldPlaceId ? this.placesObject[oldPlaceId] : null
-      const oldPlaceName = oldPlace?.attributes?.name || 'Nicht zugewiesen'
-
-      // Log new processing step
-      const newPlaceName = formData.selectedPlace?.name || 'Nicht zugewiesen'
-
-      console.log(`Segment ${segmentId}: Bearbeiter Änderung von "${oldAssigneeName}" zu "${newAssigneeName}"`)
-      console.log(`Segment ${segmentId}: Bearbeitungsschritt Änderung von "${oldPlaceName}" zu "${newPlaceName}"`)
-
-      // Build relationships like in original StatementSegment.vue
-      let assignee = { assignee: { data: null } }
-
+      // Add assignee if changed
       if (formData.selectedAssignee && formData.selectedAssignee.id !== 'noAssigneeId') {
-        assignee = {
-          assignee: {
-            data: {
-              id: formData.selectedAssignee.id,
-              type: 'AssignableUser'
-            }
-          }
-        }
+        bulkEditParams.assigneeId = formData.selectedAssignee.id
+      } else if (formData.selectedAssignee && formData.selectedAssignee.id === 'noAssigneeId') {
+        bulkEditParams.assigneeId = null
       }
 
-      const place = {
-        place: {
-          data: {
-            id: formData.selectedPlace.id,
-            type: 'Place'
-          }
-        }
+      // Add workflow place if changed
+      if (formData.selectedPlace && formData.selectedPlace.id) {
+        bulkEditParams.placeId = formData.selectedPlace.id
       }
 
-      // Update segment in store first (optimistic update)
-      const updatedSegment = {
-        id: segment.id,
-        type: 'StatementSegment',
-        attributes: {
-          ...segment.attributes
-        },
-        relationships: {
-          ...segment.relationships,
-          ...assignee,
-          ...place
+      try {
+        const response = await dpRpc('segment.bulk.edit', bulkEditParams)
+        
+        // Check if the RPC call was actually successful
+        const rpcResult = response.data && response.data[0] && response.data[0].result
+        if (rpcResult !== 'ok') {
+          throw new Error(`RPC call failed with result: ${rpcResult}`)
+        }
+
+        // Clear selection using mixin method
+        this.resetSelection()
+
+        // Clear localStorage like in SegmentsList to ensure reactive updates
+        lscache.remove(`${this.procedureId}:toggledSegments`)
+        lscache.remove(`${this.procedureId}:allSegments`)
+
+        // Success notification
+        if (window.dplan && window.dplan.notify) {
+          window.dplan.notify.notify('confirm', `${selectedSegmentIds.length} Segment(e) wurden erfolgreich aktualisiert.`)
+        }
+
+        // Refresh data to show changes
+        await this.fetchSegmentData(this.pagination.currentPage)
+        this.$forceUpdate()
+        
+        // Also refresh related stores that might have stale data
+        this.fetchPlaces()
+        this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
+      } catch (error) {
+        console.error('Error saving segments via RPC:', error)
+        if (window.dplan && window.dplan.notify) {
+          const errorMessage = error.message === 'RPC call failed with result: undefined' 
+            ? 'RPC-Aufruf fehlgeschlagen. Bitte versuchen Sie es erneut.'
+            : 'Fehler beim Speichern der Segmente.'
+          window.dplan.notify.notify('error', errorMessage)
         }
       }
-
-      this.setSegment({
-        ...updatedSegment,
-        id: segment.id
-      })
-
-      // Use Vuex action like in original StatementSegment.vue to handle CSRF token
-      return this.saveSegmentAction({ id: segment.id })
-        .catch((err) => {
-          console.error('Error updating segment:', err)
-          // Restore original segment on error
-          this.setSegment({ ...segment, id: segment.id })
-          throw err
-        })
     },
+
 
     handleModalCancel() {
       this.isEditModalVisible = false
     },
+
 
     fetchSegmentData (page = 1) {
       const payload = {
@@ -892,6 +910,9 @@ export default {
               total: response.meta.pagination.total,
               totalPages: finalTotalPages
             }
+
+            // Set total count for multi-page selection mixin
+            this.allItemsCount = response.meta.pagination.total
           }
         })
         .catch(error => {
