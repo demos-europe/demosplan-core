@@ -216,8 +216,6 @@ import {
   CvTag
 } from '@carbon/vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-ui'
-import Export16 from '@carbon/icons-vue/es/export/16'
 import ChevronDown16 from '@carbon/icons-vue/lib/chevron--down/16'
 import CvMultiselectModal from '@DpJs/components/statement/CvMultiselectModal'
 
@@ -233,8 +231,7 @@ export default {
     CvMultiselectModal,
     CvPagination,
     CvSearch,
-    CvTag,
-    Export16
+    CvTag
   },
 
   props: {
@@ -245,6 +242,14 @@ export default {
     procedureId: {
       required: true,
       type: String
+    },
+    localStorageKey: {
+      type: String,
+      default: 'cvSegmentList'
+    },
+    useLocalStorage: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -261,7 +266,7 @@ export default {
       isEditModalVisible: false,
       currentAssignee: {},
       currentPlace: { id: '', type: 'Place' },
-      visibleColumns: ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand'],
+      visibleColumns: [],
       columns: [
         { key: 'externId', label: 'ID' },
         { key: 'statementStatus', label: 'Stn.-Status' },
@@ -498,7 +503,21 @@ export default {
       } else {
         this.visibleColumns.push(columnKey)
       }
-      // TODO: Save to localStorage if needed
+      this.saveColumnSelection()
+    },
+
+    saveColumnSelection () {
+      if (this.useLocalStorage) {
+        localStorage.setItem(this.localStorageKey, JSON.stringify(this.visibleColumns))
+      }
+    },
+
+    loadColumnSelection () {
+      if (this.useLocalStorage) {
+        const stored = localStorage.getItem(this.localStorageKey)
+        return stored ? JSON.parse(stored) : ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand']
+      }
+      return ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand']
     },
 
     applySearch (term, page = 1) {
@@ -677,7 +696,7 @@ export default {
         }
         return
       }
-      
+
       // Reset modal state
       this.currentAssignee = {}
       this.currentPlace = { id: '', type: 'Place' }
@@ -687,12 +706,12 @@ export default {
     handleModalSave(formData) {
       // Close modal first
       this.isEditModalVisible = false
-      
+
       // Update each selected segment - based on StatementSegment.vue logic
       const savePromises = this.selectedRows.map(segmentId => {
         return this.updateSingleSegment(segmentId, formData)
       })
-      
+
       // Execute all saves
       Promise.all(savePromises)
         .then(() => {
@@ -700,12 +719,12 @@ export default {
           if (window.dplan && window.dplan.notify) {
             window.dplan.notify.notify('confirm', `${this.selectedRows.length} Segment(e) wurden erfolgreich aktualisiert.`)
           }
-          
+
           // Clear selection
           this.selectedRows = []
           this.updateBatchActionsVisibility()
           this.updateHeaderCheckboxState()
-          
+
           // Refresh data to show changes
           this.fetchSegmentData(this.pagination.currentPage)
         })
@@ -727,27 +746,27 @@ export default {
       // Log old assignee
       const oldAssigneeId = segment.relationships?.assignee?.data?.id
       const oldAssigneeUser = oldAssigneeId ? this.assignableUserItems[oldAssigneeId] : null
-      const oldAssigneeName = oldAssigneeUser ? 
-        oldAssigneeUser.attributes.firstname + ' ' + oldAssigneeUser.attributes.lastname : 
+      const oldAssigneeName = oldAssigneeUser ?
+        oldAssigneeUser.attributes.firstname + ' ' + oldAssigneeUser.attributes.lastname :
         'Nicht zugewiesen'
-      
+
       // Log new assignee
       const newAssigneeName = formData.selectedAssignee?.name || 'Nicht zugewiesen'
-      
+
       // Log old processing step
       const oldPlaceId = segment.relationships?.place?.data?.id
       const oldPlace = oldPlaceId ? this.placesObject[oldPlaceId] : null
       const oldPlaceName = oldPlace?.attributes?.name || 'Nicht zugewiesen'
-      
+
       // Log new processing step
       const newPlaceName = formData.selectedPlace?.name || 'Nicht zugewiesen'
-      
+
       console.log(`Segment ${segmentId}: Bearbeiter Änderung von "${oldAssigneeName}" zu "${newAssigneeName}"`)
       console.log(`Segment ${segmentId}: Bearbeitungsschritt Änderung von "${oldPlaceName}" zu "${newPlaceName}"`)
 
       // Build relationships like in original StatementSegment.vue
       let assignee = { assignee: { data: null } }
-      
+
       if (formData.selectedAssignee && formData.selectedAssignee.id !== 'noAssigneeId') {
         assignee = {
           assignee: {
@@ -764,18 +783,6 @@ export default {
           data: {
             id: formData.selectedPlace.id,
             type: 'Place'
-          }
-        }
-      }
-
-      // Build payload like in original StatementSegment.vue:899-920
-      const payload = {
-        data: {
-          id: segment.id,
-          type: 'StatementSegment',
-          relationships: {
-            ...assignee,
-            ...place
           }
         }
       }
@@ -894,6 +901,9 @@ export default {
   },
 
   mounted () {
+    // Initialize visibleColumns from localStorage
+    this.visibleColumns = this.loadColumnSelection()
+    
     // Load initial data
     this.fetchPlaces() // Load places for processingStep
     this.fetchAssignableUsers({ // Load assignable users for logging
