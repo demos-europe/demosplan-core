@@ -1347,6 +1347,9 @@ export default {
        * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
        *
        */
+      if (dataToSend.r_makePublic === 'off') {
+        delete dataToSend.r_makePublic
+      }
       if (dataToSend.r_getFeedback === 'off') {
         delete dataToSend.r_getFeedback
       }
