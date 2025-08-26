@@ -6175,6 +6175,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/utils@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@uppy/utils@npm:6.2.2"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/a63026d8a8a4cecbd7d2c89cb0ba0c5b8d6bf852d81792a003a90de06017b2e63e26aa3fef2993d3745dd6f06bb5d973e284bb9f7c02e15921c57a6be6fe5550
+  languageName: node
+  linkType: hard
+
 "@vue-leaflet/vue-leaflet@npm:^0.10.1":
   version: 0.10.1
   resolution: "@vue-leaflet/vue-leaflet@npm:0.10.1"
@@ -6187,16 +6197,6 @@ __metadata:
     "@types/leaflet":
       optional: true
   checksum: 10c0/0e44e340821f4007beef9132378f756b95daeb6d2d5434b9f20559fcc4a21424586e9200e21ae46ca3b5fbde4c1b6cf282145245a72b225ee464d11db8ac4cf4
-  languageName: node
-  linkType: hard
-
-"@uppy/utils@npm:^6.2.2":
-  version: 6.2.2
-  resolution: "@uppy/utils@npm:6.2.2"
-  dependencies:
-    lodash: "npm:^4.17.21"
-    preact: "npm:^10.5.13"
-  checksum: 10c0/a63026d8a8a4cecbd7d2c89cb0ba0c5b8d6bf852d81792a003a90de06017b2e63e26aa3fef2993d3745dd6f06bb5d973e284bb9f7c02e15921c57a6be6fe5550
   languageName: node
   linkType: hard
 
@@ -14691,17 +14691,6 @@ __metadata:
     picocolors: "npm:^1.1.1"
     source-map-js: "npm:^1.2.1"
   checksum: 10c0/b75510d7b28c3ab728c8733dd01538314a18c52af426f199a3c9177e63eb08602a3938bfb66b62dc01350b9aed62087eabbf229af97a1659eb8d3513cec823b3
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.4.41, postcss@npm:^8.5.6":
-  version: 8.5.6
-  resolution: "postcss@npm:8.5.6"
-  dependencies:
-    nanoid: "npm:^3.3.11"
-    picocolors: "npm:^1.1.1"
-    source-map-js: "npm:^1.2.1"
-  checksum: 10c0/5127cc7c91ed7a133a1b7318012d8bfa112da9ef092dddf369ae699a1f10ebbd89b1b9f25f3228795b84585c72aabd5ced5fc11f2ba467eedf7b081a66fad024
   languageName: node
   linkType: hard
 
