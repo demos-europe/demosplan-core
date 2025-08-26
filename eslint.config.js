@@ -1,7 +1,7 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
 const js = require('@eslint/js')
-// Commented Out until the issue below is solved: const pluginImportExtensions = require('eslint-plugin-import')
+const pluginImportExtensions = require('eslint-plugin-import')
 
 module.exports = [
   {
@@ -24,7 +24,10 @@ module.exports = [
     ],
   },
   {
-    name: 'app/overrides',
+    name: 'app/import-resolver',
+    plugins: {
+      import: pluginImportExtensions
+    },
     settings: {
       'import/resolver': {
         alias: {
@@ -32,6 +35,10 @@ module.exports = [
             ['@DpJs', './client/js']
           ],
           extensions: ['.js', '.ts', '.vue', '.json']
+        },
+        node: {
+          extensions: ['.js', '.ts', '.vue', '.json'],
+          paths: ['./client/js', './node_modules']
         }
       }
     }
@@ -64,20 +71,30 @@ module.exports = [
   },
   ...pluginVue.configs['flat/recommended'],
   ...pluginVueA11y.configs['flat/recommended'],
-  // See below pluginImportExtensions.flatConfigs['recommended'],
+  {
+    name: 'app/import-rules',
+    plugins: {
+      import: pluginImportExtensions
+    },
+    rules: {
+      // Prevent imports of files that don't exist or can't be resolved
+      'import/no-unresolved': 'error',
+      // Ensure named imports actually exist in the target module
+      'import/named': 'error',
+      // Validate default imports from modules that have default exports
+      'import/default': 'error',
+      // Validate namespace imports (import * as name) have valid exports
+      'import/namespace': 'error'
+    }
+  },
   {
     name: 'app/custom/rules',
     rules: {
-      /**
-       * Do not allow file extensions when importing .js and .vue files,
-       * enforce extension on json files.
-       *
-       * Not working by now https://github.com/Kenneth-Sills/eslint-config-airbnb-typescript/issues/15
-       *
-       * 'import/extensions': ['error', 'never', {
-       *   json: 'always', js: 'never', vue: 'never'
-       * }],
-       */
+      // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
+      'import/extensions': ['error', 'never', {
+        json: 'always', js: 'never', vue: 'never'
+      }],
+
       'capitalized-comments': ['error', 'always', {
         'ignoreConsecutiveComments': true,
         'ignoreInlineComments': true
