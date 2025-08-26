@@ -809,10 +809,12 @@ export default {
     }
   },
 
-  mounted () {
-    // Initialize visibleColumns from localStorage
+  created () {
+    // Initialize visibleColumns from localStorage BEFORE component renders
     this.visibleColumns = this.loadColumnSelection()
+  },
 
+  mounted () {
     this.fetchStatements({
       page: { number: 1, size: this.pagination.perPage },
       filter: {
