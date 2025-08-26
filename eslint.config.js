@@ -1,5 +1,6 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
+const pluginJest = require('eslint-plugin-jest')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
 
@@ -71,6 +72,21 @@ module.exports = [
   },
   ...pluginVue.configs['flat/recommended'],
   ...pluginVueA11y.configs['flat/recommended'],
+  {
+    name: 'app/jest-rules',
+    files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
+    plugins: {
+      jest: pluginJest
+    },
+    languageOptions: {
+      globals: {
+        ...require('globals').jest
+      }
+    },
+    rules: {
+      ...pluginJest.configs.recommended.rules
+    }
+  },
   {
     name: 'app/import-rules',
     plugins: {
