@@ -21,7 +21,7 @@
     </div>
 
     <div class="flex">
-      <div class="sticky top-[70px] mt-2 basis-1/4 max-h-11">
+      <div class="sticky top-[70px] mt-2 basis-1/4 max-h-12">
         <ul
           aria-label="Metadaten Menü"
           class="pr-5"
