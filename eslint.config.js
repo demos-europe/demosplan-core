@@ -1,6 +1,7 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
 const pluginJest = require('eslint-plugin-jest')
+const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
 
@@ -72,6 +73,19 @@ module.exports = [
   },
   ...pluginVue.configs['flat/recommended'],
   ...pluginVueA11y.configs['flat/recommended'],
+  {
+    name: 'app/jquery-rules',
+    plugins: {
+      jquery: pluginJquery
+    },
+    rules: {
+      // Warn about deprecated jQuery methods to encourage modernization
+      ...Object.fromEntries(
+        Object.entries(pluginJquery.configs.deprecated.rules)
+          .map(([rule, config]) => [rule, 'warn'])
+      )
+    }
+  },
   {
     name: 'app/jest-rules',
     files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
