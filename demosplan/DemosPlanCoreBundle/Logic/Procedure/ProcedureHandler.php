@@ -97,7 +97,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
@@ -875,8 +875,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
                 $data = [
-                    'id' => $endedInternalProcedure->getId(),
-                    'phase' => $internalPhaseKey,
+                    'id'       => $endedInternalProcedure->getId(),
+                    'phase'    => $internalPhaseKey,
                     'customer' => $endedInternalProcedure->getCustomer(),
                 ];
                 $updatedProcedure = $this->procedureService->updateProcedure($data);
@@ -901,9 +901,9 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
                 $data = [
-                    'id' => $endedExternalProcedure->getId(),
+                    'id'                       => $endedExternalProcedure->getId(),
                     'publicParticipationPhase' => $internalPhaseKey,
-                    'customer' => $endedExternalProcedure->getCustomer(),
+                    'customer'                 => $endedExternalProcedure->getCustomer(),
                 ];
                 $updatedProcedure = $this->procedureService->updateProcedure($data);
                 $changedExternalProcedures->push($updatedProcedure);
