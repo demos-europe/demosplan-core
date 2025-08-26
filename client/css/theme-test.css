@@ -444,5 +444,65 @@ a[aria-current="page"]::after {
     display:none;
 }
 
+/* CvMultiselectModal - Match Figma design exactly */
+.cv-multiselect-modal .bx--modal-container {
+    width: 671px !important;
+    max-width: 671px !important;
+}
+
+.cv-multiselect-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 0;
+}
+
+.cv-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cv-field-label {
+    margin-bottom: 8px;
+}
+
+/* CvMultiselectModal - Carbon Dropdown Styling nach Figma Design */
+.cv-multiselect-modal .bx--dropdown {
+    background-color: #FFFFFF !important;
+    border: none !important;
+    border-bottom: 1px solid #8d8d8d !important;
+    border-radius: 0 !important;
+}
+
+.cv-multiselect-modal .bx--dropdown .bx--list-box__field {
+    padding: 11px 16px !important;
+    background-color: #FFFFFF !important;
+}
+
+/* Dropdown Caret - ChevronDown16 Icon */
+.cv-multiselect-modal .bx--dropdown .bx--list-box__menu-icon svg {
+    fill: #161616 !important;
+}
+
+/* Dropdown Menü (ausgeklappt) */
+.cv-multiselect-modal .bx--dropdown .bx--list-box__menu {
+    border: 1px solid #e0e0e0 !important;
+    border-top: none !important;
+    border-radius: 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.cv-multiselect-modal .bx--dropdown .bx--list-box__menu-item {
+    padding: 11px 16px !important;
+    background: #FFFFFF !important;
+    color: #161616 !important;
+}
+
+.cv-multiselect-modal .bx--dropdown .bx--list-box__menu-item:hover {
+    background: #f4f4f4 !important;
+    color: #161616 !important;
+}
+
 
 

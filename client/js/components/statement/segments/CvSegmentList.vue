@@ -55,7 +55,8 @@ All rights reserved
           </cv-button>
           <cv-button
             kind="primary"
-            size="default">
+            size="default"
+            @click="openEditModal">
             Bearbeiten
           </cv-button>
           <cv-button
@@ -192,6 +193,15 @@ All rights reserved
         </div>
       </div>
     </div>
+
+    <!-- Edit Modal -->
+    <cv-multiselect-modal
+      v-model:visible="isEditModalVisible"
+      :initial-selected-assignee="currentAssignee"
+      :initial-selected-place="currentPlace"
+      @save="handleModalSave"
+      @cancel="handleModalCancel"
+    />
   </div>
 </template>
 
@@ -205,9 +215,11 @@ import {
   CvSearch,
   CvTag
 } from '@carbon/vue'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import Export16 from '@carbon/icons-vue/es/export/16'
 import ChevronDown16 from '@carbon/icons-vue/lib/chevron--down/16'
+import CvMultiselectModal from '@DpJs/components/statement/CvMultiselectModal'
 
 export default {
   name: 'CvSegmentList',
@@ -218,6 +230,7 @@ export default {
     CvDataTable,
     CvDataTableRow,
     CvDataTableCell,
+    CvMultiselectModal,
     CvPagination,
     CvSearch,
     CvTag,
@@ -245,6 +258,9 @@ export default {
       headerCheckboxHandler: null,
       expandedRows: [], // Track which rows are expanded
       lastPaginationEventTime: 0, // Debouncing for pagination events
+      isEditModalVisible: false,
+      currentAssignee: {},
+      currentPlace: { id: '', type: 'Place' },
       visibleColumns: ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand'],
       columns: [
         { key: 'externId', label: 'ID' },
@@ -295,6 +311,10 @@ export default {
 
     ...mapState('Boilerplate', {
       boilerplatesObject: 'items'
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUserItems: 'items'
     }),
 
     segments () {
@@ -376,11 +396,20 @@ export default {
 
   methods: {
     ...mapActions('StatementSegment', {
-      fetchSegments: 'list'
+      fetchSegments: 'list',
+      saveSegmentAction: 'save'
     }),
 
     ...mapActions('Place', {
       fetchPlaces: 'list'
+    }),
+
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list'
+    }),
+
+    ...mapMutations('StatementSegment', {
+      setSegment: 'setItem'
     }),
 
     mapApiStatusToDisplay (apiStatus) {
@@ -518,11 +547,9 @@ export default {
     },
 
     setupCheckboxListeners () {
-      console.log('setupCheckboxListeners called')
       // Wait for DOM to be fully rendered with segments
       this.$nextTick(() => {
-        console.log('DOM is ready, looking for checkboxes')
-        // Header checkbox for "Select All" - Debug multiple selectors
+        // Header checkbox for "Select All"
         const headerSelectors = [
           '#cv-segment-table .bx--table-head .bx--table-column-checkbox input',
           '#cv-segment-table thead .bx--table-column-checkbox input',
@@ -534,7 +561,6 @@ export default {
         for (const selector of headerSelectors) {
           headerCheckbox = document.querySelector(selector)
           if (headerCheckbox) {
-            console.log('Found header checkbox with selector:', selector)
             break
           }
         }
@@ -643,10 +669,155 @@ export default {
       }
     },
 
+    openEditModal() {
+      if (this.selectedRows.length === 0) {
+        // Show notification that no segments are selected
+        if (window.dplan && window.dplan.notify) {
+          window.dplan.notify.notify('error', 'Bitte wählen Sie mindestens ein Segment zum Bearbeiten aus.')
+        }
+        return
+      }
+      
+      // Reset modal state
+      this.currentAssignee = {}
+      this.currentPlace = { id: '', type: 'Place' }
+      this.isEditModalVisible = true
+    },
+
+    handleModalSave(formData) {
+      // Close modal first
+      this.isEditModalVisible = false
+      
+      // Update each selected segment - based on StatementSegment.vue logic
+      const savePromises = this.selectedRows.map(segmentId => {
+        return this.updateSingleSegment(segmentId, formData)
+      })
+      
+      // Execute all saves
+      Promise.all(savePromises)
+        .then(() => {
+          // Success notification
+          if (window.dplan && window.dplan.notify) {
+            window.dplan.notify.notify('confirm', `${this.selectedRows.length} Segment(e) wurden erfolgreich aktualisiert.`)
+          }
+          
+          // Clear selection
+          this.selectedRows = []
+          this.updateBatchActionsVisibility()
+          this.updateHeaderCheckboxState()
+          
+          // Refresh data to show changes
+          this.fetchSegmentData(this.pagination.currentPage)
+        })
+        .catch((error) => {
+          console.error('Error saving segments:', error)
+          if (window.dplan && window.dplan.notify) {
+            window.dplan.notify.notify('error', 'Fehler beim Speichern der Segmente.')
+          }
+        })
+    },
+
+    updateSingleSegment(segmentId, formData) {
+      const segment = this.segmentsObject[segmentId]
+      if (!segment) {
+        console.error('Segment not found:', segmentId)
+        return Promise.reject(new Error(`Segment ${segmentId} not found`))
+      }
+
+      // Log old assignee
+      const oldAssigneeId = segment.relationships?.assignee?.data?.id
+      const oldAssigneeUser = oldAssigneeId ? this.assignableUserItems[oldAssigneeId] : null
+      const oldAssigneeName = oldAssigneeUser ? 
+        oldAssigneeUser.attributes.firstname + ' ' + oldAssigneeUser.attributes.lastname : 
+        'Nicht zugewiesen'
+      
+      // Log new assignee
+      const newAssigneeName = formData.selectedAssignee?.name || 'Nicht zugewiesen'
+      
+      // Log old processing step
+      const oldPlaceId = segment.relationships?.place?.data?.id
+      const oldPlace = oldPlaceId ? this.placesObject[oldPlaceId] : null
+      const oldPlaceName = oldPlace?.attributes?.name || 'Nicht zugewiesen'
+      
+      // Log new processing step
+      const newPlaceName = formData.selectedPlace?.name || 'Nicht zugewiesen'
+      
+      console.log(`Segment ${segmentId}: Bearbeiter Änderung von "${oldAssigneeName}" zu "${newAssigneeName}"`)
+      console.log(`Segment ${segmentId}: Bearbeitungsschritt Änderung von "${oldPlaceName}" zu "${newPlaceName}"`)
+
+      // Build relationships like in original StatementSegment.vue
+      let assignee = { assignee: { data: null } }
+      
+      if (formData.selectedAssignee && formData.selectedAssignee.id !== 'noAssigneeId') {
+        assignee = {
+          assignee: {
+            data: {
+              id: formData.selectedAssignee.id,
+              type: 'AssignableUser'
+            }
+          }
+        }
+      }
+
+      const place = {
+        place: {
+          data: {
+            id: formData.selectedPlace.id,
+            type: 'Place'
+          }
+        }
+      }
+
+      // Build payload like in original StatementSegment.vue:899-920
+      const payload = {
+        data: {
+          id: segment.id,
+          type: 'StatementSegment',
+          relationships: {
+            ...assignee,
+            ...place
+          }
+        }
+      }
+
+      // Update segment in store first (optimistic update)
+      const updatedSegment = {
+        id: segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...segment.attributes
+        },
+        relationships: {
+          ...segment.relationships,
+          ...assignee,
+          ...place
+        }
+      }
+
+      this.setSegment({
+        ...updatedSegment,
+        id: segment.id
+      })
+
+      // Use Vuex action like in original StatementSegment.vue to handle CSRF token
+      return this.saveSegmentAction({ id: segment.id })
+        .catch((err) => {
+          console.error('Error updating segment:', err)
+          // Restore original segment on error
+          this.setSegment({ ...segment, id: segment.id })
+          throw err
+        })
+    },
+
+    handleModalCancel() {
+      this.isEditModalVisible = false
+    },
+
     fetchSegmentData (page = 1) {
       const payload = {
         include: [
           'place',
+          'assignee',
           'tags',
           'tags.boilerplate',
           'parentStatement'
@@ -677,6 +848,7 @@ export default {
             'text',
             'parentStatement',
             'place',
+            'assignee',
             'tags'
           ].join(),
           Tag: [
@@ -724,6 +896,10 @@ export default {
   mounted () {
     // Load initial data
     this.fetchPlaces() // Load places for processingStep
+    this.fetchAssignableUsers({ // Load assignable users for logging
+      include: 'department',
+      sort: 'lastname'
+    })
     this.fetchSegmentData() // Load segments with all related data
 
     // Setup checkbox listeners after initial data load
