@@ -11,6 +11,20 @@ module.exports = [
     files: ['**/*.{js,ts,vue}'],
   },
   {
+    name: 'app/global-variables',
+    languageOptions: {
+      globals: {
+        Translator: 'readonly',
+        Routing: 'readonly',
+        hasPermission: 'readonly',
+        dpconfirm: 'readonly',
+        dplan: 'readonly',
+        $: 'readonly',
+        jQuery: 'readonly'
+      }
+    }
+  },
+  {
     name: 'app/files-to-ignore',
     ignores: [
       '**/.cache/**/*',
@@ -53,20 +67,12 @@ module.exports = [
         ...require('globals').node,
         ...require('globals').browser,
         ...require('globals').jest,
-        $: 'readonly',
-        jQuery: 'readonly',
         // Webpack DefinePlugin globals
         URL_PATH_PREFIX: 'readonly',
         PROJECT: 'readonly',
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'readonly',
         __VUE_OPTIONS_API__: 'readonly',
         __VUE_PROD_DEVTOOLS__: 'readonly',
-        // DemosPlan specific globals
-        Translator: 'readonly',
-        Routing: 'readonly',
-        hasPermission: 'readonly',
-        dpconfirm: 'readonly',
-        dplan: 'readonly',
       },
     },
     ...js.configs.recommended,
@@ -79,7 +85,7 @@ module.exports = [
       jquery: pluginJquery
     },
     rules: {
-      // Warn about deprecated jQuery methods to encourage modernization
+      // Warn about deprecated jQuery methods
       ...Object.fromEntries(
         Object.entries(pluginJquery.configs.deprecated.rules)
           .map(([rule, config]) => [rule, 'warn'])
