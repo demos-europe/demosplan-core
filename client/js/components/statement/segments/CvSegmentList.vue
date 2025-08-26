@@ -498,24 +498,17 @@ export default {
     },
 
     toggleColumn (columnKey) {
-      console.log('toggleColumn called with:', columnKey)
       if (this.visibleColumns.includes(columnKey)) {
         this.visibleColumns = this.visibleColumns.filter(key => key !== columnKey)
       } else {
         this.visibleColumns.push(columnKey)
       }
-      console.log('visibleColumns after toggle:', this.visibleColumns)
       this.saveColumnSelection()
     },
 
     saveColumnSelection () {
-      console.log('saveColumnSelection called')
-      console.log('useLocalStorage:', this.useLocalStorage)
-      console.log('localStorageKey:', this.localStorageKey)
-      console.log('visibleColumns to save:', this.visibleColumns)
       if (this.useLocalStorage) {
         localStorage.setItem(this.localStorageKey, JSON.stringify(this.visibleColumns))
-        console.log('Saved to localStorage')
       }
     },
 
