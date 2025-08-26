@@ -598,64 +598,66 @@ export default {
     },
 
     setupCheckboxListeners () {
-      // Wait for DOM to be fully rendered with segments
       this.$nextTick(() => {
-        // Header checkbox for "Select All"
-        const headerSelectors = [
-          '#cv-segment-table .bx--table-head .bx--table-column-checkbox input',
-          '#cv-segment-table thead .bx--table-column-checkbox input',
-          '#cv-segment-table .bx--data-table-header .bx--table-column-checkbox input',
-          '#cv-segment-table th .bx--table-column-checkbox input'
-        ]
-
-        let headerCheckbox = null
-        for (const selector of headerSelectors) {
-          headerCheckbox = document.querySelector(selector)
-          if (headerCheckbox) {
-            break
-          }
-        }
-
-        if (headerCheckbox) {
-          // Remove existing listeners to prevent conflicts
-          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
-
-          this.headerCheckboxHandler = (event) => {
-            if (event.target.checked) {
-              // "Select All" - only select visible items on current page
-              this.handleSelectCurrentPageOnly(true)
-            } else {
-              // "Deselect All" 
-              this.handleSelectCurrentPageOnly(false)
-            }
-            // selectedRows will be updated by the watch automatically
-            this.updateBatchActionsVisibility()
-            this.updateRowCheckboxes()
-          }
-
-          headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
-        }
-
-        // Individual row checkboxes - exclude header checkbox
-        const checkboxes = document.querySelectorAll('#cv-segment-table tbody .bx--table-column-checkbox input[type="checkbox"]')
-
-        checkboxes.forEach((checkbox) => {
-
-          checkbox.addEventListener('change', (event) => {
-            const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
-            const segment = this.segments.find(s => String(s.id) === rowValue)
-
-            if (segment) {
-              // Use mixin for multi-page selection logic
-              this.handleToggleItem([segment], event.target.checked)
-            }
-
-            // selectedRows will be updated by the watch automatically
-            this.updateBatchActionsVisibility()
-            this.updateHeaderCheckboxState()
-          })
-        })
+        this.setupHeaderCheckbox()
+        this.setupRowCheckboxes()
       })
+    },
+
+    setupHeaderCheckbox () {
+      const headerCheckbox = this.findHeaderCheckbox()
+      if (!headerCheckbox) return
+
+      // Remove existing listeners to prevent conflicts
+      headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+      
+      this.headerCheckboxHandler = this.createHeaderCheckboxHandler()
+      headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
+    },
+
+    findHeaderCheckbox () {
+      const headerSelectors = [
+        '#cv-segment-table .bx--table-head .bx--table-column-checkbox input',
+        '#cv-segment-table thead .bx--table-column-checkbox input',
+        '#cv-segment-table .bx--data-table-header .bx--table-column-checkbox input',
+        '#cv-segment-table th .bx--table-column-checkbox input'
+      ]
+
+      for (const selector of headerSelectors) {
+        const checkbox = document.querySelector(selector)
+        if (checkbox) return checkbox
+      }
+      return null
+    },
+
+    createHeaderCheckboxHandler () {
+      return (event) => {
+        const selectAll = event.target.checked
+        this.handleSelectCurrentPageOnly(selectAll)
+        this.updateBatchActionsVisibility()
+        this.updateRowCheckboxes()
+      }
+    },
+
+    setupRowCheckboxes () {
+      const checkboxes = document.querySelectorAll('#cv-segment-table tbody .bx--table-column-checkbox input[type="checkbox"]')
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', this.createRowCheckboxHandler())
+      })
+    },
+
+    createRowCheckboxHandler () {
+      return (event) => {
+        const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
+        const segment = this.segments.find(s => String(s.id) === rowValue)
+
+        if (segment) {
+          this.handleToggleItem([segment], event.target.checked)
+        }
+
+        this.updateBatchActionsVisibility()
+        this.updateHeaderCheckboxState()
+      }
     },
 
     updateBatchActionsVisibility () {
@@ -748,87 +750,104 @@ export default {
     },
 
     async handleModalSave(formData) {
-      // Close modal first
       this.isEditModalVisible = false
 
-      // Get all selected segment IDs using mixin logic
-      let selectedSegmentIds
-      if (this.trackDeselected) {
-        // All items except deselected ones
-        const allIds = Object.keys(this.segmentsObject)
-        selectedSegmentIds = allIds.filter(id => !this.toggledItems.some(item => String(item.id) === id))
-      } else {
-        // Only explicitly selected items
-        selectedSegmentIds = this.toggledItems.map(item => String(item.id))
-      }
-
+      const selectedSegmentIds = this.getSelectedSegmentIds()
       if (selectedSegmentIds.length === 0) {
-        if (window.dplan && window.dplan.notify) {
-          window.dplan.notify.notify('warning', 'Keine Segmente ausgewählt.')
-        }
+        this.showWarning('Keine Segmente ausgewählt.')
         return
       }
 
-      // Build RPC parameters for bulk edit - ALL required fields according to schema
-      const bulkEditParams = {
-        // Required fields
-        addTagIds: [], // Empty array - we're not adding tags in this modal
-        removeTagIds: [], // Empty array - we're not removing tags in this modal
+      const bulkEditParams = this.buildBulkEditParams(selectedSegmentIds, formData)
+
+      try {
+        await this.executeBulkEdit(bulkEditParams)
+        await this.handleBulkEditSuccess(selectedSegmentIds)
+      } catch (error) {
+        this.handleBulkEditError(error)
+      }
+    },
+
+    getSelectedSegmentIds() {
+      if (this.trackDeselected) {
+        const allIds = Object.keys(this.segmentsObject)
+        return allIds.filter(id => !this.toggledItems.some(item => String(item.id) === id))
+      } else {
+        return this.toggledItems.map(item => String(item.id))
+      }
+    },
+
+    buildBulkEditParams(selectedSegmentIds, formData) {
+      const params = {
+        addTagIds: [],
+        removeTagIds: [],
         segmentIds: selectedSegmentIds,
         recommendationTextEdit: {
-          text: '', // Empty text - we're not editing recommendations in this modal
-          attach: true // Default value
+          text: '',
+          attach: true
         }
       }
 
       // Add assignee if changed
       if (formData.selectedAssignee && formData.selectedAssignee.id !== 'noAssigneeId') {
-        bulkEditParams.assigneeId = formData.selectedAssignee.id
+        params.assigneeId = formData.selectedAssignee.id
       } else if (formData.selectedAssignee && formData.selectedAssignee.id === 'noAssigneeId') {
-        bulkEditParams.assigneeId = null
+        params.assigneeId = null
       }
 
       // Add workflow place if changed
       if (formData.selectedPlace && formData.selectedPlace.id) {
-        bulkEditParams.placeId = formData.selectedPlace.id
+        params.placeId = formData.selectedPlace.id
       }
 
-      try {
-        const response = await dpRpc('segment.bulk.edit', bulkEditParams)
-        
-        // Check if the RPC call was actually successful
-        const rpcResult = response.data && response.data[0] && response.data[0].result
-        if (rpcResult !== 'ok') {
-          throw new Error(`RPC call failed with result: ${rpcResult}`)
-        }
+      return params
+    },
 
-        // Clear selection using mixin method
-        this.resetSelection()
+    async executeBulkEdit(bulkEditParams) {
+      const response = await dpRpc('segment.bulk.edit', bulkEditParams)
+      const rpcResult = response.data && response.data[0] && response.data[0].result
+      if (rpcResult !== 'ok') {
+        throw new Error(`RPC call failed with result: ${rpcResult}`)
+      }
+      return response
+    },
 
-        // Clear localStorage like in SegmentsList to ensure reactive updates
-        lscache.remove(`${this.procedureId}:toggledSegments`)
-        lscache.remove(`${this.procedureId}:allSegments`)
+    async handleBulkEditSuccess(selectedSegmentIds) {
+      this.resetSelection()
+      lscache.remove(`${this.procedureId}:toggledSegments`)
+      lscache.remove(`${this.procedureId}:allSegments`)
 
-        // Success notification
-        if (window.dplan && window.dplan.notify) {
-          window.dplan.notify.notify('confirm', `${selectedSegmentIds.length} Segment(e) wurden erfolgreich aktualisiert.`)
-        }
+      this.showSuccess(`${selectedSegmentIds.length} Segment(e) wurden erfolgreich aktualisiert.`)
 
-        // Refresh data to show changes
-        await this.fetchSegmentData(this.pagination.currentPage)
-        this.$forceUpdate()
-        
-        // Also refresh related stores that might have stale data
-        this.fetchPlaces()
-        this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      } catch (error) {
-        console.error('Error saving segments via RPC:', error)
-        if (window.dplan && window.dplan.notify) {
-          const errorMessage = error.message === 'RPC call failed with result: undefined' 
-            ? 'RPC-Aufruf fehlgeschlagen. Bitte versuchen Sie es erneut.'
-            : 'Fehler beim Speichern der Segmente.'
-          window.dplan.notify.notify('error', errorMessage)
-        }
+      await this.fetchSegmentData(this.pagination.currentPage)
+      this.$forceUpdate()
+      this.fetchPlaces()
+      this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
+    },
+
+    handleBulkEditError(error) {
+      console.error('Error saving segments via RPC:', error)
+      const errorMessage = error.message === 'RPC call failed with result: undefined' 
+        ? 'RPC-Aufruf fehlgeschlagen. Bitte versuchen Sie es erneut.'
+        : 'Fehler beim Speichern der Segmente.'
+      this.showError(errorMessage)
+    },
+
+    showWarning(message) {
+      if (window.dplan && window.dplan.notify) {
+        window.dplan.notify.notify('warning', message)
+      }
+    },
+
+    showSuccess(message) {
+      if (window.dplan && window.dplan.notify) {
+        window.dplan.notify.notify('confirm', message)
+      }
+    },
+
+    showError(message) {
+      if (window.dplan && window.dplan.notify) {
+        window.dplan.notify.notify('error', message)
       }
     },
 
