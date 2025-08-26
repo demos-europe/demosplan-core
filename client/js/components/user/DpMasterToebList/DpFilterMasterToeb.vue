@@ -56,17 +56,17 @@ export default {
   props: {
     items: {
       type: Array,
-      required: true
+      required: true,
     },
 
     fields: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'items-filtered'
+    'items-filtered',
   ],
 
   data () {
@@ -74,7 +74,7 @@ export default {
       selectedDocument: 'all',
       selectedDistrict: 'all',
       districtFilters: this.getFieldsByPattern(this.fields, /^district/),
-      documentFilters: this.getFieldsByPattern(this.fields, /^document/)
+      documentFilters: this.getFieldsByPattern(this.fields, /^document/),
     }
   },
 
@@ -104,7 +104,7 @@ export default {
         }
         return acc
       }, [])
-    }
-  }
+    },
+  },
 }
 </script>

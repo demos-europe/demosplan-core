@@ -54,7 +54,7 @@ function configureBundleAnalysis (options, project, webpackConfig) {
     defaultSizes: 'gzip',
     openAnalyzer: true,
     reportFilename,
-    logLevel: 'silent'
+    logLevel: 'silent',
   })
 
   webpackConfig[0].plugins.unshift(bundleAnalyzer)
@@ -66,7 +66,7 @@ function configureProgressBar (options, webpackRunner) {
       format: `{message}[${chalk.green('{bar}')}] ${chalk.bold('{percentage}%')}`,
       hideCursor: true,
       barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591'
+      barIncompleteChar: '\u2591',
     })
 
     createProgressPlugin(options, progressBar, webpackRunner)
@@ -79,7 +79,7 @@ function configureProgressBar (options, webpackRunner) {
           progressBar.stop()
           process.exit(0)
         })
-      }
+      },
     )
   }
 }
@@ -88,13 +88,13 @@ function createProgressPlugin (options, progressBar, webpackRunner) {
   new ProgressPlugin((percentage, msg) => {
     if (progressBar.startTime === null) {
       progressBar.start(1, 0, {
-        message: ''
+        message: '',
       })
     }
 
     progressBar.update(percentage, {
       // Minor hack to remove the build step number from the webpack message
-      message: (msg !== '[0] ') ? msg.substr(4) + ' ' : ''
+      message: (msg !== '[0] ') ? msg.substr(4) + ' ' : '',
     })
 
     if (percentage === 1.0 && options.mode !== 'watch') {
@@ -191,7 +191,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
   if (mode === 'watch') {
     log(chalk.green(`Begin ${chalk.bold('watching')} frontend assets for ${project} in ${chalk.bold(webpackConfig[0].mode)} mode`))
     webpackRunner.watch({
-      aggregateTimeout: 1000
+      aggregateTimeout: 1000,
     }, userFeedbackCallback)
   }
 }
@@ -199,7 +199,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
 function showWebpackStatisticsMessage (options, stats) {
   if (options.stats) {
     const webpackStatisticsOptions = {
-      chunks: false
+      chunks: false,
     }
 
     if (options.json && options.json.length > 0) {
@@ -209,7 +209,7 @@ function showWebpackStatisticsMessage (options, stats) {
     } else {
       log(stats.toString({
         colors: true,
-        ...webpackStatisticsOptions
+        ...webpackStatisticsOptions,
       }))
     }
   }

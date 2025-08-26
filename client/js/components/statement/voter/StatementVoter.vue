@@ -237,7 +237,7 @@ export default {
   components: {
     DpEditableList,
     DpInput,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [dpValidateMixin],
@@ -246,43 +246,43 @@ export default {
     anonymVotesString: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     dataAttr: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initVoters: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isManual: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     publicAllowed: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     readonly: {
       required: false,
       type: String,
-      default: '1'
-    }
+      default: '1',
+    },
   },
 
   emits: [
     'updateAnonymVotes',
-    'updateVoter'
+    'updateVoter',
   ],
 
   data () {
@@ -297,7 +297,7 @@ export default {
         userCity: '',
         id: '',
         active: true,
-        manual: true
+        manual: true,
       },
       updating: false,
       anonymVotes: 0,
@@ -308,8 +308,8 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: Translator.trans('none'),
-        delete: Translator.trans('statement.voter.delete')
-      }
+        delete: Translator.trans('statement.voter.delete'),
+      },
     }
   },
 
@@ -329,7 +329,7 @@ export default {
     votersLength: {
       get () {
         return (this.anonymVotes + Object.keys(this.getVoters).length)
-      }
+      },
     },
 
     editable () {
@@ -338,7 +338,7 @@ export default {
 
     isInstitutionParticipation () {
       return hasPermission('feature_institution_participation') && this.formFields.role === 1
-    }
+    },
   },
 
   methods: {
@@ -346,7 +346,7 @@ export default {
       'addNewVoter',
       'removeVoter',
       'setVoters',
-      'updateVoter'
+      'updateVoter',
     ]),
 
     addElement (index) {
@@ -379,7 +379,7 @@ export default {
         'userName',
         'userMail',
         'userPostcode',
-        'userCity'
+        'userCity',
       ]
 
       for (let i = 0; i < fieldsToCheck.length; i++) {
@@ -411,7 +411,7 @@ export default {
         userCity: '',
         id: '',
         manual: true,
-        active: true
+        active: true,
       }
 
       this.updating = false
@@ -423,7 +423,7 @@ export default {
       }
 
       this.updating = true
-    }
+    },
   },
 
   mounted () {
@@ -461,7 +461,7 @@ export default {
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').removeEventListener('keydown', preventSend, false)
     }
-  }
+  },
 }
 
 const preventSend = function (e) {

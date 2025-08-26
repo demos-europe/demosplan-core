@@ -763,7 +763,7 @@ import {
   isActiveFullScreen,
   makeFormPost,
   prefixClassMixin,
-  toggleFullscreen
+  toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
@@ -789,7 +789,7 @@ const fieldDescriptionsForErrors = {
   submitterTypeFieldset: 'submitter',
   r_houseNumber: 'street.number.short',
   r_street: 'street',
-  r_userOrganisation: 'institution.name'
+  r_userOrganisation: 'institution.name',
 }
 
 export default {
@@ -823,11 +823,11 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
     FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
     FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
-    StatementModalRecheck
+    StatementModalRecheck,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
@@ -836,137 +836,137 @@ export default {
     allowAnonymousStatements: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentPage: {
       type: String,
       required: false,
-      default: 'publicDetail'
+      default: 'publicDetail',
     },
 
     extId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     extraPersonalHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     feedbackFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initHasPlanningDocuments: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     orgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     personalDataFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     planningDocumentsHasNegativeStatement: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initRedirectPath: {
       type: String,
       required: false,
-      default: 'DemosPlan_procedure_public_detail'
+      default: 'DemosPlan_procedure_public_detail',
     },
 
     statementFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     statementFormHintPersonalData: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintStatement: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'toggle-tabs',
-    'uploader-reset'
+    'uploader-reset',
   ],
 
   data () {
@@ -987,8 +987,8 @@ export default {
         countyReference: { component: 'FormGroupCountyReference' },
         stateAndGroupAndOrgaNameAndPosition: {
           component: 'FormGroupStateAndGroupAndOrgaNameAndPosition',
-          width: 'u-1-of-1'
-        }
+          width: 'u-1-of-1',
+        },
       },
       continueWriting: false,
       draftStatementId: '',
@@ -1010,7 +1010,7 @@ export default {
       showHeader: true,
       step: 0,
       unsavedFiles: [],
-      updateDraftListRequired: false
+      updateDraftListRequired: false,
     }
   },
 
@@ -1024,7 +1024,7 @@ export default {
       highlighted: 'highlighted',
       localStorageName: 'localStorageName',
       unsavedDrafts: 'unsavedDrafts',
-      userId: 'userId'
+      userId: 'userId',
     }),
 
     canNotBeNegativeReport () {
@@ -1060,7 +1060,7 @@ export default {
               name: fileArray[0],
               hash: fileArray[1],
               size: fileArray[2],
-              type: fileArray[3]
+              type: fileArray[3],
             }
           })
       }
@@ -1094,17 +1094,17 @@ export default {
       return [{
         label: Translator.trans('statement.yours'),
         icon: this.commentingIcon,
-        title: Translator.trans('statement.modal.step.write')
+        title: Translator.trans('statement.modal.step.write'),
       }, {
         label: Translator.trans('personal.data'),
         icon: 'fa-user',
-        title: Translator.trans('statement.modal.step.personal.data')
+        title: Translator.trans('statement.modal.step.personal.data'),
       }, {
         label: Translator.trans('recheck'),
         icon: 'fa-check',
-        title: Translator.trans('statement.modal.step.recheck')
+        title: Translator.trans('statement.modal.step.recheck'),
       }]
-    }
+    },
   },
 
   watch: {
@@ -1113,8 +1113,8 @@ export default {
         const parsed = JSON.stringify(newFormData)
         this.continueWriting = this.initFormDataJSON !== parsed
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -1130,7 +1130,7 @@ export default {
       'update',
       'updateHighlighted',
       'updateDeleteFile',
-      'updateStatement'
+      'updateStatement',
     ]),
 
     // On every successful upload of a file, both `this.unsavedFiles` and `this.statement` are updated.
@@ -1172,7 +1172,7 @@ export default {
       // Else: get the data via api
       return dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
+        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId }),
       })
         .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
@@ -1221,7 +1221,7 @@ export default {
         r_makePublic: 0,
         r_useName_0: 1,
         r_useName_1: 1,
-        r_getFeedback: 1
+        r_getFeedback: 1,
       }[input] || 0
       this.$nextTick(() => {
         // Focusing of the tiptap instance must be handled separately
@@ -1380,7 +1380,7 @@ export default {
         r_document_id: '',
         r_document_title: '',
         r_paragraph_id: '',
-        r_paragraph_title: ''
+        r_paragraph_title: '',
       }
 
       this.setStatementData(elementFields)
@@ -1399,7 +1399,7 @@ export default {
       this.setStatementData({
         uploadedFiles: this.unsavedFiles
           .map(el => el.hash)
-          .join(',')
+          .join(','),
       })
     },
 
@@ -1537,7 +1537,7 @@ export default {
         r_location_point: '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
-        r_makePublic: !!data.draftStatement.publicAllowed
+        r_makePublic: !!data.draftStatement.publicAllowed,
       }
 
       if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
@@ -1650,7 +1650,7 @@ export default {
 
     validateRecheckStep () {
       return this.dpValidate.recheckForm
-    }
+    },
   },
 
   mounted () {
@@ -1690,6 +1690,6 @@ export default {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }
     }
-  }
+  },
 }
 </script>

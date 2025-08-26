@@ -15,13 +15,13 @@ const LocationStore = {
   name: 'Location',
 
   state: {
-    locations: []
+    locations: [],
   },
 
   mutations: {
     set (state, data) {
       state.locations = data
-    }
+    },
   },
 
   actions: {
@@ -30,8 +30,8 @@ const LocationStore = {
         method: 'GET',
         url: Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
           query: args.query,
-          maxResults: 12
-        })
+          maxResults: 12,
+        }),
       })
         .then(response => {
           const locations = []
@@ -43,8 +43,8 @@ const LocationStore = {
           }
           commit('set', locations)
         })
-    }
-  }
+    },
+  },
 }
 
 export default LocationStore

@@ -152,12 +152,12 @@ export default {
   components: {
     DpInput,
     DpMultiselect,
-    DpSelect
+    DpSelect,
   },
 
   inject: [
     'presetUserOrgaId',
-    'projectName'
+    'projectName',
   ],
 
   props: {
@@ -169,36 +169,36 @@ export default {
           attributes: {
             firstname: '',
             lastname: '',
-            email: ''
+            email: '',
           },
           relationships: {
             roles: {
-              data: []
+              data: [],
             },
             orga: {
               data: {
-                id: ''
-              }
+                id: '',
+              },
             },
             department: {
               data: {
-                id: ''
-              }
-            }
-          }
+                id: '',
+              },
+            },
+          },
         }
-      }
+      },
     },
 
     userId: {
       type: String,
       required: false,
-      default: () => ''
-    }
+      default: () => '',
+    },
   },
 
   emits: [
-    'user:update'
+    'user:update',
   ],
 
   data () {
@@ -206,36 +206,36 @@ export default {
       currentUserOrga: {
         id: '',
         name: '',
-        departments: {}
+        departments: {},
       },
       isLoading: false,
-      localUser: {}
+      localUser: {},
     }
   },
 
   computed: {
     ...mapGetters('Role', {
-      rolesInRelationshipFormat: 'itemsInRelationshipFormat'
+      rolesInRelationshipFormat: 'itemsInRelationshipFormat',
     }),
 
     ...mapGetters('Orga', {
-      orgasInRelationshipFormat: 'itemsInRelationshipFormat'
+      orgasInRelationshipFormat: 'itemsInRelationshipFormat',
     }),
 
     ...mapState('Orga', {
-      organisations: 'items'
+      organisations: 'items',
     }),
 
     ...mapState('Department', {
-      departments: 'items'
+      departments: 'items',
     }),
 
     ...mapState('Role', {
-      roles: 'items'
+      roles: 'items',
     }),
 
     ...mapGetters('UserFormFields', {
-      initialOrgaSuggestions: 'getOrgaSuggestions'
+      initialOrgaSuggestions: 'getOrgaSuggestions',
     }),
 
     /**
@@ -286,7 +286,7 @@ export default {
 
     noOrgaSelected () {
       return Object.values(this.currentUserOrga.departments).length === 0
-    }
+    },
   },
 
   watch: {
@@ -294,8 +294,8 @@ export default {
       handler () {
         this.localUser = JSON.parse(JSON.stringify(this.user))
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -309,7 +309,7 @@ export default {
     changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
-        type: 'Department'
+        type: 'Department',
       }
 
       this.$emit('user:update', this.localUser)
@@ -333,9 +333,9 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships?.orga?.data?.id
-        ? this.user.relationships.orga.data.id
-        : this.presetUserOrgaId
+      const orgaId = this.user.relationships?.orga?.data?.id ?
+        this.user.relationships.orga.data.id :
+        this.presetUserOrgaId
       if (orgaId !== '') {
         const url = Routing.generate('dplan_api_orga_get', { id: orgaId }) + '?' + qs.stringify({ include: 'departments' })
         return dpApi.get(url)
@@ -381,13 +381,13 @@ export default {
         if (!this.localUser.relationships[type]) {
           if (type === 'roles') {
             this.localUser.relationships.roles = {
-              data: []
+              data: [],
             }
           } else {
             this.localUser.relationships[type] = {
               data: {
-                id: ''
-              }
+                id: '',
+              },
             }
           }
         }
@@ -411,7 +411,7 @@ export default {
         this.currentUserOrga = {
           id: '',
           name: '',
-          departments: {}
+          departments: {},
         }
       }
     },
@@ -477,41 +477,41 @@ export default {
         ...payload,
         id: payload.id,
         attributes: {
-          ...payload.attributes
+          ...payload.attributes,
         },
         // We have to hack it like this, because the types for relationships have to be in camelCase and not in PascalCase
         relationships: {
           allowedRoles: {
-            data: payloadRel.allowedRoles?.data[0].id
-              ? payloadRel.allowedRoles.data.map(el => {
+            data: payloadRel.allowedRoles?.data[0].id ?
+              payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'Role'
+                  type: 'Role',
                 }
-              })
-              : null
+              }) :
+              null,
           },
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'Slug'
-            }
+              type: 'Slug',
+            },
           },
           departments: {
-            data: payloadRel.departments?.data[0].id
-              ? payloadRel.departments.data.map(el => {
+            data: payloadRel.departments?.data[0].id ?
+              payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'Department'
+                  type: 'Department',
                 }
-              })
-              : null
-          }
-        }
+              }) :
+              null,
+          },
+        },
       }
 
       this.setItem(payloadWithNewType)
-    }
+    },
   },
 
   created () {
@@ -527,6 +527,6 @@ export default {
         this.resetData()
       }
     })
-  }
+  },
 }
 </script>

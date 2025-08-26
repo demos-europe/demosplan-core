@@ -252,7 +252,7 @@ export default {
   components: {
     DpFlyout,
     DpInlineNotification,
-    DpTableCard
+    DpTableCard,
   },
 
   directives: { cleanhtml: CleanHtml },
@@ -261,136 +261,136 @@ export default {
     attachments: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
     authorOnly: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     county: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     createdDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     department: {
       type: String,
-      required: true
+      required: true,
     },
     document: {
       type: String,
       required: false,
-      default: () => Translator.trans('none')
+      default: () => Translator.trans('none'),
     },
     elementId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     externId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     id: {
       type: String,
-      required: true
+      required: true,
     },
     isPublished: {
       type: Boolean,
       required: false,
-      default: () => false
+      default: () => false,
     },
     menuItemsGenerator: {
       type: Function,
-      required: true
+      required: true,
     },
     number: {
       type: Number,
       required: false,
-      default: 0
+      default: 0,
     },
     organisation: {
       type: String,
-      required: true
+      required: true,
     },
     paragraph: {
       type: String,
       required: false,
-      default: () => Translator.trans('none')
+      default: () => Translator.trans('none'),
     },
     paragraphId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     phase: {
       type: String,
-      required: true
+      required: true,
     },
     polygon: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
     priorityAreas: {
       type: [String, null, Array],
       required: false,
       validator: (val) => typeof val === 'string' || Array.isArray(val) || val === null,
-      default: null
+      default: null,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     rejectedReason: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     showAuthor: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     showCheckbox: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     submittedDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     text: {
       type: String,
-      required: true
+      required: true,
     },
     user: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'open-map-modal'
+    'open-map-modal',
   ],
 
   data () {
     return {
-      isOpen: true
+      isOpen: true,
     }
   },
 
@@ -404,9 +404,9 @@ export default {
     headerContent () {
       const user = this.showAuthor ? `${this.user} | ` : ''
 
-      return this.submittedDate
-        ? `${user}${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}`
-        : `${Translator.trans('date.created')} ${this.createdDate} ${Translator.trans('clock')}`
+      return this.submittedDate ?
+        `${user}${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}` :
+        `${Translator.trans('date.created')} ${this.createdDate} ${Translator.trans('clock')}`
     },
 
     menuItems () {
@@ -424,7 +424,7 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
-    }
+    },
   },
 
   methods: {
@@ -443,7 +443,7 @@ export default {
         content += `${ln}<br />`
       })
       return DomPurify.sanitize(content)
-    }
-  }
+    },
+  },
 }
 </script>

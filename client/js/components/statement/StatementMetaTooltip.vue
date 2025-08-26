@@ -97,36 +97,36 @@ export default {
   name: 'StatementMetaTooltip',
 
   components: {
-    StatementMetaData
+    StatementMetaData,
   },
 
   props: {
     // Array of objects with id and name
     assignableUsers: {
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     // Array of objects with id and name
     places: {
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     segment: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -135,12 +135,12 @@ export default {
     toggleButton: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'toggle'
+    'toggle',
   ],
 
   computed: {
@@ -153,17 +153,17 @@ export default {
     },
 
     segmentAssignee () {
-      return this.segment?.relationships?.assignee?.data
-        ? this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        : {}
+      return this.segment?.relationships?.assignee?.data ?
+        this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) :
+        {}
     },
 
     // Object with id and name
     segmentPlace () {
-      return Object.keys(this.segment).length && this.segment.relationships.place
-        ? this.places.find(place => place.id === this.segment.relationships.place.data.id)
-        : {}
-    }
-  }
+      return Object.keys(this.segment).length && this.segment.relationships.place ?
+        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
+        {}
+    },
+  },
 }
 </script>

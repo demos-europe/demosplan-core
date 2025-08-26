@@ -37,33 +37,33 @@ export default {
   name: 'AssignedTags',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   props: {
     availableTags: {
       type: Array,
-      required: true
+      required: true,
     },
 
     currentSegment: {
       type: Object,
-      required: true
+      required: true,
     },
 
     initialSegments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     segment: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'remove'
+    'remove',
   ],
 
   methods: {
@@ -113,7 +113,7 @@ export default {
     removeTag (id) {
       const tagToBeDeleted = this.availableTags.find(tag => tag.id === id)
       this.$emit('remove', { id, tagName: tagToBeDeleted.attributes.title })
-    }
-  }
+    },
+  },
 }
 </script>

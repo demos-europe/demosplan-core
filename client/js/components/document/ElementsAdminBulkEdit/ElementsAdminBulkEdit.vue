@@ -85,7 +85,7 @@ import {
   dpRpc,
   DpSelect,
   dpValidateMixin,
-  formatDate
+  formatDate,
 } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
@@ -100,7 +100,7 @@ export default {
     DpCheckbox,
     DpDatetimePicker,
     DpInlineNotification,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -128,12 +128,12 @@ export default {
           state: '',
 
           // Whether or not this action failed or not - used in step 3.
-          success: false
-        }
+          success: false,
+        },
       },
       busy: false,
       step: 1,
-      elements: []
+      elements: [],
     }
   },
 
@@ -141,7 +141,7 @@ export default {
     confirmStateChangeMessage () {
       return Translator.trans('elements.bulk.edit.change.state.confirmation', {
         datetime: formatDate(this.actions.setEnabled.datetime, 'long'),
-        state: Translator.trans(this.currentStateOption.label)
+        state: Translator.trans(this.currentStateOption.label),
       })
     },
 
@@ -155,7 +155,7 @@ export default {
 
     now () {
       return formatDate()
-    }
+    },
   },
 
   methods: {
@@ -168,7 +168,7 @@ export default {
       const params = {
         state: Boolean(parseInt(this.actions.setEnabled.state)),
         datetime: this.actions.setEnabled.datetime,
-        elementIds: this.elements
+        elementIds: this.elements,
       }
 
       dpRpc('planning.document.category.bulk.edit', params)
@@ -193,7 +193,7 @@ export default {
       this.dpValidateAction('autoSwitchForm', () => {
         this.step = 2
       }, false)
-    }
+    },
   },
 
   created () {
@@ -207,13 +207,13 @@ export default {
     this.stateOptions = [
       {
         value: '1',
-        label: Translator.trans('published')
+        label: Translator.trans('published'),
       },
       {
         value: '0',
-        label: Translator.trans('unpublished')
-      }
+        label: Translator.trans('unpublished'),
+      },
     ]
-  }
+  },
 }
 </script>

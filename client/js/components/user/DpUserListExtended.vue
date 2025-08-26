@@ -73,7 +73,7 @@ import {
   debounce,
   dpApi, DpButton,
   DpLoading,
-  dpSelectAllMixin
+  dpSelectAllMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -91,7 +91,7 @@ export default {
       return DpSlidingPagination
     }),
     DpTableCardListHeader,
-    DpUserListExtendedItem
+    DpUserListExtendedItem,
   },
 
   mixins: [dpSelectAllMixin],
@@ -104,22 +104,22 @@ export default {
       headerItems: [
         { label: 'Name', width: 'u-1-of-4' },
         { label: 'Login', width: 'u-1-of-4' },
-        { label: 'E-Mail', width: 'u-1-of-4' }
+        { label: 'E-Mail', width: 'u-1-of-4' },
       ],
       isFiltered: false,
       isLoading: true,
-      organisations: []
+      organisations: [],
     }
   },
 
   computed: {
     ...mapState('Role', {
-      roles: 'items'
+      roles: 'items',
     }),
     ...mapState('AdministratableUser', {
       users: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     deleteSelectedUserLabel () {
@@ -129,19 +129,19 @@ export default {
     selectedItems () {
       // The prop `itemSelections` and the method `dpToggleOne` are from `dpSelectAllMixin`
       return Object.keys(this.users).filter(id => this.itemSelections[id])
-    }
+    },
   },
 
   methods: {
     ...mapActions('Department', {
-      departmentList: 'list'
+      departmentList: 'list',
     }),
     ...mapActions('Role', {
-      roleList: 'list'
+      roleList: 'list',
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteUser: 'delete'
+      deleteUser: 'delete',
     }),
 
     deleteSingelUser (id) {
@@ -177,8 +177,8 @@ export default {
       return dpApi.get(url, {
         include: ['departments', 'masterToeb'].join(),
         fields: {
-          Orga: ['departments', 'masterToeb', 'name'].join()
-        }
+          Orga: ['departments', 'masterToeb', 'name'].join(),
+        },
       })
         .then((response) => {
           this.organisations = response?.data?.data ?? {}
@@ -203,9 +203,9 @@ export default {
       const filter = {
         name: {
           group: {
-            conjunction: 'OR'
-          }
-        }
+            conjunction: 'OR',
+          },
+        },
       }
       this.filterValue.split(' ').forEach((subString, idx) => {
         filter[`firstname_${idx}`] = {
@@ -213,33 +213,33 @@ export default {
             path: 'firstname',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
         filter[`lastname_${idx}`] = {
           condition: {
             path: 'lastname',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
         filter[`login_${idx}`] = {
           condition: {
             path: 'login',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
       })
 
       this.userList({
         page: {
-          number: page ?? 1
+          number: page ?? 1,
         },
         filter: (this.filterValue !== '') ? filter : {},
-        include: ['roles', 'orga', 'department'].join()
+        include: ['roles', 'orga', 'department'].join(),
       })
         .then(() => {
           this.isLoading = false
@@ -272,11 +272,11 @@ export default {
      */
     setExpandedCardId (id) {
       this.expandedCardId = this.expandedCardId === id ? '' : id
-    }
+    },
   },
 
   mounted () {
     this.fetchResources()
-  }
+  },
 }
 </script>

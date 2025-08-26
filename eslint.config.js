@@ -20,9 +20,9 @@ module.exports = [
         dpconfirm: 'readonly',
         dplan: 'readonly',
         $: 'readonly',
-        jQuery: 'readonly'
-      }
-    }
+        jQuery: 'readonly',
+      },
+    },
   },
   {
     name: 'app/files-to-ignore',
@@ -36,28 +36,28 @@ module.exports = [
       '**/documentation/**/*',
       '**/node_modules/**/*',
       '**/projects/*/web/**/*',
-      '**/vendor/**/*'
+      '**/vendor/**/*',
     ],
   },
   {
     name: 'app/import-resolver',
     plugins: {
-      import: pluginImportExtensions
+      import: pluginImportExtensions,
     },
     settings: {
       'import/resolver': {
         alias: {
           map: [
-            ['@DpJs', './client/js']
+            ['@DpJs', './client/js'],
           ],
-          extensions: ['.js', '.ts', '.vue', '.json']
+          extensions: ['.js', '.ts', '.vue', '.json'],
         },
         node: {
           extensions: ['.js', '.ts', '.vue', '.json'],
-          paths: ['./client/js', './node_modules']
-        }
-      }
-    }
+          paths: ['./client/js', './node_modules'],
+        },
+      },
+    },
   },
   {
     name: 'app/js-recommended-rules',
@@ -82,35 +82,35 @@ module.exports = [
   {
     name: 'app/jquery-rules',
     plugins: {
-      jquery: pluginJquery
+      jquery: pluginJquery,
     },
     rules: {
       // Warn about deprecated jQuery methods
       ...Object.fromEntries(
         Object.entries(pluginJquery.configs.deprecated.rules)
-          .map(([rule, config]) => [rule, 'warn'])
-      )
-    }
+          .map(([rule, config]) => [rule, 'warn']),
+      ),
+    },
   },
   {
     name: 'app/jest-rules',
     files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
     plugins: {
-      jest: pluginJest
+      jest: pluginJest,
     },
     languageOptions: {
       globals: {
-        ...require('globals').jest
-      }
+        ...require('globals').jest,
+      },
     },
     rules: {
-      ...pluginJest.configs.recommended.rules
-    }
+      ...pluginJest.configs.recommended.rules,
+    },
   },
   {
     name: 'app/import-rules',
     plugins: {
-      import: pluginImportExtensions
+      import: pluginImportExtensions,
     },
     rules: {
       // Prevent imports of files that don't exist or can't be resolved
@@ -120,20 +120,50 @@ module.exports = [
       // Validate default imports from modules that have default exports
       'import/default': 'error',
       // Validate namespace imports (import * as name) have valid exports
-      'import/namespace': 'error'
-    }
+      'import/namespace': 'error',
+    },
+  },
+  {
+    name: 'app/standard-formatting-rules',
+    rules: {
+      // Standard.js style formatting rules
+      'semi': ['error', 'never'],                         // No semicolons
+      'quotes': ['error', 'single', { 'avoidEscape': true }], // Single quotes, but allow double quotes to avoid escaping
+      'indent': ['error', 2, { 'SwitchCase': 1 }],        // 2 spaces indentation, switch cases indented
+      'space-before-function-paren': ['error', 'always'], // E.g. function ()
+      'comma-dangle': ['error', 'always-multiline'],      // Trailing commas on multiline
+      'space-infix-ops': 'error',                         // Space around operators, e.g. a + b, not a+b
+      'space-before-blocks': 'error',                     // Space before blocks, e.g. function () {
+      'keyword-spacing': 'error',                         // Space after keywords, e.g. if (condition) {, return , else {
+      'object-curly-spacing': ['error', 'always'],        // Space inside objects, e.g. { key: value }
+      'array-bracket-spacing': ['error', 'never'],        // No space in arrays: [1, 2, 3], not [ 1, 2, 3 ]
+      'brace-style': ['error', '1tbs', { 'allowSingleLine': true }], // One true brace style, allow single line
+      'eol-last': 'error',                                // Files must end with newline
+      'no-trailing-spaces': 'error',                      // No trailing whitespace at end of lines
+      'comma-spacing': ['error', { 'before': false, 'after': true }], // Space after commas
+      'key-spacing': ['error', { 'beforeColon': false, 'afterColon': true }], // Space after colons in objects, e.g. key: value
+      'space-in-parens': ['error', 'never'],              // No space in parentheses, e.g. func(arg), not func( arg )
+      'block-spacing': 'error',                           // Space in single-line blocks, e.g. { return true }
+      'computed-property-spacing': ['error', 'never'],    // No space in computed properties e.g. obj[key], not obj[ key ]
+      'func-call-spacing': ['error', 'never'],            // No space between function and parentheses, e.g. func()
+      'no-multiple-empty-lines': ['error', { 'max': 2, 'maxEOF': 1 }], // Limit empty lines
+      'padded-blocks': ['error', 'never'],                // No empty line at start or end of block
+      'space-unary-ops': 'error',                         // Space with unary operators, e.g. typeof x, not typeofx
+      'operator-linebreak': ['error', 'after'],           // When breaking lines, operator goas at end, e.g. a +\n b, not a\n + b
+      'spaced-comment': ['error', 'always'],              // Space after comment markers, e.g. // Comment
+    },
   },
   {
     name: 'app/custom/rules',
     rules: {
       // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
       'import/extensions': ['error', 'never', {
-        json: 'always', js: 'never', vue: 'never'
+        json: 'always', js: 'never', vue: 'never',
       }],
 
       'capitalized-comments': ['error', 'always', {
         'ignoreConsecutiveComments': true,
-        'ignoreInlineComments': true
+        'ignoreInlineComments': true,
       }],
       // Allow async-await
       'generator-star-spacing': 'off',
@@ -146,7 +176,7 @@ module.exports = [
         'args': 'none',
         'varsIgnorePattern': '^_',
         'argsIgnorePattern': '^_|^(state|commit|dispatch|getters|rootState|rootGetters)$',
-        'caughtErrors': 'none' // Allow unused parameters in catch blocks
+        'caughtErrors': 'none', // Allow unused parameters in catch blocks
       }],
       'sort-imports': ['error', { 'ignoreCase': true }],
       'no-useless-escape': 'error',
@@ -155,7 +185,7 @@ module.exports = [
        * Remove this rule and v-on-event-hyphenation after renaming all custom events to match the recommended format
        */
       'vue/custom-event-name-casing': ['warn', 'camelCase', {
-        'ignores': ['/^[a-z][a-zA-Z]*(?::[a-z][a-zA-Z]*)?$/']
+        'ignores': ['/^[a-z][a-zA-Z]*(?::[a-z][a-zA-Z]*)?$/'],
       }],
       'vue/v-on-event-hyphenation': 'off',
       'vue/html-closing-bracket-newline': ['off'],
@@ -178,14 +208,14 @@ module.exports = [
           'methods',
           'LIFECYCLE_HOOKS',
           ['template', 'render'],
-          'renderError'
-        ]
+          'renderError',
+        ],
       }],
       'vue/v-slot-style': ['error', {
         'atComponent': 'longform',
         'default': 'longform',
-        'named': 'longform'
-      }]
+        'named': 'longform',
+      }],
     },
   },
   {
@@ -210,7 +240,7 @@ module.exports = [
       'vuejs-accessibility/no-onchange': 'warn',
       'vuejs-accessibility/no-redundant-roles': 'warn',
       'vuejs-accessibility/role-has-required-aria-props': 'warn',
-      'vuejs-accessibility/tabindex-no-positive': 'warn'
+      'vuejs-accessibility/tabindex-no-positive': 'warn',
     },
-  }
+  },
 ]

@@ -405,37 +405,37 @@ export default {
     DpEditFieldSingleSelect,
     EditableText,
     TableCardFlyoutMenu,
-    VPopover
+    VPopover,
   },
 
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserName: {
       type: String,
-      required: true
+      required: true,
     },
 
     fragmentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     initialFragment: {
       required: true,
-      type: Object
+      type: Object,
     },
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -445,7 +445,7 @@ export default {
       notifyOrga: false,
       reviewerEditing: false,
       tagsEditing: false,
-      updatingClaimState: false
+      updatingClaimState: false,
     }
   },
 
@@ -504,7 +504,7 @@ export default {
     elementLink () {
       const routeParams = {
         procedure: this.fragment.procedureId,
-        elementId: this.statement.elementId
+        elementId: this.statement.elementId,
       }
       let route = '#'
 
@@ -546,12 +546,12 @@ export default {
           this.addFragmentToSelectionAction({
             id: this.fragment.id,
             statementId: this.statement.id,
-            assignee: hasOwnProp(this.fragment.assignee, 'id') ? this.fragment.assignee : { id: '' }
+            assignee: hasOwnProp(this.fragment.assignee, 'id') ? this.fragment.assignee : { id: '' },
           })
         } else {
           this.removeFragmentFromSelectionAction(this.fragment.id)
         }
-      }
+      },
     },
 
     fragmentText () {
@@ -576,7 +576,7 @@ export default {
 
         return Translator.trans('fragment.voteAdvice.status.pending', {
           orgaName: assignedDepartment.orgaName,
-          departmentName: assignedDepartment.departmentName
+          departmentName: assignedDepartment.departmentName,
         })
       } else {
         return ''
@@ -597,11 +597,11 @@ export default {
         'municipalities',
         'paragraph',
         'priorityAreas',
-        'tags'
-      ]
+        'tags',
+      ],
     ),
     ...mapGetters('Fragment', ['fragmentById', 'selectedFragments']),
-    ...mapGetters('Statement', ['selectedElements'])
+    ...mapGetters('Statement', ['selectedElements']),
   },
 
   methods: {
@@ -672,7 +672,7 @@ export default {
             const tags = Object.values(updated.tags).map(tag => {
               return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
                 tag: tag.id,
-                procedure: this.fragment.procedureId
+                procedure: this.fragment.procedureId,
               }))
                 .then(data => {
                   if (data.data.code === 100 && data.data.success) {
@@ -765,7 +765,7 @@ export default {
         statementId: this.statement.id,
         ignoreLastClaimed: shouldIgnoreLastClaimed,
         assigneeId: (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id === this.currentUserId ? '' : this.currentUserId),
-        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee?.id === this.currentUserId) && { lastClaimed: this.currentUserId })
+        ...((shouldIgnoreLastClaimed === false && this.fragment.assignee?.id === this.currentUserId) && { lastClaimed: this.currentUserId }),
       }
 
       this.setAssigneeAction(assigneeData)
@@ -777,7 +777,7 @@ export default {
             this.reviewerEditing = false
           }
         })
-    }
-  }
+    },
+  },
 }
 </script>

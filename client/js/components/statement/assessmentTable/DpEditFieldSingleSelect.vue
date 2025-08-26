@@ -84,65 +84,65 @@ export default {
 
   components: {
     DpMultiselect,
-    DpEditField
+    DpEditField,
   },
 
   props: {
     entityId: {
       required: true,
-      type: String
+      type: String,
     },
 
     fieldKey: {
       required: true,
-      type: String
+      type: String,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     label: {
       required: true,
-      type: String
+      type: String,
     },
 
     options: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     value: {
       required: false,
       type: [Object, String],
-      default: () => { return {} }
+      default: () => { return {} },
     },
 
     labelGridCols: {
       required: false,
       type: Number,
-      default: 2
+      default: 2,
     },
 
     readonly: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'field:input',
     'field:save',
-    'toggleEditing'
+    'toggleEditing',
   ],
 
   data () {
     return {
       selected: '',
-      selectedBefore: ''
+      selectedBefore: '',
     }
   },
 
@@ -151,14 +151,14 @@ export default {
       handler () {
         this.updateSelectedValue()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     emitData () {
       const emitData = {
-        id: this.entityId
+        id: this.entityId,
       }
       emitData[this.fieldKey] = this.selected.id
       return emitData
@@ -201,7 +201,7 @@ export default {
       } else {
         this.selected = ''
       }
-    }
+    },
   },
 
   created () {
@@ -211,6 +211,6 @@ export default {
 
   mounted () {
     this.$root.$on('reset', () => this.reset())
-  }
+  },
 }
 </script>

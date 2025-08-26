@@ -69,64 +69,64 @@ import { DpLoading } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpClaim',
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     assignedOrganisation: {
       type: String,
-      required: true
+      required: true,
     },
 
     assignedName: {
       type: String,
-      required: true
+      required: true,
     },
 
     assignedId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     entityType: {
       type: String,
       required: false,
-      default: 'statement'
+      default: 'statement',
     },
 
     isLoading: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     label: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     lastClaimedUserId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'click'
+    'click',
   ],
 
   computed: {
@@ -203,11 +203,11 @@ export default {
         {
           name: this.assignedName,
           organisation: this.assignedOrganisation,
-          delegator: this.currentUserName
-        }
+          delegator: this.currentUserName,
+        },
       )
       return { text: status, icon }
-    }
+    },
   },
 
   methods: {
@@ -236,7 +236,7 @@ export default {
       } else {
         this.$emit('click')
       }
-    }
-  }
+    },
+  },
 }
 </script>

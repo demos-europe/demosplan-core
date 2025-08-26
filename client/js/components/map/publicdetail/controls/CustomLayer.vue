@@ -47,7 +47,7 @@ export default {
   name: 'DpCustomLayer',
 
   components: {
-    LayerSettings
+    LayerSettings,
   },
 
   mixins: [dpValidateMixin],
@@ -55,26 +55,26 @@ export default {
   props: {
     initAvailableProjections: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'addCustomlayer',
-    'custom-layer:unfolded'
+    'custom-layer:unfolded',
   ],
 
   data () {
     return {
       isMobile: isMobile(window.navigator).any,
-      unfolded: false
+      unfolded: false,
     }
   },
 
   computed: {
     mappedAvailableProjections () {
       return this.initAvailableProjections.map(el => ({ label: el.label, value: el.label }))
-    }
+    },
   },
 
   methods: {
@@ -101,7 +101,7 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

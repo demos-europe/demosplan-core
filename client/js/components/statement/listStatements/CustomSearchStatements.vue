@@ -63,7 +63,7 @@ import {
   DpFlyout,
   DpIcon,
   DpSearchField,
-  hasAnyPermissions
+  hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
 import lscache from 'lscache'
@@ -89,7 +89,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -100,14 +100,14 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data: () => ({
@@ -115,16 +115,16 @@ export default {
     explanations: [
       {
         title: Translator.trans('search.options'),
-        description: Translator.trans('search.options.description')
+        description: Translator.trans('search.options.description'),
       },
       {
         title: Translator.trans('search.special.characters'),
-        description: Translator.trans('search.special.characters.description')
-      }
+        description: Translator.trans('search.special.characters.description'),
+      },
     ],
     availableFilterFields,
     fields,
-    selectedFields: []
+    selectedFields: [],
   }),
 
   computed: {
@@ -139,7 +139,7 @@ export default {
 
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -171,7 +171,7 @@ export default {
       } else if (!selectField) {
         this.selectedFields = this.selectedFields.filter(f => f !== field)
       }
-    }
-  }
+    },
+  },
 }
 </script>

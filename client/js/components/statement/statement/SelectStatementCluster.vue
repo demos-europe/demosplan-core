@@ -87,51 +87,51 @@ export default {
 
   components: {
     DpClaim,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     initClusterList: {
       required: true,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     // String with cluster id
     initSelectedCluster: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserOrganisation: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     ignoreLastClaimed: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     emptyCluster: {
@@ -145,21 +145,21 @@ export default {
           assignee: {
             id: '',
             name: '',
-            organisation: ''
-          }
+            organisation: '',
+          },
         }
-      }
-    }
+      },
+    },
   },
 
   emits: [
-    'selected-cluster'
+    'selected-cluster',
   ],
 
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,
-      updatingClaimState: false
+      updatingClaimState: false,
     }
   },
 
@@ -174,7 +174,7 @@ export default {
 
     selectedCluster () {
       return this.clusterList.find(cluster => this.selected.id === cluster.id) || this.emptyCluster
-    }
+    },
   },
 
   methods: {
@@ -239,7 +239,7 @@ export default {
       this.updatingClaimState = true
       this.setAssigneeAction({
         statementId: this.inputValue,
-        assigneeId: this.selected.assignee.id === this.currentUserId ? '' : this.currentUserId
+        assigneeId: this.selected.assignee.id === this.currentUserId ? '' : this.currentUserId,
       })
         .then(response => {
           this.updateClaimData(response.assignee)
@@ -259,7 +259,7 @@ export default {
       data.organisation = data.orgaName
       delete data.orgaName
       this.selected.assignee = data
-    }
-  }
+    },
+  },
 }
 </script>

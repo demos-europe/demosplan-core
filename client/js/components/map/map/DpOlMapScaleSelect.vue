@@ -43,7 +43,7 @@ export default {
   data () {
     return {
       currentScale: null,
-      scales: []
+      scales: [],
     }
   },
 
@@ -56,8 +56,8 @@ export default {
       handler () {
         this.init()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -94,9 +94,9 @@ export default {
       this.view.animate({
         resolution,
         duration: 250,
-        easing: easeOut
+        easing: easeOut,
       })
-    }
+    },
 
   },
 
@@ -104,6 +104,6 @@ export default {
     await this.olMapState.map
     //  Setup state + behavior
     this.init()
-  }
+  },
 }
 </script>

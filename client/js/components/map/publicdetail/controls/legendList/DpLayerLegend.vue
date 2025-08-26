@@ -71,7 +71,7 @@ export default {
   name: 'DpLayerLegend',
 
   components: {
-    DpLayerLegendItem
+    DpLayerLegendItem,
   },
 
   mixins: [prefixClassMixin],
@@ -79,33 +79,33 @@ export default {
   props: {
     layersWithLegendFiles: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     planPdf: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'layer-legend:unfolded'
+    'layer-legend:unfolded',
   ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
   computed: {
     ...mapGetters('Layers', {
-      legends: 'elementListForLegendSidebar'
+      legends: 'elementListForLegendSidebar',
     }),
 
     buttonTitle () {
@@ -126,7 +126,7 @@ export default {
         fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
       }
       return `${Translator.trans('legend.download')}${fileInfo}`
-    }
+    },
   },
 
   methods: {
@@ -139,7 +139,7 @@ export default {
       if (unfolded) {
         this.$emit('layer-legend:unfolded')
       }
-    }
-  }
+    },
+  },
 }
 </script>

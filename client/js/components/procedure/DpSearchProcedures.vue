@@ -82,18 +82,18 @@ export default {
     DpButton,
     DpMultiselect,
     DpInput,
-    DpRadio
+    DpRadio,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     searchableProcedures: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -103,7 +103,7 @@ export default {
       searchIn: 'all',
       proceduresToSearch: [],
       results: [],
-      noResults: false
+      noResults: false,
     }
   },
 
@@ -122,41 +122,41 @@ export default {
           filter: {
             authorOrSubmitter: {
               group: {
-                conjunction: 'OR'
-              }
+                conjunction: 'OR',
+              },
             },
             withAuthor: {
               condition: {
                 path: 'statements.authorName',
                 value: this.searchTerm,
                 operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-                memberOf: 'authorOrSubmitter'
-              }
+                memberOf: 'authorOrSubmitter',
+              },
             },
             withSubmitter: {
               condition: {
                 path: 'statements.submitName',
                 value: this.searchTerm,
                 operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-                memberOf: 'authorOrSubmitter'
-              }
-            }
+                memberOf: 'authorOrSubmitter',
+              },
+            },
           },
           sort: '-creationDate,name',
           fields: {
             AdminProcedure: [
               'id',
-              'name'
-            ].join()
-          }
+              'name',
+            ].join(),
+          },
         }
         if (this.searchIn === 'selected') {
           params.filter.idIsOneOf = {
             condition: {
               path: 'id',
               value: queryProcedures,
-              operator: 'IN'
-            }
+              operator: 'IN',
+            },
           }
         }
         dpApi.get(url, params)
@@ -170,7 +170,7 @@ export default {
             dplan.notify.error(Translator.trans('error.api.generic'))
           })
       }
-    }
-  }
+    },
+  },
 }
 </script>

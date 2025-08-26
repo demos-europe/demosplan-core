@@ -131,8 +131,8 @@ export default {
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
-    }
-  }
+      default: () => ({}),
+    },
+  },
 }
 </script>

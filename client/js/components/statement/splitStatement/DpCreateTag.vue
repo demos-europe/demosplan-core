@@ -79,7 +79,7 @@ import {
   DpLabel,
   DpMultiselect,
   DpResettableInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -93,32 +93,32 @@ export default {
     DpInput,
     DpLabel,
     DpMultiselect,
-    DpResettableInput
+    DpResettableInput,
   },
 
   mixins: [dpValidateMixin],
 
   emits: [
-    'close-create-form'
+    'close-create-form',
   ],
 
   data () {
     return {
       showSelect: true,
       tag: {
-        title: ''
+        title: '',
       },
       tagTopic: {
         title: '',
-        id: ''
-      }
+        id: '',
+      },
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',
-      availableTagTopics: 'tagTopics'
+      availableTagTopics: 'tagTopics',
     }),
 
     tagExists () {
@@ -133,18 +133,18 @@ export default {
       return this.availableTagTopics.map(topic => {
         return { title: topic.attributes.title, id: topic.id }
       })
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
       'createTagAction',
       'createTopicAction',
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     ...mapMutations('SplitStatement', [
-      'updateProperty'
+      'updateProperty',
     ]),
 
     closeForm () {
@@ -162,9 +162,9 @@ export default {
             topic: {
               data: {
                 id: topicId,
-                type: 'TagTopic'
-              }
-            }
+                type: 'TagTopic',
+              },
+            },
           }
 
           // Update tags in store
@@ -190,7 +190,7 @@ export default {
           // Add id to tagTopic in store
           this.updateProperty({
             prop: 'tagTopics',
-            obj: { attributes: { title: attributes.title }, id, type: 'TagTopic' }
+            obj: { attributes: { title: attributes.title }, id, type: 'TagTopic' },
           })
 
           this.createTag(id, tagPayload)
@@ -264,28 +264,28 @@ export default {
     prepareTagPayload () {
       return {
         attributes: {
-          title: this.tag.title
+          title: this.tag.title,
         },
         relationships: {
           topic: {
             data: {
               id: this.tagTopic.id,
-              type: 'TagTopic'
-            }
-          }
+              type: 'TagTopic',
+            },
+          },
         },
         id: '',
-        type: 'Tag'
+        type: 'Tag',
       }
     },
 
     prepareTopicPayload () {
       return {
         attributes: {
-          title: this.tagTopic.title
+          title: this.tagTopic.title,
         },
         id: '',
-        type: 'TagTopic'
+        type: 'TagTopic',
       }
     },
 
@@ -337,7 +337,7 @@ export default {
       this.updateProperty({ prop: 'availableTags', obj: tag })
       this.updateCurrentTags({ tagName: tag.attributes.title, id: tag.id })
       this.updateProperty({ prop: 'categorizedTags', obj: tag })
-    }
-  }
+    },
+  },
 }
 </script>

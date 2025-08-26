@@ -69,58 +69,58 @@ export default {
   name: 'DpInsertableRecommendation',
 
   components: {
-    DpBadge
+    DpBadge,
   },
 
   directives: {
     cleanhtml: CleanHtml,
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     fromOtherProcedure: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     isContentRec: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     recommendation: {
       type: String,
-      required: true
+      required: true,
     },
 
     recommendationScore: {
       type: Number,
       required: false,
-      default: 0
+      default: 0,
     },
 
     searchTerm: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'insert-recommendation'
+    'insert-recommendation',
   ],
 
   data () {
     return {
       isExpanded: false,
-      shortText: this.shortenHtmlText(this.recommendation)
+      shortText: this.shortenHtmlText(this.recommendation),
     }
   },
 
@@ -136,13 +136,13 @@ export default {
     recommendationText () {
       const shouldTruncate = !this.isExpanded && this.canExpand
 
-      const shortDisplayText = this.searchTerm !== ''
-        ? this.shortText.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>') + '...'
-        : this.shortText
+      const shortDisplayText = this.searchTerm !== '' ?
+        this.shortText.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>') + '...' :
+        this.shortText
 
-      const fullText = this.searchTerm !== ''
-        ? this.recommendation.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>')
-        : this.recommendation
+      const fullText = this.searchTerm !== '' ?
+        this.recommendation.replace(this.searchRegex, '<span style="background-color: yellow;">$&</span>') :
+        this.recommendation
 
       return shouldTruncate ? shortDisplayText : fullText
     },
@@ -150,7 +150,7 @@ export default {
     searchRegex () {
       // Match the search term except when the term occurs within an html-tag
       return new RegExp(this.searchTerm + '(?![^<]*>)', 'ig')
-    }
+    },
   },
 
   methods: {
@@ -163,7 +163,7 @@ export default {
 
     toggleExpanded () {
       this.isExpanded = !this.isExpanded
-    }
-  }
+    },
+  },
 }
 </script>

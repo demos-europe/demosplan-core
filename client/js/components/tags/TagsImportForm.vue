@@ -55,36 +55,36 @@ export default {
   components: {
     DpButton,
     DpLabel,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       uploadedCSV: null,
-      uploadedFiles: ''
+      uploadedFiles: '',
     }
   },
 
   computed: {
     availableEntity () {
       return {
-        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv'
+        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv',
       }
-    }
+    },
   },
 
   methods: {
     importCSVs (file) {
       this.uploadedCSV = Object.values(file).join()
       this.uploadedFiles = file.hash
-    }
-  }
+    },
+  },
 }
 </script>

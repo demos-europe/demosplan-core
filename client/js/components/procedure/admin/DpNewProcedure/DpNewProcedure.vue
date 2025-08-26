@@ -228,7 +228,7 @@ import {
   DpMultiselect,
   DpSelect,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
@@ -246,7 +246,7 @@ export default {
     DpInlineNotification,
     DpMultiselect,
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   mixins: [dpValidateMixin],
@@ -255,49 +255,49 @@ export default {
     blueprintOptions: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     masterBlueprintId: {
       type: String,
       required: false,
-      default: () => ''
+      default: () => '',
     },
 
     plisNameOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureTemplateHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureTypes: {
       type: Array,
       required: true,
-      default: () => []
+      default: () => [],
     },
 
     token: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     tokenLength: {
       type: Number,
       required: false,
-      default: 12
-    }
+      default: 12,
+    },
   },
 
   data () {
@@ -306,21 +306,21 @@ export default {
       description: '',
       emptyBlueprintData: {
         description: '',
-        agencyMainEmailAddress: ''
+        agencyMainEmailAddress: '',
       },
       mainEmail: '',
-      procedureName: ''
+      procedureName: '',
     }
   },
 
   computed: {
     ...mapState('NewProcedure', [
-      'requireField'
+      'requireField',
     ]),
 
     currentProcedureTypeId () {
       return this.currentProcedureType.id || ''
-    }
+    },
   },
 
   methods: {
@@ -339,10 +339,10 @@ export default {
           fields: {
             ProcedureTemplate: [
               'agencyMainEmailAddress',
-              'description'
-            ].join()
-          }
-        })
+              'description',
+            ].join(),
+          },
+        }),
       )
         .then(({ data }) => data.data.attributes)
         .catch(() => this.emptyBlueprintData) // When the request fails planners will have to fill in an address manually
@@ -350,7 +350,7 @@ export default {
 
     submit () {
       this.$refs.newProcedureForm.submit()
-    }
-  }
+    },
+  },
 }
 </script>

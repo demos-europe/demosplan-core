@@ -43,19 +43,19 @@ export default {
 
   components: {
     DpContextualHelp,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     elementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     designatedSwitchDate () {
@@ -78,8 +78,8 @@ export default {
             type: this.element.type,
             attributes: {
               ...this.element.attributes,
-              enabled: val
-            }
+              enabled: val,
+            },
           })
 
           this.saveToggleElement(this.elementId)
@@ -90,18 +90,18 @@ export default {
               dplan.notify.error(Translator.trans('error.changes.not.saved'))
             })
         }
-      }
-    }
+      },
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
-      saveToggleElement: 'save'
+      saveToggleElement: 'save',
     }),
 
     ...mapMutations('Elements', {
-      updateToggleElement: 'setItem'
-    })
-  }
+      updateToggleElement: 'setItem',
+    }),
+  },
 }
 </script>

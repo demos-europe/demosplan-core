@@ -28,12 +28,12 @@ export default {
   props: {
     orgaId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'orga-deleted'
+    'orga-deleted',
   ],
 
   methods: {
@@ -42,7 +42,7 @@ export default {
         makeFormPost({ oId: this.orgaId }, Routing.generate('DemosPlan_user_mastertoeblist_delete_ajax'))
           .then(() => this.$emit('orga-deleted', this.orgaId))
       }
-    }
-  }
+    },
+  },
 }
 </script>

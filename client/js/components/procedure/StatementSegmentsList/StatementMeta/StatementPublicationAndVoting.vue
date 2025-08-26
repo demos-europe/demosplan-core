@@ -213,7 +213,7 @@ import {
   DpLabel,
   DpLoading,
   DpRadio,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
@@ -229,7 +229,7 @@ export default {
     DpLoading,
     DpInput,
     DpRadio,
-    StatementPublish
+    StatementPublish,
   },
 
   mixins: [dpValidateMixin],
@@ -238,18 +238,18 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'save',
-    'updatedVoters'
+    'updatedVoters',
   ],
 
   data () {
@@ -262,7 +262,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       },
       initialVotes: {},
       isLoading: false,
@@ -272,16 +272,16 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: '',
-        delete: Translator.trans('statement.voter.delete')
+        delete: Translator.trans('statement.voter.delete'),
       },
       votes: {},
-      votesToDelete: []
+      votesToDelete: [],
     }
   },
 
   computed: {
     ...mapState('StatementVote', {
-      votesState: 'items'
+      votesState: 'items',
     }),
 
     isInstitutionParticipation () {
@@ -291,8 +291,8 @@ export default {
     votesLength: {
       get () {
         return Object.keys(this.votes).length
-      }
-    }
+      },
+    },
   },
 
   watch: {
@@ -300,21 +300,21 @@ export default {
       handler () {
         this.setLocalValues()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapMutations('StatementVote', {
       removeStatementVote: 'remove',
       resetStatementVote: 'resetItems',
-      setStatementVote: 'setItem'
+      setStatementVote: 'setItem',
     }),
 
     ...mapActions('StatementVote', {
       createStatementVoteAction: 'create',
       deleteStatementVoteAction: 'delete',
-      saveStatementVoteAction: 'save'
+      saveStatementVoteAction: 'save',
     }),
 
     addVote (index) {
@@ -330,7 +330,7 @@ export default {
         const vote = {
           type: 'StatementVote',
           id: voteId,
-          attributes: this.formFields
+          attributes: this.formFields,
         }
 
         // Due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
@@ -390,7 +390,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       }
     },
 
@@ -451,10 +451,10 @@ export default {
             statement: {
               data: {
                 type: 'Statement',
-                id: this.statement.id
-              }
-            }
-          }
+                id: this.statement.id,
+              },
+            },
+          },
         }
         return this.createStatementVoteAction(payload)
           .then(() => {
@@ -535,12 +535,12 @@ export default {
       for (const key in this.formFields) {
         this.formFields[key] = this.votes[id].attributes[key]
       }
-    }
+    },
   },
 
   created () {
     this.setLocalValues()
     this.setInitVoters()
-  }
+  },
 }
 </script>

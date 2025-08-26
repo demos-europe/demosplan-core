@@ -246,20 +246,20 @@ export default {
     DpDraggable,
     DpButton,
     DpLoading,
-    DpSplitButton
+    DpSplitButton,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     parentOrderPosition: {
       required: false,
       type: Number,
-      default: 1
-    }
+      default: 1,
+    },
   },
 
   data () {
@@ -267,21 +267,21 @@ export default {
       isLoading: true,
       currentTab: '',
       isEditable: true,
-      drag: false
+      drag: false,
     }
   },
 
   computed: {
     ...mapState('Layers', [
       'draggableOptions',
-      'draggableOptionsForBaseLayer'
+      'draggableOptionsForBaseLayer',
     ]),
 
     ...mapGetters('Layers', [
       'gisLayerList',
       'elementListForLayerSidebar',
       'minimapLayer',
-      'rootId'
+      'rootId',
     ]),
 
     /**
@@ -343,14 +343,14 @@ export default {
       },
       set (value) {
         this.setMinimapBaseLayer(value.id)
-      }
-    }
+      },
+    },
   },
 
   methods: {
     ...mapActions('Layers', {
       saveLayers: 'saveAll',
-      getLayers: 'get'
+      getLayers: 'get',
     }),
 
     ...mapMutations('Layers', [
@@ -358,7 +358,7 @@ export default {
       'setChildrenFromCategory',
       'resetOrder',
       'setMinimapBaseLayer',
-      'updateState'
+      'updateState',
     ]),
 
     updateChildren (ev) {
@@ -368,10 +368,10 @@ export default {
         movedElement: {
           id: ev.item.id,
           newIndex: ev.newIndex,
-          oldIndex: ev.oldIndex
+          oldIndex: ev.oldIndex,
         },
         orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition
+        parentOrder: this.parentOrderPosition,
       })
 
       // If there is just one order (map) -then the treeorder should match the map-order
@@ -382,10 +382,10 @@ export default {
           movedElement: {
             id: ev.item.id,
             newIndex: ev.newIndex,
-            oldIndex: ev.oldIndex
+            oldIndex: ev.oldIndex,
           },
           orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
+          parentOrder: this.parentOrderPosition,
         })
       }
     },
@@ -413,7 +413,7 @@ export default {
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
-    }
+    },
   },
 
   mounted () {
@@ -428,7 +428,7 @@ export default {
           'name',
           'layerWithChildrenHidden',
           'parentId',
-          'treeOrder'
+          'treeOrder',
         ].join(),
         GisLayer: [
           'canUserToggleVisibility',
@@ -446,9 +446,9 @@ export default {
           'name',
           'treeOrder',
           'url',
-          'visibilityGroupId'
-        ].join()
-      }
+          'visibilityGroupId',
+        ].join(),
+      },
     }
     this.getLayers(payload)
       .then(() => {
@@ -471,7 +471,7 @@ export default {
       handle: '.handle',
       ghostClass: 'o-sortablelist__ghost', // Class name for the drop placeholder
       chosenClass: 'o-sortablelist__chosen', // Class name for the chosen item
-      dragClass: 'o-sortablelist__drag' // Class name for the dragging item
+      dragClass: 'o-sortablelist__drag', // Class name for the dragging item
     }
 
     this.updateState({
@@ -483,13 +483,13 @@ export default {
             name: 'treeList',
             revertClone: false,
             pull: ['treeList'],
-            push: ['treeList']
-          }
-        }
-      }
+            push: ['treeList'],
+          },
+        },
+      },
     })
 
     this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
-  }
+  },
 }
 </script>

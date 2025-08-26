@@ -31,14 +31,14 @@ export default {
   props: {
     published: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     text () {
       return Translator.trans(this.published ? 'published' : 'unpublished')
-    }
-  }
+    },
+  },
 }
 </script>

@@ -57,7 +57,7 @@ import {
   DpButtonRow,
   DpInput,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -67,7 +67,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -75,28 +75,28 @@ export default {
   props: {
     handleSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isLoading: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'abort',
     'open',
-    'save'
+    'save',
   ],
 
   data () {
     return {
       customField: {
         name: '',
-        description: ''
+        description: '',
       },
-      isOpen: false
+      isOpen: false,
     }
   },
 
@@ -107,8 +107,8 @@ export default {
           this.onSuccess()
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
@@ -138,7 +138,7 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
-    }
-  }
+    },
+  },
 }
 </script>

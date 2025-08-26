@@ -150,7 +150,7 @@ import {
   DpInput,
   DpModal,
   DpRadio,
-  sessionStorageMixin
+  sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -163,7 +163,7 @@ export default {
     DpContextualHelp,
     DpInput,
     DpModal,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [sessionStorageMixin],
@@ -172,12 +172,12 @@ export default {
     isSingleStatementExport: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'export'
+    'export',
   ],
 
   data () {
@@ -188,46 +188,46 @@ export default {
           width: 'col-span-1',
           dataCy: 'exportModal:input:col1',
           placeholder: Translator.trans('segments.export.segment.id'),
-          title: null
+          title: null,
         },
         col2: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:col2',
           placeholder: Translator.trans('segments.export.statement.label'),
-          title: null
+          title: null,
         },
         col3: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:col3',
           placeholder: Translator.trans('segment.recommendation'),
-          title: null
-        }
+          title: null,
+        },
       },
       exportTypes: {
         docx_normal: {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx'
+          dataCy: 'exportModal:export:docx',
         },
         zip_normal: {
           label: 'export.zip',
           hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
-          dataCy: 'exportModal:export:zip'
+          dataCy: 'exportModal:export:zip',
         },
         xlsx_normal: {
           label: 'export.xlsx',
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
-          dataCy: 'exportModal:export:xlsx'
-        }
+          dataCy: 'exportModal:export:xlsx',
+        },
       },
       fileName: '',
       isInstitutionDataCensored: false,
       isCitizenDataCensored: false,
       isObscure: false,
-      singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
+      singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
     }
   },
 
@@ -257,7 +257,7 @@ export default {
       }
 
       return exampleFileName
-    }
+    },
   },
 
   methods: {
@@ -289,7 +289,7 @@ export default {
         shouldConfirm,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
-        isObscured: this.isObscure
+        isObscured: this.isObscure,
       })
       this.closeModal()
     },
@@ -307,7 +307,7 @@ export default {
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
-    }
-  }
+    },
+  },
 }
 </script>

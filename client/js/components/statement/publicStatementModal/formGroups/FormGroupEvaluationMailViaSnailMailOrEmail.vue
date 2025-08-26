@@ -121,7 +121,7 @@ export default {
     FormGroupPostalAndCity,
     FormGroupStreetAndNumber,
     DpCheckbox,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin, prefixClassMixin],
@@ -130,8 +130,8 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

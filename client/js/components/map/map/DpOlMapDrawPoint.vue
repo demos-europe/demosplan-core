@@ -37,19 +37,19 @@ export default {
     //  @TODO implement `required: false`, craft a new vector layer instead
     target: {
       required: true,
-      type: String
+      type: String,
     },
 
     active: {
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   emits: [
     'tool:activated',
-    'tool:setPoint'
+    'tool:setPoint',
   ],
 
   data () {
@@ -61,7 +61,7 @@ export default {
   computed: {
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -83,7 +83,7 @@ export default {
       drawInteraction = new Draw({
         source: layerToDrawInto.getSource(),
         type: 'Point',
-        style: drawStyle(this.olMapState.drawStyles)
+        style: drawStyle(this.olMapState.drawStyles),
       })
 
       drawInteraction.on('drawstart', function () {
@@ -101,13 +101,13 @@ export default {
       if (this.active === false) {
         this.$emit('tool:activated', true)
       }
-    }
+    },
   },
 
   mounted () {
     this.$nextTick(() => {
       this.init()
     })
-  }
+  },
 }
 </script>

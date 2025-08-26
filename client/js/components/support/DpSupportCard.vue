@@ -54,37 +54,37 @@ export default {
   name: 'DpSupportCard',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     email: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     phoneNumber: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     reachability: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     title: {
       required: false,
       type: String,
-      default: ''
-    }
-  }
+      default: '',
+    },
+  },
 }
 </script>

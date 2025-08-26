@@ -504,7 +504,7 @@ import {
   formatDate,
   getFileInfo,
   hasOwnProp,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim'
@@ -526,50 +526,50 @@ export default {
     HeightLimit,
     DpItemRow,
     TextContentRenderer,
-    VPopover
+    VPopover,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     isArchive: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     fragmentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserName: {
       type: String,
-      required: true
+      required: true,
     },
 
     adviceValues: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
@@ -580,7 +580,7 @@ export default {
       tab: 'fragment',
       considerationAdvice: '',
       status: '',
-      updatingClaimState: false
+      updatingClaimState: false,
     }
   },
 
@@ -634,7 +634,7 @@ export default {
       return files
     },
 
-    ...mapGetters('Fragment', ['fragmentById'])
+    ...mapGetters('Fragment', ['fragmentById']),
   },
 
   methods: {
@@ -677,7 +677,7 @@ export default {
     },
 
     ...mapActions('Fragment', ['setAssigneeAction']),
-    ...mapMutations('Fragment', ['updateFragment', 'deleteFragment'])
+    ...mapMutations('Fragment', ['updateFragment', 'deleteFragment']),
   },
 
   mounted () {
@@ -714,6 +714,6 @@ export default {
         this.fragmentExists = false
       }
     })
-  }
+  },
 }
 </script>

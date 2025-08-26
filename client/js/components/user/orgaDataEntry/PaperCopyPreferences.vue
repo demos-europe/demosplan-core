@@ -45,30 +45,30 @@ export default {
 
   components: {
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     hasPaperCopyPermission () {
       return hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec')
-    }
+    },
   },
 
   methods: {
     paperCopyCountOptions () {
       return Array.from({ length: 11 }, (_, i) => ({
         label: i.toString(),
-        value: i
+        value: i,
       }))
-    }
-  }
+    },
+  },
 }
 </script>

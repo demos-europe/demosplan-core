@@ -12,7 +12,7 @@ export default async function loadAddonComponents (hookName) {
   window.dplan.loadedAddons[hookName] = 'pending'
 
   const params = {
-    hookName
+    hookName,
   }
 
   return await dpRpc('addons.assets.load', params)
@@ -42,7 +42,7 @@ export default async function loadAddonComponents (hookName) {
         addons.push({
           entry: content,
           name: addon.entry,
-          options: addon.options ?? ''
+          options: addon.options ?? '',
         })
       }
 

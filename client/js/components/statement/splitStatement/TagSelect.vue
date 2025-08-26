@@ -37,32 +37,32 @@ export default {
   name: 'TagSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     dropdownDirection: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     entity: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   computed: {
     ...mapGetters('SplitStatement', {
       tags: 'categorizedTags',
       editingSegment: 'editingSegment',
-      uncategorizedTags: 'uncategorizedTags'
+      uncategorizedTags: 'uncategorizedTags',
     }),
 
     placeHolder () {
@@ -83,12 +83,12 @@ export default {
           return returnValue
         })
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     updateTags (val, isEditing = true) {
@@ -103,7 +103,7 @@ export default {
       }
 
       this.updateCurrentTags({ tagName: value.attributes.title, id: value.id })
-    }
-  }
+    },
+  },
 }
 </script>

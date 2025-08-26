@@ -74,31 +74,31 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    StatementSegment
+    StatementSegment,
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isAllCollapsed: true,
-      isLoading: false
+      isLoading: false,
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     hasSegments () {
@@ -107,28 +107,28 @@ export default {
 
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
     }),
 
     ...mapActions('Place', {
-      fetchPlaces: 'list'
+      fetchPlaces: 'list',
     }),
 
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     /**
@@ -177,11 +177,11 @@ export default {
             assignee: {
               data: {
                 type: 'Claim',
-                id: this.currentUser.id
-              }
-            }
-          }
-        }
+                id: this.currentUser.id,
+              },
+            },
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }),
@@ -191,14 +191,14 @@ export default {
           messages: {
             200: {
               text: Translator.trans('confirm.statement.assignment.assigned'),
-              type: 'confirm'
+              type: 'confirm',
             },
             204: {
               text: Translator.trans('confirm.statement.assignment.assigned'),
-              type: 'confirm'
-            }
-          }
-        }
+              type: 'confirm',
+            },
+          },
+        },
       )
         .catch((err) => {
           // Restore statement in store in case request failed
@@ -218,7 +218,7 @@ export default {
         'internId',
         'orderInProcedure',
         'polygon',
-        'recommendation'
+        'recommendation',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -233,21 +233,21 @@ export default {
             'description',
             'name',
             'solved',
-            'sortIndex'
-          ].join()
+            'sortIndex',
+          ].join(),
         },
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       })
 
       await this.fetchAssignableUsers({
         fields: {
           AssignableUser: [
             'firstname',
-            'lastname'
-          ].join()
+            'lastname',
+          ].join(),
         },
         include: 'department',
-        sort: 'lastname'
+        sort: 'lastname',
       })
 
       await this.listSegments({
@@ -257,7 +257,7 @@ export default {
           'comments.place',
           'comments.submitter',
           'place',
-          'tags'
+          'tags',
         ].join(),
         fields: {
           StatementSegment: statementSegmentFields.join(),
@@ -265,24 +265,24 @@ export default {
             'creationDate',
             'text',
             'submitter',
-            'place'
-          ].join()
+            'place',
+          ].join(),
         },
         sort: 'orderInProcedure',
         filter: {
           parentStatementOfSegment: {
             condition: {
               path: 'parentStatement.id',
-              value: this.statementId
-            }
+              value: this.statementId,
+            },
           },
           sameProcedure: {
             condition: {
               path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
-          }
-        }
+              value: this.procedureId,
+            },
+          },
+        },
       })
 
       this.isLoading = false
@@ -314,13 +314,13 @@ export default {
           segment.isCollapsed = this.isAllCollapsed
         }
       })
-    }
+    },
   },
 
   mounted () {
     if (Object.keys(this.segments).length === 0) {
       this.fetchSegments()
     }
-  }
+  },
 }
 </script>

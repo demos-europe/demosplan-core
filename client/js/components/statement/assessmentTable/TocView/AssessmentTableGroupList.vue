@@ -26,25 +26,25 @@ export default {
   name: 'AssessmentTableGroupList',
 
   components: {
-    AssessmentTableGroup
+    AssessmentTableGroup,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     formDefinitions: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   computed: {
     ...mapGetters('Statement', {
-      getToc: 'getToc'
+      getToc: 'getToc',
     }),
 
     /**
@@ -53,7 +53,7 @@ export default {
      */
     subgroups () {
       return this.getToc.subgroups
-    }
-  }
+    },
+  },
 }
 </script>

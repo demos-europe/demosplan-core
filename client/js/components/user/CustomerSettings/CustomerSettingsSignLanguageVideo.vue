@@ -92,7 +92,7 @@ import {
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin,
-  getFileIdsByHash
+  getFileIdsByHash,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -108,7 +108,7 @@ export default {
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
-    })
+    }),
   },
 
   mixins: [dpValidateMixin],
@@ -116,7 +116,7 @@ export default {
   props: {
     currentCustomerId: {
       type: String,
-      required: true
+      required: true,
     },
 
     signLanguageOverviewVideo: {
@@ -128,33 +128,33 @@ export default {
           file: '',
           id: null,
           mimetype: '',
-          title: ''
+          title: '',
         }
-      }
+      },
     },
 
     signLanguageOverviewDescription: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'created',
-    'deleted'
+    'deleted',
   ],
 
   data () {
     return {
       isBusy: false,
-      video: this.signLanguageOverviewVideo
+      video: this.signLanguageOverviewVideo,
     }
   },
 
   computed: {
     ...mapState('Customer', {
-      customerList: 'items'
+      customerList: 'items',
     }),
 
     hasNoVideoInput () {
@@ -165,20 +165,20 @@ export default {
       return [
         {
           src: Routing.generate('core_file', { hash: this.video.file }),
-          type: this.video.mimetype
-        }
+          type: this.video.mimetype,
+        },
       ]
-    }
+    },
   },
 
   methods: {
     ...mapActions('Customer', {
       fetchCustomer: 'list',
-      saveCustomer: 'save'
+      saveCustomer: 'save',
     }),
 
     ...mapMutations('Customer', {
-      updateCustomer: 'setItem'
+      updateCustomer: 'setItem',
     }),
 
     saveSignLanguageVideo () {
@@ -206,8 +206,8 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          signLanguageOverviewDescription: this.signLanguageOverviewDescription
-        }
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription,
+        },
       }
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
@@ -223,16 +223,16 @@ export default {
         type: 'SignLanguageOverviewVideo',
         attributes: {
           description: this.video.description,
-          title: this.video.title
+          title: this.video.title,
         },
         relationships: {
           file: {
             data: {
               type: 'File',
-              id: fileIds[0]
-            }
-          }
-        }
+              id: fileIds[0],
+            },
+          },
+        },
       }
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SignLanguageOverviewVideo' }), {}, { data: payload })
     },
@@ -243,7 +243,7 @@ export default {
 
     unsetVideoSrcId () {
       this.video.file = ''
-    }
-  }
+    },
+  },
 }
 </script>

@@ -83,7 +83,7 @@ export default {
   name: 'FormGroupCountyReference',
 
   components: {
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin],
@@ -92,20 +92,20 @@ export default {
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

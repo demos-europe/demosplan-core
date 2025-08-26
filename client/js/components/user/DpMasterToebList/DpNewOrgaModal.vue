@@ -45,24 +45,24 @@ export default {
   name: 'DpNewOrgaModal',
 
   components: {
-    DpModal
+    DpModal,
   },
 
   props: {
     fields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      formFields: {}
+      formFields: {},
     }
   },
 
@@ -78,7 +78,7 @@ export default {
       this.formFields = {}
       // Close modal
       this.toggleModal()
-    }
-  }
+    },
+  },
 }
 </script>

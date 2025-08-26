@@ -116,7 +116,7 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin],
@@ -125,19 +125,19 @@ export default {
     isIdp: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     idpLoginPath: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

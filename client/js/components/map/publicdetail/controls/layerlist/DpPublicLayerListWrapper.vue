@@ -45,24 +45,24 @@ export default {
   name: 'DpPublicLayerListWrapper',
 
   components: {
-    DpPublicLayerList
+    DpPublicLayerList,
   },
 
   props: {
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'layerList:unfold'
+    'layerList:unfold',
   ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
@@ -81,7 +81,7 @@ export default {
 
     dimmed () {
       return (this.overlayLayers.length + this.baseLayers.length) <= 0
-    }
+    },
   },
 
   methods: {
@@ -99,7 +99,7 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

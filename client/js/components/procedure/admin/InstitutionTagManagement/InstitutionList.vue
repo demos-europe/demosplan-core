@@ -147,7 +147,7 @@ import {
   DpMultiselect,
   DpSearchField,
   DpSlidingPagination,
-  formatDate
+  formatDate,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
@@ -165,7 +165,7 @@ export default {
     DpInlineNotification,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination
+    DpSlidingPagination,
   },
 
   mixins: [tableScrollbarMixin],
@@ -174,8 +174,8 @@ export default {
     isActive: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -188,23 +188,23 @@ export default {
       initiallySelectedColumns: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
-      searchTerm: ''
+      searchTerm: '',
     }
   },
 
   computed: {
     ...mapState('InstitutionTag', {
-      institutionTagList: 'items'
+      institutionTagList: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     allFilterCategories () {
@@ -220,7 +220,7 @@ export default {
             label: attributes.name,
             rootPath: 'assignedTags',
             selected: false,
-            memberOf: groupKey
+            memberOf: groupKey,
           }
         })
     },
@@ -228,20 +228,20 @@ export default {
     categoryFieldsAvailable () {
       return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
-        label: category.attributes.name
+        label: category.attributes.name,
       }))
     },
 
     headerFields () {
       const institutionField = {
         field: 'name',
-        label: Translator.trans('institution')
+        label: Translator.trans('institution'),
       }
 
       const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
       const actionField = {
-        field: 'action'
+        field: 'action',
       }
 
       return [institutionField, ...categoryFields, actionField]
@@ -263,9 +263,9 @@ export default {
               id: tag.id,
               type: tag.type,
               name: tagDetails.name,
-              category: tagDetails.category
+              category: tagDetails.category,
             }
-          })
+          }),
         }
       })
     },
@@ -290,10 +290,10 @@ export default {
         return {
           id,
           name: attributes.name,
-          category: relationships?.category?.data
+          category: relationships?.category?.data,
         }
       })
-    }
+    },
   },
 
   watch: {
@@ -301,22 +301,22 @@ export default {
       if (newValue) {
         this.getInstitutionTagCategories()
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
 
     ...mapActions('InvitableInstitution', {
       fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
-      restoreInstitutionFromInitial: 'restoreFromInitial'
+      restoreInstitutionFromInitial: 'restoreFromInitial',
     }),
 
     ...mapMutations('InvitableInstitution', {
-      updateInvitableInstitution: 'setItem'
+      updateInvitableInstitution: 'setItem',
     }),
 
     abortEdit () {
@@ -329,7 +329,7 @@ export default {
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
-          type: 'InstitutionTag'
+          type: 'InstitutionTag',
         }
       })
 
@@ -339,9 +339,9 @@ export default {
         attributes: { ...this.invitableInstitutionList[id].attributes },
         relationships: {
           assignedTags: {
-            data: payload
-          }
-        }
+            data: payload,
+          },
+        },
       })
 
       this.saveInvitableInstitution(id)
@@ -376,7 +376,7 @@ export default {
         if (!this.editingInstitutionTags[category.id]) {
           this.editingInstitutionTags = {
             ...this.editingInstitutionTags,
-            [category.id]: []
+            [category.id]: [],
           }
         }
       })
@@ -392,7 +392,7 @@ export default {
       return Object.values(tags).map(tag => {
         return {
           id: tag.id,
-          name: tag.attributes.name
+          name: tag.attributes.name,
         }
       })
     },
@@ -401,36 +401,36 @@ export default {
       const args = {
         page: {
           number: page,
-          size: 50
+          size: 50,
         },
         sort: '-createdDate',
         fields: {
           InvitableInstitution: [
             'name',
             'createdDate',
-            'assignedTags'
+            'assignedTags',
           ].join(),
           InstitutionTag: [
             'category',
-            'name'
+            'name',
           ].join(),
           InstitutionTagCategory: [
-            'name'
-          ].join()
+            'name',
+          ].join(),
         },
         filter: {
           namefilter: {
             condition: {
               path: 'name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm
-            }
-          }
+              value: this.searchTerm,
+            },
+          },
         },
         include: [
           'assignedTags',
-          'assignedTags.category'
-        ].join()
+          'assignedTags.category',
+        ].join(),
       }
 
       return this.fetchInvitableInstitution(args)
@@ -445,19 +445,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           // Copy the object to avoid issues with filter requests that update the categories in the store
@@ -520,19 +520,19 @@ export default {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
-    }
+    },
   },
 
   mounted () {
     const promises = [
       this.getInstitutionsByPage(1),
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

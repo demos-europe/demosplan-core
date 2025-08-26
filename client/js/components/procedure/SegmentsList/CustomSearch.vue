@@ -83,7 +83,7 @@ import {
   DpIcon,
   dpRpc,
   DpSearchField,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
@@ -95,7 +95,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -110,7 +110,7 @@ export default {
         return ['entity', 'function', 'accessGroup'].every((prop) => {
           return hasOwnProp(obj, prop) && obj[prop] !== ''
         })
-      }
+      },
     },
 
     /**
@@ -118,7 +118,7 @@ export default {
      */
     id: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -128,20 +128,20 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     searchTerm: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data () {
@@ -153,23 +153,23 @@ export default {
         {
           title: Translator.trans('search.options'),
           dataCy: 'searchOptions',
-          description: Translator.trans('search.options.description')
+          description: Translator.trans('search.options.description'),
         },
         {
           title: Translator.trans('search.special.characters'),
           dataCy: 'searchSpecialCharacters',
-          description: Translator.trans('search.special.characters.description')
-        }
+          description: Translator.trans('search.special.characters.description'),
+        },
       ],
       maxHeight: null,
-      selectedFields: []
+      selectedFields: [],
     }
   },
 
   computed: {
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -209,7 +209,7 @@ export default {
           this.fields = Object.keys(fields).map((field) => {
             return {
               label: fields[field],
-              value: field
+              value: field,
             }
           })
           this.isLoading = false
@@ -240,7 +240,7 @@ export default {
         set.delete(field)
         this.selectedFields = [...set]
       }
-    }
+    },
   },
 
   mounted () {
@@ -250,6 +250,6 @@ export default {
 
     // Emit selection in case there was something stored (if storage is enabled).
     this.storeSelection && this.$emit('changeFields', this.selectedFields)
-  }
+  },
 }
 </script>

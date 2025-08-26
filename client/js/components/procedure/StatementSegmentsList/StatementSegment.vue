@@ -413,7 +413,7 @@ import {
   DpTabs,
   prefixClassMixin,
   Tooltip,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -449,12 +449,12 @@ export default {
     DpTabs,
     ImageModal,
     TextContentRenderer,
-    VPopover
+    VPopover,
   },
 
   directives: {
     cleanhtml: CleanHtml,
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   mixins: [prefixClassMixin],
@@ -463,35 +463,35 @@ export default {
     currentUserFirstName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserLastName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserOrga: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     segment: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     statementId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -499,7 +499,7 @@ export default {
       activeId: '',
       addonProps: {
         segmentId: this.segment.id,
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       },
       claimLoading: false,
       customFieldValues: {},
@@ -514,25 +514,25 @@ export default {
       refRecModal: 'recommendationModal',
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
-      showWorkflowActions: false
+      showWorkflowActions: false,
     }
   },
 
   computed: {
     ...mapState('SegmentSlidebar', [
-      'slidebar'
+      'slidebar',
     ]),
 
     ...mapState('AssignableUser', {
-      assignableUserItems: 'items'
+      assignableUserItems: 'items',
     }),
 
     ...mapState('Place', {
-      placeItems: 'items'
+      placeItems: 'items',
     }),
 
     ...mapState('CustomField', {
-      customFields: 'items'
+      customFields: 'items',
     }),
 
     assignableUsers () {
@@ -540,12 +540,12 @@ export default {
         .map(assignableUser => {
           return {
             name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-            id: assignableUser.id
+            id: assignableUser.id,
           }
         })
       assigneeOptions.unshift({
         name: Translator.trans('not.assigned'),
-        id: 'noAssigneeId'
+        id: 'noAssigneeId',
       })
 
       return assigneeOptions
@@ -575,14 +575,14 @@ export default {
         const opts = [...el.attributes.options].map(opt => ({
           fieldId: el.id,
           id: `${el.id}:${opt.label}`,
-          name: opt.label
+          name: opt.label,
         }))
 
         opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
-          [el.id]: opts
+          [el.id]: opts,
         }
       }, {})
     },
@@ -600,16 +600,16 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place
-        ? Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id }))
-        : []
+      return this.$store.state.Place ?
+        Object.values(this.$store.state.Place.items)
+          .map(pl => ({ ...pl.attributes, id: pl.id })) :
+        []
     },
 
     segmentPlace () {
-      return this.segment.relationships.place
-        ? this.places.find(place => place.id === this.segment.relationships.place.data.id)
-        : {}
+      return this.segment.relationships.place ?
+        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
+        {}
     },
 
     tagsAsString () {
@@ -628,7 +628,7 @@ export default {
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
       return this.isCollapsed ? shortText : this.segment.attributes.text
-    }
+    },
   },
 
   watch: {
@@ -643,27 +643,27 @@ export default {
         }
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
-      immediate: true // This ensures the handler is executed immediately after the component is created
-    }
+      immediate: true, // This ensures the handler is executed immediately after the component is created
+    },
   },
 
   methods: {
     ...mapActions('SegmentSlidebar', [
-      'toggleSlidebarContent'
+      'toggleSlidebarContent',
     ]),
 
     ...mapMutations('SegmentSlidebar', [
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapActions('StatementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
-      saveSegmentAction: 'save'
+      saveSegmentAction: 'save',
     }),
 
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
-      setSegment: 'setItem'
+      setSegment: 'setItem',
     }),
 
     abort () {
@@ -691,12 +691,12 @@ export default {
               assignee: {
                 data: {
                   type: 'AssignableUser',
-                  id: this.currentUserId
-                }
-              }
-            }
-          }
-        }
+                  id: this.currentUserId,
+                },
+              },
+            },
+          },
+        },
       }
       this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
@@ -708,11 +708,11 @@ export default {
             assignee: {
               data: {
                 type: 'AssignableUser',
-                id: this.currentUserId
-              }
-            }
-          }
-        }
+                id: this.currentUserId,
+              },
+            },
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
@@ -721,7 +721,7 @@ export default {
           this.isCollapsed = false
           this.selectedAssignee = {
             id: this.currentUserId,
-            name: this.currentUserName
+            name: this.currentUserName,
           }
         })
         .catch((err) => {
@@ -777,7 +777,7 @@ export default {
 
       this.fetchAssignableUsers({
         include: 'department',
-        sort: 'lastname'
+        sort: 'lastname',
       })
         .then(() => {
           this.setSelectedAssignee()
@@ -793,7 +793,7 @@ export default {
             this.customFieldValues[field.id] = {
               fieldId: field.id,
               id: `${selectedOption.id}:${selectedOption.label}`,
-              name: selectedOption.label
+              name: selectedOption.label,
             }
           }
         })
@@ -814,10 +814,10 @@ export default {
             'description',
             'name',
             'solved',
-            'sortIndex'
-          ].join()
+            'sortIndex',
+          ].join(),
         },
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       })
         .then(() => {
           this.setSelectedPlace()
@@ -847,8 +847,8 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments
-          }
+            comments,
+          },
         }
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
@@ -864,8 +864,8 @@ export default {
         attributes = {
           customFields: Object.values(this.customFieldValues).map(option => ({
             id: option.fieldId,
-            value: this.getCustomFieldValueForPayload(option)
-          })).filter(option => option.value !== 'undefined')
+            value: this.getCustomFieldValueForPayload(option),
+          })).filter(option => option.value !== 'undefined'),
         }
       }
 
@@ -874,13 +874,13 @@ export default {
           id: this.segment.id,
           type: 'StatementSegment',
           attributes: {
-            recommendation: this.segment.attributes.recommendation
+            recommendation: this.segment.attributes.recommendation,
           },
           relationships: {
             assignee,
-            place
-          }
-        }
+            place,
+          },
+        },
       }
 
       if (attributes) {
@@ -892,26 +892,26 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          ...(hasCustomFields
-            ? {
-                customFields: {
-                  ...this.segment.attributes.customFields,
-                  ...payload.data.attributes?.customFields
-                }
-              }
-            : {})
+          ...(hasCustomFields ?
+            {
+              customFields: {
+                ...this.segment.attributes.customFields,
+                ...payload.data.attributes?.customFields,
+              },
+            } :
+            {}),
         },
         relationships: {
           ...this.segment.relationships,
-          ...payload.data.relationships
-        }
+          ...payload.data.relationships,
+        },
       }
 
       this.removeComments(updatedSegment.relationships)
 
       this.setSegment({
         ...updatedSegment,
-        id: this.segment.id
+        id: this.segment.id,
       })
 
       /**
@@ -919,16 +919,16 @@ export default {
        * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
        * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
        */
-      const savePayload = hasCustomFields
-        ? {
-            id: this.segment.id,
-            options: {
-              attributes: {
-                full: 'customFields'
-              }
-            }
-          }
-        : { id: this.segment.id }
+      const savePayload = hasCustomFields ?
+        {
+          id: this.segment.id,
+          options: {
+            attributes: {
+              full: 'customFields',
+            },
+          },
+        } :
+        { id: this.segment.id }
 
       this.saveSegmentAction(savePayload)
         .then(() => {
@@ -1007,8 +1007,8 @@ export default {
           currentCommentText: '',
           externId: this.segment.attributes.externId,
           segmentId: this.segment.id,
-          show: true
-        }
+          show: true,
+        },
       })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('show-slidebar')
@@ -1074,10 +1074,10 @@ export default {
           id: this.segment.id,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
@@ -1117,9 +1117,9 @@ export default {
             assignee: {
               data: {
                 id: this.selectedAssignee.id,
-                type: 'AssignableUser'
-              }
-            }
+                type: 'AssignableUser',
+              },
+            },
           }
         }
 
@@ -1127,21 +1127,21 @@ export default {
           place: {
             data: {
               id: this.selectedPlace.id,
-              type: 'Place'
-            }
-          }
+              type: 'Place',
+            },
+          },
         }
 
         relations = {
           ...relations,
           ...place,
-          ...assignee
+          ...assignee,
         }
       }
 
       const updated = {
         ...this.segment,
-        relationships: relations
+        relationships: relations,
       }
 
       this.setSegment({ ...updated, id: this.segment.id })
@@ -1160,7 +1160,7 @@ export default {
 
       // Return null for unassigned options instead of 'UNASSIGNED'
       return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
-    }
+    },
   },
 
   mounted () {
@@ -1187,10 +1187,10 @@ export default {
           return {
             component: shallowRef(window[name].default),
             name,
-            options
+            options,
           }
         })
       })
-  }
+  },
 }
 </script>

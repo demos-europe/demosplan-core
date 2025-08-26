@@ -79,14 +79,14 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    DpVersionHistoryDay
+    DpVersionHistoryDay,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -96,7 +96,7 @@ export default {
       entityId: null,
       externId: '',
       isLoading: true,
-      times: []
+      times: [],
     }
   },
 
@@ -120,28 +120,28 @@ export default {
       }
 
       return `${entityKey} ${this.externId} - ${Translator.trans('history')}`
-    }
+    },
   },
 
   methods: {
     loadItems (id, type) {
       this.isLoading = true
-      const route = type === 'statement'
-        ? 'dplan_api_statement_history_get'
-        : type === 'segment'
-          ? 'dplan_api_segment_history_get'
-          : 'dplan_api_statement_fragment_history'
+      const route = type === 'statement' ?
+        'dplan_api_statement_history_get' :
+        type === 'segment' ?
+          'dplan_api_segment_history_get' :
+          'dplan_api_statement_fragment_history'
 
-      const params = type === 'statement'
-        ? { statementId: id }
-        : type === 'segment'
-          ? { segmentId: id }
-          : { statementFragmentId: id, procedureId: this.procedureId }
+      const params = type === 'statement' ?
+        { statementId: id } :
+        type === 'segment' ?
+          { segmentId: id } :
+          { statementFragmentId: id, procedureId: this.procedureId }
 
       this.entityId = id
       return dpApi({
         method: 'GET',
-        url: Routing.generate(route, params)
+        url: Routing.generate(route, params),
       })
         .then(({ data }) => {
           this.days = data.data
@@ -154,7 +154,7 @@ export default {
       if (entityId === this.entityId) {
         this.loadItems(entityId, entityType)
       }
-    }
+    },
   },
 
   mounted () {
@@ -168,6 +168,6 @@ export default {
     this.$root.$on('entity:updated', (entityId, entityType) => {
       this.updateVersionHistory(entityId, entityType)
     })
-  }
+  },
 }
 </script>

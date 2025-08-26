@@ -21,6 +21,6 @@
 
 <script>
 export default {
-  name: 'TagListBulkControls'
+  name: 'TagListBulkControls',
 }
 </script>

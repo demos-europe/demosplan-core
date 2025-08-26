@@ -32,7 +32,7 @@ export default {
      *    fragmentId: { fragment with id and statementId }
      * }
      */
-    selectedFragments: {}
+    selectedFragments: {},
   },
 
   mutations: {
@@ -183,7 +183,7 @@ export default {
       const fragmentIndex = state.fragments[statementId].fragments.findIndex(frag => frag.id === fragmentId)
       state.fragments[statementId].fragments[fragmentIndex] = { ...fragmentInStore, ...data }
       state.fragments = { ...state.fragments }
-    }
+    },
   },
 
   actions: {
@@ -216,8 +216,8 @@ export default {
         {
           procedureId,
           statementId,
-          fragmentId
-        }
+          fragmentId,
+        },
       )
 
       // We have to use params.append because params.set does not work in IE11
@@ -300,13 +300,13 @@ export default {
             type: 'user',
             id: assigneeId,
             ignoreLastClaimed,
-            ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
-          }
+            ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } }),
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
         .then(({ data }) => {
           let updateObject = {}
@@ -401,21 +401,21 @@ export default {
             'paragraph',
             'document',
             'assignee',
-            'lastClaimedUser'
+            'lastClaimedUser',
           ].join(),
-          ...params
+          ...params,
         }),
         data: {
           data: {
             type: 'StatementFragment',
             id: data.id,
-            attributes: payload
-          }
+            attributes: payload,
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
         .then(response => {
           const dataToUpdate = {}
@@ -494,7 +494,7 @@ export default {
                   id: newAssigneeId,
                   uId: newAssigneeId,
                   name: newAssignee.attributes.fullName,
-                  orgaName: response.included(elem => elem.type === 'Orga' && elem.id === orgaId).attributes.name
+                  orgaName: response.included(elem => elem.type === 'Orga' && elem.id === orgaId).attributes.name,
                 }
                 // If assignee is not sent from BE assignee is probably null, so we reset the assignment with empty object
               } else {
@@ -525,7 +525,7 @@ export default {
           dplan.notify.error(Translator.trans('error.api.generic'))
           return e
         })
-    }
+    },
   },
 
   getters: {
@@ -548,6 +548,6 @@ export default {
 
     selectedFragments: state => state.selectedFragments,
 
-    selectedFragmentsLength: state => Object.keys(state.selectedFragments).length
-  }
+    selectedFragmentsLength: state => Object.keys(state.selectedFragments).length,
+  },
 }

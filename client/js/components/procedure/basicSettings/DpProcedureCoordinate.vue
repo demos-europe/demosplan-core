@@ -100,7 +100,7 @@ export default {
     DpOlMapDrawPoint,
     DpOlMapLayerVector,
     DpProcedureCoordinateInput,
-    ProcedureCoordinateGeolocation
+    ProcedureCoordinateGeolocation,
   },
 
   mixins: [prefixClassMixin],
@@ -109,51 +109,51 @@ export default {
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureCoordinate: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureLocation: {
       required: false,
       type: Object,
-      default: () => { return {} }
+      default: () => { return {} },
     },
 
     mapOptions: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initExtent: {
       required: false,
       type: Array,
-      default: () => { return [] }
+      default: () => { return [] },
     },
 
     // Bobhh does not use the opengeodb; but there is no permission for that atm.
     useOpengeodb: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     small: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -161,7 +161,7 @@ export default {
       currentProcedureCoordinate: '',
       isDrawingActive: true,
       coordinate: [],
-      requiredMapIsValid: true
+      requiredMapIsValid: true,
     }
   },
 
@@ -173,13 +173,13 @@ export default {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: this.coordinate
-          }
+            coordinates: this.coordinate,
+          },
         }
       } else {
         return {}
       }
-    }
+    },
   },
 
   methods: {
@@ -235,7 +235,7 @@ export default {
       if (newValue === true) {
         this.$refs.dragzoom.deactivateTool()
       }
-    }
+    },
   },
 
   mounted () {
@@ -268,6 +268,6 @@ export default {
     document.addEventListener('customValidationFailed', () => {
       this.setProcedureCoordinateValidState()
     })
-  }
+  },
 }
 </script>

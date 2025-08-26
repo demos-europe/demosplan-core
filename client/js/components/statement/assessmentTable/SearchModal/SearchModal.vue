@@ -212,11 +212,11 @@ export default {
     DpCheckbox,
     DpDetails,
     DpModal,
-    DpInput
+    DpInput,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
@@ -241,38 +241,38 @@ export default {
         'statementText',
         'topics',
         'typeOfSubmission',
-        'voters'
-      ]
+        'voters',
+      ],
     },
 
     preselectedFields: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     preselectedExactSearch: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // Search string entered in the search field
     tableSearch: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isForm: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'close',
-    'search'
+    'search',
   ],
 
   data () {
@@ -283,14 +283,14 @@ export default {
       explanations: [
         {
           title: Translator.trans('search.options'),
-          description: Translator.trans('search.options.description')
+          description: Translator.trans('search.options.description'),
         },
         {
           title: Translator.trans('search.special.characters'),
-          description: Translator.trans('search.special.characters.description')
-        }
+          description: Translator.trans('search.special.characters.description'),
+        },
       ],
-      availableFilterFields
+      availableFilterFields,
     }
   },
 
@@ -313,7 +313,7 @@ export default {
 
     selectedFields () {
       return this.availableFilterFields.filter(checkbox => checkbox.checked).map(checkbox => checkbox.value)
-    }
+    },
   },
 
   methods: {
@@ -356,7 +356,7 @@ export default {
     saveSelectedCheckboxes () {
       const selectedCheckboxes = this.filterCheckBoxesItems.map(checkbox => ({
         id: checkbox.id,
-        checked: checkbox.checked
+        checked: checkbox.checked,
       }))
 
       localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes))
@@ -375,7 +375,7 @@ export default {
       }
 
       this.saveSelectedCheckboxes()
-    }
+    },
   },
 
   created () {
@@ -390,6 +390,6 @@ export default {
     })
 
     this.loadSelectedCheckboxes()
-  }
+  },
 }
 </script>

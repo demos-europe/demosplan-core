@@ -232,11 +232,11 @@ export default {
   name: 'StatementModalRecheck',
 
   components: {
-    DpInlineNotification
+    DpInlineNotification,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [prefixClassMixin],
@@ -245,47 +245,47 @@ export default {
     allowAnonymousStatements: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     formFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFeedbackDefinitions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'edit-input'
+    'edit-input',
   ],
 
   computed: {
@@ -315,13 +315,13 @@ export default {
 
     showStreet () {
       return this.statement.r_street && this.statement.r_street !== ''
-    }
+    },
   },
 
   methods: {
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
-    }
-  }
+    },
+  },
 }
 </script>

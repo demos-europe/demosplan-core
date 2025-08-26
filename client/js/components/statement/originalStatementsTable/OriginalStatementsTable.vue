@@ -161,24 +161,24 @@ export default {
     }),
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
-    OriginalStatementsTableItem
+    OriginalStatementsTableItem,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     exportOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initFilterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     initPagination: {
@@ -188,14 +188,14 @@ export default {
         current_page: 1,
         per_page: 25,
         count: 1,
-        limits: () => [10, 25, 50]
-      })
+        limits: () => [10, 25, 50],
+      }),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -205,7 +205,7 @@ export default {
       currentTableView: 'expanded',
       filterHash: this.initFilterHash,
       isLoading: true,
-      pageSize: this.initPagination.count
+      pageSize: this.initPagination.count,
     }
   },
 
@@ -213,11 +213,11 @@ export default {
     ...mapState('Statement', [
       'statements',
       'selectedElements',
-      'pagination'
+      'pagination',
     ]),
 
     ...mapGetters('Statement', [
-      'getSelectionStateById'
+      'getSelectionStateById',
     ]),
 
     allItemsOnPageSelected () {
@@ -226,13 +226,13 @@ export default {
 
     isNoItemSelected () {
       return Object.keys(this.selectedElements).length === 0
-    }
+    },
 
   },
 
   methods: {
     ...mapActions('AssessmentTable', [
-      'applyBaseData'
+      'applyBaseData',
     ]),
 
     ...mapActions('Statement', [
@@ -240,16 +240,16 @@ export default {
       'getStatementAction',
       'removeFromSelectionAction',
       'resetSelection',
-      'setSelectionAction'
+      'setSelectionAction',
     ]),
 
     ...mapMutations('Statement', [
       'updatePagination',
-      'updatePersistStatementSelection'
+      'updatePersistStatementSelection',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setProperty'
+      'setProperty',
     ]),
 
     /**
@@ -261,7 +261,7 @@ export default {
 
       window.history.pushState({
         html: newUrl.join('?'),
-        pageTitle: document.title
+        pageTitle: document.title,
       }, document.title, newUrl.join('?'))
     },
 
@@ -279,13 +279,13 @@ export default {
     handlePageChange (newPage) {
       const tmpPager = Object.assign(this.pagination, {
         current_page: newPage,
-        count: this.pagination.per_page
+        count: this.pagination.per_page,
       })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -309,7 +309,7 @@ export default {
             movedToProcedure: (statements[statementId].movedToProcedureId !== ''),
             assignee: statements[statementId].assignee,
             extid: (statements[statementId].parentId && statements[statementId].originalId && statements[statementId].originalId !== statements[statementId].parentId) ? Translator.trans('copyof') + ' ' + statements[statementId].externId : statements[statementId].externId,
-            isCluster: statements[statementId].isCluster
+            isCluster: statements[statementId].isCluster,
           }
         }
         payload.statements = statements
@@ -329,7 +329,7 @@ export default {
         procedureId: this.procedureId,
         pagination: this.pagination,
         view_mode: '',
-        sort: ''
+        sort: '',
       })
     },
 
@@ -340,7 +340,7 @@ export default {
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({ html: url.join('?'), pageTitle: document.title }, document.title, url.join('?'))
       }
-    }
+    },
   },
 
   mounted () {
@@ -366,6 +366,6 @@ export default {
     this.$root.$on('current-table-view', (currentTableView) => {
       this.currentTableView = currentTableView
     })
-  }
+  },
 }
 </script>

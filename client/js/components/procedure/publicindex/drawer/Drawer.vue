@@ -63,7 +63,7 @@ export default {
     DpHandle,
     DpList,
     DpLoading,
-    DpDetailView
+    DpDetailView,
   },
 
   computed: {
@@ -71,11 +71,11 @@ export default {
       'currentProcedureId',
       'currentView',
       'isDrawerOpened',
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('Procedure', [
-      'procedures'
+      'procedures',
     ]),
 
     procedureCount () {
@@ -88,12 +88,12 @@ export default {
       }
       const curr = this.procedures.find(el => el.id === this.currentProcedureId)
       return curr || null
-    }
+    },
   },
 
   methods: {
     ...mapMutations('Procedure', [
-      'setProperty'
+      'setProperty',
     ]),
 
     openDrawer () {
@@ -103,7 +103,7 @@ export default {
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
       this.setProperty({ prop: 'currentView', val })
-    }
+    },
   },
 
   created () {
@@ -113,6 +113,6 @@ export default {
     if (currentBreakpoint === 'palm') {
       this.setProperty({ prop: 'isDrawerOpened', val: false })
     }
-  }
+  },
 }
 </script>

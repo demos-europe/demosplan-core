@@ -55,33 +55,33 @@ export default {
   name: 'DpListItem',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     procedure: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      detailView: false
+      detailView: false,
     }
   },
 
   computed: {
     procedurePeriod () {
       return `<i class="c-publicindex__icon-content fa fa-calendar" aria-hidden="true" :title="Translator.trans('period')"></i>${this.period()}`
-    }
+    },
   },
 
   methods: Object.assign({
     ...mapActions('Procedure', [
       'setProperty',
-      'showDetailView'
-    ])
-  }, SharedMethods)
+      'showDetailView',
+    ]),
+  }, SharedMethods),
 }
 </script>

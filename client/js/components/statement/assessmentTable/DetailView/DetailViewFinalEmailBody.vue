@@ -49,7 +49,7 @@ export default {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    })
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -58,28 +58,28 @@ export default {
     dataCy: {
       type: String,
       required: false,
-      default: 'statementDetailFinalEmailBody'
+      default: 'statementDetailFinalEmailBody',
     },
 
     editable: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     initText: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'emailBody:input'
+    'emailBody:input',
   ],
 
   data () {
@@ -87,15 +87,15 @@ export default {
       text: this.initText,
       toolbarItems: {
         headings: [1, 2, 3],
-        linkButton: true
-      }
+        linkButton: true,
+      },
     }
   },
 
   watch: {
     initText (newVal) {
       this.text = newVal
-    }
+    },
   },
 
   methods: {
@@ -107,7 +107,7 @@ export default {
 
     resetText () {
       this.text = this.initText
-    }
-  }
+    },
+  },
 }
 </script>

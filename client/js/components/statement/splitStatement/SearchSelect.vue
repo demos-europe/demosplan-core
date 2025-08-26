@@ -52,28 +52,28 @@ export default {
   name: 'SearchSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     options: {
       type: Array,
-      required: true
+      required: true,
     },
 
     placeHolder: {
       type: String,
-      default: ''
+      default: '',
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   emits: [
-    'open-create-form'
+    'open-create-form',
   ],
 
   computed: {
@@ -81,13 +81,13 @@ export default {
       availableTags: 'availableTags',
       currentSegment: 'editingSegment',
       tagById: 'tagById',
-      categorizedTags: 'categorizedTags'
-    })
+      categorizedTags: 'categorizedTags',
+    }),
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     /**
@@ -102,7 +102,7 @@ export default {
      */
     updateSelected (tag) {
       this.updateCurrentTags({ id: tag.id, tagName: tag.title })
-    }
-  }
+    },
+  },
 }
 </script>

@@ -769,7 +769,7 @@ export default {
     DpDetails,
     DpEditor,
     DpTextArea,
-    DpSelect
+    DpSelect,
   },
 
   inject: [
@@ -779,29 +779,29 @@ export default {
     'showNewStatementNotification',
     'proceduresDirectLinkPrefix',
     'projectName',
-    'writableFields'
+    'writableFields',
   ],
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     additionalFieldOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availableOrgaTypes: {
       type: Array,
-      required: true
+      required: true,
     },
 
     initialOrganisation: {
       type: Object,
       required: false,
-      default: () => { return {} }
+      default: () => { return {} },
     },
 
     organisation: {
@@ -836,47 +836,47 @@ export default {
             street: '',
             houseNumber: '',
             submissionType: 'standard',
-            type: ''
+            type: '',
           },
           relationships: {
             currentSlug: {
               data: {
                 id: '',
-                type: 'Slug'
-              }
+                type: 'Slug',
+              },
             },
             customers: {
               data: [
                 {
                   id: '',
-                  type: 'Customer'
-                }
-              ]
+                  type: 'Customer',
+                },
+              ],
             },
             departments: {
               data: [
                 {
                   id: '',
-                  type: 'Department'
-                }
-              ]
-            }
-          }
+                  type: 'Department',
+                },
+              ],
+            },
+          },
         }
-      }
+      },
     },
 
     organisationId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'addon-update',
     'addonOptions:loaded',
-    'organisation:update'
+    'organisation:update',
   ],
 
   data () {
@@ -885,22 +885,22 @@ export default {
       typeStatuses: [
         {
           value: 'accepted',
-          label: Translator.trans('enabled')
+          label: Translator.trans('enabled'),
         },
         {
           value: 'pending',
-          label: Translator.trans('requested')
+          label: Translator.trans('requested'),
         },
         {
           value: 'rejected',
-          label: Translator.trans('rejected')
-        }
+          label: Translator.trans('rejected'),
+        },
       ],
       showAddStatusForm: false,
       statusForm: {
         status: 'pending',
-        type: 'TöB'
-      }
+        type: 'TöB',
+      },
     }
   },
 
@@ -957,14 +957,14 @@ export default {
     },
 
     registrationStatuses () {
-      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses')
-        ? Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain)
-        : []
+      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses') ?
+        Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain) :
+        []
 
-      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))
-        ? registrationStatuses
-        : []
-    }
+      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')) ?
+        registrationStatuses :
+        []
+    },
   },
 
   methods: {
@@ -985,9 +985,9 @@ export default {
 
     hasChanged (field) {
       if (typeof this.initialOrganisation.attributes !== 'undefined') {
-        return hasOwnProp(this.initialOrganisation.attributes, field)
-          ? this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field]
-          : false
+        return hasOwnProp(this.initialOrganisation.attributes, field) ?
+          this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
+          false
       }
       return false
     },
@@ -999,7 +999,7 @@ export default {
     resetRegistrationStatus () {
       this.statusForm = {
         status: 'pending',
-        type: (this.availableRegistrationTypes.length > 0) ? this.availableRegistrationTypes[0].value : ''
+        type: (this.availableRegistrationTypes.length > 0) ? this.availableRegistrationTypes[0].value : '',
       }
       this.showAddStatusForm = false
     },
@@ -1018,7 +1018,7 @@ export default {
       this.localOrganisation.attributes.registrationStatuses.push({
         type: this.statusForm.type,
         status: this.statusForm.status,
-        subdomain: this.subdomain
+        subdomain: this.subdomain,
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
@@ -1030,7 +1030,7 @@ export default {
 
     updateAddonPayload (payload) {
       this.$emit('addon-update', payload)
-    }
+    },
   },
 
   created () {
@@ -1048,6 +1048,6 @@ export default {
       this.showAddStatusForm = true
     }
     this.statusForm.type = this.availableRegistrationTypes.length > 0 ? this.availableRegistrationTypes[0].value : ''
-  }
+  },
 }
 </script>

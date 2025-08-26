@@ -94,7 +94,7 @@ import {
   DpInput,
   DpLabel,
   DpSelect,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -108,7 +108,7 @@ export default {
     DpButtonRow,
     DpInput,
     DpLabel,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -117,13 +117,13 @@ export default {
     isMasterProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -131,17 +131,17 @@ export default {
       currentForm: '',
       newTag: {
         title: '',
-        topic: ''
+        topic: '',
       },
       newTopic: {
-        title: ''
-      }
+        title: '',
+      },
     }
   },
 
   computed: {
     ...mapState('TagTopic', {
-      TagTopic: 'items'
+      TagTopic: 'items',
     }),
 
     topicsAsOptions () {
@@ -150,24 +150,24 @@ export default {
 
         return {
           label: attributes.title,
-          value: id
+          value: id,
         }
       })
-    }
+    },
   },
 
   methods: {
     ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
+      updateTagTopic: 'setItem',
     }),
 
     ...mapActions('Tag', {
-      createTag: 'create'
+      createTag: 'create',
     }),
 
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
-      saveTagTopic: 'save'
+      saveTagTopic: 'save',
     }),
 
     closeForm () {
@@ -183,7 +183,7 @@ export default {
       this.newTopic.title = ''
       this.newTag = {
         title: '',
-        topic: ''
+        topic: '',
       }
     },
 
@@ -191,16 +191,16 @@ export default {
       this.createTag({
         type: 'Tag',
         attributes: {
-          title: this.newTag.title
+          title: this.newTag.title,
         },
         relationships: {
           topic: {
             data: {
               type: 'TagTopic',
-              id: this.newTag.topic
-            }
-          }
-        }
+              id: this.newTag.topic,
+            },
+          },
+        },
       })
         .then(response => {
           if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
@@ -214,21 +214,21 @@ export default {
             id: this.newTag.topic,
             type: 'TagTopic',
             attributes: parentTopic.attributes,
-            relationships: parentTopic.relationships
-              ? {
-                  ...parentTopic.relationships,
-                  tags: {
-                    data: parentTopic.relationships.tags.data.concat({
-                      type: 'Tag',
-                      id: newTagId
-                    })
-                  }
-                }
-              : {
-                  tags: {
-                    data: [{ type: 'Tag', id: newTagId }]
-                  }
-                }
+            relationships: parentTopic.relationships ?
+              {
+                ...parentTopic.relationships,
+                tags: {
+                  data: parentTopic.relationships.tags.data.concat({
+                    type: 'Tag',
+                    id: newTagId,
+                  }),
+                },
+              } :
+              {
+                tags: {
+                  data: [{ type: 'Tag', id: newTagId }],
+                },
+              },
           })
 
           this.saveTagTopic(this.newTag.topic)
@@ -241,16 +241,16 @@ export default {
       this.createTagTopic({
         type: 'TagTopic',
         attributes: {
-          title: this.newTopic.title
+          title: this.newTopic.title,
         },
         relationships: {
           procedure: {
             data: {
               type: this.isMasterProcedure ? 'ProcedureTemplate' : 'Procedure',
-              id: this.procedureId
-            }
-          }
-        }
+              id: this.procedureId,
+            },
+          },
+        },
       })
         .then(() => {
           this.closeForm()
@@ -259,7 +259,7 @@ export default {
 
     updateForm (value) {
       this.newTag[value.key] = value.value
-    }
-  }
+    },
+  },
 }
 </script>
