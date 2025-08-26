@@ -1403,7 +1403,7 @@ class DemosPlanProcedureController extends BaseController
                         break;
                     }
                 }
-                
+
                 // Fallback to 'analysis' if 'evaluating' phase not found
                 if (null === $evaluatingPhase) {
                     foreach ($templateVars['internalPhases'] as $internalPhase) {
