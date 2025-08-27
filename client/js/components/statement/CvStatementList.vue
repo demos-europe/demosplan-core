@@ -280,29 +280,14 @@ export default {
   data () {
     return {
       activeTab: 'statements',
-      checkboxListeners: [], // Track individual checkbox listeners for cleanup
-      clientSortDirection: null,
-      clientSortField: null, // For client-side sorting
-      expandedRows: [],
-      headerCheckboxHandler: null, // Store handler for cleanup
-      isColumnSelectorOpen: false,
-      lastPaginationEventTime: 0, // Debouncing for pagination events
-      pagination: {
-        currentPage: 1,
-        perPage: 10,
-        total: 0,
-        totalPages: 0
-      },
-      searchValue: '',
-      selectedRows: [],
-      sortBy: '',
-      sortDirection: '',
-      // Status mapping objects
       apiStatusLabels: {
         new: Translator.trans('new'),
         processing: Translator.trans('fragment.status.editing'),
         completed: Translator.trans('terminated')
       },
+      checkboxListeners: [], // Track individual checkbox listeners for cleanup
+      clientSortDirection: null,
+      clientSortField: null, // For client-side sorting
       columns: [
         { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
@@ -321,6 +306,10 @@ export default {
         medium: 'warm-gray', // 34-66%
         high: 'green' // >= 67%
       },
+      expandedRows: [],
+      headerCheckboxHandler: null, // Store handler for cleanup
+      isColumnSelectorOpen: false,
+      lastPaginationEventTime: 0, // Debouncing for pagination events
       /*
        * Local translations: Temporary storage for strings that don't have
        * translation keys yet in messages+intl-icu.de.yml
@@ -340,6 +329,13 @@ export default {
         selectColumns: 'Spalten auswählen',
         statementsTab: 'Stellungnahmen'
       },
+      pagination: {
+        currentPage: 1,
+        perPage: 10,
+        total: 0,
+        totalPages: 0
+      },
+      searchValue: '',
       selectableColumns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -348,6 +344,9 @@ export default {
         { key: 'sections', label: 'Abschnitte' },
         { key: 'confidence', label: 'Konfidenz' }
       ],
+      selectedRows: [],
+      sortBy: '',
+      sortDirection: '',
       statusClasses: {
         'In Bearbeitung': 'status-editing',
         Abgeschlossen: 'status-completed'
@@ -370,7 +369,8 @@ export default {
       const rawData = Object.values(this.statementsObject) || []
       const processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
-        const confidence = Math.floor(Math.random() * 100) + 1
+        // Dummy confidence value - replace with API data when available
+        const confidence = 75
         let confidenceType
         if (confidence <= 33) {
           confidenceType = 'low'
