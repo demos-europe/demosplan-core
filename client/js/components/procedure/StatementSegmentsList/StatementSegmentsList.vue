@@ -548,7 +548,6 @@ export default {
         })
     },
 
-
     fetchCustomFields () {
       const payload = {
         id: this.procedure.id,
@@ -888,12 +887,14 @@ export default {
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
-        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+        if (response?.attributes) {
+          this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+        }
       })
 
     this.fetchLayers(this.procedureId)
       .then(response => {
-        this.procedureMapSettings.layers = response.data
+        this.procedureMapSettings.layers = response.data.data
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })
