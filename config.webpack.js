@@ -81,11 +81,13 @@ const baseConfig = {
   },
 }
 
+const bundles = bundleEntryPoints(config)
+
 const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
-      ...bundleEntryPoints(config.clientBundleGlob),
+      ...bundles,
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
       preflight: resolveDir('./client/css/preflight.css'),
@@ -102,6 +104,7 @@ const bundlesConfig = merge(baseConfig, {
     extensions: ['...', '.js', '.vue', '.json', '.ts', '.tsx'],
     alias: {
       '@DpJs': config.absoluteRoot + 'client/js',
+      '@DpJsProject': config.projectRoot + '/client/js',
       vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
       // To Fix masterportal issues, we have to resolve some imports within olcs manually
       './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',

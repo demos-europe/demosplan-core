@@ -142,7 +142,7 @@
 
 <script>
 import { dpApi, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { nextTick } from 'vue'
 import qs from 'qs'
 
@@ -299,6 +299,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('UserFormFields', [
+      'fetchOrgaSuggestions',
+    ]),
+
     ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
@@ -521,6 +525,7 @@ export default {
 
   mounted () {
     this.setInitialOrgaData()
+    this.fetchOrgaSuggestions()
 
     this.$root.$on('user:reset', () => {
       if (!this.isUserSet) {
