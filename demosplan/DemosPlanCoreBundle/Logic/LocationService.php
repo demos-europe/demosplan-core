@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Location;
-use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeocoderInterface;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -28,7 +28,7 @@ class LocationService
     public function __construct(
         ManagerRegistry $registry,
         private readonly LoggerInterface $logger,
-        private readonly GeodatenzentrumAddressSearchService $geodatenzentrumAddressSearchService,
+        private readonly GeocoderInterface $geocoder,
     ) {
         $this->em = $registry->getManager();
     }
@@ -55,7 +55,7 @@ class LocationService
         $this->logger->info('Starting address search via Geodatenzentrum API', $logContext);
 
         try {
-            $locations = $this->geodatenzentrumAddressSearchService
+            $locations = $this->geocoder
                 ->searchAddress($searchString, $limit);
 
             $resultCount = count($locations);
@@ -95,7 +95,6 @@ class LocationService
     }
     /**
      * Get a City by Name or postal code.
-     *  CRITICAL CHANGE: Now uses external Geodatenzentrum API instead of database query.
      *
      * @param string $searchString Search query for city/location
      * @param int $limit Maximum number of results to return
@@ -110,67 +109,41 @@ class LocationService
             'searchString'           => $searchString,
             'limit'                  => $limit,
             'maxExtent'              => $maxExtent,
-            'usingExternalApi'       => true,
-            'databaseSearchDisabled' => true,
+            'usingExternalApi'       => false,
+            'databaseSearchDisabled' => false,
         ];
 
-        $this->logger->info('Starting city search - USING EXTERNAL API (database search disabled)', $logContext);
+        $this->logger->info('Starting city search - using database', $logContext);
 
         if (null !== $maxExtent) {
-            $this->logger->warning('Map extent filtering requested but NOT SUPPORTED by external API', [
+            $this->logger->warning('Map extent filtering supported via database search', [
                 ...$logContext,
-                'impact'           => 'Map extent parameter is ignored when using Geodatenzentrum API',
-                'originalBehavior' => 'Database search supported geographic filtering via maxExtent',
-                'currentBehavior'  => 'External API returns results without geographic filtering',
-                'recommendation'   => 'Consider implementing client-side filtering if geographic bounds are critical',
+                'impact'           => 'Map extent parameter will be used for geographic filtering',
+                'dataSource' => 'Database search supported geographic filtering via maxExtent',
+                'currentBehavior'  => 'Database returns geographically filtered results',
             ]);
         }
 
         try {
-            $locations = $this->geodatenzentrumAddressSearchService->searchAddress($searchString, $limit, $maxExtent);
+            $dbResults = $this->getLocationRepository()->searchCity($searchString, $limit, $maxExtent);
+            $locations = $this->formatDatabaseResults($dbResults ?? []);
             $resultCount = count($locations);
 
-            $this->logger->info('City search completed via external API', [
+            $this->logger->info('City search completed database', [
                 ...$logContext,
                 'resultCount'   => $resultCount,
-                'apiTransition' => [
-                    'from'              => 'database query (LocationRepository::searchCity)',
-                    'to'                => 'external Geodatenzentrum API (GeodatenzentrumAddressSearchService::searchAddress)',
-                    'functionalChanges' => [
-                        'mapExtentFiltering' => 'no longer available',
-                        'dataSource'         => 'changed from internal database to external service',
-                        'dependency'         => 'now requires external service availability',
-                    ],
-                ],
+                'dataSource'     => 'internal database (LocationRepository)',
                 'firstResult' => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null,
             ]);
 
             return ['body' => $locations];
         } catch (Exception $e) {
-            $this->logger->error('City search failed via external API', [
+            $this->logger->error('City search failed via database', [
                 ...$logContext,
                 'error'           => $e->getMessage(),
                 'errorType'       => get_class($e),
                 'file'            => $e->getFile(),
-                'line'            => $e->getLine(),
-                'fallbackOptions' => [
-                    'databaseFallback' => 'Not implemented - would require uncommenting repository call',
-                    'currentBehavior'  => 'Return empty results on external API failure',
-                    'riskAssessment'   => 'Complete service failure if external API is unavailable',
-                ],
-                'troubleshooting' => [
-                    'immediateSteps' => [
-                        'Check Geodatenzentrum API status',
-                        'Verify network connectivity to external service',
-                        'Review API timeout settings (currently 30s)',
-                        'Check application logs for HTTP client errors',
-                    ],
-                    'recoveryOptions' => [
-                        'Consider implementing database fallback',
-                        'Monitor external service uptime',
-                        'Implement circuit breaker pattern for resilience',
-                    ],
-                ],
+                'dataSource'     => 'internal database (LocationRepository)',
             ]);
 
             return ['body' => []];
@@ -274,5 +247,27 @@ class LocationService
     protected function getLocationRepository(): LocationRepository
     {
         return $this->em->getRepository(Location::class);
+    }
+
+    private function formatDatabaseResults(array $dbResults): array
+    {
+        if (empty($dbResults)) {
+            return [];
+        }
+        $formattedResults = [];
+        foreach ($dbResults as $location) {
+            $formattedResults[] = [
+                'name' => $location['name'] ?? '',
+                'housenumber' => '', //DB does not have housenumbers
+                'postcode' => $location['postcode'] ?? '',
+                'city' => $location['name'] ?? '',
+                'state' => '', //DB does not have state
+                'lat'  => $location['lat'] ?? '',
+                'lon'  => $location['lon'] ?? '',
+                'municipalCode' => $location['municipalCode'] ?? null,
+            ];
+        }
+
+        return $formattedResults;
     }
 }

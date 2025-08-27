@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Exception;
+use RuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -23,7 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 
-class GeodatenzentrumAddressSearchService
+class GeodatenzentrumAddressSearchService implements GeocoderInterface
 {
     private const GEODATENZENTRUM_ADDRESS_SEARCH = 'https://sg.geodatenzentrum.de/gdz_ortssuche__353cdae2-2c78-1654-c1f0-85192cfa13d6/geosearch?count=5';
     public function __construct(
@@ -54,101 +55,98 @@ class GeodatenzentrumAddressSearchService
             'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
         ];
 
-        // Check permissions before making external API call
+        // First step: validate permissions before making external API call
+        // Second: make call to external API provider
+        // Third: format and filter results
         try {
-            $this->currentUser->hasPermission('feature_geocoder_address_search');
-        } catch (Exception $permissionException) {
-            $this->logger->error('Permission denied for address search', [
-                ...$logContext,
-                'error'          => $permissionException->getMessage(),
-                'errorType'      => 'PermissionException',
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
-            ]);
-            throw $permissionException;
-        }
-
-        try {
-            $requestOptions = [
-                'timeout' => 30, // 30 second timeout for external API
-                'query'   => [
-                    'query'        => $query,
-                    'format'       => 'json',
-                    'limit'        => $limit,
-                    'countrycodes' => 'de',
-                ],
-            ];
-
-            $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, $requestOptions);
-            $statusCode = $response->getStatusCode();
-
-            if (200 !== $statusCode) {
-                $this->logger->error('Geodatenzentrum API error - non-200 status', [
-                    ...$logContext,
-                    'statusCode'     => $statusCode,
-                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
-                ]);
-
-                return [];
-            }
-
-            $result = $response->toArray();
-
-            if (!isset($result['features']) || !is_array($result['features'])) {
-                $this->logger->error('Geodatenzentrum API error - invalid response format', [
-                    ...$logContext,
-                    'responseKeys'   => array_keys($result),
-                    'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
-                ]);
-
-                return [];
-            }
-
-            $formattedResults = [];
-            foreach ($result['features'] as $feature) {
-                $formatted = $this->formatResult($feature);
-                if (!empty($formatted['name']) || !empty($formatted['city'])) {
-                    $formattedResults[] = $formatted;
-                }
-            }
+            $this->validatePermissions();
+            $rawFeatures = $this->makeApiCall($query, $limit);
+            $formattedResults = $this->formatResult($rawFeatures);
+            $this->logSuccess($logContext, $startTime, count($formattedResults));
 
             return $formattedResults;
-        } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
-            $statusCode = method_exists($e, 'getResponse') ? $e->getResponse()->getStatusCode() : 'unknown';
-            $this->logger->error('Geodatenzentrum API request failed', [
-                ...$logContext,
-                'error'          => $e->getMessage(),
-                'errorType'      => get_class($e),
-                'statusCode'     => $statusCode,
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
-            ]);
+
+        } catch (Exception $e) {
+            $this->logError($e, $logContext, $startTime);
+            if (str_contains($e->getMessage(), 'Permission')) {
+                throw $e;
+            }
 
             return [];
-        } catch (RedirectionExceptionInterface $e) {
-            // Expected redirections are ignored, service continues normally
-            return [];
         } catch (Throwable $e) {
-            $this->logger->error('Unexpected error during Geodatenzentrum address search', [
-                ...$logContext,
-                'error'          => $e->getMessage(),
-                'errorType'      => get_class($e),
-                'file'           => $e->getFile(),
-                'line'           => $e->getLine(),
-                'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
-            ]);
+            $this->logError($e, $logContext, $startTime);
 
             return [];
         }
     }
 
+    // Function to check if user has permission to use the Geodatenzentrum API call
+    private function validatePermissions(): void
+    {
+        $this->currentUser->hasPermission('feature_geocoder_address_search');
+    }
+
+    // make call to external API via HttpClient
+    private function makeApiCall(string $query, int $limit): array
+    {
+        $requestOptions = [
+            'timeout' => 30,
+            'query'        => [
+                'query'        => $query,
+                'limit'        => $limit,
+                'format'       => 'json',
+                'countrycodes' => 'de',
+            ],
+        ];
+        try {
+            $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, $requestOptions);
+            $statusCode = $response->getStatusCode();
+            if (200 !== $statusCode) {
+                $this->logger->error('Geodatenzentrum API request failed', [
+                    'statusCode'     => $statusCode,
+                    'query'          => $query,
+                ]);
+                throw new RuntimeException('Invalid API response');
+            }
+            $result = $response->toArray();
+
+            if (!isset($result['features']) || !is_array($result['features'])) {
+                $this->logger->error('Geodatenzentrum API request failed', [
+                    'responseKeys'   => array_keys($result),
+                    'query'          => $query,
+                ]);
+                throw new RuntimeException('Invalid API response');
+            }
+
+            return $result['features'];
+
+        } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
+            throw new RuntimeException('API request failed: '.$e->getMessage(), 0, $e);
+        } catch (RedirectionExceptionInterface $e) {
+            // Expected redirections are ignored, service continues normally
+            return [];
+        }
+    }
+
+    private function formatResult(array $rawFeature): array
+    {
+        $formattedResults = [];
+        foreach ($rawFeature as $feature) {
+            $formatted = $this->formatSingleResult($feature);
+            if (!empty($formatted['name']) || !empty($formatted['city'])) {
+                $formattedResults[] = $formatted;
+            }
+        }
+
+        return $formattedResults;
+    }
     /**
-     * Format raw Geodatenzentrum API result to match internal address format.
-     * Returns data compatible with the former searchCity function.
      *
      * @param array $result Raw result from Geodatenzentrum API feature
      *
      * @return array Formatted address data with fallback values
      */
-    private function formatResult(array $result): array
+    private function formatSingleResult(array $result): array
     {
         try {
             $properties = $result['properties'] ?? [];
@@ -205,5 +203,25 @@ class GeodatenzentrumAddressSearchService
                 'municipalCode' => null,
             ];
         }
+    }
+    private function logSuccess(array $logContext, float $startTime, int $resultCount): void
+    {
+        $this->logger->info('Address search completed successfully', [
+            ...$logContext,
+            'resultCount'    => $resultCount,
+            'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
+        ]);
+    }
+
+    private function logError(Throwable $e, array $logContext, float $startTime): void
+    {
+        $this->logger->error('Address search failed', [
+            ...$logContext,
+            'error'          => $e->getMessage(),
+            'errorType'      => get_class($e),
+            'file'           => $e->getFile(),
+            'line'           => $e->getLine(),
+            'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
+        ]);
     }
 }

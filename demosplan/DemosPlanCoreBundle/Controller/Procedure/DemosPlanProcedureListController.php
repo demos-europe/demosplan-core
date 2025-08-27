@@ -528,7 +528,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
                         $filteredSuggestions[] = [
-                            'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
+                            'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
                             'data'  => $entry,
                         ];
                     }
