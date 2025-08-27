@@ -179,6 +179,12 @@ function showErrorMessage (err, stats) {
         log(chalk.yellow(warning.message))
       }
     }
+  } else if (stats.hasWarnings()) {
+    // Always show warnings, even when there are no errors
+    const info = stats.toJson()
+    for (const warning of info.warnings) {
+      log(chalk.yellow(warning.message))
+    }
   }
 }
 
