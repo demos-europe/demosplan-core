@@ -15,7 +15,7 @@ import { DpAccordion } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpAccordion
+  DpAccordion,
 }
 
 initialize(components)

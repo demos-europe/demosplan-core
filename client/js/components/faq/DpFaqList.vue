@@ -63,7 +63,7 @@ export default {
     DpFaqCategoryItem,
     DpFaqItem,
     DpLoading,
-    DpTreeList
+    DpTreeList,
   },
 
   props: {
@@ -72,28 +72,28 @@ export default {
      */
     roleGroupsFaqVisibility: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       options: {
-        dragLeaves: true
+        dragLeaves: true,
       },
       treeListData: null,
       categories: null,
-      isLoading: true
+      isLoading: true,
     }
   },
 
   computed: {
     ...mapState('FaqCategory', {
-      faqCategories: 'items'
+      faqCategories: 'items',
     }),
 
     ...mapState('Faq', {
-      faqItems: 'items'
+      faqItems: 'items',
     }),
 
     /**
@@ -105,34 +105,34 @@ export default {
         {
           title: Translator.trans('role.fp'),
           id: 'fpVisible',
-          showFor: 'GLAUTH'
+          showFor: 'GLAUTH',
         },
         {
           title: Translator.trans('institution'),
           id: 'invitableInstitutionVisible',
-          showFor: 'GPSORG'
+          showFor: 'GPSORG',
         },
         {
           title: Translator.trans('guest.citizen'),
           id: 'publicVisible',
-          showFor: 'GGUEST'
-        }
+          showFor: 'GGUEST',
+        },
       ].filter(group => this.roleGroupsFaqVisibility.includes(group.showFor))
     },
 
     transformedCategories () {
       return this.faqItems && this.faqCategories ? this.transformCategoryData(this.faqCategories) : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('FaqCategory', {
       categoryList: 'list',
-      saveCategory: 'save'
+      saveCategory: 'save',
     }),
 
     ...mapMutations('FaqCategory', {
-      updateCategory: 'setItem'
+      updateCategory: 'setItem',
     }),
 
     transformCategoryData (categories) {
@@ -234,13 +234,13 @@ export default {
         }
         xhr.send(postParams)
       })
-    }
+    },
   },
 
   mounted () {
     this.categoryList().then(() => {
       this.isLoading = false
     })
-  }
+  },
 }
 </script>

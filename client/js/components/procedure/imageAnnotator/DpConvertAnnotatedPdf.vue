@@ -9,11 +9,11 @@
 
 <template>
   <div
-    class="convert-annotated-pdf"
-    ref="container">
+    ref="container"
+    class="convert-annotated-pdf">
     <div
-      class="column column--big"
       ref="leftColumn"
+      class="column column--big"
       :style="largeColumnStyle">
       <dp-loading v-if="isLoading" />
       <div
@@ -84,60 +84,60 @@ export default {
     DpButton,
     DpLoading,
     DpSendBeacon,
-    DpSimplifiedNewStatementForm
+    DpSimplifiedNewStatementForm,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentProcedurePhase: {
       type: String,
       required: false,
-      default: 'analysis'
+      default: 'analysis',
     },
 
     documentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     initSubmitter: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
@@ -151,13 +151,13 @@ export default {
         submitter: { ...this.initSubmitter },
         submittedDate: '',
         tags: [],
-        text: ''
+        text: '',
       },
       isLoading: false,
       largeColumnWidth: 66.6,
       onePixelInPercent: 0,
       pages: [],
-      smallColumnWidth: 33.3
+      smallColumnWidth: 33.3,
     }
   },
 
@@ -187,7 +187,7 @@ export default {
 
     smallColumnStyle () {
       return `flex-basis: ${this.currentSmallColumnWidth}%;`
-    }
+    },
   },
 
   methods: {
@@ -199,22 +199,22 @@ export default {
           annotatedStatementPdf: {
             condition: {
               path: 'id',
-              value: this.documentId
-            }
-          }
+              value: this.documentId,
+            },
+          },
         },
         procedureId: this.procedureId,
         page: {
-          size: 1
+          size: 1,
         },
-        include: 'annotatedStatementPdfPages'
+        include: 'annotatedStatementPdfPages',
       }
       const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
-        text: this.document.attributes.quickSave ?? this.document.attributes.text
+        text: this.document.attributes.quickSave ?? this.document.attributes.text,
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
@@ -225,8 +225,8 @@ export default {
         data: {
           type: 'AnnotatedStatementPdf',
           id: this.documentId,
-          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text }
-        }
+          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text },
+        },
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
@@ -275,11 +275,11 @@ export default {
       const bodyEl = document.getElementsByTagName('body')[0]
       bodyEl.removeEventListener('mousemove', this.doResize)
       bodyEl.removeEventListener('mouseup', this.stopResize)
-    }
+    },
   },
 
   mounted () {
     this.getInitialData()
-  }
+  },
 }
 </script>

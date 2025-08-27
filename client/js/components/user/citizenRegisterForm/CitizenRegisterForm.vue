@@ -81,8 +81,8 @@
       </div>
 
       <div
-        :class="prefixClass('c-login-register__col c-login-register__col-right')"
-        v-if="isIdp">
+        v-if="isIdp"
+        :class="prefixClass('c-login-register__col c-login-register__col-right')">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
           v-text="Translator.trans('login.other_account')" />
@@ -116,7 +116,7 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin],
@@ -125,19 +125,19 @@ export default {
     isIdp: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     idpLoginPath: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

@@ -38,37 +38,37 @@ export default {
   components: {
     DpButtonRow,
     DpEditor,
-    DpLabel
+    DpLabel,
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'update'
+    'update',
   ],
 
   computed: {
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
-      'currentCommentText'
+      'currentCommentText',
     ]),
 
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapState('SegmentSlidebar', [
-      'isLoading'
+      'isLoading',
     ]),
 
     segment () {
@@ -77,26 +77,26 @@ export default {
 
     text () {
       return this.currentCommentText || ''
-    }
+    },
   },
 
   methods: {
     ...mapActions('StatementSegment', {
       listSegments: 'list',
-      restoreSegmentAction: 'restoreFromInitial'
+      restoreSegmentAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('SegmentSlidebar', [
       'setContent',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('StatementSegment', {
-      updateSegment: 'update'
+      updateSegment: 'update',
     }),
 
     ...mapMutations('SegmentComment', {
-      setComment: 'setItem'
+      setComment: 'setItem',
     }),
 
     resetCurrentComment (show = true) {
@@ -109,28 +109,28 @@ export default {
 
       const payload = {
         attributes: {
-          text: this.currentCommentText
+          text: this.currentCommentText,
         },
         relationships: {
           place: {
-            data: this.segment.relationships.place?.data?.id
-              ? { id: this.segment.relationships.place.data.id, type: 'Place' }
-              : null
+            data: this.segment.relationships.place?.data?.id ?
+              { id: this.segment.relationships.place.data.id, type: 'Place' } :
+              null,
           },
           segment: {
             data: {
               id: this.segmentId,
-              type: 'StatementSegment'
-            }
+              type: 'StatementSegment',
+            },
           },
           submitter: {
             data: {
               id: this.currentUser.id,
-              type: 'User'
-            }
-          }
+              type: 'User',
+            },
+          },
         },
-        type: 'SegmentComment'
+        type: 'SegmentComment',
       }
 
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SegmentComment' }), {}, { data: payload })
@@ -142,31 +142,31 @@ export default {
             id,
             attributes: {
               ...payload.attributes,
-              creationDate: dayjs().toISOString() // Since we don't have the value from the Backend, this should be close enough for ordering
+              creationDate: dayjs().toISOString(), // Since we don't have the value from the Backend, this should be close enough for ordering
             },
             // We have to hack it like this, because the types for relationships here are in camelCase and not in PascalCase
             relationships: {
               place: {
-                data: payloadRel.place?.data?.id
-                  ? {
-                      id: payloadRel.place.data.id,
-                      type: 'Place'
-                    }
-                  : null
+                data: payloadRel.place?.data?.id ?
+                  {
+                    id: payloadRel.place.data.id,
+                    type: 'Place',
+                  } :
+                  null,
               },
               segment: {
                 data: {
                   id: payloadRel.segment.data.id,
-                  type: 'StatementSegment'
-                }
+                  type: 'StatementSegment',
+                },
               },
               submitter: {
                 data: {
                   id: payloadRel.submitter.data.id,
-                  type: 'User'
-                }
-              }
-            }
+                  type: 'User',
+                },
+              },
+            },
           }
           const relationPayload = {
             id: this.segment.id,
@@ -174,8 +174,8 @@ export default {
             action: 'add',
             value: {
               id,
-              type: 'SegmentComment'
-            }
+              type: 'SegmentComment',
+            },
           }
 
           this.setComment(newCommentData)
@@ -191,7 +191,7 @@ export default {
 
     update (val) {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: val } })
-    }
-  }
+    },
+  },
 }
 </script>

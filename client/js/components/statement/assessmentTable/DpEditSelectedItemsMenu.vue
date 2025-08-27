@@ -50,50 +50,50 @@ export default {
   components: {
     DpButton,
     DpSelectedItemsStatements: () => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements'),
-    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments')
+    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments'),
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'consolidateStatements',
-    'exportModal:toggle'
+    'exportModal:toggle',
   ],
 
   data () {
     return {
-      loading: false
+      loading: false,
     }
   },
 
   computed: {
     ...mapGetters('Statement', {
-      selectedStatementsLength: 'selectedElementsLength'
+      selectedStatementsLength: 'selectedElementsLength',
     }),
 
     ...mapGetters('Fragment', [
-      'selectedFragmentsLength'
+      'selectedFragmentsLength',
     ]),
 
     ...mapState('Statement', [
-      'statements'
+      'statements',
     ]),
 
     areElementsSelected () {
@@ -130,7 +130,7 @@ export default {
       } else {
         return 'statement'
       }
-    }
+    },
   },
 
   methods: {
@@ -141,7 +141,7 @@ export default {
     resetSelection () {
       this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
     },
-    ...mapMutations('Statement', ['updateStatement'])
-  }
+    ...mapMutations('Statement', ['updateStatement']),
+  },
 }
 </script>
