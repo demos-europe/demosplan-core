@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Exception;
-use RuntimeException;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -66,7 +66,6 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             $this->logSuccess($logContext, $startTime, count($formattedResults));
 
             return $formattedResults;
-
         } catch (Exception $e) {
             $this->logError($e, $logContext, $startTime);
             if (str_contains($e->getMessage(), 'Permission')) {
@@ -91,7 +90,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
     private function makeApiCall(string $query, int $limit): array
     {
         $requestOptions = [
-            'timeout' => 30,
+            'timeout'      => 30,
             'query'        => [
                 'query'        => $query,
                 'limit'        => $limit,
@@ -120,7 +119,6 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             }
 
             return $result['features'];
-
         } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
             throw new RuntimeException('API request failed: '.$e->getMessage(), 0, $e);
         } catch (RedirectionExceptionInterface $e) {
@@ -141,8 +139,8 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
 
         return $formattedResults;
     }
+
     /**
-     *
      * @param array $result Raw result from Geodatenzentrum API feature
      *
      * @return array Formatted address data with fallback values
@@ -205,6 +203,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             ];
         }
     }
+
     private function logSuccess(array $logContext, float $startTime, int $resultCount): void
     {
         $this->logger->info('Address search completed successfully', [

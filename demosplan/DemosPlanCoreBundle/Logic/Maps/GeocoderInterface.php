@@ -11,10 +11,11 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
+
 /**
- * Search for addresses and get auto suggestions using the geocoding service provided by BKG / geodatenzentrum
+ * Search for addresses and get auto suggestions using the geocoding service provided by BKG / geodatenzentrum.
  */
 interface GeocoderInterface
 {
-    public function searchAddress(string $query, int $limit = 20, ?array $maxExtent=null): array;
+    public function searchAddress(string $query, int $limit = 20, ?array $maxExtent = null): array;
 }

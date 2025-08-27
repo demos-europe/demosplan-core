@@ -121,7 +121,7 @@ class LocationService
             $this->logger->warning('Map extent filtering supported via database search', [
                 ...$logContext,
                 'impact'           => 'Map extent parameter will be used for geographic filtering',
-                'dataSource' => 'Database search supported geographic filtering via maxExtent',
+                'dataSource'       => 'Database search supported geographic filtering via maxExtent',
                 'currentBehavior'  => 'Database returns geographically filtered results',
             ]);
         }
@@ -133,9 +133,9 @@ class LocationService
 
             $this->logger->info('City search completed database', [
                 ...$logContext,
-                'resultCount'   => $resultCount,
+                'resultCount'    => $resultCount,
                 'dataSource'     => 'internal database (LocationRepository)',
-                'firstResult' => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null,
+                'firstResult'    => $resultCount > 0 ? ($locations[0]['city'] ?? 'unknown') : null,
             ]);
 
             return ['body' => $locations];
@@ -145,7 +145,7 @@ class LocationService
                 'error'           => $e->getMessage(),
                 'errorType'       => get_class($e),
                 'file'            => $e->getFile(),
-                'dataSource'     => 'internal database (LocationRepository)',
+                'dataSource'      => 'internal database (LocationRepository)',
             ]);
 
             return ['body' => []];
@@ -259,13 +259,13 @@ class LocationService
         $formattedResults = [];
         foreach ($dbResults as $location) {
             $formattedResults[] = [
-                'name' => $location['name'] ?? '',
-                'housenumber' => '', //DB does not have housenumbers
-                'postcode' => $location['postcode'] ?? '',
-                'city' => $location['name'] ?? '',
-                'state' => '', //DB does not have state
-                'lat'  => $location['lat'] ?? '',
-                'lon'  => $location['lon'] ?? '',
+                'name'          => $location['name'] ?? '',
+                'housenumber'   => '', // DB does not have housenumbers
+                'postcode'      => $location['postcode'] ?? '',
+                'city'          => $location['name'] ?? '',
+                'state'         => '', // DB does not have state
+                'lat'           => $location['lat'] ?? '',
+                'lon'           => $location['lon'] ?? '',
                 'municipalCode' => $location['municipalCode'] ?? null,
             ];
         }
