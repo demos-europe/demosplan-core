@@ -13,11 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use InvalidArgumentException;
 use Exception;
-use UnexpectedValueException;
+use InvalidArgumentException;
+use LogicException;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -25,6 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
+use UnexpectedValueException;
 
 class GeodatenzentrumAddressSearchService implements GeocoderInterface
 {
@@ -122,7 +122,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
 
             return $result['features'];
         } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
-            throw new \LogicException('Geocoding service not available: '.$e->getMessage(), 0, $e);
+            throw new LogicException('Geocoding service not available: '.$e->getMessage(), 0, $e);
         } catch (RedirectionExceptionInterface $e) {
             // Expected redirections are ignored, service continues normally
             return [];
