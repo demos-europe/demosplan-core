@@ -71,7 +71,7 @@ import { DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 const LookupStatus = {
   NONE: 0,
   LOADING: 1,
-  DONE: 2
+  DONE: 2,
 }
 
 export default {
@@ -79,21 +79,21 @@ export default {
 
   components: {
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     coordinate: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     location: {
       required: false,
       type: Object,
-      default: () => { return {} }
-    }
+      default: () => { return {} },
+    },
   },
 
   data () {
@@ -104,7 +104,7 @@ export default {
       longitude: null,
       locationPostalCode: '',
       lookupStatus: LookupStatus.NONE,
-      municipalCode: ''
+      municipalCode: '',
     }
   },
 
@@ -115,7 +115,7 @@ export default {
 
     readonly () {
       return LookupStatus.NONE === this.lookupStatus
-    }
+    },
   },
 
   watch: {
@@ -128,9 +128,9 @@ export default {
           this.queryLocation()
         }
       },
-      deep: true
+      deep: true,
 
-    }
+    },
   },
 
   methods: {
@@ -139,7 +139,7 @@ export default {
 
       dpRpc('procedure.locate', {
         latitude: this.latitude,
-        longitude: this.longitude
+        longitude: this.longitude,
       })
         .then(({ data }) => {
           if (data.error) {
@@ -154,7 +154,7 @@ export default {
         .finally(() => {
           this.lookupStatus = LookupStatus.DONE
         })
-    }
+    },
   },
 
   mounted () {
@@ -164,6 +164,6 @@ export default {
       this.locationPostalCode = this.location.locationPostalCode
       this.municipalCode = this.location.municipalCode
     }
-  }
+  },
 }
 </script>

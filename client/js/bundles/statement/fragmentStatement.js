@@ -18,10 +18,10 @@ import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {
-  assessmentTable: AssessmentTableStore
+  assessmentTable: AssessmentTableStore,
 }
 const components = {
-  DpCreateStatementFragment
+  DpCreateStatementFragment,
 }
 
 initialize(components, stores).then(() => {

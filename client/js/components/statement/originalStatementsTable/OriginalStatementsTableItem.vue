@@ -9,8 +9,8 @@
 
 <template>
   <tr
-    class="c-at-orig__row"
-    :id="`itemdisplay_${statement.id}`">
+    :id="`itemdisplay_${statement.id}`"
+    class="c-at-orig__row">
     <td
       colspan="6"
       class="overflow-visible">
@@ -50,13 +50,13 @@
             <td>
               <label class="whitespace-nowrap u-m-0">
                 <input
+                  :id="`checkStatement:${statement.id}`"
                   type="checkbox"
                   name="item_check[]"
                   data-cy="originalStatementCheckItem"
-                  :id="`checkStatement:${statement.id}`"
                   :checked="isSelected"
-                  @change="toggleSelection"
-                  :value="statement.id">
+                  :value="statement.id"
+                  @change="toggleSelection">
                 {{ statement.externId }}
               </label>
             </td>
@@ -95,9 +95,9 @@
             :short-text="!statement.shortText ? statement.text : statement.shortText"
             :full-text="statement.text"
             :is-shortened="statement.textIsTruncated"
-            @heightLimit:toggle="loadFullText"
             element="statement"
             class="c-styled-html u-mr"
+            @heightLimit:toggle="loadFullText"
           />
         </div>
 
@@ -190,7 +190,7 @@ import {
   dpApi,
   DpFlyout,
   formatDate,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
@@ -200,43 +200,43 @@ export default {
 
   components: {
     DpFlyout,
-    HeightLimit
+    HeightLimit,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     currentTableView: {
       type: String,
-      required: true
+      required: true,
     },
 
     isSelected: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'add-to-selection',
-    'remove-from-selection'
+    'remove-from-selection',
   ],
 
   data () {
     return {
-      fullTextLoaded: false
+      fullTextLoaded: false,
     }
   },
 
@@ -292,9 +292,9 @@ export default {
 
       // Statement 'Citizen'
       } else if (this.statement.isSubmittedByCitizen) {
-        name += (this.statement.authorName !== '')
-          ? this.statement.authorName
-          : `${Translator.trans('role.citizen')} (${Translator.trans('anonymous')})`
+        name += (this.statement.authorName !== '') ?
+          this.statement.authorName :
+          `${Translator.trans('role.citizen')} (${Translator.trans('anonymous')})`
 
         if (hasPermission('feature_statements_like') && this.statement.publicAllowed) {
           name += `<br>${Translator.trans('liked.by')}: ${this.statement.likesNum}`
@@ -304,12 +304,12 @@ export default {
       }
 
       return name
-    }
+    },
   },
 
   methods: {
     ...mapMutations('Statement', [
-      'updateStatement'
+      'updateStatement',
     ]),
 
     formatDate (date) {
@@ -329,7 +329,7 @@ export default {
           this.updateStatement({
             id: this.statementId,
             shortText: this.statement.text,
-            text: response.data.data.original
+            text: response.data.data.original,
           })
         })
         .then(callback)
@@ -352,7 +352,7 @@ export default {
       } else {
         this.$emit('add-to-selection', this.statementId)
       }
-    }
-  }
+    },
+  },
 }
 </script>

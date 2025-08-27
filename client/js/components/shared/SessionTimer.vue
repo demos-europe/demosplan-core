@@ -32,7 +32,7 @@ export default {
 
   components: {
     DpContextualHelp,
-    DpIcon
+    DpIcon,
   },
 
   mixins: [prefixClassMixin],
@@ -43,7 +43,7 @@ export default {
       timeLeft: 0,
       warningsShown: new Set(),
       threeMinutesThreshold: 0,
-      tenMinutesThreshold: 0
+      tenMinutesThreshold: 0,
     }
   },
 
@@ -64,7 +64,7 @@ export default {
 
     shouldShowTimer () {
       return this.dplan?.expirationTimestamp > 0
-    }
+    },
   },
 
   methods: {
@@ -92,9 +92,9 @@ export default {
     formatTimeString ({ hours, minutes, seconds }) {
       const pad = (num) => String(num).padStart(2, '0')
 
-      return hours > 0
-        ? `${hours}:${pad(minutes)}:${pad(seconds)}`
-        : `${pad(minutes)}:${pad(seconds)}`
+      return hours > 0 ?
+        `${hours}:${pad(minutes)}:${pad(seconds)}` :
+        `${pad(minutes)}:${pad(seconds)}`
     },
 
     getTimeUnits (milliseconds) {
@@ -145,7 +145,7 @@ export default {
       }
 
       this.checkWarnings()
-    }
+    },
   },
 
   mounted () {
@@ -156,6 +156,6 @@ export default {
 
   beforeUnmount () {
     this.cleanup()
-  }
+  },
 }
 </script>

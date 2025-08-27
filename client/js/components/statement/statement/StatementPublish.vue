@@ -12,13 +12,13 @@
     <div v-if="editable">
       <div class="flex items-baseline my-0.5">
         <input
+          id="publicCheck"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationPending"
-          id="publicCheck"
           name="r_publicVerified"
           type="radio"
           value="publication_pending"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicCheck"
@@ -29,13 +29,13 @@
 
       <div class="flex items-baseline mb-0.5">
         <input
+          id="publicVerify"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationApproved"
-          id="publicVerify"
           name="r_publicVerified"
           type="radio"
           value="publication_approved"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicVerify"
@@ -46,13 +46,13 @@
 
       <div class="flex items-baseline mb-0.5">
         <input
+          id="publicReject"
+          v-model="checked"
           class="cursor-pointer flex-shrink-0"
           data-cy="publicationRejected"
-          id="publicReject"
           name="r_publicVerified"
           type="radio"
           value="publication_rejected"
-          v-model="checked"
           @input="event => $emit('update', event.target.value)">
         <label
           for="publicReject"
@@ -100,49 +100,49 @@ export default {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
-    VotingStatus
+    VotingStatus,
   },
 
   props: {
     editable: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     filesLength: {
       type: String,
-      default: '0'
+      default: '0',
     },
 
     isManual: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     publicVerified: {
       type: String,
-      default: ''
+      default: '',
     },
 
     publicVerifiedTransKey: {
       type: String,
-      default: ''
+      default: '',
     },
 
     submitterEmail: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'update'
+    'update',
   ],
 
   data () {
     return {
       checked: 'publication_pending',
-      emailText: Translator.trans('publication.rejection.email.text')
+      emailText: Translator.trans('publication.rejection.email.text'),
     }
   },
 
@@ -162,7 +162,7 @@ export default {
 
     showEmailField () {
       return this.isManual === false && this.submitterEmail !== '' && hasPermission('feature_statements_publication_request_approval_or_rejection_notification_email')
-    }
+    },
   },
 
   mounted () {
@@ -170,6 +170,6 @@ export default {
     if (this.publicVerified !== '') {
       this.checked = this.publicVerified
     }
-  }
+  },
 }
 </script>

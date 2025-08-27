@@ -23,30 +23,30 @@ export default {
   name: 'FloatingContextButton',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   props: {
     isContentCollapsed: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     isVisible: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     section: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'hide',
     'show',
-    'toggle-content-visibility'
+    'toggle-content-visibility',
   ],
 
   methods: {
@@ -60,7 +60,7 @@ export default {
 
     hide () {
       this.$emit('hide')
-    }
-  }
+    },
+  },
 }
 </script>

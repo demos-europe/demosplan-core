@@ -55,7 +55,7 @@ import {
   DpInput,
   DpLoading,
   DpSelect,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
 
@@ -67,7 +67,7 @@ export default {
     DpIcon,
     DpInput,
     DpLoading,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -75,19 +75,19 @@ export default {
   props: {
     tagCategories: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'newTagForm:close',
-    'newTag:created'
+    'newTag:created',
   ],
 
   data () {
     return {
       isLoading: false,
-      newTag: {}
+      newTag: {},
     }
   },
 
@@ -95,14 +95,14 @@ export default {
     tagCategoryOptions () {
       return this.tagCategories.map(category => ({
         value: category.id,
-        label: category.name
+        label: category.name,
       }))
-    }
+    },
   },
 
   methods: {
     ...mapActions('InstitutionTag', {
-      createInstitutionTag: 'create'
+      createInstitutionTag: 'create',
     }),
 
     handleCloseForm () {
@@ -113,7 +113,7 @@ export default {
     isTagNameUnique (name, categoryId) {
       return !this.tagCategories.some(category =>
         category.id === categoryId &&
-        category.children.some(tag => tag.name === name)
+        category.children.some(tag => tag.name === name),
       )
     },
 
@@ -135,16 +135,16 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          name: this.newTag.name
+          name: this.newTag.name,
         },
         relationships: {
           category: {
             data: {
               type: 'InstitutionTagCategory',
-              id: this.newTag.category
-            }
-          }
-        }
+              id: this.newTag.category,
+            },
+          },
+        },
       }
       this.createInstitutionTag(payload)
         .then(() => {
@@ -158,7 +158,7 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
-    }
-  }
+    },
+  },
 }
 </script>

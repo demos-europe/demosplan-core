@@ -18,13 +18,13 @@
         track-by="id">
         <template v-slot:date="rowData">
           <span
-            v-text="createdDateItem(rowData)"
-            v-tooltip="createdDateTimeItem(rowData)" />
+            v-tooltip="createdDateTimeItem(rowData)"
+            v-text="createdDateItem(rowData)" />
         </template>
         <template v-slot:content="rowData">
           <div
-            class="break-words"
-            v-cleanhtml="rowData.attributes.message" />
+            v-cleanhtml="rowData.attributes.message"
+            class="break-words" />
         </template>
         <template v-slot:user="rowData">
           {{ rowData.attributes.createdByDataInputOrga ? rowData.attributes.orgaName : rowData.attributes.userName }}
@@ -65,52 +65,52 @@ export default {
   components: {
     DpDataTable,
     DpLoading,
-    DpSlidingPagination
+    DpSlidingPagination,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     contentLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     groupLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     group: {
       type: String,
-      required: true
+      required: true,
     },
 
     items: {
       type: Object,
-      required: true
+      required: true,
     },
 
     currentPage: {
       type: Number,
-      required: true
+      required: true,
     },
 
     totalPages: {
       type: Number,
-      required: true
+      required: true,
     },
 
     isLoading: {
       required: true,
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
 
   emits: [
-    'page-change'
+    'page-change',
   ],
 
   data () {
@@ -119,19 +119,19 @@ export default {
         {
           colClass: 'u-1-of-5',
           field: 'date',
-          label: Translator.trans('date')
+          label: Translator.trans('date'),
         },
         {
           colClass: 'u-3-of-5',
           field: 'content',
-          label: Translator.trans(this.contentLabel)
+          label: Translator.trans(this.contentLabel),
         },
         {
           colClass: 'u-1-of-5',
           field: 'user',
-          label: Translator.trans('user')
-        }
-      ]
+          label: Translator.trans('user'),
+        },
+      ],
     }
   },
 
@@ -142,7 +142,7 @@ export default {
 
     paginationLabel () {
       return 'Seitennavigation für die Protokoll-Gruppe "' + this.groupLabel + '"'
-    }
+    },
   },
 
   methods: {
@@ -156,7 +156,7 @@ export default {
 
     handlePageChange (requestedPage) {
       this.$emit('page-change', requestedPage)
-    }
-  }
+    },
+  },
 }
 </script>

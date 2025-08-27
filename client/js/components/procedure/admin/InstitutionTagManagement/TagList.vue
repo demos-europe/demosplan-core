@@ -80,7 +80,7 @@ import {
   DpButton,
   DpInlineNotification,
   DpLoading,
-  DpTreeList
+  DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import NewCategoryForm from './NewCategoryForm'
@@ -97,7 +97,7 @@ export default {
     DpTreeList,
     NewCategoryForm,
     NewTagForm,
-    TagListItem
+    TagListItem,
   },
 
   data () {
@@ -108,23 +108,23 @@ export default {
       editingCategoryId: null,
       editingTagId: null,
       isLoading: false,
-      tagCategoriesWithTags: []
+      tagCategoriesWithTags: [],
     }
   },
 
   computed: {
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTags: 'items'
-    })
+      institutionTags: 'items',
+    }),
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      listInstitutionTagCategories: 'list'
+      listInstitutionTagCategories: 'list',
     }),
 
     closeNewCategoryForm () {
@@ -143,19 +143,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           this.tagCategoriesWithTags = this.transformTagsAndCategories()
@@ -244,17 +244,17 @@ export default {
                   categoryId: category.id,
                   isUsed: attributes.isUsed,
                   name: attributes.name,
-                  type
+                  type,
                 }
               }),
-            type
+            type,
           }
         })
-    }
+    },
   },
 
   mounted () {
     this.getInstitutionTagCategories()
-  }
+  },
 }
 </script>

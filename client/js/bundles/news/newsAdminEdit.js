@@ -23,7 +23,7 @@ const components = {
   DpCheckbox,
   DpEditor,
   DpLabel,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 const stores = {}

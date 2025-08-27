@@ -25,7 +25,7 @@ const components = {
     const { DpEditor } = await import('@demos-europe/demosplan-ui')
     return DpEditor
   }),
-  ProcedureTypeSelect
+  ProcedureTypeSelect,
 }
 // Const components = { DpAccordion, DpEditor }
 const stores = {}

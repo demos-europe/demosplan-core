@@ -21,8 +21,8 @@
         :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
         :title="required ? Translator.trans('statements.required.field') : false">
         <span
-          :class="prefixClass('block')"
-          id="statement-detail-state">
+          id="statement-detail-state"
+          :class="prefixClass('block')">
           {{ Translator.trans('state') }}
           <span
             v-if="required"
@@ -34,14 +34,14 @@
           id="r_userState"
           name="r_userState"
           :class="prefixClass('o-form__control-select')"
-          @change="val => setStatementData({r_userState: val.target.value})"
           :required="required && statement.r_useName === '1'"
-          :value="statement.r_userState">
+          :value="statement.r_userState"
+          @change="val => setStatementData({r_userState: val.target.value})">
           <option
             v-for="userState in formOptions.userState"
+            :key="userState"
             :selected="userState === statement.r_userState"
-            :value="userState"
-            :key="userState">
+            :value="userState">
             {{ userState }}
           </option>
         </select>
@@ -53,8 +53,8 @@
       :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
       :title="required ? Translator.trans('statements.required.field') : false">
       <span
-        :class="prefixClass('block')"
-        id="statement-detail-organisation">
+        id="statement-detail-organisation"
+        :class="prefixClass('block')">
         {{ Translator.trans('organisation') }}
         <span
           v-if="required"
@@ -66,14 +66,14 @@
         id="r_userGroup"
         name="r_userGroup"
         :class="prefixClass('o-form__control-select')"
-        @change="val => setStatementData({r_userGroup: val.target.value})"
         :required="required && statement.r_useName === '1'"
-        :value="statement.r_userGroup">
+        :value="statement.r_userGroup"
+        @change="val => setStatementData({r_userGroup: val.target.value})">
         <option
           v-for="userGroup in formOptions.userGroup"
+          :key="userGroup"
           :selected="userGroup === statement.r_userGroup"
-          :value="userGroup"
-          :key="userGroup">
+          :value="userGroup">
           {{ userGroup }}
         </option>
       </select>
@@ -96,21 +96,21 @@
         for="r_userPosition"
         :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')">
         <span
-          :class="prefixClass('block')"
-          id="statement-detail-position">
+          id="statement-detail-position"
+          :class="prefixClass('block')">
           {{ Translator.trans('position') }}
         </span>
         <select
           id="r_userPosition"
           name="r_userPosition"
           :class="prefixClass('o-form__control-select')"
-          @change="val => setStatementData({r_userPosition: val.target.value})"
-          :value="statement.r_userPosition">
+          :value="statement.r_userPosition"
+          @change="val => setStatementData({r_userPosition: val.target.value})">
           <option
             v-for="userPosition in formOptions.userPosition"
+            :key="userPosition"
             :selected="userPosition === statement.r_userPosition"
-            :value="userPosition"
-            :key="userPosition">
+            :value="userPosition">
             {{ userPosition }}
           </option>
         </select>
@@ -131,8 +131,8 @@ export default {
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
-    }
-  }
+      default: () => ({}),
+    },
+  },
 }
 </script>

@@ -23,8 +23,8 @@ All rights reserved
       {{ phoneNumber }}
     </a>
     <p
-      class="break-words"
       v-if="email"
+      class="break-words"
       v-text="email" />
     <template v-if="reachability.officeHours">
       <div
@@ -33,8 +33,8 @@ All rights reserved
           class="u-mt-0_75 font-semibold break-words"
           v-text="reachability.service" />
         <div
-          class="c-styled-html"
-          v-cleanhtml="reachability.officeHours" />
+          v-cleanhtml="reachability.officeHours"
+          class="c-styled-html" />
         <span
           class="color--grey-light font-size-smaller break-words"
           v-text="reachability.exception" />
@@ -54,37 +54,37 @@ export default {
   name: 'DpSupportCard',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     email: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     phoneNumber: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     reachability: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     title: {
       required: false,
       type: String,
-      default: ''
-    }
-  }
+      default: '',
+    },
+  },
 }
 </script>

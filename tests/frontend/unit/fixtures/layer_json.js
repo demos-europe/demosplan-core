@@ -17,57 +17,57 @@ export const apiData = {
       treeOrder: 0,
       isVisible: false,
       hasDefaultVisibility: false,
-      parentId: null
+      parentId: null,
     },
     relationships: {
       categories: {
         data: [{
           type: 'GisLayerCategory',
-          id: '0ccdef11-dc2a-11e8-884a-782bcb0d78b1'
+          id: '0ccdef11-dc2a-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: '17de9a58-d69f-11e8-b945-51361dec4aad'
+          id: '17de9a58-d69f-11e8-b945-51361dec4aad',
         }, {
           type: 'GisLayerCategory',
-          id: '24610932-dc3c-11e8-884a-782bcb0d78b1'
+          id: '24610932-dc3c-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: '6b6c2c08-4a18-11e8-b9d0-782bcb0d78b1'
+          id: '6b6c2c08-4a18-11e8-b9d0-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: '6bbc345c-dc29-11e8-884a-782bcb0d78b1'
+          id: '6bbc345c-dc29-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: '77c9fba8-dc29-11e8-884a-782bcb0d78b1'
+          id: '77c9fba8-dc29-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: '929d6a36-dc1e-11e8-884a-782bcb0d78b1'
+          id: '929d6a36-dc1e-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: 'ba83fe31-dc28-11e8-884a-782bcb0d78b1'
+          id: 'ba83fe31-dc28-11e8-884a-782bcb0d78b1',
         }, {
           type: 'GisLayerCategory',
-          id: 'd608e785-47a5-11e8-b9d0-782bcb0d78b1'
-        }, { type: 'GisLayerCategory', id: 'd7636f26-4f9d-11e8-ba0c-782bcb0d78b1' }]
+          id: 'd608e785-47a5-11e8-b9d0-782bcb0d78b1',
+        }, { type: 'GisLayerCategory', id: 'd7636f26-4f9d-11e8-ba0c-782bcb0d78b1' }],
       },
       gisLayers: {
         data: [{
           type: 'GisLayer',
-          id: '4586ce71-f68a-11e5-b083-005056ae0004'
+          id: '4586ce71-f68a-11e5-b083-005056ae0004',
         }, { type: 'GisLayer', id: '458971b7-f68a-11e5-b083-005056ae0004' }, {
           type: 'GisLayer',
-          id: '458f3789-f68a-11e5-b083-005056ae0004'
+          id: '458f3789-f68a-11e5-b083-005056ae0004',
         }, { type: 'GisLayer', id: '45901fa5-f68a-11e5-b083-005056ae0004' }, {
           type: 'GisLayer',
-          id: '52ce3870-96d4-11e6-836d-005056ae0004'
-        }, { type: 'GisLayer', id: 'e90f4f76-9a33-11e8-bb1e-564d819c8ce7' }]
-      }
-    }
+          id: '52ce3870-96d4-11e6-836d-005056ae0004',
+        }, { type: 'GisLayer', id: 'e90f4f76-9a33-11e8-bb1e-564d819c8ce7' }],
+      },
+    },
   },
   included: [{
     type: 'ContextualHelp',
     id: 'c0d38b35-399f-11e8-b9d0-782bcb0d78b1',
-    attributes: { key: 'gislayer.c0cf4d07-399f-11e8-b9d0-782bcb0d78b1', text: '' }
+    attributes: { key: 'gislayer.c0cf4d07-399f-11e8-b9d0-782bcb0d78b1', text: '' },
   }, {
     type: 'GisLayer',
     id: 'c0cf4d07-399f-11e8-b9d0-782bcb0d78b1',
@@ -93,24 +93,24 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2018-04-06T15:39:15+00:00'
+      createdAt: '2018-04-06T15:39:15+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: 'c0d38b35-399f-11e8-b9d0-782bcb0d78b1'
-        }
-      }
-    }
+          id: 'c0d38b35-399f-11e8-b9d0-782bcb0d78b1',
+        },
+      },
+    },
   }, {
     type: 'ContextualHelp',
     id: '1fa4bf24-53ab-11e8-bcc2-782bcb0d78b1',
-    attributes: { key: 'gislayer.1fa1d338-53ab-11e8-bcc2-782bcb0d78b1', text: 'kontext-hilfe' }
+    attributes: { key: 'gislayer.1fa1d338-53ab-11e8-bcc2-782bcb0d78b1', text: 'kontext-hilfe' },
   }, {
     type: 'ContextualHelp',
     id: 'b01d50f2-959f-11e8-bb1e-564d819c8ce7',
-    attributes: { key: 'gislayer.b019dab9-959f-11e8-bb1e-564d819c8ce7', text: 'find me !' }
+    attributes: { key: 'gislayer.b019dab9-959f-11e8-bb1e-564d819c8ce7', text: 'find me !' },
   }, {
     type: 'GisLayer',
     id: '1fa1d338-53ab-11e8-bcc2-782bcb0d78b1',
@@ -136,16 +136,16 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2018-05-09T19:06:02+00:00'
+      createdAt: '2018-05-09T19:06:02+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: '1fa4bf24-53ab-11e8-bcc2-782bcb0d78b1'
-        }
-      }
-    }
+          id: '1fa4bf24-53ab-11e8-bcc2-782bcb0d78b1',
+        },
+      },
+    },
   }, {
     type: 'GisLayer',
     id: 'b019dab9-959f-11e8-bb1e-564d819c8ce7',
@@ -171,16 +171,16 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2018-08-01T17:29:33+00:00'
+      createdAt: '2018-08-01T17:29:33+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: 'b01d50f2-959f-11e8-bb1e-564d819c8ce7'
-        }
-      }
-    }
+          id: 'b01d50f2-959f-11e8-bb1e-564d819c8ce7',
+        },
+      },
+    },
   }, {
     type: 'GisLayerCategory',
     id: '1c6ea341-dc3c-11e8-884a-782bcb0d78b1',
@@ -190,9 +190,9 @@ export const apiData = {
       treeOrder: 10201,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '17de9a58-d69f-11e8-b945-51361dec4aad'
+      parentId: '17de9a58-d69f-11e8-b945-51361dec4aad',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: '68fac8ed-dc2a-11e8-884a-782bcb0d78b1',
@@ -202,9 +202,9 @@ export const apiData = {
       treeOrder: 10301,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '24610932-dc3c-11e8-884a-782bcb0d78b1'
+      parentId: '24610932-dc3c-11e8-884a-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: '818aa46a-dc3c-11e8-884a-782bcb0d78b1',
@@ -214,9 +214,9 @@ export const apiData = {
       treeOrder: 10302,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '24610932-dc3c-11e8-884a-782bcb0d78b1'
+      parentId: '24610932-dc3c-11e8-884a-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: 'bbac18e1-47a5-11e8-b9d0-782bcb0d78b1',
@@ -226,12 +226,12 @@ export const apiData = {
       treeOrder: 10401,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '6b6c2c08-4a18-11e8-b9d0-782bcb0d78b1'
+      parentId: '6b6c2c08-4a18-11e8-b9d0-782bcb0d78b1',
     },
     relationships: {
       categories: { data: [] },
-      gisLayers: { data: [{ type: 'GisLayer', id: 'c0cf4d07-399f-11e8-b9d0-782bcb0d78b1' }] }
-    }
+      gisLayers: { data: [{ type: 'GisLayer', id: 'c0cf4d07-399f-11e8-b9d0-782bcb0d78b1' }] },
+    },
   }, {
     type: 'GisLayerCategory',
     id: '7b614b15-dc3c-11e8-884a-782bcb0d78b1',
@@ -241,33 +241,33 @@ export const apiData = {
       treeOrder: 10801,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: 'ba83fe31-dc28-11e8-884a-782bcb0d78b1'
+      parentId: 'ba83fe31-dc28-11e8-884a-782bcb0d78b1',
     },
     relationships: {
       categories: { data: [] },
       gisLayers: {
         data: [{
           type: 'GisLayer',
-          id: '1fa1d338-53ab-11e8-bcc2-782bcb0d78b1'
-        }, { type: 'GisLayer', id: 'b019dab9-959f-11e8-bb1e-564d819c8ce7' }]
-      }
-    }
+          id: '1fa1d338-53ab-11e8-bcc2-782bcb0d78b1',
+        }, { type: 'GisLayer', id: 'b019dab9-959f-11e8-bb1e-564d819c8ce7' }],
+      },
+    },
   }, {
     type: 'ContextualHelp',
     id: '4e2ed57a-4de6-11e8-ba0c-782bcb0d78b1',
-    attributes: { key: 'gislayer.458971b7-f68a-11e5-b083-005056ae0004', text: '' }
+    attributes: { key: 'gislayer.458971b7-f68a-11e5-b083-005056ae0004', text: '' },
   }, {
     type: 'ContextualHelp',
     id: 'd4d7b3cc-4c8d-11e8-b9d0-782bcb0d78b1',
-    attributes: { key: 'gislayer.458f3789-f68a-11e5-b083-005056ae0004', text: '' }
+    attributes: { key: 'gislayer.458f3789-f68a-11e5-b083-005056ae0004', text: '' },
   }, {
     type: 'ContextualHelp',
     id: '52cff390-96d4-11e6-836d-005056ae0004',
-    attributes: { key: 'gislayer.52ce3870-96d4-11e6-836d-005056ae0004', text: '' }
+    attributes: { key: 'gislayer.52ce3870-96d4-11e6-836d-005056ae0004', text: '' },
   }, {
     type: 'ContextualHelp',
     id: 'e916937b-9a33-11e8-bb1e-564d819c8ce7',
-    attributes: { key: 'gislayer.e90f4f76-9a33-11e8-bb1e-564d819c8ce7', text: '' }
+    attributes: { key: 'gislayer.e90f4f76-9a33-11e8-bb1e-564d819c8ce7', text: '' },
   }, {
     type: 'GisLayerCategory',
     id: '0ccdef11-dc2a-11e8-884a-782bcb0d78b1',
@@ -277,9 +277,9 @@ export const apiData = {
       treeOrder: 101,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: '17de9a58-d69f-11e8-b945-51361dec4aad',
@@ -289,17 +289,17 @@ export const apiData = {
       treeOrder: 102,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
     relationships: {
       categories: {
         data: [{
           type: 'GisLayerCategory',
-          id: '1c6ea341-dc3c-11e8-884a-782bcb0d78b1'
-        }]
+          id: '1c6ea341-dc3c-11e8-884a-782bcb0d78b1',
+        }],
       },
-      gisLayers: { data: [] }
-    }
+      gisLayers: { data: [] },
+    },
   }, {
     type: 'GisLayerCategory',
     id: '24610932-dc3c-11e8-884a-782bcb0d78b1',
@@ -309,17 +309,17 @@ export const apiData = {
       treeOrder: 103,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
     relationships: {
       categories: {
         data: [{
           type: 'GisLayerCategory',
-          id: '68fac8ed-dc2a-11e8-884a-782bcb0d78b1'
-        }, { type: 'GisLayerCategory', id: '818aa46a-dc3c-11e8-884a-782bcb0d78b1' }]
+          id: '68fac8ed-dc2a-11e8-884a-782bcb0d78b1',
+        }, { type: 'GisLayerCategory', id: '818aa46a-dc3c-11e8-884a-782bcb0d78b1' }],
       },
-      gisLayers: { data: [] }
-    }
+      gisLayers: { data: [] },
+    },
   }, {
     type: 'GisLayerCategory',
     id: '6b6c2c08-4a18-11e8-b9d0-782bcb0d78b1',
@@ -329,17 +329,17 @@ export const apiData = {
       treeOrder: 104,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
     relationships: {
       categories: {
         data: [{
           type: 'GisLayerCategory',
-          id: 'bbac18e1-47a5-11e8-b9d0-782bcb0d78b1'
-        }]
+          id: 'bbac18e1-47a5-11e8-b9d0-782bcb0d78b1',
+        }],
       },
-      gisLayers: { data: [] }
-    }
+      gisLayers: { data: [] },
+    },
   }, {
     type: 'GisLayerCategory',
     id: '6bbc345c-dc29-11e8-884a-782bcb0d78b1',
@@ -349,9 +349,9 @@ export const apiData = {
       treeOrder: 105,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: '77c9fba8-dc29-11e8-884a-782bcb0d78b1',
@@ -361,9 +361,9 @@ export const apiData = {
       treeOrder: 106,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: '929d6a36-dc1e-11e8-884a-782bcb0d78b1',
@@ -373,9 +373,9 @@ export const apiData = {
       treeOrder: 107,
       isVisible: false,
       hasDefaultVisibility: false,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: 'ba83fe31-dc28-11e8-884a-782bcb0d78b1',
@@ -385,17 +385,17 @@ export const apiData = {
       treeOrder: 108,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
     relationships: {
       categories: {
         data: [{
           type: 'GisLayerCategory',
-          id: '7b614b15-dc3c-11e8-884a-782bcb0d78b1'
-        }]
+          id: '7b614b15-dc3c-11e8-884a-782bcb0d78b1',
+        }],
       },
-      gisLayers: { data: [] }
-    }
+      gisLayers: { data: [] },
+    },
   }, {
     type: 'GisLayerCategory',
     id: 'd608e785-47a5-11e8-b9d0-782bcb0d78b1',
@@ -405,9 +405,9 @@ export const apiData = {
       treeOrder: 110,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayerCategory',
     id: 'd7636f26-4f9d-11e8-ba0c-782bcb0d78b1',
@@ -417,9 +417,9 @@ export const apiData = {
       treeOrder: 109,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1'
+      parentId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
     },
-    relationships: { categories: { data: [] }, gisLayers: { data: [] } }
+    relationships: { categories: { data: [] }, gisLayers: { data: [] } },
   }, {
     type: 'GisLayer',
     id: '4586ce71-f68a-11e5-b083-005056ae0004',
@@ -445,8 +445,8 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2016-03-30T17:15:42+00:00'
-    }
+      createdAt: '2016-03-30T17:15:42+00:00',
+    },
   }, {
     type: 'GisLayer',
     id: '458971b7-f68a-11e5-b083-005056ae0004',
@@ -472,16 +472,16 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2016-03-30T17:15:42+00:00'
+      createdAt: '2016-03-30T17:15:42+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: '4e2ed57a-4de6-11e8-ba0c-782bcb0d78b1'
-        }
-      }
-    }
+          id: '4e2ed57a-4de6-11e8-ba0c-782bcb0d78b1',
+        },
+      },
+    },
   }, {
     type: 'GisLayer',
     id: '458f3789-f68a-11e5-b083-005056ae0004',
@@ -507,16 +507,16 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2016-03-30T17:15:42+00:00'
+      createdAt: '2016-03-30T17:15:42+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: 'd4d7b3cc-4c8d-11e8-b9d0-782bcb0d78b1'
-        }
-      }
-    }
+          id: 'd4d7b3cc-4c8d-11e8-b9d0-782bcb0d78b1',
+        },
+      },
+    },
   }, {
     type: 'GisLayer',
     id: '45901fa5-f68a-11e5-b083-005056ae0004',
@@ -542,8 +542,8 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2016-03-30T17:15:42+00:00'
-    }
+      createdAt: '2016-03-30T17:15:42+00:00',
+    },
   }, {
     type: 'GisLayer',
     id: '52ce3870-96d4-11e6-836d-005056ae0004',
@@ -569,16 +569,16 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2016-10-20T16:48:54+00:00'
+      createdAt: '2016-10-20T16:48:54+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: '52cff390-96d4-11e6-836d-005056ae0004'
-        }
-      }
-    }
+          id: '52cff390-96d4-11e6-836d-005056ae0004',
+        },
+      },
+    },
   }, {
     type: 'GisLayer',
     id: 'e90f4f76-9a33-11e8-bb1e-564d819c8ce7',
@@ -604,21 +604,21 @@ export const apiData = {
       canUserToggleVisibility: true,
       visibilityGroupId: '',
       isScope: false,
-      createdAt: '2018-08-07T13:20:39+00:00'
+      createdAt: '2018-08-07T13:20:39+00:00',
     },
     relationships: {
       contextualHelp: {
         data: {
           type: 'ContextualHelp',
-          id: 'e916937b-9a33-11e8-bb1e-564d819c8ce7'
-        }
-      }
-    }
+          id: 'e916937b-9a33-11e8-bb1e-564d819c8ce7',
+        },
+      },
+    },
   }],
   meta: {
     messages: {
-      confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }]
-    }
+      confirm: [{ message: 'Die Kartenebenen wurden gespeichert.', severity: 'confirm' }],
+    },
   },
-  jsonapi: { version: '1.0' }
+  jsonapi: { version: '1.0' },
 }

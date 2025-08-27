@@ -68,8 +68,8 @@
             name="controls" />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
+              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
                 return Routing.generate(_options.autoSuggest.serviceUrlPath, {
@@ -85,8 +85,8 @@
               @selected="zoomToSuggestion" />
 
             <dp-ol-map-scale-select
-              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
-              v-if="_options.scaleSelect" />
+              v-if="_options.scaleSelect"
+              :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')" />
           </div>
         </div>
 
@@ -116,10 +116,10 @@
 
       <!-- Map container -->
       <div
+        :id="mapId"
         ref="mapContainer"
         data-cy="map:mapContainer"
-        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
-        :id="mapId">
+        :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -144,7 +144,7 @@ import {
   dpApi,
   DpAutocomplete,
   DpLoading,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
@@ -165,14 +165,14 @@ export default {
     DpAutocomplete,
     DpLoading,
     DpOlMapLayer,
-    DpOlMapScaleSelect
+    DpOlMapScaleSelect,
   },
 
   mixins: [prefixClassMixin],
 
   provide () {
     return {
-      olMapState: this.olMapState
+      olMapState: this.olMapState,
     }
   },
 
@@ -180,19 +180,19 @@ export default {
     isValid: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     layers: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     mapId: {
       required: false,
       type: String,
-      default: 'map'
+      default: 'map',
     },
 
     /*
@@ -202,32 +202,32 @@ export default {
     mapOptions: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     mapOptionsRoute: {
       required: false,
       type: String,
-      default: 'dplan_api_map_options_admin'
+      default: 'dplan_api_map_options_admin',
     },
 
     options: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     small: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -239,13 +239,13 @@ export default {
        */
       olMapState: {
         map: null,
-        drawStyles: {}
+        drawStyles: {},
       },
       baselayer: '',
       baselayerLayers: '',
       baseLayerProjection: '',
       maxExtent: [],
-      scales: []
+      scales: [],
     }
   },
 
@@ -289,7 +289,7 @@ export default {
         })
         return parsedResponse.data
       }
-    }
+    },
   },
 
   methods: {
@@ -297,8 +297,8 @@ export default {
       const namedProjections = [
         [
           this._options.projection.code,
-          this._options.projection.transform
-        ]
+          this._options.projection.transform,
+        ],
       ]
 
       // Put resolutions in correct format for masterportalapi
@@ -312,7 +312,7 @@ export default {
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
         target: this.mapId,
-        units: 'm'
+        units: 'm',
       }
 
       const controls = this.options.controls ? this.options.controls : this._options.controls
@@ -357,7 +357,7 @@ export default {
       return {
         fillColor: this.getColorByClassName('.c-map__draw-fill'),
         strokeColor: this.getColorByClassName('.c-map__draw-stroke'),
-        imageColor: this.getColorByClassName('.c-map__draw-image')
+        imageColor: this.getColorByClassName('.c-map__draw-image'),
       }
     },
 
@@ -367,7 +367,7 @@ export default {
       }
       return dpApi({
         method: 'GET',
-        url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
+        url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId }),
       })
         .then(response => response.data.data.attributes)
     },
@@ -377,7 +377,7 @@ export default {
         center: coordinate,
         duration: 800,
         easing: easeOut,
-        resolution: this.panToResolution
+        resolution: this.panToResolution,
       })
     },
 
@@ -407,7 +407,7 @@ export default {
       const mapProjection = new Projection({
         code: this._options.projection.code,
         units: this._options.projection.units,
-        extent: this.maxExtent
+        extent: this.maxExtent,
       })
 
       addProjection(mapProjection)
@@ -428,7 +428,7 @@ export default {
       this.map.updateSize()
 
       view.fit(extent, {
-        size: this.map.getSize()
+        size: this.map.getSize(),
       })
 
       view.setCenter(center)
@@ -438,7 +438,7 @@ export default {
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
       this.panToCoordinate(coordinate)
-    }
+    },
   },
 
   created () {
@@ -533,7 +533,7 @@ export default {
       this.map.getOverlays().clear()
       this.map.getInteractions().clear()
     }
-  }
+  },
 }
 
 // DO NOT pass this as Prop if you are not exactly know what you are doing!
@@ -544,7 +544,7 @@ const _defaults = {
   projection: {
     code: window.dplan.defaultProjectionLabel,
     transform: window.dplan.defaultProjectionString,
-    units: 'm'
+    units: 'm',
   },
   controls: [
     new Attribution({ collapsible: false }),
@@ -558,17 +558,17 @@ const _defaults = {
         const x = coordinate[0]
         const y = coordinate[1]
         return `${x.toFixed(10)} ${y.toFixed(10)}`
-      }
+      },
     }),
     new ScaleLine(),
-    new Zoom()
+    new Zoom(),
   ],
   autoSuggest: {
     enabled: true,
-    serviceUrlPath: 'DemosPlan_procedure_public_suggest_procedure_location_json' // Path to openGeoDb action
+    serviceUrlPath: 'DemosPlan_procedure_public_suggest_procedure_location_json', // Path to openGeoDb action
   },
   scaleSelect: true,
   initView: false,
-  initCenter: false
+  initCenter: false,
 }
 </script>
