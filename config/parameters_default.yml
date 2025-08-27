@@ -293,7 +293,7 @@ parameters:
 
     # Enable crud-permissions (user, orga, department, etc) for support user to allow creating new users on dev-systems.
     # This is only to be used locally and on dev-systems.
-    advanced_support: true
+    advanced_support: false
 
     # Verfügbare Zoomstufen für die Karten
     map_global_available_scales: "[250,500,1000,2000,4000,5000,15000,35000,70000,150000,250000,500000,1000000]"
