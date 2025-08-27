@@ -36,14 +36,16 @@
         class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
       <dp-input
+        v-model="name"
         id="r_name"
-        data-cy="newMasterName"
         :label="{
           text: Translator.trans('name')
         }"
+        data-cy="newMasterName"
         maxlength="200"
         name="r_name"
-        required />
+        required
+      />
 
       <dp-select
         id="r_copymaster"
@@ -237,6 +239,7 @@ export default {
     return {
       isLoading: false,
       mainEmail: this.agencyMainEmailFullAddress || '',
+      name: '',
       selectedBlueprint: this.masterBlueprintId,
       emailAddresses: this.initEmailAddresses,
     }

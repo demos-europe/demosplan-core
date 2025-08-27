@@ -515,6 +515,12 @@ export default {
       this.$refs.searchField.handleReset()
     },
 
+    resetSelection () {
+      this.$refs.DpDataTable.resetSelection()
+      this.$refs.DpDataTable.elementSelections = {}
+      this.$refs.DpDataTable.selectedElements = []
+    },
+
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {

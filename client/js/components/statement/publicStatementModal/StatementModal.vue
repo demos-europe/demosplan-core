@@ -1347,6 +1347,9 @@ export default {
        * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
        *
        */
+      if (dataToSend.r_makePublic === 'off') {
+        delete dataToSend.r_makePublic
+      }
       if (dataToSend.r_getFeedback === 'off') {
         delete dataToSend.r_getFeedback
       }
@@ -1537,7 +1540,7 @@ export default {
         r_location_point: '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
-        r_makePublic: !!data.draftStatement.publicAllowed,
+        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
       }
 
       if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
