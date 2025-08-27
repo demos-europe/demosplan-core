@@ -261,14 +261,14 @@ export default {
       required: true
     },
 
-    procedureId: {
-      required: true,
-      type: String
-    },
-
     localStorageKey: {
       type: String,
       default: 'statementList'
+    },
+
+    procedureId: {
+      required: true,
+      type: String
     },
 
     useLocalStorage: {
@@ -280,24 +280,29 @@ export default {
   data () {
     return {
       activeTab: 'statements',
-      headerCheckboxHandler: null, // Store handler for cleanup
       checkboxListeners: [], // Track individual checkbox listeners for cleanup
-      clientSortField: null, // For client-side sorting
       clientSortDirection: null,
+      clientSortField: null, // For client-side sorting
+      expandedRows: [],
+      headerCheckboxHandler: null, // Store handler for cleanup
+      isColumnSelectorOpen: false,
+      lastPaginationEventTime: 0, // Debouncing for pagination events
       pagination: {
         currentPage: 1,
         perPage: 10,
         total: 0,
         totalPages: 0
       },
-      selectedRows: [],
       searchValue: '',
+      selectedRows: [],
       sortBy: '',
       sortDirection: '',
-      expandedRows: [],
-      lastPaginationEventTime: 0, // Debouncing for pagination events
-      isColumnSelectorOpen: false,
-      visibleColumns: [],
+      // Status mapping objects
+      apiStatusLabels: {
+        new: Translator.trans('new'),
+        processing: Translator.trans('fragment.status.editing'),
+        completed: Translator.trans('terminated')
+      },
       columns: [
         { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
@@ -307,6 +312,34 @@ export default {
         { key: 'confidence', label: 'Konfidenz', sortable: true },
         { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
       ],
+      // Confidence mapping objects
+      confidenceClasses: {
+        medium: 'cv-confidence-medium'
+      },
+      confidenceTypes: {
+        low: 'red', // <= 33%
+        medium: 'warm-gray', // 34-66%
+        high: 'green' // >= 67%
+      },
+      /*
+       * Local translations: Temporary storage for strings that don't have
+       * translation keys yet in messages+intl-icu.de.yml
+       */
+      localTranslations: {
+        acceptSegmentation: 'Aufteilung so akzeptieren',
+        addNewStatement: 'Neue Stellungnahme hinzufügen',
+        adjustColumns: 'Spalten anpassen',
+        checkSegmentation: 'Aufteilung überprüfen',
+        confidence: 'Konfidenz',
+        displayLabel: 'Darstellung',
+        elementsPerPage: 'Elemente pro Seite:',
+        mainTitle: 'Stellungnahmen zum aktuellen Verfahren',
+        sectionsContent: 'Aufteilung in Abschnitte Content - Coming Soon',
+        segmentsTab: 'Abschnitte',
+        selectColumn: 'Spalte auswählen',
+        selectColumns: 'Spalten auswählen',
+        statementsTab: 'Stellungnahmen'
+      },
       selectableColumns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -315,49 +348,16 @@ export default {
         { key: 'sections', label: 'Abschnitte' },
         { key: 'confidence', label: 'Konfidenz' }
       ],
-      // Status mapping objects
+      statusClasses: {
+        'In Bearbeitung': 'status-editing',
+        Abgeschlossen: 'status-completed'
+      },
       statusTypes: {
         Neu: 'blue',
         'In Bearbeitung': 'gray',
         Abgeschlossen: 'gray'
       },
-      statusClasses: {
-        'In Bearbeitung': 'status-editing',
-        Abgeschlossen: 'status-completed'
-      },
-      apiStatusLabels: {
-        new: Translator.trans('new'),
-        processing: Translator.trans('fragment.status.editing'),
-        completed: Translator.trans('terminated')
-      },
-      // Confidence mapping objects
-      confidenceTypes: {
-        low: 'red', // <= 33%
-        medium: 'warm-gray', // 34-66%
-        high: 'green' // >= 67%
-      },
-      confidenceClasses: {
-        medium: 'cv-confidence-medium'
-      },
-      /*
-       * Local translations: Temporary storage for strings that don't have
-       * translation keys yet in messages+intl-icu.de.yml
-       */
-      localTranslations: {
-        confidence: 'Konfidenz',
-        mainTitle: 'Stellungnahmen zum aktuellen Verfahren',
-        displayLabel: 'Darstellung',
-        statementsTab: 'Stellungnahmen',
-        segmentsTab: 'Abschnitte',
-        adjustColumns: 'Spalten anpassen',
-        addNewStatement: 'Neue Stellungnahme hinzufügen',
-        checkSegmentation: 'Aufteilung überprüfen',
-        acceptSegmentation: 'Aufteilung so akzeptieren',
-        elementsPerPage: 'Elemente pro Seite:',
-        selectColumns: 'Spalten auswählen',
-        selectColumn: 'Spalte auswählen',
-        sectionsContent: 'Aufteilung in Abschnitte Content - Coming Soon'
-      }
+      visibleColumns: []
     }
   },
 
@@ -366,13 +366,19 @@ export default {
       statementsObject: 'items'
     }),
 
-
     statements () {
       const rawData = Object.values(this.statementsObject) || []
       const processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
-        const confidence = Math.floor(Math.random() * 100) + 1 // TODO: Replace with real confidence values from API when available
-        const confidenceType = confidence <= 33 ? 'low' : confidence <= 66 ? 'medium' : 'high'
+        const confidence = Math.floor(Math.random() * 100) + 1
+        let confidenceType
+        if (confidence <= 33) {
+          confidenceType = 'low'
+        } else if (confidence <= 66) {
+          confidenceType = 'medium'
+        } else {
+          confidenceType = 'high'
+        }
 
         return {
           id: stmt.attributes?.externId || stmt.id,
@@ -541,8 +547,12 @@ export default {
     },
 
     formatDate (dateString) {
-      if (!dateString) return ''
+      if (!dateString) {
+
+        return ''
+      }
       const date = new Date(dateString)
+
       return date.toLocaleDateString('de-DE')
     },
 
@@ -557,6 +567,7 @@ export default {
       } else if (event.length && event.length !== this.pagination.perPage) {
         // Debounce for size changes
         if (now - this.lastPaginationEventTime < 100) {
+
           return
         }
 
@@ -585,6 +596,7 @@ export default {
 
     extractNumericId (id) {
       const match = String(id).match(/\d+/)
+
       return match ? parseInt(match[0]) : 0
     },
 
@@ -622,26 +634,32 @@ export default {
         // Handle client-side sorting columns (indices 0,1,3,5)
         if (this.sortBy === 0) {
           this.sortStatementsClientSide('id')
+
           return '-submitDate,id' // Fallback to keep pagination stable
         }
         if (this.sortBy === 1) {
           this.sortStatementsClientSide('status')
+
           return '-submitDate,id'
         }
         if (this.sortBy === 3) {
           this.sortStatementsClientSide('institution')
+
           return '-submitDate,id'
         }
         if (this.sortBy === 5) {
           this.sortStatementsClientSide('confidence')
+
           return '-submitDate,id'
         }
 
         // Handle API-supported sorting (index 2 = submitName)
         const field = sortFieldMap[this.sortBy]
+
         return field ? `${direction}${field}` : '-submitDate,id'
       }
       // Default sort: newest statements first, then by ID for consistency
+
       return '-submitDate,id'
     },
 
@@ -721,8 +739,10 @@ export default {
     loadColumnSelection () {
       if (this.useLocalStorage) {
         const stored = localStorage.getItem(this.localStorageKey)
+
         return stored ? JSON.parse(stored) : ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
       }
+
       return ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
     },
 
