@@ -16,8 +16,8 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
 use http\Exception\UnexpectedValueException;
-use RuntimeException;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -68,7 +68,6 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             $this->logSuccess($logContext, $startTime, count($formattedResults));
 
             return $formattedResults;
-
         } catch (Exception $e) {
             $this->logError($e, $logContext, $startTime);
             if (str_contains($e->getMessage(), 'Permission')) {
