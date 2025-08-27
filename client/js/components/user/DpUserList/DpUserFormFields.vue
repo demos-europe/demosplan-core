@@ -300,7 +300,7 @@ export default {
 
   methods: {
     ...mapActions('UserFormFields', [
-      'fetchOrgaSuggestions'
+      'fetchOrgaSuggestions',
     ]),
 
     ...mapMutations('Orga', ['setItem']),
