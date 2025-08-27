@@ -10,31 +10,10 @@ All rights reserved
 <template>
   <div class="cv-statement-list">
     <div class="cv-container">
-<!--      <div class="cv-header-row">
-        <h4 class="cv-main-title">
-          Stellungnahmen zum aktuellen Verfahren
-        </h4>
-        <span class="cv-switch-label">Darstellung</span>
-
-        &lt;!&ndash; Content Switcher &ndash;&gt;
-        <cv-content-switcher @selected="onTabSwitch">
-          <cv-content-switcher-button
-            content-selector=".statements-content"
-            :selected="activeTab === 'statements'">
-            Stellungnahmen
-          </cv-content-switcher-button>
-          <cv-content-switcher-button
-            content-selector=".sections-content"
-            :selected="activeTab === 'sections'">
-            Abschnitte
-          </cv-content-switcher-button>
-        </cv-content-switcher>
-      </div>-->
-
-      <!-- Tab Content -->
+      <!-- Statements Table -->
       <cv-data-table
         :columns="filteredColumns"
-        batch-cancel-label="Abbrechen"
+        :batch-cancel-label="Translator.trans('abort')"
         :data="statements"
         id="cv-statement-table"
         :rows-selected="selectedRows"
@@ -44,7 +23,7 @@ All rights reserved
         <template v-slot:actions>
           <cv-search
             light
-            placeholder="Suchen"
+            :placeholder="Translator.trans('searching')"
             :value="searchValue"
             @input="applySearch"
           />
@@ -53,23 +32,26 @@ All rights reserved
             <div
               class="cv-column-selector-trigger"
               @click="toggleColumnSelector"
+              @keydown.enter="toggleColumnSelector"
+              @keydown.space="toggleColumnSelector"
               ref="columnTrigger">
               <cv-button
                 id="colSort"
                 kind="ghost">
-                Spalten anpassen <ChevronDown16 />
+                {{ localTranslations.adjustColumns }} <ChevronDown16 />
               </cv-button>
             </div>
           </div>
           <cv-button
             kind="tertiary"
             class="cv-export-btn">
-            Exportieren <Export16 />
+            {{ Translator.trans('export') }} <Export16 />
           </cv-button>
           <cv-button
             kind="primary"
-            class="cv-add-btn">
-            Neue Stellungnahme hinzufügen <DocumentAdd16 />
+            class="cv-add-btn"
+            @click="createNewStatement">
+            {{ localTranslations.addNewStatement }} <DocumentAdd16 />
           </cv-button>
         </template>
 
@@ -78,26 +60,29 @@ All rights reserved
           <cv-button
             kind="primary"
             size="default">
-            Aufteilung überprüfen
+            {{ localTranslations.checkSegmentation }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Aufteilung so akzeptieren
+            {{ localTranslations.acceptSegmentation }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Bearbeiten
+            {{ Translator.trans('edit') }}
           </cv-button>
           <cv-button
             kind="primary"
             size="default">
-            Löschen
+            {{ Translator.trans('delete') }}
           </cv-button>
         </template>
 
-        <!-- Custom Data Slot mit direkter Checkbox-Überwachung -->
+        <!-- Custom Data Slot: Using v-slot:data instead of default table rows
+             because Carbon's native checkbox selection has known bugs with
+             dynamic data and custom row expansion. Manual checkbox handling
+             provides more reliable selection state management. -->
         <template v-slot:data>
           <template
             v-for="(statement, index) in statements"
@@ -111,8 +96,8 @@ All rights reserved
               <cv-data-table-cell v-if="visibleColumns.includes('status')">
                 <cv-tag
                   :label="statement.status"
-                  :kind="getStatusType(statement.status)"
-                  :class="getStatusClass(statement.status)" />
+                  :kind="statusTypes[statement.status] || 'gray'"
+                  :class="statusClasses[statement.status] || ''" />
               </cv-data-table-cell>
               <cv-data-table-cell v-if="visibleColumns.includes('author')">
                 <div class="cv-author-cell">
@@ -133,8 +118,8 @@ All rights reserved
               <cv-data-table-cell v-if="visibleColumns.includes('confidence')">
                 <cv-tag
                   :label="`${statement.confidence}%`"
-                  :kind="getConfidenceType(statement.confidence)"
-                  :class="getConfidenceClass(statement.confidence)" />
+                  :kind="confidenceTypes[statement.confidenceType]"
+                  :class="confidenceClasses[statement.confidenceType] || ''" />
               </cv-data-table-cell>
 
               <cv-data-table-cell v-if="visibleColumns.includes('expand')">
@@ -142,7 +127,7 @@ All rights reserved
                   kind="ghost"
                   size="sm"
                   @click="toggleRowExpansion(statement.id)"
-                  :aria-label="`Expand row ${statement.id}`">
+                  :aria-label="Translator.trans('dropdown.open')">
                   <ChevronDown16 :style="{ transform: expandedRows.includes(statement.id) ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }" />
                 </cv-button>
               </cv-data-table-cell>
@@ -165,7 +150,7 @@ All rights reserved
         :page="pagination.currentPage"
         :page-sizes="computedPageSizes"
         :number-of-items="pagination.total"
-        page-sizes-label="Elemente pro Seite:"
+        :page-sizes-label="localTranslations.elementsPerPage"
         @change="onPaginationChange"
         class="cv-pagination">
         <template v-slot:range-text="{ scope }">
@@ -178,12 +163,6 @@ All rights reserved
     </div>
   </div>
 
-  <!-- Sections Content -->
-  <cv-segment-list
-    v-if="activeTab === 'sections'"
-    :current-user-id="currentUserId"
-    :procedure-id="procedureId" />
-
   <!-- Column Selector Dropdown (rendered outside table) -->
   <div
     v-if="isColumnSelectorOpen"
@@ -191,7 +170,7 @@ All rights reserved
     ref="columnDropdown">
     <div class="cv-column-selector-dropdown">
       <div class="cv-column-selector-header">
-        <span>Spalten auswählen</span>
+        <span>{{ localTranslations.selectColumns }}</span>
       </div>
       <div class="cv-column-selector-options">
         <cv-button
@@ -204,7 +183,7 @@ All rights reserved
             type="checkbox"
             :checked="visibleColumns.includes(column.key)"
             class="cv-column-checkbox"
-            :aria-label="`Toggle ${column.label} column`"
+            :aria-label="localTranslations.selectColumn"
             readonly
           >
           {{ column.label }}
@@ -217,8 +196,6 @@ All rights reserved
 <script>
 import {
   CvButton,
-  CvContentSwitcher,
-  CvContentSwitcherButton,
   CvDataTable,
   CvDataTableCell,
   CvDataTableRow,
@@ -228,7 +205,6 @@ import {
 } from '@carbon/vue'
 import { mapActions, mapState } from 'vuex'
 import ChevronDown16 from '@carbon/icons-vue/es/chevron--down/16'
-import CvSegmentList from './segments/CvSegmentList'
 import DocumentAdd16 from '@carbon/icons-vue/es/document--add/16'
 import Export16 from '@carbon/icons-vue/es/export/16'
 
@@ -242,10 +218,7 @@ export default {
     CvDataTableCell,
     CvPagination,
     CvSearch,
-    CvSegmentList,
     CvTag,
-    CvContentSwitcher,
-    CvContentSwitcherButton,
     DocumentAdd16,
     Export16,
     ChevronDown16
@@ -257,14 +230,14 @@ export default {
       required: true
     },
 
-    procedureId: {
-      required: true,
-      type: String
-    },
-
     localStorageKey: {
       type: String,
       default: 'statementList'
+    },
+
+    procedureId: {
+      required: true,
+      type: String
     },
 
     useLocalStorage: {
@@ -275,10 +248,14 @@ export default {
 
   data () {
     return {
-      activeTab: 'statements',
-      headerCheckboxHandler: null, // Store handler for cleanup
-      clientSortField: null, // For client-side sorting
+      apiStatusLabels: {
+        new: Translator.trans('new'),
+        processing: Translator.trans('fragment.status.editing'),
+        completed: Translator.trans('terminated')
+      },
+      checkboxListeners: [], // Track individual checkbox listeners for cleanup
       clientSortDirection: null,
+      clientSortField: null, // For client-side sorting
       columns: [
         { key: 'id', label: 'ID', sortable: true },
         { key: 'status', label: 'Stn.-Status' },
@@ -288,20 +265,39 @@ export default {
         { key: 'confidence', label: 'Konfidenz', sortable: true },
         { key: 'expand', label: '', headingStyle: { 'pointer-events': 'none' } }
       ],
+      // Confidence mapping objects
+      confidenceClasses: {
+        medium: 'cv-confidence-medium'
+      },
+      confidenceTypes: {
+        low: 'red', // <= 33%
+        medium: 'warm-gray', // 34-66%
+        high: 'green' // >= 67%
+      },
+      expandedRows: [],
+      headerCheckboxHandler: null, // Store handler for cleanup
+      isColumnSelectorOpen: false,
+      lastPaginationEventTime: 0, // Debouncing for pagination events
+      /*
+       * Local translations: Temporary storage for strings that don't have
+       * translation keys yet in messages+intl-icu.de.yml
+       */
+      localTranslations: {
+        acceptSegmentation: 'Aufteilung so akzeptieren',
+        addNewStatement: 'Neue Stellungnahme hinzufügen',
+        adjustColumns: 'Spalten anpassen',
+        checkSegmentation: 'Aufteilung überprüfen',
+        elementsPerPage: 'Elemente pro Seite:',
+        selectColumn: 'Spalte auswählen',
+        selectColumns: 'Spalten auswählen'
+      },
       pagination: {
         currentPage: 1,
         perPage: 10,
         total: 0,
         totalPages: 0
       },
-      selectedRows: [],
       searchValue: '',
-      sortBy: '',
-      sortDirection: '',
-      expandedRows: [], // Track which rows are expanded
-      lastPaginationEventTime: 0, // Debouncing for pagination events
-      isColumnSelectorOpen: false,
-      visibleColumns: [],
       selectableColumns: [
         { key: 'id', label: 'ID' },
         { key: 'status', label: 'Stn.-Status' },
@@ -309,7 +305,20 @@ export default {
         { key: 'institution', label: 'Institution' },
         { key: 'sections', label: 'Abschnitte' },
         { key: 'confidence', label: 'Konfidenz' }
-      ]
+      ],
+      selectedRows: [],
+      sortBy: '',
+      sortDirection: '',
+      statusClasses: {
+        'In Bearbeitung': 'status-editing',
+        Abgeschlossen: 'status-completed'
+      },
+      statusTypes: {
+        Neu: 'blue',
+        'In Bearbeitung': 'gray',
+        Abgeschlossen: 'gray'
+      },
+      visibleColumns: []
     }
   },
 
@@ -322,16 +331,28 @@ export default {
       const rawData = Object.values(this.statementsObject) || []
       const processedData = rawData.map(stmt => {
         const segmentsCount = stmt.relationships?.segments?.data?.length || 0
+        // Dummy confidence value - replace with API data when available
+        const confidence = 75
+        let confidenceType
+        if (confidence <= 33) {
+          confidenceType = 'low'
+        } else if (confidence <= 66) {
+          confidenceType = 'medium'
+        } else {
+          confidenceType = 'high'
+        }
+
         return {
           id: stmt.attributes?.externId || stmt.id,
-          status: this.mapApiStatusToDisplay(stmt.attributes.status),
+          status: this.apiStatusLabels[stmt.attributes.status] || stmt.attributes.status,
           statusDate: stmt.attributes.submitDate,
           author: stmt.attributes.authorName,
           authorDate: this.formatDate(stmt.attributes.authoredDate),
           institution: stmt.attributes?.initialOrganisationName || '-',
           text: stmt.attributes?.text || stmt.text, // For expanded row
           sections: segmentsCount > 0 ? segmentsCount : '-',
-          confidence: Math.floor(Math.random() * 100) + 1 // Dummy: 1-100%
+          confidence,
+          confidenceType
         }
       })
 
@@ -345,7 +366,10 @@ export default {
           return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
         })
       } else if (this.clientSortField === 'status') {
-        // Status sorting
+        /*
+         * Status sorting: Carbon table doesn't support semantic status sorting,
+         * so we handle it client-side with custom order
+         */
         const statusOrder = { Neu: 1, 'In Bearbeitung': 2, Abgeschlossen: 3 }
         processedData.sort((a, b) => {
           const orderA = statusOrder[a.status] || 999
@@ -405,24 +429,13 @@ export default {
   },
 
   methods: {
-    // Vuex Actions importieren
     ...mapActions('Statement', {
       fetchStatements: 'list'
     }),
 
-    applySearch (term, page = 1) {
-      // Check if the search term has changed
-      const searchChanged = term !== this.searchValue
-      this.searchValue = term
-
-      // Always go to page 1 when search term changes, otherwise use specified page
-      const targetPage = searchChanged ? 1 : page
-
-      this.fetchStatements({
-        page: { number: targetPage, size: this.pagination.perPage },
-        search: {
-          value: this.searchValue
-        },
+    handleFetchStatements (options = {}) {
+      const defaultOptions = {
+        page: { number: 1, size: this.pagination.perPage },
         filter: {
           procedureId: {
             condition: {
@@ -431,15 +444,42 @@ export default {
             }
           }
         },
-        sort: this.getSortString(), // Dynamic sort based on UI selection
         include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
         fields: {
           Statement: [
-            'authoredDate', 'authorName', 'externId', 'isSubmittedByCitizen',
-            'initialOrganisationName', 'internId', 'status', 'submitDate',
-            'submitName', 'text', 'textIsTruncated', 'segments'
+            'authoredDate',
+            'authorName',
+            'externId',
+            'isSubmittedByCitizen',
+            'initialOrganisationName',
+            'internId',
+            'status',
+            'submitDate',
+            'submitName',
+            'text',
+            'textIsTruncated',
+            'segments'
           ].join(),
           SourceStatementAttachment: ['file'].join()
+        },
+        sort: this.getSortString()
+      }
+
+      const mergedOptions = { ...defaultOptions, ...options }
+      return this.fetchStatements(mergedOptions)
+    },
+    applySearch (term, page = 1) {
+      // Check if the search term has changed
+      const searchChanged = term !== this.searchValue
+      this.searchValue = term
+
+      // Always go to page 1 when search term changes, otherwise use specified page
+      const targetPage = searchChanged ? 1 : page
+
+      this.handleFetchStatements({
+        page: { number: targetPage, size: this.pagination.perPage },
+        search: {
+          value: this.searchValue
         }
       }).then(response => {
         if (response?.meta?.pagination) {
@@ -460,51 +500,22 @@ export default {
       })
     },
 
+    createNewStatement () {
+      const hasSimplifiedCreate = hasPermission('feature_simplified_new_statement_create')
+      const route = hasSimplifiedCreate ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted'
+
+      window.location.href = Routing.generate(route, { procedureId: this.procedureId })
+    },
+
     formatDate (dateString) {
-      if (!dateString) return ''
+      if (!dateString) {
+
+        return ''
+      }
       const date = new Date(dateString)
+
       return date.toLocaleDateString('de-DE')
     },
-
-    getConfidenceType (confidence) {
-      if (confidence <= 33) return 'red'
-      if (confidence <= 66) return 'warm-gray' // Medium = Warm-Gray + Custom Orange 🟠
-      return 'green'
-    },
-
-    getConfidenceClass (confidence) {
-      if (confidence <= 33) return ''
-      if (confidence <= 66) return 'cv-confidence-medium'
-      return ''
-    },
-
-    getStatusType (status) {
-      const statusMap = {
-        Neu: 'blue', // Carbon Standard
-        'In Bearbeitung': 'gray', // CSS Override to 'orange'
-        Abgeschlossen: 'gray' // CSS Override to 'green'
-      }
-      return statusMap[status] || 'gray'
-    },
-
-    getStatusClass (status) {
-      const classMap = {
-        'In Bearbeitung': 'status-editing',
-        Abgeschlossen: 'status-completed'
-      }
-      return classMap[status] || ''
-    },
-
-    // Status Mapping
-    mapApiStatusToDisplay (apiStatus) {
-      const statusMap = {
-        new: 'Neu',
-        processing: 'In Bearbeitung',
-        completed: 'Abgeschlossen'
-      }
-      return statusMap[apiStatus] || apiStatus
-    },
-
     onPaginationChange (event) {
       const now = Date.now()
 
@@ -516,6 +527,7 @@ export default {
       } else if (event.length && event.length !== this.pagination.perPage) {
         // Debounce for size changes
         if (now - this.lastPaginationEventTime < 100) {
+
           return
         }
 
@@ -544,54 +556,71 @@ export default {
 
     extractNumericId (id) {
       const match = String(id).match(/\d+/)
+
       return match ? parseInt(match[0]) : 0
     },
 
     getSortString () {
+      /**
+       * Converts Carbon table column sorting to API sort parameters.
+       *
+       * sortBy data flow:
+       * - Initialized as empty string in data()
+       * - Set to column index (number) by Carbon table's @sort event
+       * - Used here to determine API vs client-side sorting
+       *
+       * Mixed sorting approach needed because:
+       * - API supports limited sorting (only submitName field)
+       * - Custom sorts (ID extraction, status priority, institution names)
+       *   must be handled client-side
+       * - Always return API sort string for pagination consistency
+       */
       if (this.sortBy !== '' && this.sortDirection) {
         const direction = this.sortDirection === 'ascending' ? '' : '-'
 
-        // Mapping from Column Index to API Field
+        /*
+         * Column index to API field mapping
+         * null = client-side sorting required
+         */
         const sortFieldMap = {
-          0: null,
-          1: null,
-          2: 'submitName',
-          3: null,
-          4: null,
-          5: null
+          0: null, // ID - extract numeric part client-side
+          1: null, // Status - custom priority order client-side
+          2: 'submitName', // Author - API supports this field
+          3: null, // Institution - name comparison client-side
+          4: null, // Sections - not sortable (display only)
+          5: null // Confidence - dummy data, client-side for now
         }
 
-        // Client-side sortieren
+        // Handle client-side sorting columns (indices 0,1,3,5)
         if (this.sortBy === 0) {
           this.sortStatementsClientSide('id')
-          return '-submitDate,id' // Fallback API sort
+
+          return '-submitDate,id' // Fallback to keep pagination stable
         }
         if (this.sortBy === 1) {
           this.sortStatementsClientSide('status')
-          return '-submitDate,id' // Fallback API sort
+
+          return '-submitDate,id'
         }
         if (this.sortBy === 3) {
           this.sortStatementsClientSide('institution')
-          return '-submitDate,id' // Fallback API sort
+
+          return '-submitDate,id'
         }
         if (this.sortBy === 5) {
           this.sortStatementsClientSide('confidence')
-          return '-submitDate,id' // Fallback API sort
+
+          return '-submitDate,id'
         }
 
+        // Handle API-supported sorting (index 2 = submitName)
         const field = sortFieldMap[this.sortBy]
+
         return field ? `${direction}${field}` : '-submitDate,id'
       }
-      // Default sort when no sorting is active
-      return '-submitDate,id'
-    },
+      // Default sort: newest statements first, then by ID for consistency
 
-    onTabSwitch (selectedButton) {
-      if (selectedButton.includes('statements')) {
-        this.activeTab = 'statements'
-      } else if (selectedButton.includes('sections')) {
-        this.activeTab = 'sections'
-      }
+      return '-submitDate,id'
     },
 
     toggleRowExpansion (rowId) {
@@ -662,32 +691,25 @@ export default {
     loadColumnSelection () {
       if (this.useLocalStorage) {
         const stored = localStorage.getItem(this.localStorageKey)
+
         return stored ? JSON.parse(stored) : ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
       }
+
       return ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
     },
 
     setupCheckboxListeners () {
-      console.log('setupCheckboxListeners called')
-      // Wait for DOM to be fully rendered with statements
-      this.$nextTick(() => {
-        console.log('DOM is ready, looking for checkboxes')
-        // Header checkbox for "Select All" - Debug multiple selectors
-        const headerSelectors = [
-          '#cv-statement-table .bx--table-head .bx--table-column-checkbox input',
-          '#cv-statement-table thead .bx--table-column-checkbox input',
-          '#cv-statement-table .bx--data-table-header .bx--table-column-checkbox input',
-          '#cv-statement-table th .bx--table-column-checkbox input'
-        ]
+      /*
+       * Manual checkbox handling: Carbon's native selection has bugs with dynamic data
+       * and row expansion. We manually bind to checkbox events for reliable state management.
+       *
+       * Clean up existing listeners first
+       */
+      this.removeCheckboxListeners()
 
-        let headerCheckbox = null
-        for (const selector of headerSelectors) {
-          headerCheckbox = document.querySelector(selector)
-          if (headerCheckbox) {
-            console.log('Found header checkbox with selector:', selector)
-            break
-          }
-        }
+      this.$nextTick(() => {
+        // Header checkbox for "Select All"
+        const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
 
         if (headerCheckbox) {
           // Remove existing listeners to prevent conflicts
@@ -708,12 +730,14 @@ export default {
           headerCheckbox.addEventListener('change', this.headerCheckboxHandler)
         }
 
-        // Individual row checkboxes - exclude header checkbox
-        const checkboxes = document.querySelectorAll('#cv-statement-table tbody .bx--table-column-checkbox input[type="checkbox"]')
+        // Individual row checkboxes
+        const checkboxes = document.querySelectorAll('#cv-statement-table .bx--table-column-checkbox input[type="checkbox"]')
 
         checkboxes.forEach((checkbox) => {
+          // Skip header checkbox (already handled above)
+          if (checkbox.closest('.bx--table-head')) return
 
-          checkbox.addEventListener('change', (event) => {
+          const handler = (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
 
             if (event.target.checked) {
@@ -729,11 +753,32 @@ export default {
 
             this.updateBatchActionsVisibility()
             this.updateHeaderCheckboxState()
-          })
+          }
+
+          checkbox.addEventListener('change', handler)
+
+          // Track listener for cleanup
+          this.checkboxListeners.push({ element: checkbox, handler })
         })
       })
     },
 
+    removeCheckboxListeners () {
+      // Remove all individual checkbox listeners
+      this.checkboxListeners.forEach(({ element, handler }) => {
+        element.removeEventListener('change', handler)
+      })
+      this.checkboxListeners = []
+
+      // Remove header checkbox listener
+      if (this.headerCheckboxHandler) {
+        const headerCheckbox = document.querySelector('#cv-statement-table .bx--table-head .bx--table-column-checkbox input')
+        if (headerCheckbox) {
+          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+        }
+        this.headerCheckboxHandler = null
+      }
+    },
     updateBatchActionsVisibility () {
       const batchActions = document.querySelector('.bx--batch-actions')
       if (batchActions) {
@@ -789,23 +834,6 @@ export default {
           element.textContent = element.textContent.replace('Page', 'Seite')
         }
       })
-
-      // Disable forward button on last page
-      const paginationEl = document.querySelector('.cv-statement-list .bx--pagination')
-      if (paginationEl && this.pagination.currentPage >= this.pagination.totalPages) {
-        paginationEl.setAttribute('data-last-page', 'true')
-
-        // Block clicks on forward button
-        const forwardBtn = paginationEl.querySelector('.bx--pagination__button--forward')
-        if (forwardBtn) {
-          forwardBtn.addEventListener('click', (e) => {
-            e.preventDefault()
-            e.stopPropagation()
-          }, { once: false })
-        }
-      } else if (paginationEl) {
-        paginationEl.removeAttribute('data-last-page')
-      }
     }
   },
 
@@ -813,25 +841,7 @@ export default {
     // Initialize visibleColumns from localStorage
     this.visibleColumns = this.loadColumnSelection()
 
-    this.fetchStatements({
-      page: { number: 1, size: this.pagination.perPage },
-      filter: {
-        procedureId: {
-          condition: {
-            path: 'procedure.id',
-            value: this.procedureId
-          }
-        }
-      },
-      include: ['segments'].join(),
-      fields: {
-        Statement: [
-          'authoredDate', 'authorName', 'externId', 'isSubmittedByCitizen',
-          'initialOrganisationName', 'internId', 'status', 'submitDate',
-          'submitName', 'text', 'textIsTruncated', 'segments'
-        ].join()
-      }
-    }).then(response => {
+    this.handleFetchStatements().then(response => {
       if (response?.meta?.pagination) {
         this.pagination = {
           currentPage: response.meta.pagination.current_page,
@@ -855,6 +865,7 @@ export default {
   },
 
   beforeUnmount () {
+    this.removeCheckboxListeners()
     document.removeEventListener('click', this.handleOutsideClick)
   }
 }

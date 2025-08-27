@@ -29,16 +29,16 @@
 }
 .dp-procedure-name-container {
     display: flow-root;
-    border-top: 1px solid #e0e0e0; /* default border--top style */
+    border-top: 1px solid var(--dp-gray-30); /* default border--top style */
 }
 
 /* Procedure Name - Original Classes */
 .dp-procedure-name {
-    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-10_25 */
-    color: #6f6f6f;
+    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-0_25 */
+    color: var(--dp-tailwind-grey);
     display: inline-block;
-    padding-top: 8px;
-    margin-bottom: 164px;
+    padding-top: 12px;
+    margin-bottom: 6px;
 }
 
 .dp-page-header {
@@ -48,7 +48,13 @@
 /*CvStatementList*/
 
 /*Colors that differ from Carbon Design System because of the older version we need to use */
+
 :root {
+    --dp-gray-10: #f4f4f4;
+    --dp-gray-20: #e8e8e8;
+    --dp-gray-30: #e0e0e0;
+    --dp-gray-60: #8d8d8d;
+    --dp-gray-100: #161616;
     --dp-orange-20: #ffd9be;
     --dp-orange-70: #8A3800;
     --dp-green-10: #DCFDD4;
@@ -58,11 +64,12 @@
     --dp-primary-blue: #1E3A8A;
     --dp-primary: #0f62fe;
     --dp-primary-hover: #0353e9;
+    --dp-tailwind-grey: #6f6f6f;
+    --dp-white: white;
 }
-
 .cv-container {
     padding: 8px 24px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--dp-gray-30);
     display: flow-root;
 }
 
@@ -119,7 +126,7 @@
 }
 .bx--tab-content {
     padding: 0 !important;
-    background-color: #f4f4f4 !important;
+    background-color: var(--dp-gray-10) !important;
 }
 
 .cv-statement-list .cv-text-content {
@@ -146,7 +153,7 @@
 
 .cv-statement-segment-container .cv-switch-label {
     font-size: 16px;
-    color: #161616;
+    color: var(--dp-gray-100);
     font-weight: normal;
     margin: 0 32px;
 }
@@ -174,13 +181,13 @@
 
 /* Fix MultiSelect Checkboxes */
 .bx--checkbox-wrapper .bx--checkbox-label::before {
-    border: 1px solid #8d8d8d !important;
-    background-color: white !important;
+    border: 1px solid var(--dp-gray-60) !important;
+    background-color: var(--dp-white) !important;
 }
 
 .bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::before {
-    background-color: #0f62fe !important;
-    border-color: #0f62fe !important;
+    background-color: var(--dp-gray-100) !important;
+    border-color: var(--dp-gray-100) !important;
 }
 
 .bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::after {
@@ -205,18 +212,18 @@
 
 .cv-export-btn:hover {
   background-color: var(--dp-primary-blue) !important;
-  color: white !important;
+  color: var(--dp-white) !important;
 }
 
 #colSort{
-    background-color: #f4f4f4 !important;
+    background-color: var(--dp-gray-10) !important;
     border: none !important;
-    border-bottom: 1px solid #8d8d8d !important;
-    color: #161616 !important;
+    border-bottom: 1px solid var(--dp-gray-60) !important;
+    color: var(--dp-gray-100) !important;
 }
 
 #colSort:hover {
-    color: #161616 !important;
+    color: var(--dp-gray-100) !important;
 }
 
 
@@ -281,7 +288,7 @@
     overflow: visible !important;       /* Allow pseudo-element to show */
 }
 
-.o-breadcrumb li:last-child
+.o-breadcrumb li:last-child,
 a[aria-current="page"]::after {
     content: attr(data-procedure-name) !important;
     font-size: 16px !important;
@@ -294,10 +301,8 @@ a[aria-current="page"]::after {
 }
 
 .o-breadcrumb li:nth-last-child(2) a {
-    color: var(--dp-carbon-gray-100) !important;
+    color: var(--dp-gray-100) !important;
     text-decoration: none !important;
-    text-decoration-color: var(--cds-text-primary) !important;
-    text-decoration-line: none !important;
     pointer-events: none !important;
 }
 
@@ -328,12 +333,12 @@ a[aria-current="page"]::after {
     padding: 8px 16px !important;
     border: 1px solid var(--dp-primary-blue) !important;
     color: var(--dp-primary-blue) !important;
-    background-color: white !important;
+    background-color: var(--dp-gray-10) !important;
 }
 
 .cv-column-selector-trigger .bx--btn:hover {
     background-color: var(--dp-primary-blue) !important;
-    color: white !important;
+    color: var(--dp-gray-10) !important;
 }
 
 .cv-column-selector-dropdown-overlay {
@@ -348,8 +353,8 @@ a[aria-current="page"]::after {
 
 .cv-column-selector-dropdown {
     position: fixed !important;
-    background: white !important;
-    border: 1px solid #e0e0e0 !important;
+    background: var(--dp-white) !important;
+    border: 1px solid var(--dp-gray-30) !important;
     border-radius: 0 !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     z-index: 100000 !important;
@@ -386,23 +391,23 @@ a[aria-current="page"]::after {
     padding: 12px 16px !important;
     margin: 0 !important;
     font-size: 14px !important;
-    color: #161616 !important;
+    color: var(--dp-gray-100) !important;
     width: 100% !important;
     text-align: left !important;
     border: none !important;
-    border-bottom: 1px solid #e0e0e0 !important;
-    background: white !important;
+    border-bottom: 1px solid var(--dp-gray-30) !important;
+    background: var(--dp-white) !important;
     min-height: auto !important;
     border-radius: 0 !important;
 }
 
 .cv-column-option-button.bx--btn:hover {
-    background-color: #f4f4f4 !important;
+    background-color: var(--dp-gray-20) !important;
 }
 
 .cv-column-option-button.bx--btn:active,
 .cv-column-option-button.bx--btn:focus {
-    background-color: #e8e8e8 !important;
+    background-color: var(--dp-gray-20) !important;
     outline: none !important;
 }
 
@@ -411,16 +416,16 @@ a[aria-current="page"]::after {
     width: 16px !important;
     height: 16px !important;
     cursor: pointer !important;
-    border: 1px solid #8d8d8d !important;
-    background: white !important;
+    border: 1px solid var(--dp-gray-60) !important;
+    background: var(--dp-white) !important;
     pointer-events: none !important;
     appearance: none !important;
     position: relative !important;
 }
 
 .cv-column-checkbox:checked {
-    background: #161616 !important;
-    border: 1px solid #161616 !important;
+    background: var(--dp-gray-100) !important;
+    border: 1px solid var(--dp-gray-100) !important;
 }
 
 .cv-column-checkbox:checked::after {
@@ -430,7 +435,7 @@ a[aria-current="page"]::after {
     top: 1px !important;
     width: 4px !important;
     height: 8px !important;
-    border: solid white !important;
+    border: solid var(--dp-white) !important;
     border-width: 0 2px 2px 0 !important;
     transform: rotate(45deg) !important;
 }
@@ -438,7 +443,6 @@ a[aria-current="page"]::after {
 .bx--content-switcher-btn {
     min-width: fit-content !important;
 }
-
 
 #footer {
     display:none;
