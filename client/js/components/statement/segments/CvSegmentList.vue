@@ -77,8 +77,8 @@ All rights reserved
               <cv-data-table-cell v-show="visibleColumns.includes('statementStatus')">
                 <cv-tag
                   :label="segment.statementStatus"
-                  :kind="getStatusType(segment.statementStatus)"
-                  :class="getStatusClass(segment.statementStatus)" />
+                  :kind="statusTypes[segment.statementStatus] || 'gray'"
+                  :class="statusClasses[segment.statementStatus] || ''" />
               </cv-data-table-cell>
 
               <cv-data-table-cell v-show="visibleColumns.includes('submitter')">
@@ -110,8 +110,8 @@ All rights reserved
               <cv-data-table-cell v-show="visibleColumns.includes('confidence')">
                 <cv-tag
                   :label="`${segment.confidence}%`"
-                  :kind="getConfidenceType(segment.confidence)"
-                  :class="getConfidenceClass(segment.confidence)" />
+                  :kind="confidenceTypes[segment.confidenceType]"
+                  :class="confidenceClasses[segment.confidenceType] || ''" />
               </cv-data-table-cell>
 
               <cv-data-table-cell v-show="visibleColumns.includes('topic')">
@@ -248,15 +248,40 @@ export default {
 
   data () {
     return {
-      searchValue: '',
+      apiStatusLabels: {
+        new: 'Neu',
+        processing: 'In Bearbeitung',
+        completed: 'Abgeschlossen'
+      },
+      checkboxListeners: [], // Track individual checkbox listeners for cleanup
+      clientSortDirection: null,
+      clientSortField: null, // For client-side sorting
+      // Confidence mapping objects
+      confidenceClasses: {
+        medium: 'cv-confidence-medium'
+      },
+      confidenceTypes: {
+        low: 'red', // <= 33%
+        medium: 'warm-gray', // 34-66%
+        high: 'green' // >= 67%
+      },
+      expandedRows: [], // Track which rows are expanded
+      headerCheckboxHandler: null,
       isColumnSelectorOpen: false,
+      lastPaginationEventTime: 0, // Debouncing for pagination events
+      searchValue: '',
       selectedRows: [],
       sortBy: '',
       sortDirection: '',
-      checkboxListeners: [], // Track individual checkbox listeners for cleanup
-      headerCheckboxHandler: null,
-      expandedRows: [], // Track which rows are expanded
-      lastPaginationEventTime: 0, // Debouncing for pagination events
+      statusClasses: {
+        'In Bearbeitung': 'status-editing',
+        Abgeschlossen: 'status-completed'
+      },
+      statusTypes: {
+        Neu: 'blue',
+        'In Bearbeitung': 'gray',
+        Abgeschlossen: 'gray'
+      },
       visibleColumns: [
         'externId',
         'statementStatus',
@@ -326,7 +351,7 @@ export default {
         return []
       }
 
-      return segmentValues.map((segment, index) => {
+      const processedData = segmentValues.map((segment, index) => {
         // Get related statement data
         const parentStatement = this.statementsObject[segment.relationships?.parentStatement?.data?.id]
 
@@ -351,10 +376,21 @@ export default {
 
         const textModule = textModules.length > 0 ? textModules.join(', ') : '-'
 
+        // Dummy confidence value - replace with API data when available
+        const confidence = Math.floor(Math.random() * 100) + 1
+        let confidenceType
+        if (confidence <= 33) {
+          confidenceType = 'low'
+        } else if (confidence <= 66) {
+          confidenceType = 'medium'
+        } else {
+          confidenceType = 'high'
+        }
+
         return {
           id: segment.id,
           externId: segment.attributes?.externId || '-',
-          statementStatus: this.mapApiStatusToDisplay(parentStatement?.attributes?.status || 'new'),
+          statementStatus: this.apiStatusLabels[parentStatement?.attributes?.status || 'new'] || parentStatement?.attributes?.status,
           submitter: parentStatement?.attributes?.authorName || parentStatement?.attributes?.submitName || '-',
           organisation: parentStatement?.attributes?.initialOrganisationName || '',
           processingStep: place?.attributes?.name || '-',
@@ -362,12 +398,94 @@ export default {
             id: tag.id,
             title: tag.attributes?.title || ''
           })),
-          confidence: Math.floor(Math.random() * 100) + 1, // Dummy data
+          confidence,
+          confidenceType,
           topic: 'Umweltschutz', // Dummy data
           textModule,
           text: segment.attributes?.text || '' // For expanded row
         }
       })
+
+      // Client-side sorting
+      if (this.clientSortField === 'externId') {
+        // ID sorting
+        processedData.sort((a, b) => {
+          const numA = this.extractNumericId(a.externId)
+          const numB = this.extractNumericId(b.externId)
+
+          return this.clientSortDirection === 'ascending' ? numA - numB : numB - numA
+        })
+      } else if (this.clientSortField === 'statementStatus') {
+        /*
+         * Status sorting: Carbon table doesn't support semantic status sorting,
+         * so we handle it client-side with custom order
+         */
+        const statusOrder = { Neu: 1, 'In Bearbeitung': 2, Abgeschlossen: 3 }
+        processedData.sort((a, b) => {
+          const orderA = statusOrder[a.statementStatus] || 999
+          const orderB = statusOrder[b.statementStatus] || 999
+
+          return this.clientSortDirection === 'ascending' ? orderA - orderB : orderB - orderA
+        })
+      } else if (this.clientSortField === 'submitter') {
+        // Submitter sorting
+        processedData.sort((a, b) => {
+          const subA = (a.submitter || '').toLowerCase()
+          const subB = (b.submitter || '').toLowerCase()
+
+          if (this.clientSortDirection === 'ascending') {
+            return subA.localeCompare(subB)
+          } else {
+            return subB.localeCompare(subA)
+          }
+        })
+      } else if (this.clientSortField === 'processingStep') {
+        // ProcessingStep sorting
+        processedData.sort((a, b) => {
+          const stepA = (a.processingStep || '').toLowerCase()
+          const stepB = (b.processingStep || '').toLowerCase()
+
+          if (this.clientSortDirection === 'ascending') {
+            return stepA.localeCompare(stepB)
+          } else {
+            return stepB.localeCompare(stepA)
+          }
+        })
+      } else if (this.clientSortField === 'confidence') {
+        // Confidence sorting
+        processedData.sort((a, b) => {
+          const confA = a.confidence || 0
+          const confB = b.confidence || 0
+
+          return this.clientSortDirection === 'ascending' ? confA - confB : confB - confA
+        })
+      } else if (this.clientSortField === 'topic') {
+        // Topic sorting
+        processedData.sort((a, b) => {
+          const topicA = (a.topic || '').toLowerCase()
+          const topicB = (b.topic || '').toLowerCase()
+
+          if (this.clientSortDirection === 'ascending') {
+            return topicA.localeCompare(topicB)
+          } else {
+            return topicB.localeCompare(topicA)
+          }
+        })
+      } else if (this.clientSortField === 'textModule') {
+        // TextModule sorting
+        processedData.sort((a, b) => {
+          const moduleA = (a.textModule || '').toLowerCase()
+          const moduleB = (b.textModule || '').toLowerCase()
+
+          if (this.clientSortDirection === 'ascending') {
+            return moduleA.localeCompare(moduleB)
+          } else {
+            return moduleB.localeCompare(moduleA)
+          }
+        })
+      }
+
+      return processedData
     },
 
     computedPageSizes () {
@@ -405,47 +523,10 @@ export default {
       fetchPlaces: 'list'
     }),
 
-    mapApiStatusToDisplay (apiStatus) {
-      const statusMap = {
-        new: 'Neu',
-        processing: 'In Bearbeitung',
-        completed: 'Abgeschlossen'
-      }
+    extractNumericId (id) {
+      const match = String(id).match(/\d+/)
 
-      return statusMap[apiStatus] || apiStatus
-    },
-
-    getStatusType (status) {
-      const statusMap = {
-        Neu: 'blue', // Carbon Standard
-        'In Bearbeitung': 'gray', // CSS Override to 'orange'
-        Abgeschlossen: 'gray' // CSS Override to 'green'
-      }
-
-      return statusMap[status] || 'gray'
-    },
-
-    getStatusClass (status) {
-      const classMap = {
-        'In Bearbeitung': 'status-editing',
-        Abgeschlossen: 'status-completed'
-      }
-
-      return classMap[status] || ''
-    },
-
-    getConfidenceType (confidence) {
-      if (confidence <= 33) return 'red'
-      if (confidence <= 66) return 'warm-gray' // Medium = Warm-Gray + Custom Orange
-
-      return 'green'
-    },
-
-    getConfidenceClass (confidence) {
-      if (confidence <= 33) return ''
-      if (confidence <= 66) return 'cv-confidence-medium' // CSS Override to orange
-
-      return ''
+      return match ? parseInt(match[0]) : 0
     },
 
     getKeywordType (keyword) {
@@ -456,6 +537,94 @@ export default {
     getKeywordClass (keyword) {
       // Add custom class for additional styling if needed
       return 'cv-keyword-tag'
+    },
+
+    getSortString () {
+      /**
+       * Converts Carbon table column sorting to API sort parameters.
+       *
+       * sortBy data flow:
+       * - Initialized as empty string in data()
+       * - Set to column index (number) by Carbon table's @sort event
+       * - Used here to determine API vs client-side sorting
+       *
+       * Mixed sorting approach needed because:
+       * - API supports limited sorting (only specific fields)
+       * - Custom sorts (ID extraction, status priority, text comparison)
+       *   must be handled client-side
+       * - Always return API sort string for pagination consistency
+       */
+      if (this.sortBy !== '' && this.sortDirection) {
+        const direction = this.sortDirection === 'ascending' ? '' : '-'
+
+        /*
+         * Column index to API field mapping
+         * null = client-side sorting required
+         */
+        const sortFieldMap = {
+          0: null, // externId - extract numeric part client-side
+          1: null, // statementStatus - custom priority order client-side
+          2: null, // submitter - name comparison client-side
+          3: null, // processingStep - name comparison client-side
+          4: null, // keywords - not sortable (display only)
+          5: null, // confidence - dummy data, client-side for now
+          6: null, // topic - text comparison client-side
+          7: null, // textModule - text comparison client-side
+          8: null  // expand - not sortable (display only)
+        }
+
+        // Handle client-side sorting columns
+        if (this.sortBy === 0) {
+          this.sortSegmentsClientSide('externId')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure' // Fallback to keep pagination stable
+        }
+        if (this.sortBy === 1) {
+          this.sortSegmentsClientSide('statementStatus')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+        if (this.sortBy === 2) {
+          this.sortSegmentsClientSide('submitter')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+        if (this.sortBy === 3) {
+          this.sortSegmentsClientSide('processingStep')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+        if (this.sortBy === 5) {
+          this.sortSegmentsClientSide('confidence')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+        if (this.sortBy === 6) {
+          this.sortSegmentsClientSide('topic')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+        if (this.sortBy === 7) {
+          this.sortSegmentsClientSide('textModule')
+
+          return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+        }
+
+        // Handle API-supported sorting (currently none specific, but structure for future)
+        const field = sortFieldMap[this.sortBy]
+
+        return field ? `${direction}${field}` : 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+      }
+      // Default sort: by statement date, then by ID for consistency
+
+      return 'parentStatement.submitDate,parentStatement.externId,orderInProcedure'
+    },
+
+    sortSegmentsClientSide (sortField) {
+      // Set client-side sorting parameters
+      this.clientSortField = sortField
+      this.clientSortDirection = this.sortDirection
+      // Computed property segments() will be automatically recalculated
     },
 
     toggleColumnSelector () {
@@ -578,7 +747,8 @@ export default {
         this.sortBy = sortBy.index
         this.sortDirection = 'ascending'
       }
-      // Implement sorting
+
+      this.applySearch(this.searchValue, 1)
     },
 
     setupCheckboxListeners () {
@@ -757,7 +927,7 @@ export default {
             }
           }
         },
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        sort: this.getSortString(),
         fields: {
           Place: ['name'].join(),
           Statement: [
