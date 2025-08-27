@@ -175,22 +175,26 @@ export default {
      * See https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
      */
     listToTree (list) {
-      const map = {}
+      /* Create a shallow copy of each item, so it can be modified safely */
+      const listCopy = list.map(item => ({
+        ...item,
+        children: []
+      }))
+      let map = {}
       let node
       let roots = []
       let index
 
-      // Initialize map and children in list elements
-      for (index = 0; index < list.length; index += 1) {
-        map[list[index].id] = index
-        list[index].children = []
+      // Initialize map
+      for (index = 0; index < listCopy.length; index += 1) {
+        map[listCopy[index].id] = index
       }
 
-      for (index = 0; index < list.length; index += 1) {
-        node = list[index]
+      for (index = 0; index < listCopy.length; index += 1) {
+        node = listCopy[index]
         const isTopLevel = node.attributes.parentId === null
 
-        // Make documents direct children of node, if there are any
+        // Attach visible documents directly as children of the current node (if any exist)
         if (node.hasRelationship('visibleDocuments')) {
           node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
@@ -201,7 +205,7 @@ export default {
           const hasEnabledParent = typeof nodeParentIdx !== 'undefined'
 
           if (hasEnabledParent) {
-            list[nodeParentIdx].children.push(node)
+            listCopy[nodeParentIdx].children.push(node)
           }
         } else {
           roots.push(node)
