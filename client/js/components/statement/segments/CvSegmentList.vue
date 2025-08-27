@@ -229,9 +229,20 @@ export default {
       type: String,
       required: true
     },
+
+    localStorageKey: {
+      type: String,
+      default: 'segmentList'
+    },
+
     procedureId: {
       required: true,
       type: String
+    },
+
+    useLocalStorage: {
+      type: Boolean,
+      default: true
     }
   },
 
@@ -242,10 +253,21 @@ export default {
       selectedRows: [],
       sortBy: '',
       sortDirection: '',
+      checkboxListeners: [], // Track individual checkbox listeners for cleanup
       headerCheckboxHandler: null,
       expandedRows: [], // Track which rows are expanded
       lastPaginationEventTime: 0, // Debouncing for pagination events
-      visibleColumns: ['externId', 'statementStatus', 'submitter', 'processingStep', 'keywords', 'confidence', 'topic', 'textModule', 'expand'],
+      visibleColumns: [
+        'externId',
+        'statementStatus',
+        'submitter',
+        'processingStep',
+        'keywords',
+        'confidence',
+        'topic',
+        'textModule',
+        'expand'
+      ],
       columns: [
         { key: 'externId', label: 'ID' },
         { key: 'statementStatus', label: 'Stn.-Status' },
@@ -389,6 +411,7 @@ export default {
         processing: 'In Bearbeitung',
         completed: 'Abgeschlossen'
       }
+
       return statusMap[apiStatus] || apiStatus
     },
 
@@ -398,6 +421,7 @@ export default {
         'In Bearbeitung': 'gray', // CSS Override to 'orange'
         Abgeschlossen: 'gray' // CSS Override to 'green'
       }
+
       return statusMap[status] || 'gray'
     },
 
@@ -406,18 +430,21 @@ export default {
         'In Bearbeitung': 'status-editing',
         Abgeschlossen: 'status-completed'
       }
+
       return classMap[status] || ''
     },
 
     getConfidenceType (confidence) {
       if (confidence <= 33) return 'red'
       if (confidence <= 66) return 'warm-gray' // Medium = Warm-Gray + Custom Orange
+
       return 'green'
     },
 
     getConfidenceClass (confidence) {
       if (confidence <= 33) return ''
       if (confidence <= 66) return 'cv-confidence-medium' // CSS Override to orange
+
       return ''
     },
 
@@ -469,7 +496,43 @@ export default {
       } else {
         this.visibleColumns.push(columnKey)
       }
-      // TODO: Save to localStorage if needed
+      this.saveColumnSelection()
+    },
+
+    saveColumnSelection () {
+      if (this.useLocalStorage) {
+        localStorage.setItem(this.localStorageKey, JSON.stringify(this.visibleColumns))
+      }
+    },
+
+    loadColumnSelection () {
+      if (this.useLocalStorage) {
+        const stored = localStorage.getItem(this.localStorageKey)
+
+        return stored ? JSON.parse(stored) : [
+          'externId',
+          'statementStatus',
+          'submitter',
+          'processingStep',
+          'keywords',
+          'confidence',
+          'topic',
+          'textModule',
+          'expand'
+        ]
+      }
+
+      return [
+        'externId',
+        'statementStatus',
+        'submitter',
+        'processingStep',
+        'keywords',
+        'confidence',
+        'topic',
+        'textModule',
+        'expand'
+      ]
     },
 
     applySearch (term, page = 1) {
@@ -493,6 +556,7 @@ export default {
       } else if (event.length && event.length !== this.pagination.perPage) {
         // Debounce for size changes
         if (now - this.lastPaginationEventTime < 100) {
+
           return
         }
 
@@ -514,12 +578,18 @@ export default {
         this.sortBy = sortBy.index
         this.sortDirection = 'ascending'
       }
-      // TODO: Implement sorting
+      // Implement sorting
     },
 
     setupCheckboxListeners () {
-      console.log('setupCheckboxListeners called')
-      // Wait for DOM to be fully rendered with segments
+      /*
+       * Manual checkbox handling: Carbon's native selection has bugs with dynamic data
+       * and row expansion. We manually bind to checkbox events for reliable state management.
+       *
+       * Clean up existing listeners first
+       */
+      this.removeCheckboxListeners()
+
       this.$nextTick(() => {
         console.log('DOM is ready, looking for checkboxes')
         // Header checkbox for "Select All" - Debug multiple selectors
@@ -562,8 +632,10 @@ export default {
         const checkboxes = document.querySelectorAll('#cv-segment-table tbody .bx--table-column-checkbox input[type="checkbox"]')
 
         checkboxes.forEach((checkbox) => {
+          // Skip header checkbox (already handled above)
+          if (checkbox.closest('.bx--table-head')) return
 
-          checkbox.addEventListener('change', (event) => {
+          const handler = (event) => {
             const rowValue = event.target.closest('tr')?.getAttribute('data-value') || event.target.value
 
             if (event.target.checked) {
@@ -579,7 +651,12 @@ export default {
 
             this.updateBatchActionsVisibility()
             this.updateHeaderCheckboxState()
-          })
+          }
+
+          checkbox.addEventListener('change', handler)
+
+          // Track listener for cleanup
+          this.checkboxListeners.push({ element: checkbox, handler })
         })
       })
     },
@@ -640,6 +717,23 @@ export default {
       } else {
         // Row is collapsed - expand
         this.expandedRows.push(rowId)
+      }
+    },
+
+    removeCheckboxListeners () {
+      // Remove all individual checkbox listeners
+      this.checkboxListeners.forEach(({ element, handler }) => {
+        element.removeEventListener('change', handler)
+      })
+      this.checkboxListeners = []
+
+      // Remove header checkbox listener
+      if (this.headerCheckboxHandler) {
+        const headerCheckbox = document.querySelector('#cv-segment-table .bx--table-head .bx--table-column-checkbox input')
+        if (headerCheckbox) {
+          headerCheckbox.removeEventListener('change', this.headerCheckboxHandler)
+        }
+        this.headerCheckboxHandler = null
       }
     },
 
@@ -722,6 +816,9 @@ export default {
   },
 
   mounted () {
+    // Initialize visibleColumns from localStorage
+    this.visibleColumns = this.loadColumnSelection()
+
     // Load initial data
     this.fetchPlaces() // Load places for processingStep
     this.fetchSegmentData() // Load segments with all related data
@@ -733,6 +830,7 @@ export default {
   },
 
   beforeUnmount () {
+    this.removeCheckboxListeners()
     document.removeEventListener('click', this.handleOutsideClick)
   }
 }

@@ -444,7 +444,12 @@ export default {
             }
           }
         },
-        include: ['segments', 'assignee', 'sourceAttachment', 'sourceAttachment.file'].join(),
+        include: [
+          'segments',
+          'assignee',
+          'sourceAttachment',
+          'sourceAttachment.file'
+        ].join(),
         fields: {
           Statement: [
             'authoredDate',
@@ -692,10 +697,26 @@ export default {
       if (this.useLocalStorage) {
         const stored = localStorage.getItem(this.localStorageKey)
 
-        return stored ? JSON.parse(stored) : ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
+        return stored ? JSON.parse(stored) : [
+          'id',
+          'status',
+          'author',
+          'institution', 
+          'sections',
+          'confidence',
+          'expand'
+        ]
       }
 
-      return ['id', 'status', 'author', 'institution', 'sections', 'confidence', 'expand']
+      return [
+        'id',
+        'status',
+        'author',
+        'institution', 
+        'sections',
+        'confidence',
+        'expand'
+      ]
     },
 
     setupCheckboxListeners () {

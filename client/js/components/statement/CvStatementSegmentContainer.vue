@@ -43,7 +43,9 @@ All rights reserved
     <cv-segment-list
       v-if="activeTab === 'sections'" 
       :current-user-id="currentUserId"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+      :local-storage-key="localStorageKey + '_segments'"
+      :use-local-storage="useLocalStorage" />
   </div>
 </template>
 
