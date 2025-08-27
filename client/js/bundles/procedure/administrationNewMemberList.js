@@ -15,18 +15,18 @@ import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpAddOrganisationList
+  DpAddOrganisationList,
 }
 
 const apiStores = [
   'InvitableToeb',
   'InstitutionTag',
   'InstitutionTagCategory',
-  'InstitutionLocationContact'
+  'InstitutionLocationContact',
 ]
 
 const stores = {
-  FilterFlyout: FilterFlyoutStore
+  FilterFlyout: FilterFlyoutStore,
 }
 
 initialize(components, stores, apiStores)

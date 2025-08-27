@@ -22,8 +22,8 @@
         placeholder="-"
         :options="labels" />
       <button
-        @click="setLabel"
-        class="btn btn--primary">
+        class="btn btn--primary"
+        @click="setLabel">
         {{ Translator.trans('accept') }}
       </button>
     </div>
@@ -38,23 +38,23 @@ export default {
 
   components: {
     DpModal,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     labels: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'set-label'
+    'set-label',
   ],
 
   data () {
     return {
-      selectedLabel: ''
+      selectedLabel: '',
     }
   },
 
@@ -69,7 +69,7 @@ export default {
         this.selectedLabel = preselectedLabel
       }
       this.$refs.labelModal.toggle()
-    }
-  }
+    },
+  },
 }
 </script>

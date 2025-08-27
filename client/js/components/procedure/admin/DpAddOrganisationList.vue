@@ -9,8 +9,8 @@
 
 <template>
   <organisation-table
-    :header-fields="headerFields"
     ref="organisationTable"
+    :header-fields="headerFields"
     resource-type="InvitableToeb"
     :procedure-id="procedureId"
     @selected-items="setSelectedItems" />
@@ -51,14 +51,14 @@ export default {
   components: {
     dpApi, // eslint-disable-line vue/no-unused-components
     DpButton,
-    OrganisationTable
+    OrganisationTable,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -67,24 +67,24 @@ export default {
       headerFields: [
         {
           field: 'legalName',
-          label: Translator.trans('invitable_institution')
+          label: Translator.trans('invitable_institution'),
         },
-        ...(hasPermission('field_organisation_competence')
-          ? [{
-              field: 'competenceDescription',
-              label: Translator.trans('competence.explanation')
-            }]
-          : [])
-      ]
+        ...(hasPermission('field_organisation_competence') ?
+          [{
+            field: 'competenceDescription',
+            label: Translator.trans('competence.explanation'),
+          }] :
+          []),
+      ],
     }
   },
 
   computed: {
     selectedItemsText () {
-      return this.selectedItems.length === 1
-        ? Translator.trans('entry.selected')
-        : Translator.trans('entries.selected', { count: this.selectedItems.length })
-    }
+      return this.selectedItems.length === 1 ?
+        Translator.trans('entry.selected') :
+        Translator.trans('entries.selected', { count: this.selectedItems.length })
+    },
   },
 
   methods: {
@@ -96,16 +96,16 @@ export default {
       dpApi({
         method: 'POST',
         url: Routing.generate('dplan_api_procedure_add_invited_public_affairs_bodies', {
-          procedureId: this.procedureId
+          procedureId: this.procedureId,
         }),
         data: {
           data: publicAgenciesIds.map(id => {
             return {
               type: 'publicAffairsAgent',
-              id
+              id,
             }
-          })
-        }
+          }),
+        },
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
@@ -124,7 +124,7 @@ export default {
 
     setSelectedItems (selectedItems) {
       this.selectedItems = selectedItems
-    }
-  }
+    },
+  },
 }
 </script>

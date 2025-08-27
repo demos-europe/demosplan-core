@@ -22,9 +22,9 @@
           {{ statementsTotal }} {{ Translator.trans('statements.total') }}
         </p>
         <div
-          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2"
           v-for="(element, idx) in procedureStatistics"
-          :key="`statementCharts_${idx}`">
+          :key="`statementCharts_${idx}`"
+          class="layout__item text-center u-1-of-3 u-1-of-1-lap-down mt-2">
           <div
             :id="element.id"
             :data-items="JSON.stringify([{ label: element.label, count: element.count, percentage: element.percentage }])"
@@ -55,21 +55,21 @@ export default {
 
   components: {
     DpCard,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: true,
       procedureStatistics: [],
-      statementsTotal: 0
+      statementsTotal: 0,
     }
   },
 
@@ -88,7 +88,7 @@ export default {
               percentage: percentages.statementNewCount,
               id: 'statementNewCount',
               legendId: 'statementNewCountLegend',
-              color: 'text-status-progress-icon'
+              color: 'text-status-progress-icon',
             },
             {
               label: Translator.trans('processing'),
@@ -96,7 +96,7 @@ export default {
               percentage: percentages.statementProcessingCount,
               id: 'statementProcessingCount',
               legendId: 'statementProcessingCountLegend',
-              color: 'text-status-changed-icon'
+              color: 'text-status-changed-icon',
             },
             {
               label: Translator.trans('completed'),
@@ -104,8 +104,8 @@ export default {
               percentage: percentages.statementCompletedCount,
               id: 'statementCompletedCount',
               legendId: 'statementCompletedCountLegend',
-              color: 'text-status-complete-icon'
-            }
+              color: 'text-status-complete-icon',
+            },
           ]
           this.isLoading = false
           this.$nextTick(() => new ProcedureCharts())
@@ -114,11 +114,11 @@ export default {
           console.log(err)
           this.isLoading = false
         })
-    }
+    },
   },
 
   created () {
     this.fetchStatisticsData()
-  }
+  },
 }
 </script>

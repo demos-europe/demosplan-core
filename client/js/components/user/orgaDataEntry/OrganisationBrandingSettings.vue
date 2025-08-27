@@ -99,23 +99,23 @@ export default {
 
   components: {
     DpEditor,
-    DpCheckbox
+    DpCheckbox,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
@@ -124,7 +124,7 @@ export default {
         hasPermission('field_data_protection_text_customized_edit_orga') ||
         hasPermission('field_imprint_text_customized_edit_orga') ||
         hasPermission('field_organisation_agreement_showname')
-    }
+    },
   },
 
   methods: {
@@ -132,12 +132,12 @@ export default {
       if (hasPermission('feature_orga_logo_edit')) {
         return Translator.trans('organisation.procedures.branding.link', {
           href: Routing.generate('DemosPlan_orga_branding_edit', {
-            orgaId: this.organisation.id || ''
-          })
+            orgaId: this.organisation.id || '',
+          }),
         })
       }
       return ''
-    }
-  }
+    },
+  },
 }
 </script>

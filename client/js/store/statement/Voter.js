@@ -13,11 +13,11 @@ const Voter = {
   name: 'Voter',
 
   state: {
-    voters: {}
+    voters: {},
   },
 
   getters: {
-    getVoters: state => state.voters
+    getVoters: state => state.voters,
   },
 
   mutations: {
@@ -32,9 +32,9 @@ const Voter = {
     },
     removeVoter (state, index) {
       delete state.voters[index]
-    }
+    },
 
-  }
+  },
 }
 
 export default Voter

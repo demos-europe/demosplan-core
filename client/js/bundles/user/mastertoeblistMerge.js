@@ -15,7 +15,7 @@ import { initialize } from '@DpJs/InitVue'
 import MasterToebListMerge from '@DpJs/components/user/MasterToebListMerge/MasterToebListMerge'
 
 const components = {
-  MasterToebListMerge
+  MasterToebListMerge,
 }
 
 initialize(components)

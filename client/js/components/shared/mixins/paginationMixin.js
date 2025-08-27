@@ -21,7 +21,7 @@ export default {
       }
       this.pagination = {
         currentPage,
-        perPage
+        perPage,
       }
     },
 
@@ -38,7 +38,7 @@ export default {
         limits: this.defaultPagination.limits,
         perPage,
         total: data.total,
-        totalPages: data.total_pages
+        totalPages: data.total_pages,
       }
     },
 
@@ -49,6 +49,6 @@ export default {
     setLocalStorage (data) {
       const paginationData = { currentPage: data.current_page, perPage: data.per_page }
       window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
-    }
-  }
+    },
+  },
 }

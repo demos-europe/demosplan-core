@@ -1,7 +1,7 @@
 <template>
   <div>
     <form
-      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedureId: this.procedureId })"
+      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedureId: procedureId })"
       method="POST"
       name="tag_edit">
       <!-- csrf token -->
@@ -31,11 +31,11 @@
         <input
           type="hidden"
           name="r_importCsv"
-          :value="this.uploadedCSV">
+          :value="uploadedCSV">
         <input
           type="hidden"
           name="uploadedFiles"
-          :value="this.uploadedFiles">
+          :value="uploadedFiles">
         <dp-button
           class="float-right mt-1"
           data-cy="listTags:tagsImport"
@@ -55,36 +55,36 @@ export default {
   components: {
     DpButton,
     DpLabel,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       uploadedCSV: null,
-      uploadedFiles: ''
+      uploadedFiles: '',
     }
   },
 
   computed: {
     availableEntity () {
       return {
-        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv'
+        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv',
       }
-    }
+    },
   },
 
   methods: {
     importCSVs (file) {
       this.uploadedCSV = Object.values(file).join()
       this.uploadedFiles = file.hash
-    }
-  }
+    },
+  },
 }
 </script>

@@ -122,20 +122,20 @@ export default {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
-    DpSelect
+    DpSelect,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     subscriptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -145,10 +145,10 @@ export default {
         { field: 'postalcode', label: Translator.trans('postalcode') },
         { field: 'city', label: Translator.trans('city') },
         { field: 'radius', label: Translator.trans('radius') },
-        { field: 'created', label: Translator.trans('date.created') }
+        { field: 'created', label: Translator.trans('date.created') },
       ],
       postalCode: null,
-      postalCodeOptions: []
+      postalCodeOptions: [],
     }
   },
 
@@ -172,7 +172,7 @@ export default {
     handleSelected (suggestion) {
       this.postalCode = suggestion.data.postcode
       this.city = suggestion.data.name
-    }
-  }
+    },
+  },
 }
 </script>

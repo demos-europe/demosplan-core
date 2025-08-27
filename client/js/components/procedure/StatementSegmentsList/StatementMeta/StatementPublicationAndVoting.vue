@@ -38,11 +38,11 @@ All rights reserved
       <dp-loading v-if="isLoading" />
       <dp-editable-list
         v-else
+        ref="listComponent"
         class="o-list"
         :entries="votes"
         :has-permission-to-edit="editable && statement.attributes.isManual"
         :translation-keys="translationKeys"
-        ref="listComponent"
         @delete="id => deleteVote(id)"
         @reset="resetForm()"
         @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
@@ -81,8 +81,8 @@ All rights reserved
         </template>
         <template v-slot:form>
           <div
-            data-dp-validate="newVoterForm"
             v-if="editable && statement.attributes.isManual"
+            data-dp-validate="newVoterForm"
             class="space-stack-s border-t border-neutral py-3">
             <!-- Role -->
             <div class="flex">
@@ -112,8 +112,8 @@ All rights reserved
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_name')"
                 id="voter_publicagency"
-                data-cy="voterPublicAgency"
                 v-model="formFields.organisationName"
+                data-cy="voterPublicAgency"
                 class="pr-2"
                 :label="{
                   text: Translator.trans('invitable_institution')
@@ -121,8 +121,8 @@ All rights reserved
               <dp-input
                 v-show="hasPermission('field_statement_meta_orga_department_name')"
                 id="voter_department"
-                data-cy="voterDepartment"
                 v-model="formFields.departmentName"
+                data-cy="voterDepartment"
                 class="pl-2"
                 :label="{
                   text: Translator.trans('department')
@@ -133,8 +133,8 @@ All rights reserved
               <dp-input
                 v-if="hasPermission('field_statement_meta_submit_name')"
                 id="voter_username"
-                data-cy="voterUsername"
                 v-model="formFields.name"
+                data-cy="voterUsername"
                 class="pr-2"
                 :label="{
                   text: Translator.trans('statement.form.name')
@@ -142,8 +142,8 @@ All rights reserved
               <dp-input
                 v-if="hasPermission('field_statement_meta_email')"
                 id="voter_email"
-                data-cy="voterEmail"
                 v-model="formFields.email"
+                data-cy="voterEmail"
                 class="pl-2"
                 :label="{
                   text: Translator.trans('email')
@@ -155,8 +155,8 @@ All rights reserved
               <dp-input
                 v-if="hasPermission('field_statement_meta_postal_code')"
                 id="voter_postalcode"
-                data-cy="voterPostalCode"
                 v-model="formFields.postcode"
+                data-cy="voterPostalCode"
                 class="u-1-of-4 pr-2"
                 :label="{
                   text: Translator.trans('postalcode')
@@ -165,8 +165,8 @@ All rights reserved
               <dp-input
                 v-if="hasPermission('field_statement_meta_city')"
                 id="voter_city"
-                data-cy="voterCity"
                 v-model="formFields.city"
+                data-cy="voterCity"
                 class="px-2"
                 :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
                 :label="{
@@ -186,8 +186,8 @@ All rights reserved
         />
         <dp-input
           id="numberOfAnonymVotes"
-          class="w-1/12"
           v-model.number="localStatement.attributes.numberOfAnonymVotes"
+          class="w-1/12"
           data-cy="numberOfAnonymVotes"
           :disabled="!editable"
           name="numberOfAnonymVotes"
@@ -213,7 +213,7 @@ import {
   DpLabel,
   DpLoading,
   DpRadio,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
@@ -229,7 +229,7 @@ export default {
     DpLoading,
     DpInput,
     DpRadio,
-    StatementPublish
+    StatementPublish,
   },
 
   mixins: [dpValidateMixin],
@@ -238,18 +238,18 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'save',
-    'updatedVoters'
+    'updatedVoters',
   ],
 
   data () {
@@ -262,7 +262,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       },
       initialVotes: {},
       isLoading: false,
@@ -272,16 +272,16 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: '',
-        delete: Translator.trans('statement.voter.delete')
+        delete: Translator.trans('statement.voter.delete'),
       },
       votes: {},
-      votesToDelete: []
+      votesToDelete: [],
     }
   },
 
   computed: {
     ...mapState('StatementVote', {
-      votesState: 'items'
+      votesState: 'items',
     }),
 
     isInstitutionParticipation () {
@@ -291,8 +291,8 @@ export default {
     votesLength: {
       get () {
         return Object.keys(this.votes).length
-      }
-    }
+      },
+    },
   },
 
   watch: {
@@ -300,21 +300,21 @@ export default {
       handler () {
         this.setLocalValues()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapMutations('StatementVote', {
       removeStatementVote: 'remove',
       resetStatementVote: 'resetItems',
-      setStatementVote: 'setItem'
+      setStatementVote: 'setItem',
     }),
 
     ...mapActions('StatementVote', {
       createStatementVoteAction: 'create',
       deleteStatementVoteAction: 'delete',
-      saveStatementVoteAction: 'save'
+      saveStatementVoteAction: 'save',
     }),
 
     addVote (index) {
@@ -330,7 +330,7 @@ export default {
         const vote = {
           type: 'StatementVote',
           id: voteId,
-          attributes: this.formFields
+          attributes: this.formFields,
         }
 
         // Due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
@@ -390,7 +390,7 @@ export default {
         name: '',
         email: '',
         postcode: '',
-        city: ''
+        city: '',
       }
     },
 
@@ -451,10 +451,10 @@ export default {
             statement: {
               data: {
                 type: 'Statement',
-                id: this.statement.id
-              }
-            }
-          }
+                id: this.statement.id,
+              },
+            },
+          },
         }
         return this.createStatementVoteAction(payload)
           .then(() => {
@@ -535,12 +535,12 @@ export default {
       for (const key in this.formFields) {
         this.formFields[key] = this.votes[id].attributes[key]
       }
-    }
+    },
   },
 
   created () {
     this.setLocalValues()
     this.setInitVoters()
-  }
+  },
 }
 </script>

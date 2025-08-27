@@ -14,6 +14,6 @@ import { SwaggerUIBundle } from 'swagger-ui-dist'
 initialize().then(() => {
   SwaggerUIBundle({
     domNode: document.querySelector('[data-swagger-ui]'),
-    url: Routing.generate('dplan_api_openapi_json')
+    url: Routing.generate('dplan_api_openapi_json'),
   })
 })
