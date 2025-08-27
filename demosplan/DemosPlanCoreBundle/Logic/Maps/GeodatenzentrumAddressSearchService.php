@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
+use http\Exception\UnexpectedValueException;
 use RuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -107,7 +109,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
                     'statusCode'     => $statusCode,
                     'query'          => $query,
                 ]);
-                throw new RuntimeException('Invalid API response');
+                throw new UnexpectedValueException("API returned status code: {$statusCode}");
             }
             $result = $response->toArray();
 
@@ -116,7 +118,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
                     'responseKeys'   => array_keys($result),
                     'query'          => $query,
                 ]);
-                throw new RuntimeException('Invalid API response');
+                throw new InvalidArgumentException('Invalid API response format');
             }
 
             return $result['features'];
