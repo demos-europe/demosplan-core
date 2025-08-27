@@ -36,8 +36,8 @@
         class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
       <dp-input
-        v-model="name"
         id="r_name"
+        v-model="name"
         :label="{
           text: Translator.trans('name')
         }"

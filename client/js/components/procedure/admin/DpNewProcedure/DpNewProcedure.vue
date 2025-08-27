@@ -136,6 +136,7 @@
 
       <dp-input
         id="main-email"
+        v-model="mainEmail"
         class="mb-4"
         data-cy="agencyMainEmailAddress"
         :label="{
@@ -144,8 +145,7 @@
         }"
         name="agencyMainEmailAddress[fullAddress]"
         required
-        type="email"
-        v-model="mainEmail" />
+        type="email" />
 
       <dp-text-area
         id="r_desc"
