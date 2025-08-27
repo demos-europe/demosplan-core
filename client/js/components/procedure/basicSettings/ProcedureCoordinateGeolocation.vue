@@ -26,7 +26,7 @@
           text: Translator.trans('postalcode')
         }"
         name="r_locationPostCode"
-        :value="locationPostalCode"
+        v-model="locationPostalCode"
         width="w-9" />
       <dp-input
         id="locationName"
@@ -37,7 +37,7 @@
           text: Translator.trans('city')
         }"
         name="r_locationName"
-        :value="locationName"
+        v-model="locationName"
         width="w-9" />
       <dp-input
         id="municipalCode"
@@ -48,7 +48,7 @@
           text: Translator.trans('municipal_code')
         }"
         name="r_municipalCode"
-        :value="municipalCode"
+        v-model="municipalCode"
         width="w-10" />
       <dp-input
         id="ars"
@@ -59,7 +59,7 @@
           text: Translator.trans('ars')
         }"
         name="r_ars"
-        :value="ars"
+        v-model="ars"
         width="w-10" />
     </div>
   </div>
