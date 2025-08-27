@@ -2,12 +2,11 @@
 
 .dp-header-title {
     /* Original classes: font-size-h1 align-bottom inline-block u-m-0 */
-    font-size: 2rem; /* h1 size */
+    font-size: 32px; /* h1 size */
     vertical-align: bottom;
     display: inline-block;
     margin: 0;
 }
-
 
 .dp-list-statements-fullscreen-overlay {
     @apply fixed top-0 left-0 flex flex-col w-full h-full z-fixed bg-surface;
@@ -20,7 +19,7 @@
 .dp-pagination-container {
     /* Original: flex mt-2 */
     display: flex;
-    margin-top: 0.5rem;
+    margin-top: 8px;
 }
 
 .dp-pager-component {
@@ -30,15 +29,220 @@
 }
 .dp-procedure-name-container {
     display: flow-root;
-    border-top: 1px solid #e0e0e0; /* default border--top style */
+    border-top: 1px solid var(--dp-gray-30); /* default border--top style */
+}
+
+/* Procedure Name - Original Classes */
+.dp-procedure-name {
+    /* Original classes: color--grey inline-block u-pt-0_5 u-mb-0_25 */
+    color: var(--dp-tailwind-grey);
+    display: inline-block;
+    padding-top: 12px;
+    margin-bottom: 6px;
 }
 
 .dp-page-header {
-    /* Original classes: border--bottom u-mb u-pb-0_5 flow-root */
-    border-bottom: 1px solid #e0e0e0;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+    padding: 8px 24px;
+}
+
+/*CvStatementList*/
+
+/*Colors that differ from Carbon Design System because of the older version we need to use */
+
+:root {
+    --dp-gray-10: #f4f4f4;
+    --dp-gray-20: #e8e8e8;
+    --dp-gray-30: #e0e0e0;
+    --dp-gray-60: #8d8d8d;
+    --dp-gray-100: #161616;
+    --dp-orange-20: #ffd9be;
+    --dp-orange-70: #8A3800;
+    --dp-green-10: #DCFDD4;
+    --dp-green-70: #325F26;
+    --dp-primary-blue: #1E3A8A;
+    --dp-primary: #0f62fe;
+    --dp-primary-hover: #0353e9;
+    --dp-tailwind-grey: #6f6f6f;
+    --dp-white: white;
+}
+.cv-container {
+    padding: 8px 24px;
+    border-bottom: 1px solid var(--dp-gray-30);
     display: flow-root;
+}
+
+/* Carbon Tag Overrides for colors that differ in our carbon version */
+.cv-statement-list .status-editing {
+    background-color: var(--dp-orange-20) !important;
+    color: var(--dp-orange-70) !important;
+}
+
+.cv-statement-list .status-completed {
+    background-color: var(--dp-green-10) !important;
+    color: var(--dp-green-70) !important;
+}
+
+/* Confidence Tags */
+.cv-statement-list .cv-confidence-medium {
+    background-color: var(--dp-orange-20) !important;
+    color: var(--dp-orange-70) !important;
+}
+
+/* Carbon Tag Overrides for table */
+.cv-statement-list .bx--data-table td {
+    padding: 15px !important;
+    vertical-align: top !important;
+}
+
+.cv-statement-list .bx--data-table th,
+.cv-statement-list .bx--data-table td {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Fix ID column width to prevent shifting */
+#cv-statement-table th:nth-child(2),
+#cv-statement-table td:nth-child(2) {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+}
+.bx--tab-content {
+    padding: 0 !important;
+    background-color: var(--dp-gray-10) !important;
+}
+
+.cv-statement-list .cv-text-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+}
+
+.cv-statement-list .cv-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 0;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.cv-statement-list .cv-main-title {
+    margin: 0;
+    flex: 1;
+}
+
+.cv-statement-list .cv-switch-label {
+    font-size: 16px;
+    color: var(--dp-gray-100);
+    font-weight: normal;
+    margin: 0 32px;
+}
+
+/* Content Switcher Styling */
+.cv-statement-list .bx--content-switcher {
+    width: fit-content !important;
+}
+
+.cv-statement-list .bx--btn--tertiary {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.bx--btn--primary {
+    background-color: var(--dp-primary-blue) !important;
+    border: none;
+}
+
+/* Search */
+.cv-statement-list .bx--search .bx--search-input {
+    border: none !important;
+}
+
+/* Fix MultiSelect Checkboxes */
+.bx--checkbox-wrapper .bx--checkbox-label::before {
+    border: 1px solid var(--dp-gray-60) !important;
+    background-color: var(--dp-white) !important;
+}
+
+.bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::before {
+    background-color: var(--dp-gray-100) !important;
+    border-color: var(--dp-gray-100) !important;
+}
+
+.bx--checkbox-wrapper input[type="checkbox"]:checked + .bx--checkbox-label::after {
+    display: block !important;
+}
+
+#colSort,
+.cv-export-btn,
+.cv-add-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 16px !important;
+  gap: 32px !important;
+}
+
+/* Export Button - same colors as primary button */
+.cv-export-btn {
+  border: 1px solid var(--dp-primary-blue) !important;
+  color: var(--dp-primary-blue) !important;
+}
+
+.cv-export-btn:hover {
+  background-color: var(--dp-primary-blue) !important;
+  color: var(--dp-white) !important;
+}
+
+#colSort{
+    background-color: var(--dp-gray-10) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--dp-gray-60) !important;
+    color: var(--dp-gray-100) !important;
+}
+
+#colSort:hover {
+    color: var(--dp-gray-100) !important;
+}
+
+
+/* Hide checkboxes in expanded rows */
+.cv-expanded-row .bx--table-column-checkbox {
+    display: none !important;
+}
+
+/* Fix expanded row content positioning */
+.cv-expanded-row td[colspan] {
+    padding-left: 75px !important; /* Match checkbox column width */
+}
+
+/* Checkbox-Alignment */
+#cv-statement-table .bx--table-column-checkbox {
+    text-align: left !important;
+    padding-left: 20px !important;
+    width: 60px !important; /* Fixed width to prevent shifting */
+    min-width: 60px !important;
+    max-width: 60px !important;
+}
+
+/* Pagination */
+.bx--pagination {
+    margin-top: 0;
+}
+
+/* Batch Actions - Align buttons to the right and change background color */
+.bx--batch-actions {
+    display: flex;
+    flex-direction: row-reverse;
+    background-color: var(--dp-primary-blue) !important;
+}
+
+.bx--batch-summary {
+    background-color: var(--dp-primary-blue) !important;
 }
 
 /* Breadcrumb: Change CSS triangle icons to slash separators */
@@ -47,16 +251,175 @@
     border: none;           /* remove CSS triangle */
 }
 
+.o-breadcrumb li a {
+    color: var(--dp-primary-blue) !important;
+}
+
 /* Breadcrumb: Replace last item text with procedure name */
 .o-breadcrumb li:last-child a[aria-current="page"] {
     font-size: 0 !important;           /* Hide original text */
     overflow: visible !important;       /* Allow pseudo-element to show */
 }
 
-.o-breadcrumb li:last-child a[aria-current="page"]::after {
-    content: attr(data-procedure-name) !important; /* Use data attribute */
-    font-size: 1rem !important;        /* Restore normal font size */
-    color: inherit !important;
+.o-breadcrumb li:last-child,
+a[aria-current="page"]::after {
+    content: attr(data-procedure-name) !important;
+    font-size: 16px !important;
     display: inline !important;
 }
+
+/* Letztes Element: kein Slash */
+.o-breadcrumb li:last-child::before {
+    content: '' !important;
+}
+
+.o-breadcrumb li:nth-last-child(2) a {
+    color: var(--dp-gray-100) !important;
+    text-decoration: none !important;
+    pointer-events: none !important;
+}
+
+/* Custom Column Selector */
+.cv-column-selector {
+    position: relative;
+    display: inline-block;
+    z-index: 10000;
+}
+
+/* Ensure table actions container allows overflow */
+.bx--data-table-content .bx--data-table-header {
+    overflow: visible !important;
+}
+
+.bx--data-table-header__actions {
+    overflow: visible !important;
+}
+
+.cv-column-selector-trigger {
+    cursor: pointer;
+}
+
+.cv-column-selector-trigger .bx--btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 16px !important;
+    border: 1px solid var(--dp-primary-blue) !important;
+    color: var(--dp-primary-blue) !important;
+    background-color: var(--dp-gray-10) !important;
+}
+
+.cv-column-selector-trigger .bx--btn:hover {
+    background-color: var(--dp-primary-blue) !important;
+    color: var(--dp-gray-10) !important;
+}
+
+.cv-column-selector-dropdown-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    pointer-events: none !important;
+}
+
+.cv-column-selector-dropdown {
+    position: fixed !important;
+    background: var(--dp-white) !important;
+    border: 1px solid var(--dp-gray-30) !important;
+    border-radius: 0 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    z-index: 100000 !important;
+    min-width: 220px !important;
+    animation: fadeIn 0.15s ease-out !important;
+    pointer-events: all !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cv-column-selector-header {
+    display: none !important;
+}
+
+.cv-column-selector-options {
+    padding: 0 !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+}
+
+.cv-column-option-button.bx--btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    font-size: 14px !important;
+    color: var(--dp-gray-100) !important;
+    width: 100% !important;
+    text-align: left !important;
+    border: none !important;
+    border-bottom: 1px solid var(--dp-gray-30)!important;
+    background: var(--dp-white) !important;
+    min-height: auto !important;
+    border-radius: 0 !important;
+}
+
+.cv-column-option-button.bx--btn:hover {
+    background-color: var(--dp-gray-20) !important;
+}
+
+.cv-column-option-button.bx--btn:active,
+.cv-column-option-button.bx--btn:focus {
+    background-color: var(--dp-gray-20) !important;
+    outline: none !important;
+}
+
+.cv-column-checkbox {
+    margin-right: 12px !important;
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+    border: 1px solid var(--dp-gray-60) !important;
+    background: var(--dp-white) !important;
+    pointer-events: none !important;
+    appearance: none !important;
+    position: relative !important;
+}
+
+.cv-column-checkbox:checked {
+    background: var(--dp-gray-100)!important;
+    border: 1px solid var(--dp-gray-100) !important;
+}
+
+.cv-column-checkbox:checked::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 1px !important;
+    width: 4px !important;
+    height: 8px !important;
+    border: solid var(--dp-white) !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) !important;
+}
+
+.bx--content-switcher-btn {
+    min-width: fit-content !important;
+}
+
+#footer {
+    display:none;
+}
+
+
 
