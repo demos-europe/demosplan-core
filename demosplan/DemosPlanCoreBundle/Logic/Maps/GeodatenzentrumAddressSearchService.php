@@ -13,10 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Exception;
-use http\Exception\UnexpectedValueException;
-use RuntimeException;
+use UnexpectedValueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -123,7 +122,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
 
             return $result['features'];
         } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
-            throw new RuntimeException('API request failed: '.$e->getMessage(), 0, $e);
+            throw new \LogicException('Geocoding service not available: '.$e->getMessage(), 0, $e);
         } catch (RedirectionExceptionInterface $e) {
             // Expected redirections are ignored, service continues normally
             return [];
