@@ -93,14 +93,16 @@ class LocationService
             return ['body' => []];
         }
     }
+
     /**
      * Get a City by Name or postal code.
      *
-     * @param string $searchString Search query for city/location
-     * @param int $limit Maximum number of results to return
-     * @param array|null $maxExtent Optional map extent for filtering (NOT SUPPORTED by external API)
+     * @param string     $searchString Search query for city/location
+     * @param int        $limit        Maximum number of results to return
+     * @param array|null $maxExtent    Optional map extent for filtering (NOT SUPPORTED by external API)
+     *
      * @return array|null Array containing search results or null on failure
- */
+     */
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
         $logContext = [

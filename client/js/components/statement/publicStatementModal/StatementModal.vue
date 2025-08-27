@@ -1537,7 +1537,7 @@ export default {
         r_location_point: '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
-        r_makePublic: !!data.draftStatement.publicAllowed
+        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off'
       }
 
       if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
