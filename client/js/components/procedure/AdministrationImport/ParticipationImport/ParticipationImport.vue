@@ -58,20 +58,20 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       active: '',
-      fileIds: []
+      fileIds: [],
     }
   },
 
@@ -83,7 +83,7 @@ export default {
 
     setFileIds (file) {
       this.fileIds.push(file.hash)
-    }
-  }
+    },
+  },
 }
 </script>

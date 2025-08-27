@@ -48,6 +48,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupName',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

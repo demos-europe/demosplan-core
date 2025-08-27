@@ -22,11 +22,11 @@ export default function UrlPreview () {
       const payload = {
         data: {
           attributes: {
-            originalValue: event.target.value
+            originalValue: event.target.value,
           },
           type: 'slug-draft',
-          id: uuid()
-        }
+          id: uuid(),
+        },
       }
 
       const organisationId = event.target.getAttribute('data-organisation-id')

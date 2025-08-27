@@ -11,8 +11,8 @@
   <div>
     <dp-modal
       ref="statementModal"
-      @modal:toggled="handleModalToggle"
-      content-header-classes="border--none">
+      content-header-classes="border--none"
+      @modal:toggled="handleModalToggle">
       <template
         v-if="showHeader"
         v-slot:header>
@@ -105,8 +105,8 @@
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mb-2')"
           id="statementFormErrors"
+          :class="prefixClass('mb-2')"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
           <p
@@ -118,16 +118,16 @@
           v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
           class="flex mt-4">
           <dp-radio
-            name="r_isNegativeReport"
             id="negative_report_false"
+            name="r_isNegativeReport"
             data-cy="statementModal:publicParticipationParticipate"
             class="u-mr-2"
             :checked="formData.r_isNegativeReport === '0'"
-            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
             :label="{
               text: Translator.trans('public.participation.participate')
             }"
-            value="0" />
+            value="0"
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }" />
           <dp-radio
             id="negative_report_true"
             :checked="formData.r_isNegativeReport === '1'"
@@ -150,6 +150,7 @@
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
             id="statementText"
+            ref="statementEditor"
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             :readonly="formData.r_isNegativeReport === '1'"
@@ -160,7 +161,6 @@
             }"
             :value="formData.r_text || ''"
             hidden-input="r_text"
-            ref="statementEditor"
             @input="val => setStatementData({r_text: val})" />
         </div>
         <div
@@ -276,8 +276,8 @@
         <!-- location reference -->
         <template v-if="(isMapEnabled && hasPermission('area_map_participation_area')) || hasPermission('field_statement_location')">
           <component
-            v-for="formDefinition in statementFormDefinitions"
             :is="formDefinition.component"
+            v-for="formDefinition in statementFormDefinitions"
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
@@ -318,8 +318,8 @@
                     <input
                       :value="file.hash"
                       name="delete_file[]"
-                      @change="() => updateDeleteFile(file.hash)"
-                      type="checkbox">
+                      type="checkbox"
+                      @change="() => updateDeleteFile(file.hash)">
                     {{ Translator.trans('attachment.delete') }}
                   </label>
                 </div>
@@ -332,13 +332,13 @@
 
                 <dp-upload-files
                   id="upload_files"
+                  ref="uploadFiles"
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
-                  ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
                   :tus-endpoint="dplan.paths.tusEndpoint"
                   :storage-name="fileStorageName"
@@ -375,8 +375,8 @@
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
-            @click="sendStatement"
-            data-cy="saveChangedStatement">
+            data-cy="saveChangedStatement"
+            @click="sendStatement">
             {{ Translator.trans('save.and.close') }}
           </button>
           <button
@@ -384,8 +384,8 @@
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
-            @click="e => sendStatement(e,false, true)"
-            data-cy="saveChangedStatementWothoutClosing">
+            data-cy="saveChangedStatementWothoutClosing"
+            @click="e => sendStatement(e,false, true)">
             {{ Translator.trans('save') }}
           </button>
 
@@ -396,8 +396,8 @@
               type="submit"
               :disabled="isLoading"
               data-cy="statementModal:statementSaveImmediate"
-              @click="e => sendStatement(e,true)"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')">
+              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')"
+              @click="e => sendStatement(e,true)">
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -407,8 +407,8 @@
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
                 prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
-              @click="sendStatement"
-              data-cy="statementModal:saveAsDraft">
+              data-cy="statementModal:saveAsDraft"
+              @click="sendStatement">
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -456,8 +456,8 @@
 
       <!-- Personal data step -->
       <form
-        autocomplete="on"
         v-show="step === 1"
+        autocomplete="on"
         data-dp-validate="submitterForm">
         <dp-inline-notification
           :class="prefixClass('mt-3 mb-2')"
@@ -484,8 +484,8 @@
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
           <div
             id="submitterFormErrorsContent"
-            :class="prefixClass('ml-4')"
-            v-cleanhtml="createErrorMessage('submitterForm')" />
+            v-cleanhtml="createErrorMessage('submitterForm')"
+            :class="prefixClass('ml-4')" />
         </div>
 
         <!-- Show radio buttons if anonymous statements are allowed -->
@@ -524,12 +524,12 @@
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
               <component
+                :is="formDefinition.component"
                 v-for="formDefinition in personalDataFormDefinitions"
+                :key="formDefinition.key"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
                 :draft-statement-id="draftStatementId"
                 :form-options="formOptions"
-                :is="formDefinition.component"
-                :key="formDefinition.key"
                 :required="formDefinition.required"
               />
             </div>
@@ -568,20 +568,20 @@
           </legend>
           <div :class="prefixClass('layout mb-3')">
             <component
+              :is="formDefinition.component"
               v-for="formDefinition in personalDataFormDefinitions"
+              :key="formDefinition.key"
               :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
               :draft-statement-id="draftStatementId"
               :form-options="formOptions"
-              :is="formDefinition.component"
-              :key="formDefinition.key"
               :required="formDefinition.required"
             />
           </div>
         </fieldset>
 
         <component
-          v-for="formDefinition in statementFeedbackDefinitions"
           :is="formDefinition.component"
+          v-for="formDefinition in statementFeedbackDefinitions"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
@@ -613,22 +613,22 @@
         v-show="step === 2"
         data-dp-validate="recheckForm">
         <statement-modal-recheck
-          @edit-input="handleEditInput"
           :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
-          :statement-form-hint-recheck="statementFormHintRecheck" />
+          :statement-form-hint-recheck="statementFormHintRecheck"
+          @edit-input="handleEditInput" />
 
         <label
           v-if="hasPermission('feature_statement_data_protection')"
-          :class="prefixClass('u-mb-0 weight--normal')"
           id="data_protection_label"
+          :class="prefixClass('u-mb-0 weight--normal')"
           :title="Translator.trans('statements.required.field')">
           <input
-            type="checkbox"
             id="data_protection"
+            type="checkbox"
             name="r_data_protection"
             required
             aria-labelledby="explanation-statement-data-protection">
@@ -692,8 +692,8 @@
           v-cleanhtml="responseHtml" />
         <template v-else>
           <h2
-            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
+            :class="prefixClass('color-highlight')"
             data-title="confirmation"
             aria-describedby="successConfirmation">
             <i
@@ -730,10 +730,10 @@
             <span :class="prefixClass('float-right text-right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
-                @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
                 data-cy="statementModal:close"
-                rel="noopener">
+                rel="noopener"
+                @click="toggleModal">
                 {{ Translator.trans('close') }}
               </a>
             </span>
@@ -763,7 +763,7 @@ import {
   isActiveFullScreen,
   makeFormPost,
   prefixClassMixin,
-  toggleFullscreen
+  toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
@@ -789,7 +789,7 @@ const fieldDescriptionsForErrors = {
   submitterTypeFieldset: 'submitter',
   r_houseNumber: 'street.number.short',
   r_street: 'street',
-  r_userOrganisation: 'institution.name'
+  r_userOrganisation: 'institution.name',
 }
 
 export default {
@@ -823,11 +823,11 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
     FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
     FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
-    StatementModalRecheck
+    StatementModalRecheck,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
@@ -836,137 +836,137 @@ export default {
     allowAnonymousStatements: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentPage: {
       type: String,
       required: false,
-      default: 'publicDetail'
+      default: 'publicDetail',
     },
 
     extId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     extraPersonalHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     feedbackFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initHasPlanningDocuments: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     orgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     personalDataFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     planningDocumentsHasNegativeStatement: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initRedirectPath: {
       type: String,
       required: false,
-      default: 'DemosPlan_procedure_public_detail'
+      default: 'DemosPlan_procedure_public_detail',
     },
 
     statementFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     statementFormHintPersonalData: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintStatement: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'toggle-tabs',
-    'uploader-reset'
+    'uploader-reset',
   ],
 
   data () {
@@ -987,8 +987,8 @@ export default {
         countyReference: { component: 'FormGroupCountyReference' },
         stateAndGroupAndOrgaNameAndPosition: {
           component: 'FormGroupStateAndGroupAndOrgaNameAndPosition',
-          width: 'u-1-of-1'
-        }
+          width: 'u-1-of-1',
+        },
       },
       continueWriting: false,
       draftStatementId: '',
@@ -1010,7 +1010,7 @@ export default {
       showHeader: true,
       step: 0,
       unsavedFiles: [],
-      updateDraftListRequired: false
+      updateDraftListRequired: false,
     }
   },
 
@@ -1024,7 +1024,7 @@ export default {
       highlighted: 'highlighted',
       localStorageName: 'localStorageName',
       unsavedDrafts: 'unsavedDrafts',
-      userId: 'userId'
+      userId: 'userId',
     }),
 
     canNotBeNegativeReport () {
@@ -1060,7 +1060,7 @@ export default {
               name: fileArray[0],
               hash: fileArray[1],
               size: fileArray[2],
-              type: fileArray[3]
+              type: fileArray[3],
             }
           })
       }
@@ -1094,17 +1094,17 @@ export default {
       return [{
         label: Translator.trans('statement.yours'),
         icon: this.commentingIcon,
-        title: Translator.trans('statement.modal.step.write')
+        title: Translator.trans('statement.modal.step.write'),
       }, {
         label: Translator.trans('personal.data'),
         icon: 'fa-user',
-        title: Translator.trans('statement.modal.step.personal.data')
+        title: Translator.trans('statement.modal.step.personal.data'),
       }, {
         label: Translator.trans('recheck'),
         icon: 'fa-check',
-        title: Translator.trans('statement.modal.step.recheck')
+        title: Translator.trans('statement.modal.step.recheck'),
       }]
-    }
+    },
   },
 
   watch: {
@@ -1113,8 +1113,8 @@ export default {
         const parsed = JSON.stringify(newFormData)
         this.continueWriting = this.initFormDataJSON !== parsed
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -1130,7 +1130,7 @@ export default {
       'update',
       'updateHighlighted',
       'updateDeleteFile',
-      'updateStatement'
+      'updateStatement',
     ]),
 
     // On every successful upload of a file, both `this.unsavedFiles` and `this.statement` are updated.
@@ -1172,7 +1172,7 @@ export default {
       // Else: get the data via api
       return dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
+        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId }),
       })
         .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
@@ -1221,7 +1221,7 @@ export default {
         r_makePublic: 0,
         r_useName_0: 1,
         r_useName_1: 1,
-        r_getFeedback: 1
+        r_getFeedback: 1,
       }[input] || 0
       this.$nextTick(() => {
         // Focusing of the tiptap instance must be handled separately
@@ -1383,7 +1383,7 @@ export default {
         r_document_id: '',
         r_document_title: '',
         r_paragraph_id: '',
-        r_paragraph_title: ''
+        r_paragraph_title: '',
       }
 
       this.setStatementData(elementFields)
@@ -1402,7 +1402,7 @@ export default {
       this.setStatementData({
         uploadedFiles: this.unsavedFiles
           .map(el => el.hash)
-          .join(',')
+          .join(','),
       })
     },
 
@@ -1540,7 +1540,7 @@ export default {
         r_location_point: '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
-        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off'
+        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
       }
 
       if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
@@ -1653,7 +1653,7 @@ export default {
 
     validateRecheckStep () {
       return this.dpValidate.recheckForm
-    }
+    },
   },
 
   mounted () {
@@ -1693,6 +1693,6 @@ export default {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }
     }
-  }
+  },
 }
 </script>

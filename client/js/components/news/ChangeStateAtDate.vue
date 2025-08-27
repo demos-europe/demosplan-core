@@ -66,15 +66,15 @@ All rights reserved
             :text="Translator.trans('on')"
             :for="dateId" />
           <dp-datepicker
+            :id="dateId"
+            v-model="changeDate"
             class="o-form__control-wrapper"
             required
-            :id="dateId"
             :name="dateId"
             :min-date="disabledDates.to"
             :disabled="active === false"
-            v-model="changeDate"
-            @change="dateChanged"
-            :calendars-after="2" />
+            :calendars-after="2"
+            @change="dateChanged" />
         </div><!--
      --><dp-select
           v-model="futureStatus"
@@ -95,7 +95,7 @@ import {
   DpLabel,
   DpSelect,
   formatDate,
-  toDate
+  toDate,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -104,78 +104,78 @@ export default {
   components: {
     DpDatepicker,
     DpLabel,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     dateId: {
       required: true,
-      type: String
+      type: String,
     },
 
     delayedSwitchDropdownId: {
       required: true,
-      type: String
+      type: String,
     },
 
     checkSwitchId: {
       required: false,
       type: String,
-      default: 'change_state_delay_toggle'
+      default: 'change_state_delay_toggle',
     },
 
     activeDelay: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     defaultNewState: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     defaultCurrentState: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     regularDropdownId: {
       required: true,
-      type: String
+      type: String,
     },
 
     label: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initDate: {
       required: false,
       type: String,
-      default: null
+      default: null,
     },
 
     // Has to match a value from the statusOptions
     initStatus: {
       required: false,
       type: String,
-      default: null
+      default: null,
     },
 
     // Array of Objects with { value, label }
     statusOptions: {
       required: true,
-      type: Array
-    }
+      type: Array,
+    },
   },
 
   emits: [
     'date:changed',
-    'status:changed'
+    'status:changed',
   ],
 
   data () {
@@ -185,8 +185,8 @@ export default {
       actualStatus: this.defaultCurrentState,
       futureStatus: this.defaultNewState,
       disabledDates: {
-        to: formatDate(this.getTomorrowDate()) // Disable all dates in the past
-      }
+        to: formatDate(this.getTomorrowDate()), // Disable all dates in the past
+      },
     }
   },
 
@@ -194,7 +194,7 @@ export default {
     initLabel () {
       const initLabel = this.statusOptions.find(el => el.value === this.initStatus).label
       return Translator.trans(initLabel)
-    }
+    },
   },
 
   methods: {
@@ -215,7 +215,7 @@ export default {
 
     toggleCheckbox () {
       this.active = this.active === false
-    }
+    },
   },
 
   mounted () {
@@ -224,6 +224,6 @@ export default {
     } else {
       this.changeDate = formatDate()
     }
-  }
+  },
 }
 </script>

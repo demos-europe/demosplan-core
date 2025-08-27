@@ -110,15 +110,15 @@
 
     <!-- Table -->
     <dp-data-table
-      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       ref="dataTable"
+      v-scroller
+      class="w-full font-size-5 overflow-x-hidden relative u-pb"
       has-sticky-header
       :header-fields="headerFields"
       :is-selectable="isEditable === false"
       :items="onPageItems"
       :search-string="searchString"
       track-by="oId"
-      v-scroller
       @items-selected="setSelectedItems">
       <template
         v-for="headerField in headerFields"
@@ -202,7 +202,7 @@ import {
   isActiveFullScreen,
   makeFormPost,
   toggleFullscreen,
-  unbindFullScreenChange
+  unbindFullScreenChange,
 } from '@demos-europe/demosplan-ui'
 import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
 import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
@@ -227,7 +227,7 @@ const setupCellUpdate = (originalValue, id, field, isBoolToString) => (e) => {
     const payload = {
       oId: id,
       field,
-      value: newValue
+      value: newValue,
     }
 
     return makeFormPost(payload, Routing.generate('DemosPlan_user_mastertoeblist_update_ajax'))
@@ -238,7 +238,7 @@ export default {
   name: 'DpMasterToebList',
 
   directives: {
-    scroller: Scroller
+    scroller: Scroller,
   },
 
   components: {
@@ -250,43 +250,43 @@ export default {
     DpSelectPageItemCount,
     DpStickyElement,
     DpUpdateMastertoeb,
-    SlidingPagination
+    SlidingPagination,
   },
 
   props: {
     fields: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isEditable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     items: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     userId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'orga-updated'
+    'orga-updated',
   ],
 
   data () {
@@ -311,7 +311,7 @@ export default {
       searchString: '',
       selectedItems: [],
       sortOrder: { key: 'orgaName', direction: 1 },
-      updatedItems: this.possiblyInsertDeletion(this.items)
+      updatedItems: this.possiblyInsertDeletion(this.items),
     }
   },
 
@@ -347,7 +347,7 @@ export default {
 
     totalPages () {
       return this.rowItems.length > 0 ? Math.ceil(this.rowItems.length / this.itemsPerPage) : 1
-    }
+    },
   },
 
   methods: {
@@ -590,7 +590,7 @@ export default {
      */
     updateScrollbarWidth () {
       this.scrollbar.firstChild.setAttribute('style', 'width:' + window.getComputedStyle(this.dataTableElement).width + ';height:1px;')
-    }
+    },
   },
 
   mounted () {
@@ -638,6 +638,6 @@ export default {
   beforeUnmount () {
     // Remove event listener, just to not let them pile up
     unbindFullScreenChange(this.setIsFullscreen)
-  }
+  },
 }
 </script>

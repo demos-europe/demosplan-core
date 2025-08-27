@@ -20,7 +20,7 @@ const stores = { layers }
 const components = {
   AdminLayerList,
   DpSplitButton,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components, stores).then(() => {

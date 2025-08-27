@@ -40,8 +40,8 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
-            class="whitespace-pre-line"
-            v-cleanhtml="nodeElement.attributes.text" />
+            v-cleanhtml="nodeElement.attributes.text"
+            class="whitespace-pre-line" />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <file-info
@@ -78,31 +78,31 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo'))
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: true,
       recursiveElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     buttonLabel () {
@@ -127,23 +127,23 @@ export default {
         rootDraggable: false,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
-      elementList: 'list'
+      elementList: 'list',
     }),
 
     // The accumulated file size of an array of files objects, converted to readable format
@@ -231,7 +231,7 @@ export default {
       })
 
       return list
-    }
+    },
   },
 
   mounted () {
@@ -242,11 +242,11 @@ export default {
         enabledElements: {
           condition: {
             path: 'enabled',
-            value: 1
-          }
-        }
+            value: 1,
+          },
+        },
       },
-      procedureId: dplan.procedureId
+      procedureId: dplan.procedureId,
     })
       .then(() => {
         // Transform the object into an array, transform that into a recursive tree structure
@@ -267,6 +267,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>
