@@ -144,7 +144,7 @@
     "eslint-plugin-vue": "^10.4.0",
     "eslint-plugin-vuejs-accessibility": "^2.4.1",
     "fs": "0.0.1-security",
-    "glob": "^11.0.0",
+    "glob": "^11.0.3",
     "glob-all": "^3.3.1",
     "jest": "^29.6.4",
     "jest-environment-jsdom": "^29.7.0",
