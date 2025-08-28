@@ -12,19 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
-use Doctrine\ORM\EntityManagerInterface;
 
 class CustomFieldDeleter
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository    $customFieldConfigurationRepository,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
     ) {
     }
@@ -43,9 +39,7 @@ class CustomFieldDeleter
         $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($customFieldConfiguration->getTargetEntityClass());
         $entityStrategy->removeUsages($entityId);
 
-
         // 2. Delete the custom field configuration
         $this->customFieldConfigurationRepository->deleteObject($customFieldConfiguration);
     }
-
 }
