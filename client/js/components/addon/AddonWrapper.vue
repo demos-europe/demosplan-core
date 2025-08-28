@@ -1,12 +1,12 @@
 <template>
   <div>
     <component
+      v-bind="{ demosplanUi, ...addonProps }"
       :is="addon.component"
       v-for="addon in loadedAddons"
       :key="`addon:${addon.name}`"
       :ref="`${addon.name}${refComponent}`"
       :data-cy="`addon:${addon.name}`"
-      v-bind="{ demosplanUi, ...addonProps }"
       @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
   </div>
 </template>
