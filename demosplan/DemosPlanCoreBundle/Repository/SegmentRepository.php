@@ -111,8 +111,8 @@ class SegmentRepository extends CoreRepository
             ->select('segment')
             ->from(Segment::class, 'segment')
             ->where('segment.customFields IS NOT NULL')
-            ->andWhere('JSON_CONTAINS(segment.customFields, :customFieldSearch, \'$[*].id\')')
-            ->setParameter('customFieldSearch', '"'.$customFieldId.'"')
+            ->andWhere('segment.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', '%"id":"'.$customFieldId.'"%')
             ->getQuery()
             ->getResult();
     }
