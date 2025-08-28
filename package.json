@@ -70,7 +70,7 @@
     "core-js": "^3.45.1",
     "d3": "^7.9.0",
     "d3-sankey-diagram": "^0.7.3",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.14",
     "deep-object-diff": "^1.1.9",
     "dompurify": "^3.2.6",
     "font-awesome": "^4.7.0",
