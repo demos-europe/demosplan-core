@@ -21,7 +21,7 @@ class EntityCustomFieldUsageStrategyFactory
      * @param iterable<EntityCustomFieldUsageRemovalStrategyInterface> $strategies
      */
     public function __construct(
-        private readonly iterable $strategies
+        private readonly iterable $strategies,
     ) {
     }
 
@@ -34,8 +34,6 @@ class EntityCustomFieldUsageStrategyFactory
             }
         }
 
-        throw new InvalidArgumentException(
-            "No entity usage removal strategy found for target entity class: {$targetEntityClass}"
-        );
+        throw new InvalidArgumentException("No entity usage removal strategy found for target entity class: {$targetEntityClass}");
     }
 }
