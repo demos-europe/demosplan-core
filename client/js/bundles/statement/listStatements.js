@@ -11,20 +11,14 @@
  * This is the entrypoint for list_statements.html.twig
  */
 
-import CvStatementList from '@DpJs/components/statement/CvStatementList'
-import CvStatementSegmentContainer from '@DpJs/components/statement/CvStatementSegmentContainer'
-import CvSegmentList from '@DpJs/components/statement/segments/CvSegmentList'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {
-  ListOriginalStatements,
-  CvStatementList,
-  CvStatementSegmentContainer,
-  CvSegmentList,
-  ListStatements
+  ListStatements,
+  ListOriginalStatements
 }
-const apiStores = ['AssignableUser', 'Statement', 'StatementSegment', 'OriginalStatement', 'Tag', 'Place', 'Boilerplate']
+const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 
 initialize(components, {}, apiStores)

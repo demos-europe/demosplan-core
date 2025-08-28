@@ -141,6 +141,8 @@ const moduleRules =
           options: {
             implementation: require('sass-embedded'),
             sassOptions: {
+              logger: require('sass-embedded').Logger.silent,
+              quietDeps: true,
               additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
               loadPaths: [
                 config.projectRoot + 'web/',
