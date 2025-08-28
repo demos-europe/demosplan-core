@@ -31,7 +31,9 @@ class CustomFieldDeleter
 
     public function deleteCustomField(string $entityId): void
     {
-        $customFieldConfiguration = $this->getCustomFieldConfiguration($entityId);
+        // Get the CustomFieldConfiguration from database
+        /** @var CustomFieldConfiguration $customFieldConfiguration */
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
 
         // Remove all segment usages of this custom field
         $this->removeSegmentUsages($entityId);
@@ -39,17 +41,6 @@ class CustomFieldDeleter
         // Delete the custom field configuration
         $this->customFieldConfigurationRepository->delete($customFieldConfiguration->getId());
         $this->entityManager->flush();
-    }
-
-    private function getCustomFieldConfiguration(string $entityId): CustomFieldConfiguration
-    {
-        $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
-
-        if (!$customFieldConfiguration) {
-            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
-        }
-
-        return $customFieldConfiguration;
     }
 
     private function removeSegmentUsages(string $customFieldId): void
