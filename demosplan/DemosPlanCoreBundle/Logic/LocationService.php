@@ -42,7 +42,7 @@ class LocationService
      *
      * @return array Array containing search results
      */
-    public function searchAddress($searchString, $limit = 20):array
+    public function searchAddress($searchString, $limit = 20): array
     {
         $logContext = [
             'service'          => 'LocationService',
