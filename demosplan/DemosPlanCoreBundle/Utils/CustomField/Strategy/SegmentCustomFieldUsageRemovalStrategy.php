@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use RuntimeException;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
@@ -28,13 +30,33 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     public function removeUsages(string $customFieldId): void
     {
-        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
+        $this->entityManager->getConnection()->beginTransaction();
 
-        foreach ($segments as $segment) {
-            $this->removeCustomFieldFromSegment($segment, $customFieldId);
+        try {
+            $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
+
+            foreach ($segments as $segment) {
+                $this->removeCustomFieldFromSegment($segment, $customFieldId);
+            }
+
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
+
         }
+        catch (Exception $e) {
+            // Rollback all changes on any error
+            $this->entityManager->getConnection()->rollBack();
 
-        $this->entityManager->flush();
+            // Clear entity manager to avoid stale state
+            $this->entityManager->clear();
+
+            // Re-throw with context
+            throw new RuntimeException(
+                "Failed to remove custom field values in segments for custom field ID {$customFieldId}: " . $e->getMessage(),
+                0,
+                $e
+            );
+        }
     }
 
     public function supports(string $targetEntityClass): bool
