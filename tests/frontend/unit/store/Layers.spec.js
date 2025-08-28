@@ -16,14 +16,14 @@ import { layersApiResponse } from '../fixtures/layers_api_response'
 let StubStore
 
 global.Translator = {
-  trans: jest.fn()
+  trans: jest.fn(),
 }
 
 global.dplan = {}
 
 // Mock Routing (following the pattern from VueConfigLocal.js)
 global.Routing = {
-  generate: jest.fn((route, params) => `/api/${route}/${params?.resourceType || ''}/${params?.resourceId || ''}`)
+  generate: jest.fn((route, params) => `/api/${route}/${params?.resourceType || ''}/${params?.resourceId || ''}`),
 }
 
 // Non-instance tests
@@ -101,14 +101,14 @@ describe('Layers Actions', () => {
         treeOrder: 101010301,
         mapOrder: 104,
         defaultVisibility: true,
-        url: 'https://example.com/wms?service=WMS&Layer=sample_layer&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+        url: 'https://example.com/wms?service=WMS&Layer=sample_layer&Request=GetLegendGraphic&Format=image/png&version=1.1.1',
       })
       expect(StubStore.state.Layers.legends[1]).toEqual({
         layerId: 'overlay-layer-2',
         treeOrder: 101010302,
         mapOrder: 105,
         defaultVisibility: false,
-        url: 'https://example.com/wms2?service=WMS&Layer=sample_layer_2&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+        url: 'https://example.com/wms2?service=WMS&Layer=sample_layer_2&Request=GetLegendGraphic&Format=image/png&version=1.1.1',
       })
     })
 
@@ -157,9 +157,9 @@ describe('Layers Actions', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'GisLayer',
-            id: layerResource.id
-          })
-        })
+            id: layerResource.id,
+          }),
+        }),
       )
     })
 
@@ -176,9 +176,9 @@ describe('Layers Actions', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             type: 'GisLayerCategory',
-            id: categoryResource.id
-          })
-        })
+            id: categoryResource.id,
+          }),
+        }),
       )
     })
 
@@ -202,8 +202,8 @@ describe('Layers Actions', () => {
       const layer = {
         id: 'overlay-layer-1',
         attributes: {
-          categoryId: 'sub-category-1'
-        }
+          categoryId: 'sub-category-1',
+        },
       }
 
       const result = await StubStore.dispatch('Layers/findMostParentCategory', layer)
@@ -215,8 +215,8 @@ describe('Layers Actions', () => {
       const layer = {
         id: 'base-layer-1',
         attributes: {
-          categoryId: 'root-category-123'
-        }
+          categoryId: 'root-category-123',
+        },
       }
 
       const result = await StubStore.dispatch('Layers/findMostParentCategory', layer)
@@ -229,7 +229,7 @@ describe('Layers Actions', () => {
     it('should toggle category and all its children visibility', async () => {
       await StubStore.dispatch('Layers/toggleCategoryAndItsChildren', {
         id: 'category-1',
-        isVisible: false
+        isVisible: false,
       })
 
       expect(StubStore.state.Layers.layerStates['category-1'].isVisible).toBe(false)
@@ -242,7 +242,7 @@ describe('Layers Actions', () => {
     it('should toggle base layer visibility exclusively', async () => {
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-1',
-        setToVisible: true
+        setToVisible: true,
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1']?.isVisible).toBe(true)
@@ -251,7 +251,7 @@ describe('Layers Actions', () => {
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-3',
-        setToVisible: true
+        setToVisible: true,
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(false)
@@ -267,7 +267,7 @@ describe('Layers Actions', () => {
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-1',
-        setToVisible: true
+        setToVisible: true,
       })
 
       // Should not make any commits when layer is already visible and setToVisible is true
@@ -279,7 +279,7 @@ describe('Layers Actions', () => {
     it('should toggle all layers in a visibility group', async () => {
       await StubStore.dispatch('Layers/toggleVisiblityGroup', {
         visibilityGroupId: 'group-1',
-        value: false
+        value: false,
       })
 
       expect(StubStore.state.Layers.layerStates['overlay-layer-1'].isVisible).toBe(false)
@@ -287,7 +287,7 @@ describe('Layers Actions', () => {
 
       await StubStore.dispatch('Layers/toggleVisiblityGroup', {
         visibilityGroupId: 'group-1',
-        value: true
+        value: true,
       })
 
       expect(StubStore.state.Layers.layerStates['overlay-layer-1'].isVisible).toBe(true)
@@ -299,14 +299,14 @@ describe('Layers Actions', () => {
     it('should update layer visibility normally', async () => {
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'overlay-layer-1',
-        isVisible: true
+        isVisible: true,
       })
 
       expect(StubStore.state.Layers.layerStates['overlay-layer-1'].isVisible).toBe(true)
 
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'overlay-layer-1',
-        isVisible: false
+        isVisible: false,
       })
 
       expect(StubStore.state.Layers.layerStates['overlay-layer-1'].isVisible).toBe(false)
@@ -316,7 +316,7 @@ describe('Layers Actions', () => {
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'base-layer-2',
         isVisible: true,
-        exclusively: true
+        exclusively: true,
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(false)
@@ -326,7 +326,7 @@ describe('Layers Actions', () => {
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'base-layer-3',
         isVisible: true,
-        exclusively: true
+        exclusively: true,
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(false)
@@ -337,7 +337,7 @@ describe('Layers Actions', () => {
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'base-layer-3',
         isVisible: false,
-        exclusively: true
+        exclusively: true,
       })
 
       expect(StubStore.state.Layers.layerStates['base-layer-1'].isVisible).toBe(false)
@@ -350,19 +350,19 @@ describe('Layers Actions', () => {
 
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'overlay-layer-1',
-        isVisible: true
+        isVisible: true,
       })
 
       expect(dispatchSpy).toHaveBeenCalledWith('Layers/toggleVisiblityGroup', {
         visibilityGroupId: 'group-1',
-        value: true
+        value: true,
       })
     })
 
     it('should update parent visibility when child becomes visible', async () => {
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'overlay-layer-1',
-        isVisible: true
+        isVisible: true,
       })
 
       setTimeout(() => {

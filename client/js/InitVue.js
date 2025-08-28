@@ -13,12 +13,12 @@ import {
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
-  Tooltip
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import {
   initGlobalEventListener,
   ToggleSideMenu,
-  touchFriendlyUserbox
+  touchFriendlyUserbox,
 } from '@DpJs/lib/core/libs'
 import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
@@ -39,7 +39,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     configureCompat({
-      RENDER_FUNCTION: false
+      RENDER_FUNCTION: false,
     })
 
     const app = createApp({
@@ -62,7 +62,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         setTimeout(() => {
           window.mounted = true
         }, 5)
-      }
+      },
     })
 
     app.config.globalProperties.dplan = window.dplan

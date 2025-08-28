@@ -11,8 +11,8 @@
   <ul class="o-list o-list--card">
     <assessment-table-group
       v-for="subgroup in subgroups"
-      :csrf-token="csrfToken"
       :key="`subGroup:${subgroup.title}`"
+      :csrf-token="csrfToken"
       :count="1"
       :group="subgroup" />
   </ul>
@@ -26,25 +26,25 @@ export default {
   name: 'AssessmentTableGroupList',
 
   components: {
-    AssessmentTableGroup
+    AssessmentTableGroup,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     formDefinitions: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   computed: {
     ...mapGetters('Statement', {
-      getToc: 'getToc'
+      getToc: 'getToc',
     }),
 
     /**
@@ -53,7 +53,7 @@ export default {
      */
     subgroups () {
       return this.getToc.subgroups
-    }
-  }
+    },
+  },
 }
 </script>

@@ -9,14 +9,14 @@
 
 <template>
   <fieldset
+    id="locationFieldset"
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
-    aria-required="true"
-    id="locationFieldset">
+    aria-required="true">
     <p
-      :class="prefixClass('weight--bold u-mt u-mb-0')"
-      id="statementMapReference">
+      id="statementMapReference"
+      :class="prefixClass('weight--bold u-mt u-mb-0')">
       {{ Translator.trans('statement.map.reference') }}
       <span
         v-if="required"
@@ -24,11 +24,11 @@
     </p>
     <div
       v-if="hasPermission('field_statement_location')"
+      ref="mapStatementRadio"
       :class="[
         statement.location_is_set === 'county' ? prefixClass('bg-color--grey-light-2') : '',
         prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm u-3-of-10')
-      ]"
-      ref="mapStatementRadio">
+      ]">
       <dp-radio
         id="locationcounty"
         :label="{
@@ -36,21 +36,21 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'county'"
-        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
-        value="county" />
+        value="county"
+        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }" />
       <select
         v-if="statement.location_is_set === 'county'"
         id="r_county"
+        ref="locationCountySelect"
         name="r_county"
         :class="prefixClass('o-form__control-select')"
-        ref="locationCountySelect"
-        @change="val => setStatementData({r_county: val.target.value})"
-        :value="statement.r_county">
+        :value="statement.r_county"
+        @change="val => setStatementData({r_county: val.target.value})">
         <option
           v-for="county in counties"
+          :key="county.value"
           :selected="county.selected"
-          :value="county.value"
-          :key="county.value">
+          :value="county.value">
           {{ county.label }}
         </option>
       </select>
@@ -69,8 +69,8 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
-        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
-        value="notLocated" />
+        value="notLocated"
+        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }" />
     </div>
   </fieldset>
 </template>
@@ -83,7 +83,7 @@ export default {
   name: 'FormGroupCountyReference',
 
   components: {
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin],
@@ -92,20 +92,20 @@ export default {
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

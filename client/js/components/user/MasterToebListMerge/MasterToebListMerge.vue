@@ -93,27 +93,27 @@ export default {
 
   components: {
     DpLabel,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     organisations: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     organisationsMasterToeb: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
     return {
       selectedOrganisation: null,
-      selectedOrganisationMasterToeb: null
+      selectedOrganisationMasterToeb: null,
     }
   },
 
@@ -124,7 +124,7 @@ export default {
       } else {
         return array[0] || '-'
       }
-    }
-  }
+    },
+  },
 }
 </script>

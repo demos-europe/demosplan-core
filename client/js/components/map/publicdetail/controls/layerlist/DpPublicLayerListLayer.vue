@@ -30,8 +30,8 @@
           aria-hidden="true" />
       </button>
       <span
-        :class="prefixClass('c-map__opacity-control u-ml-0_5')"
-        v-show="showOpacityControl && isVisible">
+        v-show="showOpacityControl && isVisible"
+        :class="prefixClass('c-map__opacity-control u-ml-0_5')">
         <input
           type="range"
           min="0"
@@ -50,8 +50,8 @@
       </span>
     </span>
     <span
-      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
-      v-show="!showOpacityControl">
+      v-show="!showOpacityControl"
+      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
       {{ layer.attributes.name }}
     </span>
     <dp-contextual-help
@@ -74,19 +74,19 @@ export default {
     dataCy: {
       type: String,
       required: false,
-      default: 'publicLayerListLayer'
+      default: 'publicLayerListLayer',
     },
 
     layer: {
       type: Object,
-      required: true
+      required: true,
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
@@ -96,25 +96,25 @@ export default {
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:toggleVisibiltyGroup'
+    'layer:toggleVisibiltyGroup',
   ],
 
   data () {
     return {
       showOpacityControl: false,
-      tooltipExpanded: false
+      tooltipExpanded: false,
     }
   },
 
   computed: {
     ...mapState('Layers', [
-      'layerStates'
+      'layerStates',
     ]),
 
     ...mapGetters('Layers', [
       'element',
       'isLayerVisible',
-      'isVisibilityGroupVisible'
+      'isVisibilityGroupVisible',
     ]),
 
     contextualHelpText () {
@@ -166,17 +166,17 @@ export default {
       }
 
       return Translator.trans(text)
-    }
+    },
   },
 
   methods: {
     ...mapActions('Layers', [
-      'updateLayerVisibility'
+      'updateLayerVisibility',
     ]),
 
     ...mapMutations('Layers', [
       'setLayerState',
-      'updateState'
+      'updateState',
     ]),
 
     setStatusIcon () {
@@ -200,7 +200,7 @@ export default {
         id: this.layer.id,
         isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
-        exclusively: this.layer.attributes.layerType === 'base'
+        exclusively: this.layer.attributes.layerType === 'base',
       })
     },
 
@@ -236,7 +236,7 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

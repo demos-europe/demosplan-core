@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.11.0 (2025-08-27)
 - Allow to edit custom field type singleSelect
 - Mark outdated map layers in the map settings
 

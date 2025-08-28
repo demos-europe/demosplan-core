@@ -31,14 +31,14 @@ export default {
   inject: ['currentUserId', 'newestInternId', 'procedureId', 'submitTypeOptions', 'tags', 'usedInternIds'],
 
   components: {
-    DpSimplifiedNewStatementForm
+    DpSimplifiedNewStatementForm,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

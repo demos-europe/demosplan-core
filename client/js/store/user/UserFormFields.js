@@ -16,19 +16,27 @@ const UserFormFields = {
   name: 'UserFormFields',
 
   state: {
-    orgaSuggestions: []
+    orgaSuggestions: [],
   },
 
   mutations: {
     setOrgaSuggestions (state, organisations) {
       state.orgaSuggestions = organisations
-    }
+    },
   },
 
   actions: {
     fetchOrgaSuggestions ({ commit }) {
       if (hasPermission('area_organisations') || hasPermission('feature_organisation_user_list')) {
-        const url = Routing.generate('dplan_api_organisation_list') + '?' + qs.stringify({ page: { number: 1, size: 500 } }) + '&' + qs.stringify({ include: 'departments' })
+        const queryParams = {
+          page: {
+            number: 1,
+            size: 500,
+          },
+          include: 'departments',
+        }
+        const url = `${Routing.generate('dplan_api_organisation_list')}?${qs.stringify(queryParams)}`
+
         dpApi.get(url).then((response) => {
           const organisations = []
           const inclDepartments = {}
@@ -54,12 +62,12 @@ const UserFormFields = {
           commit('setOrgaSuggestions', organisations)
         })
       }
-    }
+    },
   },
 
   getters: {
-    getOrgaSuggestions: state => state.orgaSuggestions
-  }
+    getOrgaSuggestions: state => state.orgaSuggestions,
+  },
 }
 
 export default UserFormFields
