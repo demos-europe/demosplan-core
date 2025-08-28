@@ -126,26 +126,4 @@ class CustomFieldUpdater
 
         return array_diff($currentOptionIds, $newOptionIds);
     }
-
-    private function updateSegmentUsagesForDeletedOptions(string $customFieldId, array $deletedOptionIds): void
-    {
-        // Get all segments that have this custom field
-        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-
-        foreach ($segments as $segment) {
-            $customFields = $segment->getCustomFields();
-            if ($customFields instanceof CustomFieldValuesList) {
-                $customFieldValue = $customFields->findById($customFieldId);
-                if ($customFieldValue instanceof CustomFieldValue
-                    && in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
-                    // Remove the entire custom field value if it references a deleted option
-                    $customFields->removeCustomFieldValue($customFieldValue);
-                    $customFields->reindexValues();
-                    $segment->setCustomFields($customFields);
-                }
-            }
-        }
-
-        $this->entityManager->flush();
-    }
 }
