@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,6 +34,10 @@ class CustomFieldDeleter
         // Get the CustomFieldConfiguration from database
         /** @var CustomFieldConfiguration $customFieldConfiguration */
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
+
+        if (!$customFieldConfiguration) {
+            throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
+        }
 
         // Remove all segment usages of this custom field
         $this->removeSegmentUsages($entityId);
