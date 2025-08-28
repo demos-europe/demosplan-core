@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 
@@ -28,6 +29,7 @@ class CustomFieldUpdater
     public function __construct(
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly SegmentRepository $segmentRepository,
+        private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
         private readonly EntityManagerInterface $entityManager,
     ) {
     }
@@ -47,7 +49,7 @@ class CustomFieldUpdater
         $customField->setId($customFieldConfiguration->getId());
 
         $this->updateBasicFields($customField, $attributes);
-        $this->updateOptionsIfPresent($customField, $attributes);
+        $this->updateOptionsIfPresent($customField, $attributes, $customFieldConfiguration->getTargetEntityClass());
         // Save back to CustomFieldConfiguration
         $customFieldConfiguration->setConfiguration($customField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
@@ -66,7 +68,7 @@ class CustomFieldUpdater
         }
     }
 
-    private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes): void
+    private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes, string $targetEntityClass): void
     {
         if (!isset($attributes['options'])) {
             return;
@@ -80,10 +82,12 @@ class CustomFieldUpdater
         // Find which options are being deleted
         $deletedOptionIds = $this->findDeletedOptionIds($currentOptions, $newOptions);
 
-        // Update segment usages to remove references to deleted options
         if (!empty($deletedOptionIds)) {
-            $this->updateSegmentUsagesForDeletedOptions($customField->getId(), $deletedOptionIds);
+            $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($targetEntityClass);
+            $entityStrategy->removeOptionUsages($customField->getId(), $deletedOptionIds);
         }
+
+
 
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->setOptions($updatedOptions);

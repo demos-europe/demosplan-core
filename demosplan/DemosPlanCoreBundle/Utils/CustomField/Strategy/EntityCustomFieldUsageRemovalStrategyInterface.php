@@ -19,6 +19,9 @@ interface EntityCustomFieldUsageRemovalStrategyInterface
      */
     public function removeUsages(string $customFieldId): void;
 
+    // Option-specific removal method
+    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void;
+
     /**
      * Check if this strategy supports the given target entity class.
      */

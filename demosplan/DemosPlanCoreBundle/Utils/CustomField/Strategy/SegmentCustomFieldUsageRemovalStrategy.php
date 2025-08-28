@@ -70,4 +70,46 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             }
         }
     }
+
+    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
+    {
+        $this->entityManager->getConnection()->beginTransaction();
+
+        try {
+            $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
+
+            foreach ($segments as $segment) {
+                $this->removeDeletedOptionsFromSegment($segment, $customFieldId, $deletedOptionIds);
+            }
+
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
+
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->entityManager->clear();
+
+            throw new \RuntimeException(
+                "Failed to remove deleted option usages for custom field ID {$customFieldId}: " . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+    }
+
+    private function removeDeletedOptionsFromSegment(Segment $segment, string $customFieldId, array $deletedOptionIds): void
+    {
+        $customFields = clone $segment->getCustomFields();
+        if ($customFields instanceof CustomFieldValuesList) {
+            $customFieldValue = $customFields->findById($customFieldId);
+            if ($customFieldValue instanceof CustomFieldValue
+                && in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
+                // Remove the entire custom field value if it references a deleted option
+                $customFields->removeCustomFieldValue($customFieldValue);
+                $customFields->reindexValues();
+                $segment->setCustomFields($customFields);
+            }
+        }
+    }
+
 }
