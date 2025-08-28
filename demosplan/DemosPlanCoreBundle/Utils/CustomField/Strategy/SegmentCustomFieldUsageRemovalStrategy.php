@@ -41,9 +41,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
-
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             // Rollback all changes on any error
             $this->entityManager->getConnection()->rollBack();
 
@@ -51,11 +49,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             $this->entityManager->clear();
 
             // Re-throw with context
-            throw new RuntimeException(
-                "Failed to remove custom field values in segments for custom field ID {$customFieldId}: " . $e->getMessage(),
-                0,
-                $e
-            );
+            throw new RuntimeException("Failed to remove custom field values in segments for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
         }
     }
 
