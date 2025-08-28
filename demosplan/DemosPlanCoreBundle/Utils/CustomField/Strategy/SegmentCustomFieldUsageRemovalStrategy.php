@@ -39,7 +39,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     public function supports(string $targetEntityClass): bool
     {
-        return Segment::class === $targetEntityClass;
+        return 'SEGMENT' === $targetEntityClass;
     }
 
     private function removeCustomFieldFromSegment(Segment $segment, string $customFieldId): void
