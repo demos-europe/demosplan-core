@@ -84,16 +84,11 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->entityManager->getConnection()->rollBack();
             $this->entityManager->clear();
 
-            throw new \RuntimeException(
-                "Failed to remove deleted option usages for custom field ID {$customFieldId}: " . $e->getMessage(),
-                0,
-                $e
-            );
+            throw new RuntimeException("Failed to remove deleted option usages for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
         }
     }
 
@@ -111,5 +106,4 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             }
         }
     }
-
 }

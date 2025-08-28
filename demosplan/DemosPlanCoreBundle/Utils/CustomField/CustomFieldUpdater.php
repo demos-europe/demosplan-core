@@ -87,8 +87,6 @@ class CustomFieldUpdater
             $entityStrategy->removeOptionUsages($customField->getId(), $deletedOptionIds);
         }
 
-
-
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
         $customField->setOptions($updatedOptions);
     }
