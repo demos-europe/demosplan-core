@@ -18,14 +18,14 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CustomFieldDeleter
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly SegmentRepository $segmentRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly CustomFieldConfigurationRepository    $customFieldConfigurationRepository,
+        private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
     ) {
     }
 
@@ -39,31 +39,13 @@ class CustomFieldDeleter
             throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
         }
 
-        // Remove all segment usages of this custom field
-        $this->removeSegmentUsages($entityId);
+        // 1. Entity-specific cleanup (replaces hardcoded removeSegmentUsages)
+        $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($customFieldConfiguration->getTargetEntityClass());
+        $entityStrategy->removeUsages($entityId);
 
-        // Delete the custom field configuration
-        $this->customFieldConfigurationRepository->delete($customFieldConfiguration->getId());
-        $this->entityManager->flush();
+
+        // 2. Delete the custom field configuration
+        $this->customFieldConfigurationRepository->deleteObject($customFieldConfiguration);
     }
 
-    private function removeSegmentUsages(string $customFieldId): void
-    {
-        // Get all segments that have this custom field
-        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-
-        foreach ($segments as $segment) {
-            $customFields = $segment->getCustomFields();
-            if ($customFields instanceof CustomFieldValuesList) {
-                $customFieldValue = $customFields->findById($customFieldId);
-                if ($customFieldValue instanceof CustomFieldValue) {
-                    $customFields->removeCustomFieldValue($customFieldValue);
-                    $customFields->reindexValues();
-                    $segment->setCustomFields($customFields);
-                }
-            }
-        }
-
-        $this->entityManager->flush();
-    }
 }
