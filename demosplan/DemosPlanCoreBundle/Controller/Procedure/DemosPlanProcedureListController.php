@@ -491,14 +491,8 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $this->profilerStart('searchCity');
-            if ($currentUser->hasPermission('feature_geocoder_address_search')) {
-                $locationResponse = $locationService->searchAddress($requestGet['query'], $limit);
-            } else {
-                $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
-            }
+            $result = $locationService->searchLocation($requestGet['query'], $limit, $maxExtent);
             $this->profilerStop('searchCity');
-
-            $result = $locationResponse['body'];
 
             $maxSuggestions = $requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0);
             // Es gibt Ergebnisse, aber weniger als maxResults
