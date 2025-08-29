@@ -39,12 +39,12 @@ class ProcedureProposalServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ProcedureProposalService::class);
+        $this->sut = self::getContainer()->get(ProcedureProposalService::class);
         $this->testProcedureProposal = $this->fixtures->getReference('testProcedureProposal1');
 
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->login($user);
-        $this->translator = self::$container->get('translator.default');
+        $this->translator = self::getContainer()->get('translator.default');
     }
 
     public function testGetProcedureProposals(): void

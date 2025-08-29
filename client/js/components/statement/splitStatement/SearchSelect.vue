@@ -23,8 +23,8 @@
       @input="updateSelected">
       <template v-slot:option="{ props }">
         <input
-          type="checkbox"
           :id="`tag_${props.option.id}`"
+          type="checkbox"
           :checked="typeof selected.find(el => el.id === props.option.id || el.attributes.title === props.option.title) !== 'undefined'"
           :value="props.option.id">
         <label
@@ -35,8 +35,8 @@
       </template>
       <template v-slot:beforeList>
         <button
-          @click="$emit('openCreateForm')"
-          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
+          class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
+          @click="$emit('openCreateForm')">
           {{ Translator.trans('tag.topic.new') }}
         </button>
       </template>
@@ -52,28 +52,28 @@ export default {
   name: 'SearchSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     options: {
       type: Array,
-      required: true
+      required: true,
     },
 
     placeHolder: {
       type: String,
-      default: ''
+      default: '',
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   emits: [
-    'openCreateForm'
+    'openCreateForm',
   ],
 
   computed: {
@@ -81,13 +81,13 @@ export default {
       availableTags: 'availableTags',
       currentSegment: 'editingSegment',
       tagById: 'tagById',
-      categorizedTags: 'categorizedTags'
-    })
+      categorizedTags: 'categorizedTags',
+    }),
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     /**
@@ -102,7 +102,7 @@ export default {
      */
     updateSelected (tag) {
       this.updateCurrentTags({ id: tag.id, tagName: tag.title })
-    }
-  }
+    },
+  },
 }
 </script>

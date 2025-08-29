@@ -22,13 +22,13 @@ export default {
   name: 'DpContentToggle',
 
   emits: [
-    'input'
+    'input',
   ],
 
   data () {
     return {
-      view: ''
+      view: '',
     }
-  }
+  },
 }
 </script>

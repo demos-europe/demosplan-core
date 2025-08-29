@@ -36,38 +36,38 @@ export default {
 
   components: {
     AssessmentTableTocGroup,
-    DpButton
+    DpButton,
   },
 
   props: {
     filterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'update:assessmentTable'
+    'update:assessmentTable',
   ],
 
   computed: {
     ...mapGetters('AssessmentTable', [
-      'isRefreshButtonVisible'
+      'isRefreshButtonVisible',
     ]),
 
     ...mapGetters('Statement', [
-      'getToc'
-    ])
+      'getToc',
+    ]),
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setRefreshButtonVisibility'
+      'setRefreshButtonVisibility',
     ]),
 
     triggerUpdate () {
@@ -77,7 +77,7 @@ export default {
        *  Otherwise triggerApiCallForStatements() would not be accessible in AssessmentTableToc which refreshes the assessment list without page reload
        */
       this.$root.$emit('update:assessmentTable')
-    }
-  }
+    },
+  },
 }
 </script>

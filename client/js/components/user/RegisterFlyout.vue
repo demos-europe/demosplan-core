@@ -10,8 +10,7 @@ All rights reserved
 <template>
   <dp-flyout
     align="left"
-    class="u-ml-0_5"
-    :has-menu="false">
+    class="u-ml-0_5">
     <template v-slot:trigger>
       <div
         class="c-header__nav-item-link"
@@ -45,7 +44,7 @@ export default {
   name: 'RegisterFlyout',
 
   components: {
-    DpFlyout
+    DpFlyout,
   },
 
   mounted () {
@@ -57,6 +56,6 @@ export default {
     if (placeholder) {
       placeholder.remove()
     }
-  }
+  },
 }
 </script>

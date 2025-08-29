@@ -1,7 +1,7 @@
 <template>
   <li
-    :class="{'is-expanded': isOpen}"
-    v-cloak>
+    v-cloak
+    :class="{'is-expanded': isOpen}">
     <!--  item header  -->
     <div
       data-add-animation>
@@ -27,13 +27,13 @@ export default {
     open: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
     return {
-      isOpen: this.open
+      isOpen: this.open,
     }
   },
 
@@ -42,14 +42,14 @@ export default {
       handler (newVal) {
         this.isOpen = newVal
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     toggle (val) {
       this.isOpen = (typeof val !== 'undefined') ? val : (this.isOpen === false)
-    }
-  }
+    },
+  },
 }
 </script>

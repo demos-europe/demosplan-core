@@ -52,6 +52,7 @@
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -59,9 +60,8 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @pageChange="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+      @page-change="handlePageChange"
+      @size-change="handleSizeChange" />
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
@@ -76,7 +76,7 @@
       :procedure-id="procedureId" />
 
     <slot
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
+      v-bind="{ allItemsOnPageSelected, copyStatements, isNoItemSelected, procedureId }"
       name="filter"
       :toggle-export-modal="toggleExportModal" />
 
@@ -86,8 +86,8 @@
       class="u-mt u-ml" />
 
     <table
-      :aria-label="Translator.trans('statements.original')"
       v-else-if="Object.keys(statements).length"
+      :aria-label="Translator.trans('statements.original')"
       class="c-at-orig">
       <colgroup>
         <col class="w-[10%]">
@@ -100,13 +100,13 @@
       <thead class="c-at-orig__header">
         <tr>
           <th
-            scope="col"
-            v-tooltip="Translator.trans('statement.id')">
+            v-tooltip="Translator.trans('statement.id')"
+            scope="col">
             {{ Translator.trans('id') }}
           </th>
           <th
-            scope="col"
-            v-tooltip="Translator.trans('statement.date.submitted')">
+            v-tooltip="Translator.trans('statement.date.submitted')"
+            scope="col">
             {{ Translator.trans('date') }}
           </th>
           <th scope="col">
@@ -124,13 +124,13 @@
       <tbody>
         <original-statements-table-item
           v-for="(statement, idx) in statements"
+          :key="idx"
           :current-table-view="currentTableView"
           :is-selected="getSelectionStateById(statement.id)"
-          :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
-          @addToSelection="addToSelectionAction"
-          @removeFromSelection="removeFromSelectionAction" />
+          @add-to-selection="() => addToSelectionAction({ id: statement.id})"
+          @remove-from-selection="removeFromSelectionAction" />
       </tbody>
     </table>
 
@@ -161,24 +161,24 @@ export default {
     }),
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
-    OriginalStatementsTableItem
+    OriginalStatementsTableItem,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     exportOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initFilterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     initPagination: {
@@ -188,14 +188,14 @@ export default {
         current_page: 1,
         per_page: 25,
         count: 1,
-        limits: () => [10, 25, 50]
-      })
+        limits: () => [10, 25, 50],
+      }),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -205,7 +205,7 @@ export default {
       currentTableView: 'expanded',
       filterHash: this.initFilterHash,
       isLoading: true,
-      pageSize: this.initPagination.count
+      pageSize: this.initPagination.count,
     }
   },
 
@@ -213,21 +213,26 @@ export default {
     ...mapState('Statement', [
       'statements',
       'selectedElements',
-      'pagination'
+      'pagination',
     ]),
 
     ...mapGetters('Statement', [
-      'getSelectionStateById'
+      'getSelectionStateById',
     ]),
 
     allItemsOnPageSelected () {
       return Object.keys(this.statements).length === 0 ? false : Object.keys(this.statements).every(stn => Object.keys(this.selectedElements).includes(stn))
-    }
+    },
+
+    isNoItemSelected () {
+      return Object.keys(this.selectedElements).length === 0
+    },
+
   },
 
   methods: {
     ...mapActions('AssessmentTable', [
-      'applyBaseData'
+      'applyBaseData',
     ]),
 
     ...mapActions('Statement', [
@@ -235,16 +240,16 @@ export default {
       'getStatementAction',
       'removeFromSelectionAction',
       'resetSelection',
-      'setSelectionAction'
+      'setSelectionAction',
     ]),
 
     ...mapMutations('Statement', [
       'updatePagination',
-      'updatePersistStatementSelection'
+      'updatePersistStatementSelection',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setProperty'
+      'setProperty',
     ]),
 
     /**
@@ -256,29 +261,31 @@ export default {
 
       window.history.pushState({
         html: newUrl.join('?'),
-        pageTitle: document.title
+        pageTitle: document.title,
       }, document.title, newUrl.join('?'))
     },
 
     copyStatements () {
-      if (dpconfirm(Translator.trans('check.entries.marked.copy'))) {
-        this.action = 'copy'
-        this.$nextTick(() => {
-          this.$refs.bpform.submit()
-        })
+      if (!dpconfirm(Translator.trans('check.entries.marked.copy'))) {
+        return
       }
+
+      this.action = 'copy'
+      this.$nextTick(() => {
+        this.$refs.bpform.submit()
+      })
     },
 
     handlePageChange (newPage) {
       const tmpPager = Object.assign(this.pagination, {
         current_page: newPage,
-        count: this.pagination.per_page
+        count: this.pagination.per_page,
       })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -302,7 +309,7 @@ export default {
             movedToProcedure: (statements[statementId].movedToProcedureId !== ''),
             assignee: statements[statementId].assignee,
             extid: (statements[statementId].parentId && statements[statementId].originalId && statements[statementId].originalId !== statements[statementId].parentId) ? Translator.trans('copyof') + ' ' + statements[statementId].externId : statements[statementId].externId,
-            isCluster: statements[statementId].isCluster
+            isCluster: statements[statementId].isCluster,
           }
         }
         payload.statements = statements
@@ -322,7 +329,7 @@ export default {
         procedureId: this.procedureId,
         pagination: this.pagination,
         view_mode: '',
-        sort: ''
+        sort: '',
       })
     },
 
@@ -333,7 +340,7 @@ export default {
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({ html: url.join('?'), pageTitle: document.title }, document.title, url.join('?'))
       }
-    }
+    },
   },
 
   mounted () {
@@ -359,6 +366,6 @@ export default {
     this.$root.$on('current-table-view', (currentTableView) => {
       this.currentTableView = currentTableView
     })
-  }
+  },
 }
 </script>

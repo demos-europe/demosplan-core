@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
@@ -39,7 +40,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(ElementsService::class);
         $this->testElement = $this->fixtures->getReference('testElement1');
         $this->testProcedure2 = $this->fixtures->getReference('testProcedure2');
     }
@@ -89,14 +90,7 @@ class ElementsServiceTest extends FunctionalTestCase
                 self::assertNotEmpty($organisations);
                 $organisationIds = array_column($organisations, 'id');
                 self::assertNotEmpty($organisationIds);
-                self::assertContains(
-                    $testOrga->getIdent(),
-                    $organisationIds,
-                    '',
-                    false,
-                    true,
-                    true
-                );
+                self::assertContains($testOrga->getIdent(), $organisationIds);
             }
             self::assertSame($this->testProcedure2->getId(), $element['pId']);
         }
@@ -501,6 +495,12 @@ class ElementsServiceTest extends FunctionalTestCase
         self::assertFalse($elementB->getDeleted());
         self::assertFalse($elementC->getDeleted());
 
+        // Update the designatedSwitchDate to yesterday to ensure it's treated as in the past
+        $yesterday = new DateTime('yesterday');
+        $elementA->setDesignatedSwitchDate($yesterday);
+        $elementB->setDesignatedSwitchDate($yesterday);
+        $this->getEntityManager()->flush();
+
         $affectedElementsCount = $this->sut->autoSwitchElementsState();
         self::assertEquals(2, $affectedElementsCount);
 
@@ -756,12 +756,24 @@ class ElementsServiceTest extends FunctionalTestCase
     public function testReportOnUpdateArrayElement(): void
     {
         $testElement = ElementsFactory::createOne();
+
+        // Ensure element has a unique title that won't match hidden element patterns
+        $uniqueTitle = 'test_element_'.uniqid('', true);
+        $testElement->setTitle($uniqueTitle);
+        $this->getEntityManager()->flush();
+
         $updatedElement = $this->sut->updateElementArray([
             'ident'             => $testElement->getId(),
-            'title'             => 'my updated element',
+            'title'             => 'my_updated_element_'.uniqid('', true),
             'text'              => 'a updated unique and nice text',
         ]);
-        $updatedElement = $this->find(Elements::class, $updatedElement['ident']);
+
+        static::assertArrayHasKey('ident', $updatedElement,
+            'updateElementArray should return an array with ident key. Returned: '.json_encode($updatedElement));
+        static::assertNotNull($updatedElement['ident'],
+            'updateElementArray should return a non-null ident. Returned ident: '.var_export($updatedElement['ident'] ?? 'KEY_MISSING', true));
+
+        $updatedElement = $this->find(Elements::class, $updatedElement['id']);
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [

@@ -18,10 +18,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -36,10 +36,11 @@ use Elastica\Query\BoolQuery;
 use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
-class ElasticsearchResultCreator extends CoreService
+class ElasticsearchResultCreator
 {
     // Values that are === NULL instead of "" (empty string) if they are missing
     private const NULL_VALUES = [
@@ -65,43 +66,43 @@ class ElasticsearchResultCreator extends CoreService
         'tagNames',
     ];
     private const AVAILABLE_SEARCH_FIELDS = [
-        'text'                    => 'text.text',
+        'text'                    => 'text',
         'oName'                   => 'oName^0.2',
         'dName'                   => 'dName^0.2',
         'uName'                   => 'uName^0.2',
-        'elementTitle'            => 'elementTitle.text',
-        'documentTitle'           => 'documentTitle.text',
-        'paragraphTitle'          => 'paragraphTitle.text',
-        'recommendation'          => 'recommendation.text',
+        'elementTitle'            => 'elementTitle',
+        'documentTitle'           => 'documentTitle',
+        'paragraphTitle'          => 'paragraphTitle',
+        'recommendation'          => 'recommendation',
         'municipalityNames'       => 'municipalityNames',
         'internId'                => 'internId',
         'externId'                => 'externId',
         'priorityAreaKeys'        => 'priorityAreaKeys',
         'countyNames'             => 'countyNames.raw',
-        'tagNames'                => 'tagNames.text',
-        'topicNames'              => 'topicNames.text',
+        'tagNames'                => 'tagNames',
+        'topicNames'              => 'topicNames',
         'meta_submitLastName'     => 'meta.submitLastName^0.2',
         'meta_caseWorkerLastName' => 'meta.caseWorkerLastName^0.2',
         'cluster_externId'        => 'cluster.externId',
-        'clusterName'             => 'name.text',
+        'clusterName'             => 'name',
         'cluster_uName'           => 'cluster.uName^0.1',
-        'fragments.documentTitle.text',
-        'fragments.paragraphTitle.text',
+        'fragments.documentTitle',
+        'fragments.paragraphTitle',
         'votes.firstName'         => 'votes.firstName',
         'votes.lastName'          => 'votes.lastName',
         'votes.name'              => 'votes.name',
         'filename'                => 'files',
         // after refactoring in T20362:
         'authorName'              => 'uName^0.2',
-        'consideration'           => 'recommendation.text',
+        'consideration'           => 'recommendation',
         'department'              => 'dName^0.2',
         'orgaCity'                => 'meta.orgaCity',
         'organisationName'        => 'oName^0.2',
         'orgaPostalCode'          => 'meta.orgaPostalCode',
-        'planDocument'            => ['documentTitle.text', 'elementTitle.text', 'paragraphTitle.text'],
+        'planDocument'            => ['documentTitle', 'elementTitle', 'paragraphTitle'],
         'statementId'             => 'externId',
-        'statementText'           => 'text.text',
-        'topics'                  => 'topicNames.text',
+        'statementText'           => 'text',
+        'topics'                  => 'topicNames',
     ];
 
     public function __construct(
@@ -115,6 +116,8 @@ class ElasticsearchResultCreator extends CoreService
         private readonly ParagraphService $paragraphService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly DepartmentRepository $departmentRepository,
+        private readonly ProfilerService $profilerService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -432,7 +435,7 @@ class ElasticsearchResultCreator extends CoreService
                 $query = $this->elasticSearchService->addEsAggregation(
                     $query,
                     'elementId',
-                    '_term',
+                    '_key',
                     'asc',
                     'elementId'
                 );
@@ -658,7 +661,7 @@ class ElasticsearchResultCreator extends CoreService
             $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $this->logger->info('Received invalid Page for pagination', [$e]);
                 $paginator->setCurrentPage(1);
@@ -1314,7 +1317,7 @@ class ElasticsearchResultCreator extends CoreService
             $elasticsearchResultStatement->setPager($paginator);
             $elasticsearchResultStatement->setSearchFields($searchFields);
 
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
         } catch (Exception $e) {
             $this->logger->error('Elasticsearch getStatementAggregation failed. ', [$e]);
 
@@ -1343,7 +1346,7 @@ class ElasticsearchResultCreator extends CoreService
         if (\is_array($searchFields) && 1 === count($searchFields) && '' === $searchFields[0]) {
             $searchFields = [];
         }
-        $this->profilerStart('ES');
+        $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
         if (\is_string($search) && 0 < \strlen($search)) {

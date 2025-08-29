@@ -25,14 +25,14 @@
       <template v-slot:list="{entry, index}">
         <ul class="o-list o-list--csv inline">
           <input
+            :id="preFix(index) + '[id]'"
             type="hidden"
             :name="preFix(index) + '[id]'"
-            :id="preFix(index) + '[id]'"
             :value="entry.id">
           <input
+            :id="preFix(index) + '[role_' + entry.role + ']'"
             type="hidden"
             :name="preFix(index) + '[role]'"
-            :id="preFix(index) + '[role_' + entry.role + ']'"
             :value="entry.role">
 
           <!-- User name -->
@@ -41,9 +41,9 @@
             class="o-list__item">
             {{ entry.userName }}
             <input
+              :id="preFix(index) + '[author_name]'"
               type="hidden"
               :name="preFix(index) + '[author_name]'"
-              :id="preFix(index) + '[author_name]'"
               :value="entry.userName">
           </li>
 
@@ -53,9 +53,9 @@
             class="o-list__item">
             {{ entry.organisationName }}
             <input
+              :id="preFix(index) + '[orga_name]'"
               type="hidden"
               :name="preFix(index) + '[orga_name]'"
-              :id="preFix(index) + '[orga_name]'"
               :value="entry.organisationName">
           </li>
 
@@ -65,9 +65,9 @@
             class="o-list__item">
             {{ entry.departmentName }}
             <input
+              :id="preFix(index) + '[orga_department_name]'"
               type="hidden"
               :name="preFix(index) + '[orga_department_name]'"
-              :id="preFix(index) + '[orga_department_name]'"
               :value="entry.departmentName">
           </li>
 
@@ -78,17 +78,17 @@
             <span v-if="entry.userPostcode">
               {{ entry.userPostcode }}
               <input
+                :id="preFix(index) + '[postalcode]'"
                 type="hidden"
                 :name="preFix(index) + '[postalcode]'"
-                :id="preFix(index) + '[postalcode]'"
                 :value="entry.userPostcode">
             </span>
             <span v-if="entry.userCity">
               {{ entry.userCity }}
               <input
+                :id="preFix(index) + '[orga_city]'"
                 type="hidden"
                 :name="preFix(index) + '[orga_city]'"
-                :id="preFix(index) + '[orga_city]'"
                 :value="entry.userCity">
             </span>
           </li>
@@ -99,10 +99,10 @@
             class="o-list__item">
             {{ entry.userMail }}
             <input
+              :id="preFix(index) + '[email]'"
               type="hidden"
               :value="entry.userMail"
-              :name="preFix(index) + '[email]'"
-              :id="preFix(index) + '[email]'">
+              :name="preFix(index) + '[email]'">
           </li>
         </ul>
       </template>
@@ -110,8 +110,8 @@
       <!-- Form to add new voters -->
       <template v-slot:form>
         <div
-          data-dp-validate="newVoterForm"
           v-if="readonly !== '1' && isManual"
+          data-dp-validate="newVoterForm"
           class="space-stack-s space-inset-s border">
           <p class="lbl">
             {{ updating ? Translator.trans("statement.voter.change") : translationKeys.new }}:
@@ -144,8 +144,8 @@
             <dp-input
               v-show="hasPermission('field_statement_meta_orga_name')"
               id="voter_publicagency"
-              data-cy="voterPublicAgency"
               v-model="formFields.organisationName"
+              data-cy="voterPublicAgency"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('invitable_institution')
@@ -153,8 +153,8 @@
          --><dp-input
               v-show="hasPermission('field_statement_meta_orga_department_name')"
               id="voter_department"
-              data-cy="voterDepartment"
               v-model="formFields.departmentName"
+              data-cy="voterDepartment"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('department')
@@ -165,8 +165,8 @@
             <dp-input
               v-if="hasPermission('field_statement_meta_submit_name')"
               id="voter_username"
-              data-cy="voterUsername"
               v-model="formFields.userName"
+              data-cy="voterUsername"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('statement.form.name')
@@ -174,8 +174,8 @@
          --><dp-input
               v-if="hasPermission('field_statement_meta_email')"
               id="voter_email"
-              data-cy="voterEmail"
               v-model="formFields.userMail"
+              data-cy="voterEmail"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('email')
@@ -187,8 +187,8 @@
             <dp-input
               v-if="hasPermission('field_statement_meta_postal_code')"
               id="voter_postalcode"
-              data-cy="voterPostalCode"
               v-model="formFields.userPostcode"
+              data-cy="voterPostalCode"
               class="layout__item u-1-of-8"
               :label="{
                 text: Translator.trans('postalcode')
@@ -197,8 +197,8 @@
          --><dp-input
               v-if="hasPermission('field_statement_meta_city')"
               id="voter_city"
-              data-cy="voterCity"
               v-model="formFields.userCity"
+              data-cy="voterCity"
               :class="hasPermission('field_statement_meta_postal_code') ? 'layout__item u-3-of-8' : 'layout__item'"
               :label="{
                 text: Translator.trans('city')
@@ -237,7 +237,7 @@ export default {
   components: {
     DpEditableList,
     DpInput,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [dpValidateMixin],
@@ -246,43 +246,43 @@ export default {
     anonymVotesString: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     dataAttr: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initVoters: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isManual: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     publicAllowed: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     readonly: {
       required: false,
       type: String,
-      default: '1'
-    }
+      default: '1',
+    },
   },
 
   emits: [
     'updateAnonymVotes',
-    'updateVoter'
+    'updateVoter',
   ],
 
   data () {
@@ -297,7 +297,7 @@ export default {
         userCity: '',
         id: '',
         active: true,
-        manual: true
+        manual: true,
       },
       updating: false,
       anonymVotes: 0,
@@ -308,8 +308,8 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: Translator.trans('none'),
-        delete: Translator.trans('statement.voter.delete')
-      }
+        delete: Translator.trans('statement.voter.delete'),
+      },
     }
   },
 
@@ -329,7 +329,7 @@ export default {
     votersLength: {
       get () {
         return (this.anonymVotes + Object.keys(this.getVoters).length)
-      }
+      },
     },
 
     editable () {
@@ -338,7 +338,7 @@ export default {
 
     isInstitutionParticipation () {
       return hasPermission('feature_institution_participation') && this.formFields.role === 1
-    }
+    },
   },
 
   methods: {
@@ -346,7 +346,7 @@ export default {
       'addNewVoter',
       'removeVoter',
       'setVoters',
-      'updateVoter'
+      'updateVoter',
     ]),
 
     addElement (index) {
@@ -379,7 +379,7 @@ export default {
         'userName',
         'userMail',
         'userPostcode',
-        'userCity'
+        'userCity',
       ]
 
       for (let i = 0; i < fieldsToCheck.length; i++) {
@@ -411,7 +411,7 @@ export default {
         userCity: '',
         id: '',
         manual: true,
-        active: true
+        active: true,
       }
 
       this.updating = false
@@ -423,7 +423,7 @@ export default {
       }
 
       this.updating = true
-    }
+    },
   },
 
   mounted () {
@@ -461,7 +461,7 @@ export default {
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').removeEventListener('keydown', preventSend, false)
     }
-  }
+  },
 }
 
 const preventSend = function (e) {

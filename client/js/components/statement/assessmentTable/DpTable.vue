@@ -10,13 +10,13 @@
 <template>
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
+    v-cloak
     id="start"
+    ref="root"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
     :data-statement-admin-container="procedureId"
     name="bpform"
-    method="post"
-    ref="root"
-    v-cloak>
+    method="post">
     <input
       type="hidden"
       name="r_ident"
@@ -61,6 +61,7 @@
     <!-- Top pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -68,7 +69,7 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @pageChange="handlePageChange"
+      @page-change="handlePageChange"
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
@@ -113,11 +114,11 @@
 
     <!-- filters + sorting -->
     <assessment-table-filter
+      ref="filter"
       :has-changed-statements="hasChangedStatements"
       :assessment-export-options="assessmentExportOptions"
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
-      ref="filter"
       @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
       @handle:sortChange="option => handleSortChange(option)" />
 
@@ -141,10 +142,10 @@
         v-for="element in selectedElements"
         :key="`selectedElement:${element.id}`">
         <input
+          :id="element.id + ':item_check[]'"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :id="element.id + ':item_check[]'"
           :checked="true"
           :data-extid="element.extid"
           :value="element.id">
@@ -155,11 +156,11 @@
         v-for="element in selectedFragments"
         :key="`selectedFragment:${element.id}`">
         <input
+          :id="element.id + ':item_check[]'"
+          :key="`selectedFragmentInput:${element.id}`"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :key="`selectedFragmentInput:${element.id}`"
-          :id="element.id + ':item_check[]'"
           :checked="true"
           :value="element.id">
         <div :data-assigned="element.assignee.id === currentUserId" />
@@ -171,8 +172,8 @@
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
       <dp-assessment-table-card
-        v-else
         v-for="statement in statements"
+        v-else
         :ref="'itemdisplay_' + statement.id"
         :key="`statement:${statement.id}`"
         class="o-list__item"
@@ -193,8 +194,8 @@
         <!-- empty state message with link to list of original statements -->
         <p
           v-if="filterSet.userWarning"
-          class="flash flash-warning"
-          v-cleanhtml="Translator.trans(filterSet.userWarning)" />
+          v-cleanhtml="Translator.trans(filterSet.userWarning)"
+          class="flash flash-warning" />
 
         <p
           v-else
@@ -222,6 +223,7 @@
     <!-- bottom pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager2_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pb-0_5 text-right"
       :current-page="pagination.current_page"
@@ -229,9 +231,8 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @pageChange="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager2_${pagination.current_page}_${pagination.count}`" />
+      @page-change="handlePageChange"
+      @size-change="handleSizeChange" />
   </form>
 </template>
 
@@ -269,124 +270,124 @@ export default {
       return DpSlidebar
     }),
     DpAssessmentTableCard,
-    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'))
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     accessibleProcedureIds: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     appliedFilters: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     //  Export options that define which formats / fields to display
     assessmentExportOptions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     exactSearch: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     filterSet: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     formDefinitions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initFilterHash: {
       required: true,
-      type: String
+      type: String,
     },
 
     initPagination: {
       required: false,
       type: [Object, undefined],
-      default: undefined
+      default: undefined,
     },
 
     initSort: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureStatementPriorityArea: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     publicParticipationPublicationEnabled: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     searchFields: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     searchTerm: {
       type: String,
-      default: ''
+      default: '',
     },
 
     sortingOptions: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     /**
@@ -395,12 +396,12 @@ export default {
     viewMode: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'assessmentTable:loaded'
+    'assessmentTable:loaded',
   ],
 
   data () {
@@ -408,7 +409,7 @@ export default {
       filterHash: this.initFilterHash,
       hasChangedStatements: false,
       processingData: false,
-      processingDataNotConfirmed: false
+      processingDataNotConfirmed: false,
     }
   },
 
@@ -417,19 +418,19 @@ export default {
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
-      'sort'
+      'sort',
     ]),
 
     ...mapGetters('AssessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('Statement', [
       'selectedElements',
-      'pagination'
+      'pagination',
     ]),
 
     ...mapGetters('Statement', [
@@ -437,11 +438,11 @@ export default {
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
       'statements',
-      'statementsInOrder'
+      'statementsInOrder',
     ]),
 
     ...mapGetters('Fragment', [
-      'selectedFragments'
+      'selectedFragments',
     ]),
 
     accessibleProcedures () {
@@ -465,51 +466,51 @@ export default {
         const hasSortingDirection = option.value !== 'forPoliticians'
         dropdownOptions.push({
           value: option.value,
-          label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation)
+          label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation),
         })
         if (hasSortingDirection) {
           dropdownOptions.push({
             value: '-' + option.value,
-            label: descPrefix + ' nach ' + Translator.trans(option.translation)
+            label: descPrefix + ' nach ' + Translator.trans(option.translation),
           })
         }
       })
       return dropdownOptions || []
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssessmentTable', [
-      'applyBaseData'
+      'applyBaseData',
     ]),
 
     ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
-      'updateStatementAction'
+      'updateStatementAction',
     ]),
 
     ...mapActions('Statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
-      setSelectedStatements: 'setSelectedElementsAction'
+      setSelectedStatements: 'setSelectedElementsAction',
     }),
 
     ...mapActions('Fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
-      setSelectedFragments: 'setSelectedFragmentsAction'
+      setSelectedFragments: 'setSelectedFragmentsAction',
     }),
 
     ...mapMutations('AssessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('Statement', [
-      'updatePagination'
+      'updatePagination',
     ]),
 
     /**
@@ -521,20 +522,20 @@ export default {
 
       window.history.pushState({
         html: newUrl.join('?'),
-        pageTitle: document.title
+        pageTitle: document.title,
       }, document.title, newUrl.join('?'))
     },
 
     handlePageChange (newPage) {
       const tmpPager = Object.assign(this.pagination, {
         current_page: newPage,
-        count: this.pagination.per_page
+        count: this.pagination.per_page,
       })
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -545,7 +546,7 @@ export default {
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -553,7 +554,7 @@ export default {
     handleSortChange (newVal) {
       this.setProperty({
         prop: 'sort',
-        val: newVal
+        val: newVal,
       })
       this.triggerApiCallForStatements()
     },
@@ -594,7 +595,7 @@ export default {
               window.sessionStorage.removeItem('saveAndReturn')
             }
           }
-        }
+        },
       })
     },
 
@@ -602,48 +603,48 @@ export default {
       const sortVal = this.sortingOptionsForDropdown.find(opt => opt.value === this.initSort) || {}
       this.setProperty({
         prop: 'sort',
-        val: sortVal
+        val: sortVal,
       })
 
       this.setProperty({
         prop: 'searchTerm',
-        val: this.searchTerm
+        val: this.searchTerm,
       })
 
       this.setProperty({
         prop: 'statementFormDefinitions',
-        val: this.statementFormDefinitions
+        val: this.statementFormDefinitions,
       })
 
       this.setAssessmentBaseProperty({
         prop: 'exactSearch',
-        val: this.exactSearch
+        val: this.exactSearch,
       })
 
       this.setProperty({
         prop: 'filterSet',
-        val: this.filterSet
+        val: this.filterSet,
       })
 
       // Set current user id in store to be able to check editable state of selected elements later on
       this.setProperty({
         prop: 'currentUserId',
-        val: this.currentUserId
+        val: this.currentUserId,
       })
 
       this.setProperty({
         prop: 'viewMode',
-        val: this.viewMode
+        val: this.viewMode,
       })
 
       this.setProperty({
         prop: 'publicParticipationPublicationEnabled',
-        val: this.publicParticipationPublicationEnabled
+        val: this.publicParticipationPublicationEnabled,
       })
 
       this.setProperty({
         prop: 'procedureStatementPriorityArea',
-        val: this.procedureStatementPriorityArea
+        val: this.procedureStatementPriorityArea,
       })
 
       this.setProperty({ prop: 'accessibleProcedureIds', val: this.accessibleProcedureIds })
@@ -676,7 +677,7 @@ export default {
     triggerApiCallForStatements () {
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       // Trigger the get-action for all the required statements
       this.getStatementAction({
@@ -684,20 +685,20 @@ export default {
         hasPriorityArea: this.procedureStatementPriorityArea,
         procedureId: this.procedureId,
         pagination: this.pagination,
-        sort: this.sort.value
+        sort: this.sort.value,
       })
         .then((response) => {
           this.updateFilterHash(response.meta.filterHash)
           this.setSelectedElementsMethod(response)
           this.setProperty({
             prop: 'isLoading',
-            val: false
+            val: false,
           })
         })
         .catch(() => {
           this.setProperty({
             prop: 'isLoading',
-            val: false
+            val: false,
           })
         })
 
@@ -718,7 +719,7 @@ export default {
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({
           html: url.join('?'),
-          pageTitle: document.title
+          pageTitle: document.title,
         }, document.title, url.join('?'))
       }
     },
@@ -741,10 +742,10 @@ export default {
         })
           .observe(document.documentElement, {
             childList: true,
-            subtree: true
+            subtree: true,
           })
       })
-    }
+    },
   },
 
   mounted () {
@@ -762,17 +763,17 @@ export default {
           .then(() => {
             this.setAssessmentBaseProperty({
               prop: 'initFilterHash',
-              val: this.initFilterHash
+              val: this.initFilterHash,
             })
 
             this.setAssessmentBaseProperty({
               prop: 'searchFields',
-              val: this.searchFields
+              val: this.searchFields,
             })
 
             this.setAssessmentBaseProperty({
               prop: 'appliedFilters',
-              val: this.appliedFilters
+              val: this.appliedFilters,
             })
 
             if (hasPermission('area_statements_fragment')) {
@@ -803,6 +804,6 @@ export default {
 
   beforeUnmount () {
     this.stickyHeader.destroy()
-  }
+  },
 }
 </script>

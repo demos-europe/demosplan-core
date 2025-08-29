@@ -5,6 +5,7 @@
       class="mb-0"
       v-text="Translator.trans('map.scales')" />
     <dp-multiselect
+      id="r_scales"
       v-model="scales"
       label="label"
       data-cy="map:mapAdminScales"
@@ -20,9 +21,9 @@
           {{ props.option.label }}
           <i
             aria-hidden="true"
-            @click="props.remove(props.option)"
             tabindex="1"
-            class="multiselect__tag-icon" />
+            class="multiselect__tag-icon"
+            @click="props.remove(props.option)" />
           <input
             type="hidden"
             :value="props.option.value"
@@ -49,33 +50,33 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     availableScales: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     selectedScales: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
     'change',
     'suitableScalesChange',
-    'update'
+    'update',
   ],
 
   data () {
     return {
       areScalesSuitable: false,
-      scales: this.selectedScales
+      scales: this.selectedScales,
     }
   },
 
@@ -84,8 +85,8 @@ export default {
       handler (newVal) {
         this.scales = newVal
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -122,13 +123,13 @@ export default {
       this.sortSelected()
       this.$emit('suitableScalesChange', this.areScalesSuitable)
       this.$emit('update', scales)
-    }
+    },
   },
 
   mounted () {
     this.areScalesSuitable = this.checkIfScalesAreSuitable()
     this.sortSelected()
     this.$emit('suitableScalesChange', this.areScalesSuitable)
-  }
+  },
 }
 </script>

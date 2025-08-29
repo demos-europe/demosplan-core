@@ -28,8 +28,8 @@ class LocationHandlerTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(LocationHandler::class);
-        $this->translator = self::$container->get('translator.default');
+        $this->sut = self::getContainer()->get(LocationHandler::class);
+        $this->translator = self::getContainer()->get('translator.default');
     }
 
     public function testGetFilterResultMessage(): void

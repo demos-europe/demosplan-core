@@ -5,9 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "02:00"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     ignore:
       # D3 Upgrades are blocked because 8.x is not installing propperly
       # my guess: soething with fsevents 2.0
@@ -22,12 +22,11 @@ updates:
           - ">= 5"
 
       # These dependencies have to be updated according to the needs of @masterportal/masterportalapi
-      # on that note: we have to update the masterportalapi maually, because its hosted by bitbucket and not via npm
       - dependency-name: ol
       - dependency-name: ol-mapbox-style
       - dependency-name: olcs
       - dependency-name: cesium
-      - dependency-name: @cesium/engine
+      - dependency-name: "@cesium/engine"
     groups:
       babel:
         patterns:
@@ -48,9 +47,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:01"
+      time: "02:01"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     labels:
       - dependencies:composer
     ignore:

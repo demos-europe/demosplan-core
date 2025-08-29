@@ -11,10 +11,12 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -34,6 +36,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
@@ -71,6 +74,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $statementId,
         ProcedureCoupleTokenFetcher $tokenFetcher,
+        EventDispatcherInterface $eventDispatcher,
     ): Response {
         $procedure = $procedureService->getProcedure($procedureId);
         $sessionProcedureId = $currentProcedureService->getProcedureIdWithCertainty();
@@ -94,6 +98,10 @@ class SegmentController extends BaseController
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
         $statementFormDefinition = $procedure->getStatementFormDefinition();
+        $eventDispatcher->dispatch(
+            new RecommendationRequestEvent($statement, $procedure),
+            RecommendationRequestEventInterface::class
+        );
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
@@ -195,7 +203,7 @@ class SegmentController extends BaseController
             } catch (AddonResourceNotFoundException) {
                 $this->getMessageBag()->add(
                     'error',
-                    'error.split_statement.no_place',
+                    'error.import_segment.no_place',
                     [],
                     'messages',
                     'DemosPlan_procedure_places_list',

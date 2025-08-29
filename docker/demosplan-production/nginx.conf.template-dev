@@ -4,6 +4,7 @@ gzip_proxied any;
 gzip_vary on;
 
 large_client_header_buffers 4 32k;
+server_tokens off;
 
 server
 {
@@ -42,7 +43,7 @@ server
     keepalive_timeout  600s;
 
 
-    # Try all locations and relay to app.php as a fallback.
+    # Try all locations and relay to app_dev.php as a fallback.
     location /
     {
         try_files $uri $uri/ /app_dev.php$is_args$args;

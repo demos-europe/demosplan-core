@@ -24,8 +24,8 @@
 
     <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
       <ul
-        :class="prefixClass('c-map__group js__mapLayerLegends')"
-        v-show="unfolded">
+        v-show="unfolded"
+        :class="prefixClass('c-map__group js__mapLayerLegends')">
         <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
             :class="prefixClass('c-map__group-item block')"
@@ -71,7 +71,7 @@ export default {
   name: 'DpLayerLegend',
 
   components: {
-    DpLayerLegendItem
+    DpLayerLegendItem,
   },
 
   mixins: [prefixClassMixin],
@@ -79,33 +79,33 @@ export default {
   props: {
     layersWithLegendFiles: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     planPdf: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'layerLegend:unfolded'
+    'layerLegend:unfolded',
   ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
   computed: {
     ...mapGetters('Layers', {
-      legends: 'elementListForLegendSidebar'
+      legends: 'elementListForLegendSidebar',
     }),
 
     buttonTitle () {
@@ -126,7 +126,7 @@ export default {
         fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
       }
       return `${Translator.trans('legend.download')}${fileInfo}`
-    }
+    },
   },
 
   methods: {
@@ -139,7 +139,7 @@ export default {
       if (unfolded) {
         this.$emit('layerLegend:unfolded')
       }
-    }
-  }
+    },
+  },
 }
 </script>

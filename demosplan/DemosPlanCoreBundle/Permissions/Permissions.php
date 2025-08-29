@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -125,6 +127,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
         private readonly AccessControlService $accessControlPermission,
+        private readonly UserAccessControlService $userAccessControlService,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -155,12 +158,30 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     public function loadDynamicPermissions(): void
     {
-        // In this case, permission is not core permission, then check if permission is DB in table access_control_permissions
-
+        // Load role-based permissions from access_control table
         $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
 
         if (!empty($permissions)) {
             $this->enablePermissions($permissions);
+        }
+
+        // Load user-specific permissions from user_access_control table
+        if (null !== $this->user && !$this->user->hasRole(Role::GUEST)) {
+            try {
+                $userPermissions = $this->userAccessControlService->getUserPermissions($this->user);
+
+                // User permissions take precedence - enable them directly
+                foreach ($userPermissions as $userAccessControl) {
+                    $permissionName = $userAccessControl->getPermission();
+                    if (isset($this->permissions[$permissionName])) {
+                        $this->permissions[$permissionName]->enable();
+                        $this->logger->debug("Enabled user-specific permission: {$permissionName}");
+                    }
+                }
+            } catch (Exception $e) {
+                // Log error but don't break permission loading
+                $this->logger->warning('Error loading user-specific permissions: '.$e->getMessage());
+            }
         }
     }
 
@@ -711,14 +732,18 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
-        // Keine Institution eingeladen
-        if (0 === count($invitedOrgaIds)) {
-            $this->logger->debug('Procedure doesn\'t have Orgas');
+        $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
+        /** @var Orga $orga */
+        $dataInputOrgaIds = $dataInputOrganisations?->map(fn ($orga) => $orga->getId())->toArray() ?? [];
+
+        // Keine Institution eingeladen und keine Datenerfasser-Organisationen
+        if (0 === count($invitedOrgaIds) && 0 === count($dataInputOrgaIds)) {
+            $this->logger->debug('Procedure doesn\'t have Orgas or DataInput Orgas');
 
             return false;
         }
 
-        // Ist eine eingeladene Institution
+        // Ist eine eingeladene Institution oder Datenerfasser-Organisation
         if (!isset($this->user) || !$this->user instanceof User) {
             $this->logger->debug('No User defined');
 
@@ -726,9 +751,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $isInvitedInstitution = \in_array($this->user->getOrganisationId(), $invitedOrgaIds, true);
+        $isDataInputInstitution = \in_array($this->user->getOrganisationId(), $dataInputOrgaIds, true);
 
-        if ($isInvitedInstitution) {
-            $this->logger->debug('Orga is member');
+        if ($isInvitedInstitution || $isDataInputInstitution) {
+            if ($isDataInputInstitution) {
+                $this->logger->debug('Orga is data input member');
+            } else {
+                $this->logger->debug('Orga is member');
+            }
 
             return true;
         }
@@ -962,7 +992,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $readPermission = $this->hasPermissionsetRead();
             $owns = $this->ownsProcedure();
             $apiUserMayAccess = $this->hasPermission('feature_procedure_api_access');
-            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess;
+            $dataInputOrgaAccess = $this->procedureAccessEvaluator->isAllowedAsDataInputOrga($this->user, $this->procedure);
+            $hasPermissionToEnter = $readPermission || $owns || $apiUserMayAccess || $dataInputOrgaAccess;
             if (!$hasPermissionToEnter) {
                 // handle guest Exceptions differently as redirects
                 // may be different

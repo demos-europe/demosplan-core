@@ -51,9 +51,10 @@
         </label>
 
         <button
-            type="submit"
-            data-cy="copyStatement"
             class="o-link--default btn--blank weight--normal line-height--2 u-ph-0_25"
+            data-cy="copyStatement"
+            type="submit"
+            :disabled="isNoItemSelected"
             @click.stop.prevent="copyStatements">
             <i class="fa fa-files-o" aria-hidden="true"></i>
             {{ "copy"|trans }}

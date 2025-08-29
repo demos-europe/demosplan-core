@@ -14,7 +14,6 @@ import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import { defineAsyncComponent } from 'vue'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
@@ -30,13 +29,12 @@ export default {
     'dp-map': Map,
     'dp-map-tools': MapTools,
     DpPublicLayerListWrapper,
-    DpPublicSurvey,
     DpUnfoldToolbarControl,
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }),
-    StatementModal
+    StatementModal,
   },
 
   mixins: [prefixClassMixin],
@@ -45,18 +43,18 @@ export default {
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     userId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -64,7 +62,7 @@ export default {
       activeTab: this.isMapEnabled ? '#procedureDetailsMap' : '#procedureDetailsDocumentlist',
       consultationTokenInputField: '',
       focusableElements: [],
-      lastFocusedElement: ''
+      lastFocusedElement: '',
     }
   },
 
@@ -74,12 +72,12 @@ export default {
       'showMapHint',
       'initForm',
       'statement',
-      'localStorageName'
+      'localStorageName',
     ]),
 
     activeStatement () {
       return this.initForm !== JSON.stringify(this.statement)
-    }
+    },
   },
 
   methods: {
@@ -161,7 +159,7 @@ export default {
       // This is doubled to start the green fading and allow to start at change again
       this.updateHighlighted({ key: 'documents', val: false })
       this.updateHighlighted({ key: 'documents', val: true })
-    }
+    },
   },
 
   created () {
@@ -170,9 +168,9 @@ export default {
 
   mounted () {
     const currentHash = window.document.location.hash.split('?')[0]
-    if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic', '#procedureDetailsSurvey'].includes(currentHash)) {
+    if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
-  }
+  },
 }
 </script>

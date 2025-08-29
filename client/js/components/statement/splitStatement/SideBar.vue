@@ -22,7 +22,7 @@
         :available-tags="availableTags"
         :current-segment="currentSegment"
         :initial-segments="initialSegments"
-        :segment="this.editingSegment"
+        :segment="editingSegment"
         @remove="updateCurrentTags" />
       <floating-context-button
         class="right-[-24px] bottom-[-30px]"
@@ -43,8 +43,8 @@
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
-        @click="toggleVisibility('tags')"
-        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5">
+        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5"
+        @click="toggleVisibility('tags')">
         {{ Translator.trans('tags.select') }}
       </button>
 
@@ -55,10 +55,10 @@
           <!-- search available tags -->
           <search-select
             v-if="showCreateForm === false"
-            @openCreateForm="showCreateForm = true"
             :selected="selectedTags"
             :place-holder="Translator.trans('tag.search')"
-            :options="searchableTags" />
+            :options="searchableTags"
+            @open-create-form="showCreateForm = true" />
 
           <!-- create tags + topics -->
           <dp-create-tag
@@ -73,18 +73,18 @@
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
+            :key="`category_${idx}`"
             :class="{'mb-1': idx < tagTopics.length + 1}"
             :dropdown-direction="idx < 6 ? 'bottom' : ''"
             :entity="topic"
-            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
-            :key="`category_${idx}`" />
+            :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)" />
           <!-- uncategorized tags -->
           <tag-select
             v-if="tags.length > 0"
+            key="category_none"
             class="u-mb-0_5"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
-            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
-            key="category_none" />
+            :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }" />
         </div>
       </div>
     </div>
@@ -107,8 +107,8 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
-        @click="toggleVisibility('placesAndAssignee')"
-        class="relative btn--blank o-link--default font-semibold text-left w-full">
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        @click="toggleVisibility('placesAndAssignee')">
         {{ Translator.trans('workflow.place') }}
       </button>
 
@@ -173,7 +173,7 @@ import {
   DpLabel,
   DpMultiselect,
   hasOwnProp,
-  Tooltip
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AssignedTags from './AssignedTags'
@@ -194,39 +194,39 @@ export default {
     DpMultiselect,
     FloatingContextButton,
     SearchSelect,
-    TagSelect
+    TagSelect,
   },
 
   directives: {
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     offset: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'abort',
     'save',
-    'saveAndFinish'
+    'saveAndFinish',
   ],
 
   data () {
     return {
       isCollapsed: {
         tags: true,
-        placesAndAssignee: false
+        placesAndAssignee: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
       showCreateForm: false,
       showFloatingContextButton: {
         tags: false,
-        placesAndAssignee: false
-      }
+        placesAndAssignee: false,
+      },
     }
   },
 
@@ -242,7 +242,7 @@ export default {
       procedureId: 'procedureId',
       segment: 'segmentById',
       tagTopics: 'tagTopics',
-      tags: 'uncategorizedTags'
+      tags: 'uncategorizedTags',
     }),
 
     assigneeNeedsUpdate () {
@@ -294,16 +294,16 @@ export default {
 
     selectedTags () {
       return this.editingSegment ? this.editingSegment.tags.map(el => this.availableTags.find(tag => tag.id === el.id || tag.attributes.title === el.tagName)) : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
     ...mapMutations('SplitStatement', [
       'locallyUpdateSegments',
-      'setProperty'
+      'setProperty',
     ]),
 
     toggleVisibility (section) {
@@ -386,11 +386,11 @@ export default {
 
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.locallyUpdateSegments([this.editingSegment])
-    }
+    },
   },
 
   mounted () {
     this.setInitialValues()
-  }
+  },
 }
 </script>

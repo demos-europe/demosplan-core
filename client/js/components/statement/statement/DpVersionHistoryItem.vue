@@ -34,8 +34,8 @@
 
         <tbody>
           <tr
-            @click="getContent"
-            class="o-sortablelist__item cursor-pointer">
+            class="o-sortablelist__item cursor-pointer"
+            @click="getContent">
             <!-- time -->
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
@@ -66,8 +66,8 @@
               <ul class="o-list o-list--csv">
                 <li
                   v-for="field in time.fieldNames"
-                  class="o-list__item"
                   :key="field"
+                  class="o-list__item"
                   data-cy="historyField">
                   {{ Translator.trans(field) }}
                 </li>
@@ -90,13 +90,13 @@
                 <thead>
                   <tr class="sr-only">
                     <th
-                      colspan="4"
-                      v-if="isOpen && isLoading">
+                      v-if="isOpen && isLoading"
+                      colspan="4">
                       {{ Translator.trans('loading') }}
                     </th>
                     <th
-                      colspan="4"
-                      v-if="isOpen && !isLoading">
+                      v-if="isOpen && !isLoading"
+                      colspan="4">
                       {{ Translator.trans('dropdown.open') }}
                     </th>
                   </tr>
@@ -112,8 +112,8 @@
                     </td>
 
                     <td
-                      colspan="4"
-                      v-if="isOpen && !isLoading">
+                      v-if="isOpen && !isLoading"
+                      colspan="4">
                       <table v-if="time.displayChange">
                         <thead>
                           <tr class="sr-only">
@@ -138,10 +138,10 @@
                             </td>
                             <td
                               v-if="content !== null && content !== ''"
+                              v-cleanhtml="content"
                               style="width: 79%;"
                               class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
-                              data-cy="contentChange"
-                              v-cleanhtml="content" />
+                              data-cy="contentChange" />
                             <td
                               v-else-if="content === null"
                               style="width: 82%;"
@@ -183,49 +183,49 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpVersionHistoryItem',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     time: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
     return {
       history: null,
       isLoading: true,
-      isOpen: false
+      isOpen: false,
     }
   },
 
   computed: {
     timeCreated () {
       return formatDate(this.time.created, 'HH:mm:ss')
-    }
+    },
   },
 
   methods: {
@@ -238,7 +238,7 @@ export default {
       if (this.time.displayChange) {
         this.loadHistory()
           .then((response) => {
-            this.history = response.data
+            this.history = response.data.data
             this.isLoading = false
           })
       } else {
@@ -251,13 +251,10 @@ export default {
         method: 'GET',
         url: Routing.generate('dplan_api_history_of_all_fields_of_specific_datetime', {
           entityContentChangeId: this.time.anyEntityContentChangeIdOfThisChangeInstance,
-          procedureId: this.procedureId
-        })
+          procedureId: this.procedureId,
+        }),
       })
-        .then(response => checkResponse(response))
-        .then(response => response)
-        .catch(error => checkResponse(error.response))
-    }
-  }
+    },
+  },
 }
 </script>

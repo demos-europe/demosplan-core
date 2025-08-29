@@ -10,8 +10,9 @@
 <template>
   <div class="space-stack-s">
     <dp-input
-      aria-labelledby="token-notification"
       id="procedureCoupleToken"
+      v-model="currentToken"
+      aria-labelledby="token-notification"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
       :label="{
@@ -19,13 +20,12 @@
       }"
       :maxlength="`${tokenLength}`"
       :minlength="`${tokenLength}`"
-      v-model="currentToken"
       name="procedureCoupleToken"
       @input="validateToken" />
     <dp-inline-notification
       v-if="notification"
-      class="mt-3 mb-0"
       id="token-notification"
+      class="mt-3 mb-0"
       :message="notification.text"
       :type="notification.type" />
   </div>
@@ -38,17 +38,17 @@ export default {
 
   components: {
     DpInlineNotification,
-    DpInput
+    DpInput,
   },
 
   props: {
-    tokenLength: length
+    tokenLength: length,
   },
 
   data () {
     return {
       currentToken: '',
-      notification: null
+      notification: null,
     }
   },
 
@@ -77,7 +77,7 @@ export default {
       } else {
         this.notification = null
       }
-    }
-  }
+    },
+  },
 }
 </script>

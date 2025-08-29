@@ -45,25 +45,25 @@ export default {
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
     return {
-      loading: false
+      loading: false,
     }
   },
 
@@ -73,11 +73,11 @@ export default {
 
     editable () {
       return hasPermission('feature_statement_assignment') ? Object.values(this.selectedFragments).every(fragment => fragment.assignee.id === this.currentUserId) : true
-    }
+    },
   },
 
   methods: {
-    ...mapMutations('Statement', ['updateStatement'])
-  }
+    ...mapMutations('Statement', ['updateStatement']),
+  },
 }
 </script>

@@ -9,12 +9,12 @@
 
 <template>
   <div
+    :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
-    @mouseleave="isHover = false"
-    :id="`segment_${segment.id}`">
+    @mouseleave="isHover = false">
     <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
       <v-popover
         :container="$refs.statementSegment"
@@ -23,7 +23,7 @@
           class="fa fa-hashtag color--grey-light"
           :class="{'color--grey-dark': isAssignedToMe || isHover}"
           aria-hidden="true" />
-        <span>{{ this.segment.attributes.externId }}</span>
+        <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
           <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
             <dl>
@@ -54,6 +54,18 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
+              <template v-if="hasPermission('field_segments_custom_fields')">
+                <div
+                  v-for="customField in segment.attributes.customFields"
+                  :key="customField.id">
+                  <dt class="weight--bold">
+                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
+                  </dt>
+                  <dd>
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned') }}
+                  </dd>
+                </div>
+              </template>
             </dl>
           </div>
         </template>
@@ -94,9 +106,9 @@
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
+        v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')"
         :class="{ 'color--grey': visibleRecommendation === '' }"
-        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')"
-        v-cleanhtml="visibleRecommendation || Translator.trans('segment.recommendation.none')" />
+        :title="visibleRecommendation ? Translator.trans('explanation.segment.claim.to.edit.recommendation') : Translator.trans('explanation.segment.claim.to.add.recommendation')" />
       <div v-else-if="isAssignedToMe && isEditing === false">
         <div
           v-if="visibleRecommendation !== ''"
@@ -144,10 +156,10 @@
                   :text="Translator.trans('segment.oracle.tooltip')" />
                 <dp-badge
                   v-if="activeId === 'oracleRec'"
+                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
                   class="absolute right-4"
                   size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')"
-                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
+                  :text="Translator.trans('segment.oracle.beta')" />
               </div>
               <dp-tabs
                 v-if="recommendationTabAddonsLoaded"
@@ -155,8 +167,8 @@
                 @change="handleTabChange">
                 <dp-tab
                   v-for="addon in recommendationModalAddons"
-                  :key="addon.options.id"
                   :id="addon.options.id"
+                  :key="addon.options.id"
                   :is-active="activeId === addon.options.id"
                   :label="Translator.trans(addon.options.title)">
                   <slot>
@@ -176,19 +188,19 @@
           <template v-slot:button>
             <button
               v-if="hasPermission('area_admin_boilerplates')"
+              v-tooltip="Translator.trans('boilerplate.insert')"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:boilerplate"
               type="button"
-              v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
               v-if="hasRecommendationTabs"
+              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:similarRecommendation"
               type="button"
-              v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
               <i :class="prefixClass('fa fa-lightbulb-o')" />
             </button>
@@ -200,26 +212,27 @@
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
           :label="{
-            text: Translator.trans('workflow.change.assignee.place')
+            text: displayEditableFieldsLabel
           }" />
         <div
           v-if="showWorkflowActions"
           class="u-mv-0_5">
           <dp-label
+            class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
             for="assignableUsersSegment" />
           <dp-multiselect
             id="assignableUsersSegment"
+            v-model="selectedAssignee"
             :options="assignableUsers"
             class="u-1-of-1"
-            v-model="selectedAssignee"
             label="name"
             track-by="id" />
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
-            class="u-mt-0_5"
+            class="mb-0.5 mt-2"
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
@@ -233,8 +246,8 @@
             <template v-slot:option="{ props }">
               <div
                 v-for="prop in props"
-                v-tooltip="prop.description"
-                :key="prop.id">
+                :key="prop.id"
+                v-tooltip="prop.description">
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
@@ -247,8 +260,8 @@
             <template v-slot:singleLabel="{ props }">
               <div
                 v-for="prop in props"
-                v-tooltip="prop.description"
-                :key="prop.id">
+                :key="prop.id"
+                v-tooltip="prop.description">
                 {{ prop.name }}
                 <dp-contextual-help
                   v-if="prop.solved"
@@ -259,6 +272,25 @@
               </div>
             </template>
           </dp-multiselect>
+          <template v-if="hasPermission('field_segments_custom_fields')">
+            <template
+              v-for="field in Object.values(customFields)"
+              :key="field.id">
+              <dp-label
+                :bold="false"
+                class="mb-0.5 mt-2"
+                :for="field.id"
+                :text="field.attributes.name" />
+              <dp-multiselect
+                :id="field.id"
+                allow-empty
+                :value="customFieldValues[field.id]"
+                label="name"
+                :options="customFieldsOptions[field.id]"
+                track-by="id"
+                @select="(value) => setCustomFieldValue(value)" />
+            </template>
+          </template>
         </div>
       </div>
       <dp-button-row
@@ -275,13 +307,13 @@
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'">
         <button
-          class="segment-list-toolbar__button btn--blank"
-          data-cy="editorFullscreen"
-          :aria-label="Translator.trans('editor.fullscreen')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('editor.fullscreen')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          data-cy="editorFullscreen"
+          :aria-label="Translator.trans('editor.fullscreen')"
           @click="isFullscreen = !isFullscreen">
           <dp-icon
             class="inline-block"
@@ -291,13 +323,13 @@
 
         <button
           v-if="isAssignedToMe"
-          class="segment-list-toolbar__button btn btn--primary icon-only"
-          data-cy="segmentEdit"
-          :aria-label="Translator.trans('edit')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
+          class="segment-list-toolbar__button btn btn--primary icon-only"
+          data-cy="segmentEdit"
+          :aria-label="Translator.trans('edit')"
           @click="startEditing">
           <i
             class="fa fa-pencil"
@@ -305,16 +337,16 @@
         </button>
 
         <button
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('history')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('history')
           }"
-          @click.prevent="showSegmentVersionHistory"
-          data-cy="segmentVersionHistory">
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'history' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('history')"
+          data-cy="segmentVersionHistory"
+          @click.prevent="showSegmentVersionHistory">
           <dp-icon
             class="inline-block"
             icon="history" />
@@ -322,14 +354,14 @@
 
         <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('comments')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('comments')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'comments' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('comments')"
           data-cy="segmentComments"
           @click.prevent="showComments">
           <i
@@ -343,19 +375,21 @@
         </button>
         <button
           v-if="hasPermission('feature_segment_polygon_read')"
-          class="segment-list-toolbar__button btn--blank"
-          :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
-          type="button"
-          :aria-label="Translator.trans('public.participation.relation')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('public.participation.relation')
           }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'map' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('public.participation.relation')"
           data-cy="segmentMap"
           @click.prevent="showMap">
-          <i
-            class="fa fa-map-marker"
-            aria-hidden="true" />
+          <dp-icon
+            class="mx-auto"
+            icon="map-pin"
+            :weight="hasPolygonFeatures() ? 'fill' : 'regular'"
+          />
         </button>
       </div>
     </div>
@@ -365,7 +399,6 @@
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBadge,
@@ -380,7 +413,7 @@ import {
   DpTabs,
   prefixClassMixin,
   Tooltip,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -416,12 +449,12 @@ export default {
     DpTabs,
     ImageModal,
     TextContentRenderer,
-    VPopover
+    VPopover,
   },
 
   directives: {
     cleanhtml: CleanHtml,
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   mixins: [prefixClassMixin],
@@ -430,35 +463,35 @@ export default {
     currentUserFirstName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserLastName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserOrga: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     segment: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     statementId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -466,9 +499,10 @@ export default {
       activeId: '',
       addonProps: {
         segmentId: this.segment.id,
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       },
       claimLoading: false,
+      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -480,15 +514,25 @@ export default {
       refRecModal: 'recommendationModal',
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
-      showWorkflowActions: false
+      showWorkflowActions: false,
     }
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     ...mapState('AssignableUser', {
-      assignableUserItems: 'items'
+      assignableUserItems: 'items',
+    }),
+
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items',
     }),
 
     assignableUsers () {
@@ -496,12 +540,12 @@ export default {
         .map(assignableUser => {
           return {
             name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-            id: assignableUser.id
+            id: assignableUser.id,
           }
         })
       assigneeOptions.unshift({
         name: Translator.trans('not.assigned'),
-        id: 'noAssigneeId'
+        id: 'noAssigneeId',
       })
 
       return assigneeOptions
@@ -511,7 +555,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('orga') : ''
+        const orga = assignee?.rel ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -523,6 +567,30 @@ export default {
       return this.segment.relationships.comments?.data?.length || 0
     },
 
+    /**
+     * @returns {Object} - Custom fields options by custom field id
+     */
+    customFieldsOptions () {
+      return Object.values(this.customFields).reduce((acc, el) => {
+        const opts = [...el.attributes.options].map(opt => ({
+          fieldId: el.id,
+          id: `${el.id}:${opt.label}`,
+          name: opt.label,
+        }))
+
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
+
+        return {
+          ...acc,
+          [el.id]: opts,
+        }
+      }, {})
+    },
+
+    displayEditableFieldsLabel () {
+      return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
+    },
+
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
     },
@@ -532,16 +600,16 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place
-        ? Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id }))
-        : []
+      return this.$store.state.Place ?
+        Object.values(this.$store.state.Place.items)
+          .map(pl => ({ ...pl.attributes, id: pl.id })) :
+        []
     },
 
     segmentPlace () {
-      return this.segment.relationships.place
-        ? this.places.find(place => place.id === this.segment.relationships.place.data.id)
-        : {}
+      return this.segment.relationships.place ?
+        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
+        {}
     },
 
     tagsAsString () {
@@ -560,7 +628,7 @@ export default {
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
       return this.isCollapsed ? shortText : this.segment.attributes.text
-    }
+    },
   },
 
   watch: {
@@ -575,35 +643,27 @@ export default {
         }
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
-      immediate: true // This ensures the handler is executed immediately after the component is created
-    }
+      immediate: true, // This ensures the handler is executed immediately after the component is created
+    },
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
-    }),
-
-    ...mapActions('Place', {
-      fetchPlaces: 'list'
-    }),
-
     ...mapActions('SegmentSlidebar', [
-      'toggleSlidebarContent'
+      'toggleSlidebarContent',
     ]),
 
     ...mapMutations('SegmentSlidebar', [
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapActions('StatementSegment', {
       restoreSegmentAction: 'restoreFromInitial',
-      saveSegmentAction: 'save'
+      saveSegmentAction: 'save',
     }),
 
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
-      setSegment: 'setItem'
+      setSegment: 'setItem',
     }),
 
     abort () {
@@ -631,12 +691,12 @@ export default {
               assignee: {
                 data: {
                   type: 'AssignableUser',
-                  id: this.currentUserId
-                }
-              }
-            }
-          }
-        }
+                  id: this.currentUserId,
+                },
+              },
+            },
+          },
+        },
       }
       this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
@@ -648,21 +708,20 @@ export default {
             assignee: {
               data: {
                 type: 'AssignableUser',
-                id: this.currentUserId
-              }
-            }
-          }
-        }
+                id: this.currentUserId,
+              },
+            },
+          },
+        },
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
           this.selectedAssignee = {
             id: this.currentUserId,
-            name: this.currentUserName
+            name: this.currentUserName,
           }
         })
         .catch((err) => {
@@ -678,8 +737,91 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
+    getCurrentSelectedOption (fieldId) {
+      const selectedOption = this.customFields[fieldId].attributes.options?.find(
+        option => option.id === this.segment.attributes.customFields?.find(
+          customFieldIdValue => customFieldIdValue.id === fieldId)?.value)
+
+      if (!selectedOption) {
+        return
+      }
+
+      return selectedOption
+    },
+
     handleTabChange (id) {
       this.activeId = id
+    },
+
+    hasPolygonFeatures () {
+      const raw = this.segment.attributes.polygon
+
+      if (!raw || typeof raw !== 'string') {
+        return false
+      }
+
+      const parsedPolygon = JSON.parse(raw)
+      const features = parsedPolygon?.features
+
+      return Array.isArray(features) && features.length > 0
+    },
+
+    initAssignableUsers () {
+      const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
+
+      if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
+        return
+      }
+
+      this.fetchAssignableUsers({
+        include: 'department',
+        sort: 'lastname',
+      })
+        .then(() => {
+          this.setSelectedAssignee()
+        })
+    },
+
+    initCustomFieldValues () {
+      Object.values(this.customFields)
+        .forEach(field => {
+          const selectedOption = this.getCurrentSelectedOption(field.id)
+
+          if (selectedOption) {
+            this.customFieldValues[field.id] = {
+              fieldId: field.id,
+              id: `${selectedOption.id}:${selectedOption.label}`,
+              name: selectedOption.label,
+            }
+          }
+        })
+    },
+
+    initPlaces () {
+      const placeItemsLoaded = Object.keys(this.placeItems).length
+
+      if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
+        return
+      }
+
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(),
+        },
+        sort: 'sortIndex',
+      })
+        .then(() => {
+          this.setSelectedPlace()
+        })
     },
 
     openBoilerPlate () {
@@ -705,8 +847,8 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments
-          }
+            comments,
+          },
         }
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
@@ -715,25 +857,81 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
+      let attributes = null
+
+      if (hasCustomFields) {
+        attributes = {
+          customFields: Object.values(this.customFieldValues).map(option => ({
+            id: option.fieldId,
+            value: this.getCustomFieldValueForPayload(option),
+          })).filter(option => option.value !== 'undefined'),
+        }
+      }
 
       const payload = {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
+          attributes: {
+            recommendation: this.segment.attributes.recommendation,
+          },
           relationships: {
             assignee,
-            place
-          }
-        }
+            place,
+          },
+        },
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
+      if (attributes) {
+        payload.data.attributes = attributes
+      }
+
+      const updatedSegment = {
+        id: this.segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...this.segment.attributes,
+          ...(hasCustomFields ?
+            {
+              customFields: {
+                ...this.segment.attributes.customFields,
+                ...payload.data.attributes?.customFields,
+              },
+            } :
+            {}),
+        },
+        relationships: {
+          ...this.segment.relationships,
+          ...payload.data.relationships,
+        },
+      }
+
+      this.removeComments(updatedSegment.relationships)
+
+      this.setSegment({
+        ...updatedSegment,
+        id: this.segment.id,
+      })
+
+      /**
+       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
+       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
+       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
+       */
+      const savePayload = hasCustomFields ?
+        {
+          id: this.segment.id,
+          options: {
+            attributes: {
+              full: 'customFields',
+            },
+          },
+        } :
+        { id: this.segment.id }
+
+      this.saveSegmentAction(savePayload)
         .then(() => {
-          /*
-           * @improve - once the vuex-json-api resolves with a response,
-           * we can handle success messages in checkResponse() again.
-           */
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
           this.isEditing = false
@@ -755,6 +953,46 @@ export default {
         })
     },
 
+    setActiveTabId (id) {
+      this.activeId = id
+    },
+
+    /**
+     * Add custom field to custom fields with selected option
+     * @param {Object} value
+     * @param {string} value.id   id of the selected option
+     * @param {string} value.fieldId   id of the custom field
+     * @param {string} value.name   name of the selected option
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
+     */
+    setCustomFieldValue (value) {
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
+      this.customFieldValues[value.fieldId] = value
+    },
+
+    setInitiallySelectedCustomFieldValues () {
+      this.segment.attributes.customFields.forEach(field => {
+        const fieldId = field.id
+        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
+
+        if (selectedOption) {
+          this.customFieldValues[fieldId] = selectedOption
+        }
+      })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
+    },
+
     showComments () {
       if (this.checkIfToolIsActive('comments')) {
         return
@@ -769,8 +1007,8 @@ export default {
           currentCommentText: '',
           externId: this.segment.attributes.externId,
           segmentId: this.segment.id,
-          show: true
-        }
+          show: true,
+        },
       })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
       this.$root.$emit('showSlidebar')
@@ -836,14 +1074,13 @@ export default {
           id: this.segment.id,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           this.isFullscreen = false
           this.isEditing = false
@@ -880,9 +1117,9 @@ export default {
             assignee: {
               data: {
                 id: this.selectedAssignee.id,
-                type: 'AssignableUser'
-              }
-            }
+                type: 'AssignableUser',
+              },
+            },
           }
         }
 
@@ -890,21 +1127,21 @@ export default {
           place: {
             data: {
               id: this.selectedPlace.id,
-              type: 'Place'
-            }
-          }
+              type: 'Place',
+            },
+          },
         }
 
         relations = {
           ...relations,
           ...place,
-          ...assignee
+          ...assignee,
         }
       }
 
       const updated = {
         ...this.segment,
-        relationships: relations
+        relationships: relations,
       }
 
       this.setSegment({ ...updated, id: this.segment.id })
@@ -915,32 +1152,25 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
-    }
+    },
+
+    // Helper to get the custom field value from an option
+    getCustomFieldValueForPayload (customFieldValue) {
+      const selectedOption = this.customFields[customFieldValue.fieldId]?.attributes.options.find(option => option.label === customFieldValue.name)
+
+      // Return null for unassigned options instead of 'UNASSIGNED'
+      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
+    },
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
-      })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
-      })
+    this.initPlaces()
+    this.initAssignableUsers()
+    this.initCustomFieldValues()
+
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
+      this.setInitiallySelectedCustomFieldValues()
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
@@ -957,10 +1187,10 @@ export default {
           return {
             component: shallowRef(window[name].default),
             name,
-            options
+            options,
           }
         })
       })
-  }
+  },
 }
 </script>

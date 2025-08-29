@@ -10,8 +10,8 @@
 <template>
   <li>
     <input
-      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :id="`${instance}_id_${option.id}`"
+      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
       type="checkbox"
@@ -36,26 +36,26 @@ export default {
   name: 'FilterFlyoutCheckbox',
 
   components: {
-    DpContextualHelp
+    DpContextualHelp,
   },
 
   props: {
     checked: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     highlight: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     instance: {
       type: String,
       required: false,
-      default: 'list'
+      default: 'list',
     },
 
     /**
@@ -63,24 +63,24 @@ export default {
      */
     option: {
       type: Object,
-      required: true
+      required: true,
     },
 
     showCount: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'change'
+    'change',
   ],
 
   methods: {
     toggle () {
       this.$emit('change', !this.checked, this.option)
-    }
-  }
+    },
+  },
 }
 </script>

@@ -14,10 +14,10 @@
     <card-pane-card
       v-for="segment in filteredSortedSegments"
       :key="'card' + segment.id + Math.random()"
+      ref="card"
       :segment="segment"
       :data-range="segment.id"
       :offset="offset"
-      ref="card"
       @card:checkOverlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
       @segment:edit="$emit('segment:edit', segment.id)"
@@ -37,7 +37,7 @@ export default {
   name: 'CardPane',
 
   components: {
-    CardPaneCard
+    CardPaneCard,
   },
 
   props: {
@@ -47,41 +47,41 @@ export default {
      */
     offset: {
       type: Number,
-      required: true
+      required: true,
     },
 
     maxRange: {
       required: true,
-      type: Number
-    }
+      type: Number,
+    },
   },
 
   emits: [
     'segment:delete',
     'segment:edit',
-    'segment:confirm'
+    'segment:confirm',
   ],
 
   data () {
     return {
-      containerMinHeight: ''
+      containerMinHeight: '',
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
-      'sortedSegments'
+      'sortedSegments',
     ]),
 
     filteredSortedSegments () {
       return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-    }
+    },
   },
 
   methods: {
     ...mapMutations('SplitStatement', [
-      'setProperty'
+      'setProperty',
     ]),
 
     handleCardHighlighting (segmentId, highlight) {
@@ -169,9 +169,9 @@ export default {
       return {
         bottom: -offset + this.containerSize.top + this.containerSize.height,
         height: this.containerSize.height,
-        top: -offset + this.containerSize.top
+        top: -offset + this.containerSize.top,
       }
-    }
+    },
   },
 
   mounted () {
@@ -183,6 +183,6 @@ export default {
 
   unmounted () {
     document.removeEventListener('resize', this.positionCards)
-  }
+  },
 }
 </script>

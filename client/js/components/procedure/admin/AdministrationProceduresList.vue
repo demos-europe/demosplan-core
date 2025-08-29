@@ -30,6 +30,7 @@
 
     <div class="flex w-full">
       <dp-search-field
+        class="w-full"
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
         @reset="resetAdministrationProceduresList" />
@@ -45,8 +46,8 @@
 
     <form
       v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
-      name="procedureForm"
-      ref="procedureForm">
+      ref="procedureForm"
+      name="procedureForm">
       <dp-button
         v-if="hasPermission('feature_admin_delete_procedure')"
         data-cy="deleteProcedure"
@@ -69,7 +70,7 @@
 
       <!-- Hidden inputs needed for export and delete functionalities -->
       <input
-        v-for="selectedItem in this.selectedItems"
+        v-for="selectedItem in selectedItems"
         :key="selectedItem"
         name="procedure_selected[]"
         type="hidden"
@@ -86,9 +87,9 @@
       :header-fields="headerFields"
       is-selectable
       :items="items"
-      @items-selected="setSelectedItems"
       :search-string="searchString"
-      track-by="id">
+      track-by="id"
+      @items-selected="setSelectedItems">
       <template
         v-if="showInternalPhases"
         v-slot:header-internalPhase>
@@ -132,8 +133,8 @@
         v-slot:count="{ statementsCount, originalStatementsCount }">
         <div
           v-tooltip="statementsTooltipCount(statementsCount, originalStatementsCount)"
-          v-text="statementsCount"
-          class="text-center" />
+          class="text-center"
+          v-text="statementsCount" />
       </template>
 
       <template v-slot:internalPhase="{ internalPhase, internalStartDate, internalEndDate }">
@@ -161,7 +162,7 @@ import {
   DpLoading,
   DpSearchField,
   DpSelect,
-  formatDate
+  formatDate,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -173,24 +174,24 @@ export default {
     DpIcon,
     DpLoading,
     DpSearchField,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     freeDiskSpace: {
       type: String,
-      default: ''
+      default: '',
     },
 
     showInternalPhases: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     showStatementCount: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -201,12 +202,12 @@ export default {
         { value: '-creationDate', label: Translator.trans('sort.date.descending') },
         { value: 'creationDate', label: Translator.trans('sort.date.ascending') },
         { value: '-name', label: Translator.trans('sort.procedurename.desc') },
-        { value: 'name', label: Translator.trans('sort.procedurename') }
+        { value: 'name', label: Translator.trans('sort.procedurename') },
       ],
       searchInput: '',
       searchString: '',
       selectedItems: [],
-      selectedSort: ''
+      selectedSort: '',
     }
   },
 
@@ -217,29 +218,29 @@ export default {
           colClass: this.showInternalPhases ? 'u-1-of-2' : 'u-3-of-4',
           field: 'name',
           isVisible: true,
-          label: Translator.trans('name')
+          label: Translator.trans('name'),
         },
         {
           colClass: 'w-8',
           field: 'count',
           isVisible: this.showStatementCount,
-          label: Translator.trans('quantity')
+          label: Translator.trans('quantity'),
         },
         {
           colClass: 'w-10',
           field: 'internalPhase',
-          isVisible: this.showInternalPhases
+          isVisible: this.showInternalPhases,
         },
         {
           colClass: this.showInternalPhases ? 'w-10' : 'u-1-of-4',
           field: 'externalPhase',
           isVisible: true,
-          label: !this.showInternalPhases && Translator.trans('procedure.public.phase')
-        }
+          label: !this.showInternalPhases && Translator.trans('procedure.public.phase'),
+        },
       ]
 
       return fields.filter(field => field.isVisible)
-    }
+    },
   },
 
   methods: {
@@ -288,20 +289,20 @@ export default {
             'internalPhaseIdentifier',
             'internalPhaseTranslationKey',
             'originalStatementsCount',
-            'statementsCount'
-          ].join()
+            'statementsCount',
+          ].join(),
         },
         filter: {
           AdminProcedureFilter: {
             condition: {
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               path: 'name',
-              value: this.searchString
-            }
-          }
+              value: this.searchString,
+            },
+          },
         },
-        include: 'procedure',
-        sort
+
+        sort,
       }
 
       dpApi.get(url, params)
@@ -319,7 +320,7 @@ export default {
             internalPhase: el.attributes.internalPhaseTranslationKey,
             internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
-            statementsCount: el.attributes.statementsCount
+            statementsCount: el.attributes.statementsCount,
           }))
         })
         .catch(e => {
@@ -351,11 +352,11 @@ export default {
       const statements = Translator.trans('procedures.statements.count.description', { statements: statementsCount })
       const originalStatements = Translator.trans('procedures.statements.count.original.description', { statements: originalStatementsCount })
       return `${statements.trim()}, ${originalStatements.trim()}`
-    }
+    },
   },
 
   created () {
     this.fetchAdministrationProceduresList()
-  }
+  },
 }
 </script>

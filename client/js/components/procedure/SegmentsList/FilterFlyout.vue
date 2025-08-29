@@ -57,8 +57,8 @@
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-          v-if="appliedQuery.length > 0">
+          v-if="appliedQuery.length > 0"
+          class="o-badge o-badge--small o-badge--transparent mb-px mr-1">
           {{ appliedQuery.length }}
         </span>
       </span>
@@ -69,13 +69,13 @@
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5">
+      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap">
       <dp-resettable-input
-        :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
+        v-model="searchTerm"
+        :data-cy="`searchField:${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
-        @reset="resetSearch"
-        v-model="searchTerm" />
+        @reset="resetSearch" />
     </div>
 
     <dp-loading
@@ -100,8 +100,8 @@
         </ul>
         <ul
           v-for="group in searchedGroupedOptions"
-          class="o-list line-height--1_6"
-          :key="`list_${group.id}}`">
+          :key="`list_${group.id}}`"
+          class="o-list line-height--1_6">
           <span class="font-size-small">
             {{ group.label }}
           </span>
@@ -169,7 +169,7 @@ import {
   DpFlyout,
   DpLoading,
   DpResettableInput,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
@@ -182,14 +182,14 @@ export default {
     DpFlyout,
     DpLoading,
     DpResettableInput,
-    FilterFlyoutCheckbox
+    FilterFlyoutCheckbox,
   },
 
   props: {
     additionalQueryParams: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     category: {
@@ -197,14 +197,14 @@ export default {
       required: true,
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
-      }
+      },
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
     initialQueryIds: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     /**
@@ -219,17 +219,17 @@ export default {
     memberOf: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     operator: {
       type: String,
-      required: true
+      required: true,
     },
 
     path: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -240,17 +240,17 @@ export default {
       required: false,
       default: () => ({
         groupedOptions: false,
-        ungroupedOptions: false
+        ungroupedOptions: false,
       }),
       validator: prop => {
         return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
-      }
-    }
+      },
+    },
   },
 
   emits: [
     'filterApply',
-    'filterOptions:request'
+    'filterOptions:request',
   ],
 
   data () {
@@ -262,7 +262,7 @@ export default {
        * contains only ids
        */
       currentQuery: [],
-      searchTerm: ''
+      searchTerm: '',
     }
   },
 
@@ -273,7 +273,7 @@ export default {
       'getInitialFlyoutFilterIdsByCategoryId',
       'getIsExpandedByCategoryId',
       'getIsLoadingByCategoryId',
-      'getUngroupedOptionsByCategoryId'
+      'getUngroupedOptionsByCategoryId',
     ]),
 
     initialFlyoutFilterIds () {
@@ -293,22 +293,22 @@ export default {
           filter[id] = {
             condition: {
               path: this.path,
-              operator: 'IS NULL'
-            }
+              operator: 'IS NULL',
+            },
           }
         } else {
           filter[id] = {
             condition: {
               path: this.path,
               value: id,
-              operator: this.operator
-            }
+              operator: this.operator,
+            },
           }
 
           if (this.memberOf) {
             filter[id].condition = {
               ...filter[id].condition,
-              memberOf: this.memberOf
+              memberOf: this.memberOf,
             }
           }
         }
@@ -351,7 +351,7 @@ export default {
     itemsSelected () {
       const items = [
         ...this.ungroupedOptions,
-        ...this.groupedOptions.flatMap(group => group.options)
+        ...this.groupedOptions.flatMap(group => group.options),
       ]
       return items.filter((item) => item.selected)
     },
@@ -359,7 +359,7 @@ export default {
     searchedGroupedOptions () {
       return this.groupedOptions.map(group => ({
         ...group,
-        options: dataTableSearch(this.searchTerm, group.options, ['label'])
+        options: dataTableSearch(this.searchTerm, group.options, ['label']),
       })).filter(group => group.options.length > 0)
     },
 
@@ -369,7 +369,7 @@ export default {
 
     ungroupedOptions () {
       return this.getUngroupedOptionsByCategoryId(this.category.id) || []
-    }
+    },
   },
 
   watch: {
@@ -386,20 +386,20 @@ export default {
           this.setCurrentQuery(newIds)
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapActions('FilterFlyout', {
-      updateFilters: 'updateFilterQuery'
+      updateFilters: 'updateFilterQuery',
     }),
 
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected'
+      setUngroupedSelected: 'setUngroupedOptionSelected',
     }),
 
     /**
@@ -450,7 +450,7 @@ export default {
         additionalQueryParams: this.additionalQueryParams,
         filter: this.getFilterQuery,
         isInitialWithQuery,
-        path: this.path
+        path: this.path,
       })
     },
 
@@ -532,7 +532,7 @@ export default {
       }
 
       this.requestFilterOptions()
-    }
+    },
   },
 
   mounted () {
@@ -550,6 +550,6 @@ export default {
         this.currentQuery = selectedIds
       }
     }
-  }
+  },
 }
 </script>

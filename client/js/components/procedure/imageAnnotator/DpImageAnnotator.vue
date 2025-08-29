@@ -28,10 +28,10 @@
             <div>
               <div class="annotator__button-wrapper is-first">
                 <button
-                  @click="setInteraction('select')"
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'select'}"
-                  aria-labelledby="elementSelectLabel">
+                  aria-labelledby="elementSelectLabel"
+                  @click="setInteraction('select')">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 10 17"
@@ -50,24 +50,24 @@
                 </button>
               </div>
               <span
-                class="align-middle u-ml-0_5"
-                id="elementSelectLabel">
+                id="elementSelectLabel"
+                class="align-middle u-ml-0_5">
                 {{ Translator.trans('select.or.edit') }}
               </span>
             </div>
             <div>
               <div class="annotator__button-wrapper is-last">
                 <button
-                  @click="setInteraction('draw')"
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'draw'}"
-                  aria-labelledby="elementDrawLabel">
+                  aria-labelledby="elementDrawLabel"
+                  @click="setInteraction('draw')">
                   <i class="fa fa-plus" />
                 </button>
               </div>
               <span
-                class="align-middle u-ml-0_5"
-                id="elementDrawLabel">
+                id="elementDrawLabel"
+                class="align-middle u-ml-0_5">
                 {{ Translator.trans('element.add') }}
               </span>
             </div>
@@ -82,31 +82,31 @@
               </p>
               <div>
                 <button
-                  @click="deleteFeature(editingFeature)"
                   class="annotator__button btn btn--warning btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
-                  aria-labelledby="elementDeleteLabel">
+                  aria-labelledby="elementDeleteLabel"
+                  @click="deleteFeature(editingFeature)">
                   <i class="fa fa-trash" />
                 </button>
                 <span
+                  id="elementDeleteLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                  id="elementDeleteLabel">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                   {{ Translator.trans('element.delete') }}
                 </span>
               </div>
               <div>
                 <button
-                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
                   class="annotator__button btn btn--primary btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
-                  aria-labelledby="formatChangeLabel">
+                  aria-labelledby="formatChangeLabel"
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))">
                   <i class="fa fa-tag" />
                 </button>
                 <span
+                  id="formatChangeLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                  id="formatChangeLabel">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
                   {{ Translator.trans('format.change') }}
                 </span>
               </div>
@@ -150,6 +150,7 @@ import DpSendBeacon from './DpSendBeacon'
 import GeoJSON from 'ol/format/GeoJSON'
 import ImageLayer from 'ol/layer/Image'
 import Map from 'ol/Map'
+import { markRaw } from 'vue'
 import { MultiPoint } from 'ol/geom'
 import Projection from 'ol/proj/Projection'
 import Static from 'ol/source/ImageStatic'
@@ -167,7 +168,7 @@ export default {
     DpLabelModal,
     DpLoading,
     DpSendBeacon,
-    DpStickyElement
+    DpStickyElement,
   },
 
   props: {
@@ -181,18 +182,18 @@ export default {
         return Array.isArray(value) && value
           .filter(label => label.piName && label.color && label.translation).length === value.length
       },
-      required: true
+      required: true,
     },
 
     initDocumentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -215,17 +216,17 @@ export default {
        * How many pages in the document are still not confirmed,
        * including the currently displayed one
        */
-      unconfirmedPagesCount: ''
+      unconfirmedPagesCount: '',
     }
   },
 
   computed: {
     buttonText () {
-      return this.unconfirmedPagesCount - 1 > 0 // We have to subtract 1 for the currently displayed page
-        ? Translator.trans('save.and.show.next.page')
-        : this.currentPageNumber === this.documentLengthTotal
-          ? Translator.trans('save.and.return.to.list')
-          : Translator.trans('save.and.show.next.document')
+      return this.unconfirmedPagesCount - 1 > 0 ? // We have to subtract 1 for the currently displayed page
+        Translator.trans('save.and.show.next.page') :
+        this.currentPageNumber === this.documentLengthTotal ?
+          Translator.trans('save.and.return.to.list') :
+          Translator.trans('save.and.show.next.document')
     },
 
     currentPageNumber () {
@@ -259,11 +260,11 @@ export default {
         .map(([key, value]) => {
           return {
             label: Translator.trans(value),
-            value: key
+            value: key,
           }
         })
         .sort((a, b) => a.label.localeCompare(b.label, 'de', { sensitivity: 'base' }))
-    }
+    },
   },
 
   methods: {
@@ -380,12 +381,12 @@ export default {
         id: feature.getId(),
         geometry: {
           type: 'Polygon',
-          coordinates: feature.getGeometry().getCoordinates()
+          coordinates: feature.getGeometry().getCoordinates(),
         },
         properties: {
           score: null,
-          label: ''
-        }
+          label: '',
+        },
       }
     },
 
@@ -404,25 +405,25 @@ export default {
           image: new CircleStyle({
             radius: 5,
             fill: new Fill({
-              color: '#00aaff'
+              color: '#00aaff',
             }),
-            stroke: new Stroke({ color: '#fff', width: 3 / 2 })
+            stroke: new Stroke({ color: '#fff', width: 3 / 2 }),
           }),
           geometry: (feature) => {
             const coordinates = feature.getGeometry().getCoordinates()[0]
             return new MultiPoint(coordinates)
-          }
+          },
         })
       }
 
       const featureStyle = new Style({
         fill: new Fill({
-          color: 'rgba(255, 255, 255, 0.2)'
+          color: 'rgba(255, 255, 255, 0.2)',
         }),
         stroke: new Stroke({
           color: this.labels[labelText] || 'black',
-          width: 2
-        })
+          width: 2,
+        }),
       })
 
       if (labelText) {
@@ -434,7 +435,7 @@ export default {
           textBaseline: 'bottom',
           overflow: true,
           offsetY: -2,
-          stroke: new Stroke({ color: 'white', width: 5 })
+          stroke: new Stroke({ color: 'white', width: 5 }),
         }))
       }
 
@@ -465,19 +466,19 @@ export default {
           annotatedStatementPdf: {
             condition: {
               path: 'annotatedStatementPdf.id',
-              value: this.documentId
-            }
+              value: this.documentId,
+            },
           },
           confirmed: {
             condition: {
               path: 'confirmed',
-              value: false
-            }
-          }
+              value: false,
+            },
+          },
         },
         procedureId: window.dplan.procedureId,
         page: {
-          size: 1
+          size: 1,
         },
         sort: 'pageSortIndex',
         fields: {
@@ -487,7 +488,7 @@ export default {
             'width',
             'height',
             'geoJson',
-            'annotatedStatementPdf'
+            'annotatedStatementPdf',
           ].join(),
           AnnotatedStatementPdf: [
             'status',
@@ -495,10 +496,10 @@ export default {
             'file',
             'procedure',
             'statement',
-            'annotatedStatementPdfPages'
-          ].join()
+            'annotatedStatementPdfPages',
+          ].join(),
         },
-        include: ['annotatedStatementPdf'].join()
+        include: ['annotatedStatementPdf'].join(),
       }
       const pageResponse = await dpApi.get(url, params)
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
@@ -531,8 +532,15 @@ export default {
     },
 
     initInteractions () {
+      /*
+       * Wrap OpenLayers interactions in markRaw so that:
+       * 1) Vue won’t convert them into Proxies,
+       * 2) OL’s instanceof checks and internal state stay intact,
+       * otherwise map.addInteraction(this.currentInteraction) silently fails.
+       */
+
       // SELECT INTERACTION
-      this.selectInteraction = new Select({ layers: [this.boxLayer] })
+      this.selectInteraction = markRaw(new Select({ layers: [this.boxLayer] }))
 
       this.selectInteraction.on('select', e => {
         if (e.deselected.length === 1) {
@@ -551,11 +559,11 @@ export default {
       })
 
       // MODIFY INTERACTION
-      this.modifyInteraction = new Modify({
+      this.modifyInteraction = markRaw(new Modify({
         insertVertexCondition: () => false,
         pixelTolerance: 1,
-        features: this.selectInteraction.getFeatures()
-      })
+        features: this.selectInteraction.getFeatures(),
+      }))
 
       this.modifyInteraction.on('modifystart', (e) => {
         // Remove snap during modify action because it tries to snap to invisible features/vertices
@@ -582,23 +590,23 @@ export default {
       })
 
       // DRAW INTERACTION
-      this.drawInteraction = new Draw({
+      this.drawInteraction = markRaw(new Draw({
         source: this.boxLayerSource,
         type: 'Circle',
         geometryFunction: createBox(),
         style: new Style({
           stroke: new Stroke({
             color: '#228B22',
-            width: 2
+            width: 2,
           }),
           image: new CircleStyle({
             radius: 5,
             fill: new Fill({
-              color: '#228B22'
-            })
-          })
-        })
-      })
+              color: '#228B22',
+            }),
+          }),
+        }),
+      }))
       this.drawInteraction.on('drawend', (e) => {
         const newFeature = e.feature
         newFeature.setId(uuid())
@@ -608,7 +616,7 @@ export default {
       })
 
       // SNAP INTERACTION
-      this.snapInteraction = new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 })
+      this.snapInteraction = markRaw(new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 }))
 
       // Set select as initial interaction
       this.setInteraction('select')
@@ -633,17 +641,17 @@ export default {
       const projection = new Projection({
         code: 'image',
         units: 'pixels',
-        extent: this.imageLayerExtent
+        extent: this.imageLayerExtent,
       })
 
       this.boxLayerSource = new VectorSource({
         features: (new GeoJSON()).readFeatures(this.geoJson),
-        format: new GeoJSON()
+        format: new GeoJSON(),
       })
 
       this.boxLayer = new VectorLayer({
         source: this.boxLayerSource,
-        style: this.generateFeatureStyle()
+        style: this.generateFeatureStyle(),
       })
       // Set initial features' labels
       this.boxLayerSource.getFeatures().forEach((feature) => {
@@ -661,8 +669,6 @@ export default {
           keyboardPan: false,
           keyboardZoom: false,
           mouseWheelZoom: true,
-          pointer: false,
-          select: true
         }),
         controls: [],
         layers: [
@@ -670,16 +676,16 @@ export default {
             source: new Static({
               url: this.imageUrl,
               projection,
-              imageExtent: this.imageLayerExtent
-            })
-          }), this.boxLayer
+              imageExtent: this.imageLayerExtent,
+            }),
+          }), this.boxLayer,
         ],
         target: 'map',
         view: new View({
           projection,
           center: getCenter(this.imageLayerExtent),
-          zoom: 2
-        })
+          zoom: 2,
+        }),
       })
       this.fitMap()
       // Set max view extent to image extent with padding to disable panning outside of the view
@@ -687,7 +693,7 @@ export default {
         center: this.map.getView().getCenter(),
         extent: this.map.getView().calculateExtent(this.map.getSize()),
         projection: this.map.getView().getProjection(),
-        zoom: this.map.getView().getZoom()
+        zoom: this.map.getView().getZoom(),
       }))
 
       this.initInteractions()
@@ -715,8 +721,8 @@ export default {
         data: {
           type: 'AnnotatedStatementPdfPage',
           id: this.pageId,
-          attributes: { geoJson: this.geoJson, confirmed: true }
-        }
+          attributes: { geoJson: this.geoJson, confirmed: true },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdfPage', resourceId: this.pageId }), {}, payload)
@@ -781,7 +787,7 @@ export default {
       const regex = /(annotatedStatementPdf\/)(.*?)(\/)/
       const newUrl = window.location.href.replace(regex, '$1' + this.documentId + '$3')
       window.history.pushState({ html: newUrl, pageTitle: document.title }, document.title, newUrl)
-    }
+    },
   },
 
   mounted () {
@@ -796,7 +802,7 @@ export default {
         dplan.notify.notify('error', Translator.trans('warning.resistFingerPrinting'))
       }
     })
-  }
+  },
 }
 
 const useResistFingerprintingDuckTest = (callback) => {

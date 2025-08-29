@@ -15,10 +15,10 @@
     <template v-else-if="hasSegments">
       <div
         v-for="segment in segments"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
+        class="u-ph-0_25"
+        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         @mouseenter="hoveredSegment = segment.id"
         @mouseleave="hoveredSegment = null">
         <div
@@ -39,12 +39,13 @@
             class="inline-block break-words"
             style="width: 95%">
           <dp-edit-field
+            :ref="`editField_${segment.id}`"
+            class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
             no-margin
             persist-icons
-            :ref="`editField_${segment.id}`"
             @reset="() => reset(segment.id)"
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">
@@ -68,7 +69,7 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <template v-if="editable && !segmentDraftList">
+      <template v-if="editable && !hasDraftSegments">
         <dp-editor
           hidden-input="statementText"
           required
@@ -88,7 +89,7 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
-          v-if="segmentDraftList"
+          v-if="hasDraftSegments"
           class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />
@@ -103,13 +104,12 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpButtonRow,
   DpInlineNotification,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -131,11 +131,11 @@ export default {
       return DpEditor
     }),
     DpInlineNotification,
-    TextContentRenderer
+    TextContentRenderer,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin],
@@ -143,30 +143,30 @@ export default {
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
-    segmentDraftList: {
+    hasDraftSegments: {
       type: Object,
       required: false,
-      default: () => {}
+      default: () => {},
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'saveStatement',
-    'statementText:updated'
+    'statementText:updated',
   ],
 
   data () {
@@ -175,17 +175,17 @@ export default {
       editingSegmentIds: [],
       hoveredSegment: null,
       isLoading: false,
-      obscuredText: ''
+      obscuredText: '',
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     assigneeBySegment () {
@@ -198,20 +198,20 @@ export default {
           return {
             id: assignee.id,
             name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : ''
+            orgaName: orga ? orga.attributes.name : '',
           }
         } catch (err) {
           if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
             return {
               id: this.currentUser.id,
               name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName
+              orgaName: this.currentUser.orgaName,
             }
           } else {
             return {
               id: '',
               name: '',
-              orgaName: ''
+              orgaName: '',
             }
           }
         }
@@ -224,28 +224,28 @@ export default {
 
     statement () {
       return this.statements[this.statementId] || null
-    }
+    },
   },
 
   methods: {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
-      setSegment: 'setItem'
+      setSegment: 'setItem',
     }),
 
     ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     addToEditing (id) {
@@ -264,22 +264,39 @@ export default {
             assignee: {
               data: {
                 type: 'AssignableUser',
-                id: this.currentUser.id
-              }
-            }
-          }
-        }
+                id: this.currentUser.id,
+              },
+            },
+          },
+        },
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            204: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            400: {
+              text: Translator.trans('segment.claim.fail'),
+              type: 'error',
+            },
+          },
+        },
+      )
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('segment.claim.success'))
           this.claimLoading = null
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
@@ -363,13 +380,12 @@ export default {
           id: segment.id,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee
@@ -389,8 +405,8 @@ export default {
         ...this.segments[segmentId],
         attributes: {
           ...this.segments[segmentId].attributes,
-          text: fullText
-        }
+          text: fullText,
+        },
       }
       this.setSegment({ ...updated, id: segmentId })
     },
@@ -404,38 +420,56 @@ export default {
         ...this.statement,
         attributes: {
           ...this.statement.attributes,
-          fullText
-        }
+          fullText,
+        },
       }
       this.setStatement({ ...updated, id: this.statement.id })
     },
 
     transformObscureTag (val) {
       this.obscuredText = val
-    }
+    },
   },
 
   mounted () {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       this.listSegments({
-        include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
+        include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
+          StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
-          Orga: ['name'].join()
+          Orga: ['name'].join(),
         },
         filter: {
           parentStatementOfSegment: {
             condition: {
               path: 'parentStatement.id',
-              value: this.statementId
-            }
-          }
-        }
+              value: this.statementId,
+            },
+          },
+        },
       })
         .then(() => {
           this.isLoading = false
@@ -456,6 +490,6 @@ export default {
     if (this.hasSegments === false && this.segment) {
       this.resetStatement()
     }
-  }
+  },
 }
 </script>

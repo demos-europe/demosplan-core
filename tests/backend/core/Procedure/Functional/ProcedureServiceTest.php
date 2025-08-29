@@ -100,7 +100,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $this->globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
         $this->testProcedure = $this->getTestProcedure();
         $this->entityHelper = new EntityHelper(new NullLogger());
-
         $this->loginTestUser();
     }
 
@@ -896,7 +895,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         $this->sut->purgeProcedure($procedureId);
 
-        $em = self::$container->get('doctrine.orm.default_entity_manager');
+        $em = self::getContainer()->get('doctrine.orm.default_entity_manager');
         $em->clear();
 
         $procedureDeleted = $this->sut->getSingleProcedure($procedureId);
@@ -2068,7 +2067,8 @@ Email:',
 
     public function testGetFullIdList(): void
     {
-        $procedureRepository = $this->sut->getDoctrine()->getManager()->getRepository(Procedure::class);
+        $doctrine = $this->getContainer()->get('doctrine');
+        $procedureRepository = $doctrine->getManager()->getRepository(Procedure::class);
         $procedures = $procedureRepository->getFullList(null, true);
 
         static::assertIsArray($procedures);
@@ -2077,7 +2077,8 @@ Email:',
 
     public function testGetFullList(): void
     {
-        $procedureRepository = $this->sut->getDoctrine()->getManager()->getRepository(Procedure::class);
+        $doctrine = $this->getContainer()->get('doctrine');
+        $procedureRepository = $doctrine->getManager()->getRepository(Procedure::class);
         $procedures = $procedureRepository->getFullList();
 
         static::assertIsArray($procedures);

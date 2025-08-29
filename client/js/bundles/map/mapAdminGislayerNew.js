@@ -18,7 +18,7 @@ import LayerSettings from '@DpJs/components/map/admin/LayerSettings'
 
 const components = {
   DpUploadFiles,
-  LayerSettings
+  LayerSettings,
 }
 
 initialize(components).then(() => {

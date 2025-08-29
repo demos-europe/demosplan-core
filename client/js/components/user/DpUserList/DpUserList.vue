@@ -31,14 +31,14 @@
       class="u-ml u-mt" />
     <!-- List of all items -->
     <div
-      class="layout"
-      v-if="false === isLoading">
+      v-if="false === isLoading"
+      class="layout">
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
           <input
-            type="checkbox"
             id="select_all"
+            type="checkbox"
             data-cy="allSelected"
             :checked="allSelected"
             @change="dpToggleAll(!allSelected, items)">
@@ -77,9 +77,9 @@
         class="o-list o-list--card u-mb"
         data-cy="userList:userListWrapper">
         <dp-user-list-item
-          class="o-list__item"
           v-for="(item, idx, index) in items"
           :key="idx"
+          class="o-list__item"
           :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
@@ -112,7 +112,7 @@ export default {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
     }),
-    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem'))
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
   },
 
   mixins: [dpSelectAllMixin],
@@ -120,7 +120,7 @@ export default {
   provide () {
     return {
       presetUserOrgaId: this.presetUserOrgaId,
-      projectName: this.projectName
+      projectName: this.projectName,
     }
   },
 
@@ -131,21 +131,21 @@ export default {
     projectName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     presetUserOrgaId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
     return {
       searchValue: '',
       isLoading: true,
-      itemSelections: {}
+      itemSelections: {},
     }
   },
 
@@ -153,7 +153,7 @@ export default {
     ...mapState('AdministratableUser', {
       items: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     deleteSelectedUsersLabel () {
@@ -169,26 +169,26 @@ export default {
         Translator.trans('search.options.description') +
         '<h3 class="u-mt color--white">' + Translator.trans('search.special.characters') + '</h3>' +
         Translator.trans('search.special.characters.description')
-    }
+    },
   },
 
   methods: {
     ...mapActions('Department', {
-      departmentList: 'list'
+      departmentList: 'list',
     }),
     ...mapActions('UserFormFields', [
-      'fetchOrgaSuggestions'
+      'fetchOrgaSuggestions',
     ]),
     ...mapActions('Orga', {
       organisationList: 'list',
-      deleteOrganisation: 'delete'
+      deleteOrganisation: 'delete',
     }),
     ...mapActions('Role', {
-      roleList: 'list'
+      roleList: 'list',
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteAdministratableUser: 'delete'
+      deleteAdministratableUser: 'delete',
     }),
 
     async deleteItems (ids) {
@@ -197,7 +197,7 @@ export default {
       }
 
       const isConfirmed = window.dpconfirm(
-        Translator.trans('check.user.delete', { count: this.selectedItems.length })
+        Translator.trans('check.user.delete', { count: this.selectedItems.length }),
       )
 
       if (!isConfirmed) return
@@ -212,7 +212,7 @@ export default {
           } catch (error) {
             console.error(`Failed to delete user with ID ${id}:`, error)
           }
-        })
+        }),
       )
 
       // Reload items only if at least one deletion was successful
@@ -231,9 +231,9 @@ export default {
       const userFilter = {
         name: {
           group: {
-            conjunction: 'OR'
-          }
-        }
+            conjunction: 'OR',
+          },
+        },
       }
 
       this.searchValue.split(' ').filter(Boolean).forEach((value, index) => {
@@ -242,25 +242,25 @@ export default {
             path: 'firstname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             value,
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
         userFilter[`lastnameFilter${index}`] = {
           condition: {
             path: 'lastname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             value,
-            memberOf: 'name'
-          }
+            memberOf: 'name',
+          },
         }
       })
 
       this.userList({
         page: {
-          number: page ?? 1
+          number: page ?? 1,
         },
         filter: userFilter,
-        include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join()
+        include: ['roles', 'orga', 'department', 'orga.allowedRoles'].join(),
       })
         .then(() => {
           this.isLoading = false
@@ -293,12 +293,12 @@ export default {
         .then(() => {
           this.getItemsByPage()
         })
-    }
+    },
   },
 
   mounted () {
     this.loadItems()
     this.fetchOrgaSuggestions()
-  }
+  },
 }
 </script>

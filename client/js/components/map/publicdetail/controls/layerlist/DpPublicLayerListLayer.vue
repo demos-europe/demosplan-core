@@ -30,28 +30,28 @@
           aria-hidden="true" />
       </button>
       <span
-        :class="prefixClass('c-map__opacity-control u-ml-0_5')"
-        v-show="showOpacityControl && isVisible">
+        v-show="showOpacityControl && isVisible"
+        :class="prefixClass('c-map__opacity-control u-ml-0_5')">
         <input
           type="range"
           min="0"
           max="100"
           step="2"
-          v-model="opacity"
+          :value="opacity"
           :aria-label="layer.attributes.name + ' ' + Translator.trans('opacity.percent')"
           aria-valuemin="0"
           aria-valuemax="100"
           aria-orientation="horizontal"
           @input="setOpacity"
-          @change="setAndSaveOpacity"
+          @change="setOpacity"
           @focus="toggleOpacityControl(true)"
           @blur="toggleOpacityControl(false)"
           @click.stop="">
       </span>
     </span>
     <span
-      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
-      v-show="!showOpacityControl">
+      v-show="!showOpacityControl"
+      :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
       {{ layer.attributes.name }}
     </span>
     <dp-contextual-help
@@ -63,6 +63,7 @@
 
 <script>
 import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpPublicLayerListLayer',
@@ -73,31 +74,19 @@ export default {
     dataCy: {
       type: String,
       required: false,
-      default: 'publicLayerListLayer'
+      default: 'publicLayerListLayer',
     },
 
     layer: {
       type: Object,
-      required: true
-    },
-
-    visible: {
-      type: Boolean,
       required: true,
-      default: true
-    },
-
-    layerType: {
-      type: String,
-      required: false,
-      default: 'overlay'
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
@@ -108,34 +97,43 @@ export default {
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
     'layer:toggleVisibiltyGroup',
-    'layerOpacity:change',
-    'layerOpacity:changed'
   ],
 
   data () {
     return {
-      isVisible: true,
       showOpacityControl: false,
-      showVisibilityGroup: false,
-      opacity: 100,
-      tooltipExpanded: false
+      tooltipExpanded: false,
     }
   },
 
   computed: {
+    ...mapState('Layers', [
+      'layerStates',
+    ]),
+
+    ...mapGetters('Layers', [
+      'element',
+      'isLayerVisible',
+      'isVisibilityGroupVisible',
+    ]),
+
     contextualHelpText () {
-      const contextualHelp = this.$store.getters['Layers/element']({ id: this.layer.id, type: 'ContextualHelp' })
+      const contextualHelp = this.element({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
 
-    id () {
-      return this.layer.id.replace(/-/g, '')
+    isVisible () {
+      return this.isLayerVisible(this.layer.id)
     },
 
     layerTitle () {
       //  Return title only if contextualHelp is currently not shown
       return this.tooltipExpanded === false ? this.layer.attributes.name : ''
+    },
+
+    opacity () {
+      return this.layerStates[this.layer.id]?.opacity
     },
 
     statusIcon () {
@@ -144,6 +142,10 @@ export default {
 
     prefixedStatusIcon () {
       return this.prefixClass('fa ' + this.setStatusIcon())
+    },
+
+    showVisibilityGroup () {
+      return this.isVisibilityGroupVisible(this.layer.attributes.visibilityGroupId)
     },
 
     statusAriaText () {
@@ -164,161 +166,77 @@ export default {
       }
 
       return Translator.trans(text)
-    }
+    },
   },
 
   methods: {
+    ...mapActions('Layers', [
+      'updateLayerVisibility',
+    ]),
+
+    ...mapMutations('Layers', [
+      'setLayerState',
+      'updateState',
+    ]),
+
     setStatusIcon () {
-      if (this.layer.attributes.canUserToggleVisibility === false) {
+      if (!this.layer.attributes.canUserToggleVisibility) {
         return 'fa-lock'
       } else if (this.showVisibilityGroup) {
         return 'fa-link'
-      } else if (this.isVisible === false && this.showVisibilityGroup === false) {
+      } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
-        // If(this.isVisible && false === this.showVisibilityGroup)
         return 'fa-eye'
       }
     },
 
     toggle (isVisible) {
-      if (this.layer.attributes.canUserToggleVisibility === false) {
+      if (!this.layer.attributes.canUserToggleVisibility) {
         return
       }
 
-      this.isVisible = (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false)
-
-      const exclusively = this.layer.attributes.isBaseLayer
-      this.$root.$emit('layer:toggle', { id: this.id, exclusively, isVisible: this.isVisible })
-
-      this.$root.$emit('layer:toggleLegend', { id: this.id, isVisible: this.isVisible })
-    },
-
-    // If parent category is toggled, also toggle children
-    toggleFromCategory (children, isVisible, visibilityGroupId) {
-      if (children.filter(layer => layer.id === this.layer.id).length > 0) {
-        if (visibilityGroupId === false) {
-          this.toggle(isVisible)
-        } else if (visibilityGroupId) {
-          // Check if toggled item and item have same visibilityGroupId and if so, don't toggle item
-          if (visibilityGroupId !== this.layer.attributes.visibilityGroupId) {
-            this.toggle(isVisible)
-          }
-        }
-      }
+      this.updateLayerVisibility({
+        id: this.layer.id,
+        isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
+        layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
+        exclusively: this.layer.attributes.layerType === 'base',
+      })
     },
 
     toggleFromSelf (showOpacityControl) {
-      if (this.tooltipExpanded === true || this.layer.attributes.canUserToggleVisibility === false) {
+      if (this.tooltipExpanded || !this.layer.attributes.canUserToggleVisibility) {
         return
-      }
-      if (this.layer.attributes.isBaseLayer) {
-        this.$root.$emit('layer:toggleOtherBaselayers', this.id)
       }
 
       this.toggle()
 
-      if (showOpacityControl === true) {
+      if (showOpacityControl) {
         this.isVisible ? this.toggleOpacityControl(true) : this.toggleOpacityControl(false)
-      }
-
-      if (this.layer.attributes.isBaseLayer === false) {
-        // If item is visible after toggle, also toggle parent category visible
-        if (this.isVisible) {
-          this.$root.$emit('layer:showParent', this.layer.attributes.categoryId)
-
-          // If feature layerGroupsAlternateVisibility is activated
-          if (this.layerGroupsAlternateVisibility) {
-            this.$root.$emit('layer:hideOtherCategories', { groupId: this.layer.attributes.visibilityGroupId, categoryId: this.layer.attributes.categoryId })
-          }
-        }
-
-        // If item is in a visibility group, also toggle other items in that group
-        if (this.layer.attributes.visibilityGroupId !== '') {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.layer.attributes.visibilityGroupId, layerId: this.layer.id, isVisible: this.isVisible })
-        }
-      }
-    },
-
-    toggleFromVisibilityGroup (visibilityGroupId, layerId, isVisible) {
-      if (layerId !== this.layer.id && visibilityGroupId === this.layer.attributes.visibilityGroupId) {
-        this.toggle(isVisible)
-      }
-    },
-
-    toggleFromOtherBaselayer (layerId) {
-      if (layerId !== this.layer.id) {
-        this.toggle(false)
-      }
-    },
-
-    showVisibilityGroupLayer (visibilityGroupId, calleeId, hoverState) {
-      if (calleeId !== this.layer.id && visibilityGroupId === this.layer.attributes.visibilityGroupId) {
-        this.showVisibilityGroup = hoverState
       }
     },
 
     setOpacity (e) {
-      let val = e.target.value
-      this.$store.commit('Layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
+      const val = e.target.value
       if (isNaN(val * 1)) return false
-      val /= 100
-      this.$root.$emit('layerOpacity:change', { id: this.id, opacity: val })
-      return this
-    },
 
-    saveOpacity () {
-      this.$root.$emit('layerOpacity:changed', { id: this.id, opacity: this.opacity })
-    },
-
-    setAndSaveOpacity (e) {
-      this.setOpacity(e).saveOpacity()
+      this.setLayerState({ id: this.layer.id, key: 'opacity', value: val })
     },
 
     toggleOpacityControl (overObject) {
-      /* Show only if layer is visible / hide should always be possible */
-      /* mouseover -> overObject = true */
-      /* mouseout -> overObject = false */
+      /*
+       * Show only if layer is visible / hide should always be possible:
+       * mouseover -> overObject = true
+       * mouseout -> overObject = false
+       */
       if (this.isVisible || overObject === false) {
         this.showOpacityControl = overObject && this.layer.attributes.canUserToggleVisibility === true
-      }
-      if (this.layer.attributes.visibilityGroupId !== '') {
-        this.$root.$emit('layer:showVisibiltyGroupLayer', { visibilityGroupId: this.layer.attributes.visibilityGroupId, layerId: this.layer.id, hoverState: overObject })
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
+    },
   },
-
-  created () {
-    this.isVisible = this.visible
-    this.opacity = this.layer.attributes.opacity
-
-    if (this.layer.attributes.isBaseLayer) {
-      this.$root.$on('layer:toggleOtherBaselayers', layerId => {
-        this.toggleFromOtherBaselayer(layerId)
-      })
-    }
-
-    if (this.layer.attributes.isBaseLayer === false) {
-      this.$root.$on('layer:toggleChildLayer', ({ layer, isVisible, visibilityGroupId }) => this.toggleFromCategory(layer, isVisible, visibilityGroupId))
-      this.$root.$on('layer:toggleVisibiltyGroup', ({ layerId, isVisible, visibilityGroupId }) => this.toggleFromVisibilityGroup(visibilityGroupId, layerId, isVisible))
-      this.$root.$on('layer:showVisibiltyGroupLayer', ({ visibilityGroupId, layerId, hoverState }) => this.showVisibilityGroupLayer(visibilityGroupId, layerId, hoverState))
-
-      // Set parent-categories to visible if the layer is visible
-      if (this.isVisible) {
-        this.$root.$emit('layer:showParent', this.layer.attributes.categoryId)
-      }
-    }
-
-    this.$root.$on('layer:toggleLayer', ({ layerId, isVisible }) => {
-      if (layerId !== this.id) {
-        return
-      }
-      this.toggle(isVisible)
-    })
-  }
 }
 </script>

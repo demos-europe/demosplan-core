@@ -10,8 +10,8 @@
 <template>
   <div>
     <button
-      @click.prevent="deleteOrga"
-      class="btn-icns u-m-0 u-pl-0">
+      class="btn-icns u-m-0 u-pl-0"
+      @click.prevent="deleteOrga">
       <i
         class="fa fa-trash"
         aria-hidden="true" />
@@ -28,12 +28,12 @@ export default {
   props: {
     orgaId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'orga:deleted'
+    'orga:deleted',
   ],
 
   methods: {
@@ -42,7 +42,7 @@ export default {
         makeFormPost({ oId: this.orgaId }, Routing.generate('DemosPlan_user_mastertoeblist_delete_ajax'))
           .then(() => this.$emit('orga:deleted', this.orgaId))
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -9,17 +9,23 @@
 
 <template>
   <div class="u-mt-0_5">
-    <!-- List of pending organisations (if orga-self-registration is active) -->
+    <!-- Pending organisations list (renders only when the orga-self-registration feature is enabled) -->
     <template v-if="hasPermission('area_organisations_applications_manage')">
       <h3>
         {{ Translator.trans('organisations.pending') }}
       </h3>
-
-      <!-- currently bound to isLoading of organisations -->
-      <dp-loading
-        v-if="pendingOrganisationsLoading"
-        class="u-ml u-mt u-mb-2" />
-      <template v-if="Object.keys(pendingOrgs).length > 0 && pendingOrganisationsLoading === false">
+      <template v-if="pendingOrganisationsLoading">
+        <dp-loading
+          v-if="isInitialLoad"
+          class="u-ml u-mt u-mb-2" />
+        <dp-skeleton-box
+          v-for="(idx) in pendingOrgs"
+          v-else
+          :key="`skeleton:${idx}`"
+          class="u-mb-0_5"
+          height="54px" />
+      </template>
+      <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
           class="o-list o-list--card u-mb"
           data-cy="pendingOrganisationList">
@@ -70,14 +76,14 @@
         @update="handleFilter" />
 
       <div
-        class="block u-mb"
-        v-if="hasPermission('feature_orga_delete')">
+        v-if="hasPermission('feature_orga_delete')"
+        class="block u-mb">
         <div
           class="layout__item u-3-of-7 u-mt u-pl-0_5">
           <div class="o-form__element--checkbox">
             <input
-              type="checkbox"
               id="select_all"
+              type="checkbox"
               data-cy="allSelected"
               class="o-form__control-input"
               :checked="allSelected"
@@ -107,23 +113,24 @@
     </div>
     <div
       v-if="noResults"
-      class="u-mt-0_75"
-      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})" />
-    <!-- list -->
-    <template v-if="isLoading && isInitialLoad">
-      <dp-loading class="u-ml u-mt" />
-    </template>
-    <template v-if="isLoading && !isInitialLoad">
+      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
+      class="u-mt-0_75" />
+
+    <!-- Organisations list -->
+    <template v-if="isLoading">
+      <dp-loading
+        v-if="isInitialLoad"
+        class="u-ml u-mt u-mb-2" />
       <dp-skeleton-box
-        class="u-mb-0_5"
-        v-for="(item, idx) in items"
+        v-for="(idx) in items"
+        v-else
         :key="`skeleton:${idx}`"
+        class="u-mb-0_5"
         height="54px" />
     </template>
-
     <div
-      class="layout"
-      v-if="false === isLoading">
+      v-else
+      class="layout">
       <div
         class="layout__item u-1-of-1"
         data-cy="organisationList">
@@ -164,20 +171,19 @@ import {
   DpSkeletonBox,
   DpSlidingPagination,
   hasOwnProp,
-  hasPermission
+  hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
-const orgaFields = {
-  OrgaStatusInCustomer: [
-    'customer',
-    'status'
-  ].join(),
+const orgaFieldsArrays = {
+  Branding: [
+    'cssvars',
+  ],
   Customer: [
     'name',
-    'subdomain'
-  ].join(),
+    'subdomain',
+  ],
   Orga: [
     'addressExtension',
     'ccEmail2',
@@ -203,14 +209,41 @@ const orgaFields = {
     'showlist',
     'showname',
     'state',
+    'statusInCustomers',
     'street',
     'submissionType',
-    'types'
-  ].join()
+    'types',
+  ],
+  OrgaStatusInCustomer: [
+    'customer',
+    'status',
+  ],
+}
+
+if (hasPermission('feature_orga_branding_edit')) {
+  orgaFieldsArrays.Branding = ['cssvars']
+  orgaFieldsArrays.Orga.push('branding')
 }
 
 if (hasPermission('feature_manage_procedure_creation_permission')) {
-  orgaFields.Orga.push('canCreateProcedures')
+  orgaFieldsArrays.Orga.push('canCreateProcedures')
+}
+
+const orgaFields = {
+  Branding: orgaFieldsArrays.Branding.join(),
+  Customer: orgaFieldsArrays.Customer.join(),
+  Orga: orgaFieldsArrays.Orga.join(),
+  OrgaStatusInCustomer: orgaFieldsArrays.OrgaStatusInCustomer.join(),
+}
+
+const includeFields = [
+  'currentSlug',
+  'statusInCustomers.customer',
+  'statusInCustomers',
+]
+
+if (hasPermission('feature_orga_branding_edit')) {
+  includeFields.push('branding')
 }
 
 export default {
@@ -223,11 +256,11 @@ export default {
     DpOrganisationListItem,
     DpSearchField,
     DpSkeletonBox,
-    DpSlidingPagination
+    DpSlidingPagination,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpSelectAllMixin],
@@ -243,7 +276,7 @@ export default {
       submissionTypeDefault: this.submissionTypeDefault,
       submissionTypeShort: this.submissionTypeShort,
       showNewStatementNotification: this.showNewStatementNotification,
-      writableFields: this.writableFields
+      writableFields: this.writableFields,
     }
   },
 
@@ -251,7 +284,7 @@ export default {
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -260,7 +293,7 @@ export default {
     proceduresDirectLinkPrefix: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -269,38 +302,38 @@ export default {
     projectName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     showNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     subdomain: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     submissionTypeDefault: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     submissionTypeShort: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     writableFields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -314,7 +347,7 @@ export default {
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
-      selectedFilters: {}
+      selectedFilters: {},
     }
   },
 
@@ -322,13 +355,13 @@ export default {
     ...mapState('Orga', {
       items: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     ...mapState('Orga/Pending', {
       pendingOrganisations: 'items',
       pendingOrganisationsCurrentPage: 'currentPage',
-      pendingOrganisationsTotalPages: 'totalPages'
+      pendingOrganisationsTotalPages: 'totalPages',
     }),
 
     isFiltered () {
@@ -337,25 +370,25 @@ export default {
 
     selectedItems () {
       return Object.keys(this.items).filter(id => this.itemSelections[id])
-    }
+    },
   },
 
   methods: {
     ...mapActions('Department', {
-      departmentList: 'list'
+      departmentList: 'list',
     }),
 
     ...mapActions('Orga', {
       list: 'list',
-      deleteOrganisation: 'delete'
+      deleteOrganisation: 'delete',
     }),
 
     ...mapActions('Orga/Pending', {
-      pendingOrganisationList: 'list'
+      pendingOrganisationList: 'list',
     }),
 
     ...mapActions('Role', {
-      roleList: 'list'
+      roleList: 'list',
     }),
 
     deleteItems (ids) {
@@ -369,12 +402,12 @@ export default {
             // Remove deleted item from itemSelections
             delete this.itemSelections[id]
             // Confirm notification for organisations is done in BE
-          })
+          }),
       )
 
       Promise.all(deleteOrganisations)
         .then(() => {
-          this.getItemsByPage()
+          this.fetchPendingAndAllOrganisations()
         })
     },
 
@@ -388,41 +421,46 @@ export default {
             condition: {
               path: 'statusInCustomers.orgaType.name',
               value: filter,
-              memberOf: 'orgaType'
-            }
+              memberOf: 'orgaType',
+            },
           }
 
           filterObject.orgaStatus = {
             condition: {
               path: 'statusInCustomers.status',
               operator: '<>',
-              value: 'rejected'
-            }
+              value: 'rejected',
+            },
           }
         }
       })
       filterObject.orgaType = {
         group: {
-          conjunction: 'OR'
-        }
+          conjunction: 'OR',
+        },
       }
 
       filterObject.namefilter = {
         condition: {
           path: 'name',
           operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-          value: this.searchTerm
-        }
+          value: this.searchTerm,
+        },
       }
 
       this.list({
         page: {
-          number: page
+          number: page,
         },
         sort: 'name',
         filter: filterObject,
-        fields: orgaFields,
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {}),
+        },
+        include: includeFields.join(),
       })
         .then(() => { this.isLoading = false })
     },
@@ -432,28 +470,34 @@ export default {
 
       this.list({
         page: {
-          number: page
+          number: page,
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {}),
+        },
         sort: 'name',
         filter: {
           namefilter: {
             condition: {
               path: 'name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm
-            }
-          }
+              value: this.searchTerm,
+            },
+          },
         },
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: includeFields.join(),
       })
         .then(() => {
-          this.pendingOrganisationsLoading = false
-          this.isLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+          this.noResults = Object.keys(this.items || {}).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -462,15 +506,45 @@ export default {
 
       this.pendingOrganisationList({
         page: {
-          number: page
+          number: page,
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer,
+          Orga: orgaFields.Orga,
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer,
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {}),
+        },
         sort: 'name',
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+        include: includeFields.join(),
       })
         .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
           this.pendingOrganisationsLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+        })
+    },
+
+    fetchPendingAndAllOrganisations (page) {
+      page = page || this.currentPage
+      this.pendingOrganisationsLoading = true
+
+      this.pendingOrganisationList({
+        page: {
+          number: page,
+        },
+        include: ['currentSlug', 'orgasInCustomer.customer'].join(),
+      })
+        .then(() => {
+          this.getItemsByPage(page)
+        })
+        .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
+          this.pendingOrganisationsLoading = false
         })
     },
 
@@ -510,31 +584,15 @@ export default {
 
     setAdditionalFieldOptions (options) {
       this.additionalFieldOptions = options
-    }
+    },
   },
 
   mounted () {
-    this.pendingOrganisationList({
-      include: ['currentSlug', 'orgasInCustomer.customer'].join()
-    }).then(() => {
-      this.getItemsByPage(1)
-    }).then(() => {
-      this.pendingOrgs = this.pendingOrganisations || {}
-    })
+    this.fetchPendingAndAllOrganisations(1)
 
-    this.$root.$on('getItems', () => {
-      this.isLoading = true
-      this.pendingOrgs = {}
-      this.pendingOrganisationList({
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
-      }).then(() => {
-        this.getItemsByPage()
-      })
-        .then(() => {
-          this.pendingOrgs = this.pendingOrganisations
-          this.pendingOrganisationsLoading = false
-        })
+    this.$root.$on('items:get', () => {
+      this.fetchPendingAndAllOrganisations()
     })
-  }
+  },
 }
 </script>
