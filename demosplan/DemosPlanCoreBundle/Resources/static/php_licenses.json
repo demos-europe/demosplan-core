@@ -631,6 +631,11 @@
     },
     {
         "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
+    },
+    {
+        "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
     },
