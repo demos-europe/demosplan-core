@@ -46,17 +46,7 @@ class LocationSearchController extends BaseController
             for ($i = 0; $i < $maxSuggestions; ++$i) {
                 if (isset($result[$i])) {
                     $entry = $result[$i];
-                    if ($currentUser->hasPermission('feature_geocoder_address_search')) {
-                        $suggestions[] = [
-                            'value' => $entry['name'].' '.$entry['housenumber'].' '.$entry['postcode'].' '.$entry['city'],
-                            'data'  => $entry,
-                        ];
-                    } else {
-                        $suggestions[] = [
-                            'value' => $entry['postcode'].' '.$entry['name'],
-                            'data'  => $entry,
-                        ];
-                    }
+                    $suggestions[] = $locationService->getFormattedSuggestion($entry);
                 }
             }
 
