@@ -39,7 +39,7 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-           $result =  $locationService->searchLocation($query, $limit);
+            $result = $locationService->searchLocation($query, $limit);
             $suggestions = [];
             $maxSuggestions = $query['maxResults'] ?? (is_countable($result) ? count($result) : 0);
 
@@ -48,7 +48,7 @@ class LocationSearchController extends BaseController
                     $entry = $result[$i];
                     $suggestions[] = [
                         'value' => $entry['name'].' '.$entry['housenumber'].' '.$entry['postcode'].' '.$entry['city'],
-                      //  'value' => $entry['postcode'].' '.$entry['name'],
+                        //  'value' => $entry['postcode'].' '.$entry['name'],
                         'data'  => $entry,
                     ];
                 }

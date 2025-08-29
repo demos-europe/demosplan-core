@@ -34,14 +34,16 @@ class LocationService
     ) {
         $this->em = $registry->getManager();
     }
-    public function searchLocation($query, $limit):array
+
+    public function searchLocation($query, $limit): array
     {
         if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
             $restResponse = $this->searchAddress($query['query'], $limit);
         } else {
             $restResponse = $this->searchCity($query['query'], $limit);
         }
-         return $restResponse['body'] ?? [];
+
+        return $restResponse['body'] ?? [];
     }
 
     /**
