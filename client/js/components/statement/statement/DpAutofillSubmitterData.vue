@@ -32,14 +32,14 @@
         :key="role.value">
         <input
           :id="`r_role_${role.value}`"
+          :id="`r_role_${role.value}`"
+          v-model="currentRole"
           v-model="currentRole"
           name="r_role"
           type="radio"
           :data-cy="`roleInput:${role.dataCy}`"
           :value="role.value"
-          @change="() => $emit('role:changed', currentRole)"
-          :id="`r_role_${role.value}`"
-          v-model="currentRole"><!--
+          @change="() => $emit('role:changed', currentRole)"><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">

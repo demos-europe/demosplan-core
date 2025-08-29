@@ -62,6 +62,7 @@
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
       :key="`pager1_${pagination.current_page}_${pagination.count}`"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -70,8 +71,7 @@
       :per-page="pagination.count"
       :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+      @size-change="handleSizeChange" />
 
     <!-- Export modal -->
     <export-modal

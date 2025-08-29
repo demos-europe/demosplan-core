@@ -74,6 +74,6 @@ export default {
     'search',
     'selectAll',
     'resetSearch',
-  ]
+  ],
 }
 </script>
