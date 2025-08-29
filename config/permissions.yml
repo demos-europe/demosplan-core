@@ -931,6 +931,11 @@ feature_gdpr_consent_revoke_by_token:
     expose: false
     label: 'Allows sending and usage of tokens to revoke the GDPR consent given on statement submission.'
     loginRequired: false
+feature_geocoder_address_search:
+    description: 'Enables the address search via external API call to Geocoder. Provides an auto-suggestion for addresses.'
+    expose: false
+    label: 'Enables Geocoder address search'
+    loginRequired: false
 feature_has_logout_landing_page:
     label: 'Wird beim Logout auf eine Zwischenseite weitergeleitet die ausloggen im Gateway ermöglicht?'
     loginRequired: false
