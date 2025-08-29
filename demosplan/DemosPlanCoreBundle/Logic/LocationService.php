@@ -46,21 +46,22 @@ class LocationService
         return $restResponse['body'] ?? [];
     }
 
-    public function getFormattedSuggestion($entry) {
+    public function getFormattedSuggestion($entry)
+    {
+        if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
+            $filteredSuggestions = [
+                'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
+                'data'  => $entry,
+            ];
+        } else {
+            $filteredSuggestions = [
+                'value' => $entry['postcode'].' '.$entry['name'],
+                'data'  => $entry,
+            ];
+        }
 
-    if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
-        $filteredSuggestions = [
-            'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
-            'data'  => $entry,
-        ];
-    } else {
-        $filteredSuggestions = [
-            'value' => $entry['postcode'].' '.$entry['name'],
-            'data'  => $entry,
-        ];
+        return $filteredSuggestions;
     }
-    return $filteredSuggestions;
-}
 
     /**
      * Get an address suggestion by typing in a street name.

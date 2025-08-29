@@ -520,7 +520,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] < $maxExtent[2]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
-
                         $filteredSuggestions[] = $locationService->getFormattedSuggestion($entry);
                     }
                 } else {
