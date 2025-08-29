@@ -39,13 +39,7 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-            if ($currentUser->hasPermission('feature_geocoder_address_search')) {
-                $restResponse = $locationService->searchAddress($query['query'], $limit);
-            } else {
-                $restResponse = $locationService->searchCity($query['query'], $limit);
-            }
-            $result = $restResponse['body'] ?? [];
-
+           $result =  $locationService->searchLocation($query, $limit);
             $suggestions = [];
             $maxSuggestions = $query['maxResults'] ?? (is_countable($result) ? count($result) : 0);
 
@@ -54,6 +48,7 @@ class LocationSearchController extends BaseController
                     $entry = $result[$i];
                     $suggestions[] = [
                         'value' => $entry['name'].' '.$entry['housenumber'].' '.$entry['postcode'].' '.$entry['city'],
+                      //  'value' => $entry['postcode'].' '.$entry['name'],
                         'data'  => $entry,
                     ];
                 }

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\GeocoderInterface;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
@@ -29,8 +30,18 @@ class LocationService
         ManagerRegistry $registry,
         private readonly LoggerInterface $logger,
         private readonly GeocoderInterface $geocoder,
+        private readonly CurrentUserInterface $currentUser,
     ) {
         $this->em = $registry->getManager();
+    }
+    public function searchLocation($query, $limit):array
+    {
+        if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
+            $restResponse = $this->searchAddress($query['query'], $limit);
+        } else {
+            $restResponse = $this->searchCity($query['query'], $limit);
+        }
+         return $restResponse['body'] ?? [];
     }
 
     /**
