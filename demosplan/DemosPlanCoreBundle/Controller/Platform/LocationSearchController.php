@@ -39,7 +39,7 @@ class LocationSearchController extends BaseController
             }
 
             $limit = $query['maxResults'] ?? 50;
-           $result =  $locationService->searchLocation($query['query'], $limit);
+            $result = $locationService->searchLocation($query['query'], $limit);
             $suggestions = [];
             $maxSuggestions = $query['maxResults'] ?? (is_countable($result) ? count($result) : 0);
 
