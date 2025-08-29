@@ -520,16 +520,30 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] < $maxExtent[2]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
+                        if ($currentUser->hasPermission('feature_geocoder_address_search')) {
+                            $filteredSuggestions[] = [
+                                'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
+                                'data'  => $entry,
+                            ];
+                        } else {
+                            $filteredSuggestions[] = [
+                                'value' => $entry['postcode'].' '.$entry['name'],
+                                'data'  => $entry,
+                            ];
+                        }
+                    }
+                } else {
+                    if ($currentUser->hasPermission('feature_geocoder_address_search')) {
                         $filteredSuggestions[] = [
-                            'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
+                            'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
+                            'data'  => $entry,
+                        ];
+                    } else {
+                        $filteredSuggestions[] = [
+                            'value' => $entry['postcode'].' '.$entry['name'],
                             'data'  => $entry,
                         ];
                     }
-                } else {
-                    $filteredSuggestions[] = [
-                        'value' => $entry['name'].', '.$entry['postcode'].' '.$entry['city'],
-                        'data'  => $entry,
-                    ];
                 }
             }
 
