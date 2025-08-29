@@ -416,7 +416,7 @@
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
-                                                :toolbar-items="{ listButtons: false }"
+                                                :toolbar-items="{ linkButton: true, listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
                                             </dp-editor>
@@ -446,7 +446,7 @@
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="procedureInfo:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
-                                            :toolbar-items="{ listButtons: false }"
+                                            :toolbar-items="{ linkButton: true, listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
                                             {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
