@@ -874,7 +874,7 @@ export default {
   },
 
   emits: [
-    'addon-update',
+    'addon:update',
     'addonOptions:loaded',
     'organisation:update',
   ],
@@ -1029,7 +1029,7 @@ export default {
     },
 
     updateAddonPayload (payload) {
-      this.$emit('addon-update', payload)
+      this.$emit('addon:update', payload)
     },
   },
 

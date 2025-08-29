@@ -17,7 +17,7 @@
       searchable
       selectable
       @reset-search="resetSearch"
-      @selectAll="val => dpToggleAll(val, users)"
+      @select-all="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)">
       <template
         v-if="hasPermission('feature_user_delete')"
@@ -64,7 +64,7 @@
       class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
-      @page-change="getUsersByPage" />
+      @pageChange="getUsersByPage" />
   </div>
 </template>
 

@@ -158,7 +158,7 @@ export default {
 
   created () {
     //  Sync contents of child components on save
-    this.$root.$on('fragment-saved', data => {
+    this.$root.$on('fragment:saved', data => {
       this.$refs.considerationAdvice.content = data.considerationAdvice
       this.$refs.history.load()
     })

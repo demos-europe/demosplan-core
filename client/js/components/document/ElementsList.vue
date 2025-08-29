@@ -178,7 +178,7 @@ export default {
       /* Create a shallow copy of each item, so it can be modified safely */
       const listCopy = list.map(item => ({
         ...item,
-        children: []
+        children: [],
       }))
       let map = {}
       let node

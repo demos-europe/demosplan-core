@@ -14,7 +14,7 @@
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
         :show-suggestions="false"
-        @procedure-search-focused="openDrawer" />
+        @procedure-search:focused="openDrawer" />
       <template v-if="!isLoading">
         <dp-handle
           data-cy="drawerToggle"

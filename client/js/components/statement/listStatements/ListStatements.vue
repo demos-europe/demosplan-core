@@ -57,7 +57,7 @@
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          @page-change="getItemsByPage"
+          @pageChange="getItemsByPage"
           @size-change="handleSizeChange" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label

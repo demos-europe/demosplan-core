@@ -5,7 +5,7 @@
       v-if="searchable"
       class="layout__item u-1-of-2 u-mb-0_5"
       :placeholder="searchPlaceholder"
-      @reset="$emit('reset-search')"
+      @reset="$emit('resetSearch')"
       @search="val => $emit('search', val)" /><!--
  --><slot name="header-buttons" />
     <!-- header with checkbox and labels-->
@@ -73,7 +73,7 @@ export default {
   emits: [
     'search',
     'selectAll',
-    'reset-search',
+    'resetSearch',
   ],
 }
 </script>

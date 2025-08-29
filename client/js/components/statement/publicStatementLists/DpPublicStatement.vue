@@ -184,7 +184,7 @@
             class="btn--blank o-link--default"
             type="button"
             :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
-            @click.prevent.stop="$emit('open-map-modal', polygon)">
+            @click.prevent.stop="$emit('openMapModal', polygon)">
             {{ Translator.trans('see') }}
           </button>
           <span v-else>
@@ -385,7 +385,7 @@ export default {
   },
 
   emits: [
-    'open-map-modal',
+    'openMapModal',
   ],
 
   data () {

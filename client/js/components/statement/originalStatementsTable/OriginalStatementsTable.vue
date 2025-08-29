@@ -358,7 +358,7 @@ export default {
         this.isLoading = false
       })
 
-    this.$root.$on('toggle-select-all', () => {
+    this.$root.$on('toggleSelectAll', () => {
       this.allCheckboxesToggled = !this.allCheckboxesToggled
       this.toggleAllCheckboxes()
     })

@@ -49,7 +49,7 @@ export default {
   },
 
   emits: [
-    'set-label',
+    'setLabel',
   ],
 
   data () {
@@ -60,7 +60,7 @@ export default {
 
   methods: {
     setLabel () {
-      this.$emit('set-label', this.selectedLabel)
+      this.$emit('setLabel', this.selectedLabel)
       this.toggleModal()
     },
 

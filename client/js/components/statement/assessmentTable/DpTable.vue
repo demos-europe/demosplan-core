@@ -62,6 +62,7 @@
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
       :key="`pager1_${pagination.current_page}_${pagination.count}`"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -119,7 +120,7 @@
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
       @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
-      @handle-sort-change="option => handleSortChange(option)" />
+      @handle:sortChange="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
     <dp-slidebar>
@@ -400,7 +401,7 @@ export default {
   },
 
   emits: [
-    'assessment-table-loaded',
+    'assessmentTable:loaded',
   ],
 
   data () {
@@ -788,15 +789,15 @@ export default {
              */
             this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
-            this.$root.$emit('assessment-table-loaded')
+            this.$root.$emit('assessmentTable:loaded')
           })
       })
 
-    this.$root.$on('update-assessment-table', () => {
+    this.$root.$on('update:assessmentTable', () => {
       this.triggerApiCallForStatements()
     })
 
-    this.$root.$on('update-pagination-assessment-table', () => {
+    this.$root.$on('update:paginationAssessmentTable', () => {
       this.updatePagination(this.initPagination)
     })
   },
