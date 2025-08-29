@@ -1029,7 +1029,7 @@ export default {
     },
 
     updateAddonPayload (payload) {
-      this.$emit('addon-update', payload)
+      this.$emit('addon:update', payload)
     },
   },
 
