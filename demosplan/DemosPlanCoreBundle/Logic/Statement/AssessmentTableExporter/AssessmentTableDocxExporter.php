@@ -38,6 +38,12 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
         $original = $parameters['original'];
         $viewMode = $parameters['viewMode'];
 
+        // Set the export format in request attributes for thread-safe access
+        if (isset($parameters['exportFormat']) && in_array($parameters['exportFormat'], ['docx', 'odt'], true)) {
+            $request = $this->requestStack->getCurrentRequest();
+            $request?->attributes->set('export_format', $parameters['exportFormat']);
+        }
+
         $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
         $outputResult = $this->assessmentHandler->prepareOutputResult($procedureId, $original, $parameters);
         try {
@@ -70,7 +76,9 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
             return $file;
         } catch (Exception $e) {
             $this->logger->warning($e);
-            throw HandlerException::assessmentExportFailedException('docx');
+            $request = $this->requestStack->getCurrentRequest();
+            $exportFormat = $request?->attributes->get('export_format') ?? 'docx';
+            throw HandlerException::assessmentExportFailedException($exportFormat);
         }
     }
 }

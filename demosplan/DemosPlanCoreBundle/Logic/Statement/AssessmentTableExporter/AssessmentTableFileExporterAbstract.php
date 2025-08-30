@@ -54,6 +54,8 @@ abstract class AssessmentTableFileExporterAbstract
 
     protected DocumentWriterSelector $writerSelector;
 
+    protected RequestStack $requestStack;
+
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
@@ -72,6 +74,7 @@ abstract class AssessmentTableFileExporterAbstract
         $this->translator = $translator;
         $this->statementHandler = $statementHandler;
         $this->writerSelector = $writerSelector;
+        $this->requestStack = $requestStack;
     }
 
     /**

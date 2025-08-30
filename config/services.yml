@@ -1032,6 +1032,9 @@ services:
     # ODT HTML Processor
     demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor: ~
 
+    # DOCX Exporter (explicit configuration for proper DI)
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter: ~
+
     # File Response Generator Strategy
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy:
         lazy: true

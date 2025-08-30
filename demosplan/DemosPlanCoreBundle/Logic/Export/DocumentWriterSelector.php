@@ -13,37 +13,52 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class DocumentWriterSelector
 {
     public function __construct(
         private readonly PermissionsInterface $permissions,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
     public function getWriterType(): string
     {
-        return $this->permissions->hasPermission('feature_export_odt_instead_of_docx')
+        return $this->shouldUseOdt()
             ? 'ODText'
             : 'Word2007';
     }
 
     public function getFileExtension(): string
     {
-        return $this->permissions->hasPermission('feature_export_odt_instead_of_docx')
+        return $this->shouldUseOdt()
             ? '.odt'
             : '.docx';
     }
 
     public function getContentType(): string
     {
-        return $this->permissions->hasPermission('feature_export_odt_instead_of_docx')
+        return $this->shouldUseOdt()
             ? 'application/vnd.oasis.opendocument.text'
             : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     }
 
     public function isOdtFormat(): bool
     {
+        return $this->shouldUseOdt();
+    }
+
+    private function shouldUseOdt(): bool
+    {
+        // Priority: explicit format from request attributes > permission-based fallback
+        $request = $this->requestStack->getCurrentRequest();
+        $explicitFormat = $request?->attributes->get('export_format');
+        
+        if (null !== $explicitFormat) {
+            return 'odt' === $explicitFormat;
+        }
+
         return $this->permissions->hasPermission('feature_export_odt_instead_of_docx');
     }
 
