@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use PhpOffice\PhpWord\PhpWord;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\UnitTestCase;
 
 class DocxExporterOdtTest extends UnitTestCase
@@ -29,7 +30,8 @@ class DocxExporterOdtTest extends UnitTestCase
     {
         parent::setUp();
         $this->permissions = $this->createMock(PermissionsInterface::class);
-        $this->writerSelector = new DocumentWriterSelector($this->permissions);
+        $requestStack = $this->createMock(RequestStack::class);
+        $this->writerSelector = new DocumentWriterSelector($this->permissions, $requestStack);
 
         // Create DocxExporter with all mocked dependencies
         $odtHtmlProcessor = new \demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor();

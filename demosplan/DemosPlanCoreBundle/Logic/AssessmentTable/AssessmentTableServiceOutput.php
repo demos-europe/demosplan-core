@@ -638,7 +638,7 @@ class AssessmentTableServiceOutput
     {
         $tableStyle = new \PhpOffice\PhpWord\Style\Table();
         $formatSpecificTableStyle = $this->writerSelector->getTableStyleForFormat($this->tableStyle);
-        
+
         $tableStyle->setLayout(\PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED)
             ->setBorderColor($formatSpecificTableStyle['borderColor'])
             ->setBorderSize($formatSpecificTableStyle['borderSize'])
