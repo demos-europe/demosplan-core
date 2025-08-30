@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\SegmentExport;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +21,9 @@ class StyleInitializerTest extends TestCase
 {
     public function testInitialize(): void
     {
-        $styleInitializer = new StyleInitializer();
+        $permissions = $this->createMock(PermissionsInterface::class);
+        $writerSelector = new DocumentWriterSelector($permissions);
+        $styleInitializer = new StyleInitializer($writerSelector);
         $styles = $styleInitializer->initialize();
 
         static::assertIsArray($styles);

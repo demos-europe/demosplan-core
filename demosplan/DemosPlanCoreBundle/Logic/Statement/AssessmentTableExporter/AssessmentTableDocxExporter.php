@@ -21,7 +21,7 @@ use Exception;
 class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
 {
     /** @var array */
-    private $supportedTypes = ['doc', 'docx'];
+    private $supportedTypes = ['doc', 'docx', 'odt'];
 
     public function supports(string $format): bool
     {
@@ -57,8 +57,9 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
             );
 
             $fileName = sprintf(
-                $this->translator->trans('considerationtable').'-%s.docx',
-                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
+                $this->translator->trans('considerationtable').'-%s%s',
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i'),
+                $this->writerSelector->getFileExtension()
             );
 
             $file = [
