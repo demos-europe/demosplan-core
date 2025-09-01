@@ -139,7 +139,7 @@ import {
   DpDateRangePicker,
   DpInput,
   DpLabel,
-  DpSelect
+  DpSelect,
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 
@@ -156,19 +156,19 @@ export default {
       return DpInlineNotification
     }),
     DpLabel,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     availableProcedurePhases: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     dataCyPhasePeriod: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -177,12 +177,12 @@ export default {
      */
     endDate: {
       type: String,
-      required: true
+      required: true,
     },
 
     initSelectedPhase: {
       type: String,
-      default: ''
+      default: '',
     },
 
     /**
@@ -191,24 +191,24 @@ export default {
      */
     initSwitchDate: {
       type: String,
-      default: ''
+      default: '',
     },
 
     // Is used to determine whether to use data for internal or external procedure phases
     isInternal: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     minSwitchDate: {
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedCurrentPhase: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -219,7 +219,7 @@ export default {
       switchDate: '',
       switchDateOnly: '', // Date part in DD.MM.YYYY format for datepicker
       switchTime: '00:00', // Time part in HH:mm format
-      switchDateMax: ''
+      switchDateMax: '',
     }
   },
 
@@ -264,7 +264,7 @@ export default {
 
     switchDateId () {
       return this.isInternal ? 'r_designatedSwitchDate' : 'r_designatedPublicSwitchDate'
-    }
+    },
   },
 
   watch: {
@@ -284,7 +284,7 @@ export default {
           this.autoSwitchPhase = this.isParticipationPhaseSelected
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
 
     switchDateOnly () {
@@ -301,8 +301,8 @@ export default {
           }
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -428,7 +428,7 @@ export default {
       } else {
         this.selectedPhase = this.phaseOptions[0].value
       }
-    }
+    },
   },
 
   mounted () {
@@ -443,6 +443,6 @@ export default {
     if (hasPermission('feature_auto_switch_to_procedure_end_phase') && this.isParticipationPhaseSelected) {
       this.autoSwitchPhase = true
     }
-  }
+  },
 }
 </script>

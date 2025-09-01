@@ -17,7 +17,7 @@ import ListStatements from '@DpJs/components/statement/listStatements/ListStatem
 
 const components = {
   ListStatements,
-  ListOriginalStatements
+  ListOriginalStatements,
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 

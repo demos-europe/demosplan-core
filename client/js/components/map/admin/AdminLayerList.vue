@@ -40,8 +40,8 @@
             {{ Translator.trans('gislayer.create') }}
           </a>
           <template
-            v-slot:dropdown
-            v-if="hasPermission('feature_map_category')">
+            v-if="hasPermission('feature_map_category')"
+            v-slot:dropdown>
             <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
               {{ Translator.trans('maplayer.category.new') }}
             </a>
@@ -60,18 +60,18 @@
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
-          class="flex-1 w-2/3 text-right"
-          v-if="canHaveCategories">
+          v-if="canHaveCategories"
+          class="flex-1 w-2/3 text-right">
           <button
-            @click.prevent="setActiveTab('treeOrder')"
             class="btn--blank o-link--default"
-            :class="{'o-link--active':currentTab === 'treeOrder'}">
+            :class="{'o-link--active':currentTab === 'treeOrder'}"
+            @click.prevent="setActiveTab('treeOrder')">
             {{ Translator.trans('map.set.order.tree') }}
           </button>
           <button
-            @click.prevent="setActiveTab('mapOrder')"
             class="btn--blank o-link--default ml-4"
-            :class="{'o-link--active':currentTab === 'mapOrder'}">
+            :class="{'o-link--active':currentTab === 'mapOrder'}"
+            @click.prevent="setActiveTab('mapOrder')">
             {{ Translator.trans('map.set.order.map') }}
           </button>
         </div>
@@ -90,15 +90,15 @@
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
             <i
-              class="fa fa-link mr-2"
-              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
+              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }"
+              class="fa fa-link mr-2" />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
             <i
-              class="fa fa-eye mr-2"
-              v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+              v-tooltip="Translator.trans('explanation.gislayer.visibility')"
+              class="fa fa-eye mr-2" />
           </div>
 
           <div class="w-2/12 text-right">
@@ -107,19 +107,19 @@
         </div>
       </div>
       <dp-draggable
-        v-if="false === this.isLoading"
+        v-if="false === isLoading"
+        :id="rootId"
         :class="{ 'color--grey': false === isEditable }"
         :content-data="currentList"
-        :id="rootId"
         :opts="draggableOptions"
         @end="updateChildren">
         <admin-layer-list-item
           v-for="(item, idx) in currentList"
+          :key="item.id"
           data-cy="overlaysMapLayerListItem"
           :element="item"
           :index="idx"
           :is-loading="(false === isEditable)"
-          :key="item.id"
           layer-type="overlay"
           :parent-order-position="1"
           :sorting-type="currentTab" />
@@ -152,8 +152,8 @@
               v-if="hasPermission('feature_map_layer_visibility')"
               class="w-1/12 text-right">
               <i
-                class="fa fa-eye mr-2"
-                v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+                v-tooltip="Translator.trans('explanation.gislayer.visibility')"
+                class="fa fa-eye mr-2" />
             </div>
             <div class="w-1/12 text-right">
               {{ Translator.trans('edit') }}
@@ -161,18 +161,18 @@
           </div>
         </div>
         <dp-draggable
-          v-if="false === this.isLoading"
+          v-if="false === isLoading"
           :opts="draggableOptionsForBaseLayer"
           :content-data="currentBaseList"
           :class="{'color--grey': false === isEditable}"
           @end="updateChildren">
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
+            :key="item.id"
             data-cy="baseMapLayerListItem"
             :element="item"
             :index="idx"
             :is-loading="(false === isEditable)"
-            :key="item.id"
             layer-type="base"
             :sorting-type="currentTab" />
         </dp-draggable>
@@ -185,9 +185,9 @@
               {{ Translator.trans('map.base.minimap.hint') }}
             </p>
             <select
+              v-model="currentMinimapLayer"
               class="o-form__control-select w-1/2"
-              data-cy="adminLayerList:currentMinimapLayer"
-              v-model="currentMinimapLayer">
+              data-cy="adminLayerList:currentMinimapLayer">
               <option :value="{id: '', attributes: { name: 'default' }}">
                 {{ Translator.trans('selection.no') }}
               </option>
@@ -202,8 +202,8 @@
         </div>
       </template>
       <div
-        class="text-right mt-5 space-x-2"
-        v-if="!isLoading">
+        v-if="!isLoading"
+        class="text-right mt-5 space-x-2">
         <dp-button
           :busy="!isEditable"
           :text="Translator.trans('save')"
@@ -246,20 +246,20 @@ export default {
     DpDraggable,
     DpButton,
     DpLoading,
-    DpSplitButton
+    DpSplitButton,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     parentOrderPosition: {
       required: false,
       type: Number,
-      default: 1
-    }
+      default: 1,
+    },
   },
 
   data () {
@@ -267,21 +267,21 @@ export default {
       isLoading: true,
       currentTab: '',
       isEditable: true,
-      drag: false
+      drag: false,
     }
   },
 
   computed: {
     ...mapState('Layers', [
       'draggableOptions',
-      'draggableOptionsForBaseLayer'
+      'draggableOptionsForBaseLayer',
     ]),
 
     ...mapGetters('Layers', [
       'gisLayerList',
       'elementListForLayerSidebar',
       'minimapLayer',
-      'rootId'
+      'rootId',
     ]),
 
     /**
@@ -343,14 +343,14 @@ export default {
       },
       set (value) {
         this.setMinimapBaseLayer(value.id)
-      }
-    }
+      },
+    },
   },
 
   methods: {
     ...mapActions('Layers', {
       saveLayers: 'saveAll',
-      getLayers: 'get'
+      getLayers: 'get',
     }),
 
     ...mapMutations('Layers', [
@@ -358,7 +358,7 @@ export default {
       'setChildrenFromCategory',
       'resetOrder',
       'setMinimapBaseLayer',
-      'updateState'
+      'updateState',
     ]),
 
     updateChildren (ev) {
@@ -368,10 +368,10 @@ export default {
         movedElement: {
           id: ev.item.id,
           newIndex: ev.newIndex,
-          oldIndex: ev.oldIndex
+          oldIndex: ev.oldIndex,
         },
         orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition
+        parentOrder: this.parentOrderPosition,
       })
 
       // If there is just one order (map) -then the treeorder should match the map-order
@@ -382,10 +382,10 @@ export default {
           movedElement: {
             id: ev.item.id,
             newIndex: ev.newIndex,
-            oldIndex: ev.oldIndex
+            oldIndex: ev.oldIndex,
           },
           orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
+          parentOrder: this.parentOrderPosition,
         })
       }
     },
@@ -413,7 +413,7 @@ export default {
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
-    }
+    },
   },
 
   mounted () {
@@ -428,7 +428,7 @@ export default {
           'name',
           'layerWithChildrenHidden',
           'parentId',
-          'treeOrder'
+          'treeOrder',
         ].join(),
         GisLayer: [
           'canUserToggleVisibility',
@@ -446,9 +446,9 @@ export default {
           'name',
           'treeOrder',
           'url',
-          'visibilityGroupId'
-        ].join()
-      }
+          'visibilityGroupId',
+        ].join(),
+      },
     }
     this.getLayers(payload)
       .then(() => {
@@ -471,7 +471,7 @@ export default {
       handle: '.handle',
       ghostClass: 'o-sortablelist__ghost', // Class name for the drop placeholder
       chosenClass: 'o-sortablelist__chosen', // Class name for the chosen item
-      dragClass: 'o-sortablelist__drag' // Class name for the dragging item
+      dragClass: 'o-sortablelist__drag', // Class name for the dragging item
     }
 
     this.updateState({
@@ -483,13 +483,13 @@ export default {
             name: 'treeList',
             revertClone: false,
             pull: ['treeList'],
-            push: ['treeList']
-          }
-        }
-      }
+            push: ['treeList'],
+          },
+        },
+      },
     })
 
     this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
-  }
+  },
 }
 </script>

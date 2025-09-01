@@ -18,9 +18,9 @@ export default function loadSentry () {
         attachProps: true,
         tracing: true,
         tracingOptions: {
-          trackComponents: true
-        }
-      })]
+          trackComponents: true,
+        },
+      })],
     })
   }
 }

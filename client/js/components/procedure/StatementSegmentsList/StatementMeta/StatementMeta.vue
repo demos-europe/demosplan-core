@@ -37,8 +37,8 @@
             <button
               class="text-left"
               role="menuitem"
-              v-text="Translator.trans(entry.transKey)"
-              @click="setActiveItem(entry.id)" />
+              @click="setActiveItem(entry.id)"
+              v-text="Translator.trans(entry.transKey)" />
           </li>
         </ul>
       </div>
@@ -126,7 +126,7 @@
 import {
   DpIcon,
   dpValidateMixin,
-  hasAnyPermissions
+  hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
@@ -148,7 +148,7 @@ export default {
     StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,
-    StatementSubmitter
+    StatementSubmitter,
   },
 
   mixins: [dpValidateMixin],
@@ -156,72 +156,72 @@ export default {
   props: {
     attachments: {
       type: Object,
-      required: true
+      required: true,
     },
 
     availableCounties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availableMunicipalities: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     availablePriorityAreas: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentUserId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     procedureStatementPriorityArea: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
     'close',
     'input',
     'save',
-    'updatedVoters'
+    'updatedVoters',
   ],
 
   data () {
@@ -235,14 +235,14 @@ export default {
         { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasAnyPermissions(['feature_statements_vote', 'feature_statements_publication']) },
         { id: 'locationAndDocuments', transKey: hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
         { id: 'attachments', transKey: 'attachments' },
-        { id: 'finalEmail', transKey: 'statement.final.send', condition: hasPermission('field_send_final_email') }
-      ]
+        { id: 'finalEmail', transKey: 'statement.final.send', condition: hasPermission('field_send_final_email') },
+      ],
     }
   },
 
   computed: {
     ...mapState('Statement', {
-      storageStatement: 'items'
+      storageStatement: 'items',
     }),
 
     currentDate () {
@@ -289,16 +289,16 @@ export default {
       }
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
       return option ? Translator.trans(option.label) : ''
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     close () {
@@ -351,7 +351,7 @@ export default {
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
     },
@@ -368,7 +368,7 @@ export default {
     updateLocalStatementProperties (value, field) {
       this.localStatement.attributes[field] = value
       this.localStatement.attributes[field].sort((a, b) => a.name.localeCompare(b.name))
-    }
+    },
   },
 
   created () {
@@ -381,6 +381,6 @@ export default {
 
   beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
-  }
+  },
 }
 </script>

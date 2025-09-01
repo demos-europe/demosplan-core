@@ -48,7 +48,7 @@ export default function AssessmentTable () {
     return dpApi({
       method: 'POST',
       url: Routing.generate('dplan_api_procedure_update_filter_hash', { procedureId }),
-      data: inputFields
+      data: inputFields,
     })
       .then(({ data }) => data.data.attributes.hash)
   }

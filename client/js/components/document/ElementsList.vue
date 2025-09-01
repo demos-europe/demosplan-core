@@ -40,8 +40,8 @@
           </div>
           <div
             v-if="nodeElement.attributes.text"
-            class="whitespace-pre-line"
-            v-cleanhtml="nodeElement.attributes.text" />
+            v-cleanhtml="nodeElement.attributes.text"
+            class="whitespace-pre-line" />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <file-info
@@ -78,31 +78,31 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo'))
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: true,
       recursiveElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     buttonLabel () {
@@ -129,23 +129,23 @@ export default {
         rootDraggable: false,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
-      elementList: 'list'
+      elementList: 'list',
     }),
 
     // The accumulated file size of an array of files objects, converted to readable format
@@ -176,29 +176,28 @@ export default {
      * See https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
      */
     listToTree (list) {
-      const listCopy = JSON.parse(JSON.stringify(list))
-      const map = {}
-      let nodeCopy
+      /* Create a shallow copy of each item, so it can be modified safely */
+      const listCopy = list.map(item => ({
+        ...item,
+        children: []
+      }))
+      let map = {}
       let node
       let roots = []
       let index
 
-      // Initialize map and children in list elements
+      // Initialize map
       for (index = 0; index < listCopy.length; index += 1) {
         map[listCopy[index].id] = index
-        listCopy[index].children = []
       }
 
       for (index = 0; index < listCopy.length; index += 1) {
-        nodeCopy = listCopy[index]
-        node = list[index]
-        const isTopLevel = nodeCopy.attributes.parentId === null
+        node = listCopy[index]
+        const isTopLevel = node.attributes.parentId === null
 
-        // Make documents direct children of node, if there are any
-        if (node.relationships.visibleDocuments && node.relationships.visibleDocuments.data.length > 0) {
-          nodeCopy.children = [
-            ...nodeCopy.children,
-            ...Object.values(node.relationships.visibleDocuments.list())]
+        // Attach visible documents directly as children of the current node (if any exist)
+        if (node.hasRelationship('visibleDocuments') && node.relationships.visibleDocuments.data.length > 0) {
+          node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
 
         // Push item to correct position in map
@@ -207,10 +206,10 @@ export default {
           const hasEnabledParent = typeof nodeParentIdx !== 'undefined'
 
           if (hasEnabledParent) {
-            listCopy[nodeParentIdx].children.push(nodeCopy)
+            listCopy[nodeParentIdx].children.push(node)
           }
         } else {
-          roots.push(nodeCopy)
+          roots.push(node)
         }
       }
 
@@ -237,7 +236,7 @@ export default {
       })
 
       return list
-    }
+    },
   },
 
   mounted () {
@@ -248,11 +247,11 @@ export default {
         enabledElements: {
           condition: {
             path: 'enabled',
-            value: 1
-          }
-        }
+            value: 1,
+          },
+        },
       },
-      procedureId: dplan.procedureId
+      procedureId: dplan.procedureId,
     })
       .then(() => {
         // Transform the object into an array, transform that into a recursive tree structure
@@ -273,6 +272,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

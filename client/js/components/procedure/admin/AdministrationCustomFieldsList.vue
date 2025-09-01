@@ -19,16 +19,16 @@
           :text="Translator.trans('options')" />
         <dp-input
           id="newFieldOption:1"
+          v-model="newFieldOptions[0].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption1"
-          v-model="newFieldOptions[0].label"
           maxlength="250"
           required />
         <dp-input
           id="newFieldOption:2"
+          v-model="newFieldOptions[1].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption2"
-          v-model="newFieldOptions[1].label"
           maxlength="250"
           required />
 
@@ -37,8 +37,8 @@
           :key="`option:${idx}`">
           <div class="w-[calc(100%-26px)] inline-block mb-2">
             <dp-input
-              v-model="newFieldOptions[idx + 2].label"
               :id="`option:${newFieldOptions[idx + 2].label}`"
+              v-model="newFieldOptions[idx + 2].label"
               :data-cy="`customFields:newFieldOption${idx + 2}`"
               maxlength="250" />
           </div>
@@ -72,8 +72,8 @@
       <template v-slot:name="rowData">
         <div v-if="rowData.edit">
           <dp-input
-            v-model="newRowData.name"
             id="customFieldName"
+            v-model="newRowData.name"
             required
           />
         </div>
@@ -101,9 +101,9 @@
             class="mb-1">
             <div class="flex">
               <dp-input
-                v-model="newRowData.options[index].label"
                 :id="`option:${index}`"
                 :key="`option:${index}`"
+                v-model="newRowData.options[index].label"
                 required
               />
 
@@ -172,9 +172,9 @@
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="customFields:abortEdit"
-              @click="abortFieldEdit(rowData)"
               :title="Translator.trans('abort')"
-              :aria-label="Translator.trans('abort')">
+              :aria-label="Translator.trans('abort')"
+              @click="abortFieldEdit(rowData)">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -229,7 +229,7 @@ import {
   DpInput,
   DpLabel,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
@@ -246,7 +246,7 @@ export default {
     DpInlineNotification,
     DpInput,
     DpLabel,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -254,13 +254,13 @@ export default {
   props: {
     isProcedureTemplate: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -273,27 +273,27 @@ export default {
       isSuccess: false,
       newFieldOptions: [
         {
-          label: ''
+          label: '',
         },
         {
-          label: ''
-        }
+          label: '',
+        },
       ],
-      newRowData: {}
+      newRowData: {},
     }
   },
 
   computed: {
     ...mapState('CustomField', {
-      customFields: 'items'
+      customFields: 'items',
     }),
 
     ...mapState('AdminProcedure', {
-      procedureCustomFieldsLoading: 'loading'
+      procedureCustomFieldsLoading: 'loading',
     }),
 
     ...mapState('ProcedureTemplate', {
-      procedureTemplateCustomFieldsLoading: 'loading'
+      procedureTemplateCustomFieldsLoading: 'loading',
     }),
 
     additionalOptions () {
@@ -314,24 +314,24 @@ export default {
         {
           field: 'name',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
-          colClass: 'u-3-of-12'
+          colClass: 'u-3-of-12',
         },
         {
           field: 'options',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('options')}*` : Translator.trans('options'),
-          colClass: 'u-4-of-12'
+          colClass: 'u-4-of-12',
         },
         {
           field: 'description',
           label: Translator.trans('description'),
-          colClass: 'u-5-of-12'
-        }
+          colClass: 'u-5-of-12',
+        },
       ]
     },
 
     helpTextDismissibleKey () {
       return 'customFieldsHint'
-    }
+    },
   },
 
   watch: {
@@ -341,21 +341,21 @@ export default {
           this.disableSaveIfFieldUnchanged(newVal)
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapActions('CustomField', {
-      createCustomField: 'create'
+      createCustomField: 'create',
     }),
 
     ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get'
+      getAdminProcedureWithFields: 'get',
     }),
 
     ...mapActions('ProcedureTemplate', {
-      getProcedureTemplateWithFields: 'get'
+      getProcedureTemplateWithFields: 'get',
     }),
 
     abortFieldEdit (rowData) {
@@ -428,23 +428,23 @@ export default {
      * Fetch custom fields that are available either in the procedure or in the procedure template
      */
     fetchCustomFields () {
-      const sourceEntity = this.isProcedureTemplate
-        ? 'ProcedureTemplate'
-        : 'AdminProcedure'
+      const sourceEntity = this.isProcedureTemplate ?
+        'ProcedureTemplate' :
+        'AdminProcedure'
 
       const payload = {
         id: this.procedureId,
         fields: {
           [sourceEntity]: [
-            'segmentCustomFields'
+            'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
-            'options'
-          ].join()
+            'options',
+          ].join(),
         },
-        include: ['segmentCustomFields'].join()
+        include: ['segmentCustomFields'].join(),
       }
 
       this.getCustomFields(payload).then(() => {
@@ -454,12 +454,12 @@ export default {
     },
 
     getCustomFields (payload) {
-      return this.isProcedureTemplate
-        ? this.getProcedureTemplateWithFields(payload)
+      return this.isProcedureTemplate ?
+        this.getProcedureTemplateWithFields(payload)
           .then(response => {
             return response
-          })
-        : this.getAdminProcedureWithFields(payload)
+          }) :
+        this.getAdminProcedureWithFields(payload)
           .then(response => {
             return response
           })
@@ -491,7 +491,7 @@ export default {
               description,
               options: JSON.parse(JSON.stringify(options)),
               open: false,
-              edit: false
+              edit: false,
             }
           }
 
@@ -527,11 +527,11 @@ export default {
     resetNewFieldForm () {
       this.newFieldOptions = [
         {
-          label: ''
+          label: '',
         },
         {
-          label: ''
-        }
+          label: '',
+        },
       ]
     },
 
@@ -539,7 +539,7 @@ export default {
       const url = Routing.generate('api_resource_update', { resourceType: 'CustomField', resourceId: this.newRowData.id })
 
       return dpApi.patch(url, {}, {
-        data: payload
+        data: payload,
       })
     },
 
@@ -563,8 +563,8 @@ export default {
               ...storeField.attributes,
               description,
               name,
-              options
-            }
+              options,
+            },
           }
 
           await this.saveCustomField(updatedField)
@@ -605,8 +605,8 @@ export default {
           sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
           sourceEntityId: this.procedureId,
           targetEntity: 'SEGMENT',
-          fieldType: 'singleSelect'
-        }
+          fieldType: 'singleSelect',
+        },
       }
 
       this.createCustomField(payload)
@@ -644,7 +644,7 @@ export default {
       this.initialRowData = {
         description,
         name,
-        options: JSON.parse(JSON.stringify(options))
+        options: JSON.parse(JSON.stringify(options)),
       }
     },
 
@@ -655,7 +655,7 @@ export default {
         id,
         description,
         name,
-        options
+        options,
       }
     },
 
@@ -695,11 +695,11 @@ export default {
       }
 
       return true
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomFields()
-  }
+  },
 }
 </script>

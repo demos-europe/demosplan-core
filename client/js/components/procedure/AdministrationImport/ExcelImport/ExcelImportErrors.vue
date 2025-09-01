@@ -32,8 +32,8 @@
           v-for="error in errorsByWorksheet(worksheet)"
           :key="`error:${error.id}`"
           class="u-p-0_5 u-mv-0_5 cursor-pointer"
-          @click="toggle(error.id)"
-          :class="itemClasses(error.id, worksheet)">
+          :class="itemClasses(error.id, worksheet)"
+          @click="toggle(error.id)">
           <div v-if="errors.length > 1">
             <dp-checkbox
               :id="`error:${error.id}`"
@@ -86,31 +86,31 @@ export default {
   components: {
     DpCheckbox,
     DpInlineNotification,
-    DpProgressBar
+    DpProgressBar,
   },
 
   props: {
     // Possible values: 'statements' or 'segments'
     context: {
       type: String,
-      required: true
+      required: true,
     },
 
     errors: {
       type: Array,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       checkedItems: [],
-      worksheets: []
+      worksheets: [],
     }
   },
 
@@ -127,17 +127,17 @@ export default {
     itemClasses () {
       return (errorId, worksheetName) =>
         [
-          this.checkedItems[errorId] === true
-            ? 'color--grey-light'
-            : '',
-          this.errorsByWorksheet(worksheetName).findIndex(err => err.id === errorId) !== this.errorsByWorksheet(worksheetName).length - 1
-            ? 'u-mb-0_5 border--bottom'
-            : '',
-          this.checkedItems.findIndex(item => item.id === errorId) !== 0
-            ? 'u-mt-0_5'
-            : ''
+          this.checkedItems[errorId] === true ?
+            'color--grey-light' :
+            '',
+          this.errorsByWorksheet(worksheetName).findIndex(err => err.id === errorId) !== this.errorsByWorksheet(worksheetName).length - 1 ?
+            'u-mb-0_5 border--bottom' :
+            '',
+          this.checkedItems.findIndex(item => item.id === errorId) !== 0 ?
+            'u-mt-0_5' :
+            '',
         ]
-    }
+    },
   },
 
   methods: {
@@ -147,7 +147,7 @@ export default {
 
     toggle (id) {
       this.checkedItems[id] = !this.checkedItems[id]
-    }
+    },
   },
 
   mounted () {
@@ -158,6 +158,6 @@ export default {
         this.worksheets.push(error.currentWorksheet)
       }
     })
-  }
+  },
 }
 </script>

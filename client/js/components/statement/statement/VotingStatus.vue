@@ -20,8 +20,8 @@ export default {
   props: {
     publicVerified: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   computed: {
@@ -37,10 +37,10 @@ export default {
     },
 
     votingStatusTranslation () {
-      return this.publicVerified === 'publication_approved'
-        ? Translator.trans('voting.activated')
-        : Translator.trans('voting.deactivated')
-    }
-  }
+      return this.publicVerified === 'publication_approved' ?
+        Translator.trans('voting.activated') :
+        Translator.trans('voting.deactivated')
+    },
+  },
 }
 </script>

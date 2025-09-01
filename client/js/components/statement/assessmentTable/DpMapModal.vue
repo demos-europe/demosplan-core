@@ -42,7 +42,7 @@ export default {
   components: {
     DpModal,
     DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap')),
-    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector'))
+    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector')),
   },
 
   mixins: [prefixClassMixin],
@@ -51,21 +51,21 @@ export default {
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapOptionsRoute: {
       required: false,
       type: String,
-      default: 'dplan_api_map_options_public'
-    }
+      default: 'dplan_api_map_options_public',
+    },
   },
 
   data () {
     return {
       isLoading: true,
       drawingData: {},
-      isModalOpen: false
+      isModalOpen: false,
     }
   },
 
@@ -76,20 +76,20 @@ export default {
       } else {
         return {}
       }
-    }
+    },
   },
 
   methods: {
     toggleModal (drawingData) {
       this.drawingData = drawingData
       this.$refs.mapModal.toggle()
-    }
+    },
   },
 
   mounted () {
     this.$root.$on('toggleMapModal', (drawingData) => {
       this.toggleModal(drawingData)
     })
-  }
+  },
 }
 </script>

@@ -28,18 +28,18 @@ export default {
   props: {
     hash: {
       type: String,
-      required: true
+      required: true,
     },
 
     name: {
       type: String,
-      required: true
+      required: true,
     },
 
     size: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
@@ -49,7 +49,7 @@ export default {
 
     byteSize () {
       return formatBytes(this.size).replace(/\./g, ',')
-    }
-  }
+    },
+  },
 }
 </script>

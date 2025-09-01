@@ -13,11 +13,11 @@
       {{ Translator.trans('password.set.info') }}
     </p>
     <form
+      ref="changePasswordForm"
       :action="Routing.generate('DemosPlan_user_password_set', {'token': token, 'uId': userId})"
       class="u-mt space-stack-m"
       data-dp-validate="changePasswordForm"
-      method="POST"
-      ref="changePasswordForm">
+      method="POST">
       <input
         name="_token"
         type="hidden"
@@ -66,7 +66,7 @@ export default {
 
   components: {
     DpButtonRow,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -74,23 +74,23 @@ export default {
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     userId: {
       type: String,
-      required: true
+      required: true,
     },
     token: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       passwordNew: '',
-      passwordNewConfirm: ''
+      passwordNewConfirm: '',
     }
   },
 
@@ -102,7 +102,7 @@ export default {
 
     submit () {
       this.$refs.changePasswordForm.submit()
-    }
-  }
+    },
+  },
 }
 </script>

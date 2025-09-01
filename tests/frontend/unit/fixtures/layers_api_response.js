@@ -17,23 +17,23 @@ export const layersApiResponse = {
       treeOrder: 0,
       isVisible: true,
       hasDefaultVisibility: true,
-      parentId: null
+      parentId: null,
     },
     relationships: {
       categories: {
         data: [
           { type: 'GisLayerCategory', id: 'category-1' },
-          { type: 'GisLayerCategory', id: 'category-2' }
-        ]
+          { type: 'GisLayerCategory', id: 'category-2' },
+        ],
       },
       gisLayers: {
         data: [
           { type: 'GisLayer', id: 'base-layer-1' },
           { type: 'GisLayer', id: 'base-layer-2' },
-          { type: 'GisLayer', id: 'base-layer-3' }
-        ]
-      }
-    }
+          { type: 'GisLayer', id: 'base-layer-3' },
+        ],
+      },
+    },
   }],
   included: [
     {
@@ -57,8 +57,8 @@ export const layersApiResponse = {
         isBaseLayer: false,
         url: 'https://example.com/wms?service=WMS',
         categoryId: 'sub-category-1',
-        visibilityGroupId: 'group-1'
-      }
+        visibilityGroupId: 'group-1',
+      },
     },
     {
       type: 'GisLayer',
@@ -81,8 +81,8 @@ export const layersApiResponse = {
         isBaseLayer: false,
         url: 'https://example.com/wms2?service=WMS',
         categoryId: 'sub-category-1',
-        visibilityGroupId: 'group-1'
-      }
+        visibilityGroupId: 'group-1',
+      },
     },
     {
       type: 'GisLayerCategory',
@@ -93,17 +93,17 @@ export const layersApiResponse = {
         treeOrder: 1010103,
         isVisible: true,
         hasDefaultVisibility: true,
-        parentId: 'category-1'
+        parentId: 'category-1',
       },
       relationships: {
         categories: { data: [] },
         gisLayers: {
           data: [
             { type: 'GisLayer', id: 'overlay-layer-1' },
-            { type: 'GisLayer', id: 'overlay-layer-2' }
-          ]
-        }
-      }
+            { type: 'GisLayer', id: 'overlay-layer-2' },
+          ],
+        },
+      },
     },
     {
       type: 'GisLayer',
@@ -126,8 +126,8 @@ export const layersApiResponse = {
         isBaseLayer: true,
         url: 'https://example.com/basemap',
         categoryId: 'root-category-123',
-        visibilityGroupId: ''
-      }
+        visibilityGroupId: '',
+      },
     },
     {
       type: 'GisLayer',
@@ -150,8 +150,8 @@ export const layersApiResponse = {
         isBaseLayer: true,
         url: 'https://example.com/basemap_gray',
         categoryId: 'root-category-123',
-        visibilityGroupId: ''
-      }
+        visibilityGroupId: '',
+      },
     },
     {
       type: 'GisLayer',
@@ -174,8 +174,8 @@ export const layersApiResponse = {
         isBaseLayer: true,
         url: 'https://example.com/municipalities',
         categoryId: 'root-category-123',
-        visibilityGroupId: ''
-      }
+        visibilityGroupId: '',
+      },
     },
     {
       type: 'GisLayerCategory',
@@ -186,12 +186,12 @@ export const layersApiResponse = {
         treeOrder: 101,
         isVisible: true,
         hasDefaultVisibility: true,
-        parentId: 'root-category-123'
+        parentId: 'root-category-123',
       },
       relationships: {
         categories: { data: [{ type: 'GisLayerCategory', id: 'sub-category-1' }] },
-        gisLayers: { data: [] }
-      }
+        gisLayers: { data: [] },
+      },
     },
     {
       type: 'GisLayerCategory',
@@ -202,19 +202,19 @@ export const layersApiResponse = {
         treeOrder: 102,
         isVisible: true,
         hasDefaultVisibility: true,
-        parentId: 'root-category-123'
+        parentId: 'root-category-123',
       },
       relationships: {
         categories: { data: [] },
-        gisLayers: { data: [] }
-      }
-    }
+        gisLayers: { data: [] },
+      },
+    },
   ],
   links: {
-    self: 'http://example.com/api/2.0/GisLayerCategory'
+    self: 'http://example.com/api/2.0/GisLayerCategory',
   },
   jsonapi: {
-    version: '1.0'
+    version: '1.0',
   },
   meta: {
     messages: {
@@ -222,7 +222,7 @@ export const layersApiResponse = {
       info: [],
       warning: [],
       error: [],
-      dev: []
-    }
-  }
+      dev: [],
+    },
+  },
 }

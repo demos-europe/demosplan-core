@@ -24,8 +24,8 @@
           </span>
         </h3>
         <p
-          class="u-m-0 inline"
-          v-cleanhtml="period" />
+          v-cleanhtml="period"
+          class="u-m-0 inline" />
       </li>
       <li>
         <h3 class="u-m-0 inline">
@@ -110,20 +110,20 @@ export default {
      * The "v-scroller" directive sets max-height on an element so that it does not exceed the viewport,
      * then it applies a utility class that makes that container scrollable.
      */
-    scroller: Scroller
+    scroller: Scroller,
   },
 
   props: {
     procedure: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: Object.assign({
     hasDescription () {
       return this.procedure.externalDescription !== ''
-    }
-  }, SharedMethods)
+    },
+  }, SharedMethods),
 }
 </script>

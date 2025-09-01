@@ -30,8 +30,8 @@
     <div class="text-right">
       <button
         type="button"
-        @click="saveAndReturn"
-        class="btn btn--primary">
+        class="btn btn--primary"
+        @click="saveAndReturn">
         {{ Translator.trans('add') }}
       </button>
     </div>
@@ -45,24 +45,24 @@ export default {
   name: 'DpNewOrgaModal',
 
   components: {
-    DpModal
+    DpModal,
   },
 
   props: {
     fields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      formFields: {}
+      formFields: {},
     }
   },
 
@@ -78,7 +78,7 @@ export default {
       this.formFields = {}
       // Close modal
       this.toggleModal()
-    }
-  }
+    },
+  },
 }
 </script>

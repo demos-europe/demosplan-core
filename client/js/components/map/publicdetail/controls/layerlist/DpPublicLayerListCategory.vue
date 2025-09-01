@@ -38,8 +38,8 @@
 
       </span>
       <span
-        @click="appearsAsLayer ? toggle : fold"
-        :class="prefixClass('c-map__group-item-name o-hellip--nowrap')">
+        :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
+        @click="appearsAsLayer ? toggle : fold">
         {{ group.attributes.name }}
       </span>
       <dp-contextual-help
@@ -68,20 +68,20 @@ export default {
   props: {
     group: {
       type: Object,
-      required: true
+      required: true,
     },
 
     layerType: {
       type: String,
       required: false,
-      default: 'overlay'
+      default: 'overlay',
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -89,7 +89,7 @@ export default {
       unfolded: false,
       appearsAsLayer: this.group.attributes.layerWithChildrenHidden,
       contextualHelp: '',
-      tooltipExpanded: false
+      tooltipExpanded: false,
     }
   },
 
@@ -110,12 +110,12 @@ export default {
 
     layers () {
       return this.elementListForLayerSidebar(this.group.id, 'overlay', true)
-    }
+    },
   },
 
   methods: {
     ...mapMutations('Layers', [
-      'setLayerState'
+      'setLayerState',
     ]),
 
     ...mapActions('Layers', ['toggleCategoryAndItsChildren']),
@@ -133,9 +133,9 @@ export default {
       this.$store.dispatch('Layers/updateLayerVisibility', {
         id: this.group.id,
         isVisible: !this.isVisible,
-        layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility
+        layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
       })
-    }
+    },
   },
 
   mounted () {
@@ -153,6 +153,6 @@ export default {
 
   beforeCreate () {
     this.$options.components.dpPublicLayerList = DpPublicLayerList
-  }
+  },
 }
 </script>

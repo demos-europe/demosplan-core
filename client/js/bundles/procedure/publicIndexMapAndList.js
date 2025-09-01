@@ -17,7 +17,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
 const components = {
-  DpSearchProcedureMap
+  DpSearchProcedureMap,
 }
 window.prefixClass = prefixClass
 
@@ -43,7 +43,7 @@ initialize(components, stores).then(() => {
       dpApi({
         method: 'POST',
         url: Routing.generate(route, { procedureId }),
-        data: { procedureId }
+        data: { procedureId },
       })
         .then(() => {
           checkbox.closest(prefixClass('.c-procedurelist__item')).classList.toggle(prefixClass('is-done'))

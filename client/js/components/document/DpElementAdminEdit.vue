@@ -22,53 +22,53 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     category: {
       type: String,
-      required: true
+      required: true,
     },
 
     designatedToSwitch: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     documents: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     elementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     initDatetime: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initSelectedOrgas: {
       require: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     orgasOfProcedure: {
       require: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     procedure: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -82,18 +82,18 @@ export default {
         { field: 'file', label: Translator.trans('file') },
         { field: 'status', label: Translator.trans('status') },
         ...hasPermission('feature_single_document_statement') ? [{ field: 'statement', label: Translator.trans('statement') }] : [],
-        { field: 'actions', label: Translator.trans('actions') }
+        { field: 'actions', label: Translator.trans('actions') },
       ],
       tableElements: [],
       selectedElements: [],
-      manualSortUpdateRoute: Routing.generate('DemosPlan_elements_administration_edit', { procedure: this.procedure, elementId: this.elementId })
+      manualSortUpdateRoute: Routing.generate('DemosPlan_elements_administration_edit', { procedure: this.procedure, elementId: this.elementId }),
     }
   },
 
   computed: {
     currentSort () {
       return this.tableElements.map(el => el.id).join(', ')
-    }
+    },
   },
 
   methods: {
@@ -138,7 +138,7 @@ export default {
         r_sorting: this.currentSort,
         r_action: 'saveSort',
         r_elementIdent: this.elementId,
-        r_category: this.category
+        r_category: this.category,
       }
 
       // This is needed to get a correct document order on page reload (which is a separate form submit)
@@ -166,12 +166,12 @@ export default {
     sortSelected (type) {
       const area = `selected${type}`
       this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-    }
+    },
   },
 
   mounted () {
     this.setTableElements()
     this.changeDatetime = this.initDatetime
-  }
+  },
 }
 </script>

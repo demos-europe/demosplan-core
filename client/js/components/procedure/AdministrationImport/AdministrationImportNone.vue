@@ -15,7 +15,7 @@ export default {
   name: 'AdministrationImportNone',
 
   components: {
-    DpInlineNotification
+    DpInlineNotification,
   },
 
   render () {
@@ -23,9 +23,9 @@ export default {
     return () => h(DpInlineNotification, {
       props: {
         message: Translator.trans('import.options.none'),
-        type: 'warning'
-      }
+        type: 'warning',
+      },
     })
-  }
+  },
 }
 </script>
