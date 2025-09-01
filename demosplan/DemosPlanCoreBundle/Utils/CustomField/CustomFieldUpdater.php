@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Ramsey\Uuid\Uuid;
@@ -66,10 +67,10 @@ class CustomFieldUpdater
         }
 
         $newOptions = $attributes['options'];
-        $customField->validate($newOptions);
-
         $currentOptions = $customField->getOptions();
+
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);
+        $customField->validate($updatedOptions);
         $customField->setOptions($updatedOptions);
     }
 
