@@ -21,7 +21,7 @@ use ZipArchive;
 class OdtImporterTest extends TestCase
 {
     private const BACKEND_CORE_IMPORT_RES_SIMPLE_DOC_ODT = 'backend/core/Import/res/SimpleDoc.odt';
-    
+
     // XML templates to avoid duplication
     private const STYLES_XML_TEMPLATE = '<?xml version="1.0" encoding="UTF-8"?>
 <office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
