@@ -29,6 +29,7 @@
         }" />
     </div>
     <map-view
+      v-if="mapSettingsLoaded"
       ref="mapView"
       :bounding-box="boundingBoxAsPolygon"
       class="layout__item w-1/1 u-pb"
@@ -51,8 +52,8 @@
 
       <dp-input
         v-if="!procedureMapSettings.attributes.useGlobalInformationUrl && hasPermission('feature_map_feature_info')"
-        v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
+        v-model="procedureMapSettings.attributes.informationUrl"
         class="u-mb"
         data-cy="map:informationUrl"
         :label="{
@@ -115,7 +116,7 @@
   </div>
 </template>
 <script>
-import { checkResponse, dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import convertExtentToObject from '../map/utils/convertExtentToObject'
@@ -131,20 +132,20 @@ export default {
     DpCheckbox,
     DpInput,
     MapAdminScales,
-    MapView
+    MapView,
   },
 
   props: {
     isMaster: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -156,9 +157,10 @@ export default {
           strokeColor: '#000',
           imageColor: '#fff',
           strokeLineDash: [4, 4],
-          strokeLineWidth: 3
-        })
+          strokeLineWidth: 3,
+        }),
       },
+      mapSettingsLoaded: false,
       procedureMapSettings: {
         id: '',
         type: 'ProcedureMapSetting',
@@ -173,15 +175,15 @@ export default {
           mapExtent: [],
           boundingBox: [],
           scales: [],
-          territory: {}
-        }
-      }
+          territory: {},
+        },
+      },
     }
   },
 
   computed: {
     ...mapState('ProcedureMapSettings', {
-      originalProcedureMapSettings: 'procedureMapSettings'
+      originalProcedureMapSettings: 'procedureMapSettings',
     }),
 
     attributionControl () {
@@ -205,8 +207,8 @@ export default {
         type: 'Feature',
         geometry: {
           type: 'Polygon',
-          coordinates: fromExtent(this.procedureMapSettings.attributes.boundingBox).getCoordinates()
-        }
+          coordinates: fromExtent(this.procedureMapSettings.attributes.boundingBox).getCoordinates(),
+        },
       }
     },
 
@@ -227,10 +229,10 @@ export default {
         type: 'Feature',
         geometry: {
           type: 'Polygon',
-          coordinates: fromExtent(this.procedureMapSettings.attributes.mapExtent).getCoordinates()
-        }
+          coordinates: fromExtent(this.procedureMapSettings.attributes.mapExtent).getCoordinates(),
+        },
       }
-    }
+    },
   },
 
   methods: {
@@ -249,9 +251,9 @@ export default {
           id: this.procedureMapSettings.id,
           type: 'ProcedureMapSetting',
           attributes: {
-            scales: updateData.scales.map(scale => scale.value)
-          }
-        }
+            scales: updateData.scales.map(scale => scale.value),
+          },
+        },
       }
 
       if (updateData.mapExtent.length > 0) {
@@ -283,7 +285,6 @@ export default {
       }
 
       dpApi.patch(url, {}, payload)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
           this.$refs.mapView.$refs.map.getMapOptions()
@@ -296,12 +297,13 @@ export default {
 
     setField ({ field, data }) {
       this.procedureMapSettings.attributes[field] = data
-    }
+    },
   },
 
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
-  }
+    this.mapSettingsLoaded = true
+  },
 }
 </script>

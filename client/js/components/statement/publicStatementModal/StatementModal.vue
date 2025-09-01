@@ -11,8 +11,8 @@
   <div>
     <dp-modal
       ref="statementModal"
-      @modal:toggled="handleModalToggle"
-      content-header-classes="border--none">
+      content-header-classes="border--none"
+      @modal:toggled="handleModalToggle">
       <template
         v-if="showHeader"
         v-slot:header>
@@ -45,25 +45,40 @@
 
       <header
         v-if="loggedIn === false && showHeader"
+        :class="prefixClass('c-statement__header mb-2')"
         role="banner"
-        :class="prefixClass('c-statement__header u-mb-0_5')">
-        <dp-multistep-nav
-          :active-step="step"
-          :class="prefixClass('pb-0')"
-          :steps="[{
-            label: Translator.trans('statement.yours'),
-            icon: commentingIcon,
-            title: Translator.trans('statement.modal.step.write')
-          }, {
-            label: Translator.trans('personal.data'),
-            icon: 'fa-user',
-            title: Translator.trans('statement.modal.step.personal.data')
-          }, {
-            label: Translator.trans('recheck'),
-            icon: 'fa-check',
-            title: Translator.trans('statement.modal.step.recheck')
-          }]"
-          @change-step="val => step = val" />
+      >
+        <!-- Desktop -->
+        <div :class="prefixClass('c-statement__formnav tablet-desktop')">
+          <dp-multistep-nav
+            :active-step="step"
+            :class="prefixClass('pb-0')"
+            :steps="stepsData"
+            @change-step="val => step = val" />
+        </div>
+
+        <!-- Mobile -->
+        <div :class="prefixClass('c-statement__formnav mobile')">
+          <div :class="prefixClass('mb-0.5 text-muted')">
+            Schritt {{ step + 1 }} von {{ stepsData.length }}
+          </div>
+
+          <div :class="prefixClass('mb-3 flex items-center gap-2')">
+            <i
+              v-if="stepsData[step].icon"
+              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
+              aria-hidden="true" />
+            <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
+              {{ stepsData[step].label }}
+            </h3>
+          </div>
+
+          <dp-progress-bar
+            :class="prefixClass('p-0 pb-3 border-0')"
+            :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
+            hide-percentage
+          />
+        </div>
       </header>
 
       <dp-inline-notification
@@ -90,8 +105,8 @@
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mb-2')"
           id="statementFormErrors"
+          :class="prefixClass('mb-2')"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
           <p
@@ -103,28 +118,29 @@
           v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
           class="flex mt-4">
           <dp-radio
-            name="r_isNegativeReport"
             id="negative_report_false"
+            name="r_isNegativeReport"
             data-cy="statementModal:publicParticipationParticipate"
             class="u-mr-2"
             :checked="formData.r_isNegativeReport === '0'"
-            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
             :label="{
               text: Translator.trans('public.participation.participate')
             }"
-            value="0" />
+            value="0"
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }" />
           <dp-radio
-            :disabled="canNotBeNegativeReport"
-            name="r_isNegativeReport"
             id="negative_report_true"
-            data-cy="statementModal:indicationerror"
             :checked="formData.r_isNegativeReport === '1'"
-            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            data-cy="statementModal:indicationerror"
+            :disabled="canNotBeNegativeReport"
             :label="{
               hint: Translator.trans('link.title.indicationerror'),
               text: Translator.trans('indicationerror')
             }"
-            value="1" />
+            name="r_isNegativeReport"
+            value="1"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+          />
         </div>
 
         <div :class="prefixClass('c-statement__text')">
@@ -133,11 +149,10 @@
             for="statementText"
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
-            :class="prefixClass('u-mb')"
-            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
-            hidden-input="r_text"
             id="statementText"
             ref="statementEditor"
+            :class="prefixClass('u-mb')"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             :readonly="formData.r_isNegativeReport === '1'"
             :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
@@ -145,6 +160,7 @@
               strikethrough: true
             }"
             :value="formData.r_text || ''"
+            hidden-input="r_text"
             @input="val => setStatementData({r_text: val})" />
         </div>
         <div
@@ -260,8 +276,8 @@
         <!-- location reference -->
         <template v-if="(isMapEnabled && hasPermission('area_map_participation_area')) || hasPermission('field_statement_location')">
           <component
-            v-for="formDefinition in statementFormDefinitions"
             :is="formDefinition.component"
+            v-for="formDefinition in statementFormDefinitions"
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
@@ -302,8 +318,8 @@
                     <input
                       :value="file.hash"
                       name="delete_file[]"
-                      @change="() => updateDeleteFile(file.hash)"
-                      type="checkbox">
+                      type="checkbox"
+                      @change="() => updateDeleteFile(file.hash)">
                     {{ Translator.trans('attachment.delete') }}
                   </label>
                 </div>
@@ -316,13 +332,13 @@
 
                 <dp-upload-files
                   id="upload_files"
+                  ref="uploadFiles"
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
-                  ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
                   :tus-endpoint="dplan.paths.tusEndpoint"
                   :storage-name="fileStorageName"
@@ -341,7 +357,7 @@
                 }"
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
-                :value="formData.r_represents"
+                :model-value="formData.r_represents"
                 @input="val => setStatementData({r_represents: val})" />
             </div>
           </fieldset>
@@ -359,8 +375,8 @@
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
-            @click="sendStatement"
-            data-cy="saveChangedStatement">
+            data-cy="saveChangedStatement"
+            @click="sendStatement">
             {{ Translator.trans('save.and.close') }}
           </button>
           <button
@@ -368,8 +384,8 @@
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
-            @click="e => sendStatement(e,false, true)"
-            data-cy="saveChangedStatementWothoutClosing">
+            data-cy="saveChangedStatementWothoutClosing"
+            @click="e => sendStatement(e,false, true)">
             {{ Translator.trans('save') }}
           </button>
 
@@ -380,8 +396,8 @@
               type="submit"
               :disabled="isLoading"
               data-cy="statementModal:statementSaveImmediate"
-              @click="e => sendStatement(e,true)"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')">
+              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')"
+              @click="e => sendStatement(e,true)">
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -391,8 +407,8 @@
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
                 prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
-              @click="sendStatement"
-              data-cy="statementModal:saveAsDraft">
+              data-cy="statementModal:saveAsDraft"
+              @click="sendStatement">
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -413,7 +429,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
+          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -421,7 +437,7 @@
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
@@ -430,7 +446,7 @@
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="statementForm"
             @click="validateStatementStep">
             {{ Translator.trans('continue.personal_data') }}
@@ -440,8 +456,8 @@
 
       <!-- Personal data step -->
       <form
-        autocomplete="on"
         v-show="step === 1"
+        autocomplete="on"
         data-dp-validate="submitterForm">
         <dp-inline-notification
           :class="prefixClass('mt-3 mb-2')"
@@ -468,8 +484,8 @@
             :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
           <div
             id="submitterFormErrorsContent"
-            :class="prefixClass('ml-4')"
-            v-cleanhtml="createErrorMessage('submitterForm')" />
+            v-cleanhtml="createErrorMessage('submitterForm')"
+            :class="prefixClass('ml-4')" />
         </div>
 
         <!-- Show radio buttons if anonymous statements are allowed -->
@@ -508,12 +524,12 @@
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
               <component
+                :is="formDefinition.component"
                 v-for="formDefinition in personalDataFormDefinitions"
+                :key="formDefinition.key"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
                 :draft-statement-id="draftStatementId"
                 :form-options="formOptions"
-                :is="formDefinition.component"
-                :key="formDefinition.key"
                 :required="formDefinition.required"
               />
             </div>
@@ -547,33 +563,46 @@
           :class="prefixClass('mt-4')"
           aria-required="true"
         >
-          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <legend class="sr-only">
+            {{ Translator.trans('personal.data') }}
+          </legend>
           <div :class="prefixClass('layout mb-3')">
             <component
+              :is="formDefinition.component"
               v-for="formDefinition in personalDataFormDefinitions"
+              :key="formDefinition.key"
               :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
               :draft-statement-id="draftStatementId"
               :form-options="formOptions"
-              :is="formDefinition.component"
-              :key="formDefinition.key"
               :required="formDefinition.required"
             />
           </div>
         </fieldset>
 
         <component
-          v-for="formDefinition in statementFeedbackDefinitions"
           :is="formDefinition.component"
+          v-for="formDefinition in statementFeedbackDefinitions"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text-right mt-3')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToStatement"
             type="button"
+            @click="goToPreviousStep"
+          >
+            {{ Translator.trans('go.back.to.statement') }}
+          </button>
+
+          <button
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             data-cy="submitterForm"
-            :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
-            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
+            type="button"
+            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)"
+          >
             {{ Translator.trans('continue.submission') }}
           </button>
         </div>
@@ -584,22 +613,22 @@
         v-show="step === 2"
         data-dp-validate="recheckForm">
         <statement-modal-recheck
-          @edit-input="handleEditInput"
           :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
-          :statement-form-hint-recheck="statementFormHintRecheck" />
+          :statement-form-hint-recheck="statementFormHintRecheck"
+          @edit-input="handleEditInput" />
 
         <label
           v-if="hasPermission('feature_statement_data_protection')"
-          :class="prefixClass('u-mb-0 weight--normal')"
           id="data_protection_label"
+          :class="prefixClass('u-mb-0 weight--normal')"
           :title="Translator.trans('statements.required.field')">
           <input
-            type="checkbox"
             id="data_protection"
+            type="checkbox"
             name="r_data_protection"
             required
             aria-labelledby="explanation-statement-data-protection">
@@ -633,17 +662,26 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('text-right')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
+          <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToPersonalData"
+            type="button"
+            @click.prevent="goToPreviousStep">
+            {{ Translator.trans('go.back.to.personal.data') }}
+          </button>
+
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
-            type="button"
-            data-cy="sendStatementNow"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary')"
-            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
+            data-cy="sendStatementNow"
+            type="button"
+            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))"
+          >
             {{ Translator.trans('statement.submit.now') }}
           </button>
         </div>
@@ -654,8 +692,8 @@
           v-cleanhtml="responseHtml" />
         <template v-else>
           <h2
-            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
+            :class="prefixClass('color-highlight')"
             data-title="confirmation"
             aria-describedby="successConfirmation">
             <i
@@ -692,10 +730,10 @@
             <span :class="prefixClass('float-right text-right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
-                @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
                 data-cy="statementModal:close"
-                rel="noopener">
+                rel="noopener"
+                @click="toggleModal">
                 {{ Translator.trans('close') }}
               </a>
             </span>
@@ -708,7 +746,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -718,6 +755,7 @@ import {
   DpLoading,
   DpModal,
   DpMultistepNav,
+  DpProgressBar,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
@@ -725,7 +763,7 @@ import {
   isActiveFullScreen,
   makeFormPost,
   prefixClassMixin,
-  toggleFullscreen
+  toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
@@ -751,7 +789,7 @@ const fieldDescriptionsForErrors = {
   submitterTypeFieldset: 'submitter',
   r_houseNumber: 'street.number.short',
   r_street: 'street',
-  r_userOrganisation: 'institution.name'
+  r_userOrganisation: 'institution.name',
 }
 
 export default {
@@ -765,6 +803,7 @@ export default {
     DpLoading,
     DpModal,
     DpMultistepNav,
+    DpProgressBar,
     DpRadio,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -784,11 +823,11 @@ export default {
     FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
     FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
     FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
-    StatementModalRecheck
+    StatementModalRecheck,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
@@ -797,131 +836,137 @@ export default {
     allowAnonymousStatements: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentPage: {
       type: String,
       required: false,
-      default: 'publicDetail'
+      default: 'publicDetail',
     },
 
     extId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     extraPersonalHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     feedbackFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initHasPlanningDocuments: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     orgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     personalDataFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     planningDocumentsHasNegativeStatement: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
+    },
+
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     initRedirectPath: {
       type: String,
       required: false,
-      default: 'DemosPlan_procedure_public_detail'
+      default: 'DemosPlan_procedure_public_detail',
     },
 
     statementFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     statementFormHintPersonalData: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintStatement: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'toggle-tabs',
-    'uploader-reset'
+    'uploader-reset',
   ],
 
   data () {
@@ -942,8 +987,8 @@ export default {
         countyReference: { component: 'FormGroupCountyReference' },
         stateAndGroupAndOrgaNameAndPosition: {
           component: 'FormGroupStateAndGroupAndOrgaNameAndPosition',
-          width: 'u-1-of-1'
-        }
+          width: 'u-1-of-1',
+        },
       },
       continueWriting: false,
       draftStatementId: '',
@@ -965,7 +1010,7 @@ export default {
       showHeader: true,
       step: 0,
       unsavedFiles: [],
-      updateDraftListRequired: false
+      updateDraftListRequired: false,
     }
   },
 
@@ -979,7 +1024,7 @@ export default {
       highlighted: 'highlighted',
       localStorageName: 'localStorageName',
       unsavedDrafts: 'unsavedDrafts',
-      userId: 'userId'
+      userId: 'userId',
     }),
 
     canNotBeNegativeReport () {
@@ -1015,7 +1060,7 @@ export default {
               name: fileArray[0],
               hash: fileArray[1],
               size: fileArray[2],
-              type: fileArray[3]
+              type: fileArray[3],
             }
           })
       }
@@ -1043,7 +1088,23 @@ export default {
       return this.feedbackFormFields.map(el => {
         return { ...el, ...this.availableFormComponents[el.name] }
       })
-    }
+    },
+
+    stepsData () {
+      return [{
+        label: Translator.trans('statement.yours'),
+        icon: this.commentingIcon,
+        title: Translator.trans('statement.modal.step.write'),
+      }, {
+        label: Translator.trans('personal.data'),
+        icon: 'fa-user',
+        title: Translator.trans('statement.modal.step.personal.data'),
+      }, {
+        label: Translator.trans('recheck'),
+        icon: 'fa-check',
+        title: Translator.trans('statement.modal.step.recheck'),
+      }]
+    },
   },
 
   watch: {
@@ -1052,8 +1113,8 @@ export default {
         const parsed = JSON.stringify(newFormData)
         this.continueWriting = this.initFormDataJSON !== parsed
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -1069,7 +1130,7 @@ export default {
       'update',
       'updateHighlighted',
       'updateDeleteFile',
-      'updateStatement'
+      'updateStatement',
     ]),
 
     // On every successful upload of a file, both `this.unsavedFiles` and `this.statement` are updated.
@@ -1111,10 +1172,9 @@ export default {
       // Else: get the data via api
       return dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
+        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId }),
       })
-        .then(checkResponse)
-        .then(data => {
+        .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
 
           if (draftExists === false) {
@@ -1144,6 +1204,12 @@ export default {
         })
     },
 
+    goToPreviousStep () {
+      if (this.step > 0) {
+        this.step -= 1
+      }
+    },
+
     /*
      * When clicking the little ✎ icon in the "recheck" step, users are sent to the
      * respective multistep step, and afterwards the element they want to edit is focused.
@@ -1155,7 +1221,7 @@ export default {
         r_makePublic: 0,
         r_useName_0: 1,
         r_useName_1: 1,
-        r_getFeedback: 1
+        r_getFeedback: 1,
       }[input] || 0
       this.$nextTick(() => {
         // Focusing of the tiptap instance must be handled separately
@@ -1281,6 +1347,9 @@ export default {
        * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
        *
        */
+      if (dataToSend.r_makePublic === 'off') {
+        delete dataToSend.r_makePublic
+      }
       if (dataToSend.r_getFeedback === 'off') {
         delete dataToSend.r_getFeedback
       }
@@ -1314,7 +1383,7 @@ export default {
         r_document_id: '',
         r_document_title: '',
         r_paragraph_id: '',
-        r_paragraph_title: ''
+        r_paragraph_title: '',
       }
 
       this.setStatementData(elementFields)
@@ -1333,7 +1402,7 @@ export default {
       this.setStatementData({
         uploadedFiles: this.unsavedFiles
           .map(el => el.hash)
-          .join(',')
+          .join(','),
       })
     },
 
@@ -1471,7 +1540,7 @@ export default {
         r_location_point: '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
-        r_makePublic: !!data.draftStatement.publicAllowed
+        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
       }
 
       if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
@@ -1584,7 +1653,7 @@ export default {
 
     validateRecheckStep () {
       return this.dpValidate.recheckForm
-    }
+    },
   },
 
   mounted () {
@@ -1624,6 +1693,6 @@ export default {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }
     }
-  }
+  },
 }
 </script>

@@ -81,19 +81,19 @@ export default {
   name: 'DpSearch',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     showSuggestions: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
 
   emits: [
-    'procedure-search-focused'
+    'procedure-search-focused',
   ],
 
   data () {
@@ -104,13 +104,13 @@ export default {
       searched: false,
       searchTerm: '',
       selected: false,
-      value: ''
+      value: '',
     }
   },
 
   computed: {
     ...mapState('Location', [
-      'locations'
+      'locations',
     ]),
 
     changed () {
@@ -119,16 +119,16 @@ export default {
 
     searchedAndNotChanged () {
       return this.searched && !this.changed
-    }
+    },
   },
 
   methods: {
     ...mapActions('Location', {
-      getLocationSuggestions: 'get'
+      getLocationSuggestions: 'get',
     }),
 
     ...mapActions('Procedure', {
-      getProcedures: 'get'
+      getProcedures: 'get',
     }),
 
     asyncFind: debounce(function (query) {
@@ -188,7 +188,7 @@ export default {
         .then(() => {
           this.searched = searchTerm
         })
-    }
-  }
+    },
+  },
 }
 </script>

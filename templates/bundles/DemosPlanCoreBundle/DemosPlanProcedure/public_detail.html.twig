@@ -496,6 +496,7 @@
                         :personal-data-form-fields="JSON.parse('{{ personalDataFields|json_encode|e('js', 'utf-8') }}')"
                         :planning-documents-has-negative-statement="Boolean({{ templateVars.planningDocumentsHasNegativeStatement|default(false) }})"
                         :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
+                        :public-participation-feedback-enabled="Boolean({{ proceduresettings.publicParticipationFeedbackEnabled|default(false) }})"
                         :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
                         extra-personal-hint="{% block extra_personal_hint %}{% endblock %}"
                         project-name="{{ projectName }}"

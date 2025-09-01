@@ -43,8 +43,8 @@ All rights reserved
       {{ Translator.trans('support.technical') }}
     </h3>
     <div
-      class="lg:w-8/12"
-      v-if="hasPermission('feature_customer_support_technical_read')">
+      v-if="hasPermission('feature_customer_support_technical_read')"
+      class="lg:w-8/12">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
@@ -72,19 +72,19 @@ export default {
       email: '',
       phoneNumber: '',
       reachability: {},
-      title: ''
+      title: '',
     }
   },
 
   computed: {
     ...mapState('CustomerContact', {
-      contacts: 'items'
-    })
+      contacts: 'items',
+    }),
   },
 
   methods: {
     ...mapActions('CustomerContact', {
-      fetchContacts: 'list'
+      fetchContacts: 'list',
     }),
 
     fetchCustomerContactsData () {
@@ -94,9 +94,9 @@ export default {
             'title',
             'phoneNumber',
             'text',
-            'eMailAddress'
-          ].join()
-        }
+            'eMailAddress',
+          ].join(),
+        },
       }
 
       if (hasPermission('feature_customer_support_contact_administration')) {
@@ -106,19 +106,19 @@ export default {
             onlyVisible: {
               condition: {
                 path: 'visible',
-                value: 1
-              }
-            }
-          }
+                value: 1,
+              },
+            },
+          },
         }
       }
 
       this.fetchContacts(params)
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomerContactsData()
-  }
+  },
 }
 </script>

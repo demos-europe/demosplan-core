@@ -113,7 +113,7 @@ All rights reserved
   </fieldset>
 </template>
 <script>
-import { checkResponse, DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import { mapState } from 'vuex'
 
@@ -126,25 +126,25 @@ export default {
     DpInlineNotification,
     DpInput,
     DpLabel,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -158,17 +158,17 @@ export default {
       finalEmailOnlyToVoters: false,
       formattedSentAssessmentDate: '',
       statementUser: null,
-      statementUserOrga: null
+      statementUserOrga: null,
     }
   },
 
   computed: {
     ...mapState('Orga', {
-      orgas: 'items'
+      orgas: 'items',
     }),
 
     ...mapState('User', {
-      users: 'items'
+      users: 'items',
     }),
 
     email2InputValue () {
@@ -201,7 +201,7 @@ export default {
       }
 
       return ''
-    }
+    },
   },
 
   methods: {
@@ -259,10 +259,9 @@ export default {
           subject: this.emailSubject,
           body: this.emailBodyText,
           sendEmailCC: this.emailsCC,
-          emailAttachments: formattedAttachments
+          emailAttachments: formattedAttachments,
         }
         dpRpc('statement.email.sender', params, this.procedure.id)
-          .then(checkResponse)
           .then(() => {
             this.resetEmailData()
           })
@@ -296,7 +295,7 @@ export default {
         orgaName: this.procedure.orgaName,
         procedureName: this.procedure.name,
         statementText: this.statement.attributes.fullText,
-        statementRecommendation: this.statement.attributes.recommendation
+        statementRecommendation: this.statement.attributes.recommendation,
       })
     },
 
@@ -320,11 +319,11 @@ export default {
 
     updateEmailBodyText (text) {
       this.emailBodyText = text
-    }
+    },
   },
 
   mounted () {
     this.initValues()
-  }
+  },
 }
 </script>

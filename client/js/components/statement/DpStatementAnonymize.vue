@@ -131,8 +131,8 @@
                 ...
               </span>
               <span
-                class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"
-                v-clean-html="snippet" />
+                v-clean-html="snippet"
+                class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5" />
             </template>
           </div>
         </li>
@@ -252,13 +252,12 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   DpAnonymizeText,
   dpApi,
   DpButton,
   DpCheckbox,
-  DpContextualHelp
+  DpContextualHelp,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -268,51 +267,51 @@ export default {
     DpButton,
     DpCheckbox,
     DpAnonymizeText,
-    DpContextualHelp
+    DpContextualHelp,
   },
 
   directives: {
-    cleanHtml: CleanHtml
+    cleanHtml: CleanHtml,
   },
 
   props: {
     aTableLink: {
       required: true,
-      type: String
+      type: String,
     },
     /**
      * Needed to construct the route back to the original statements list.
      */
     originalFilterHash: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementData: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementText: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     children: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -321,12 +320,12 @@ export default {
         anonymizeStatementMeta: false,
         deleteStatementTextHistory: false,
         anonymizeStatementText: false,
-        deleteStatementAttachments: false
+        deleteStatementAttachments: false,
       },
       busy: false,
       currentStep: 1,
       totalSteps: 3,
-      anonymizeText: this.statementText
+      anonymizeText: this.statementText,
     }
   },
   computed: {
@@ -342,7 +341,7 @@ export default {
         anonymizedSnippets.push(result[2])
       }
       return anonymizedSnippets
-    }
+    },
   },
 
   methods: {
@@ -388,25 +387,24 @@ export default {
       const payload = {
         data: {
           data: {
-            statementId: this.statementId
+            statementId: this.statementId,
           },
           actions: {
             anonymizeStatementText: this.actions.anonymizeStatementText ? this.prepareTextForApiCall(this.anonymizeText) : null,
             deleteStatementAttachments: this.actions.deleteStatementAttachments,
             anonymizeStatementMeta: this.actions.anonymizeStatementMeta,
-            deleteStatementTextHistory: this.actions.deleteStatementTextHistory
-          }
-        }
+            deleteStatementTextHistory: this.actions.deleteStatementTextHistory,
+          },
+        },
       }
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_rpc_statement_anonymize'),
         data: payload,
         headers: {
-          'Content-Type': 'application/json; charset=utf-8'
-        }
+          'Content-Type': 'application/json; charset=utf-8',
+        },
       })
-        .then(checkResponse)
         .then(() => {
           this.currentStep = 3
           this.busy = false
@@ -415,7 +413,7 @@ export default {
           this.busy = false
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
-    }
-  }
+    },
+  },
 }
 </script>

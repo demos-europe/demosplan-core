@@ -24,13 +24,13 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     attachment: {
       type: Object,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

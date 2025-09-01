@@ -28,6 +28,7 @@
             query: searchString
           })
         }"
+        search-button
         @search-changed="updateSuggestions"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
         @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
@@ -48,10 +49,11 @@
           @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
+      <!-- Search button, if dp-autocomplete is used only displayed on lap-up screens -->
       <button
         type="button"
         data-cy="searchProcedureMapForm:procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
+        :class="[dplan.settings.useOpenGeoDb ? prefixClass('hidden md:block') : '', prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')]"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
@@ -96,8 +98,8 @@
             data-cy="searchProcedureMapForm:sort"
             name="sort"
             :class="prefixClass('o-form__control-select')"
-            @change="setValueAndSubmitForm($event, 'sort')"
-            :value="form.sort">
+            :value="form.sort"
+            @change="setValueAndSubmitForm($event, 'sort')">
             <option
               v-for="option in sortOptions"
               :key="'sort_' + option.value"
@@ -186,8 +188,8 @@
 
     <h2
       v-if="displayArsFilterHeader"
-      :class="prefixClass('u-pl')"
-      id="urlFilterResultsHeader">
+      id="urlFilterResultsHeader"
+      :class="prefixClass('u-pl')">
       {{ searchResultsHeader }}
     </h2>
     <div v-else>
@@ -234,7 +236,7 @@ import {
   DpLoading,
   hasOwnProp,
   makeFormPost,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import proj4 from 'proj4'
 
@@ -245,7 +247,7 @@ export default {
     DpAutocomplete,
     DpContextualHelp,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [prefixClassMixin],
@@ -253,54 +255,54 @@ export default {
   props: {
     countyCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalCode: {
       type: String,
-      default: ''
+      default: '',
     },
 
     filters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initDisplayArsFilterHeader: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     initSearchTerm: {
       type: String,
-      default: ''
+      default: '',
     },
 
     municipalities: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     orgaSlug: {
       type: String,
       default: '',
-      required: false
+      required: false,
     },
 
     searchResultsHeader: {
       type: String,
-      default: ''
+      default: '',
     },
 
     sortOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     useOpenGeoDb: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -318,11 +320,11 @@ export default {
         ...this.filters.reduce((acc, filter) => {
           acc[filter.name] = ''
           return acc
-        }, {})
+        }, {}),
       },
       autocompleteOptions: [],
       displayArsFilterHeader: this.initDisplayArsFilterHeader,
-      showFilter: true
+      showFilter: true,
     }
   },
 
@@ -337,7 +339,7 @@ export default {
 
     isSearch () {
       return this.currentSearch !== Translator.trans('entries.all.dative')
-    }
+    },
   },
 
   methods: {
@@ -499,7 +501,7 @@ export default {
             .replace('___end___', mapVars[index].publicParticipationEndDate)
             .replace('___phase___', mapVars[index].publicParticipationPhaseName)
             .replace('___shortText___', mapVars[index].externalDesc)
-          , '___procedureUrl___', mapVars[index].procedureUrl
+          , '___procedureUrl___', mapVars[index].procedureUrl,
           ))
         marker.key = mapVars[index].procedureId
         window.markersLayer.addLayer(marker)
@@ -514,7 +516,7 @@ export default {
       } else {
         this.autocompleteOptions = []
       }
-    }
+    },
   },
 
   mounted () {
@@ -527,6 +529,6 @@ export default {
     }
 
     this.submitForm()
-  }
+  },
 }
 </script>

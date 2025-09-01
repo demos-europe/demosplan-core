@@ -25,9 +25,10 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('login.email')" />
           <slot />
-          <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
+          <div :class="prefixClass('mb-3 grid gap-4')">
             <dp-input
               id="r_email"
+              :class="prefixClass('md:col-span-2')"
               data-cy="email"
               :label="{
                 bold: false,
@@ -37,27 +38,25 @@
               required
               type="email" />
 
-            <div :class="prefixClass('flex')">
-              <dp-input
-                id="r_firstname"
-                data-cy="firstname"
-                :label="{
-                  bold: false,
-                  text: Translator.trans('name.first')
-                }"
-                name="r_firstname"
-                required />
-              <dp-input
-                id="r_lastname"
-                data-cy="lastname"
-                :label="{
-                  bold: false,
-                  text: Translator.trans('name.last')
-                }"
-                name="r_lastname"
-                required />
-            </div>
-          </dp-form-row>
+            <dp-input
+              id="r_firstname"
+              data-cy="firstname"
+              :label="{
+                bold: false,
+                text: Translator.trans('name.first')
+              }"
+              name="r_firstname"
+              required />
+            <dp-input
+              id="r_lastname"
+              data-cy="lastname"
+              :label="{
+                bold: false,
+                text: Translator.trans('name.last')
+              }"
+              name="r_lastname"
+              required />
+          </div>
 
           <dp-checkbox
             id="gdpr_consent"
@@ -82,8 +81,8 @@
       </div>
 
       <div
-        :class="prefixClass('c-login-register__col c-login-register__col-right')"
-        v-if="isIdp">
+        v-if="isIdp"
+        :class="prefixClass('c-login-register__col c-login-register__col-right')">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
           v-text="Translator.trans('login.other_account')" />
@@ -109,7 +108,7 @@
 </template>
 
 <script>
-import { DpButton, DpCheckbox, DpFormRow, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpButton, DpCheckbox, DpInput, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'CitizenRegisterForm',
@@ -117,8 +116,7 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpFormRow,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin],
@@ -127,19 +125,19 @@ export default {
     isIdp: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     idpLoginPath: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

@@ -106,8 +106,8 @@
       <dp-input
         v-if="hasPermission('field_organisation_phone')"
         id="orga_address_phone"
-        :class="prefixClass('mb-2')"
         v-model="organisation.phone"
+        :class="prefixClass('mb-2')"
         data-cy="organisationData:phone"
         :name="`${organisation.id}:address_phone`"
         :label="{
@@ -284,7 +284,7 @@ export default {
     EmailNotificationSettings,
     OrganisationBrandingSettings,
     OrganisationCompetence,
-    PaperCopyPreferences
+    PaperCopyPreferences,
   },
 
   mixins: [prefixClassMixin],
@@ -292,82 +292,82 @@ export default {
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     customers: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     hasTypes: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isOrgaDataEditable: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     hasNotificationSection: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
 
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     orgaTypes: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     proceduresDirectlinkPrefix: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     showDetailedInfo: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     submissionTypeDefault: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     submissionTypeShort: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     user: {
       type: Object,
-      required: true
+      required: true,
     },
 
     willReceiveNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -378,7 +378,7 @@ export default {
         this.organisation.currentSlugName !== '',
       hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
-        hasPermission('field_organisation_competence')
+        hasPermission('field_organisation_competence'),
     }
   },
 
@@ -389,7 +389,7 @@ export default {
         this.hasNotificationSection ||
         this.showDetailedInfo ||
         hasPermission('feature_change_submission_type')
-    }
+    },
   },
   methods: {
     handleSubmit () {
@@ -401,7 +401,7 @@ export default {
       }
 
       this.$el.submit()
-    }
+    },
   },
 
   mounted () {
@@ -412,6 +412,6 @@ export default {
     this.$el.querySelectorAll('input[type=radio]').forEach((input) => {
       input.defaultChecked = input.checked
     })
-  }
+  },
 }
 </script>

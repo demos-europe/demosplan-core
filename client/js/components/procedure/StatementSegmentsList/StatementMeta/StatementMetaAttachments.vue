@@ -45,6 +45,7 @@
 
         <p
           v-if="!localAttachments.originalAttachment.hash && !editable"
+          class="color-text-muted"
           v-text="Translator.trans('none')" />
 
         <template v-if="editable">
@@ -79,6 +80,7 @@
       <!-- Other attachments -->
       <div>
         <dp-label
+          class="mb-0.5"
           :text="Translator.trans('more.attachments')"
           for="uploadStatementAttachment" />
 
@@ -88,8 +90,8 @@
           class="mb-3">
           <li
             v-for="attachment in localAttachments.additionalAttachments"
-            class="flex"
-            :key="attachment.hash">
+            :key="attachment.hash"
+            class="flex">
             <statement-meta-attachments-link
               :attachment="attachment"
               class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"
@@ -110,6 +112,7 @@
         </ul>
         <p
           v-if="localAttachments.additionalAttachments.length === 0 && !editable"
+          class="color-text-muted"
           v-text="Translator.trans('none')" />
 
         <!-- File upload -->
@@ -146,12 +149,11 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButtonRow,
   DpIcon,
   DpLabel,
-  DpUpload
+  DpUpload,
 } from '@demos-europe/demosplan-ui'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
@@ -163,7 +165,7 @@ export default {
     DpIcon,
     DpLabel,
     DpUpload,
-    StatementMetaAttachmentsLink
+    StatementMetaAttachmentsLink,
   },
 
   props: {
@@ -172,7 +174,7 @@ export default {
       required: true,
       validator (value) {
         return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn(value, 'additionalAttachments')
-      }
+      },
     },
 
     /**
@@ -182,18 +184,18 @@ export default {
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -214,7 +216,7 @@ export default {
       // Used for resetting the source attachment
       previousSourceAttachment: {},
       // Used for deleting the source attachment
-      sourceAttachmentMarkedForDeletion: {}
+      sourceAttachmentMarkedForDeletion: {},
     }
   },
 
@@ -231,21 +233,21 @@ export default {
           this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
     'initialAttachments.additionalAttachments': {
       handler (newVal) {
         this.localAttachments.additionalAttachments = JSON.parse(JSON.stringify(newVal))
       },
-      deep: true
+      deep: true,
     },
 
     'initialAttachments.originalAttachment': {
       handler (newVal) {
         this.localAttachments.originalAttachment = JSON.parse(JSON.stringify(newVal))
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -256,11 +258,10 @@ export default {
       const url = Routing.generate('api_resource_create', { resourceType: 'SourceStatementAttachment' })
       const params = {}
       const data = {
-        data: resource
+        data: resource,
       }
 
       return dpApi.post(url, params, data)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.created'))
           this.resetSourceAttachment()
@@ -278,7 +279,6 @@ export default {
       const attachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           const genericAttachments = this.localAttachments.additionalAttachments.filter(attachment => attachment.id !== id)
 
@@ -289,7 +289,7 @@ export default {
           console.error(error)
           const restoredAttachments = [
             ...this.localAttachments.additionalAttachments,
-            attachmentToBeDeleted
+            attachmentToBeDeleted,
           ]
 
           this.setLocalGenericAttachments(restoredAttachments)
@@ -303,7 +303,6 @@ export default {
       const url = Routing.generate('api_resource_delete', { resourceType: 'SourceStatementAttachment', resourceId: this.initialAttachments.originalAttachment.id })
 
       return dpApi.delete(url)
-        .then(checkResponse)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.deleted'))
           this.resetSourceAttachment()
@@ -323,16 +322,16 @@ export default {
             statement: {
               data: {
                 id: this.statementId,
-                type: 'Statement'
-              }
+                type: 'Statement',
+              },
             },
             file: {
               data: {
                 id: fileHash,
-                type: 'File'
-              }
-            }
-          }
+                type: 'File',
+              },
+            },
+          },
         }
       }
 
@@ -343,16 +342,16 @@ export default {
             statement: {
               data: {
                 id: this.statementId,
-                type: 'Statement'
-              }
+                type: 'Statement',
+              },
             },
             file: {
               data: {
                 id: fileHash,
-                type: 'File'
-              }
-            }
-          }
+                type: 'File',
+              },
+            },
+          },
         }
       }
     },
@@ -364,8 +363,8 @@ export default {
         ...this.localAttachments.additionalAttachments,
         {
           filename: file.name,
-          hash: file.fileId
-        }
+          hash: file.fileId,
+        },
       ]
 
       this.setLocalGenericAttachments(updatedGenericAttachments)
@@ -399,7 +398,7 @@ export default {
 
       this.setLocalOriginalAttachment({
         filename: file.name,
-        hash: file.fileId
+        hash: file.fileId,
       })
     },
 
@@ -461,7 +460,7 @@ export default {
           const url = Routing.generate('api_resource_create', { resourceType: 'GenericStatementAttachment' })
           const params = {}
           const data = {
-            data: resource
+            data: resource,
           }
 
           promises.push(dpApi.post(url, params, data))
@@ -507,7 +506,7 @@ export default {
 
     triggerStatementRequest () {
       this.$root.$emit('statement-attachments-added')
-    }
-  }
+    },
+  },
 }
 </script>

@@ -25,7 +25,7 @@ export default {
 
   components: {
     DpAccordion,
-    DpButtonRow
+    DpButtonRow,
   },
 
   mixins: [dpValidateMixin],
@@ -33,13 +33,13 @@ export default {
   props: {
     formId: {
       type: String,
-      default: ''
+      default: '',
     },
 
     title: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   methods: {
@@ -55,7 +55,7 @@ export default {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).submit()
       }
-    }
-  }
+    },
+  },
 }
 </script>

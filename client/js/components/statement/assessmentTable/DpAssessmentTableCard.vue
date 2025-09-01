@@ -27,10 +27,10 @@
 
 <template>
   <li
+    v-cloak
     :id="'itemdisplay_' + statement.id"
     :data-cy="dataCy"
-    class="c-at-item"
-    v-cloak>
+    class="c-at-item">
     <!--  item header  -->
     <div v-if="statement.movedToProcedureId === ''">
       <div
@@ -39,10 +39,10 @@
         <!--  id, date created, assignment  -->
         <div class="c-at-item__row-icon layout__item">
           <input
+            :id="`checkStatement:${displayedCheckboxId}`"
             type="checkbox"
             name="statement[]"
             data-cy="checkStatement"
-            :id="`checkStatement:${displayedCheckboxId}`"
             :value="displayedCheckboxId"
             :disabled="hasPermission('area_statements_fragment') && Object.keys(selectedFragments).length > 0"
             :title="hasPermission('area_statements_fragment') && Object.keys(selectedFragments).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statement')}) : false"
@@ -51,6 +51,7 @@
           <br>
           <!-- Claim -->
           <dp-claim
+            v-if="hasPermission('feature_statement_assignment')"
             class="c-at-item__row-icon inline-block"
             entity-type="statement"
             :assigned-id="(statement.assignee.id || '')"
@@ -59,14 +60,14 @@
             :current-user-id="currentUserId"
             :current-user-name="currentUserName"
             :is-loading="updatingClaimState"
-            v-if="hasPermission('feature_statement_assignment')"
             @click="updateClaim" />
         </div><!--
        --><div class="layout--flush layout__item c-at-item__row">
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover
+            <DpTooltip
+              :text="statementDateTooltipContent"
               placement="top"
               trigger="hover focus">
               <i
@@ -83,23 +84,7 @@
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
-
-              <template v-slot:popover>
-                <template v-if="statement.authoredDate > 0">
-                  {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }}<br>
-                </template>
-
-                {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }}<br>
-                {{ Translator.trans('phase') }}: {{ statement.phase }}
-
-                <template v-if="statement.movedFromProcedureId !== ''">
-                  <br>
-                  {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
-                  <br>
-                  {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
-                </template>
-              </template>
-            </v-popover>
+            </DpTooltip>
           </label><!--
 
        --><div
@@ -109,7 +94,8 @@
               v-if="false === statement.isCluster"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
-                <v-popover
+                <DpTooltip
+                  :text="authorTooltipContent"
                   class="o-hellip--nowrap"
                   placement="top"
                   trigger="hover focus">
@@ -158,62 +144,10 @@
                       </template>
                     </template>
                   </template>
-
-                  <!--  Popover content  -->
-                  <template
-                    v-if="hasOwnProp(statement, 'initialOrganisationName')"
-                    v-slot:popover>
-                    <!--  see (#1)  -->
-                    <template
-                      v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
-                      {{ Translator.trans('organisation') }}: {{ statement.initialOrganisationName !== '' ? statement.initialOrganisationName : Translator.trans('institution') }} <br>
-                      <!--  see (#2)  -->
-                      <template v-if="!!statement.initialOrganisationDepartmentName && statement.initialOrganisationDepartmentName !== ''">
-                        {{ Translator.trans('department') }}: {{ statement.initialOrganisationDepartmentName }}<br>
-                      </template>
-                    </template>
-
-                    <!--  see (#3)  -->
-                    <!-- if
-                     - non-anonymous institution (submitName === given name) or
-                     - non-anonymous citizen (manual statement) (submitName === given name) or
-                     - anonymized citizen/institution (submitName === 'anonymisiert')
-                     display submitName -->
-                    <template v-if="statement.submitName !== ''">
-                      {{ Translator.trans('submitted.author') }}: {{ statement.submitName }}
-                    </template>
-
-                    <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
-                    <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
-                      {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
-                    </template>
-
-                    <!-- if anonymous citizen (unregistered or manual statement) -->
-                    <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
-                      {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
-                    </template>
-
-                    <!--  additional user fields: userState, userGroup, userOrganisation, userPosition  -->
-                    <template v-if="hasPermission('field_statement_user_state') && !!statement.userState">
-                      <br>{{ Translator.trans('state') }}: {{ statement.userState }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_group') && !!statement.userGroup">
-                      <br>{{ Translator.trans('group') }}: {{ statement.userGroup }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_organisation') && !!statement.userOrganisation">
-                      <br>{{ Translator.trans('organisation') }}: {{ statement.userOrganisation }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_position') && !!statement.userPosition">
-                      <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
-                    </template>
-                  </template>
                   <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
-                </v-popover>
+                </DpTooltip>
               </div>
             </div>
             <div
@@ -229,9 +163,9 @@
             class="inline-block u-pt-0_25 text-right float-right">
             <!-- Votes -->
             <span
+              v-if="hasPermission('feature_statements_vote') && statement.votesNum > 0"
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"
-              class="c-at-item__badge-icon"
-              v-if="hasPermission('feature_statements_vote') && statement.votesNum > 0">
+              class="c-at-item__badge-icon">
               <i
                 class="fa fa-comment-o u-mr-0_125"
                 aria-hidden="true" />{{ statement.votesNum }}
@@ -239,9 +173,9 @@
 
             <!-- Likes -->
             <span
+              v-if="hasPermission('feature_statements_like') && statement.likesNum > 0"
               v-tooltip="`${Translator.trans('liked.by')}: ${statement.likesNum}`"
-              class="c-at-item__badge-icon"
-              v-if="hasPermission('feature_statements_like') && statement.likesNum > 0">
+              class="c-at-item__badge-icon">
               <i
                 class="fa fa-chevron-circle-up u-mr-0_125"
                 aria-hidden="true" />{{ statement.likesNum }}
@@ -249,8 +183,8 @@
 
             <!-- Visibility for public -->
             <i
-              v-tooltip="`${Translator.trans('publish.on.platform')}: ${Translator.trans(statement.publicVerifiedTranslation)}`"
               v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled"
+              v-tooltip="`${Translator.trans('publish.on.platform')}: ${Translator.trans(statement.publicVerifiedTranslation)}`"
               class="c-at-item__badge-icon fa"
               :class="publicVerifiedKeyIcon"
               aria-hidden="true" />
@@ -285,8 +219,8 @@
 
       <!--  item content - hidden with table-cards:toggle-view 'collapsed' (List view)  -->
       <div
-        data-cy="statementCardDetail"
-        v-show="expanded">
+        v-show="expanded"
+        data-cy="statementCardDetail">
         <dp-item-row
           v-if="hasPermission('area_statements_fragment')"
           class="u-mt-0_25">
@@ -315,16 +249,16 @@
                 class="layout--flush layout__item"
                 :class="hasPermission('field_statement_priority') ? 'border--right u-3-of-6' : 'u-1-of-1'">
                 <dp-edit-field-single-select
+                  ref="status"
                   label="Status"
                   field-key="status"
                   :entity-id="statement.id"
                   :options="status"
                   :value="statement.status"
-                  @field:update="updateStatement"
-                  @field:save="data => saveStatement(data, 'attribute', 'status')"
-                  ref="status"
                   :editable="isClaimed"
-                  :label-grid-cols="4" />
+                  :label-grid-cols="4"
+                  @field:update="updateStatement"
+                  @field:save="data => saveStatement(data, 'attribute', 'status')" />
               </dd><!--
                 Priorities
              --><dd
@@ -332,6 +266,7 @@
                 class="layout__item"
                 :class="hasPermission('field_statement_priority') ? 'u-pl-0_5 u-3-of-6' : 'u-1-of-1'">
                   <dp-edit-field-single-select
+                    ref="priority"
                     label="priority"
                     :entity-id="statement.id"
                     field-key="priority"
@@ -339,7 +274,6 @@
                     :options="priorities"
                     :editable="isClaimed"
                     :label-grid-cols="4"
-                    ref="priority"
                     @field:update="updateStatement"
                     @field:save="data => saveStatement(data, 'attribute', 'priority')" />
                 </dd>
@@ -357,32 +291,32 @@
                 class="layout__item"
                 :class="[hasPermission('field_statement_vote_pla') ? 'border--right u-3-of-6 u-pr-0_5' : 'u-1-of-1']">
                 <dp-edit-field-single-select
+                  ref="voteStk"
                   :label="Translator.trans('fragment.voteAdvice.short')"
                   field-key="voteStk"
                   :label-grid-cols="(hasPermission('field_statement_vote_pla')) ? 4 : 2"
                   :entity-id="statement.id"
                   :options="adviceValues"
                   :value="statement.voteStk"
+                  :editable="isClaimed"
                   @field:update="updateStatement"
-                  @field:save="data => saveStatement(data, 'attribute', 'voteStk')"
-                  ref="voteStk"
-                  :editable="isClaimed" />
+                  @field:save="data => saveStatement(data, 'attribute', 'voteStk')" />
               </dd><!--
              --><dd
                   v-if="hasPermission('field_statement_vote_pla') && hasPermission('feature_statements_fragment_vote')"
                   class="layout__item"
                   :class="(hasPermission('field_statement_vote_stk')) ? 'u-3-of-6 u-pl-0_5' : 'u-1-of-1'">
                   <dp-edit-field-single-select
+                    ref="votePla"
                     :label="Translator.trans('fragment.vote.short')"
                     field-key="votePla"
                     :label-grid-cols="4"
                     :entity-id="statement.id"
                     :options="adviceValues"
                     :value="statement.votePla || ''"
+                    :editable="isClaimed"
                     @field:update="updateStatement"
-                    @field:save="data => saveStatement(data, 'attribute', 'votePla')"
-                    ref="votePla"
-                    :editable="isClaimed" />
+                    @field:save="data => saveStatement(data, 'attribute', 'votePla')" />
                 </dd>
             </dl>
           </dp-item-row>
@@ -398,6 +332,7 @@
             class="u-pb-0">
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_county')"
+              ref="counties"
               class="relative"
               label="counties"
               :entity-id="statement.id"
@@ -405,12 +340,12 @@
               :value="statement.counties"
               :options="counties"
               :editable="isClaimed"
-              ref="counties"
               @field:update="updateStatement"
               @field:save="data => saveStatement(data, 'relationship', 'counties')" />
 
             <dp-edit-field-multi-select
               v-if="hasPermission('field_statement_municipality') && statementFormDefinitions.mapAndCountyReference.enabled"
+              ref="municipalities"
               class="relative"
               label="municipalities"
               :entity-id="statement.id"
@@ -418,12 +353,12 @@
               :value="statement.municipalities"
               :options="municipalities"
               :editable="isClaimed"
-              ref="municipalities"
               @field:update="updateStatement"
               @field:save="data => saveStatement(data, 'relationship', 'municipalities')" />
 
             <dp-edit-field-multi-select
               v-if="dplan.procedureStatementPriorityArea && statementFormDefinitions.mapAndCountyReference.enabled"
+              ref="priorityAreas"
               class="relative"
               label="priorityAreas.all"
               :entity-id="statement.id"
@@ -431,7 +366,6 @@
               :value="statement.priorityAreas"
               :options="priorityAreas"
               :editable="isClaimed"
-              ref="priorityAreas"
               @field:update="updateStatement"
               @field:save="data => saveStatement(data, 'relationship', 'priorityAreas')" />
 
@@ -442,9 +376,9 @@
                 --><dd class="layout__item u-1-of-6 u-pt-0_25">
                   <a
                     class="u-5-of-6 relative"
-                    @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))"
                     href="#"
-                    rel="noopener">
+                    rel="noopener"
+                    @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))">
                     {{ Translator.trans('see') }}
                   </a>
                 </dd>
@@ -453,10 +387,11 @@
 
           <!--  elements  -->
           <dp-item-row
-            title="elements.assigned"
             v-if="hasPermission('field_procedure_elements')"
+            title="elements.assigned"
             class="u-pb-0">
             <dp-edit-field-single-select
+              ref="elementId"
               class="relative"
               label="document"
               :entity-id="statement.id"
@@ -464,12 +399,12 @@
               :value="statement.elementId"
               :options="elements"
               :editable="isClaimed"
-              ref="elementId"
               @field:save="data => saveStatement(data, 'relationship', 'elements')" />
 
             <!-- paragraphParent, i.e. original version of the paragraph -->
             <dp-edit-field-single-select
               v-if="elementHasParagraphs"
+              ref="paragraph"
               class="relative"
               label="paragraph"
               :entity-id="statement.id"
@@ -477,12 +412,12 @@
               :value="statement.paragraphParentId"
               :options="selectedElementParagraph"
               :editable="isClaimed"
-              ref="paragraph"
               @field:save="data => saveStatement(data, 'relationship', 'paragraph')" />
 
             <!-- documentParent -->
             <dp-edit-field-single-select
               v-if="elementHasDocuments"
+              ref="document"
               class="relative"
               label="file"
               :entity-id="statement.id"
@@ -490,7 +425,6 @@
               :value="statement.documentParentId"
               :options="selectedElementDocuments"
               :editable="isClaimed"
-              ref="document"
               @field:save="data => saveStatement(data, 'relationship', 'document')" />
 
             <dl v-if="hasPermission('field_procedure_elements') && hasPermission('area_statements_fragment') && statement.fragmentsElements.length > 0">
@@ -514,10 +448,11 @@
 
           <!--  tags  -->
           <dp-item-row
-            title="tags"
             v-if="hasPermission('feature_statements_tag')"
+            title="tags"
             class="u-pb-0">
             <dp-edit-field-multi-select
+              ref="tags"
               class="relative"
               label="tags"
               :entity-id="statement.id"
@@ -529,7 +464,6 @@
               group-label="title"
               :is-group-select="true"
               :editable="isClaimed"
-              ref="tags"
               @field:update="updateStatement"
               @field:save="data => saveStatement(data, 'relationship', 'tags')" />
           </dp-item-row>
@@ -558,6 +492,7 @@
                   because the permission check (featureObscureText) takes place in tiptap
                   -->
               <editable-text
+                ref="text"
                 class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
                 title="statement"
                 :procedure-id="procedureId"
@@ -573,12 +508,12 @@
                 :obscure="hasPermission('feature_obscure_text')"
                 strikethrough
                 height-limit-element-label="statement"
-                @field:save="data => saveStatement(data, 'attribute', 'text')"
-                ref="text" />
+                @field:save="data => saveStatement(data, 'attribute', 'text')" />
               <!--
                 Recommendation text
              -->
               <editable-text
+                ref="recommendation"
                 class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
                 title="recommendation"
                 :procedure-id="procedureId"
@@ -592,12 +527,11 @@
                 :editable="isClaimed"
                 edit-label="recommendation.of.statement.edit"
                 height-limit-element-label="fragment"
-                @field:save="data => saveStatement(data, 'attribute', 'recommendation')"
-                ref="recommendation"
-                :boiler-plate="hasPermission('area_admin_boilerplates')">
+                :boiler-plate="hasPermission('area_admin_boilerplates')"
+                @field:save="data => saveStatement(data, 'attribute', 'recommendation')">
                 <template
-                  v-slot:hint
-                  v-if="recommendationPubliclyVisible">
+                  v-if="recommendationPubliclyVisible"
+                  v-slot:hint>
                   {{ Translator.trans('recommendation.publicly.visible.short') }}
                   <dp-contextual-help
                     class="float-right u-mt-0_125"
@@ -645,8 +579,8 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light"
-          v-show="tab==='fragments'">
+          v-show="tab==='fragments'"
+          class="bg-color-light">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
            --><div class="layout__item c-at-item__row weight--bold">
@@ -655,6 +589,7 @@
           </div>
 
           <dp-fragment-list
+            ref="fragmentList"
             :csrf-token="csrfToken"
             :procedure-id="procedureId"
             :statement-id="statement.id"
@@ -663,7 +598,6 @@
             :initial-total-fragments-count="statement.fragmentsCount"
             :initial-filtered-fragments-count="statement.initialFilteredFragmentsCount"
             :is-filtered="isFiltered"
-            ref="fragmentList"
             :fragments-loading="fragmentsLoading" />
         </div>
       </div>
@@ -680,15 +614,16 @@
           type="checkbox"
           :value="statement.id"
           :checked="isSelected"
-          @change="toggleSelection"
-          :disabled="Object.keys(selectedFragments).length > 0">
+          :disabled="Object.keys(selectedFragments).length > 0"
+          @change="toggleSelection">
       </div><!--
 
       --><div class="layout--flush layout__item c-at-item__row">
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover
+            <DpTooltip
+              :text="statementDateTooltipContent"
               class="inline-block"
               placement="top">
               {{ extid }}
@@ -700,32 +635,12 @@
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
-
-              <template v-slot:popover>
-                <span
-                  class="hidden"
-                  :class="{'inline-block': assessmentBaseLoaded}">
-                  <template v-if="statement.authoredDate > 0">
-                    <!-- remove comment when in vue to show the date -->
-                    {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }} <br>
-                  </template>
-                  {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }} <br>
-                  {{ Translator.trans('phase') }}: {{ statement.phase }}
-
-                  <template v-if="statement.movedFromProcedureId !== ''">
-                    <br>
-                    {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
-                    <br>
-                    {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
-                  </template>
-                </span>
-              </template>
-            </v-popover>
+            </DpTooltip>
           </label>
           <div
             v-if="accessibleProcedureIds.findIndex(el => el === statement.movedToProcedureId) >= 0"
-            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
-            v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
+            v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr">
             <a
               :href="Routing.generate('dm_plan_assessment_single_view', { statement: statement.movedStatementId, procedureId: statement.movedToProcedureId })"
               rel="noopener">
@@ -734,8 +649,8 @@
           </div>
           <div
             v-else
-            class="float-right u-mt-0_5 u-mb-0_75 u-mr"
-            v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})">
+            v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})"
+            class="float-right u-mt-0_5 u-mb-0_75 u-mr">
             {{ Translator.trans('movedTo') }}: {{ statement.movedToProcedureName.slice(0,55) }}{{ (statement.movedToProcedureName.length > 55) ? '...' : '' }} ({{ Translator.trans('inaccessible') }})
           </div>
         </div>
@@ -744,7 +659,7 @@
 </template>
 
 <script>
-import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -767,29 +682,29 @@ export default {
     DpItemRow,
     EditableText,
     TableCardFlyoutMenu,
-    VPopover
+    DpTooltip,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: 'statementCard'
+      default: 'statementCard',
     },
 
     isSelected: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     /*
@@ -798,14 +713,14 @@ export default {
      */
     statementProcedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
     'statement:addToSelection',
     'statement:updated',
-    'statement:removeFromSelection'
+    'statement:removeFromSelection',
   ],
 
   data () {
@@ -815,7 +730,7 @@ export default {
       tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
-      placeholderStatementId: null
+      placeholderStatementId: null,
     }
   },
 
@@ -835,7 +750,7 @@ export default {
       'priorityAreas',
       'procedureId',
       'status',
-      'tags'
+      'tags',
     ]),
     ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
     ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
@@ -849,8 +764,8 @@ export default {
         'publicParticipationPublicationEnabled',
         'statements',
         'viewMode',
-        'statementFormDefinitions'
-      ]
+        'statementFormDefinitions',
+      ],
     ),
 
     /*
@@ -929,10 +844,102 @@ export default {
     },
 
     statementDetailPath () {
-      return (this.statement.isCluster)
-        ? Routing.generate('DemosPlan_cluster_view', { statement: this.statementId, procedureId: this.procedureId, isCluster: true })
-        : Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
-    }
+      return (this.statement.isCluster) ?
+        Routing.generate('DemosPlan_cluster_view', { statement: this.statementId, procedureId: this.procedureId, isCluster: true }) :
+        Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
+    },
+
+    statementDateTooltipContent () {
+      const parts = []
+
+      // Add authored date if available
+      if (this.statement.authoredDate > 0) {
+        parts.push(`${Translator.trans('statement.date.authored')}: ${this.statementDate(this.statement.authoredDate)}`)
+      }
+
+      // Add submitted date and phase
+      parts.push(`${Translator.trans('statement.date.submitted')}: ${this.statementDate(this.statement.submitDate)}`)
+      parts.push(`${Translator.trans('phase')}: ${this.statement.phase}`)
+
+      // Add moved procedure info if available
+      if (this.statement.movedFromProcedureId !== '') {
+        parts.push(`${Translator.trans('movedFrom')}: ${this.statement.movedFromProcedureName}`)
+        parts.push(`${Translator.trans('formerExternId')}: ${this.statement.formerExternId}`)
+      }
+
+      return parts.join('<br>')
+    },
+
+    authorTooltipContent () {
+      if (!this.hasOwnProp(this.statement, 'initialOrganisationName')) {
+        return ''
+      }
+
+      const parts = [
+        ...this.getOrganizationTooltipParts, // Add organization info
+        ...this.getSubmittedAuthorTooltipParts, // Add submitted author info
+        ...this.getUserFieldsTooltipParts, // Add user fields
+      ]
+
+      return parts.filter(part => part).join('<br>')
+    },
+
+    getOrganizationTooltipParts () {
+      const parts = []
+
+      if (!this.statement.isSubmittedByCitizen && !this.hasUserOrganisationAccess) {
+        const orgName = this.statement.initialOrganisationName || Translator.trans('institution')
+        parts.push(`${Translator.trans('organisation')}: ${orgName}`)
+
+        if (this.statement.initialOrganisationDepartmentName) {
+          parts.push(`${Translator.trans('department')}: ${this.statement.initialOrganisationDepartmentName}`)
+        }
+      }
+
+      return parts
+    },
+
+    getSubmittedAuthorTooltipParts () {
+      const parts = []
+
+      if (this.statement.submitName) {
+        parts.push(`${Translator.trans('submitted.author')}: ${this.statement.submitName}`)
+      } else if (this.isAnonymousCitizen) {
+        parts.push(`${Translator.trans('submitted.author')}: ${Translator.trans('citizen.anonymous')}`)
+      } else if (this.statement.isSubmittedByCitizen && this.statement.authorName) {
+        parts.push(`${Translator.trans('submitted.author')}: ${this.statement.authorName}`)
+      }
+
+      return parts
+    },
+
+    getUserFieldsTooltipParts () {
+      const parts = []
+      const userFields = [
+        { permission: 'field_statement_user_state', value: this.statement.userState, label: 'state' },
+        { permission: 'field_statement_user_group', value: this.statement.userGroup, label: 'group' },
+        { permission: 'field_statement_user_organisation', value: this.statement.userOrganisation, label: 'organisation' },
+        { permission: 'field_statement_user_position', value: this.statement.userPosition, label: 'position' },
+      ]
+
+      userFields.forEach(field => {
+        if (this.hasPermission(field.permission) && field.value) {
+          parts.push(`${Translator.trans(field.label)}: ${field.value}`)
+        }
+      })
+
+      return parts
+    },
+
+    hasUserOrganisationAccess () {
+      return this.hasPermission('field_statement_user_organisation') && this.statement.userOrganisation
+    },
+
+    isAnonymousCitizen () {
+      return this.statement.submitName === '' &&
+             (this.statement.authorName === '' || this.statement.anonymous) &&
+             this.statement.isSubmittedByCitizen
+    },
 
   },
 
@@ -941,25 +948,25 @@ export default {
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
-      'resetSelection'
+      'resetSelection',
     ]),
 
     ...mapActions('Statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
-      'setAssigneeAction'
+      'setAssigneeAction',
     ]),
 
     ...mapMutations('AssessmentTable', [
       'setModalProperty',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('Statement', [
       'addStatement',
       'updateStatement',
-      'replaceStatement'
+      'replaceStatement',
     ]),
 
     fetchStatementFragments () {
@@ -1030,15 +1037,15 @@ export default {
     preparePayload (data, propType, fieldName) {
       let payload = {
         id: data.id,
-        type: 'Statement'
+        type: 'Statement',
       }
 
       if (propType === 'attribute') {
         payload = {
           ...payload,
           attributes: {
-            [fieldName]: data[fieldName]
-          }
+            [fieldName]: data[fieldName],
+          },
         }
       }
 
@@ -1053,16 +1060,16 @@ export default {
               elements: {
                 data: {
                   id: data.elements,
-                  type: 'Elements'
-                }
+                  type: 'Elements',
+                },
               },
               paragraph: {
-                data: null
+                data: null,
               },
               document: {
-                data: null
-              }
-            }
+                data: null,
+              },
+            },
           }
 
           this.resetRelatedFields()
@@ -1079,11 +1086,11 @@ export default {
                   data: data[fieldName].map(el => {
                     return {
                       id: el,
-                      type
+                      type,
                     }
-                  })
-                }
-              }
+                  }),
+                },
+              },
             }
           }
 
@@ -1094,10 +1101,10 @@ export default {
                 [fieldName]: {
                   data: {
                     id: data[fieldName],
-                    type
-                  }
-                }
-              }
+                    type,
+                  },
+                },
+              },
             }
           }
         }
@@ -1136,74 +1143,76 @@ export default {
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
       //  ##### Fire store action #####
-      this.updateStatementAction({ data: payload }).then(updated => {
-        let updatedField = ''
-        //  Unset loading state of saved field
-        for (const field in updated) {
-          // If TAGS are changed, we have to add the tag content to consideration text field
-          if (field === 'tags') {
-            // This string will concatenate all tags' texts we want to add to recommendation
-            let textToBeAdded = ''
-            const fieldToUpdate = this.$refs.recommendation
-
-            // We return an array with promises to be able to wait until all requests are finished and then add the text at once
-            const tags = Object.values(updated.tags).map(tag => {
-              return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
-                tag: tag.id,
-                procedure: this.procedureId
-              }))
-                .then(data => {
-                  if (data.data.code === 100 && data.data.success) {
-                    // If the tag's text is already in recommendation, we don't want to add it again
-                    if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
-                      return false
-                    } else {
-                      textToBeAdded += '<p>' + data.data.body + '</p>'
-                      return Promise.resolve(true)
+      this.updateStatementAction({ data: payload })
+        .then(updated => {
+          let updatedField = ''
+          //  Unset loading state of saved field
+          for (const field in updated) {
+            // If TAGS are changed, we have to add the tag content to consideration text field
+            if (field === 'tags') {
+              // This string will concatenate all tags' texts we want to add to recommendation
+              let textToBeAdded = ''
+              const fieldToUpdate = this.$refs.recommendation
+              // We return an array with promises to be able to wait until all requests are finished and then add the text at once
+              const tags = Object.values(updated.tags).map(tag => {
+                return dpApi.post(Routing.generate('dm_plan_assessment_get_boilerplates_ajax', {
+                  tag: tag.id,
+                  procedure: this.procedureId,
+                }))
+                  .then(data => {
+                    if (data.data.code === 100 && data.data.success) {
+                      // If the tag's text is already in recommendation, we don't want to add it again
+                      if (fieldToUpdate.$data.fullText.includes(data.data.body) || (fieldToUpdate.$refs.editor && fieldToUpdate.$refs.editor.$data.editor.getHTML().includes(data.data.body))) {
+                        return false
+                      } else {
+                        textToBeAdded += '<p>' + data.data.body + '</p>'
+                        return Promise.resolve(true)
+                      }
                     }
+                  })
+              })
+
+              // After all requests are completed we can add the tag texts to Begründungsfeld
+              Promise.all(tags)
+                .then(() => {
+                  if (textToBeAdded !== '') {
+                    // If there is no input, we want to overwrite the 'k.A.' default string
+                    fieldToUpdate.$data.fullText !== 'k.A.' ?
+                      fieldToUpdate.$data.fullText += textToBeAdded :
+                      fieldToUpdate.$data.fullText = textToBeAdded
+
+                    fieldToUpdate.$data.isEditing = true
+                    dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
                   }
                 })
-            })
+            }
 
-            // After all requests are completed we can add the tag texts to Begründungsfeld
-            Promise.all(tags).then(() => {
-              if (textToBeAdded !== '') {
-                // If there is no input, we want to overwrite the 'k.A.' default string
-                fieldToUpdate.$data.fullText !== 'k.A.'
-                  ? fieldToUpdate.$data.fullText += textToBeAdded
-                  : fieldToUpdate.$data.fullText = textToBeAdded
-
-                fieldToUpdate.$data.isEditing = true
-                dplan.notify.notify('info', Translator.trans('info.tag.text.added'))
+            if (this.$refs[field]) {
+              updatedField = field
+              //  Handle components that use <dp-edit-field>
+              const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
+              if (editFieldComponent) {
+                editFieldComponent.$data.loading = false
+                editFieldComponent.$data.editingEnabled = false
               }
-            })
-          }
-
-          if (this.$refs[field]) {
-            updatedField = field
-            //  Handle components that use <dp-edit-field>
-            const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
-            //  Handle components that have a loading state by themselves
-            if (hasOwnProp(this.$refs[field].$data, 'loading')) {
-              this.$refs[field].$data.loading = false
-            }
-            if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
-              this.$refs[field].$data.editingEnabled = false
+              //  Handle components that have a loading state by themselves
+              if (hasOwnProp(this.$refs[field].$data, 'loading')) {
+                this.$refs[field].$data.loading = false
+              }
+              if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
+                this.$refs[field].$data.editingEnabled = false
+              }
             }
           }
-        }
 
-        // Used in DpVersionHistory to update items in version history sidebar
-        this.$root.$emit('entity:updated', this.statementId, 'statement')
+          // Used in DpVersionHistory to update items in version history sidebar
+          this.$root.$emit('entity:updated', this.statementId, 'statement')
 
-        return updatedField
-      }).then(updatedField => {
-        this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
-      })
+          return updatedField
+        })
+        .then(updatedField => {
+          this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
+        })
     },
 
     showAllFragments (checked) {
@@ -1228,7 +1237,7 @@ export default {
           extid: this.extid,
           movedToProcedure: (this.statement.movedToProcedureId !== ''),
           assignee: this.statement.assignee,
-          isCluster: this.statement.isCluster
+          isCluster: this.statement.isCluster,
         }
         // Make sure that no fragments are checked if we check statement (fragments may not be loaded at this point so the checkbox in TableCard will not be disabled)
         this.resetSelection()
@@ -1279,7 +1288,7 @@ export default {
           this.updatingClaimState = false
           this.$root.$emit('entity:updated', this.statementId, 'statement')
         })
-    }
+    },
   },
 
   mounted () {
@@ -1301,6 +1310,6 @@ export default {
         this.toggleView(mutation.payload.val)
       }
     })
-  }
+  },
 }
 </script>

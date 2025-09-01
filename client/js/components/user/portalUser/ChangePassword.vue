@@ -13,9 +13,9 @@
       {{ Translator.trans('text.password.change') }}
     </p>
     <form
-      class="u-mt space-stack-m"
       id="changepwd"
       ref="changepwd"
+      class="u-mt space-stack-m"
       :action="Routing.generate('DemosPlan_user_change_password')"
       method="POST"
       data-dp-validate>
@@ -80,26 +80,26 @@ export default {
 
   components: {
     DpButtonRow,
-    DpInput
+    DpInput,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     userId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       passwordNew: '',
       passwordNewConfirm: '',
-      passwordOld: ''
+      passwordOld: '',
     }
   },
 
@@ -112,7 +112,7 @@ export default {
 
     submit () {
       this.$refs.changepwd.submit()
-    }
-  }
+    },
+  },
 }
 </script>

@@ -291,6 +291,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      */
     private $allowedSegmentAccessProcedures;
 
+    /**
+     * Enable publication of Feedback possibility.
+     *
+     * @ORM\Column(name="_p_public_participation_feedback_enabled", type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $publicParticipationFeedbackEnabled = false;
+
     public function __construct()
     {
         $this->allowedSegmentAccessProcedures = new ArrayCollection();
@@ -913,6 +920,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
     {
         $this->procedure->getPhaseObject()->setDesignatedSwitchDate($designatedSwitchDate);
+        $this->procedure->getPhaseObject()->setDesignatedSwitchDateTimestamp($designatedSwitchDate?->getTimestamp());
 
         return $this;
     }
@@ -931,6 +939,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDate($designatedPublicSwitchDate);
+        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDateTimestamp($designatedPublicSwitchDate?->getTimestamp());
 
         return $this;
     }
@@ -1113,5 +1122,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
             ->setDesignatedPhaseChangeUser($designatedPublicPhaseChangeUser);
 
         return $this;
+    }
+
+    public function setPublicParticipationFeedbackEnabled(bool $enabled): ProcedureSettingsInterface
+    {
+        $this->publicParticipationFeedbackEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function isPublicParticipationFeedbackEnabled(): bool
+    {
+        return $this->publicParticipationFeedbackEnabled;
     }
 }

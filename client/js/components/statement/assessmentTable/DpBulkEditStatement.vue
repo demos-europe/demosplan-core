@@ -36,12 +36,12 @@
 
       <!--ASSIGN TO OTHER-->
       <div
-        class="border--bottom u-mb"
-        v-if="hasPermission('feature_statement_assignment')">
+        v-if="hasPermission('feature_statement_assignment')"
+        class="border--bottom u-mb">
         <input
-          type="checkbox"
           id="r_new_assignee"
-          v-model="options.newAssignee.checked">
+          v-model="options.newAssignee.checked"
+          type="checkbox">
         <label
           for="r_new_assignee"
           class="inline-block">
@@ -77,9 +77,9 @@
       <!--RECOMMENDATION-->
       <div class="u-mb">
         <input
-          type="checkbox"
           id="r_recommendation"
-          v-model="options.recommendation.checked">
+          v-model="options.recommendation.checked"
+          type="checkbox">
         <label
           for="r_recommendation"
           class="inline-block">
@@ -106,9 +106,9 @@
             <template v-slot:button>
               <button
                 v-if="hasPermission('area_admin_boilerplates')"
+                v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 type="button"
-                v-tooltip="Translator.trans('boilerplate.insert')"
                 @click.stop="openBoilerPlate">
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
@@ -192,9 +192,9 @@
         {{ Translator.trans('confirm.saved.plural') }}
       </h3>
       <p
-        class="flash-confirm u-p-0_5"
         v-for="option in checkedOptions"
-        :key="option">
+        :key="option"
+        class="flash-confirm u-p-0_5">
         <i
           class="fa fa-check fa-lg"
           aria-hidden="true" />
@@ -210,11 +210,10 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpMultiselect,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -233,7 +232,7 @@ export default {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    })
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -242,24 +241,24 @@ export default {
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     currentUserId: {
       required: true,
-      type: String
+      type: String,
     },
 
     filterHash: {
       required: false,
       type: String,
-      default: () => { return '' }
+      default: () => { return '' },
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -276,7 +275,7 @@ export default {
           isValid: () => this.options.newAssignee.value !== '',
           elementToReceiveErrorBorder: '.multiselect__tags', // Has to be querySelector
           errorNotification: 'user.choose.from.list',
-          successMessage: 'confirm.statements.assignment.changed'
+          successMessage: 'confirm.statements.assignment.changed',
         },
         recommendation: {
           checked: false,
@@ -284,10 +283,10 @@ export default {
           isValid: () => this.options.recommendation.value !== '',
           elementToReceiveErrorBorder: '.editor__content', // Has to be querySelector
           errorNotification: 'consideration.text.add.error',
-          successMessage: 'consideration.text.added'
-        }
+          successMessage: 'consideration.text.added',
+        },
       },
-      users: this.authorisedUsers
+      users: this.authorisedUsers,
     }
   },
 
@@ -309,7 +308,7 @@ export default {
     payloadAttributes () {
       return {
         markedStatementsCount: this.selectedElementsCount,
-        ...(this.options.recommendation.checked && { recommendationAddition: this.options.recommendation.value })
+        ...(this.options.recommendation.checked && { recommendationAddition: this.options.recommendation.value }),
       }
     },
 
@@ -317,9 +316,9 @@ export default {
     payloadRelationships () {
       return {
         statements: {
-          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' }))
+          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' })),
         },
-        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
+        ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } }),
       }
     },
 
@@ -329,12 +328,12 @@ export default {
 
     selectedElementsCount () {
       return (this.selectedElementsLength)
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', {
-      resetSelectionAction: 'resetSelection'
+      resetSelectionAction: 'resetSelection',
     }),
     ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
@@ -362,17 +361,16 @@ export default {
           id: uuid(),
           type: 'statementBulkEdit',
           attributes: this.payloadAttributes,
-          relationships: this.payloadRelationships
-        }
+          relationships: this.payloadRelationships,
+        },
       }
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
-          procedureId: this.procedureId
+          procedureId: this.procedureId,
         }),
-        data: payload
+        data: payload,
       })
-        .then(checkResponse)
         .then(() => {
           this.mode = 'success'
           this.isLoading = false
@@ -424,7 +422,7 @@ export default {
       if (this.options.recommendation.value !== '' && this.$refs.recommendation.$el.querySelector('.editor__content').classList.contains('border--error')) {
         this.$refs.recommendation.$el.querySelector('.editor__content').classList.remove('border--error')
       }
-    }
+    },
   },
 
   created () {
@@ -438,6 +436,6 @@ export default {
     this.setProcedureIdAction(this.procedureId).then(() => {
       this.setSelectedElementsAction()
     })
-  }
+  },
 }
 </script>

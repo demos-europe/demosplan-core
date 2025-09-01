@@ -38,8 +38,8 @@
         </label>
         <dp-editor
           ref="tiptap"
-          :procedure-id="procedureId"
           v-model="considerationAdvice"
+          :procedure-id="procedureId"
           :entity-id="fragmentId"
           :hidden-input="fragmentId + ':r_considerationAdvice'" />
       </template>
@@ -61,10 +61,10 @@
           </template>
         </dp-multiselect>
         <input
+          :id="fragmentId+':r_vote_advice'"
           type="hidden"
           :value="voteAdvice.title"
-          :name="fragmentId+':r_vote_advice'"
-          :id="fragmentId+':r_vote_advice'">
+          :name="fragmentId+':r_vote_advice'">
       </template>
 
       <div class="u-mt space-inline-s">
@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentEdit',
@@ -115,72 +115,72 @@ export default {
   components: {
     DpButton,
     DpEditor,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     fragmentId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     considerationAdviceInitial: {
       required: false,
       default: '',
-      type: String
+      type: String,
     },
 
     voteAdviceInitial: {
       required: false,
       default: '',
-      type: String
+      type: String,
     },
 
     adviceValues: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     elementId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     paragraphId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'closeEditMode'
+    'closeEditMode',
   ],
 
   data () {
     return {
       voteAdvice: Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }]).find(el => el.title === this.voteAdviceInitial),
       considerationAdvice: this.considerationAdviceInitial ? this.considerationAdviceInitial : 'k.A.',
-      saving: ''
+      saving: '',
     }
   },
 
   computed: {
     computedAdviceValues () {
       return Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }])
-    }
+    },
   },
 
   methods: {
@@ -208,7 +208,7 @@ export default {
         } else {
           saveData.push({
             name: this.fragmentId + ':r_notify',
-            value: 'r_notify'
+            value: 'r_notify',
           })
         }
       }
@@ -219,20 +219,19 @@ export default {
         dataForRequest[el.name] = el.value
       })
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
-        .then(checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            this.$root.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', data.data)
           } else {
-            this.$root.$emit('fragment-saved', response.data)
+            this.$root.$emit('fragment-saved', data.data)
 
             //  Set this to new data
-            this.considerationAdvice = response.data.considerationAdvice
-            this.voteAdvice = response.data.voteAdvice || { name: '-', title: '', value: '' }
+            this.considerationAdvice = data.data.considerationAdvice
+            this.voteAdvice = data.data.voteAdvice || { name: '-', title: '', value: '' }
           }
         })
         .catch(err => {
@@ -241,7 +240,7 @@ export default {
         .then(() => {
           this.saving = ''
         })
-    }
-  }
+    },
+  },
 }
 </script>
