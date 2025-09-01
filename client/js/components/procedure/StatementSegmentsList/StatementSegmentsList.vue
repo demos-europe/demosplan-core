@@ -166,8 +166,8 @@
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
-        @statementText:updated="checkStatementClaim"
-        @saveStatement="saveStatement" />
+        @statement-text:updated="checkStatementClaim"
+        @save-statement="saveStatement" />
     </div>
   </div>
 </template>

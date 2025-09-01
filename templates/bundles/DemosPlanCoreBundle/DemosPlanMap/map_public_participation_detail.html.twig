@@ -355,20 +355,20 @@
                         :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
                         :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
                         procedure-id="{{ procedure|default('') }}"
-                        @layerLegend:unfolded="foldOpenToolbarItems(['layerList', 'mapTools', 'customLayer'])">
+                        @layer-legend:unfolded="foldOpenToolbarItems(['layerList', 'mapTools', 'customLayer'])">
                     </dp-layer-legend>
 
                     {# Zoom to extend, measure length + area #}
                     <dp-map-tools
                         ref="mapTools"
-                        @mapTools:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'customLayer'])">
+                        @map-tools:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'customLayer'])">
                     </dp-map-tools>
 
                     {# Add custom layer on the fly #}
                     <dp-custom-layer
                         ref="customLayer"
                         :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"
-                        @customLayer:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'mapTools'])">
+                        @custom-layer:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'mapTools'])">
                     </dp-custom-layer>
 
                 </div>

@@ -32,8 +32,6 @@
         :key="role.value">
         <input
           :id="`r_role_${role.value}`"
-          :id="`r_role_${role.value}`"
-          v-model="currentRole"
           v-model="currentRole"
           name="r_role"
           type="radio"

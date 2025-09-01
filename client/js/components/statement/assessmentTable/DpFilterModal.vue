@@ -102,9 +102,9 @@
               :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
               :filter-item="filterItem"
               :filter-group="filterGroup"
-              @updateSelected="updateSelectedOptions"
-              @updatingFilters="disabledInteractions = true"
-              @updatedFilters="disabledInteractions = false" />
+              @update-selected="updateSelectedOptions"
+              @updating-filters="disabledInteractions = true"
+              @updated-filters="disabledInteractions = false" />
           </dp-tab>
         </dp-tabs>
 

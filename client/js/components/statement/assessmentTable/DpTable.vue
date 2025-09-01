@@ -62,7 +62,6 @@
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
       :key="`pager1_${pagination.current_page}_${pagination.count}`"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -119,8 +118,8 @@
       :assessment-export-options="assessmentExportOptions"
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
-      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
-      @handle:sortChange="option => handleSortChange(option)" />
+      @export-modal:toggle="tab => $refs.exportModal.toggleModal(tab)"
+      @handle:sort-change="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
     <dp-slidebar>

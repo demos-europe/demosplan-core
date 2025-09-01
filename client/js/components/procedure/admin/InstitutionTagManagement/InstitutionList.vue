@@ -133,7 +133,7 @@
       :current="currentPage"
       :total="totalPages"
       :non-sliding-size="50"
-      @pageChange="getInstitutionsByPage" />
+      @page-change="getInstitutionsByPage" />
   </div>
 </template>
 

@@ -201,7 +201,7 @@ export default {
 
   emits: [
     'fragment:delete',
-    'showSlidebar',
+    'show-slidebar',
     'statement:copy',
     'statement:move',
     'version:history',
@@ -226,7 +226,7 @@ export default {
 
     showVersionHistory () {
       this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.$root.$emit('showSlidebar')
+      this.$root.$emit('show-slidebar')
     },
 
     toggleAssignEntityModal (entity, assigneeId) {

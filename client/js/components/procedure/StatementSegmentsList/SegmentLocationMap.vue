@@ -210,7 +210,7 @@ export default {
     },
 
     closeSlidebar () {
-      this.$root.$emit('hideSlidebar')
+      this.$root.$emit('hide-slidebar')
     },
 
     initMap () {

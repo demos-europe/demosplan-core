@@ -46,7 +46,7 @@
           :current="pendingOrganisationsCurrentPage"
           :total="pendingOrganisationsTotalPages"
           :non-sliding-size="10"
-          @pageChange="(page) => getItemsByPage(page, true)" />
+          @page-change="(page) => getItemsByPage(page, true)" />
       </template>
       <p
         v-else-if="Object.keys(pendingOrgs).length === 0 && pendingOrganisationsLoading === false"
@@ -154,7 +154,7 @@
           :current="currentPage"
           :total="totalPages"
           :non-sliding-size="10"
-          @pageChange="getItemsByPage" />
+          @page-change="getItemsByPage" />
       </div>
     </div>
   </div>

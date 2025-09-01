@@ -18,7 +18,7 @@
         <dp-label-modal
           ref="labelModal"
           :labels="selectElementLabels"
-          @setLabel="setLabel" />
+          @set-label="setLabel" />
         <dp-sticky-element>
           <div class="u-ml w-12">
             <p

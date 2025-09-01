@@ -18,7 +18,7 @@
           <custom-search-statements
             ref="customSearchStatements"
             :search-in-fields="searchFields"
-            @changeFields="updateSearchFields"
+            @change-fields="updateSearchFields"
             @reset="resetSearch"
             @search="(term) => applySearch(term)" />
         </div>
@@ -57,7 +57,7 @@
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          @pageChange="getItemsByPage"
+          @page-change="getItemsByPage"
           @size-change="handleSizeChange" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label

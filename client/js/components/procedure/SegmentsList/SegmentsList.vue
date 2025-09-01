@@ -87,7 +87,7 @@
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          @pageChange="applyQuery"
+          @page-change="applyQuery"
           @size-change="handleSizeChange" />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
@@ -979,7 +979,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('showSlidebar')
+      this.$root.$emit('show-slidebar')
     },
 
     updateQueryHash () {

@@ -29,7 +29,7 @@
         section="tags"
         :is-visible="showFloatingContextButton.tags"
         :is-content-collapsed="isCollapsed.tags"
-        @toggleContentVisibility="toggleVisibility"
+        @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.tags = true"
         @hide="showFloatingContextButton.tags = false" />
     </div>
@@ -63,7 +63,7 @@
           <!-- create tags + topics -->
           <dp-create-tag
             v-else
-            @closeCreateForm="showCreateForm = false" />
+            @close-create-form="showCreateForm = false" />
         </div>
 
         <div
@@ -100,7 +100,7 @@
         section="placesAndAssignee"
         :is-visible="showFloatingContextButton.placesAndAssignee"
         :is-content-collapsed="isCollapsed.placesAndAssignee"
-        @toggleContentVisibility="toggleVisibility"
+        @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.placesAndAssignee = true"
         @hide="showFloatingContextButton.placesAndAssignee = false" />
 
@@ -316,11 +316,6 @@ export default {
 
     getPlaceById () {
       return this.availablePlaces.find(place => place.id === this.currentSegment.placeId)
-    },
-
-    handleClick () {
-      this.setProperty({ prop: 'isBusy', val: true })
-      this.$emit('saveAndFinish')
     },
 
     hasOwnProp (obj, prop) {

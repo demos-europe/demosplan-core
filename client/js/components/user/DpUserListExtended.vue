@@ -64,7 +64,7 @@
       class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
-      @pageChange="getUsersByPage" />
+      @page-change="getUsersByPage" />
   </div>
 </template>
 

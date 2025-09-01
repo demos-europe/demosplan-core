@@ -179,7 +179,7 @@
           class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
           :current="currentPage"
           :total="totalPages"
-          @pageChange="handlePageChange" />
+          @page-change="handlePageChange" />
         <dp-select-page-item-count
           class="inline"
           :current-item-count="itemsPerPage"

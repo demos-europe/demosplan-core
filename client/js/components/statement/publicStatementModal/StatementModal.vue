@@ -966,7 +966,6 @@ export default {
 
   emits: [
     'toggleTabs',
-    'uploader:reset',
   ],
 
   data () {
@@ -1253,8 +1252,6 @@ export default {
         this.step = 0
         this.showHeader = true
         this.$nextTick(() => {
-          this.$root.$emit('uploader:reset')
-
           if (this.draftStatementId !== '') {
             window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
           }
