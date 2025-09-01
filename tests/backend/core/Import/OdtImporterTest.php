@@ -16,8 +16,10 @@ class OdtImporterTest extends TestCase
     {
         $styleParser = new \demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParser();
         $htmlProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessor();
+        $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor($zipArchive);
+        $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
 
-        return new OdtImporter($styleParser, $htmlProcessor, $zipArchive);
+        return new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
     }
 
     /**

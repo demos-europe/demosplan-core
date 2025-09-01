@@ -44,6 +44,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ServiceImporter implements ServiceImporterInterface
 {
+    private const ODT_EXTENSION = '.odt';
+    private const ODT_MIME_TYPE = 'application/vnd.oasis.opendocument.text';
+
     /**
      * @var FileService
      */
@@ -367,12 +370,12 @@ class ServiceImporter implements ServiceImporterInterface
         $fileName = $fileInfo->getFileName();
 
         // Check file extension
-        if (str_ends_with(strtolower($fileName), '.odt')) {
+        if (str_ends_with(strtolower($fileName), self::ODT_EXTENSION)) {
             return true;
         }
 
         // Check MIME type
-        if ($contentType === 'application/vnd.oasis.opendocument.text') {
+        if ($contentType === self::ODT_MIME_TYPE) {
             return true;
         }
 

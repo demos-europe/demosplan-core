@@ -177,7 +177,10 @@ class ServiceImporterOdtConversionTest extends TestCase
             return [];
         });
 
-        $this->odtImporter = new OdtImporter($styleParser, $htmlProcessor);
+        $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
+        $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
+        
+        $this->odtImporter = new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
     }
 
     public function testConvertHtmlToParagraphStructureWithHeadings(): void
@@ -280,7 +283,9 @@ class ServiceImporterOdtConversionTest extends TestCase
         $styleParser = new ODTStyleParser();
         $htmlProcessor = new ODTHtmlProcessor();
 
-        $odtImporter = new OdtImporter($styleParser, $htmlProcessor);
+        $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
+        $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
+        $odtImporter = new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
         $actualHtml = $odtImporter->convert($odtFilePath);
 
         // The expected HTML structure that should be produced by the ODT importer
@@ -329,7 +334,9 @@ class ServiceImporterOdtConversionTest extends TestCase
         $styleParser = new ODTStyleParser();
         $htmlProcessor = new ODTHtmlProcessor();
 
-        $odtImporter = new OdtImporter($styleParser, $htmlProcessor);
+        $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
+        $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
+        $odtImporter = new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
         $actualHtml = $odtImporter->convert($odtFilePath);
 
         // Check for base64 image data in output
@@ -387,7 +394,9 @@ class ServiceImporterOdtConversionTest extends TestCase
         $styleParser = new ODTStyleParser();
         $htmlProcessor = new ODTHtmlProcessor();
 
-        $odtImporter = new OdtImporter($styleParser, $htmlProcessor);
+        $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
+        $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
+        $odtImporter = new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
         $actualHtml = $odtImporter->convert($odtFilePath);
 
         // Check for figure wrapper around image with caption

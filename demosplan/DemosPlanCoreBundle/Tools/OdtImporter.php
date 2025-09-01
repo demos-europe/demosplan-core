@@ -4,94 +4,93 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
 use DOMDocument;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\File;
-use ZipArchive;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTElementHandlerRegistry;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ProcessingContext;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\Handlers\TextElementHandler;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\Handlers\TableElementHandler;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\Handlers\ListElementHandler;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\Handlers\MediaElementHandler;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\Handlers\SimpleElementHandler;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParser;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor;
 use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParserInterface;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessor;
 use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessorInterface;
 
+/**
+ * Converts ODT files to HTML with clean separation of concerns:
+ * - File operations handled by OdtFileExtractor
+ * - Element processing handled by OdtElementProcessor
+ * - Style parsing and HTML cleanup handled by existing services
+ */
 class OdtImporter
 {
-    private string $odtFilePath;
-    private array $styleMap = [];
-    private array $listStyleMap = [];
-    private array $headingStyleMap = [];
-    private array $listContinuation = [];  // Maps list IDs to their continuation relationships
-    private array $listCounters = [];      // Tracks current count for each list sequence
-    private ?ODTElementHandlerRegistry $handlerRegistry = null;
-    private ?ProcessingContext $processingContext = null;
-
     public function __construct(
         private readonly ODTStyleParserInterface $styleParser,
         private readonly ODTHtmlProcessorInterface $htmlProcessor,
-        private readonly ?ZipArchive $zipArchive = null
+        private readonly OdtFileExtractor $fileExtractor,
+        private readonly OdtElementProcessor $elementProcessor
     ) {
     }
 
+    /**
+     * Convert ODT file to HTML
+     */
     public function convert(string $odtFilePath): string
     {
-        $zip = $this->zipArchive ?? new ZipArchive();
-        if ($zip->open($odtFilePath) === true) {
-            // save path as property to be used later
-            $this->odtFilePath = $odtFilePath;
-            $contentXml = $zip->getFromName('content.xml');
-            $stylesXml = $zip->getFromName('styles.xml');
-            //extract all pictures to a temporary folder
-            $zip->extractTo(dirname($odtFilePath) . '/tmp');
-            $zip->close();
+        // Extract file content
+        $fileData = $this->fileExtractor->extractContent($odtFilePath);
 
-            if ($contentXml !== false) {
-                $html = $this->transformToHtml($contentXml, $stylesXml);
-            } else {
-                // Return basic HTML structure even when content.xml is missing
-                $html = '<html><body></body></html>';
-            }
-            
-            $fs = new Filesystem();
-            $fs->remove(dirname($odtFilePath) . '/tmp');
+        // Parse styles
+        $styles = $this->styleParser->parseStyles(
+            $this->createDomFromContent($fileData->contentXml),
+            $fileData->stylesXml
+        );
 
-            return $html;
-        }
+        // Process content
+        $html = $this->processContent($fileData, $styles);
 
-        throw new \Exception('Unable to open ODT file.');
+        // Clean up and return
+        $this->fileExtractor->cleanup($fileData->tempDir);
+
+        return $this->htmlProcessor->cleanupStructuralIssues($html);
     }
 
-    private function transformToHtml(string $contentXml, ?string $stylesXml = null): string
+    /**
+     * Create DOM document from content XML.
+     */
+    private function createDomFromContent(?string $contentXml): DOMDocument
     {
         $dom = new DOMDocument();
-        $dom->loadXML($contentXml);
 
-        // Skip ODT structural elements (TOC, indexes) before processing
-        $this->skipOdtStructuralElements($dom);
-
-        // Parse styles first to understand formatting (including styles from styles.xml)
-        $styleData = $this->styleParser->parseStyles($dom, $stylesXml);
-        $this->styleMap = $styleData['styleMap'];
-        $this->headingStyleMap = $styleData['headingStyleMap'];
-
-        // Parse list styles from styles.xml to determine ordered vs unordered
-        if ($stylesXml !== null && $stylesXml !== false) {
-            $this->listStyleMap = $this->styleParser->parseListStyles($stylesXml);
+        if ($contentXml !== null) {
+            $dom->loadXML($contentXml);
+            $this->skipOdtStructuralElements($dom);
         }
 
-        // Initialize the handler registry and processing context
-        $this->initializeHandlers();
+        return $dom;
+    }
 
+    /**
+     * Process ODT content using simplified element processor.
+     */
+    private function processContent($fileData, array $styles): string
+    {
+        if (!$fileData->hasContent()) {
+            return '<html><body></body></html>';
+        }
+
+        $dom = $this->createDomFromContent($fileData->contentXml);
+
+        // Initialize processor with parsed styles
+        $listStyleMap = $fileData->hasStyles()
+            ? $this->styleParser->parseListStyles($fileData->stylesXml)
+            : [];
+
+        $this->elementProcessor->initialize(
+            $styles['styleMap'] ?? [],
+            $listStyleMap,
+            $styles['headingStyleMap'] ?? [],
+            $fileData->tempDir
+        );
+
+        // Generate HTML
         $html = '<html><body>';
-        $html .= $this->processNodes($dom->documentElement);
+        $html .= $this->elementProcessor->processContent($dom);
         $html .= '</body></html>';
-
-        // Clean up structural issues that may come from ODT
-        $html = $this->htmlProcessor->cleanupStructuralIssues($html);
 
         return $html;
     }
@@ -103,18 +102,18 @@ class OdtImporter
     private function skipOdtStructuralElements(DOMDocument $dom): void
     {
         $xpath = new \DOMXPath($dom);
-        
+
         // ODT structural elements that should be removed
         $structuralSelectors = [
             '//text:table-of-content',
-            '//text:illustration-index', 
+            '//text:illustration-index',
             '//text:alphabetical-index',
             '//text:user-index',
             '//text:bibliography',
             '//text:table-index',
             '//text:object-index'
         ];
-        
+
         // First, collect all structural elements to identify their boundaries
         $structuralNodes = [];
         foreach ($structuralSelectors as $selector) {
@@ -123,7 +122,7 @@ class OdtImporter
                 $structuralNodes[] = $node;
             }
         }
-        
+
         // Also find headings that immediately precede structural elements
         // These are usually index titles like "Abbildungsverzeichnis", "Verzeichnis der Themenkarten"
         $nodesToRemove = $structuralNodes;
@@ -133,7 +132,7 @@ class OdtImporter
                 $nodesToRemove[] = $precedingHeading;
             }
         }
-        
+
         // Remove all identified nodes
         foreach ($nodesToRemove as $node) {
             if ($node->parentNode) {
@@ -141,7 +140,7 @@ class OdtImporter
             }
         }
     }
-    
+
     /**
      * Find a heading that immediately precedes a structural index element.
      * These headings are typically index titles and should also be removed.
@@ -150,103 +149,30 @@ class OdtImporter
     {
         // Look for h1-h6 elements that immediately precede this structural element
         $precedingSibling = $structuralNode->previousSibling;
-        
+
         // Skip whitespace nodes
         while ($precedingSibling && $precedingSibling->nodeType === XML_TEXT_NODE && trim($precedingSibling->nodeValue) === '') {
             $precedingSibling = $precedingSibling->previousSibling;
         }
-        
+
         // Check if the preceding sibling is a heading (text:h element)
         if ($precedingSibling && $precedingSibling->nodeType === XML_ELEMENT_NODE && $precedingSibling->nodeName === 'text:h') {
             // Additional check: only remove headings that are clearly index titles
             $headingText = trim($precedingSibling->textContent);
             $indexTerms = [
-                'verzeichnis', 'index', 'abbildung', 'tabelle', 'literatur', 
+                'verzeichnis', 'index', 'abbildung', 'tabelle', 'literatur',
                 'inhalts', 'stichwort', 'abkürzung', 'glossar'
             ];
-            
+
             foreach ($indexTerms as $term) {
                 if (str_contains(strtolower($headingText), $term)) {
                     return $precedingSibling;
                 }
             }
         }
-        
+
         return null;
     }
-
-    /**
-     * Initialize the handler registry and processing context for ODT element processing.
-     */
-    private function initializeHandlers(): void
-    {
-        // Create the handler registry
-        $this->handlerRegistry = new ODTElementHandlerRegistry();
-
-        // Register all handlers
-        $this->handlerRegistry->addHandler(new TextElementHandler());
-        $this->handlerRegistry->addHandler(new TableElementHandler());
-        $this->handlerRegistry->addHandler(new ListElementHandler());
-        $this->handlerRegistry->addHandler(new MediaElementHandler());
-        $this->handlerRegistry->addHandler(new SimpleElementHandler());
-
-        // Create the processing context
-        $this->processingContext = new ProcessingContext(
-            $this->styleMap,
-            $this->listStyleMap,
-            $this->headingStyleMap,
-            $this->listContinuation,
-            $this->listCounters,
-            $this->odtFilePath,
-            $this->handlerRegistry
-        );
-
-    }
-
-    private function processNodes(\DOMNode $node): string
-    {
-        $html = '';
-
-        foreach ($node->childNodes as $child) {
-            if ($child->nodeType === XML_ELEMENT_NODE) {
-                // Try to find a handler for this element
-                $handler = $this->handlerRegistry->getHandler($child->nodeName);
-                if ($handler) {
-                    $html .= $handler->process($child, $this->processingContext);
-                } else {
-                    // Fallback: process children recursively (same as default case)
-                    $html .= $this->processNodes($child);
-                }
-            } elseif ($child->nodeType === XML_TEXT_NODE) {
-                $html .= htmlspecialchars($child->nodeValue);
-            }
-        }
-
-        return $html;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -270,32 +196,4 @@ class OdtImporter
             'paragraphs' => $paragraphs,
         ];
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
