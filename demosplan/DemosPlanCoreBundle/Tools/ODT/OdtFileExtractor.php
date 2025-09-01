@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Tools\ODT;
 
+use demosplan\DemosPlanCoreBundle\Exception\OdtProcessingException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use ZipArchive;
 
@@ -38,7 +38,7 @@ class OdtFileExtractor
         $zip = $this->zipArchive ?? new ZipArchive();
 
         if (true !== $zip->open($odtFilePath)) {
-            throw new Exception('Unable to open ODT file.');
+            throw OdtProcessingException::unableToOpenFile($odtFilePath);
         }
 
         $contentXml = $zip->getFromName('content.xml');

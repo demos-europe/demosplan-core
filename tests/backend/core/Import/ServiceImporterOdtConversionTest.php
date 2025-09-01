@@ -36,6 +36,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ServiceImporterOdtConversionTest extends TestCase
 {
+    // String constants to avoid duplication
+    private const TEST_HEADING = 'Testüberschrift';
+    private const TEST_HEADING_2 = 'Überschrift2';
+    private const TEST_HEADING_3 = 'Überschrift3';
+    private const NUMBERED_HEADING = 'Nummerierte Überschrift';
+    private const END_PARAGRAPH = 'Mit einem Absatz am Ende.';
+    private const SIMPLE_DOC_PATH = '/res/SimpleDoc.odt';
+    private const SIMPLE_DOC_MESSAGE = 'SimpleDoc.odt test file should exist';
+
     private ServiceImporter $serviceImporter;
     private OdtImporter $odtImporter;
 
@@ -150,31 +159,31 @@ class ServiceImporterOdtConversionTest extends TestCase
                 ];
             }
             // Handle the expected ODT output test case
-            if (str_contains($html, '<h1>Testüberschrift</h1>') && str_contains(
+            if (str_contains($html, '<h1>'.self::TEST_HEADING.'</h1>') && str_contains(
                 $html,
-                '<h2>Überschrift2</h2>'
+                '<h2>'.self::TEST_HEADING_2.'</h2>'
             )) {
                 return [
                     [
-                        'title'        => 'Testüberschrift',
+                        'title'        => self::TEST_HEADING,
                         'text'         => '<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>',
                         'files'        => null,
                         'nestingLevel' => 1,
                     ],
                     [
-                        'title'        => 'Überschrift2',
+                        'title'        => self::TEST_HEADING_2,
                         'text'         => '<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
                         'files'        => null,
                         'nestingLevel' => 2,
                     ],
                     [
-                        'title'        => 'Überschrift3',
+                        'title'        => self::TEST_HEADING_3,
                         'text'         => '<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>',
                         'files'        => null,
                         'nestingLevel' => 2,
                     ],
                     [
-                        'title'        => 'Nummerierte Überschrift',
+                        'title'        => self::NUMBERED_HEADING,
                         'text'         => '<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>',
                         'files'        => null,
                         'nestingLevel' => 1,
@@ -285,8 +294,8 @@ class ServiceImporterOdtConversionTest extends TestCase
     public function testOdtImporterProducesExpectedHtmlFromSimpleDoc(): void
     {
         // Test that the ODT importer produces the expected HTML from the example file
-        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
-        $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
+        $odtFilePath = __DIR__.self::SIMPLE_DOC_PATH;
+        $this->assertFileExists($odtFilePath, self::SIMPLE_DOC_MESSAGE);
 
         // Use real components instead of mocks for integration testing
         $styleParser = new ODTStyleParser();
@@ -315,7 +324,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             '<ol><li>Nummerierten Liste 1</li><li>Nummer 2<ul><li>Nummer 2.1</li><li>Nummer 2.2</li></ul></li><li>Nummer 3</li></ol>',
             '<sup title="Und Endnote">i</sup>',
             '<ul><li>Jetzt</li><li><strong>Fett</strong><ul><li><strong>eingerückt</strong></li></ul></li>',
-            'Mit einem Absatz am Ende.',
+            self::END_PARAGRAPH,
         ];
 
         // Verify that the HTML contains all expected elements
@@ -326,17 +335,17 @@ class ServiceImporterOdtConversionTest extends TestCase
         }
 
         // Verify that all 4 headings are present (based on actual ODT content levels)
-        $this->assertStringContainsString('<h1>Testüberschrift</h1>', $actualHtml);
-        $this->assertStringContainsString('<h2>Überschrift2</h2>', $actualHtml);
-        $this->assertStringContainsString('<h2>Überschrift3</h2>', $actualHtml); // ODT has outline-level="2"
-        $this->assertStringContainsString('<h1>Nummerierte Überschrift</h1>', $actualHtml); // ODT has outline-level="1"
+        $this->assertStringContainsString('<h1>'.self::TEST_HEADING.'</h1>', $actualHtml);
+        $this->assertStringContainsString('<h2>'.self::TEST_HEADING_2.'</h2>', $actualHtml);
+        $this->assertStringContainsString('<h2>'.self::TEST_HEADING_3.'</h2>', $actualHtml); // ODT has outline-level="2"
+        $this->assertStringContainsString('<h1>'.self::NUMBERED_HEADING.'</h1>', $actualHtml); // ODT has outline-level="1"
     }
 
     public function testOdtImporterIncludesImagesAsBase64Data(): void
     {
         // Test that images in ODT files are converted to base64 data URLs
-        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
-        $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
+        $odtFilePath = __DIR__.self::SIMPLE_DOC_PATH;
+        $this->assertFileExists($odtFilePath, self::SIMPLE_DOC_MESSAGE);
 
         // Use real components instead of mocks for integration testing
         $styleParser = new ODTStyleParser();
@@ -395,8 +404,8 @@ class ServiceImporterOdtConversionTest extends TestCase
     public function testOdtImporterHandlesImageCaptionsGenerically(): void
     {
         // Test that images with captions are wrapped in figure elements
-        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
-        $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
+        $odtFilePath = __DIR__.self::SIMPLE_DOC_PATH;
+        $this->assertFileExists($odtFilePath, self::SIMPLE_DOC_MESSAGE);
 
         // Use real components instead of mocks for integration testing
         $styleParser = new ODTStyleParser();
@@ -597,7 +606,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         // Mock the new importOdt method to return the expected structure
         $odtImporter->method('importOdt')->willReturnCallback(function ($file, $elementId, $procedure, $category) use ($realisticOdtHtml) {
             // Use real components for integration testing of the full workflow
-            $styleParser = new ODTStyleParser();
             $htmlProcessor = new ODTHtmlProcessor();
 
             // Convert HTML to paragraph structure using real components

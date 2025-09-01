@@ -12,15 +12,26 @@ declare(strict_types=1);
 
 namespace Tests\Core\Import;
 
+use demosplan\DemosPlanCoreBundle\Exception\OdtProcessingException;
 use demosplan\DemosPlanCoreBundle\Tools\OdtImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Exception;
 use PHPUnit\Framework\TestCase;
 use ZipArchive;
 
 class OdtImporterTest extends TestCase
 {
     private const BACKEND_CORE_IMPORT_RES_SIMPLE_DOC_ODT = 'backend/core/Import/res/SimpleDoc.odt';
+    
+    // XML templates to avoid duplication
+    private const STYLES_XML_TEMPLATE = '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:styles>
+<text:list-style style:name="WWNum5">
+<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
+</text:list-level-style-number>
+</text:list-style>
+</office:styles>
+</office:document-styles>';
 
     private function createOdtImporter(?ZipArchive $zipArchive = null): OdtImporter
     {
@@ -75,8 +86,8 @@ class OdtImporterTest extends TestCase
 
     public function testThrowsExceptionWhenOdtFileCannotBeOpened(): void
     {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Unable to open ODT file.');
+        $this->expectException(OdtProcessingException::class);
+        $this->expectExceptionMessage('Unable to open ODT file: path/to/nonexistent/file.odt');
 
         $odtImporter = $this->createOdtImporter();
         $odtImporter->convert('path/to/nonexistent/file.odt');
@@ -452,15 +463,7 @@ class OdtImporterTest extends TestCase
                     <text:list-item><text:p>Third main item</text:p></text:list-item>
                 </text:list>
             </office:document-content>',
-            '<?xml version="1.0" encoding="UTF-8"?>
-<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
-<office:styles>
-<text:list-style style:name="WWNum5">
-<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
-</text:list-level-style-number>
-</text:list-style>
-</office:styles>
-</office:document-styles>'
+            self::STYLES_XML_TEMPLATE
         );
         $odtImporter = $this->createOdtImporter($zip);
 
@@ -496,15 +499,7 @@ class OdtImporterTest extends TestCase
                     <text:list-item><text:p>Item 2.2</text:p></text:list-item>
                 </text:list>
             </office:document-content>',
-            '<?xml version="1.0" encoding="UTF-8"?>
-<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
-<office:styles>
-<text:list-style style:name="WWNum5">
-<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
-</text:list-level-style-number>
-</text:list-style>
-</office:styles>
-</office:document-styles>'
+            self::STYLES_XML_TEMPLATE
         );
         $odtImporter = $this->createOdtImporter($zip);
 
@@ -584,15 +579,7 @@ class OdtImporterTest extends TestCase
                     <text:list-item><text:p>Verbesserung der Standortbedingungen im zur Metropolregion Hamburg gehörenden Teil des Landes</text:p></text:list-item>
                 </text:list>
             </office:document-content>',
-            '<?xml version="1.0" encoding="UTF-8"?>
-<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
-<office:styles>
-<text:list-style style:name="WWNum5">
-<text:list-level-style-number text:level="1" style:num-format="1" style:num-suffix=".">
-</text:list-level-style-number>
-</text:list-style>
-</office:styles>
-</office:document-styles>'
+            self::STYLES_XML_TEMPLATE
         );
         $odtImporter = $this->createOdtImporter($zip);
 
