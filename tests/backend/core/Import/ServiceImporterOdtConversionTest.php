@@ -118,7 +118,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             }
             // Check for expected ODT output test case first (most complex)
             $odtResult = $this->getExpectedOdtTestResult($html);
-            if ($odtResult !== null) {
+            if (null !== $odtResult) {
                 return $odtResult;
             }
 
@@ -666,7 +666,6 @@ class ServiceImporterOdtConversionTest extends TestCase
     /**
      * Handle the expected ODT output test case.
      *
-     * @param string $html
      * @return array|null Returns the expected test result or null if not matched
      */
     private function getExpectedOdtTestResult(string $html): ?array
