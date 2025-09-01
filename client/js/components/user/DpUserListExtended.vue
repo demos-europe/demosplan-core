@@ -17,7 +17,7 @@
       searchable
       selectable
       @reset-search="resetSearch"
-      @selectAll="val => dpToggleAll(val, users)"
+      @select-all="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)">
       <template
         v-if="hasPermission('feature_user_delete')"

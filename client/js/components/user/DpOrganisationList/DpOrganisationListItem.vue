@@ -53,7 +53,7 @@
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @addon-update="updateAddonPayload"
+        @addon:update="updateAddonPayload"
         @addonOptions:loaded="setAdditionalFieldOptions"
         @organisation:update="updateOrganisation" />
 

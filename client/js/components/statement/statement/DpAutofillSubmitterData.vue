@@ -37,7 +37,7 @@
           type="radio"
           :data-cy="`roleInput:${role.dataCy}`"
           :value="role.value"
-          @change="() => $emit('role-changed', currentRole)"><!--
+          @change="() => $emit('role:changed', currentRole)"><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">
@@ -235,7 +235,7 @@ export default {
   },
 
   emits: [
-    'role-changed',
+    'role:changed',
     'submitter:chosen',
   ],
 

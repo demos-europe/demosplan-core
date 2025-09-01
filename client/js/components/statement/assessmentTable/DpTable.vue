@@ -118,8 +118,8 @@
       :assessment-export-options="assessmentExportOptions"
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
-      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
-      @handle-sort-change="option => handleSortChange(option)" />
+      @export-modal:toggle="tab => $refs.exportModal.toggleModal(tab)"
+      @handle:sort-change="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
     <dp-slidebar>
@@ -400,7 +400,7 @@ export default {
   },
 
   emits: [
-    'assessment-table-loaded',
+    'assessmentTable:loaded',
   ],
 
   data () {
@@ -788,15 +788,15 @@ export default {
              */
             this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
-            this.$root.$emit('assessment-table-loaded')
+            this.$root.$emit('assessmentTable:loaded')
           })
       })
 
-    this.$root.$on('update-assessment-table', () => {
+    this.$root.$on('update:assessmentTable', () => {
       this.triggerApiCallForStatements()
     })
 
-    this.$root.$on('update-pagination-assessment-table', () => {
+    this.$root.$on('update:paginationAssessmentTable', () => {
       this.updatePagination(this.initPagination)
     })
   },
