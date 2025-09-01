@@ -116,11 +116,14 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            // Handle long content test case
-            if (str_contains(
-                $html,
-                'very long paragraph that contains much more than one hundred characters'
-            )) {
+            // Check for expected ODT output test case first (most complex)
+            $odtResult = $this->getExpectedOdtTestResult($html);
+            if ($odtResult !== null) {
+                return $odtResult;
+            }
+
+            // Handle simple content test cases
+            if (str_contains($html, 'very long paragraph that contains much more than one hundred characters')) {
                 return [
                     [
                         'title'        => 'This is a very long paragraph that contains much...',
@@ -130,11 +133,7 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            // Handle skip empty elements test case
-            if (str_contains($html, 'Content paragraph') && str_contains(
-                $html,
-                'Another content paragraph'
-            )) {
+            if (str_contains($html, 'Content paragraph') && str_contains($html, 'Another content paragraph')) {
                 return [
                     [
                         'title'        => 'Content paragraph Another content paragraph',
@@ -144,49 +143,13 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            // Handle multiple sentences test case
-            if (str_contains(
-                $html,
-                'First sentence here. Second sentence continues. Third sentence ends it.'
-            )) {
+            if (str_contains($html, 'First sentence here. Second sentence continues. Third sentence ends it.')) {
                 return [
                     [
                         'title'        => 'First sentence here.',
                         'text'         => '<p>First sentence here. Second sentence continues. Third sentence ends it.</p>',
                         'files'        => null,
                         'nestingLevel' => 0,
-                    ],
-                ];
-            }
-            // Handle the expected ODT output test case
-            if (str_contains($html, '<h1>'.self::TEST_HEADING.'</h1>') && str_contains(
-                $html,
-                '<h2>'.self::TEST_HEADING_2.'</h2>'
-            )) {
-                return [
-                    [
-                        'title'        => self::TEST_HEADING,
-                        'text'         => '<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>',
-                        'files'        => null,
-                        'nestingLevel' => 1,
-                    ],
-                    [
-                        'title'        => self::TEST_HEADING_2,
-                        'text'         => '<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
-                        'files'        => null,
-                        'nestingLevel' => 2,
-                    ],
-                    [
-                        'title'        => self::TEST_HEADING_3,
-                        'text'         => '<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>',
-                        'files'        => null,
-                        'nestingLevel' => 2,
-                    ],
-                    [
-                        'title'        => self::NUMBERED_HEADING,
-                        'text'         => '<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>',
-                        'files'        => null,
-                        'nestingLevel' => 1,
                     ],
                 ];
             }
@@ -698,5 +661,48 @@ class ServiceImporterOdtConversionTest extends TestCase
         $method->setAccessible(true);
 
         return $method->invokeArgs($this->odtImporter, $args);
+    }
+
+    /**
+     * Handle the expected ODT output test case.
+     *
+     * @param string $html
+     * @return array|null Returns the expected test result or null if not matched
+     */
+    private function getExpectedOdtTestResult(string $html): ?array
+    {
+        if (str_contains($html, '<h1>'.self::TEST_HEADING.'</h1>') && str_contains(
+            $html,
+            '<h2>'.self::TEST_HEADING_2.'</h2>'
+        )) {
+            return [
+                [
+                    'title'        => self::TEST_HEADING,
+                    'text'         => '<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>',
+                    'files'        => null,
+                    'nestingLevel' => 1,
+                ],
+                [
+                    'title'        => self::TEST_HEADING_2,
+                    'text'         => '<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
+                    'files'        => null,
+                    'nestingLevel' => 2,
+                ],
+                [
+                    'title'        => self::TEST_HEADING_3,
+                    'text'         => '<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>',
+                    'files'        => null,
+                    'nestingLevel' => 2,
+                ],
+                [
+                    'title'        => self::NUMBERED_HEADING,
+                    'text'         => '<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>',
+                    'files'        => null,
+                    'nestingLevel' => 1,
+                ],
+            ];
+        }
+
+        return null;
     }
 }
