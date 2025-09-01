@@ -19,10 +19,12 @@
           name="r_publicVerified"
           type="radio"
           value="publication_pending"
-          @input="event => $emit('update', event.target.value)">
+          @input="event => $emit('update', event.target.value)"
+        >
         <label
           for="publicCheck"
-          class="font-normal ml-1 mb-1">
+          class="font-normal ml-1 mb-1"
+        >
           {{ Translator.trans('explanation.statement.public.check') }}
         </label>
       </div>
@@ -36,10 +38,12 @@
           name="r_publicVerified"
           type="radio"
           value="publication_approved"
-          @input="event => $emit('update', event.target.value)">
+          @input="event => $emit('update', event.target.value)"
+        >
         <label
           for="publicVerify"
-          class="font-normal ml-1 mb-1">
+          class="font-normal ml-1 mb-1"
+        >
           {{ Translator.trans('explanation.statement.public.verify', { count: filesLength }) }}
         </label>
       </div>
@@ -53,10 +57,12 @@
           name="r_publicVerified"
           type="radio"
           value="publication_rejected"
-          @input="event => $emit('update', event.target.value)">
+          @input="event => $emit('update', event.target.value)"
+        >
         <label
           for="publicReject"
-          class="font-normal ml-1 mb-1">
+          class="font-normal ml-1 mb-1"
+        >
           {{ Translator.trans('explanation.statement.public.reject') }}
         </label>
       </div>
@@ -67,20 +73,23 @@
         </label>
         <dp-editor
           :value="emailText"
-          hidden-input="r_publicRejectionEmail" />
+          hidden-input="r_publicRejectionEmail"
+        />
       </div>
 
       <dp-inline-notification
         v-if="hasPermission('feature_statements_vote')"
         class="mt-2 mb-2"
         :message="Translator.trans('explanation.statement.public.activate.voting')"
-        type="info" />
+        type="info"
+      />
     </div>
 
     <voting-status
       v-else
       class="mt-0.5"
-      :public-verified="publicVerified" />
+      :public-verified="publicVerified"
+    />
   </div>
 </template>
 

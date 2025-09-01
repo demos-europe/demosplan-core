@@ -10,14 +10,17 @@
 <template>
   <div
     v-if="false === hidden"
-    :data-cy="filterItem.attributes.label">
+    :data-cy="filterItem.attributes.label"
+  >
     <label
       :for="filterItem.id"
-      class="layout__item u-1-of-3 u-pl-0 text-right">
+      class="layout__item u-1-of-3 u-pl-0 text-right"
+    >
       <dp-loading
         v-if="isUpdating"
         hide-label
-        class="inline-block u-mr-0_5" />
+        class="inline-block u-mr-0_5"
+      />
       {{ filterItem.attributes.label }}
     </label><!--
 
@@ -37,12 +40,14 @@
             @close="updateFilterOptions"
             @open="loadFilterOptions"
             @remove="removeFilterOption"
-            @select="selectFilterOption">
+            @select="selectFilterOption"
+>
             <!-- selected options -->
             <template v-slot:tag="{ props }">
               <span
                 class="multiselect__tag"
-                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)">
+                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)"
+>
                 <span>
                   {{ props.option.label }}
                   <template v-if="'fragment' !== filterGroup.type">
@@ -53,26 +58,30 @@
                   aria-hidden="true"
                   class="multiselect__tag-icon"
                   tabindex="1"
-                  @click="props.remove(props.option)" />
+                  @click="props.remove(props.option)"
+/>
               </span>
             </template>
 
             <!-- sorting -->
             <template
               v-if="'fragment' !== filterGroup.type"
-              v-slot:beforeList>
+              v-slot:beforeList
+>
               <li>
                 <button
                   v-cleanhtml="sortingLabel"
                   type="button"
                   class="btn--blank o-link--default"
-                  @click="toggleSorting(filterItem.id)" />
+                  @click="toggleSorting(filterItem.id)"
+/>
               </li>
             </template>
 
             <!-- selectable options -->
             <template
-              v-slot:option="{ props }">
+              v-slot:option="{ props }"
+>
               <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 {{ props.option.label }}
               </span>
@@ -90,12 +99,14 @@
     :id="filterItem.attributes.name+ '[]'"
     :name="filterItem.attributes.name + '[]'"
     multiple
-    style="display: none">
+    style="display: none"
+  >
     <option
       v-for="(option, idx) in filteredSelectedOptions"
       :key="idx"
       :value="option.value"
-      selected>
+      selected
+    >
       {{ option.label }}
     </option>
   </select>

@@ -33,30 +33,36 @@
     @mouseover="mouseOverElement"
     @mouseout="mouseOutElement"
     @focus="mouseOverElement"
-    @blur="mouseOutElement">
+    @blur="mouseOutElement"
+  >
     <span class="c-at-item__row-icon inline-block">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
         aria-hidden="true"
-        :title="Translator.trans('move')" />
+        :title="Translator.trans('move')"
+      />
     </span><!--
  --><span
     class="inline-block layout--flush c-at-item__row"
-    data-cy="mapLayerListItem">
+    data-cy="mapLayerListItem"
+>
     <span
       class="inline-block"
-      :class="hasPermission('feature_map_layer_visibility') ? 'w-8/12 ' : 'w-10/12'">
+      :class="hasPermission('feature_map_layer_visibility') ? 'w-8/12 ' : 'w-10/12'"
+>
       <!-- regular categories -->
       <i
         v-if="layer.type === 'GisLayerCategory' && false === layer.attributes.layerWithChildrenHidden"
         aria-hidden="true"
         class="fa u-mr-0_125"
         :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
-        @click="toggleChildren" />
+        @click="toggleChildren"
+/>
       {{ layer.attributes.name }}
       <span
         v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller mr-2"
+>
           <!-- children of categories that should appear as Layer
                     only in map-list (where no categories are shown)
                     -->
@@ -64,33 +70,39 @@
       </span>
       <span
         v-if="layer.attributes.layerWithChildrenHidden"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller mr-2"
+>
           <!-- categories that should appear as Layer -->
         <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
       </span>
       <span
         v-if="layer.attributes.description"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller mr-2"
+>
         <br>{{ layer.attributes.description }}
       </span>
       <span
         v-if="layer.attributes.isBplan"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller mr-2"
+>
         <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
       </span>
       <span
         v-if="layer.attributes.isScope"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller mr-2"
+>
         <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
       </span>
       <span
         v-if="false === layer.attributes.isEnabled"
-        class="font-size-smaller">
+        class="font-size-smaller"
+>
         <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
       </span>
       <span
         v-if="layer.attributes.isPrint"
-        class="font-size-smaller">
+        class="font-size-smaller"
+>
         <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
       </span>
     </span><!--
@@ -108,10 +120,12 @@
         @mouseover="setIconHoverState"
         @mouseout="unsetIconHoverState"
         @focus="setIconHoverState"
-        @blur="unsetIconHoverState">
+        @blur="unsetIconHoverState"
+>
         <i
           :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-          :class="[iconClass,showGroupableIcon]" />
+          :class="[iconClass,showGroupableIcon]"
+/>
       </button>
     </div><!--
     --><div class="inline-block w-1/12 text-right">
@@ -121,7 +135,8 @@
         :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
         :checked="hasDefaultVisibility"
         :class="[iconClass, 'o-sortablelist__checkbox']"
-        @change.prevent="toggleHasDefaultVisibility">
+        @change.prevent="toggleHasDefaultVisibility"
+>
       </div><!--
   -->
 </template><!--
@@ -134,33 +149,39 @@
           data-cy="adminLayerListItem:toggleDefaultVisibility"
           :checked="hasDefaultVisibility"
           :class="[iconClass, 'o-sortablelist__checkbox']"
-          @change.prevent="toggleHasDefaultVisibility">
+          @change.prevent="toggleHasDefaultVisibility"
+>
       </div><!--
      -->
     </template><!--
   --><span
       v-if="(layer.type !== 'GisLayer' && (false === layer.attributes.layerWithChildrenHidden))"
-      class="inline-block w-2/12 text-right">
+      class="inline-block w-2/12 text-right"
+>
       <!-- spacer for groups -->
     </span><!--
   --><span class="inline-block w-2/12 text-right">
       <a
         :href="editLink"
-        data-cy="editLink">
+        data-cy="editLink"
+>
         <i
           class="fa fa-pencil mr-2"
           aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
+          :title="Translator.trans('edit')"
+/><span class="sr-only">{{ Translator.trans('edit') }}</span>
       </a>
       <button
         v-if="childElements.length <= 0"
         class="btn--blank o-link--default mr-2 align-bottom"
         data-cy="adminLayerListItem:deleteElement"
         :title="Translator.trans('delete')"
-        @click.prevent="deleteElement">
+        @click.prevent="deleteElement"
+>
         <i
           class="fa fa-trash"
-          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
+          aria-hidden="true"
+/><span class="sr-only">{{ Translator.trans('delete') }}</span>
         </button>
       </span>
     </span>
@@ -173,7 +194,8 @@
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :opts="draggableOptions"
       :content-data="childElements"
-      @end="updateChildren">
+      @end="updateChildren"
+    >
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
@@ -181,10 +203,12 @@
         :sorting-type="sortingType"
         :layer-type="layerType"
         :parent-order-position="orderPosition"
-        :index="idx" />
+        :index="idx"
+      />
       <div
         v-if="childElements.length <= 0"
-        class="o-sortablelist__spacer" />
+        class="o-sortablelist__spacer"
+      />
     </dp-draggable>
 
     <!-- if special category that looks like an Layer and hides all his children -->
@@ -196,7 +220,8 @@
       :opts="draggableOptions"
       :content-data="childElements"
       :node-id="layer.id"
-      @end="updateChildren">
+      @end="updateChildren"
+    >
       <admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="item.id"
@@ -204,10 +229,12 @@
         :index="idx"
         :layer-type="layerType"
         :parent-order-position="orderPosition"
-        :sorting-type="sortingType" />
+        :sorting-type="sortingType"
+      />
       <div
         v-if="childElements.length <= 0"
-        class="o-sortablelist__spacer" />
+        class="o-sortablelist__spacer"
+      />
     </dp-draggable>
   </button>
 </template>

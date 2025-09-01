@@ -10,7 +10,8 @@
         text: Translator.trans('contact.name')
       }"
       required
-      type="text" />
+      type="text"
+    />
     <dp-input
       id="loginSupportPhone"
       v-model="contact.phoneNumber"
@@ -23,7 +24,8 @@
       }"
       pattern="^(\(?\+?)(-| |[0-9]|\(|\))*$"
       required
-      type="tel" />
+      type="tel"
+    />
     <dp-input
       id="loginSupportEmail"
       v-model="contact.eMailAddress"
@@ -33,7 +35,8 @@
       :label="{
         text: Translator.trans('email.address')
       }"
-      type="email" />
+      type="email"
+    />
     <dp-editor
       v-model="contact.text"
       class="u-mb-0_75"
@@ -43,18 +46,21 @@
         headings: [2,3,4],
         linkButton: true
       }"
-      :tus-endpoint="dplan.paths.tusEndpoint" />
+      :tus-endpoint="dplan.paths.tusEndpoint"
+    />
     <dp-button-row
       primary
       secondary
       :secondary-text="Translator.trans('reset')"
       @primary-action="dpValidateAction('loginSupport', () => updateContact(), false)"
-      @secondary-action="setFormFromStore">
+      @secondary-action="setFormFromStore"
+    >
       <dp-button
         color="secondary"
         :disabled="contact.id === emptyContact.id"
         :text="Translator.trans('delete')"
-        @click.prevent="deleteContact" />
+        @click.prevent="deleteContact"
+      />
     </dp-button-row>
   </div>
 </template>

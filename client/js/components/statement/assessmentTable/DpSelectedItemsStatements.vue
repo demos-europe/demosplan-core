@@ -17,10 +17,12 @@
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
       disabled
-      :title="Translator.trans('statement.moved.not.editable')">
+      :title="Translator.trans('statement.moved.not.editable')"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-pencil u-mr-0_125" />
+        class="fa fa-pencil u-mr-0_125"
+      />
       {{ Translator.trans('edit') }}
     </button>
     <!--if all items are claimed and at least one statement in this procedure is chosen, go to group edit or if claiming is not enabled in project -->
@@ -29,10 +31,12 @@
       role="button"
       class="btn--blank u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
-      :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })">
+      :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-pencil u-mr-0_125" />
+        class="fa fa-pencil u-mr-0_125"
+      />
       {{ Translator.trans('edit') }}
     </a>
     <!--if at least one item is not claimed -->
@@ -41,15 +45,18 @@
       class="btn--blank o-link--default u-mr-0_5"
       type="button"
       data-cy="claimAll"
-      @click="claimAll">
+      @click="claimAll"
+    >
       <dp-loading
         v-if="loading"
         class="inline-block"
-        hide-label />
+        hide-label
+      />
       <i
         v-else
         aria-hidden="true"
-        class="fa fa-user u-mr-0_125" />
+        class="fa fa-user u-mr-0_125"
+      />
       {{ Translator.trans('assign.to.me') }}
     </button>
 
@@ -58,10 +65,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:consolidate"
-      @click="openConsolidateModal">
+      @click="openConsolidateModal"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-object-group u-mr-0_125" />
+        class="fa fa-object-group u-mr-0_125"
+      />
       {{ Translator.trans('consolidate') }}
     </button>
 
@@ -69,10 +78,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:copy"
-      @click="copyElements">
+      @click="copyElements"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-files-o u-mr-0_125" />
+        class="fa fa-files-o u-mr-0_125"
+      />
       {{ Translator.trans('copy') }}
     </button>
 
@@ -80,10 +91,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:delete"
-      @click="triggerDeletion">
+      @click="triggerDeletion"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-trash u-mr-0_125" />
+        class="fa fa-trash u-mr-0_125"
+      />
       {{ Translator.trans('delete') }}
     </button>
 
@@ -91,10 +104,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:export"
-      @click.prevent="$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-share-square u-mr-0_125" />
+        class="fa fa-share-square u-mr-0_125"
+      />
       {{ Translator.trans('export') }}
     </button>
   </div>

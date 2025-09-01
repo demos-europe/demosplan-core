@@ -5,7 +5,8 @@
     data-cy="exportFlyout"
     :padded="false"
     @close="handleClose"
-    @open="handleOpen">
+    @open="handleOpen"
+  >
     <template v-slot:trigger>
       <span class="pr-1">
         {{ Translator.trans('export.verb') }}
@@ -13,14 +14,16 @@
       <i
         class="fa"
         :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </template>
     <ul class="!py-1">
       <li v-if="docx">
         <button
           class="btn btn--blank o-link--default"
           type="button"
-          @click.prevent.stop="handleExport('docx')">
+          @click.prevent.stop="handleExport('docx')"
+        >
           DOCX
         </button>
       </li>
@@ -28,7 +31,8 @@
         <button
           class="btn btn--blank o-link--default"
           type="button"
-          @click.prevent.stop="handleExport('csv')">
+          @click.prevent.stop="handleExport('csv')"
+        >
           CSV
         </button>
       </li>
