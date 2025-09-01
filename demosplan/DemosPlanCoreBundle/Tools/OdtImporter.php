@@ -70,8 +70,8 @@ class OdtImporter
         $dom = new DOMDocument();
         $dom->loadXML($contentXml);
 
-        // Parse styles first to understand formatting
-        $styleData = $this->styleParser->parseStyles($dom);
+        // Parse styles first to understand formatting (including styles from styles.xml)
+        $styleData = $this->styleParser->parseStyles($dom, $stylesXml);
         $this->styleMap = $styleData['styleMap'];
         $this->headingStyleMap = $styleData['headingStyleMap'];
 

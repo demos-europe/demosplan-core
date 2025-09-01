@@ -390,7 +390,36 @@ class OdtImporterTest extends TestCase
 
         // Assert
         $this->assertStringContainsString('<h1>Style-based Heading 1</h1>', $html);
-        $this->assertStringContainsString('<h1>Bold Large Text Heading</h1>', $html);
+        $this->assertStringContainsString('<h2>Bold Large Text Heading</h2>', $html);
+    }
+
+    /**
+     * Test dynamic heading detection based on font properties
+     */
+    public function testDynamicHeadingDetection(): void
+    {
+        // Arrange - Test case similar to "Zwischenüberschrift" style
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0">
+<office:automatic-styles>
+<style:style style:name="Zwischenüberschrift" style:family="paragraph" style:parent-style-name="Normsatz_3a__20_Fließtext">
+<style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false"/>
+<style:text-properties fo:font-size="18pt" fo:font-weight="bold" style:font-size-asian="18pt" style:language-asian="zh" style:country-asian="CN" style:font-weight-asian="bold"/>
+</style:style>
+</office:automatic-styles>
+<office:body>
+<office:text>
+<text:p text:style-name="Zwischenüberschrift">Mit Herausforderungen flexibel umgehen</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert - 18pt bold text with distinctive margins should be detected as level 2 heading
+        $this->assertStringContainsString('<h2>Mit Herausforderungen flexibel umgehen</h2>', $html);
     }
 
     /**
@@ -567,6 +596,82 @@ class OdtImporterTest extends TestCase
         $this->assertStringContainsString('<li>Ausbau und Weiterentwicklung', $html);
         $this->assertStringContainsString('<ol start="4">', $html);
         $this->assertStringContainsString('<li>Verbesserung der Standortbedingungen', $html);
+    }
+
+    /**
+     * Test LEP document "Zwischenüberschrift" heading detection with real ODT data
+     */
+    public function testLEPDocumentZwischenuberschriftDetection(): void
+    {
+        // Arrange - Real ODT structure from LEP document with Zwischenüberschrift style in styles.xml (like the real file)
+        $zip = $this->createMockedZipArchive(
+            '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0">
+<office:automatic-styles>
+<style:style style:name="Normsatz_3a__20_Fließtext" style:display-name="Normsatz: Fließtext" style:family="paragraph" style:parent-style-name="Standard"/>
+</office:automatic-styles>
+<office:body>
+<office:text>
+<text:h text:outline-level="1" text:style-name="Kapitelüberschrift">
+<text:bookmark-start text:name="_Toc84925075"/>
+(1) Schleswig-Holstein – Zukunft flexibel, gemeinsam und nachhaltig gestalten
+<text:bookmark-end text:name="_Toc84925075"/>
+</text:h>
+<text:p text:style-name="Zwischenüberschrift">
+<text:bookmark-start text:name="_Toc49262434"/>
+Mit Herausforderungen flexibel umgehen
+<text:bookmark-end text:name="_Toc49262434"/>
+</text:p>
+<text:p text:style-name="Normsatz_3a__20_Fließtext">
+Seit der Veröffentlichung des Landesentwicklungsplans 2010 haben sich viele gesellschaftliche und wirtschaftliche Rahmenbedingungen verändert...
+</text:p>
+<text:p text:style-name="Zwischenüberschrift">
+Gestaltungschancen nutzen – Innovationen fördern (Experimentierklausel)
+</text:p>
+<text:p text:style-name="Zwischenüberschrift">
+Zukunft anpacken – Hand in Hand
+</text:p>
+</office:text>
+</office:body>
+</office:document-content>',
+            '<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0">
+<office:styles>
+<style:style style:name="Zwischenüberschrift" style:family="paragraph" style:parent-style-name="Normsatz_3a__20_Fließtext">
+<style:paragraph-properties fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" style:contextual-spacing="false"/>
+<style:text-properties fo:font-size="18pt" fo:font-weight="bold" style:font-size-asian="18pt" style:language-asian="zh" style:country-asian="CN" style:font-weight-asian="bold"/>
+</style:style>
+</office:styles>
+</office:document-styles>'
+        );
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert - The main heading that was previously missed should now be detected (with whitespace tolerance)
+        $this->assertMatchesRegularExpression('/<h1[^>]*>\s*\(1\) Schleswig-Holstein[^<]*<\/h1>/s', $html, 
+            'Proper ODT heading should be detected');
+            
+        // The Zwischenüberschrift paragraphs should be detected as headings (18pt bold = level 2)
+        $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Mit Herausforderungen flexibel umgehen\s*<\/h2>/s', $html,
+            'Zwischenüberschrift "Mit Herausforderungen flexibel umgehen" should be detected as h2');
+            
+        $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Gestaltungschancen nutzen[^<]*<\/h2>/s', $html,
+            'Zwischenüberschrift about Gestaltungschancen should be detected as h2');
+            
+        $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Zukunft anpacken[^<]*<\/h2>/s', $html,
+            'Zwischenüberschrift "Zukunft anpacken" should be detected as h2');
+
+        // Verify these are NOT treated as regular paragraphs
+        $this->assertStringNotContainsString('<p>Mit Herausforderungen flexibel umgehen</p>', $html,
+            'Should not be treated as regular paragraph');
+        $this->assertStringNotContainsString('<p>Gestaltungschancen nutzen – Innovationen fördern (Experimentierklausel)</p>', $html,
+            'Should not be treated as regular paragraph');
+
+        // Regular text should remain as paragraph  
+        $this->assertMatchesRegularExpression('/<p[^>]*>\s*Seit der Veröffentlichung des Landesentwicklungsplans 2010/s', $html,
+            'Regular text should remain as paragraph');
     }
 
     /**

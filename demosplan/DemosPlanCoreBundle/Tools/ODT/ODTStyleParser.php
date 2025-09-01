@@ -20,16 +20,38 @@ class ODTStyleParser implements ODTStyleParserInterface
     /**
      * Parse ODT styles from content and styles XML.
      */
-    public function parseStyles(DOMDocument $dom): array
+    public function parseStyles(DOMDocument $dom, ?string $stylesXml = null): array
     {
         $styleMap = [];
         $headingStyleMap = [];
 
         $xpath = new DOMXPath($dom);
 
+        // Parse automatic styles from content.xml
+        $this->parseStylesFromXPath($xpath, '//office:automatic-styles/style:style', $styleMap, $headingStyleMap);
+
+        // Parse main styles from styles.xml if available
+        if ($stylesXml !== null && !empty($stylesXml)) {
+            $stylesDom = new DOMDocument();
+            $stylesDom->loadXML($stylesXml);
+            $stylesXPath = new DOMXPath($stylesDom);
+            $this->parseStylesFromXPath($stylesXPath, '//office:styles/style:style', $styleMap, $headingStyleMap);
+        }
+
+        return [
+            'styleMap' => $styleMap,
+            'headingStyleMap' => $headingStyleMap
+        ];
+    }
+
+    /**
+     * Parse styles from a specific XPath query.
+     */
+    private function parseStylesFromXPath(DOMXPath $xpath, string $query, array &$styleMap, array &$headingStyleMap): void
+    {
         // Parse text styles
-        $styleNodes = $xpath->query('//office:automatic-styles/style:style[@style:family="text"]');
-        foreach ($styleNodes as $styleNode) {
+        $textStyleNodes = $xpath->query($query . '[@style:family="text"]');
+        foreach ($textStyleNodes as $styleNode) {
             /** @var DOMElement $styleNode */
             $styleName = $styleNode->getAttribute(self::STYLE_NAME);
             if (empty($styleName)) {
@@ -43,7 +65,7 @@ class ODTStyleParser implements ODTStyleParserInterface
         }
 
         // Parse paragraph styles for heading detection
-        $paragraphStyles = $xpath->query('//office:automatic-styles/style:style[@style:family="paragraph"]');
+        $paragraphStyles = $xpath->query($query . '[@style:family="paragraph"]');
         foreach ($paragraphStyles as $styleNode) {
             /** @var DOMElement $styleNode */
             $styleName = $styleNode->getAttribute(self::STYLE_NAME);
@@ -56,11 +78,6 @@ class ODTStyleParser implements ODTStyleParserInterface
                 $headingStyleMap[$styleName] = $headingLevel;
             }
         }
-
-        return [
-            'styleMap' => $styleMap,
-            'headingStyleMap' => $headingStyleMap
-        ];
     }
 
     /**
@@ -190,22 +207,144 @@ class ODTStyleParser implements ODTStyleParserInterface
             return 1; // Default to level 1 for generic heading styles
         }
 
-        // Check text properties for heading-like formatting
-        $textProps = $xpath->query('style:text-properties', $styleNode)->item(0);
-        if ($textProps && $textProps instanceof DOMElement) {
-            $isBold = $this->isBold($textProps);
-            $fontSize = $textProps->getAttribute('fo:font-size');
+        // Analyze style properties to detect heading characteristics
+        return $this->analyzeStyleForHeading($xpath, $styleNode);
+    }
 
-            // Detect heading based on bold + large font size
-            if ($isBold && $fontSize) {
-                $size = (int) filter_var($fontSize, FILTER_SANITIZE_NUMBER_INT);
-                if ($size >= 14) {
-                    return 1; // Large bold text likely a heading
-                }
+    /**
+     * Analyze style properties dynamically to determine if it's a heading.
+     */
+    private function analyzeStyleForHeading(DOMXPath $xpath, DOMElement $styleNode): int
+    {
+        $textProps = $xpath->query('style:text-properties', $styleNode)->item(0);
+        $paraProps = $xpath->query('style:paragraph-properties', $styleNode)->item(0);
+        
+        $fontSize = $this->extractFontSize($textProps);
+        $headingScore = $this->calculateHeadingScore($textProps, $paraProps, $fontSize);
+        
+        return $this->determineHeadingLevel($headingScore, $fontSize);
+    }
+
+    /**
+     * Extract font size from text properties.
+     */
+    private function extractFontSize(?\DOMElement $textProps): int
+    {
+        if (!$textProps instanceof DOMElement) {
+            return 12; // Default base font size
+        }
+
+        $fontSizeAttr = $textProps->getAttribute('fo:font-size');
+        return $fontSizeAttr ? (int) filter_var($fontSizeAttr, FILTER_SANITIZE_NUMBER_INT) : 12;
+    }
+
+    /**
+     * Calculate heading score based on text and paragraph properties.
+     */
+    private function calculateHeadingScore(?\DOMElement $textProps, ?\DOMElement $paraProps, int $fontSize): int
+    {
+        $score = 0;
+        
+        $score += $this->getTextPropertiesScore($textProps, $fontSize);
+        $score += $this->getParagraphPropertiesScore($paraProps);
+        
+        return $score;
+    }
+
+    /**
+     * Get heading score from text properties.
+     */
+    private function getTextPropertiesScore(?\DOMElement $textProps, int $fontSize): int
+    {
+        if (!$textProps instanceof DOMElement) {
+            return 0;
+        }
+
+        $score = 0;
+        
+        // Font size analysis
+        if ($fontSize >= 18) {
+            $score += 3; // Large font strongly indicates heading
+        } elseif ($fontSize >= 14) {
+            $score += 2; // Medium-large font indicates heading
+        }
+
+        // Font weight analysis
+        if ($this->isBold($textProps)) {
+            $score += 2; // Bold text indicates heading
+        }
+
+        return $score;
+    }
+
+    /**
+     * Get heading score from paragraph properties.
+     */
+    private function getParagraphPropertiesScore(?\DOMElement $paraProps): int
+    {
+        if (!$paraProps instanceof DOMElement) {
+            return 0;
+        }
+
+        $score = 0;
+        
+        // Check for keep-with-next (headings often have this)
+        if ($paraProps->getAttribute('fo:keep-with-next') === 'always') {
+            ++$score;
+        }
+
+        // Check for distinctive margins
+        $marginTop = $paraProps->getAttribute('fo:margin-top');
+        $marginBottom = $paraProps->getAttribute('fo:margin-bottom');
+
+        if ($marginTop && $this->parseMargin($marginTop) > 0.3) { // > 3mm top margin
+            ++$score;
+        }
+
+        if ($marginBottom && $this->parseMargin($marginBottom) > 0.15) { // > 1.5mm bottom margin
+            ++$score;
+        }
+
+        return $score;
+    }
+
+    /**
+     * Determine heading level based on score and font size.
+     */
+    private function determineHeadingLevel(int $headingScore, int $fontSize): int
+    {
+        if ($headingScore >= 4) {
+            // Very likely a heading - determine level by font size
+            if ($fontSize >= 20) {
+                return 1;
             }
+            if ($fontSize >= 16) {
+                return 2;
+            }
+            return 3;
+        }
+        
+        if ($headingScore >= 3) {
+            // Likely a heading
+            return $fontSize >= 18 ? 2 : 3;
         }
 
         return 0; // Not a heading
+    }
+
+    /**
+     * Parse margin value and convert to cm.
+     */
+    private function parseMargin(string $margin): float
+    {
+        if (str_ends_with($margin, 'cm')) {
+            return (float) str_replace('cm', '', $margin);
+        }
+
+        if (str_ends_with($margin, 'pt')) {
+            return (float) str_replace('pt', '', $margin) * 0.0353; // Convert pt to cm
+        }
+        return 0.0;
     }
 
     /**
