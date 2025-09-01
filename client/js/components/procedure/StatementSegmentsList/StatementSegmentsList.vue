@@ -166,7 +166,7 @@
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
-        @statement-text-updated="checkStatementClaim"
+        @statement-text:updated="checkStatementClaim"
         @save-statement="saveStatement" />
     </div>
   </div>
@@ -870,7 +870,7 @@ export default {
 
   created () {
     this.setInitialAction()
-    this.$root.$on('statement-attachments-added', this.getStatement)
+    this.$root.$on('statementAttachments:added', this.getStatement)
   },
 
   mounted () {

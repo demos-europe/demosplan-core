@@ -516,7 +516,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('assessment-table-loaded', () => {
+    this.$root.$on('assessmentTable:loaded', () => {
       this.disabledOpenModalButton = false
     })
   },

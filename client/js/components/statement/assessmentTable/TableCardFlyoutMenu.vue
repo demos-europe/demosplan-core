@@ -101,7 +101,7 @@
       class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="fragmentAssigneeId !== currentUserId"
       :title="fragmentAssigneeId === currentUserId ? false : Translator.trans('locked.title')"
-      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment-delete', entityId) } : {}">
+      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment:delete', entityId) } : {}">
       {{ Translator.trans('delete') }}
     </button>
 
@@ -200,7 +200,7 @@ export default {
   },
 
   emits: [
-    'fragment-delete',
+    'fragment:delete',
     'show-slidebar',
     'statement:copy',
     'statement:move',

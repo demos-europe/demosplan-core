@@ -1207,6 +1207,8 @@ export default {
 
           // Used in DpVersionHistory to update items in version history sidebar
           this.$root.$emit('entity:updated', this.statementId, 'statement')
+          // Used in DpEditField to disable editing
+          this.$root.$emit('saveSuccess', this.statementId, 'statement')
 
           return updatedField
         })
