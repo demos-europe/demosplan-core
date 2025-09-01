@@ -314,13 +314,13 @@ class ServiceImporterOdtConversionTest extends TestCase
             '<sup title="Ich bin die Fußnote">2</sup>',
             '<td colspan="2" >Colspan2</td>',
             '<td rowspan="3" >Rowspan3</td>',
-            '<h2>Überschrift2</h2>',
+            '<h2>'.self::TEST_HEADING_2.'</h2>',
             '<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
             '<figure>',
-            '<h2>Überschrift3</h2>',
+            '<h2>'.self::TEST_HEADING_3.'</h2>',
             '<sup title="Mit Fußnote auf neuer Seite">3</sup>',
             '<ul><li>Eins</li><li>Zwei</li></ul>',
-            '<h1>Nummerierte Überschrift</h1>', // ODT has outline-level="1"
+            '<h1>'.self::NUMBERED_HEADING.'</h1>', // ODT has outline-level="1"
             '<ol><li>Nummerierten Liste 1</li><li>Nummer 2<ul><li>Nummer 2.1</li><li>Nummer 2.2</li></ul></li><li>Nummer 3</li></ol>',
             '<sup title="Und Endnote">i</sup>',
             '<ul><li>Jetzt</li><li><strong>Fett</strong><ul><li><strong>eingerückt</strong></li></ul></li>',
@@ -391,7 +391,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 
             $base64Data = $parts[1];
             $this->assertNotEmpty($base64Data, 'Base64 data should not be empty');
-            $this->assertTrue(false !== base64_decode($base64Data, true), 'Base64 data should be valid');
+            $this->assertNotFalse(base64_decode($base64Data, true), 'Base64 data should be valid');
 
             // Verify the base64 data is substantial (not just empty/placeholder)
             $decodedData = base64_decode($base64Data);
@@ -443,7 +443,7 @@ class ServiceImporterOdtConversionTest extends TestCase
     {
         // This is the expected HTML output from the ODT importer for SimpleDoc.odt
         $expectedOdtHtml = '<html><body>
-            <h1>Testüberschrift</h1>
+            <h1>'.self::TEST_HEADING.'</h1>
             <p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</em></u> Fußnote<sup title="Ich bin die Fußnote">2</sup></p><table>
 <tr>
 <td colspan="2" >Colspan2</td><td>1.3</td></tr>
@@ -469,7 +469,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>4.1</td><td>4.2</td><td>4.3</td></tr>
 </table>
 <p></p>
-            <h2>Überschrift2</h2>
+            <h2>'.self::TEST_HEADING_2.'</h2>
             <p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul><p>Mit Absatz dahinter, Tabelle folgend</p><table>
 <tr>
 <td>1.1</td><td>1.2</td><td>1.3</td></tr>
@@ -490,9 +490,9 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>2.1</td><td>2.2</td></tr>
 </table>
 <p></p><p>Sodann ein Bild</p><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="337" height="252" /></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
-            <h2>Überschrift3</h2>
+            <h2>'.self::TEST_HEADING_3.'</h2>
             <p>Zweiter Absatz<sup title="Mit Fußnote auf <strong>neuer</strong> Seite">3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
-            <h1>Nummerierte Überschrift</h1>
+            <h1>'.self::NUMBERED_HEADING.'</h1>
             <p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol><p>Mit Absatz<sup title="Und Endnote">I</sup> dahinter</p><p>Fast Ende mit Liste</p><ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li><li><strong>eingerückt</strong></li><li>Schlüß </li></ul><p>Mit einem Absatz am Ende.</p>
         </body></html>';
 
@@ -510,20 +510,20 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('<td colspan="2" >Colspan2</td>', $result[0]['text']);
         $this->assertStringContainsString('<td rowspan="3" >Rowspan3</td>', $result[0]['text']);
 
-        // Verify paragraph 2: Überschrift2
+        // Verify paragraph 2: '.self::TEST_HEADING_2.'
         $this->assertEquals(self::TEST_HEADING_2, $result[1]['title']);
         $this->assertEquals(2, $result[1]['nestingLevel']);
         $this->assertStringContainsString('<p>Mit Absatz</p>', $result[1]['text']);
         $this->assertStringContainsString('<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>', $result[1]['text']);
         $this->assertStringContainsString('<strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong>', $result[1]['text']);
 
-        // Verify paragraph 3: Überschrift3 (actual ODT has outline-level="2")
+        // Verify paragraph 3: '.self::TEST_HEADING_3.' (actual ODT has outline-level="2")
         $this->assertEquals(self::TEST_HEADING_3, $result[2]['title']);
         $this->assertEquals(2, $result[2]['nestingLevel']); // ODT has outline-level="2"
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup>', $result[2]['text']);
         $this->assertStringContainsString('<ul><li>Eins</li><li>Zwei</li></ul>', $result[2]['text']);
 
-        // Verify paragraph 4: Nummerierte Überschrift (actual ODT has outline-level="1")
+        // Verify paragraph 4: '.self::NUMBERED_HEADING.' (actual ODT has outline-level="1")
         $this->assertEquals(self::NUMBERED_HEADING, $result[3]['title']);
         $this->assertEquals(1, $result[3]['nestingLevel']); // ODT has outline-level="1"
         $this->assertStringContainsString('<ol><li>Nummerierten Liste 1</li><li>Nummer 2</li>', $result[3]['text']);
@@ -546,7 +546,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 
         // Mock the ODT importer to return realistic HTML matching actual ODT output
         $realisticOdtHtml = '<html><body>
-            <h1>Testüberschrift</h1>
+            <h1>'.self::TEST_HEADING.'</h1>
             <p></p><p>Mein <strong>fetter</strong> Absatz<sup title=\'Erste Fußnote im Fließtext\'>1</sup> mit <em><u>kursiv-unterstrichener</em></u> Fußnote<sup title=\'Ich bin die Fußnote\'>2</sup></p><table>
 <tr>
 <td colspan=\'2\' >Colspan2</td><td>1.3</td></tr>
@@ -572,7 +572,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>4.1</td><td>4.2</td><td>4.3</td></tr>
 </table>
 <p></p>
-            <h2>Überschrift2</h2>
+            <h2>'.self::TEST_HEADING_2.'</h2>
             <p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul><p>Mit Absatz dahinter, Tabelle folgend</p><table>
 <tr>
 <td>1.1</td><td>1.2</td><td>1.3</td></tr>
@@ -593,9 +593,9 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>2.1</td><td>2.2</td></tr>
 </table>
 <p></p><p>Sodann ein Bild</p><p><img src=\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\' width=\'337\' height=\'252\' /></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
-            <h2>Überschrift3</h2>
+            <h2>'.self::TEST_HEADING_3.'</h2>
             <p>Zweiter Absatz<sup title=\'Mit Fußnote auf <strong>neuer</strong> Seite\'>3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
-            <h1>Nummerierte Überschrift</h1>
+            <h1>'.self::NUMBERED_HEADING.'</h1>
             <p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol><p>Mit Absatz<sup title=\'Und Endnote\'>I</sup> dahinter</p><p>Fast Ende mit Liste</p><ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li><li><strong>eingerückt</strong></li><li>Schlüß </li></ul><p>Mit einem Absatz am Ende.</p>
         </body></html>';
 
@@ -681,14 +681,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString(self::END_PARAGRAPH, $paragraphs[3]['text']);
     }
 
-    private function callPrivateMethod(string $methodName, array $args = [])
-    {
-        $reflection = new ReflectionClass($this->serviceImporter);
-        $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($this->serviceImporter, $args);
-    }
 
     private function callOdtImporterPrivateMethod(string $methodName, array $args = [])
     {

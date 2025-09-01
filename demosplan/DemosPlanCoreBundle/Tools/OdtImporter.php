@@ -138,7 +138,7 @@ class OdtImporter
         // These are usually index titles like "Abbildungsverzeichnis", "Verzeichnis der Themenkarten"
         $nodesToRemove = $structuralNodes;
         foreach ($structuralNodes as $structuralNode) {
-            $precedingHeading = $this->findPrecedingIndexHeading($structuralNode, $xpath);
+            $precedingHeading = $this->findPrecedingIndexHeading($structuralNode);
             if ($precedingHeading) {
                 $nodesToRemove[] = $precedingHeading;
             }
@@ -156,7 +156,7 @@ class OdtImporter
      * Find a heading that immediately precedes a structural index element.
      * These headings are typically index titles and should also be removed.
      */
-    private function findPrecedingIndexHeading(DOMNode $structuralNode, DOMXPath $xpath): ?DOMNode
+    private function findPrecedingIndexHeading(DOMNode $structuralNode): ?DOMNode
     {
         // Look for h1-h6 elements that immediately precede this structural element
         $precedingSibling = $structuralNode->previousSibling;

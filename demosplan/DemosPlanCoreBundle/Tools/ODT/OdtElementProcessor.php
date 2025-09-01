@@ -340,24 +340,24 @@ class OdtElementProcessor
         return '<sup title="'.htmlspecialchars($cleanBody).'">'.$citation.'</sup>';
     }
 
-    private function processLineBreak(DOMNode $node): string
+    private function processLineBreak(DOMNode $_node): string
     {
         return '<br>';
     }
 
-    private function processTab(DOMNode $node): string
+    private function processTab(DOMNode $_node): string
     {
         // Convert tab to space for readability
         return ' ';
     }
 
-    private function processSpace(DOMNode $node): string
+    private function processSpace(DOMNode $_node): string
     {
         // Space element
         return ' ';
     }
 
-    private function processSoftPageBreak(DOMNode $node): string
+    private function processSoftPageBreak(DOMNode $_node): string
     {
         return '<hr class="page-break">';
     }
@@ -368,7 +368,7 @@ class OdtElementProcessor
         return $this->processChildren($node);
     }
 
-    private function processCoveredTableCell(DOMNode $node): string
+    private function processCoveredTableCell(DOMNode $_node): string
     {
         // Skip covered cells - they're handled by spanning
         return '';

@@ -311,7 +311,7 @@ class ServiceImporter implements ServiceImporterInterface
             $this->checkFileIsValidToImport($fileInfo);
 
             // Detect file type and use appropriate importer
-            if ($this->isOdtFile($fileInfo, $file)) {
+            if ($this->isOdtFile($fileInfo)) {
                 $importResult = $this->importOdtFile(
                     $file,
                     $elementId,
@@ -362,7 +362,7 @@ class ServiceImporter implements ServiceImporterInterface
     /**
      * Detect if file is ODT based on file extension and content.
      */
-    private function isOdtFile(FileInfo $fileInfo, File $file): bool
+    private function isOdtFile(FileInfo $fileInfo): bool
     {
         $contentType = $fileInfo->getContentType();
         $fileName = $fileInfo->getFileName();
