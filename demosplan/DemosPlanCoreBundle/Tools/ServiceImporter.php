@@ -270,8 +270,6 @@ class ServiceImporter implements ServiceImporterInterface
                 $reportEntryEvent = new CreateReportEntryEvent($response, ReportEntry::CATEGORY_ADD);
                 $this->eventDispatcher->dispatch($reportEntryEvent);
 
-                $this->getLogger()->debug('Paragraph:'.serialize($response));
-
                 // save paragraph as current one in nesting level
                 $parentParagraphs[$paragraph['nestingLevel']] = $response->getId();
             } catch (Exception $e) {
@@ -310,7 +308,7 @@ class ServiceImporter implements ServiceImporterInterface
             $fs->dumpFile($temporaryPath, $this->defaultStorage->read($fileInfo->getAbsolutePath()));
             $file = new File($temporaryPath);
             $this->checkFileIsValidToImport($fileInfo);
-            
+
             // Detect file type and use appropriate importer
             if ($this->isOdtFile($fileInfo, $file)) {
                 $importResult = $this->importOdtFile(
@@ -367,17 +365,17 @@ class ServiceImporter implements ServiceImporterInterface
     {
         $contentType = $fileInfo->getContentType();
         $fileName = $fileInfo->getFileName();
-        
+
         // Check file extension
         if (str_ends_with(strtolower($fileName), '.odt')) {
             return true;
         }
-        
+
         // Check MIME type
         if ($contentType === 'application/vnd.oasis.opendocument.text') {
             return true;
         }
-        
+
         return false;
     }
 
