@@ -681,7 +681,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString(self::END_PARAGRAPH, $paragraphs[3]['text']);
     }
 
-
     private function callOdtImporterPrivateMethod(string $methodName, array $args = [])
     {
         // Handle the moved convertHtmlToParagraphStructure method
