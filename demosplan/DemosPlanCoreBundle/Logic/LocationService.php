@@ -35,7 +35,7 @@ class LocationService
         $this->em = $registry->getManager();
     }
 
-    public function searchLocation($query, $limit, $maxExtent = null): array
+    public function searchLocation(string $query, string $limit, $maxExtent = null): array
     {
         if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
             $restResponse = $this->searchAddress($query, $limit);
@@ -46,21 +46,18 @@ class LocationService
         return $restResponse['body'] ?? [];
     }
 
-    public function getFormattedSuggestion($entry)
+    public function getFormattedSuggestion(array $entry): array
     {
         if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
-            $filteredSuggestions = [
+            return [
                 'value' => $entry['name'].' '.$entry['housenumber'].', '.$entry['postcode'].' '.$entry['city'],
                 'data'  => $entry,
             ];
-        } else {
-            $filteredSuggestions = [
-                'value' => $entry['postcode'].' '.$entry['name'],
-                'data'  => $entry,
-            ];
         }
-
-        return $filteredSuggestions;
+        return [
+            'value' => $entry['postcode'].' '.$entry['name'],
+            'data'  => $entry,
+        ];
     }
 
     /**
@@ -72,7 +69,7 @@ class LocationService
      *
      * @return array Array containing search results
      */
-    public function searchAddress($searchString, $limit = 20): array
+    public function searchAddress($searchString, int $limit = 20): array
     {
         $logContext = [
             'service'          => 'LocationService',
