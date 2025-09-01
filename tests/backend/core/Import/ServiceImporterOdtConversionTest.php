@@ -308,7 +308,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 
         // The expected HTML structure that should be produced by the ODT importer
         $expectedHtmlContent = [
-            '<h1>Testüberschrift</h1>',
+            '<h1>'.self::TEST_HEADING.'</h1>',
             '<p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup>',
             '<em><u>kursiv-unterstrichener</u></em>',
             '<sup title="Ich bin die Fußnote">2</sup>',
@@ -504,32 +504,32 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertCount(4, $result, 'Should produce exactly 4 paragraphs from the ODT content');
 
         // Verify paragraph 1: Testüberschrift
-        $this->assertEquals('Testüberschrift', $result[0]['title']);
+        $this->assertEquals(self::TEST_HEADING, $result[0]['title']);
         $this->assertEquals(1, $result[0]['nestingLevel']);
         $this->assertStringContainsString('<p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup>', $result[0]['text']);
         $this->assertStringContainsString('<td colspan="2" >Colspan2</td>', $result[0]['text']);
         $this->assertStringContainsString('<td rowspan="3" >Rowspan3</td>', $result[0]['text']);
 
         // Verify paragraph 2: Überschrift2
-        $this->assertEquals('Überschrift2', $result[1]['title']);
+        $this->assertEquals(self::TEST_HEADING_2, $result[1]['title']);
         $this->assertEquals(2, $result[1]['nestingLevel']);
         $this->assertStringContainsString('<p>Mit Absatz</p>', $result[1]['text']);
         $this->assertStringContainsString('<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>', $result[1]['text']);
         $this->assertStringContainsString('<strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong>', $result[1]['text']);
 
         // Verify paragraph 3: Überschrift3 (actual ODT has outline-level="2")
-        $this->assertEquals('Überschrift3', $result[2]['title']);
+        $this->assertEquals(self::TEST_HEADING_3, $result[2]['title']);
         $this->assertEquals(2, $result[2]['nestingLevel']); // ODT has outline-level="2"
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup>', $result[2]['text']);
         $this->assertStringContainsString('<ul><li>Eins</li><li>Zwei</li></ul>', $result[2]['text']);
 
         // Verify paragraph 4: Nummerierte Überschrift (actual ODT has outline-level="1")
-        $this->assertEquals('Nummerierte Überschrift', $result[3]['title']);
+        $this->assertEquals(self::NUMBERED_HEADING, $result[3]['title']);
         $this->assertEquals(1, $result[3]['nestingLevel']); // ODT has outline-level="1"
         $this->assertStringContainsString('<ol><li>Nummerierten Liste 1</li><li>Nummer 2</li>', $result[3]['text']);
         $this->assertStringContainsString('<sup title="Und Endnote">I</sup>', $result[3]['text']);
         $this->assertStringContainsString('<ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li>', $result[3]['text']);
-        $this->assertStringContainsString('Mit einem Absatz am Ende.', $result[3]['text']);
+        $this->assertStringContainsString(self::END_PARAGRAPH, $result[3]['text']);
 
         // Verify that the expected content structure is present
         $this->assertStringContainsString('<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>', $result[0]['text']);
@@ -648,14 +648,14 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertCount(4, $paragraphs);
 
         // Verify the 4 expected paragraphs
-        $this->assertEquals('Testüberschrift', $paragraphs[0]['title']);
+        $this->assertEquals(self::TEST_HEADING, $paragraphs[0]['title']);
         $this->assertEquals(1, $paragraphs[0]['nestingLevel']);
         $this->assertStringContainsString('<p>Mein <strong>fetter</strong> Absatz', $paragraphs[0]['text']);
         $this->assertStringContainsString('<sup title="Erste Fußnote im Fließtext">1</sup>', $paragraphs[0]['text']);
         $this->assertStringContainsString('<table>', $paragraphs[0]['text']);
         $this->assertStringContainsString('Colspan2', $paragraphs[0]['text']);
 
-        $this->assertEquals('Überschrift2', $paragraphs[1]['title']);
+        $this->assertEquals(self::TEST_HEADING_2, $paragraphs[1]['title']);
         $this->assertEquals(2, $paragraphs[1]['nestingLevel']);
         $this->assertStringContainsString('<p>Mit Absatz</p>', $paragraphs[1]['text']);
         $this->assertStringContainsString('<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>', $paragraphs[1]['text']);
@@ -669,16 +669,16 @@ class ServiceImporterOdtConversionTest extends TestCase
             'Image in paragraph should be base64-encoded data URL'
         );
 
-        $this->assertEquals('Überschrift3', $paragraphs[2]['title']);
+        $this->assertEquals(self::TEST_HEADING_3, $paragraphs[2]['title']);
         $this->assertEquals(2, $paragraphs[2]['nestingLevel']); // Updated to match actual ODT outline-level="2"
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup>', $paragraphs[2]['text']);
         $this->assertStringContainsString('<ul><li>Eins</li><li>Zwei</li></ul>', $paragraphs[2]['text']);
 
-        $this->assertEquals('Nummerierte Überschrift', $paragraphs[3]['title']);
+        $this->assertEquals(self::NUMBERED_HEADING, $paragraphs[3]['title']);
         $this->assertEquals(1, $paragraphs[3]['nestingLevel']); // Updated to match actual ODT outline-level="1"
         $this->assertStringContainsString('<ol><li>Nummerierten Liste 1</li>', $paragraphs[3]['text']);
         $this->assertStringContainsString('<sup title="Und Endnote">I</sup>', $paragraphs[3]['text']);
-        $this->assertStringContainsString('Mit einem Absatz am Ende.', $paragraphs[3]['text']);
+        $this->assertStringContainsString(self::END_PARAGRAPH, $paragraphs[3]['text']);
     }
 
     private function callPrivateMethod(string $methodName, array $args = [])
