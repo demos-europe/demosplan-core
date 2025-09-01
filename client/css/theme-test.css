@@ -196,7 +196,8 @@
 
 #colSort,
 .cv-export-btn,
-.cv-add-btn {
+.cv-add-btn,
+.cv-segment-filter-btn {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -215,7 +216,7 @@
   color: var(--dp-white) !important;
 }
 
-#colSort{
+#colSort {
     background-color: var(--dp-gray-10) !important;
     border: none !important;
     border-bottom: 1px solid var(--dp-gray-60) !important;
@@ -225,6 +226,25 @@
 #colSort:hover {
     color: var(--dp-gray-100) !important;
 }
+
+/* Filter buttons styling to match #colSort */
+.cv-column-selector .cv-segment-filter-btn,
+.cv-column-selector .cv-segment-filter-btn.bx--btn,
+.cv-column-selector .cv-column-selector-trigger .cv-segment-filter-btn {
+    background-color: var(--dp-gray-10) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--dp-gray-60) !important;
+    color: var(--dp-gray-100) !important;
+}
+
+.cv-column-selector .cv-segment-filter-btn:hover,
+.cv-column-selector .cv-segment-filter-btn.bx--btn:hover,
+.cv-column-selector .cv-column-selector-trigger .cv-segment-filter-btn:hover {
+    background-color: var(--dp-gray-10) !important;
+    color: var(--dp-gray-100) !important;
+}
+
+
 
 
 /* Hide checkboxes in expanded rows */
@@ -458,6 +478,21 @@ a[aria-current="page"]::after {
 
 #footer {
     display:none;
+}
+
+/* Filter search styling */
+.cv-filter-search {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid var(--dp-gray-30) !important;
+}
+
+.cv-filter-search .bx--search {
+  background-color: var(--dp-white) !important;
+}
+
+.cv-filter-search .bx--search .bx--search-input {
+  border: 1px solid var(--dp-gray-30) !important;
+  background-color: var(--dp-white) !important;
 }
 
 /* Modal Button Styling Disabled - User will try themselves */
