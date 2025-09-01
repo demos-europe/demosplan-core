@@ -718,4 +718,343 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringContainsString('Data 2', $html);
         $this->assertStringContainsString('</table>', $html);
     }
+
+    /**
+     * Test that table-of-content elements are removed during structural filtering
+     */
+    public function testRemovesTableOfContents(): void
+    {
+        // Arrange - Document with TOC and real content
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+<office:body>
+<office:text>
+<text:table-of-content text:protected="true" text:name="Inhaltsverzeichnis1">
+    <text:table-of-content-source text:outline-level="3">
+        <text:index-title-template>Inhaltsverzeichnis</text:index-title-template>
+        <text:table-of-content-entry-template text:outline-level="1">
+            <text:index-entry-link-start/>
+            <text:index-entry-chapter/>
+            <text:index-entry-text/>
+            <text:index-entry-page-number/>
+            <text:index-entry-link-end/>
+        </text:table-of-content-entry-template>
+    </text:table-of-content-source>
+    <text:index-body>
+        <text:index-title>
+            <text:h text:outline-level="1">Inhaltsverzeichnis</text:h>
+        </text:index-title>
+        <text:p>
+            <text:a xlink:href="#_Toc123">
+                <text:span>Rechtlicher Rahmen und Aufbau</text:span>
+            </text:a>
+        </text:p>
+    </text:index-body>
+</text:table-of-content>
+<text:h text:outline-level="1">
+    <text:bookmark-start text:name="_Toc123"/>Rechtlicher Rahmen und Aufbau<text:bookmark-end text:name="_Toc123"/>
+</text:h>
+<text:p>This is the actual document content that should be preserved.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // TOC content should be completely removed
+        $this->assertStringNotContainsString('Inhaltsverzeichnis', $html);
+        $this->assertStringNotContainsString('table-of-content', $html);
+        $this->assertStringNotContainsString('index-entry', $html);
+        
+        // Actual content should be preserved (allowing for whitespace in HTML output)
+        $this->assertMatchesRegularExpression('/<h1[^>]*>\s*Rechtlicher Rahmen und Aufbau\s*<\/h1>/s', $html);
+        $this->assertStringContainsString('<p>This is the actual document content', $html);
+    }
+
+    /**
+     * Test that illustration-index elements are removed during structural filtering
+     */
+    public function testRemovesIllustrationIndexes(): void
+    {
+        // Arrange - Document with illustration index and real content
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+<office:body>
+<office:text>
+<text:illustration-index text:protected="true" text:name="Abbildungsverzeichnis1">
+    <text:illustration-index-source text:caption-sequence-name="Illustration">
+        <text:index-title-template>Figure Index</text:index-title-template>
+        <text:illustration-index-entry-template>
+            <text:index-entry-link-start/>
+            <text:index-entry-text/>
+            <text:index-entry-page-number/>
+            <text:index-entry-link-end/>
+        </text:illustration-index-entry-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>
+            <text:a xlink:href="#_Figure1">
+                <text:span>Abbildung 1 Modell Mehrebenengovernance</text:span>
+            </text:a>
+        </text:p>
+    </text:index-body>
+</text:illustration-index>
+<text:h text:outline-level="1">Real Document Content</text:h>
+<text:p>This is the actual content after the illustration index.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // Illustration index should be completely removed
+        $this->assertStringNotContainsString('illustration-index', $html);
+        $this->assertStringNotContainsString('Figure Index', $html);
+        $this->assertStringNotContainsString('Abbildung 1 Modell Mehrebenengovernance', $html);
+        
+        // Actual content should be preserved
+        $this->assertStringContainsString('<h1>Real Document Content</h1>', $html);
+        $this->assertStringContainsString('<p>This is the actual content after', $html);
+    }
+
+    /**
+     * Test that index headings preceding structural elements are removed
+     */
+    public function testRemovesIndexHeadings(): void
+    {
+        // Arrange - Document with index heading followed by structural element
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:body>
+<office:text>
+<text:h text:outline-level="1">Abbildungsverzeichnis</text:h>
+<text:illustration-index text:protected="true" text:name="Abbildungsverzeichnis1">
+    <text:illustration-index-source>
+        <text:index-title-template>Figure Index</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>Figure 1: Sample Figure</text:p>
+    </text:index-body>
+</text:illustration-index>
+<text:h text:outline-level="1">Verzeichnis der Themenkarten</text:h>
+<text:illustration-index text:protected="true" text:name="Abbildungsverzeichnis2">
+    <text:illustration-index-source>
+        <text:index-title-template>Map Index</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>Themenkarte 1: Sample Map</text:p>
+    </text:index-body>
+</text:illustration-index>
+<text:h text:outline-level="1">Rechtlicher Rahmen und Aufbau</text:h>
+<text:p>This is the actual document content.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // Index headings should be removed along with their structural elements
+        $this->assertStringNotContainsString('<h1>Abbildungsverzeichnis</h1>', $html);
+        $this->assertStringNotContainsString('<h1>Verzeichnis der Themenkarten</h1>', $html);
+        $this->assertStringNotContainsString('Figure 1: Sample Figure', $html);
+        $this->assertStringNotContainsString('Themenkarte 1: Sample Map', $html);
+        
+        // Actual content heading should be preserved
+        $this->assertStringContainsString('<h1>Rechtlicher Rahmen und Aufbau</h1>', $html);
+        $this->assertStringContainsString('<p>This is the actual document content.</p>', $html);
+    }
+
+    /**
+     * Test backward compatibility - documents without structural elements should work normally
+     */
+    public function testBackwardCompatibilityWithoutStructuralElements(): void
+    {
+        // Arrange - Simple document without any structural elements
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:body>
+<office:text>
+<text:h text:outline-level="1">Document Title</text:h>
+<text:p>First paragraph of content.</text:p>
+<text:h text:outline-level="2">Section Heading</text:h>
+<text:p>Second paragraph with more content.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // All content should be preserved exactly as before
+        $this->assertStringContainsString('<h1>Document Title</h1>', $html);
+        $this->assertStringContainsString('<p>First paragraph of content.</p>', $html);
+        $this->assertStringContainsString('<h2>Section Heading</h2>', $html);
+        $this->assertStringContainsString('<p>Second paragraph with more content.</p>', $html);
+        
+        // Should not affect processing of normal documents
+        $this->assertStringContainsString('<html><body>', $html);
+        $this->assertStringContainsString('</body></html>', $html);
+    }
+
+    /**
+     * Test real-world LEP document structural filtering scenario
+     */
+    public function testFiltersLEPDocumentStructure(): void
+    {
+        // Arrange - Simplified version of actual LEP document structure
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+<office:body>
+<office:text>
+<text:h text:outline-level="1">Landesentwicklungsplan Schleswig-Holstein Fortschreibung 2021</text:h>
+<text:p>Ministerium für Inneres, ländliche Räume, Integration und Gleichstellung</text:p>
+
+<text:table-of-content text:protected="true" text:name="Inhaltsverzeichnis1">
+    <text:table-of-content-source text:outline-level="3">
+        <text:index-title-template>Inhaltsverzeichnis</text:index-title-template>
+    </text:table-of-content-source>
+    <text:index-body>
+        <text:index-title>
+            <text:h text:outline-level="1">Inhaltsverzeichnis</text:h>
+        </text:index-title>
+        <text:p>
+            <text:a xlink:href="#_Toc84925070">
+                <text:span>Abbildungsverzeichnis</text:span>
+            </text:a>
+        </text:p>
+        <text:p>
+            <text:a xlink:href="#_Toc84925073">
+                <text:span>Rechtlicher Rahmen und Aufbau</text:span>
+            </text:a>
+        </text:p>
+    </text:index-body>
+</text:table-of-content>
+
+<text:h text:outline-level="1">Abbildungsverzeichnis</text:h>
+<text:illustration-index text:protected="true" text:name="Abbildungsverzeichnis1">
+    <text:illustration-index-source text:caption-sequence-name="Illustration">
+        <text:index-title-template>Figure Index</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>
+            <text:a xlink:href="#_Figure1">
+                <text:span>Abbildung 1 Modell Mehrebenengovernance</text:span>
+            </text:a>
+        </text:p>
+    </text:index-body>
+</text:illustration-index>
+
+<text:h text:outline-level="1">Verzeichnis der Themenkarten</text:h>
+<text:illustration-index text:protected="true" text:name="Abbildungsverzeichnis2">
+    <text:illustration-index-source text:caption-sequence-name="Themenkarte">
+        <text:index-title-template>Map Index</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>
+            <text:a xlink:href="#_Map1">
+                <text:span>Themenkarte 1: Raumstruktur</text:span>
+            </text:a>
+        </text:p>
+    </text:index-body>
+</text:illustration-index>
+
+<text:h text:outline-level="1">Abkürzungsverzeichnis</text:h>
+<text:p>AIS → Automatic Identification System</text:p>
+<text:p>ALKIS → Amtliches Liegenschaftskataster-Informationssystem</text:p>
+
+<text:h text:outline-level="1">
+    <text:bookmark-start text:name="_Toc84925073"/>Rechtlicher Rahmen und Aufbau<text:bookmark-end text:name="_Toc84925073"/>
+</text:h>
+<text:p>Der Landesentwicklungsplan (LEP) ist das zentrale Instrument der Raumordnung in Schleswig-Holstein.</text:p>
+
+<text:h text:outline-level="1">Teil A Herausforderungen, Chancen und strategische Handlungsfelder</text:h>
+<text:p>Schleswig-Holstein steht vor verschiedenen Herausforderungen und Chancen.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // All structural elements should be removed
+        $this->assertStringNotContainsString('table-of-content', $html);
+        $this->assertStringNotContainsString('<h1>Inhaltsverzeichnis</h1>', $html);
+        $this->assertStringNotContainsString('<h1>Abbildungsverzeichnis</h1>', $html);
+        $this->assertStringNotContainsString('<h1>Verzeichnis der Themenkarten</h1>', $html);
+        $this->assertStringNotContainsString('Abbildung 1 Modell Mehrebenengovernance', $html);
+        $this->assertStringNotContainsString('Themenkarte 1: Raumstruktur', $html);
+        
+        // Document title and legitimate content should be preserved
+        $this->assertStringContainsString('<h1>Landesentwicklungsplan Schleswig-Holstein Fortschreibung 2021</h1>', $html);
+        $this->assertStringContainsString('<h1>Abkürzungsverzeichnis</h1>', $html); // This is legitimate content, not an index heading
+        $this->assertStringContainsString('AIS → Automatic Identification System', $html);
+        
+        // Main content sections should be preserved and easily accessible (allowing for whitespace)
+        $this->assertMatchesRegularExpression('/<h1[^>]*>\s*Rechtlicher Rahmen und Aufbau\s*<\/h1>/s', $html);
+        $this->assertStringContainsString('Der Landesentwicklungsplan (LEP) ist das zentrale Instrument', $html);
+        $this->assertStringContainsString('<h1>Teil A Herausforderungen, Chancen und strategische Handlungsfelder</h1>', $html);
+        $this->assertStringContainsString('Schleswig-Holstein steht vor verschiedenen Herausforderungen', $html);
+    }
+
+    /**
+     * Test that multiple structural elements of the same type are all removed
+     */
+    public function testRemovesMultipleStructuralElements(): void
+    {
+        // Arrange - Document with multiple illustration indexes
+        $zip = $this->createMockedZipArchive('<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+<office:body>
+<office:text>
+<text:illustration-index text:protected="true" text:name="Index1">
+    <text:illustration-index-source text:caption-sequence-name="Illustration">
+        <text:index-title-template>Figures</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>Figure 1: Chart</text:p>
+    </text:index-body>
+</text:illustration-index>
+
+<text:illustration-index text:protected="true" text:name="Index2">
+    <text:illustration-index-source text:caption-sequence-name="Table">
+        <text:index-title-template>Tables</text:index-title-template>
+    </text:illustration-index-source>
+    <text:index-body>
+        <text:p>Table 1: Data</text:p>
+    </text:index-body>
+</text:illustration-index>
+
+<text:h text:outline-level="1">Actual Content</text:h>
+<text:p>This should be preserved.</text:p>
+</office:text>
+</office:body>
+</office:document-content>');
+        $odtImporter = $this->createOdtImporter($zip);
+
+        // Act
+        $html = $odtImporter->convert('test.odt');
+
+        // Assert
+        // Both indexes should be removed
+        $this->assertStringNotContainsString('Figure 1: Chart', $html);
+        $this->assertStringNotContainsString('Table 1: Data', $html);
+        $this->assertStringNotContainsString('illustration-index', $html);
+        
+        // Actual content should remain
+        $this->assertStringContainsString('<h1>Actual Content</h1>', $html);
+        $this->assertStringContainsString('<p>This should be preserved.</p>', $html);
+    }
 }

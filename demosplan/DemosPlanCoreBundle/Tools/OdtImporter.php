@@ -70,6 +70,9 @@ class OdtImporter
         $dom = new DOMDocument();
         $dom->loadXML($contentXml);
 
+        // Skip ODT structural elements (TOC, indexes) before processing
+        $this->skipOdtStructuralElements($dom);
+
         // Parse styles first to understand formatting (including styles from styles.xml)
         $styleData = $this->styleParser->parseStyles($dom, $stylesXml);
         $this->styleMap = $styleData['styleMap'];
@@ -91,6 +94,85 @@ class OdtImporter
         $html = $this->htmlProcessor->cleanupStructuralIssues($html);
 
         return $html;
+    }
+
+    /**
+     * Remove ODT structural elements (TOC, indexes) from the DOM before processing.
+     * This ensures import starts from actual content rather than auto-generated sections.
+     */
+    private function skipOdtStructuralElements(DOMDocument $dom): void
+    {
+        $xpath = new \DOMXPath($dom);
+        
+        // ODT structural elements that should be removed
+        $structuralSelectors = [
+            '//text:table-of-content',
+            '//text:illustration-index', 
+            '//text:alphabetical-index',
+            '//text:user-index',
+            '//text:bibliography',
+            '//text:table-index',
+            '//text:object-index'
+        ];
+        
+        // First, collect all structural elements to identify their boundaries
+        $structuralNodes = [];
+        foreach ($structuralSelectors as $selector) {
+            $nodes = $xpath->query($selector);
+            foreach ($nodes as $node) {
+                $structuralNodes[] = $node;
+            }
+        }
+        
+        // Also find headings that immediately precede structural elements
+        // These are usually index titles like "Abbildungsverzeichnis", "Verzeichnis der Themenkarten"
+        $nodesToRemove = $structuralNodes;
+        foreach ($structuralNodes as $structuralNode) {
+            $precedingHeading = $this->findPrecedingIndexHeading($structuralNode, $xpath);
+            if ($precedingHeading) {
+                $nodesToRemove[] = $precedingHeading;
+            }
+        }
+        
+        // Remove all identified nodes
+        foreach ($nodesToRemove as $node) {
+            if ($node->parentNode) {
+                $node->parentNode->removeChild($node);
+            }
+        }
+    }
+    
+    /**
+     * Find a heading that immediately precedes a structural index element.
+     * These headings are typically index titles and should also be removed.
+     */
+    private function findPrecedingIndexHeading(\DOMNode $structuralNode, \DOMXPath $xpath): ?\DOMNode
+    {
+        // Look for h1-h6 elements that immediately precede this structural element
+        $precedingSibling = $structuralNode->previousSibling;
+        
+        // Skip whitespace nodes
+        while ($precedingSibling && $precedingSibling->nodeType === XML_TEXT_NODE && trim($precedingSibling->nodeValue) === '') {
+            $precedingSibling = $precedingSibling->previousSibling;
+        }
+        
+        // Check if the preceding sibling is a heading (text:h element)
+        if ($precedingSibling && $precedingSibling->nodeType === XML_ELEMENT_NODE && $precedingSibling->nodeName === 'text:h') {
+            // Additional check: only remove headings that are clearly index titles
+            $headingText = trim($precedingSibling->textContent);
+            $indexTerms = [
+                'verzeichnis', 'index', 'abbildung', 'tabelle', 'literatur', 
+                'inhalts', 'stichwort', 'abkürzung', 'glossar'
+            ];
+            
+            foreach ($indexTerms as $term) {
+                if (str_contains(strtolower($headingText), $term)) {
+                    return $precedingSibling;
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**
