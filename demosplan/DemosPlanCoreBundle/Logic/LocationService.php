@@ -54,6 +54,7 @@ class LocationService
                 'data'  => $entry,
             ];
         }
+
         return [
             'value' => $entry['postcode'].' '.$entry['name'],
             'data'  => $entry,
