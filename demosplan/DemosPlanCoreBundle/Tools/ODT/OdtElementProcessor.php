@@ -1,14 +1,24 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools\ODT;
 
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use DOMXPath;
 
 /**
- * Simplified ODT element processor
+ * Simplified ODT element processor.
  *
  * Contains all element processing logic in a single class with simple method mapping
  */
@@ -22,36 +32,36 @@ class OdtElementProcessor
 
     // Simple element mapping
     private const ELEMENT_HANDLERS = [
-        'text:p' => 'processParagraph',
-        'text:h' => 'processHeading',
-        'text:span' => 'processSpan',
-        'text:note' => 'processNote',
-        'text:list' => 'processList',
-        'text:list-item' => 'processListItem',
-        'table:table' => 'processTable',
-        'table:table-row' => 'processTableRow',
-        'table:table-cell' => 'processTableCell',
-        'table:table-header-rows' => 'processTableHeaderRows',
+        'text:p'                   => 'processParagraph',
+        'text:h'                   => 'processHeading',
+        'text:span'                => 'processSpan',
+        'text:note'                => 'processNote',
+        'text:list'                => 'processList',
+        'text:list-item'           => 'processListItem',
+        'table:table'              => 'processTable',
+        'table:table-row'          => 'processTableRow',
+        'table:table-cell'         => 'processTableCell',
+        'table:table-header-rows'  => 'processTableHeaderRows',
         'table:covered-table-cell' => 'processCoveredTableCell',
-        'draw:frame' => 'processFrame',
-        'draw:image' => 'processImage',
-        'text:a' => 'processLink',
-        'text:line-break' => 'processLineBreak',
-        'text:tab' => 'processTab',
-        'text:s' => 'processSpace',
-        'text:soft-page-break' => 'processSoftPageBreak',
+        'draw:frame'               => 'processFrame',
+        'draw:image'               => 'processImage',
+        'text:a'                   => 'processLink',
+        'text:line-break'          => 'processLineBreak',
+        'text:tab'                 => 'processTab',
+        'text:s'                   => 'processSpace',
+        'text:soft-page-break'     => 'processSoftPageBreak',
     ];
-    
+
     private const ODT_STYLE_NAME_ATTRIBUTE = 'text:style-name';
     private const PARAGRAPH_WRAPPER_REGEX = '/^<p>(.*)<\/p>$/s';
-    
+
     private string $tempDir;
 
     public function initialize(
         array $styleMap,
         array $listStyleMap,
         array $headingStyleMap,
-        string $tempDir
+        string $tempDir,
     ): void {
         $this->styleMap = $styleMap;
         $this->listStyleMap = $listStyleMap;
@@ -77,9 +87,9 @@ class OdtElementProcessor
         $html = '';
 
         foreach ($node->childNodes as $child) {
-            if ($child->nodeType === XML_ELEMENT_NODE) {
+            if (XML_ELEMENT_NODE === $child->nodeType) {
                 $html .= $this->processElement($child);
-            } elseif ($child->nodeType === XML_TEXT_NODE) {
+            } elseif (XML_TEXT_NODE === $child->nodeType) {
                 $html .= htmlspecialchars($child->nodeValue);
             }
         }
@@ -97,6 +107,7 @@ class OdtElementProcessor
         // Check if we have a handler method for this element
         if (isset(self::ELEMENT_HANDLERS[$elementName])) {
             $methodName = self::ELEMENT_HANDLERS[$elementName];
+
             return $this->$methodName($node);
         }
 
@@ -117,42 +128,43 @@ class OdtElementProcessor
         // Check if should be heading
         $headingLevel = $this->detectHeadingLevel($node, $content);
         if ($headingLevel > 0) {
-            return '<h' . $headingLevel . '>' . $content . '</h' . $headingLevel . '>';
+            return '<h'.$headingLevel.'>'.$content.'</h'.$headingLevel.'>';
         }
 
         // Handle image with caption
         if ($this->containsImageFrame($node)) {
             $caption = $this->findFollowingCaption($node);
             if ($caption) {
-                return '<figure>' . $content . '<figcaption>' . $this->processChildren($caption) . '</figcaption></figure>';
+                return '<figure>'.$content.'<figcaption>'.$this->processChildren($caption).'</figcaption></figure>';
             }
         }
 
-        return '<p>' . $content . '</p>';
+        return '<p>'.$content.'</p>';
     }
 
     private function processHeading(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return $this->processChildren($node);
         }
 
         $level = $node->getAttribute('text:outline-level') ?: '1';
         $level = min(6, max(1, (int) $level));
         $content = $this->processChildren($node);
-        return '<h' . $level . '>' . $content . '</h' . $level . '>';
+
+        return '<h'.$level.'>'.$content.'</h'.$level.'>';
     }
 
     private function processSpan(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return $this->processChildren($node);
         }
 
         $styleName = $node->getAttribute(self::ODT_STYLE_NAME_ATTRIBUTE);
         $content = $this->processChildren($node);
 
-        if (trim($content) === '' || !$styleName) {
+        if ('' === trim($content) || !$styleName) {
             return $content;
         }
 
@@ -163,13 +175,13 @@ class OdtElementProcessor
 
         // Apply formatting
         if (isset($format['bold'])) {
-            $content = '<strong>' . $content . '</strong>';
+            $content = '<strong>'.$content.'</strong>';
         }
         if (isset($format['underline'])) {
-            $content = '<u>' . $content . '</u>';
+            $content = '<u>'.$content.'</u>';
         }
         if (isset($format['italic'])) {
-            $content = '<em>' . $content . '</em>';
+            $content = '<em>'.$content.'</em>';
         }
 
         return $content;
@@ -177,7 +189,7 @@ class OdtElementProcessor
 
     private function processList(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return $this->processChildren($node);
         }
 
@@ -194,7 +206,7 @@ class OdtElementProcessor
             // Handle list continuation for ordered lists
             $startValue = $this->getListStartValue($listId, $continuesList);
             $tag = 'ol';
-            $attributes = $startValue > 1 ? ' start="' . $startValue . '"' : '';
+            $attributes = $startValue > 1 ? ' start="'.$startValue.'"' : '';
         } else {
             // Unordered lists don't need continuation handling
             $tag = 'ul';
@@ -209,7 +221,7 @@ class OdtElementProcessor
             $this->updateListCounters($listId, $content);
         }
 
-        return '<' . $tag . $attributes . '>' . $content . '</' . $tag . '>';
+        return '<'.$tag.$attributes.'>'.$content.'</'.$tag.'>';
     }
 
     private function processListItem(DOMNode $node): string
@@ -224,24 +236,26 @@ class OdtElementProcessor
         // Remove page breaks from list items as they're not meaningful in this context
         $content = str_replace('<hr class="page-break">', '', $content);
 
-        return '<li>' . $content . '</li>';
+        return '<li>'.$content.'</li>';
     }
 
     private function processTable(DOMNode $node): string
     {
         $content = $this->processChildren($node);
-        return '<table>' . $content . '</table>';
+
+        return '<table>'.$content.'</table>';
     }
 
     private function processTableRow(DOMNode $node): string
     {
         $content = $this->processChildren($node);
-        return '<tr>' . $content . '</tr>';
+
+        return '<tr>'.$content.'</tr>';
     }
 
     private function processTableCell(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return $this->processChildren($node);
         }
 
@@ -250,13 +264,13 @@ class OdtElementProcessor
         // Handle column spanning (original handler logic)
         $colspan = $node->getAttribute('table:number-columns-spanned');
         if ($colspan && $colspan > 1) {
-            $attributes .= ' colspan="' . $colspan . '"';
+            $attributes .= ' colspan="'.$colspan.'"';
         }
 
         // Handle row spanning (original handler logic)
         $rowspan = $node->getAttribute('table:number-rows-spanned');
         if ($rowspan && $rowspan > 1) {
-            $attributes .= ' rowspan="' . $rowspan . '"';
+            $attributes .= ' rowspan="'.$rowspan.'"';
         }
 
         // Process child content
@@ -265,7 +279,7 @@ class OdtElementProcessor
         // Remove paragraph wrappers from table cells to match expected format
         $content = preg_replace(self::PARAGRAPH_WRAPPER_REGEX, '$1', trim($content));
 
-        return '<td' . $attributes . ' >' . $content . '</td>';
+        return '<td'.$attributes.' >'.$content.'</td>';
     }
 
     private function processFrame(DOMNode $node): string
@@ -275,7 +289,7 @@ class OdtElementProcessor
 
     private function processImage(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return '';
         }
 
@@ -285,7 +299,7 @@ class OdtElementProcessor
         }
 
         $imageData = $this->getImageData($xlinkHref);
-        if ($imageData === null) {
+        if (null === $imageData) {
             return '';
         }
 
@@ -294,14 +308,14 @@ class OdtElementProcessor
 
     private function processLink(DOMNode $node): string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return $this->processChildren($node);
         }
 
         $href = $node->getAttribute('xlink:href');
         $content = $this->processChildren($node);
 
-        return '<a href="' . htmlspecialchars($href) . '">' . $content . '</a>';
+        return '<a href="'.htmlspecialchars($href).'">'.$content.'</a>';
     }
 
     private function processNote(DOMNode $node): string
@@ -310,9 +324,9 @@ class OdtElementProcessor
         $body = '';
 
         foreach ($node->childNodes as $child) {
-            if ($child->nodeName === 'text:note-citation') {
+            if ('text:note-citation' === $child->nodeName) {
                 $citation = $child->textContent;
-            } elseif ($child->nodeName === 'text:note-body') {
+            } elseif ('text:note-body' === $child->nodeName) {
                 $body = $this->processChildren($child);
             }
         }
@@ -323,7 +337,7 @@ class OdtElementProcessor
         $cleanBody = strip_tags($cleanBody);
         $cleanBody = trim($cleanBody);
 
-        return '<sup title="' . htmlspecialchars($cleanBody) . '">' . $citation . '</sup>';
+        return '<sup title="'.htmlspecialchars($cleanBody).'">'.$citation.'</sup>';
     }
 
     private function processLineBreak(DOMNode $node): string
@@ -364,7 +378,7 @@ class OdtElementProcessor
 
     private function isCaption(DOMNode $node): bool
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return false;
         }
 
@@ -372,7 +386,7 @@ class OdtElementProcessor
         $captionStyles = ['caption', 'Caption', 'Figure', 'Illustration', 'Abbildung'];
 
         foreach ($captionStyles as $style) {
-            if (stripos($styleName, $style) !== false) {
+            if (false !== stripos($styleName, $style)) {
                 return true;
             }
         }
@@ -384,6 +398,7 @@ class OdtElementProcessor
     {
         $xpath = new DOMXPath($node->ownerDocument);
         $frames = $xpath->query('.//draw:frame[draw:image]', $node);
+
         return $frames->length > 0;
     }
 
@@ -391,11 +406,11 @@ class OdtElementProcessor
     {
         $nextSibling = $imageNode->nextSibling;
 
-        while ($nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE) {
+        while ($nextSibling && XML_ELEMENT_NODE !== $nextSibling->nodeType) {
             $nextSibling = $nextSibling->nextSibling;
         }
 
-        if ($nextSibling && $nextSibling->nodeName === 'text:p' && $this->isCaption($nextSibling)) {
+        if ($nextSibling && 'text:p' === $nextSibling->nodeName && $this->isCaption($nextSibling)) {
             return $nextSibling;
         }
 
@@ -404,7 +419,7 @@ class OdtElementProcessor
 
     private function detectHeadingLevel(DOMNode $node, string $content): int
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return 0;
         }
 
@@ -425,10 +440,10 @@ class OdtElementProcessor
         // Heading patterns
         $patterns = [
             '/^\d+\.\d+\.\d+\.\d+\s*[A-ZÄÖÜ]/u' => 4,
-            '/^\d+\.\d+\.\d+\s*[A-ZÄÖÜ]/u' => 3,
-            '/^\d+\.\d+\s*[A-ZÄÖÜ]/u' => 2,
-            '/^\d+\s*[A-ZÄÖÜ]/u' => 1,
-            '/^\(\d+\)\s*[A-ZÄÖÜ]/u' => 2,
+            '/^\d+\.\d+\.\d+\s*[A-ZÄÖÜ]/u'      => 3,
+            '/^\d+\.\d+\s*[A-ZÄÖÜ]/u'           => 2,
+            '/^\d+\s*[A-ZÄÖÜ]/u'                => 1,
+            '/^\(\d+\)\s*[A-ZÄÖÜ]/u'            => 2,
         ];
 
         foreach ($patterns as $pattern => $level) {
@@ -450,13 +465,13 @@ class OdtElementProcessor
         // First check if we have parsed style information from styles.xml
         if (!empty($styleName)) {
             $isOrdered = $this->listStyleMap[$styleName] ?? null;
-            if ($isOrdered !== null) {
+            if (null !== $isOrdered) {
                 return $isOrdered;
             }
         }
 
         // Check for explicit list type attributes as fallback
-        return $listType === 'numbered' || $listType === 'ordered';
+        return 'numbered' === $listType || 'ordered' === $listType;
     }
 
     /**
@@ -480,6 +495,7 @@ class OdtElementProcessor
 
         // This is a new list sequence
         $this->listCounters[$listId] = 0;
+
         return 1;
     }
 
@@ -497,7 +513,7 @@ class OdtElementProcessor
 
             // If this list continues from another, also update the parent counter
             $continuesFrom = $this->listContinuation[$listId] ?? null;
-            if ($continuesFrom !== null) {
+            if (null !== $continuesFrom) {
                 $this->listCounters[$continuesFrom] = $this->listCounters[$listId];
             }
         }
@@ -511,39 +527,40 @@ class OdtElementProcessor
      */
     private function getImageData(string $xlinkHref): ?string
     {
-        $imagePath = $this->tempDir . DIRECTORY_SEPARATOR . ltrim($xlinkHref, '/');
+        $imagePath = $this->tempDir.DIRECTORY_SEPARATOR.ltrim($xlinkHref, '/');
         if (file_exists($imagePath)) {
             return file_get_contents($imagePath);
         }
+
         return null;
     }
 
     /**
      * Build HTML img tag with dimensions and base64 data.
      */
-    private function buildImageTag(string $xlinkHref, string $imageData, \DOMElement $node): string
+    private function buildImageTag(string $xlinkHref, string $imageData, DOMElement $node): string
     {
         $base64Data = base64_encode($imageData);
         $imageType = pathinfo($xlinkHref, PATHINFO_EXTENSION);
         $attributes = $this->buildImageAttributes($node);
 
-        return '<img src="data:image/' . $imageType . ';base64,' . $base64Data . '"' . $attributes . ' />';
+        return '<img src="data:image/'.$imageType.';base64,'.$base64Data.'"'.$attributes.' />';
     }
 
     /**
      * Build width and height attributes for image tag.
      */
-    private function buildImageAttributes(\DOMElement $node): string
+    private function buildImageAttributes(DOMElement $node): string
     {
         $attributes = '';
         $width = $this->getImageDimension($node, 'svg:width');
         $height = $this->getImageDimension($node, 'svg:height');
 
         if ($width) {
-            $attributes .= ' width="' . $width . '"';
+            $attributes .= ' width="'.$width.'"';
         }
         if ($height) {
-            $attributes .= ' height="' . $height . '"';
+            $attributes .= ' height="'.$height.'"';
         }
 
         return $attributes;
@@ -554,7 +571,7 @@ class OdtElementProcessor
      */
     private function getImageDimension(DOMNode $node, string $attributeName): ?string
     {
-        if (!$node instanceof \DOMElement) {
+        if (!$node instanceof DOMElement) {
             return null;
         }
 
@@ -566,7 +583,7 @@ class OdtElementProcessor
 
         // Check parent draw:frame node
         $parent = $node->parentNode;
-        if ($parent->nodeName === 'draw:frame' && $parent instanceof \DOMElement) {
+        if ('draw:frame' === $parent->nodeName && $parent instanceof DOMElement) {
             $dimension = $parent->getAttribute($attributeName);
             if ($dimension) {
                 return $this->convertOdtDimensionToPixels($dimension);
@@ -592,11 +609,11 @@ class OdtElementProcessor
         $unit = $matches[2];
 
         $multiplier = match ($unit) {
-            'cm' => 37.8,  // 1 cm ≈ 37.8 pixels (96 DPI)
-            'in' => 96,    // 1 inch = 96 pixels (96 DPI)
-            'pt' => 1.33,  // 1 point = 1.33 pixels (96 DPI)
-            'mm' => 3.78,  // 1 mm ≈ 3.78 pixels (96 DPI)
-            'px' => 1,     // Already in pixels
+            'cm'    => 37.8,  // 1 cm ≈ 37.8 pixels (96 DPI)
+            'in'    => 96,    // 1 inch = 96 pixels (96 DPI)
+            'pt'    => 1.33,  // 1 point = 1.33 pixels (96 DPI)
+            'mm'    => 3.78,  // 1 mm ≈ 3.78 pixels (96 DPI)
+            'px'    => 1,     // Already in pixels
             default => 1,  // Assume pixels if unknown unit
         };
 

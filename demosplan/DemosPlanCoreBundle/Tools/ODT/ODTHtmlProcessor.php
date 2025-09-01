@@ -1,8 +1,18 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools\ODT;
 
+use DOMDocument;
 use DOMNode;
 use DOMXPath;
 
@@ -14,7 +24,7 @@ use DOMXPath;
  */
 class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 {
-    const BODY = '//body/*';
+    public const BODY = '//body/*';
 
     /**
      * Clean up structural issues that may come from ODT conversion.
@@ -49,18 +59,18 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
      */
     public function convertHtmlToParagraphStructure(string $html): array
     {
-        $dom = new \DOMDocument();
+        $dom = new DOMDocument();
         // Suppress errors for malformed HTML
         libxml_use_internal_errors(true);
 
         // Ensure proper UTF-8 encoding by adding meta tag
         if (!str_contains($html, 'charset')) {
-            $html = '<meta charset="UTF-8">' . $html;
+            $html = '<meta charset="UTF-8">'.$html;
         }
         $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         libxml_clear_errors();
 
-        $xpath = new \DOMXPath($dom);
+        $xpath = new DOMXPath($dom);
 
         // Get all headings in document order using heading-first approach
         $headings = $this->getAllHeadingsInDocumentOrder($xpath);
@@ -85,9 +95,9 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
             // Create paragraph with heading as title
             $paragraphs[] = [
-                'title' => $heading['title'],
-                'text' => $content,
-                'files' => null,
+                'title'        => $heading['title'],
+                'text'         => $content,
+                'files'        => null,
                 'nestingLevel' => $heading['level'],
             ];
         }
@@ -106,7 +116,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Find all headings in document order with their metadata.
      */
-    public function getAllHeadingsInDocumentOrder(\DOMXPath $xpath): array
+    public function getAllHeadingsInDocumentOrder(DOMXPath $xpath): array
     {
         // Find ALL headings regardless of nesting depth
         $headingNodes = $xpath->query('//h1 | //h2 | //h3 | //h4 | //h5 | //h6');
@@ -127,7 +137,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
             }
 
             $headings[] = [
-                'node' => $node,
+                'node'  => $node,
                 'title' => $title,
                 'level' => $level,
             ];
@@ -139,22 +149,23 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Check if a heading node is inside a table element.
      */
-    public function isHeadingInsideTable(\DOMNode $node): bool
+    public function isHeadingInsideTable(DOMNode $node): bool
     {
         $parent = $node->parentNode;
-        while ($parent && $parent->nodeType === XML_ELEMENT_NODE) {
-            if ($parent->nodeName === 'table') {
+        while ($parent && XML_ELEMENT_NODE === $parent->nodeType) {
+            if ('table' === $parent->nodeName) {
                 return true;
             }
             $parent = $parent->parentNode;
         }
+
         return false;
     }
 
     /**
      * Get content before the first heading.
      */
-    public function getContentBeforeFirstHeading(\DOMXPath $xpath, array $firstHeading): string
+    public function getContentBeforeFirstHeading(DOMXPath $xpath, array $firstHeading): string
     {
         $firstHeadingNode = $firstHeading['node'];
         $bodyChildren = $xpath->query(self::BODY);
@@ -180,7 +191,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Get content between two headings.
      */
-    public function getContentBetweenHeadings(array $currentHeading, ?array $nextHeading, \DOMXPath $xpath): string
+    public function getContentBetweenHeadings(array $currentHeading, ?array $nextHeading, DOMXPath $xpath): string
     {
         $currentNode = $currentHeading['node'];
         $nextNode = $nextHeading['node'] ?? null;
@@ -205,18 +216,20 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         return $content;
     }
 
-    public function processCurrentHeading(\DOMNode $node, \DOMNode $currentNode, string &$content): bool
+    public function processCurrentHeading(DOMNode $node, DOMNode $currentNode, string &$content): bool
     {
         if ($node->isSameNode($currentNode) || $this->nodeContainsHeading($node, $currentNode)) {
             if ($this->nodeContainsHeading($node, $currentNode)) {
                 $content .= $this->extractContentAfterHeading($node, $currentNode);
             }
+
             return true;
         }
+
         return false;
     }
 
-    public function shouldStopAtNextHeading(\DOMNode $node, ?\DOMNode $nextNode, string &$content): bool
+    public function shouldStopAtNextHeading(DOMNode $node, ?DOMNode $nextNode, string &$content): bool
     {
         if (!$nextNode) {
             return false;
@@ -226,25 +239,28 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
             if ($this->nodeContainsHeading($node, $nextNode)) {
                 $content .= $this->extractContentBeforeHeading($node, $nextNode);
             }
+
             return true;
         }
+
         return false;
     }
 
-    public function processContentNode(\DOMNode $node): string
+    public function processContentNode(DOMNode $node): string
     {
         if (preg_match('/^h[1-6]$/', $node->nodeName)) {
             return '';
         }
+
         return $this->serializeNode($node);
     }
 
     /**
      * Check if a node contains a specific heading node.
      */
-    public function nodeContainsHeading(\DOMNode $container, \DOMNode $headingNode): bool
+    public function nodeContainsHeading(DOMNode $container, DOMNode $headingNode): bool
     {
-        $xpath = new \DOMXPath($container->ownerDocument);
+        $xpath = new DOMXPath($container->ownerDocument);
         $containedHeadings = $xpath->query('.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6', $container);
 
         foreach ($containedHeadings as $contained) {
@@ -259,7 +275,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Get all content from document when no headings are found.
      */
-    public function getAllContent(\DOMXPath $xpath): string
+    public function getAllContent(DOMXPath $xpath): string
     {
         $bodyNodes = $xpath->query(self::BODY);
         $content = '';
@@ -292,16 +308,16 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
             // Limit title length
             if (strlen($firstSentence) > 50) {
-                $title = substr($firstSentence, 0, 50) . '...';
+                $title = substr($firstSentence, 0, 50).'...';
             } else {
                 $title = $firstSentence;
             }
         }
 
         return [
-            'title' => $title,
-            'text' => $content,
-            'files' => null,
+            'title'        => $title,
+            'text'         => $content,
+            'files'        => null,
             'nestingLevel' => $nestingLevel,
         ];
     }
@@ -309,7 +325,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Safely serialize a DOM node to HTML string.
      */
-    public function serializeNode(\DOMNode $node): string
+    public function serializeNode(DOMNode $node): string
     {
         $html = $node->ownerDocument->saveHTML($node);
 
@@ -326,7 +342,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Extract content from a container node that appears before a specific heading.
      */
-    public function extractContentBeforeHeading(\DOMNode $container, \DOMNode $headingNode): string
+    public function extractContentBeforeHeading(DOMNode $container, DOMNode $headingNode): string
     {
         $content = '';
 
@@ -335,7 +351,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
                 break;
             }
 
-            if ($child->nodeType === XML_ELEMENT_NODE) {
+            if (XML_ELEMENT_NODE === $child->nodeType) {
                 // Check if this child contains the heading
                 if ($this->nodeContainsHeading($child, $headingNode)) {
                     $content .= $this->extractContentBeforeHeading($child, $headingNode);
@@ -351,7 +367,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
     /**
      * Extract content from a container node that appears after a specific heading.
      */
-    public function extractContentAfterHeading(\DOMNode $container, \DOMNode $headingNode): string
+    public function extractContentAfterHeading(DOMNode $container, DOMNode $headingNode): string
     {
         $content = '';
         $foundHeading = false;
@@ -362,9 +378,9 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
                 continue;
             }
 
-            if ($foundHeading && $child->nodeType === XML_ELEMENT_NODE) {
+            if ($foundHeading && XML_ELEMENT_NODE === $child->nodeType) {
                 $content .= $this->serializeNode($child);
-            } elseif (!$foundHeading && $child->nodeType === XML_ELEMENT_NODE) {
+            } elseif (!$foundHeading && XML_ELEMENT_NODE === $child->nodeType) {
                 // Check if this child contains the heading
                 if ($this->nodeContainsHeading($child, $headingNode)) {
                     $content .= $this->extractContentAfterHeading($child, $headingNode);

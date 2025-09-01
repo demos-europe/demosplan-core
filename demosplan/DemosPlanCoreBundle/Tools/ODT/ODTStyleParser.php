@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools\ODT;
 
@@ -31,7 +40,7 @@ class ODTStyleParser implements ODTStyleParserInterface
         $this->parseStylesFromXPath($xpath, '//office:automatic-styles/style:style', $styleMap, $headingStyleMap);
 
         // Parse main styles from styles.xml if available
-        if ($stylesXml !== null && !empty($stylesXml)) {
+        if (null !== $stylesXml && !empty($stylesXml)) {
             $stylesDom = new DOMDocument();
             $stylesDom->loadXML($stylesXml);
             $stylesXPath = new DOMXPath($stylesDom);
@@ -39,8 +48,8 @@ class ODTStyleParser implements ODTStyleParserInterface
         }
 
         return [
-            'styleMap' => $styleMap,
-            'headingStyleMap' => $headingStyleMap
+            'styleMap'        => $styleMap,
+            'headingStyleMap' => $headingStyleMap,
         ];
     }
 
@@ -50,7 +59,7 @@ class ODTStyleParser implements ODTStyleParserInterface
     private function parseStylesFromXPath(DOMXPath $xpath, string $query, array &$styleMap, array &$headingStyleMap): void
     {
         // Parse text styles
-        $textStyleNodes = $xpath->query($query . '[@style:family="text"]');
+        $textStyleNodes = $xpath->query($query.'[@style:family="text"]');
         foreach ($textStyleNodes as $styleNode) {
             /** @var DOMElement $styleNode */
             $styleName = $styleNode->getAttribute(self::STYLE_NAME);
@@ -65,7 +74,7 @@ class ODTStyleParser implements ODTStyleParserInterface
         }
 
         // Parse paragraph styles for heading detection
-        $paragraphStyles = $xpath->query($query . '[@style:family="paragraph"]');
+        $paragraphStyles = $xpath->query($query.'[@style:family="paragraph"]');
         foreach ($paragraphStyles as $styleNode) {
             /** @var DOMElement $styleNode */
             $styleName = $styleNode->getAttribute(self::STYLE_NAME);
@@ -144,17 +153,18 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     private function isOrderedListLevel(DOMElement $levelElement): bool
     {
-        if ($levelElement->nodeName === 'text:list-level-style-bullet') {
+        if ('text:list-level-style-bullet' === $levelElement->nodeName) {
             // Bullet lists are always unordered
             return false;
         }
 
-        if ($levelElement->nodeName === 'text:list-level-style-number') {
+        if ('text:list-level-style-number' === $levelElement->nodeName) {
             // Number-based lists are ordered - check for valid numbering format
             $numFormat = $levelElement->getAttribute('style:num-format');
+
             // Any non-empty num-format indicates a numbered list (1, a, A, i, I, etc.)
             // Empty num-format means no numbering (like "No List (WW)" style)
-            return !empty($numFormat) && $numFormat !== '';
+            return !empty($numFormat) && '' !== $numFormat;
         }
 
         return false;
@@ -166,12 +176,12 @@ class ODTStyleParser implements ODTStyleParserInterface
     private function extractTextFormat(DOMXPath $xpath, DOMElement $styleNode): array
     {
         $properties = $xpath->query('style:text-properties', $styleNode);
-        if ($properties->length === 0) {
+        if (0 === $properties->length) {
             return [];
         }
 
         $textProps = $properties->item(0);
-        if ($textProps === null || !$textProps instanceof DOMElement) {
+        if (null === $textProps || !$textProps instanceof DOMElement) {
             return [];
         }
 
@@ -204,6 +214,7 @@ class ODTStyleParser implements ODTStyleParserInterface
             if (preg_match('/Heading[_\s]*(\d+)/', $parentStyleName, $matches)) {
                 return (int) $matches[1];
             }
+
             return 1; // Default to level 1 for generic heading styles
         }
 
@@ -218,50 +229,51 @@ class ODTStyleParser implements ODTStyleParserInterface
     {
         $textProps = $xpath->query('style:text-properties', $styleNode)->item(0);
         $paraProps = $xpath->query('style:paragraph-properties', $styleNode)->item(0);
-        
+
         $fontSize = $this->extractFontSize($textProps);
         $headingScore = $this->calculateHeadingScore($textProps, $paraProps, $fontSize);
-        
+
         return $this->determineHeadingLevel($headingScore, $fontSize);
     }
 
     /**
      * Extract font size from text properties.
      */
-    private function extractFontSize(?\DOMElement $textProps): int
+    private function extractFontSize(?DOMElement $textProps): int
     {
         if (!$textProps instanceof DOMElement) {
             return 12; // Default base font size
         }
 
         $fontSizeAttr = $textProps->getAttribute('fo:font-size');
+
         return $fontSizeAttr ? (int) filter_var($fontSizeAttr, FILTER_SANITIZE_NUMBER_INT) : 12;
     }
 
     /**
      * Calculate heading score based on text and paragraph properties.
      */
-    private function calculateHeadingScore(?\DOMElement $textProps, ?\DOMElement $paraProps, int $fontSize): int
+    private function calculateHeadingScore(?DOMElement $textProps, ?DOMElement $paraProps, int $fontSize): int
     {
         $score = 0;
-        
+
         $score += $this->getTextPropertiesScore($textProps, $fontSize);
         $score += $this->getParagraphPropertiesScore($paraProps);
-        
+
         return $score;
     }
 
     /**
      * Get heading score from text properties.
      */
-    private function getTextPropertiesScore(?\DOMElement $textProps, int $fontSize): int
+    private function getTextPropertiesScore(?DOMElement $textProps, int $fontSize): int
     {
         if (!$textProps instanceof DOMElement) {
             return 0;
         }
 
         $score = 0;
-        
+
         // Font size analysis
         if ($fontSize >= 18) {
             $score += 3; // Large font strongly indicates heading
@@ -280,16 +292,16 @@ class ODTStyleParser implements ODTStyleParserInterface
     /**
      * Get heading score from paragraph properties.
      */
-    private function getParagraphPropertiesScore(?\DOMElement $paraProps): int
+    private function getParagraphPropertiesScore(?DOMElement $paraProps): int
     {
         if (!$paraProps instanceof DOMElement) {
             return 0;
         }
 
         $score = 0;
-        
+
         // Check for keep-with-next (headings often have this)
-        if ($paraProps->getAttribute('fo:keep-with-next') === 'always') {
+        if ('always' === $paraProps->getAttribute('fo:keep-with-next')) {
             ++$score;
         }
 
@@ -321,9 +333,10 @@ class ODTStyleParser implements ODTStyleParserInterface
             if ($fontSize >= 16) {
                 return 2;
             }
+
             return 3;
         }
-        
+
         if ($headingScore >= 3) {
             // Likely a heading
             return $fontSize >= 18 ? 2 : 3;
@@ -344,6 +357,7 @@ class ODTStyleParser implements ODTStyleParserInterface
         if (str_ends_with($margin, 'pt')) {
             return (float) str_replace('pt', '', $margin) * 0.0353; // Convert pt to cm
         }
+
         return 0.0;
     }
 
@@ -352,8 +366,8 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     private function isBold(DOMElement $textProps): bool
     {
-        return $textProps->getAttribute('fo:font-weight') === 'bold' ||
-               $textProps->getAttribute('style:font-weight-asian') === 'bold';
+        return 'bold' === $textProps->getAttribute('fo:font-weight')
+               || 'bold' === $textProps->getAttribute('style:font-weight-asian');
     }
 
     /**
@@ -361,8 +375,8 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     private function isItalic(DOMElement $textProps): bool
     {
-        return $textProps->getAttribute('fo:font-style') === 'italic' ||
-               $textProps->getAttribute('style:font-style-asian') === 'italic';
+        return 'italic' === $textProps->getAttribute('fo:font-style')
+               || 'italic' === $textProps->getAttribute('style:font-style-asian');
     }
 
     /**
@@ -370,6 +384,6 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     private function isUnderlined(DOMElement $textProps): bool
     {
-        return $textProps->getAttribute('style:text-underline-style') === 'solid';
+        return 'solid' === $textProps->getAttribute('style:text-underline-style');
     }
 }

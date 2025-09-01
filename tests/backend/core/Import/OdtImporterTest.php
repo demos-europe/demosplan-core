@@ -1,10 +1,20 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\Import;
 
 use demosplan\DemosPlanCoreBundle\Tools\OdtImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use ZipArchive;
 
@@ -23,20 +33,20 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Create a mocked ZipArchive that returns the given content for content.xml and styles.xml
+     * Create a mocked ZipArchive that returns the given content for content.xml and styles.xml.
      */
     private function createMockedZipArchive(string $contentXml, ?string $stylesXml = null): ZipArchive
     {
         $zip = $this->createMock(ZipArchive::class);
         $zip->method('open')->willReturn(true);
         $zip->method('close')->willReturn(true);
-        
-        if ($stylesXml !== null) {
+
+        if (null !== $stylesXml) {
             $zip->method('getFromName')->willReturnCallback(function ($filename) use ($contentXml, $stylesXml) {
                 return match ($filename) {
                     'content.xml' => $contentXml,
-                    'styles.xml' => $stylesXml,
-                    default => false,
+                    'styles.xml'  => $stylesXml,
+                    default       => false,
                 };
             });
         } else {
@@ -52,11 +62,11 @@ class OdtImporterTest extends TestCase
         $html = $odtImporter->convert(DemosPlanPath::getTestPath(
             self::BACKEND_CORE_IMPORT_RES_SIMPLE_DOC_ODT
         ));
-        
+
         // Test basic HTML structure
         $this->assertStringContainsString('<html><body>', $html);
         $this->assertStringContainsString('</body></html>', $html);
-        
+
         // Test content processing (headings, formatting, tables)
         $this->assertStringContainsString('<h1>Testüberschrift</h1>', $html);
         $this->assertStringContainsString('<p>Mein <strong>fetter</strong> Absatz', $html);
@@ -65,7 +75,7 @@ class OdtImporterTest extends TestCase
 
     public function testThrowsExceptionWhenOdtFileCannotBeOpened(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->expectExceptionMessage('Unable to open ODT file.');
 
         $odtImporter = $this->createOdtImporter();
@@ -83,11 +93,11 @@ class OdtImporterTest extends TestCase
 
         $odtImporter = $this->createOdtImporter();
         $html = $odtImporter->convert($tempFile);
-        
+
         // Should return basic HTML structure even with empty content
         $this->assertStringContainsString('<html><body>', $html);
         $this->assertStringContainsString('</body></html>', $html);
-        
+
         unlink($tempFile);
     }
 
@@ -97,7 +107,7 @@ class OdtImporterTest extends TestCase
         $html = $odtImporter->convert(DemosPlanPath::getTestPath(
             self::BACKEND_CORE_IMPORT_RES_SIMPLE_DOC_ODT
         ));
-        
+
         // Test that tables are processed correctly
         $this->assertStringContainsString('<table>', $html);
         $this->assertStringContainsString('<tr>', $html);
@@ -271,7 +281,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test recognition of Zwischenüberschriften patterns like "2.1 Küstenmeer"
+     * Test recognition of Zwischenüberschriften patterns like "2.1 Küstenmeer".
      */
     public function testRecognizesZwischenuberschriftenPatterns(): void
     {
@@ -290,7 +300,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test that space elements (text:s) are preserved in heading recognition
+     * Test that space elements (text:s) are preserved in heading recognition.
      */
     public function testPreservesSpacesInHeadingRecognition(): void
     {
@@ -307,7 +317,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test that tab elements (text:tab) are converted to spaces in heading recognition
+     * Test that tab elements (text:tab) are converted to spaces in heading recognition.
      */
     public function testConvertTabsToSpacesInHeadingRecognition(): void
     {
@@ -324,7 +334,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test that policy items (G/Z patterns) remain as paragraphs, not headings
+     * Test that policy items (G/Z patterns) remain as paragraphs, not headings.
      */
     public function testPolicyItemsRemainAsParagraphs(): void
     {
@@ -340,14 +350,14 @@ class OdtImporterTest extends TestCase
         $this->assertStringContainsString('<p>1 G</p>', $html);
         $this->assertStringContainsString('<p>2 Z</p>', $html);
         $this->assertStringContainsString('<p>15 G</p>', $html);
-        
+
         // Verify they are NOT headings
         $this->assertStringNotContainsString('<h1>1 G</h1>', $html);
         $this->assertStringNotContainsString('<h1>2 Z</h1>', $html);
     }
 
     /**
-     * Test recognition of parenthetical patterns like "(1) Title"
+     * Test recognition of parenthetical patterns like "(1) Title".
      */
     public function testRecognizesParentheticalPatterns(): void
     {
@@ -364,7 +374,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test that style-based heading detection works
+     * Test that style-based heading detection works.
      */
     public function testStyleBasedHeadingDetection(): void
     {
@@ -396,7 +406,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test dynamic heading detection based on font properties
+     * Test dynamic heading detection based on font properties.
      */
     public function testDynamicHeadingDetection(): void
     {
@@ -425,7 +435,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test basic list continuation functionality (LEP document scenario)
+     * Test basic list continuation functionality (LEP document scenario).
      */
     public function testListContinuationBasic(): void
     {
@@ -470,7 +480,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test list continuation with multiple items in each list
+     * Test list continuation with multiple items in each list.
      */
     public function testListContinuationMultipleItems(): void
     {
@@ -513,7 +523,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test that unordered lists are not affected by continuation logic
+     * Test that unordered lists are not affected by continuation logic.
      */
     public function testUnorderedListsIgnoreContinuation(): void
     {
@@ -553,7 +563,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test LEP document structure specifically (matches the real document)
+     * Test LEP document structure specifically (matches the real document).
      */
     public function testLEPDocumentListStructure(): void
     {
@@ -601,7 +611,7 @@ class OdtImporterTest extends TestCase
     }
 
     /**
-     * Test LEP document "Zwischenüberschrift" heading detection with real ODT data
+     * Test LEP document "Zwischenüberschrift" heading detection with real ODT data.
      */
     public function testLEPDocumentZwischenuberschriftDetection(): void
     {
@@ -652,16 +662,16 @@ Zukunft anpacken – Hand in Hand
         $html = $odtImporter->convert('test.odt');
 
         // Assert - The main heading that was previously missed should now be detected (with whitespace tolerance)
-        $this->assertMatchesRegularExpression('/<h1[^>]*>\s*\(1\) Schleswig-Holstein[^<]*<\/h1>/s', $html, 
+        $this->assertMatchesRegularExpression('/<h1[^>]*>\s*\(1\) Schleswig-Holstein[^<]*<\/h1>/s', $html,
             'Proper ODT heading should be detected');
-            
+
         // The Zwischenüberschrift paragraphs should be detected as headings (18pt bold = level 2)
         $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Mit Herausforderungen flexibel umgehen\s*<\/h2>/s', $html,
             'Zwischenüberschrift "Mit Herausforderungen flexibel umgehen" should be detected as h2');
-            
+
         $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Gestaltungschancen nutzen[^<]*<\/h2>/s', $html,
             'Zwischenüberschrift about Gestaltungschancen should be detected as h2');
-            
+
         $this->assertMatchesRegularExpression('/<h2[^>]*>\s*Zukunft anpacken[^<]*<\/h2>/s', $html,
             'Zwischenüberschrift "Zukunft anpacken" should be detected as h2');
 
@@ -671,13 +681,13 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('<p>Gestaltungschancen nutzen – Innovationen fördern (Experimentierklausel)</p>', $html,
             'Should not be treated as regular paragraph');
 
-        // Regular text should remain as paragraph  
+        // Regular text should remain as paragraph
         $this->assertMatchesRegularExpression('/<p[^>]*>\s*Seit der Veröffentlichung des Landesentwicklungsplans 2010/s', $html,
             'Regular text should remain as paragraph');
     }
 
     /**
-     * Test table header rows processing - reproduces LEP document issue
+     * Test table header rows processing - reproduces LEP document issue.
      */
     public function testProcessesTableHeaderRows(): void
     {
@@ -722,7 +732,7 @@ Zukunft anpacken – Hand in Hand
     }
 
     /**
-     * Test that table-of-content elements are removed during structural filtering
+     * Test that table-of-content elements are removed during structural filtering.
      */
     public function testRemovesTableOfContents(): void
     {
@@ -770,14 +780,14 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('Inhaltsverzeichnis', $html);
         $this->assertStringNotContainsString('table-of-content', $html);
         $this->assertStringNotContainsString('index-entry', $html);
-        
+
         // Actual content should be preserved (allowing for whitespace in HTML output)
         $this->assertMatchesRegularExpression('/<h1[^>]*>\s*Rechtlicher Rahmen und Aufbau\s*<\/h1>/s', $html);
         $this->assertStringContainsString('<p>This is the actual document content', $html);
     }
 
     /**
-     * Test that illustration-index elements are removed during structural filtering
+     * Test that illustration-index elements are removed during structural filtering.
      */
     public function testRemovesIllustrationIndexes(): void
     {
@@ -819,14 +829,14 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('illustration-index', $html);
         $this->assertStringNotContainsString('Figure Index', $html);
         $this->assertStringNotContainsString('Abbildung 1 Modell Mehrebenengovernance', $html);
-        
+
         // Actual content should be preserved
         $this->assertStringContainsString('<h1>Real Document Content</h1>', $html);
         $this->assertStringContainsString('<p>This is the actual content after', $html);
     }
 
     /**
-     * Test that index headings preceding structural elements are removed
+     * Test that index headings preceding structural elements are removed.
      */
     public function testRemovesIndexHeadings(): void
     {
@@ -869,14 +879,14 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('<h1>Verzeichnis der Themenkarten</h1>', $html);
         $this->assertStringNotContainsString('Figure 1: Sample Figure', $html);
         $this->assertStringNotContainsString('Themenkarte 1: Sample Map', $html);
-        
+
         // Actual content heading should be preserved
         $this->assertStringContainsString('<h1>Rechtlicher Rahmen und Aufbau</h1>', $html);
         $this->assertStringContainsString('<p>This is the actual document content.</p>', $html);
     }
 
     /**
-     * Test backward compatibility - documents without structural elements should work normally
+     * Test backward compatibility - documents without structural elements should work normally.
      */
     public function testBackwardCompatibilityWithoutStructuralElements(): void
     {
@@ -903,14 +913,14 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringContainsString('<p>First paragraph of content.</p>', $html);
         $this->assertStringContainsString('<h2>Section Heading</h2>', $html);
         $this->assertStringContainsString('<p>Second paragraph with more content.</p>', $html);
-        
+
         // Should not affect processing of normal documents
         $this->assertStringContainsString('<html><body>', $html);
         $this->assertStringContainsString('</body></html>', $html);
     }
 
     /**
-     * Test real-world LEP document structural filtering scenario
+     * Test real-world LEP document structural filtering scenario.
      */
     public function testFiltersLEPDocumentStructure(): void
     {
@@ -998,12 +1008,12 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('<h1>Verzeichnis der Themenkarten</h1>', $html);
         $this->assertStringNotContainsString('Abbildung 1 Modell Mehrebenengovernance', $html);
         $this->assertStringNotContainsString('Themenkarte 1: Raumstruktur', $html);
-        
+
         // Document title and legitimate content should be preserved
         $this->assertStringContainsString('<h1>Landesentwicklungsplan Schleswig-Holstein Fortschreibung 2021</h1>', $html);
         $this->assertStringContainsString('<h1>Abkürzungsverzeichnis</h1>', $html); // This is legitimate content, not an index heading
         $this->assertStringContainsString('AIS → Automatic Identification System', $html);
-        
+
         // Main content sections should be preserved and easily accessible (allowing for whitespace)
         $this->assertMatchesRegularExpression('/<h1[^>]*>\s*Rechtlicher Rahmen und Aufbau\s*<\/h1>/s', $html);
         $this->assertStringContainsString('Der Landesentwicklungsplan (LEP) ist das zentrale Instrument', $html);
@@ -1012,7 +1022,7 @@ Zukunft anpacken – Hand in Hand
     }
 
     /**
-     * Test that multiple structural elements of the same type are all removed
+     * Test that multiple structural elements of the same type are all removed.
      */
     public function testRemovesMultipleStructuralElements(): void
     {
@@ -1054,7 +1064,7 @@ Zukunft anpacken – Hand in Hand
         $this->assertStringNotContainsString('Figure 1: Chart', $html);
         $this->assertStringNotContainsString('Table 1: Data', $html);
         $this->assertStringNotContainsString('illustration-index', $html);
-        
+
         // Actual content should remain
         $this->assertStringContainsString('<h1>Actual Content</h1>', $html);
         $this->assertStringContainsString('<p>This should be preserved.</p>', $html);

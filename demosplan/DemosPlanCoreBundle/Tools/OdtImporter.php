@@ -1,14 +1,25 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
-use DOMDocument;
-use Symfony\Component\HttpFoundation\File\File;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor;
 use demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParserInterface;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor;
 use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessorInterface;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParserInterface;
+use DOMDocument;
+use DOMNode;
+use DOMXPath;
+use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Converts ODT files to HTML with clean separation of concerns:
@@ -22,12 +33,12 @@ class OdtImporter
         private readonly ODTStyleParserInterface $styleParser,
         private readonly ODTHtmlProcessorInterface $htmlProcessor,
         private readonly OdtFileExtractor $fileExtractor,
-        private readonly OdtElementProcessor $elementProcessor
+        private readonly OdtElementProcessor $elementProcessor,
     ) {
     }
 
     /**
-     * Convert ODT file to HTML
+     * Convert ODT file to HTML.
      */
     public function convert(string $odtFilePath): string
     {
@@ -56,7 +67,7 @@ class OdtImporter
     {
         $dom = new DOMDocument();
 
-        if ($contentXml !== null) {
+        if (null !== $contentXml) {
             $dom->loadXML($contentXml);
             $this->skipOdtStructuralElements($dom);
         }
@@ -101,7 +112,7 @@ class OdtImporter
      */
     private function skipOdtStructuralElements(DOMDocument $dom): void
     {
-        $xpath = new \DOMXPath($dom);
+        $xpath = new DOMXPath($dom);
 
         // ODT structural elements that should be removed
         $structuralSelectors = [
@@ -111,7 +122,7 @@ class OdtImporter
             '//text:user-index',
             '//text:bibliography',
             '//text:table-index',
-            '//text:object-index'
+            '//text:object-index',
         ];
 
         // First, collect all structural elements to identify their boundaries
@@ -145,23 +156,23 @@ class OdtImporter
      * Find a heading that immediately precedes a structural index element.
      * These headings are typically index titles and should also be removed.
      */
-    private function findPrecedingIndexHeading(\DOMNode $structuralNode, \DOMXPath $xpath): ?\DOMNode
+    private function findPrecedingIndexHeading(DOMNode $structuralNode, DOMXPath $xpath): ?DOMNode
     {
         // Look for h1-h6 elements that immediately precede this structural element
         $precedingSibling = $structuralNode->previousSibling;
 
         // Skip whitespace nodes
-        while ($precedingSibling && $precedingSibling->nodeType === XML_TEXT_NODE && trim($precedingSibling->nodeValue) === '') {
+        while ($precedingSibling && XML_TEXT_NODE === $precedingSibling->nodeType && '' === trim($precedingSibling->nodeValue)) {
             $precedingSibling = $precedingSibling->previousSibling;
         }
 
         // Check if the preceding sibling is a heading (text:h element)
-        if ($precedingSibling && $precedingSibling->nodeType === XML_ELEMENT_NODE && $precedingSibling->nodeName === 'text:h') {
+        if ($precedingSibling && XML_ELEMENT_NODE === $precedingSibling->nodeType && 'text:h' === $precedingSibling->nodeName) {
             // Additional check: only remove headings that are clearly index titles
             $headingText = trim($precedingSibling->textContent);
             $indexTerms = [
                 'verzeichnis', 'index', 'abbildung', 'tabelle', 'literatur',
-                'inhalts', 'stichwort', 'abkürzung', 'glossar'
+                'inhalts', 'stichwort', 'abkürzung', 'glossar',
             ];
 
             foreach ($indexTerms as $term) {
@@ -173,7 +184,6 @@ class OdtImporter
 
         return null;
     }
-
 
     /**
      * Import ODT file and convert to paragraph structure.
@@ -189,10 +199,10 @@ class OdtImporter
 
         // Return same structure as DocxImporter
         return [
-            'procedure' => $procedure,
-            'category' => $category,
-            'elementId' => $elementId,
-            'path' => $file->getRealPath(),
+            'procedure'  => $procedure,
+            'category'   => $category,
+            'elementId'  => $elementId,
+            'path'       => $file->getRealPath(),
             'paragraphs' => $paragraphs,
         ];
     }

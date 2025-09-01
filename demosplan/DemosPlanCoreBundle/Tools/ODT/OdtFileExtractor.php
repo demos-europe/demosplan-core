@@ -1,9 +1,19 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Tools\ODT;
 
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use ZipArchive;
 
@@ -16,7 +26,7 @@ use ZipArchive;
 class OdtFileExtractor
 {
     public function __construct(
-        private readonly ?ZipArchive $zipArchive = null
+        private readonly ?ZipArchive $zipArchive = null,
     ) {
     }
 
@@ -27,22 +37,22 @@ class OdtFileExtractor
     {
         $zip = $this->zipArchive ?? new ZipArchive();
 
-        if ($zip->open($odtFilePath) !== true) {
-            throw new \Exception('Unable to open ODT file.');
+        if (true !== $zip->open($odtFilePath)) {
+            throw new Exception('Unable to open ODT file.');
         }
 
         $contentXml = $zip->getFromName('content.xml');
         $stylesXml = $zip->getFromName('styles.xml');
 
         // Extract all pictures to a temporary folder using DemosPlanPath
-        $tempDir = DemosPlanPath::getTemporaryPath('odt_' . basename($odtFilePath, '.odt'));
+        $tempDir = DemosPlanPath::getTemporaryPath('odt_'.basename($odtFilePath, '.odt'));
         $zip->extractTo($tempDir);
         $zip->close();
 
         // Return false as null for consistency
         return new OdtFileData(
-            contentXml: $contentXml !== false ? $contentXml : null,
-            stylesXml: $stylesXml !== false ? $stylesXml : null,
+            contentXml: false !== $contentXml ? $contentXml : null,
+            stylesXml: false !== $stylesXml ? $stylesXml : null,
             tempDir: $tempDir,
             originalPath: $odtFilePath
         );

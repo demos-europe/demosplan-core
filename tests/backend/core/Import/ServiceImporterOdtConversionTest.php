@@ -2,25 +2,33 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Import;
 
-use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanCoreBundle\Tools\OdtImporter;
-use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParserInterface;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessorInterface;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParser;
-use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessor;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
-use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessor;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTHtmlProcessorInterface;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParser;
+use demosplan\DemosPlanCoreBundle\Tools\ODT\ODTStyleParserInterface;
+use demosplan\DemosPlanCoreBundle\Tools\OdtImporter;
 use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
+use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
-use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\RouterInterface;
@@ -69,34 +77,34 @@ class ServiceImporterOdtConversionTest extends TestCase
         $htmlProcessor = $this->createMock(ODTHtmlProcessorInterface::class);
 
         // Configure htmlProcessor mock to handle convertHtmlToParagraphStructure calls
-        $htmlProcessor->method('convertHtmlToParagraphStructure')->willReturnCallback(function($html) {
+        $htmlProcessor->method('convertHtmlToParagraphStructure')->willReturnCallback(function ($html) {
             // Mock implementation that parses basic HTML structure for testing
             if (str_contains($html, '<h1>Main Heading</h1>')) {
                 return [
                     [
-                        'title' => 'Introduction text before any heading.',
-                        'text' => '<p>Introduction text before any heading.</p>',
-                        'files' => null,
-                        'nestingLevel' => 0
+                        'title'        => 'Introduction text before any heading.',
+                        'text'         => '<p>Introduction text before any heading.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 0,
                     ],
                     [
-                        'title' => 'Main Heading',
-                        'text' => '<p>This is the first paragraph content.</p>',
-                        'files' => null,
-                        'nestingLevel' => 1
+                        'title'        => 'Main Heading',
+                        'text'         => '<p>This is the first paragraph content.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 1,
                     ],
                     [
-                        'title' => 'Sub Heading',
-                        'text' => '<p>This is the second paragraph with some more detailed content that should be handled properly.</p>',
-                        'files' => null,
-                        'nestingLevel' => 2
+                        'title'        => 'Sub Heading',
+                        'text'         => '<p>This is the second paragraph with some more detailed content that should be handled properly.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 2,
                     ],
                     [
-                        'title' => 'Sub Sub Heading',
-                        'text' => '<p>Another paragraph here.</p>',
-                        'files' => null,
-                        'nestingLevel' => 3
-                    ]
+                        'title'        => 'Sub Sub Heading',
+                        'text'         => '<p>Another paragraph here.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 3,
+                    ],
                 ];
             }
             // Handle long content test case
@@ -106,25 +114,25 @@ class ServiceImporterOdtConversionTest extends TestCase
             )) {
                 return [
                     [
-                        'title' => 'This is a very long paragraph that contains much...',
-                        'text' => '<p>This is a very long paragraph that contains much more than one hundred characters and should be properly truncated to create a meaningful title while preserving the full content in the text field for the user to read.</p>',
-                        'files' => null,
-                        'nestingLevel' => 0
-                    ]
+                        'title'        => 'This is a very long paragraph that contains much...',
+                        'text'         => '<p>This is a very long paragraph that contains much more than one hundred characters and should be properly truncated to create a meaningful title while preserving the full content in the text field for the user to read.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 0,
+                    ],
                 ];
             }
             // Handle skip empty elements test case
             if (str_contains($html, 'Content paragraph') && str_contains(
-                    $html,
-                    'Another content paragraph'
-                )) {
+                $html,
+                'Another content paragraph'
+            )) {
                 return [
                     [
-                        'title' => 'Content paragraph Another content paragraph',
-                        'text' => '<p>Content paragraph</p><p>Another content paragraph</p>',
-                        'files' => null,
-                        'nestingLevel' => 0
-                    ]
+                        'title'        => 'Content paragraph Another content paragraph',
+                        'text'         => '<p>Content paragraph</p><p>Another content paragraph</p>',
+                        'files'        => null,
+                        'nestingLevel' => 0,
+                    ],
                 ];
             }
             // Handle multiple sentences test case
@@ -134,52 +142,53 @@ class ServiceImporterOdtConversionTest extends TestCase
             )) {
                 return [
                     [
-                        'title' => 'First sentence here.',
-                        'text' => '<p>First sentence here. Second sentence continues. Third sentence ends it.</p>',
-                        'files' => null,
-                        'nestingLevel' => 0
-                    ]
+                        'title'        => 'First sentence here.',
+                        'text'         => '<p>First sentence here. Second sentence continues. Third sentence ends it.</p>',
+                        'files'        => null,
+                        'nestingLevel' => 0,
+                    ],
                 ];
             }
             // Handle the expected ODT output test case
             if (str_contains($html, '<h1>Testüberschrift</h1>') && str_contains(
-                    $html,
-                    '<h2>Überschrift2</h2>'
-                )) {
+                $html,
+                '<h2>Überschrift2</h2>'
+            )) {
                 return [
                     [
-                        'title' => 'Testüberschrift',
-                        'text' => '<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>',
-                        'files' => null,
-                        'nestingLevel' => 1
+                        'title'        => 'Testüberschrift',
+                        'text'         => '<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>',
+                        'files'        => null,
+                        'nestingLevel' => 1,
                     ],
                     [
-                        'title' => 'Überschrift2',
-                        'text' => '<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
-                        'files' => null,
-                        'nestingLevel' => 2
+                        'title'        => 'Überschrift2',
+                        'text'         => '<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
+                        'files'        => null,
+                        'nestingLevel' => 2,
                     ],
                     [
-                        'title' => 'Überschrift3',
-                        'text' => '<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>',
-                        'files' => null,
-                        'nestingLevel' => 2
+                        'title'        => 'Überschrift3',
+                        'text'         => '<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>',
+                        'files'        => null,
+                        'nestingLevel' => 2,
                     ],
                     [
-                        'title' => 'Nummerierte Überschrift',
-                        'text' => '<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>',
-                        'files' => null,
-                        'nestingLevel' => 1
-                    ]
+                        'title'        => 'Nummerierte Überschrift',
+                        'text'         => '<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>',
+                        'files'        => null,
+                        'nestingLevel' => 1,
+                    ],
                 ];
             }
+
             // Default fallback for other test cases
             return [];
         });
 
         $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
         $elementProcessor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtElementProcessor();
-        
+
         $this->odtImporter = new OdtImporter($styleParser, $htmlProcessor, $fileExtractor, $elementProcessor);
     }
 
@@ -276,7 +285,7 @@ class ServiceImporterOdtConversionTest extends TestCase
     public function testOdtImporterProducesExpectedHtmlFromSimpleDoc(): void
     {
         // Test that the ODT importer produces the expected HTML from the example file
-        $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
+        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
         $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
 
         // Use real components instead of mocks for integration testing
@@ -306,7 +315,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             '<ol><li>Nummerierten Liste 1</li><li>Nummer 2<ul><li>Nummer 2.1</li><li>Nummer 2.2</li></ul></li><li>Nummer 3</li></ol>',
             '<sup title="Und Endnote">i</sup>',
             '<ul><li>Jetzt</li><li><strong>Fett</strong><ul><li><strong>eingerückt</strong></li></ul></li>',
-            'Mit einem Absatz am Ende.'
+            'Mit einem Absatz am Ende.',
         ];
 
         // Verify that the HTML contains all expected elements
@@ -321,13 +330,12 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('<h2>Überschrift2</h2>', $actualHtml);
         $this->assertStringContainsString('<h2>Überschrift3</h2>', $actualHtml); // ODT has outline-level="2"
         $this->assertStringContainsString('<h1>Nummerierte Überschrift</h1>', $actualHtml); // ODT has outline-level="1"
-
     }
 
     public function testOdtImporterIncludesImagesAsBase64Data(): void
     {
         // Test that images in ODT files are converted to base64 data URLs
-        $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
+        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
         $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
 
         // Use real components instead of mocks for integration testing
@@ -374,7 +382,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 
             $base64Data = $parts[1];
             $this->assertNotEmpty($base64Data, 'Base64 data should not be empty');
-            $this->assertTrue(base64_decode($base64Data, true) !== false, 'Base64 data should be valid');
+            $this->assertTrue(false !== base64_decode($base64Data, true), 'Base64 data should be valid');
 
             // Verify the base64 data is substantial (not just empty/placeholder)
             $decodedData = base64_decode($base64Data);
@@ -387,7 +395,7 @@ class ServiceImporterOdtConversionTest extends TestCase
     public function testOdtImporterHandlesImageCaptionsGenerically(): void
     {
         // Test that images with captions are wrapped in figure elements
-        $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
+        $odtFilePath = __DIR__.'/res/SimpleDoc.odt';
         $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
 
         // Use real components instead of mocks for integration testing
@@ -521,7 +529,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>', $result[3]['text']);
     }
 
-
     public function testFullOdtConversionWorkflow(): void
     {
         // Test the complete workflow with a realistic ODT HTML structure
@@ -588,7 +595,7 @@ class ServiceImporterOdtConversionTest extends TestCase
         $odtImporter->method('convert')->willReturn($realisticOdtHtml);
 
         // Mock the new importOdt method to return the expected structure
-        $odtImporter->method('importOdt')->willReturnCallback(function($file, $elementId, $procedure, $category) use ($realisticOdtHtml) {
+        $odtImporter->method('importOdt')->willReturnCallback(function ($file, $elementId, $procedure, $category) use ($realisticOdtHtml) {
             // Use real components for integration testing of the full workflow
             $styleParser = new ODTStyleParser();
             $htmlProcessor = new ODTHtmlProcessor();
@@ -597,10 +604,10 @@ class ServiceImporterOdtConversionTest extends TestCase
             $paragraphs = $htmlProcessor->convertHtmlToParagraphStructure($realisticOdtHtml);
 
             return [
-                'procedure' => $procedure,
-                'category' => $category,
-                'elementId' => $elementId,
-                'path' => $file->getRealPath(),
+                'procedure'  => $procedure,
+                'category'   => $category,
+                'elementId'  => $elementId,
+                'path'       => $file->getRealPath(),
                 'paragraphs' => $paragraphs,
             ];
         });
@@ -678,7 +685,7 @@ class ServiceImporterOdtConversionTest extends TestCase
     private function callOdtImporterPrivateMethod(string $methodName, array $args = [])
     {
         // Handle the moved convertHtmlToParagraphStructure method
-        if ($methodName === 'convertHtmlToParagraphStructure') {
+        if ('convertHtmlToParagraphStructure' === $methodName) {
             $reflection = new ReflectionClass($this->odtImporter);
             $htmlProcessorProperty = $reflection->getProperty('htmlProcessor');
             $htmlProcessorProperty->setAccessible(true);
