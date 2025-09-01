@@ -31,6 +31,7 @@ import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
+import { createPinia } from 'pinia'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
@@ -84,6 +85,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.directive('tooltip', Tooltip)
 
     app.use(store)
+
+    // the diplankarte needs a pinia instance
+    app.use(createPinia())
 
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
