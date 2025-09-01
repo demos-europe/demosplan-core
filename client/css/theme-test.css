@@ -444,9 +444,23 @@ a[aria-current="page"]::after {
     min-width: fit-content !important;
 }
 
+.bx--modal-content {
+    height: 350px !important;
+}
+
+.bx--modal-footer {
+    height: 48px !important;
+                 }
+
+.bx--modal-footer button {
+    justify-content: center !important;
+}
+
 #footer {
     display:none;
 }
+
+/* Modal Button Styling Disabled - User will try themselves */
 
 
 
