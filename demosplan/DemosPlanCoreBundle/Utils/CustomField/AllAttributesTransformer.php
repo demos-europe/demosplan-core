@@ -71,11 +71,11 @@ class AllAttributesTransformer extends DynamicTransformer
             $fieldType = $scope->getResource()->getData()->getType();
 
             if ('singleSelect' === $fieldType) {
-                $fieldset = ['name', 'description', 'options'];
+                $fieldset = ['name', 'description', 'options', 'fieldType'];
             }
 
             if ('multiSelect' === $fieldType) {
-                $fieldset = ['name', 'description', 'options', 'isRequired'];
+                $fieldset = ['name', 'description', 'options', 'isRequired', 'fieldType'];
             }
         } else {
             // If specific fields were requested, handle them as normal
