@@ -55,7 +55,6 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
             // Re-throw with context
             throw new PersistResourceException("Failed to remove custom field values in segments for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
-
         }
     }
 
