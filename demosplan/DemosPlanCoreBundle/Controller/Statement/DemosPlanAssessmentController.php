@@ -72,7 +72,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         UserService $userService,
         string $entityId,
-        string $assignOrUnassign = 'assign'
+        string $assignOrUnassign = 'assign',
     ): Response {
         $statementToUpdate = $statementHandler->getStatement($entityId);
 
@@ -157,7 +157,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         StatementService $statementService,
         AssessmentHandler $assessmentHandler,
-        string $procedureId
+        string $procedureId,
     ): ?Response {
         $rParams = $request->request->all();
         $fParams = $fileUploadService->prepareFilesUpload($request, 'r_upload');
@@ -228,7 +228,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $procedure = $procedureService->getProcedureWithCertainty($procedureId);
@@ -579,7 +579,7 @@ class DemosPlanAssessmentController extends BaseController
         string $procedureId,
         ServiceOutput $serviceOutput,
         StatementHandler $statementHandler,
-        StatementService $statementService
+        StatementService $statementService,
     ): array {
         $templateVars = $statementHandler->generateTemplateVarsForNewStatementForm($procedureId);
 

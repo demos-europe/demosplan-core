@@ -57,7 +57,7 @@ class StatementMover extends CoreService
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
         private readonly StatementCopier $statementCopier,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
         $this->logger = $logger;
     }
@@ -75,7 +75,7 @@ class StatementMover extends CoreService
      *                                   will be deleted or kept. In case of EntityContentChanges where not
      *                                   deleted, they can be seen by owner of target procedure.
      *
-     * @return statement|false - Returns the moved Statement if successful, otherwise false
+     * @return Statement|false - Returns the moved Statement if successful, otherwise false
      *
      * @throws ConnectionException
      * @throws MessageBagException
@@ -88,7 +88,7 @@ class StatementMover extends CoreService
     public function moveStatementToProcedure(
         Statement $statementToMove,
         Procedure $targetProcedure,
-        bool $deleteVersionHistory = false
+        bool $deleteVersionHistory = false,
     ) {
         $doctrineConnection = $this->entityManager->getConnection();
         try {

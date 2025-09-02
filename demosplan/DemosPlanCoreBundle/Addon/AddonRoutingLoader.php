@@ -25,7 +25,7 @@ class AddonRoutingLoader extends AnnotationDirectoryLoader implements RouteLoade
     public function __construct(
         private readonly AddonRegistry $addonRegistry,
         FileLocatorInterface $locator,
-        AnnotationClassLoader $loader
+        AnnotationClassLoader $loader,
     ) {
         parent::__construct($locator, $loader);
     }

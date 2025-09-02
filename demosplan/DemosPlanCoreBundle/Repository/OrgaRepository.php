@@ -498,7 +498,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         Customer $customer,
         bool $deleted,
         string $orgaTypeName,
-        string $statusInCustomer
+        string $statusInCustomer,
     ): QueryBuilder {
         return $this->getEntityManager()->createQueryBuilder()
             ->from(Orga::class, 'orga')
@@ -698,7 +698,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         string $email,
         Customer $customer,
         Role $masterUserRole,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $em = $this->getEntityManager();
         $em->getConnection()->beginTransaction();

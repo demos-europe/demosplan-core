@@ -212,7 +212,7 @@ class TagServiceTest extends FunctionalTestCase
     }
 
     protected function setUpMockSession(
-        string $userReferenceName = LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY
+        string $userReferenceName = LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY,
     ): Session {
         $session = parent::setUpMockSession($userReferenceName);
         $permissions['feature_statement_assignment']['enabled'] = false;

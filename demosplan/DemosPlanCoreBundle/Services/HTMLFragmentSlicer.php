@@ -16,9 +16,9 @@ use DOMDocument;
 use DOMException;
 use DOMNode;
 use DOMText;
+use Illuminate\Support\Collection;
 use Masterminds\HTML5;
 use RuntimeException;
-use Illuminate\Support\Collection;
 
 class HTMLFragmentSlicer
 {
@@ -81,7 +81,7 @@ class HTMLFragmentSlicer
      */
     public static function slice(
         $htmlFragment,
-        $sliceIndex = self::SLICE_DEFAULT
+        $sliceIndex = self::SLICE_DEFAULT,
     ) {
         $slicer = new self();
 
