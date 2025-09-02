@@ -920,6 +920,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
     {
         $this->procedure->getPhaseObject()->setDesignatedSwitchDate($designatedSwitchDate);
+        $this->procedure->getPhaseObject()->setDesignatedSwitchDateTimestamp($designatedSwitchDate?->getTimestamp());
 
         return $this;
     }
@@ -938,6 +939,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDate($designatedPublicSwitchDate);
+        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDateTimestamp($designatedPublicSwitchDate?->getTimestamp());
 
         return $this;
     }

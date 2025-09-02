@@ -16,7 +16,7 @@ const saveAndReturn = {
       addFormHiddenField(ev.target.parentNode, 'submit_item_return_button', true)
       window.sessionStorage.setItem('saveAndReturn', true)
     })
-  }
+  },
 }
 
 export default saveAndReturn

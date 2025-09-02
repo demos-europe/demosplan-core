@@ -18,10 +18,10 @@
     </slot>
     <div :class="selectboxWrapperClasses">
       <select
+        :id="elementsInputName"
         v-model="currentElementId"
         class="o-form__control-select"
-        :name="elementsInputName"
-        :id="elementsInputName">
+        :name="elementsInputName">
         <option value="">
           -
         </option>
@@ -43,10 +43,10 @@
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="paragraphsInputName"
           v-model="currentParagraphId"
           class="o-form__control-select"
-          :name="paragraphsInputName"
-          :id="paragraphsInputName">
+          :name="paragraphsInputName">
           <option value="">
             -
           </option>
@@ -69,10 +69,10 @@
       </slot>
       <div :class="selectboxWrapperClasses">
         <select
+          :id="fileInputName"
           v-model="currentFileId"
           class="layout__item"
-          :name="fileInputName"
-          :id="fileInputName">
+          :name="fileInputName">
           <option value="">
             -
           </option>
@@ -96,80 +96,80 @@ export default {
     elements: {
       required: true,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     paragraphs: {
       type: Object,
       required: true,
-      default: () => ({})
+      default: () => ({}),
     },
 
     documents: {
       type: Object,
       required: true,
-      default: () => ({})
+      default: () => ({}),
     },
 
     selectedElementId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedElementTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedParagraphId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedParagraphTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedFileId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     selectedFileTitle: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     elementsInputName: {
       required: false,
       type: String,
-      default: 'r_element'
+      default: 'r_element',
     },
 
     paragraphsInputName: {
       required: false,
       type: String,
-      default: 'r_paragraph'
+      default: 'r_paragraph',
     },
 
     fileInputName: {
       required: false,
       type: String,
-      default: 'r_document'
+      default: 'r_document',
     },
 
     selectboxWrapperClasses: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -179,7 +179,7 @@ export default {
       currentParagraphId: this.selectedParagraphId,
       currentParagraphTitle: this.selectedParagraphTitle,
       currentFileId: this.selectedFileId,
-      currentFileTitle: this.selectedFileTitle
+      currentFileTitle: this.selectedFileTitle,
     }
   },
 
@@ -218,7 +218,7 @@ export default {
      */
     selectedElementParagraph () {
       return this.paragraphs[this.currentElementId]
-    }
+    },
   },
 
   watch: {
@@ -229,7 +229,7 @@ export default {
           this.currentParagraphId = ''
         }
       },
-      deep: true
+      deep: true,
     },
 
     elementsHasFiles: {
@@ -239,8 +239,8 @@ export default {
           this.currentFileId = ''
         }
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 }
 </script>

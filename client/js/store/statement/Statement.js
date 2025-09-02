@@ -19,7 +19,7 @@ function addTitleAttr (data) {
   if (hasElement) {
     titleAttrs = {
       elementId: data.data.relationships.elements.data.id,
-      elementTitle: ''
+      elementTitle: '',
     }
   }
 
@@ -111,7 +111,7 @@ function mapRelations (data, includes) {
     .map(item => ({
       id: item.id,
       ...item.attributes,
-      ...(item.relationships && { relationships: item.relationships })
+      ...(item.relationships && { relationships: item.relationships }),
     }))
 }
 
@@ -126,21 +126,21 @@ function setUpdatedProps (data) {
   // If we update element/paragraph/document we want to update title too, so we set it as attribute to get the value from response in the loop below
   data.data.attributes = {
     ...data.data.attributes,
-    ...addTitleAttr(data)
+    ...addTitleAttr(data),
   }
 
   //  Loop over data (a.k.a. what is passed from component to be saved)
   let updatedData = {}
   if (data.data.attributes) {
     updatedData = {
-      ...data.data.attributes
+      ...data.data.attributes,
     }
   }
 
   if (data.data.relationships) {
     updatedData = {
       ...updatedData,
-      ...data.data.relationships
+      ...data.data.relationships,
     }
   }
 
@@ -234,15 +234,15 @@ export default {
     pagination: {},
     persistStatementSelection: true,
     initStatements: [],
-    statementGrouping: {}
+    statementGrouping: {},
   },
 
   mutations: {
     /**
-     * @param {Object} elementId
+     * @param {Object} element
      */
-    addElementToSelection (state, elementId) {
-      state.selectedElements[elementId] = true
+    addElementToSelection (state, element) {
+      state.selectedElements[element.id] = element
     },
 
     /**
@@ -398,15 +398,15 @@ export default {
        */
       const newStatement = { [data.id]: { ...state.statements[data.id], ...data } }
       state.statements = { ...state.statements, ...newStatement }
-    }
+    },
   },
 
   actions: {
     /**
      * Add an element to selectedElements and the sessionStorage
-     * @param id : {elementId} contains id, editable
+     * @param data : {Object} contains id, editable
      */
-    addToSelectionAction ({ state, commit }, id) {
+    addToSelectionAction ({ state, commit }, data) {
       performance.mark('selection-start')
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
 
@@ -414,12 +414,12 @@ export default {
         selectedEntries[state.procedureId] = {}
       }
 
-      selectedEntries[state.procedureId][id] = true
+      selectedEntries[state.procedureId][data.id] = { ...data }
 
       if (state.persistStatementSelection) {
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
-      commit('addElementToSelection', id)
+      commit('addElementToSelection', data)
       performance.mark('selection-end')
       performance.measure('selection-duration', 'selection-start', 'selection-end')
       return Promise.resolve(true)
@@ -435,11 +435,9 @@ export default {
         url: Routing.generate('dplan_api_statement_copy_to_procedure', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
-        })
+          targetProcedureId: data.procedureId,
+        }),
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -450,15 +448,14 @@ export default {
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_api_create_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection') // The selected statements were deleted, so we can completely reset selection
 
@@ -466,7 +463,7 @@ export default {
           data.relationships.statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
 
           // Transform newCluster from BE from JSON:API structure into our old structure
-          const transformedStatement = transformStatementStructure({ el: response.data, includes: response.included, meta: response.meta })
+          const transformedStatement = transformStatementStructure({ el: response.data.data, includes: response.data.included, meta: response.data.meta })
 
           // Add new cluster to store with addStatement mutation
           commit('addStatement', transformedStatement)
@@ -495,7 +492,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
-        'genericAttachments.file'
+        'genericAttachments.file',
       ]
 
       /*
@@ -541,7 +538,7 @@ export default {
           filterSetHash: data.filterHash,
           page: {
             number: data.pagination.current_page,
-            size: data.pagination.count
+            size: data.pagination.count,
           },
           view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
@@ -598,47 +595,46 @@ export default {
               'userState',
               'votePla',
               'votesNum',
-              'voteStk'
+              'voteStk',
             ].join(),
             Claim: [
               'name',
-              'orgaName'
+              'orgaName',
             ].join(),
             Elements: 'title',
             File: [
               'filename',
-              'hash'
+              'hash',
             ].join(),
             StatementFragmentsElements: [
               'elementTitle',
-              'paragraphTitle'
+              'paragraphTitle',
             ].join(),
             SingleDocument: [
               'parentId',
-              'title'
+              'title',
             ].join(),
             SourceStatementAttachment: [
               'file',
-              'attachmentType'
-            ].join()
+              'attachmentType',
+            ].join(),
           },
-          include: includes.join(',')
-        })
+          include: includes.join(','),
+        }),
       })
-        .then(this.api.checkResponse)
-        .then(response => {
+        .then(({ data }) => {
           performance.mark('start')
-          commit('updatePagination', response.meta.pagination)
+          commit('updatePagination', data.meta.pagination)
           commit('resetStatements')
-          commit('setFilteredState', response.meta.isFiltered)
-          commit('setInitStatements', response.meta.statementAssignments)
-          commit('setStatementGrouping', response.meta.grouping)
-          commit('updateFilterHash', response.meta.filterHash)
+          commit('setFilteredState', data.meta.isFiltered)
+          commit('setInitStatements', data.meta.statementAssignments)
+          commit('setStatementGrouping', data.meta.grouping)
+          commit('updateFilterHash', data.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
-          response.data.forEach(statement => {
-            const transformedStatement = prepareStatement({ el: statement, includes: response.included, meta: response.meta })
+          data.data.forEach(statement => {
+            const transformedStatement = prepareStatement({ el: statement, includes: data.included, meta: data.meta })
 
             if (hasOwnProp(state.selectedElements, transformedStatement.id)) {
               sessionStorageUpdates[transformedStatement.id] = transformedStatement
@@ -658,7 +654,7 @@ export default {
           performance.mark('end')
           performance.measure('dur', 'start', 'end')
 
-          return response
+          return data
         })
         .catch(e => {
           console.error(e)
@@ -677,14 +673,12 @@ export default {
         url: Routing.generate('dplan_api_statement_move', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
+          targetProcedureId: data.procedureId,
         }),
         data: {
-          deleteVersionHistory: data.deleteVersionHistory
-        }
+          deleteVersionHistory: data.deleteVersionHistory,
+        },
       })
-        .then(this.api.checkResponse)
-        .then(response => response)
     },
 
     /**
@@ -749,15 +743,14 @@ export default {
         data: {
           data: {
             type: 'user',
-            id: assigneeId
-          }
+            id: assigneeId,
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let assignee = {}
           if (assigneeId === '' || assigneeId == null) {
@@ -765,7 +758,12 @@ export default {
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           } else {
-            assignee = { id: response.data.id, uId: response.data.id, name: response.data.attributes.name, orgaName: response.data.attributes.orgaName }
+            assignee = {
+              id: response.data.data.id,
+              uId: response.data.data.id,
+              name: response.data.data.attributes.name,
+              orgaName: response.data.data.attributes.orgaName,
+            }
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
           }
@@ -878,19 +876,18 @@ export default {
             'fragmentsElements',
             'paragraph',
             'priorityAreas',
-            'tags'
-          ].join(',')
+            'tags',
+          ].join(','),
         }),
         data: payload,
         headers: {
-          'Content-type': 'application/json'
-        }
+          'Content-type': 'application/json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let dataToUpdate = {}
           const updatedData = setUpdatedProps(data)
-          dataToUpdate = getDataFromResponse(response, dataToUpdate, updatedData)
+          dataToUpdate = getDataFromResponse(response.data, dataToUpdate, updatedData)
 
           /*
            * If paragraph or file was deleted by choosing an element without paragraphs or file,
@@ -900,7 +897,7 @@ export default {
 
           dataToUpdate = {
             ...dataToUpdate,
-            ...addIdAttr(dataToUpdate, data)
+            ...addIdAttr(dataToUpdate, data),
           }
 
           //  Keep id to find statement in mutation
@@ -925,15 +922,14 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dplan_api_update_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
-        .then(this.api.checkResponse)
         .then(response => {
           dispatch('resetSelection')
 
@@ -949,7 +945,7 @@ export default {
           }
           return e
         })
-    }
+    },
   },
 
   getters: {
@@ -1008,7 +1004,7 @@ export default {
 
     statementsInOrder: state => ids => {
       return ids.map(id => state.statements[id])
-    }
-  }
+    },
+  },
 
 }

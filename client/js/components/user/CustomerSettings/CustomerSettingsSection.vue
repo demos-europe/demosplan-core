@@ -34,20 +34,20 @@ export default {
   name: 'CustomerSettingsSection',
 
   components: {
-    DpAccordion
+    DpAccordion,
   },
 
   props: {
     dataCy: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     isOpen: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     /**
@@ -55,8 +55,8 @@ export default {
      */
     title: {
       required: true,
-      type: String
-    }
-  }
+      type: String,
+    },
+  },
 }
 </script>

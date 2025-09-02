@@ -25,13 +25,13 @@ export default {
     selectedToebIds: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
@@ -45,7 +45,7 @@ export default {
         form.appendChild(additionalParam)
       })
       form.submit()
-    }
-  }
+    },
+  },
 }
 </script>

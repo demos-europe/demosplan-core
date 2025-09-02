@@ -11,8 +11,8 @@
   <button
     type="button"
     data-cy="map:mapDrawPoint"
-    @click="activate"
-    :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color-highlight') : '']">
+    :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color-highlight') : '']"
+    @click="activate">
     <i
       :class="prefixClass('fa fa-map-marker')"
       aria-hidden="true" />
@@ -37,19 +37,19 @@ export default {
     //  @TODO implement `required: false`, craft a new vector layer instead
     target: {
       required: true,
-      type: String
+      type: String,
     },
 
     active: {
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   emits: [
     'tool:activated',
-    'tool:setPoint'
+    'tool:setPoint',
   ],
 
   data () {
@@ -61,7 +61,7 @@ export default {
   computed: {
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -80,11 +80,10 @@ export default {
         }
       })
 
-      // eslint-disable-next-line prefer-const
       drawInteraction = new Draw({
         source: layerToDrawInto.getSource(),
         type: 'Point',
-        style: drawStyle(this.olMapState.drawStyles)
+        style: drawStyle(this.olMapState.drawStyles),
       })
 
       drawInteraction.on('drawstart', function () {
@@ -102,13 +101,13 @@ export default {
       if (this.active === false) {
         this.$emit('tool:activated', true)
       }
-    }
+    },
   },
 
   mounted () {
     this.$nextTick(() => {
       this.init()
     })
-  }
+  },
 }
 </script>

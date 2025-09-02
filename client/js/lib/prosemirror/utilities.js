@@ -246,13 +246,13 @@ const createCreatorMenu = (view, anchor, head) => {
       return {
         height: 10,
         width: 0,
-        ...positions
+        ...positions,
       }
     },
     content: wrapper,
     interactive: true,
     trigger: 'manual',
-    showOnCreate: true
+    showOnCreate: true,
   })
 
   wrapper.appendChild(addBtn)
@@ -289,7 +289,7 @@ const generateRangeChangeMap = (oldRanges, newRanges) => {
     newRanges,
     deletedRanges,
     createdRanges,
-    updatedRanges
+    updatedRanges,
   }
 }
 
@@ -303,5 +303,5 @@ export {
   range,
   isSuperset,
   createCreatorMenu,
-  generateRangeChangeMap
+  generateRangeChangeMap,
 }

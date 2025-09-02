@@ -10,14 +10,14 @@
 <template>
   <!-- assessment table search and sorting header -->
   <div
-    class="layout--flush u-1-of-1"
-    v-cloak>
+    v-cloak
+    class="layout--flush u-1-of-1">
     <!-- info-box when elements are selected -->
     <dp-edit-selected-items-menu
+      ref="editSelectedItemsMenu"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
-      ref="editSelectedItemsMenu"
       @exportModal:toggle="tab => $emit('exportModal:toggle', tab)">
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
@@ -64,11 +64,11 @@ export default {
     DpButton,
     DpEditSelectedItemsMenu,
     DpFilterModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpFilterModal')),
-    SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'))
+    SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal')),
   },
 
   emits: [
-    'exportModal:toggle'
+    'exportModal:toggle',
   ],
 
   computed: {
@@ -76,7 +76,7 @@ export default {
       'appliedFilters',
       'initFilterHash',
       'procedureId',
-      'searchFields'
+      'searchFields',
     ]),
 
     ...mapState('AssessmentTable', [
@@ -86,8 +86,8 @@ export default {
       'filterSet',
       'searchTerm',
       'showFilterModal',
-      'showSearchModal'
-    ])
+      'showSearchModal',
+    ]),
   },
 
   watch: {
@@ -97,7 +97,7 @@ export default {
           this.$refs.filterModal.openModal()
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
 
     showSearchModal: {
@@ -106,14 +106,14 @@ export default {
           this.$refs.searchModal.toggleModal()
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setProperty'
-    ])
-  }
+      'setProperty',
+    ]),
+  },
 }
 </script>

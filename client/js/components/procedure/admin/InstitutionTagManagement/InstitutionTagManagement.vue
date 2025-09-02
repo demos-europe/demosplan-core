@@ -35,7 +35,7 @@
 <script>
 import {
   DpTab,
-  DpTabs
+  DpTabs,
 } from '@demos-europe/demosplan-ui'
 import InstitutionList from './InstitutionList'
 import { mapActions } from 'vuex'
@@ -48,20 +48,20 @@ export default {
     DpTabs,
     DpTab,
     TagList,
-    InstitutionList
+    InstitutionList,
   },
 
   data () {
     return {
       activeTabId: 'institutionList',
-      needToReset: false
+      needToReset: false,
     }
   },
 
   computed: {
     isInstitutionListActive () {
       return this.activeTabId === 'institutionList'
-    }
+    },
   },
 
   watch: {
@@ -71,25 +71,25 @@ export default {
           this.getInstitutionsByPage(1)
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     ...mapActions('InvitableInstitution', {
-      listInvitableInstitution: 'list'
+      listInvitableInstitution: 'list',
     }),
 
     getInstitutionsByPage (page) {
       this.listInvitableInstitution({
         page: {
           number: page,
-          size: 50
+          size: 50,
         },
         sort: '-createdDate',
         fields: {
-          InstitutionTag: ['label', 'id'].join()
-        }
+          InstitutionTag: ['label', 'id'].join(),
+        },
       })
         .then(() => {
           this.needToReset = false
@@ -108,7 +108,7 @@ export default {
 
     institutionListReset () {
       this.needToReset = true
-    }
-  }
+    },
+  },
 }
 </script>

@@ -18,7 +18,7 @@
           <custom-search-statements
             ref="customSearchStatements"
             :search-in-fields="searchFields"
-            @changeFields="updateSearchFields"
+            @change-fields="updateSearchFields"
             @reset="resetSearch"
             @search="(term) => applySearch(term)" />
         </div>
@@ -32,8 +32,8 @@
           @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
-        class="layout__item u-12-of-12 u-mt-0_5"
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
+        class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
@@ -50,9 +50,9 @@
         class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
@@ -150,24 +150,25 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            class="line-clamp-3 c-styled-html"
-            v-cleanhtml="text" />
+            v-cleanhtml="text"
+            class="line-clamp-3 c-styled-html" />
         </template>
         <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              class="btn--blank o-link--default"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
               data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
-              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
-              rel="noopener">
+              rel="noopener"
+              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)">
               {{ Translator.trans('split') }}
             </button>
             <a
+              class="block leading-[2] whitespace-nowrap"
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener">
@@ -175,6 +176,7 @@
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalPdf}"
               data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
@@ -184,6 +186,7 @@
             </a>
             <a
               v-if="hasPermission('area_admin_original_statement_list')"
+              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalId}"
               data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
@@ -191,7 +194,7 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              class="btn--blank o-link--default"
+              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
@@ -266,8 +269,8 @@
               <a
                 v-if="statementsObject[id].attributes.textIsTruncated"
                 class="show-more cursor-pointer"
-                @click.prevent.stop="() => getStatementsFullText(id)"
-                rel="noopener">
+                rel="noopener"
+                @click.prevent.stop="() => getStatementsFullText(id)">
                 {{ Translator.trans('show.more') }}
               </a>
             </template>
@@ -275,8 +278,8 @@
               <div v-cleanhtml="statementsObject[id].attributes.isFulltextDisplayed ? fullText : text" />
               <a
                 class="cursor-pointer"
-                @click="() => toggleFulltext(id)"
-                rel="noopener">
+                rel="noopener"
+                @click="() => toggleFulltext(id)">
                 {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
               </a>
             </template>
@@ -287,7 +290,7 @@
       <dp-inline-notification
         v-else
         :class="{ 'mx-2': isFullscreen }"
-        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        :message="Translator.trans((searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: searchValue})"
         type="info" />
     </template>
   </div>
@@ -295,7 +298,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -310,7 +312,7 @@ import {
   DpStickyElement,
   formatDate,
   sessionStorageMixin,
-  tableSelectAllItems
+  tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
@@ -337,11 +339,11 @@ export default {
     DpStickyElement,
     StatementExportModal,
     StatementMetaData,
-    StatusBadge
+    StatusBadge,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
@@ -349,7 +351,7 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -359,19 +361,19 @@ export default {
     isSourceAndCoupledProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -380,7 +382,7 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       isFullscreen: false,
       headerFields: [
@@ -389,7 +391,7 @@ export default {
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
-        { field: 'segmentsCount', label: Translator.trans('segments') }
+        { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
       pagination: {},
       searchFields: [
@@ -403,7 +405,7 @@ export default {
         'orgaPostalCode',
         'statementId',
         'statementText',
-        'typeOfSubmission'
+        'typeOfSubmission',
       ],
       searchFieldsSelected: null,
       searchValue: '',
@@ -416,35 +418,35 @@ export default {
         { value: '-internId', label: Translator.trans('sort.internId.descending') },
         { value: 'internId', label: Translator.trans('sort.internId.ascending') },
         { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
-        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') }
-      ]
+        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
+      ],
     }
   },
 
   computed: {
     ...mapState('AssignableUser', {
-      assignableUsersObject: 'items'
+      assignableUsersObject: 'items',
     }),
 
     ...mapState('Orga', {
-      orgaObject: 'items'
+      orgaObject: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
-      isLoading: 'loading'
+      isLoading: 'loading',
     }),
 
     assignableUsers () {
-      return Object.keys(this.assignableUsersObject).length
-        ? Object.values(this.assignableUsersObject)
+      return Object.keys(this.assignableUsersObject).length ?
+        Object.values(this.assignableUsersObject)
           .map(user => ({
             name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id
-          }))
-        : []
+            id: user.id,
+          })) :
+        []
     },
 
     exportRoute: function () {
@@ -454,26 +456,26 @@ export default {
             procedureId: {
               condition: {
                 path: 'procedure.id',
-                value: this.procedureId
-              }
-            }
+                value: this.procedureId,
+              },
+            },
           },
           procedureId: this.procedureId,
           search: {
             value: this.searchValue,
-            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
           },
           sort: this.selectedSort,
           isObscured,
           isInstitutionDataCensored,
-          isCitizenDataCensored
+          isCitizenDataCensored,
         }
 
         if (docxHeaders) {
           parameters.tableHeaders = {
             col1: docxHeaders.col1,
             col2: docxHeaders.col2,
-            col3: docxHeaders.col3
+            col3: docxHeaders.col3,
           }
         }
 
@@ -495,29 +497,29 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            originalPdf
+            originalPdf,
           }
         })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
     }),
 
     ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     assigneeId (statement) {
@@ -537,14 +539,14 @@ export default {
           return {
             id: statement.relationships.assignee.data.id,
             name: 'Benutzer',
-            orgaName: 'unbekannt'
+            orgaName: 'unbekannt',
           }
         }
 
         return {
           id: statement.relationships.assignee.data.id,
           name: `${assignee.attributes.firstname} ${assignee.attributes.lastname}`,
-          orgaName: assigneeOrga ? assigneeOrga.attributes.name : ''
+          orgaName: assigneeOrga ? assigneeOrga.attributes.name : '',
 
         }
       }
@@ -552,7 +554,7 @@ export default {
       return {
         id: '',
         name: '',
-        orgaName: ''
+        orgaName: '',
       }
     },
 
@@ -626,27 +628,22 @@ export default {
               assignee: {
                 data: {
                   type: 'Claim',
-                  id: this.currentUserId
-                }
-              }
-            }
-          }
+                  id: this.currentUserId,
+                },
+              },
+            },
+          },
         }
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-          .then(response => {
-            checkResponse(response)
-            return response
-          })
-          .then(response => {
+          .then(() => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-
-            return response
           })
           .catch((err) => {
             console.error(err)
             // Restore statement in store in case request failed
             this.restoreStatementAction(statementId)
+
             return err
           })
           .finally(() => {
@@ -676,13 +673,12 @@ export default {
           id: statementId,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-        .then(checkResponse)
         .catch((err) => {
           this.restoreStatementAction(statementId)
           console.error(err)
@@ -723,7 +719,7 @@ export default {
         // Relationships:
         'assignee',
         'sourceAttachment',
-        'segments'
+        'segments',
       ]
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
@@ -735,33 +731,33 @@ export default {
       this.fetchStatements({
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         search: {
           value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
         },
         filter: {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         },
         sort: this.selectedSort,
         include: [
           'segments',
           'assignee',
           'sourceAttachment',
-          'sourceAttachment.file'
+          'sourceAttachment.file',
         ].join(),
         fields: {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
-            'file'
-          ].join()
-        }
+            'file',
+          ].join(),
+        },
       }).then((data) => {
         /**
          * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -811,8 +807,8 @@ export default {
         dry: isDry,
         search: {
           value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        }
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
+        },
       }
 
       /*
@@ -823,8 +819,8 @@ export default {
       if (this.toggledItems.length > 0) {
         filterForToggledItems.statementFilterGroup = {
           group: {
-            conjunction: this.trackDeselected ? 'AND' : 'OR'
-          }
+            conjunction: this.trackDeselected ? 'AND' : 'OR',
+          },
         }
         this.toggledItems.forEach((item, idx) => {
           filterForToggledItems['statement_' + idx] = {
@@ -832,8 +828,8 @@ export default {
               path: 'id',
               value: item.id,
               memberOf: 'statementFilterGroup',
-              operator: this.trackDeselected ? '<>' : '='
-            }
+              operator: this.trackDeselected ? '<>' : '=',
+            },
           }
         })
       }
@@ -845,9 +841,9 @@ export default {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         }
       } else if (this.trackDeselected) {
         // All but deselected
@@ -855,10 +851,10 @@ export default {
           procedureId: {
             condition: {
               path: 'procedure.id',
-              value: this.procedureId
-            }
+              value: this.procedureId,
+            },
           },
-          ...filterForToggledItems
+          ...filterForToggledItems,
         }
       } else {
         // Only selected
@@ -870,7 +866,7 @@ export default {
 
     getStatementsFullText (statementId) {
       return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
-        .then((response) => {
+        .then(response => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
@@ -884,13 +880,12 @@ export default {
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
-          .then(checkResponse)
-          .then((response) => {
+          .then(response => {
             /*
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
              * we also get 200 status with an error
              */
-            if (!response[0].error) {
+            if (!response.data[0].error) {
               this.getItemsByPage(this.currentPage)
               this.resetSelection()
             }
@@ -954,13 +949,17 @@ export default {
 
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
+        // Override the default success callback to display a custom message
+        this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
+          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+        })
+
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-          }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
+            // Reset the custom success callback to the default one
+            this.$store.api.successCallbacks[0] = this.$store.api.handleResponse
           })
       }
     },
@@ -973,19 +972,19 @@ export default {
 
     updateSearchFields (selectedFields) {
       this.searchFieldsSelected = selectedFields
-    }
+    },
   },
 
   mounted () {
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {
-        Orga: 'name'
-      }
+        Orga: 'name',
+      },
     })
     this.initPagination()
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
-  }
+  },
 }
 </script>

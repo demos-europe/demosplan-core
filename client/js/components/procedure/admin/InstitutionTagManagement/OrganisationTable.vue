@@ -18,76 +18,21 @@ All rights reserved
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
         <dp-search-field
+          ref="searchField"
           class="h-fit mt-1 col-span-1 sm:col-span-3"
           data-cy="addOrganisationList:searchField"
           input-width="u-1-of-1"
           @reset="handleReset"
           @search="handleSearch" />
 
-        <template v-if="hasPermission('feature_institution_tag_read')">
-          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
-            <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
-              <dp-flyout
-                align="left"
-                :aria-label="Translator.trans('filters.more')"
-                class="bg-surface-medium rounded pb-1 pt-[4px]"
-                data-cy="dpAddOrganisationList:filterCategories">
-                <template v-slot:trigger>
-                  <span :title="Translator.trans('filters.more')">
-                    <dp-icon
-                      aria-hidden="true"
-                      class="inline"
-                      icon="faders" />
-                  </span>
-                </template>
-                <!-- 'More filters' flyout -->
-                <div>
-                  <button
-                    class="btn--blank o-link--default ml-auto"
-                    data-cy="dpAddOrganisationList:toggleAllFilterCategories"
-                    v-text="Translator.trans('toggle_all')"
-                    @click="filterManager.toggleAllCategories" />
-                  <div v-if="!isLoading">
-                    <dp-checkbox
-                      v-for="category in allFilterCategories"
-                      :key="category.id"
-                      :id="`filterCategorySelect:${category.label}`"
-                      :checked="selectedFilterCategories.includes(category.label)"
-                      :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
-                      :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
-                      :label="{
-                        text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
-                      }"
-                      @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
-                  </div>
-                </div>
-              </dp-flyout>
-            </div>
+        <client-side-tag-filter
+          v-if="hasPermission('feature_institution_tag_read')"
+          :filter-categories="allFilterCategories"
+          :raw-items="rowItems"
+          :search-applied="isSearchApplied"
+          @items-filtered="filteredItems = $event"
+          @reset="resetSearch" />
 
-            <filter-flyout
-              v-for="category in filterCategoriesToBeDisplayed"
-              :key="`filter_${category.label}`"
-              ref="filterFlyout"
-              :category="{ id: category.id, label: category.label }"
-              class="inline-block"
-              :data-cy="`dpAddOrganisationList:${category.label}`"
-              :initial-query-ids="queryIds"
-              :member-of="category.memberOf"
-              :operator="category.comparisonOperator"
-              :path="category.rootPath"
-              @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
-              @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
-          </div>
-
-          <dp-button
-            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-            data-cy="dpAddOrganisationList:resetFilter"
-            :disabled="!isQueryApplied"
-            :text="Translator.trans('reset')"
-            variant="outline"
-            v-tooltip="Translator.trans('search.filter.reset')"
-            @click="filterManager.reset" />
-        </template>
         <!-- Slot for bulk actions -->
       </div>
       <slot name="bulkActions" />
@@ -105,12 +50,12 @@ All rights reserved
       @size-change="handleItemsPerPageChange" />
 
     <dp-data-table
-      class="mt-2"
       ref="DpDataTable"
+      class="mt-2"
       :header-fields="headerFields"
       is-expandable
       is-selectable
-      :items="rowItems"
+      :items="filteredItems || rowItems"
       lock-checkbox-by="hasNoEmail"
       track-by="id"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
@@ -197,10 +142,8 @@ All rights reserved
             </dt>
             <dd class="ml-0">
               <div class="flex flex-wrap gap-1 mt-1">
-                <span
-                  v-for="tag in assignedTags"
-                  :key="tag.id">
-                  {{ tag.name }}
+                <span>
+                  {{ assignedTags.map(tag => tag.name).join(', ') }}
                 </span>
               </div>
             </dd>
@@ -213,38 +156,24 @@ All rights reserved
 
 <script>
 import {
-  DpButton,
-  DpCheckbox,
   DpDataTable,
-  DpFlyout,
-  DpIcon,
+  DpLoading,
   DpPager,
-  DpSearchField
+  DpSearchField,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
-import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import { mapActions, mapGetters, mapState } from 'vuex'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
-  name: 'OrganisationList',
-
-  setup () {
-    return {
-      filterCategoryHelpers
-    }
-  },
+  name: 'OrganisationTable',
 
   components: {
-    DpButton,
-    DpCheckbox,
+    ClientSideTagFilter,
     DpDataTable,
-    DpFlyout,
-    DpIcon,
+    DpLoading,
     DpPager,
     DpSearchField,
-    FilterFlyout
   },
 
   mixins: [paginationMixin],
@@ -252,64 +181,60 @@ export default {
   props: {
     headerFields: {
       type: Array,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     resourceType: {
       type: String,
       required: true,
-      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value)
-    }
+      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value),
+    },
   },
 
   emits: [
-    'selectedItems'
+    'selectedItems',
   ],
 
   data () {
     return {
-      appliedFilterQuery: {},
-      currentlySelectedFilterCategories: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 50
+        perPage: 50,
       },
-      filterManager: filterCategoryHelpers.createFilterManager(this),
-      initiallySelectedFilterCategories: [],
-      institutionTagCategoriesCopy: {},
+      filteredItems: null,
       isLoading: true,
       locationContactFields: ['street', 'postalcode', 'city'],
       pagination: {},
       searchTerm: '',
-      selectedItems: []
+      selectedItems: [],
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
+      filterQuery: 'getFilterQuery',
     }),
 
     ...mapState('InstitutionLocationContact', {
-      institutionLocationContactItems: 'items'
+      institutionLocationContactItems: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTagItems: 'items'
+      institutionTagItems: 'items',
     }),
 
     allFilterCategories () {
-      return (this.institutionTagCategoriesValues || [])
+      return (Object.values(this.institutionTagCategories) || [])
         .filter(category => category && category.id && category.attributes)
         .map(category => {
           const { id, attributes } = category
@@ -321,7 +246,7 @@ export default {
             label: attributes.name,
             rootPath: 'assignedTags',
             selected: false,
-            memberOf: groupKey
+            memberOf: groupKey,
           }
         })
     },
@@ -339,15 +264,8 @@ export default {
       return this.pagination.currentPage || 1
     },
 
-    filterCategoriesToBeDisplayed () {
-      return (this.allFilterCategories || [])
-        .filter(filter =>
-          this.currentlySelectedFilterCategories.includes(filter.label))
-    },
-
-    institutionTagCategoriesValues () {
-      return Object.values(this.institutionTagCategoriesCopy || {})
-        .sort((a, b) => new Date(a.attributes?.creationDate || 0) - new Date(b.attributes?.creationDate || 0))
+    isSearchApplied () {
+      return this.searchTerm !== ''
     },
 
     itemsPerPage () {
@@ -366,7 +284,7 @@ export default {
         const tagReferences = item.relationships.assignedTags?.data || []
         const institutionTags = tagReferences.map(tag => ({
           id: tag.id,
-          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
+          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound'),
         }))
 
         return {
@@ -375,36 +293,22 @@ export default {
 
           // Add icon for hasReceivedInvitationMailInCurrentProcedurePhase
           hasReceivedInvitationMailInCurrentProcedurePhase:
-            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase
-              ? '<i class="fa fa-check-circle text-[#4c8b22]" ></i>'
-              : '',
+            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase ?
+              '<i class="fa fa-check-circle text-[#4c8b22]" ></i>' :
+              '',
           originalStatementsCountInProcedure: item.attributes.originalStatementsCountInProcedure ||
             '-',
           competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
-          locationContacts: locationContact
-            ? {
-                id: locationContact.id,
-                ...locationContact.attributes
-              }
-            : null,
+          locationContacts: locationContact ?
+            {
+              id: locationContact.id,
+              ...locationContact.attributes,
+            } :
+            null,
           assignedTags: institutionTags,
-          hasNoEmail
+          hasNoEmail,
         }
-      }).filter(item => {
-        if (Object.keys(this.appliedFilterQuery).length === 0) return true
-
-        return Object.values(this.appliedFilterQuery).every(filterCondition => {
-          if (!filterCondition.condition) return true
-
-          const tagIds = item.assignedTags.map(tag => tag.id)
-
-          return tagIds.includes(filterCondition.condition.value)
-        })
-      }) || []
-    },
-
-    selectedFilterCategories () {
-      return this.currentlySelectedFilterCategories
+      })
     },
 
     selectedItemsText () {
@@ -432,44 +336,12 @@ export default {
     totalPages () {
       return this.pagination.totalPages || 0
     },
-
-    queryIds () {
-      if (Object.keys(this.appliedFilterQuery).length === 0) {
-        return []
-      }
-
-      return Object.values(this.appliedFilterQuery).map(el => el.condition.value)
-    }
   },
 
   methods: {
-    ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
-    ]),
-
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
-
-    ...mapMutations('FilterFlyout', {
-      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
-      setIsFilterFlyoutLoading: 'setIsLoading',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
-    }),
-
-    applyFilterQuery (filter, categoryId) {
-      this.filterManager.applyFilter(filter, categoryId)
-    },
-
-    createFilterOptions (params) {
-      this.filterManager.createFilterOptions(params)
-    },
-
-    getInstitutionsByPage (page = 1, categoryId = null) {
-      if (categoryId) {
-        this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-      }
-    },
 
     getInstitutionTagCategories (isInitial = false) {
       if (!hasPermission('feature_institution_tag_read')) {
@@ -481,28 +353,23 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           // Copy the object to avoid issues with filter requests that update the categories in the store
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
-
-          if (isInitial) {
-            this.setInitiallySelectedFilterCategories()
-            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
-          }
 
           return this.institutionTagCategoriesCopy
         })
@@ -517,27 +384,27 @@ export default {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
-        { permission: 'field_organisation_competence', value: 'competenceDescription' }
+        { permission: 'field_organisation_competence', value: 'competenceDescription' },
       ]
 
       const permissionChecksContact = [
-        { permission: 'field_organisation_phone', value: 'phone' }
+        { permission: 'field_organisation_phone', value: 'phone' },
       ]
 
-      const includeParams = hasPermission('feature_institution_tag_read')
-        ? ['locationContacts', 'assignedTags']
-        : ['locationContacts']
+      const includeParams = hasPermission('feature_institution_tag_read') ?
+        ['locationContacts', 'assignedTags'] :
+        ['locationContacts']
 
       const requestParams = {
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         include: includeParams.join(),
         fields: {
           [this.resourceType]: this.apiRequestFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
-          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
-        }
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join(),
+        },
       }
 
       if (hasPermission('feature_institution_tag_read')) {
@@ -551,9 +418,9 @@ export default {
               path: 'legalName',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
-          }
+              memberOf: 'searchFieldsGroup',
+            },
+          },
         }
 
         if (hasPermission('field_organisation_competence')) {
@@ -562,8 +429,8 @@ export default {
               path: 'competenceDescription',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
@@ -573,15 +440,15 @@ export default {
               path: 'assignedTags.name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
         filters.searchFieldsGroup = {
           group: {
-            conjunction: 'OR'
-          }
+            conjunction: 'OR',
+          },
         }
 
         requestParams.filter = filters
@@ -602,10 +469,6 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
-    },
-
-    handleChange (filterCategoryName, isSelected) {
-      this.filterManager.handleChange(filterCategoryName, isSelected)
     },
 
     handleReset () {
@@ -648,6 +511,16 @@ export default {
       this.filterManager.reset()
     },
 
+    resetSearch () {
+      this.$refs.searchField.handleReset()
+    },
+
+    resetSelection () {
+      this.$refs.DpDataTable.resetSelection()
+      this.$refs.DpDataTable.elementSelections = {}
+      this.$refs.DpDataTable.selectedElements = []
+    },
+
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {
@@ -657,58 +530,23 @@ export default {
       }, [])
     },
 
-    setAppliedFilterQuery (filter) {
-      return this.filterManager.setAppliedFilterQuery(filter)
-    },
-
-    setAppliedFilterQueryFromStorage () {
-      return this.filterManager.setAppliedFilterQueryFromStorage()
-    },
-
-    setCurrentlySelectedFilterCategories (selectedCategories) {
-      this.currentlySelectedFilterCategories = selectedCategories
-    },
-
-    setFilterOptionsFromFilterQuery () {
-      this.filterManager.setFilterOptionsFromFilterQuery()
-    },
-
-    setFilterQueryFromStorage () {
-      return this.filterManager.setFilterQueryFromStorage()
-    },
-
-    setInitiallySelectedFilterCategories () {
-      const selectedFilterCategoriesInStorage = filterCategoriesStorage.get()
-
-      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
-        ? selectedFilterCategoriesInStorage
-        : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
-    },
-
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
     },
-
-    toggleAllSelectedFilterCategories () {
-      this.filterManager.toggleAllCategories()
-    }
   },
 
   mounted () {
     this.initPagination()
     this.getInstitutionsWithContacts()
 
-    this.filterManager.setAppliedFilterQueryFromStorage()
-    this.filterManager.setFilterQueryFromStorage()
-
     const promises = [
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

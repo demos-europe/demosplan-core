@@ -30,6 +30,7 @@
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
+            :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             class="inline-block first:mr-1"
@@ -37,7 +38,6 @@
             :groups-object="filter.groupsObject"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
-            :key="`filter_${filter.labelTranslationKey}`"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
             :show-count="{
@@ -48,12 +48,12 @@
             @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
         </div>
         <dp-button
+          v-tooltip="Translator.trans('search.filter.reset')"
           class="ml-2 h-fit"
           data-cy="segmentsList:resetFilter"
           :disabled="noQuery"
           :text="Translator.trans('reset')"
           variant="outline"
-          v-tooltip="Translator.trans('search.filter.reset')"
           @click="resetQuery" />
         <dp-button
           class="ml-auto"
@@ -80,9 +80,9 @@
         class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
@@ -100,8 +100,8 @@
     </dp-sticky-element>
 
     <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
+      v-if="isLoading"
+      class="u-mt" />
 
     <template v-else>
       <template v-if="items.length > 0">
@@ -147,8 +147,8 @@
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
               <div
-                class="o-hellip--nowrap text-right"
                 v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
+                class="o-hellip--nowrap text-right"
                 dir="rtl">
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
               </div>
@@ -213,11 +213,14 @@
             v-for="customField in selectedCustomFields"
             :key="customField.field"
             v-slot:[customField.field]="rowData">
-            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
+            <div>
+              {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
+            </div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   action: 'editText',
                   procedureId: procedureId,
@@ -230,6 +233,7 @@
               </a>
               <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   procedureId: procedureId,
                   segment: rowData.id,
@@ -242,13 +246,14 @@
               <!-- Version history view -->
               <button
                 type="button"
-                class="btn--blank o-link--default"
+                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
                 @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
                 {{ Translator.trans('history') }}
               </button>
               <a
                 v-if="hasPermission('feature_read_source_statement_via_api')"
+                class="block leading-[2] whitespace-nowrap"
                 :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
@@ -279,7 +284,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -294,7 +298,7 @@ import {
   DpStickyElement,
   hasOwnProp,
   tableSelectAllItems,
-  VPopover
+  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
@@ -327,11 +331,11 @@ export default {
     StatementMetaTooltip,
     StatusBadge,
     TextContentRenderer,
-    VPopover
+    VPopover,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
@@ -339,7 +343,7 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -362,24 +366,24 @@ export default {
     filters: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialFilter: {
       type: [Object, Array],
-      default: () => ({})
+      default: () => ({}),
     },
 
     initialSearchTerm: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -390,7 +394,7 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 10
+        perPage: 10,
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
@@ -401,63 +405,63 @@ export default {
         { field: 'text', label: Translator.trans('text'), colWidth: '200px' },
         { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '200px' },
         { field: 'tags', label: Translator.trans('segment.tags') },
-        { field: 'place', label: Translator.trans('workflow.place') }
+        { field: 'place', label: Translator.trans('workflow.place') },
       ],
       isLoading: true,
       lsKey: {
         // LocalStorage keys
         allSegments: `${this.procedureId}:allSegments`,
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
-        toggledSegments: `${this.procedureId}:toggledSegments`
+        toggledSegments: `${this.procedureId}:toggledSegments`,
       },
       pagination: {},
       searchTerm: this.initialSearchTerm,
-      searchFieldsSelected: []
+      searchFieldsSelected: [],
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
-      'getIsExpandedByCategoryId'
+      'getIsExpandedByCategoryId',
     ]),
 
     ...mapState('AssignableUser', {
-      assignableUsersObject: 'items'
+      assignableUsersObject: 'items',
     }),
 
     ...mapState('CustomField', {
-      customFields: 'items'
+      customFields: 'items',
     }),
 
     ...mapState('Orga', {
-      orgaObject: 'items'
+      orgaObject: 'items',
     }),
 
     ...mapState('StatementSegment', {
-      segmentsObject: 'items'
+      segmentsObject: 'items',
     }),
 
     ...mapState('Statement', {
-      statementsObject: 'items'
+      statementsObject: 'items',
     }),
 
     ...mapState('Tag', {
-      tagsObject: 'items'
+      tagsObject: 'items',
     }),
 
     ...mapState('Place', {
-      placesObject: 'items'
+      placesObject: 'items',
     }),
 
     assignableUsers () {
-      return Object.keys(this.assignableUsersObject).length
-        ? Object.values(this.assignableUsersObject)
+      return Object.keys(this.assignableUsersObject).length ?
+        Object.values(this.assignableUsersObject)
           .map(user => ({
             name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id
-          }))
-        : []
+            id: user.id,
+          })) :
+        []
     },
 
     availableHeaderFields () {
@@ -470,12 +474,12 @@ export default {
         .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
         .map(customField => ({
           field: `customField_${customField.id}`,
-          label: customField.attributes.name
+          label: customField.attributes.name,
         }))
 
       return [
         ...this.headerFields,
-        ...selectedCustomFields
+        ...selectedCustomFields,
       ]
     },
 
@@ -494,13 +498,13 @@ export default {
     },
 
     places () {
-      return Object.keys(this.placesObject).length
-        ? Object.values(this.placesObject)
+      return Object.keys(this.placesObject).length ?
+        Object.values(this.placesObject)
           .map(place => ({
             name: place.attributes.name,
-            id: place.id
-          }))
-        : []
+            id: place.id,
+          })) :
+        []
     },
 
     queryIds () {
@@ -532,7 +536,7 @@ export default {
 
       return [
         ...staticColumns,
-        ...customFields
+        ...customFields,
       ]
     },
 
@@ -546,42 +550,42 @@ export default {
         .map(customField => {
           return {
             field: `customField_${customField.id}`,
-            fieldId: customField.id
+            fieldId: customField.id,
           }
         })
     },
 
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
+      fetchAssignableUsers: 'list',
     }),
 
     ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get'
+      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
+      'updateFilterQuery',
     ]),
 
     ...mapActions('Place', {
-      fetchPlaces: 'list'
+      fetchPlaces: 'list',
     }),
 
     ...mapActions('StatementSegment', {
-      fetchSegments: 'list'
+      fetchSegments: 'list',
     }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
+      setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
     applyQuery (page) {
@@ -594,9 +598,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'parentStatement.procedure.id',
-            value: this.procedureId
-          }
-        }
+            value: this.procedureId,
+          },
+        },
       }
       const statementSegmentFields = [
         'assignee',
@@ -606,7 +610,7 @@ export default {
         'place',
         'tags',
         'text',
-        'recommendation'
+        'recommendation',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -619,23 +623,23 @@ export default {
           'place',
           'tags',
           'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file'
+          'parentStatement.sourceAttachment.file',
         ].join(),
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
           File: [
-            'hash'
+            'hash',
           ].join(),
           GenericStatementAttachment: [
-            'file'
+            'file',
           ].join(),
           Place: [
-            'name'
+            'name',
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -655,18 +659,18 @@ export default {
             'status',
             'submitDate',
             'submitName',
-            'submitType'
+            'submitType',
           ].join(),
           StatementSegment: statementSegmentFields.join(),
           Tag: [
-            'title'
-          ].join()
-        }
+            'title',
+          ].join(),
+        },
       }
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
-          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
       this.isLoading = true
@@ -687,7 +691,7 @@ export default {
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
             filter,
-            search: payload.search
+            search: payload.search,
           })
         })
         .finally(() => {
@@ -702,12 +706,22 @@ export default {
 
     fetchSegmentIds (payload) {
       return dpRpc('segment.load.id', payload)
-        .then(response => checkResponse(response))
-        .then(response => {
-          const allSegments = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+        .then(({ data }) => {
+          const allSegments = data[0]?.result ?? []
+
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFieldOptionLabel (customFields, fieldId) {
+      const customFieldOptionId = customFields?.find(el => el.id === fieldId)?.value || ''
+
+      if (customFieldOptionId === '') {
+        return ''
+      }
+
+      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
     getCustomFields () {
@@ -715,17 +729,17 @@ export default {
         id: this.procedureId,
         fields: {
           AdminProcedure: [
-            'segmentCustomFields'
+            'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
-            'options'
-          ].join()
+            'options',
+          ].join(),
         },
         include: [
-          'segmentCustomFields'
-        ].join()
+          'segmentCustomFields',
+        ].join(),
       }
 
       this.getCustomFieldsForProcedure(payload)
@@ -806,11 +820,11 @@ export default {
           sameProcedure: {
             condition: {
               path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
-          }
+              value: this.procedureId,
+            },
+          },
         },
-        path
+        path,
       }
 
       // We have to set the searchPhrase to null if its empty to satisfy the backend
@@ -819,9 +833,8 @@ export default {
       }
 
       dpRpc('segments.facets.list', requestParams, 'filterList')
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
           if (result) {
             const groupedOptions = []
@@ -850,7 +863,7 @@ export default {
                       description,
                       id,
                       label,
-                      selected
+                      selected,
                     }
                   }
 
@@ -863,7 +876,7 @@ export default {
                   const group = {
                     id,
                     label,
-                    options: filterOptions
+                    options: filterOptions,
                   }
 
                   groupedOptions.push(group)
@@ -881,7 +894,7 @@ export default {
                   description,
                   label,
                   selected,
-                  ungrouped: true
+                  ungrouped: true,
                 })
               }
             })
@@ -893,7 +906,7 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: result.meta.unassigned_selected
+                selected: result.meta.unassigned_selected,
               })
             }
 
@@ -907,18 +920,18 @@ export default {
 
               this.setInitialFlyoutFilterIds({
                 categoryId: category.id,
-                filterIds: currentFlyoutFilterIds
+                filterIds: currentFlyoutFilterIds,
               })
             }
 
             this.setGroupedFilterOptions({
               categoryId: category.id,
-              groupedOptions
+              groupedOptions,
             })
 
             this.setUngroupedFilterOptions({
               categoryId: category.id,
-              options: ungroupedOptions
+              options: ungroupedOptions,
             })
 
             this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
@@ -941,7 +954,7 @@ export default {
     storeToggledSegments () {
       lscache.set(this.lsKey.toggledSegments, {
         trackDeselected: this.trackDeselected,
-        toggledSegments: this.toggledItems
+        toggledSegments: this.toggledItems,
       })
     },
 
@@ -979,11 +992,10 @@ export default {
         data.searchPhrase = this.searchTerm
       }
       return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
-        .then(response => {
-          if (response) {
-            this.updateQueryHashInURL(oldQueryHash, response)
-            this.currentQueryHash = response
+        .then(({ data }) => {
+          if (data) {
+            this.updateQueryHashInURL(oldQueryHash, data)
+            this.currentQueryHash = data
           }
         })
         .catch(err => console.log(err))
@@ -1002,7 +1014,7 @@ export default {
       this.searchTerm = term
       this.resetSelection()
       this.applyQuery(1)
-    }
+    },
   },
 
   mounted () {
@@ -1026,6 +1038,6 @@ export default {
 
     this.fetchPlaces()
     this.fetchAssignableUsers()
-  }
+  },
 }
 </script>

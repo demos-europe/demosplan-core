@@ -41,36 +41,36 @@ export default {
   props: {
     active: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementFragmentsTotal: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     statementFragmentsLength: {
       required: false,
       default: '0',
-      type: String
+      type: String,
     },
 
     title: {
       required: false,
       default: 'fragments',
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
     'fragments:show',
-    'fragments:load'
+    'fragments:load',
   ],
 
   computed: {
@@ -93,7 +93,7 @@ export default {
       } else {
         return 0
       }
-    }
+    },
   },
 
   methods: {
@@ -109,7 +109,7 @@ export default {
       }
 
       this.$emit('fragments:show', statementId)
-    }
-  }
+    },
+  },
 }
 </script>

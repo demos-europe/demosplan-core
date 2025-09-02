@@ -23,24 +23,24 @@ export default {
   name: 'ActionStepperResponse',
 
   components: {
-    DpInlineNotification
+    DpInlineNotification,
   },
 
   props: {
     descriptionSuccess: {
       required: true,
-      type: String
+      type: String,
     },
 
     descriptionError: {
       required: true,
-      type: String
+      type: String,
     },
 
     success: {
       type: Boolean,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

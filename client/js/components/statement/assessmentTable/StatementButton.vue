@@ -27,23 +27,23 @@ export default {
   props: {
     active: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
-    'click'
+    'click',
   ],
 
   methods: {
     showStatement () {
       this.$emit('click')
-    }
-  }
+    },
+  },
 }
 </script>

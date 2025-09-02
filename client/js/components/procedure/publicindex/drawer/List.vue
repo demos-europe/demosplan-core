@@ -10,8 +10,8 @@
 <template>
   <div
     v-if="procedures.length"
-    class="u-mv-0_25"
-    v-scroller>
+    v-scroller
+    class="u-mv-0_25">
     <ul
       class="u-m-0 u-pb-0_25"
       data-cy="procedureList">
@@ -31,7 +31,7 @@ export default {
   name: 'DpList',
 
   components: {
-    DpListItem
+    DpListItem,
   },
 
   directives: {
@@ -39,13 +39,13 @@ export default {
      * The "v-scroller" directive sets max-height on an element so that it does not exceed the viewport,
      * then it applies a utility class that makes that container scrollable.
      */
-    scroller: Scroller
+    scroller: Scroller,
   },
 
   computed: {
     procedures () {
       return this.$store.state.Procedure.procedures
-    }
-  }
+    },
+  },
 }
 </script>

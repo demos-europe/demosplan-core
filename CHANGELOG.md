@@ -5,10 +5,28 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- Allow to configure procedures to accept or not anonymous statements
+
+## v4.11.0 (2025-08-27)
+- Allow to edit custom field type singleSelect
+- Mark outdated map layers in the map settings
+
+## v4.10.1 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.10.0 (2025-07-30)
+## v4.9.1 (2025-08-07)
+- Fix time based procedure phase switch
+
+## v4.9.0 (2025-07-30)
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Add configurable feedback control for public participation statements
 - Migrate to Tailwind CSS v4
+
+## v4.7.0 (2025-07-18)
+## v4.6.0 (2025-07-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements 
 
 
 ## v4.5.0 (2025-06-25)

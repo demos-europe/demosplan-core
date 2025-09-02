@@ -10,14 +10,14 @@
 <template>
   <fieldset
     v-if="hasPermission('field_statement_location')"
+    id="locationFieldset"
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
-    aria-required="true"
-    id="locationFieldset">
+    aria-required="true">
     <legend
-      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')"
-      id="statementMapReference">
+      id="statementMapReference"
+      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')">
       {{ Translator.trans('statement.map.reference') }}
       <span
         v-if="required"
@@ -38,18 +38,18 @@
         :class="prefixClass('u-mb-0_25')"
         data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
-        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
-        value="notLocated" />
+        value="notLocated"
+        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }" />
     </div>
 
     <div
       v-if="isMapEnabled && hasPermission('area_map_participation_area')"
+      ref="mapStatementRadio"
       :class="[
         isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
         prefixClass('m-0 pt-1 px-2 h-[66px]'),
         highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
-      ]"
-      ref="mapStatementRadio">
+      ]">
       <dp-radio
         id="locationPoint"
         name="r_location"
@@ -57,13 +57,14 @@
         data-cy="formGroupMap:statementMapReference"
         :checked="isLocationSelected"
         :disabled="disabled"
-        @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
         :label="{
           text: Translator.trans('statement.map.reference.add_on_map')
         }"
-        value="point" />
+        value="point"
+        @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}" />
 
       <a
+        v-show="isLocationSelected"
         href="#"
         :class="[
           isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
@@ -71,7 +72,6 @@
           highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
         ]"
         data-cy="formGroupMap:procedureDetailsMap"
-        v-show="isLocationSelected"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
           {{ Translator.trans('location.marked.yours') }}
@@ -103,22 +103,22 @@
         class="u-mb-0_25"
         :checked="statement.r_location === 'county'"
         :disabled="disabled"
-        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }"
-        value="county" />
+        value="county"
+        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }" />
       <select
         v-if="statement.r_location === 'county'"
         id="r_county"
+        ref="locationCountySelect"
         name="r_county"
         :required="statement.r_location === 'county'"
         :class="prefixClass('o-form__control-select')"
-        ref="locationCountySelect"
-        @change="val => setStatementData({r_county: val.target.value})"
-        :value="statement.r_county">
+        :value="statement.r_county"
+        @change="val => setStatementData({r_county: val.target.value})">
         <option
           v-for="county in counties"
+          :key="county.value"
           :selected="county.selected"
-          :value="county.value"
-          :key="county.value">
+          :value="county.value">
           {{ county.label }}
         </option>
       </select>
@@ -135,7 +135,7 @@ export default {
   name: 'FormGroupMapReference',
 
   components: {
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin],
@@ -144,30 +144,30 @@ export default {
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     disabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'statement-modal:goto-tab'
+    'statementModal:goToTab',
   ],
 
   computed: {
@@ -175,7 +175,7 @@ export default {
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
-    }
+    },
   },
 
   methods: {
@@ -183,8 +183,8 @@ export default {
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
-      this.$root.$emit('statement-modal:goto-tab', tabName)
-    }
-  }
+      this.$root.$emit('statementModal:goToTab', tabName)
+    },
+  },
 }
 </script>

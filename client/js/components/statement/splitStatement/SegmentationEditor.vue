@@ -37,24 +37,24 @@ export default {
     editToggleCallback: {
       type: Function,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initStatementText: {
       type: String,
-      required: true
+      required: true,
     },
 
     segments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     rangeChangeCallback: {
       type: Function,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   emits: [
@@ -63,7 +63,7 @@ export default {
     'mouseleave',
     'mouseover',
     'prosemirror:initialized',
-    'prosemirror:maxRange'
+    'prosemirror:maxRange',
   ],
 
   data () {
@@ -73,12 +73,12 @@ export default {
           parseDOM: [{ tag: 'u' }],
           toDOM () {
             return ['u']
-          }
+          },
         },
         link: {
           attrs: {
             href: {},
-            class: { default: null }
+            class: { default: null },
           },
           inclusive: false,
           parseDOM: [{
@@ -86,18 +86,18 @@ export default {
             getAttrs (dom) {
               return {
                 href: dom.getAttribute('href'),
-                class: dom.getAttribute('class')
+                class: dom.getAttribute('class'),
               }
-            }
+            },
           }],
           toDOM (node) {
             const { href, class: className } = node.attrs
             return ['a', { href, class: className }, 0]
-          }
+          },
         },
         segmentMark
       },
-      maxRange: 0
+      maxRange: 0,
     }
   },
 
@@ -115,7 +115,7 @@ export default {
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: this.getExtendedMarks()
+        marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
@@ -128,8 +128,8 @@ export default {
         editable: () => false,
         state: EditorState.create({
           doc: parsedContent,
-          plugins: rangePlugin.plugins
-        })
+          plugins: rangePlugin.plugins,
+        }),
       })
 
       const getContent = (schema) => (state) => {
@@ -141,7 +141,7 @@ export default {
       let prosemirrorStateWrapper = {
         view,
         keyAccess: rangePlugin.keys,
-        getContent: getContent(proseSchema)
+        getContent: getContent(proseSchema),
       }
 
       /**
@@ -152,11 +152,11 @@ export default {
 
       this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
-    }
+    },
   },
 
   mounted () {
     this.initialize()
-  }
+  },
 }
 </script>

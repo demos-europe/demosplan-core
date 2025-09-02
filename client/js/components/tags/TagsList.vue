@@ -74,10 +74,9 @@
 
 <script>
 import {
-  checkResponse,
   DpLoading,
   dpRpc,
-  DpTreeList
+  DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -95,35 +94,35 @@ export default {
     TagsCreateForm,
     TagsImportForm,
     TagListEditForm,
-    TagsListHeader
+    TagsListHeader,
   },
 
   props: {
     isMasterProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       dataIsRequested: false,
-      isInEditState: ''
+      isInEditState: '',
     }
   },
 
   computed: {
     ...mapState('Tag', {
-      Tag: 'items'
+      Tag: 'items',
     }),
     ...mapState('TagTopic', {
-      TagTopic: 'items'
+      TagTopic: 'items',
     }),
 
     transformedCategories () {
@@ -142,35 +141,35 @@ export default {
               attributes,
               id,
               relationships: { boilerplate },
-              type
+              type,
             }
           }),
           relationships,
-          type
+          type,
         }
       })
-    }
+    },
   },
 
   methods: {
     ...mapMutations('Tag', {
-      updateTag: 'setItem'
+      updateTag: 'setItem',
     }),
 
     ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
+      updateTagTopic: 'setItem',
     }),
 
     ...mapActions('Tag', {
       createTag: 'create',
       listTags: 'list',
-      saveTag: 'save'
+      saveTag: 'save',
     }),
 
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
       listTagTopics: 'list',
-      saveTagTopic: 'save'
+      saveTagTopic: 'save',
     }),
 
     closeEditForm () {
@@ -182,21 +181,21 @@ export default {
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships
-          ? {
-              ...parentTopic.relationships,
-              tags: {
-                data: parentTopic.relationships.tags.data.concat({
-                  type: 'Tag',
-                  id: tagId
-                })
-              }
-            }
-          : {
-              tags: {
-                data: [{ type: 'Tag', id: tagId }]
-              }
-            }
+        relationships: parentTopic.relationships ?
+          {
+            ...parentTopic.relationships,
+            tags: {
+              data: parentTopic.relationships.tags.data.concat({
+                type: 'Tag',
+                id: tagId,
+              }),
+            },
+          } :
+          {
+            tags: {
+              data: [{ type: 'Tag', id: tagId }],
+            },
+          },
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -224,7 +223,6 @@ export default {
 
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
-        .then(checkResponse)
         .then(() => {
           this.loadTagsAndTopics()
         })
@@ -240,7 +238,7 @@ export default {
       this.dataIsRequested = true
       const topicAttributes = [
         'title',
-        'tags'
+        'tags',
       ]
 
       this.listTagTopics({
@@ -248,11 +246,11 @@ export default {
           Tag: ['boilerplate', 'title'].join(),
           TagTopic: topicAttributes.join(),
           Boilerplate: [
-            'title'
-          ].join()
+            'title',
+          ].join(),
         },
         include: 'tags,tags.boilerplate',
-        sort: 'title'
+        sort: 'title',
       }).then(() => {
         this.dataIsRequested = false
       })
@@ -269,9 +267,9 @@ export default {
         type: 'TagTopic',
         relationships: {
           tags: {
-            data: oldParentTags
-          }
-        }
+            data: oldParentTags,
+          },
+        },
       })
 
       this.saveTagTopic(oldParent.id)
@@ -291,7 +289,7 @@ export default {
         attributes,
         id,
         relationships: this[type][id]?.relationships,
-        type
+        type,
       })
       this[saveMethod](id)
         .then(() => {
@@ -301,11 +299,11 @@ export default {
 
     setEditState ({ id }) {
       this.isInEditState = id
-    }
+    },
   },
 
   mounted () {
     this.loadTagsAndTopics()
-  }
+  },
 }
 </script>

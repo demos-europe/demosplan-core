@@ -35,9 +35,9 @@
         <button
           v-if="hasPermission('feature_admin_element_bulk_delete')"
           type="button"
-          @click="bulkDelete"
           class="btn--blank o-link--default u-mr-0_5"
-          :title="Translator.trans('plandocuments.delete')">
+          :title="Translator.trans('plandocuments.delete')"
+          @click="bulkDelete">
           <i
             aria-hidden="true"
             class="fa fa-trash u-mr-0_125" />
@@ -92,7 +92,7 @@ import {
   dpRpc,
   DpTreeList,
   hasAnyPermissions,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -109,7 +109,7 @@ export default {
     DpTreeList,
     FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
     IconPublished: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconPublished')),
-    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled'))
+    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled')),
   },
 
   data () {
@@ -119,13 +119,13 @@ export default {
       isLoading: true,
       treeData: [],
       selectedElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     treeListOptions () {
@@ -138,28 +138,28 @@ export default {
         rootDraggable: true,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
       elementList: 'list',
-      deleteElement: 'delete'
+      deleteElement: 'delete',
     }),
 
     ...mapMutations('Elements', {
-      setElement: 'set'
+      setElement: 'set',
     }),
 
     /**
@@ -181,18 +181,30 @@ export default {
      */
     bulkDelete () {
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
-        this.selectedElements.forEach(el => {
-          this.deleteElement(el)
-            .then(() => {
-              this.buildTree()
-              this.resetSelection()
+        // Parent deletion cascades to children, so only delete parents if both selected
+        const elementsToDelete = this.filterTopLevelParents(this.selectedElements)
+        const deletePromises = elementsToDelete.map(el => this.deleteElement(el))
 
-              // Clear cache from previously selected items.
-              lscache.remove(`${dplan.procedureId}:selectedElements`)
+        Promise.all(deletePromises)
+          .then(() => {
+            this.buildTree()
+            this.resetSelection()
 
-              dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
-            })
-        })
+            // Clear cache from previously selected items.
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+          })
+          .catch(error => {
+            console.error('Error during bulk deletion:', error)
+
+            // Still perform cleanup even if some deletions failed
+            this.buildTree()
+            this.resetSelection()
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('error', Translator.trans('error.entries.marked.deleted'))
+          })
       }
     },
 
@@ -217,6 +229,26 @@ export default {
 
         return null
       }, null)
+    },
+
+    /**
+     * Filter out child elements when their parents are also selected
+     * to avoid faulty API calls when deleting (parent deletion cascades to children)
+     * @param selectedIds
+     */
+    filterTopLevelParents (selectedIds) {
+      // Use Set for O(1) lookup performance
+      const selectedSet = new Set(selectedIds)
+
+      return selectedIds.filter(elementId => {
+        const element = this.elements[elementId]
+
+        if (!element?.attributes?.parentId) {
+          return true
+        }
+
+        return !selectedSet.has(element.attributes.parentId)
+      })
     },
 
     /**
@@ -354,7 +386,7 @@ export default {
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
         newIndex: newIndex === 0 ? newIndex : index,
-        parentId
+        parentId,
       })
         .then(response => {
           /*
@@ -373,8 +405,8 @@ export default {
                 attributes: {
                   ...storeElement.attributes,
                   index: mapElement.index,
-                  parentId: mapElement.parentId
-                }
+                  parentId: mapElement.parentId,
+                },
               })
             }
           }
@@ -440,14 +472,14 @@ export default {
               attributes: {
                 ...this.elements[el.id].attributes,
                 idx,
-                parentId: updatedSort.nodeId
-              }
+                parentId: updatedSort.nodeId,
+              },
             })
           })
 
         this.buildTree('idx')
       }
-    }
+    },
   },
 
   mounted () {
@@ -458,9 +490,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'procedure.id',
-            value: dplan.procedureId
-          }
-        }
+            value: dplan.procedureId,
+          },
+        },
       },
       fields: {
         Elements: [
@@ -473,16 +505,16 @@ export default {
           'filePathWithHash',
           'index',
           'parentId',
-          'title'
+          'title',
         ].join(),
         SingleDocument: [
           'fileInfo',
           'index',
           'statementEnabled',
           'title',
-          'visible'
-        ].join()
-      }
+          'visible',
+        ].join(),
+      },
     })
       .then(() => {
         this.buildTree()
@@ -494,6 +526,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

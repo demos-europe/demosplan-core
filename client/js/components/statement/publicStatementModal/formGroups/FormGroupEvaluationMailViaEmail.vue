@@ -8,12 +8,12 @@
 </license>
 
 <template>
-  <div 
+  <div
     v-if="publicParticipationFeedbackEnabled"
     :class="[
       prefixClass('c-statement__formblock'),
       { [prefixClass('bg-color--grey-light-2')]: statement.r_getFeedback === 'on' }
-    ]"
+    ]">
     <dp-checkbox
       id="r_getFeedback"
       aria-labelledby="statement-detail-require-information-mail"
@@ -42,7 +42,7 @@
           name="r_email"
           required
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
         if repeating of email input is enforced, display second email field
@@ -61,7 +61,7 @@
         name="r_email2"
         required
         type="email"
-        :value="statement.r_email2"
+        :model-value="statement.r_email2"
         @input="val => setStatementData({r_email2: val})" />
       </div>
     </div>
@@ -76,7 +76,7 @@ export default {
   name: 'EvaluationMailViaEmail',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   mixins: [formGroupMixin],
@@ -85,8 +85,8 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div 
+  <div
     v-if="publicParticipationFeedbackEnabled"
     :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
     <dp-checkbox
@@ -31,13 +31,13 @@
         name="r_getEvaluation"
         data-cy="personalAnswerEmail"
         :class="prefixClass('mt-2')"
-        @change="val => setStatementData({r_getEvaluation: 'email'})"
         :checked="statement.r_getEvaluation === 'email' && statement.r_getFeedback === 'on'"
         aria-labelledby="statement-detail-require-response-email"
         :label="{
           text: Translator.trans('statement.form.personal.require_answer_email')
         }"
-        value="email" />
+        value="email"
+        @change="val => setStatementData({r_getEvaluation: 'email'})" />
 
       <!--              {# email address #}-->
       <div :class="prefixClass('layout pl-4')">
@@ -55,7 +55,7 @@
           name="r_email"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           width="u-1-of-1-palm u-1-of-2"
           @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
@@ -76,7 +76,7 @@
           name="r_email2"
           :required="statement.r_getEvaluation === 'email'"
           type="email"
-          :value="statement.r_email2"
+          :model-value="statement.r_email2"
           width="u-1-of-1-palm u-1-of-2"
         @input="val => setStatementData({r_email2: val})" /><!--
      --><dp-radio
@@ -86,13 +86,13 @@
           :class="prefixClass('mt-3')"
           name="r_getEvaluation"
           :disabled="statement.r_useName === '0'"
-          @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
           :checked="statement.r_getEvaluation === 'snailmail' && statement.r_getFeedback === 'on'"
           :label="{
             text: Translator.trans('statement.form.personal.require_answer_post')
           }"
           aria-labelledby="statement-detail-require-response-post"
-          value="snailmail" />
+          value="snailmail"
+          @change="val => setStatementData({r_getEvaluation: 'snailmail'})" />
         <form-group-street-and-number
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
@@ -121,7 +121,7 @@ export default {
     FormGroupPostalAndCity,
     FormGroupStreetAndNumber,
     DpCheckbox,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [formGroupMixin, prefixClassMixin],
@@ -130,8 +130,8 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>
