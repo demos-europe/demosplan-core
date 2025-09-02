@@ -36,7 +36,7 @@ use ZipArchive;
 class ServiceImporterSecurityTest extends TestCase
 {
     private const ODT_MIME_TYPE = 'application/vnd.oasis.opendocument.text';
-    
+
     private ServiceImporter $serviceImporter;
     private ReflectionMethod $isOdtFileMethod;
     private ReflectionMethod $validateOdtStructureMethod;

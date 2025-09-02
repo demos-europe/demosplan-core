@@ -99,7 +99,7 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            
+
             // Check for expected ODT output test case first (most complex)
             $odtResult = $this->getExpectedOdtTestResult($html);
             if (null !== $odtResult) {
@@ -117,7 +117,7 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            
+
             if (str_contains($html, 'Content paragraph') && str_contains($html, 'Another content paragraph')) {
                 return [
                     [
@@ -128,9 +128,9 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            
+
             // Handle first sentence case or return default fallback
-            return str_contains($html, 'First sentence here. Second sentence continues. Third sentence ends it.') 
+            return str_contains($html, 'First sentence here. Second sentence continues. Third sentence ends it.')
                 ? [
                     [
                         'title'        => 'First sentence here.',
@@ -138,7 +138,7 @@ class ServiceImporterOdtConversionTest extends TestCase
                         'files'        => null,
                         'nestingLevel' => 0,
                     ],
-                ] 
+                ]
                 : [];
         });
 
