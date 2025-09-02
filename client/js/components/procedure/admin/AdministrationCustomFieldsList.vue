@@ -445,7 +445,6 @@ export default {
 
             // Refresh the custom fields list
             this.fetchCustomFields()
-
           } catch (error) {
             console.error('Error deleting custom field:', error)
             dplan.notify.error(Translator.trans('error.generic'))
