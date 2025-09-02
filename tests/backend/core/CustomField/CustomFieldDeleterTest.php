@@ -2,17 +2,21 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\CustomField;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Base\UnitTestCase;
 
@@ -23,7 +27,7 @@ class CustomFieldDeleterTest extends UnitTestCase
      */
     protected $sut;
     private $repository;
-   // private EntityCustomFieldUsageStrategyFactory|MockObject $strategyFactoryMock;
+    // private EntityCustomFieldUsageStrategyFactory|MockObject $strategyFactoryMock;
 
     protected function setUp(): void
     {
@@ -35,7 +39,6 @@ class CustomFieldDeleterTest extends UnitTestCase
 
     public function testDeleteCustomFieldSuccessfully(): void
     {
-
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $customField1 = CustomFieldConfigurationFactory::new()
@@ -48,14 +51,11 @@ class CustomFieldDeleterTest extends UnitTestCase
         $entityBeforeDeletion = $this->repository->find($entityId);
         self::assertNotNull($entityBeforeDeletion);
 
-
         // Act
         $this->sut->deleteCustomField($entityId);
 
         // Assert: Verify entity no longer exists in database
         $entityAfterDeletion = $this->repository->find($entityId);
         self::assertNull($entityAfterDeletion, 'CustomFieldConfiguration should be deleted from database');
-
-
     }
 }
