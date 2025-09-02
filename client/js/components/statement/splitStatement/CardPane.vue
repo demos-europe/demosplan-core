@@ -12,11 +12,11 @@
     class="card-pane"
     :style="{ 'min-height': containerMinHeight }">
     <card-pane-card
-      v-for="segment in filteredSortedSegments"
+      v-for="segment in sortedSegments"
       :key="'card' + segment.id + Math.random()"
       ref="card"
       :segment="segment"
-      :data-range="segment.id"
+      :data-segment-id="segment.id"
       :offset="offset"
       @card:checkOverlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
@@ -73,10 +73,6 @@ export default {
       'currentlyHighlightedSegmentId',
       'sortedSegments',
     ]),
-
-    filteredSortedSegments () {
-      return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-    },
   },
 
   methods: {
@@ -85,7 +81,7 @@ export default {
     ]),
 
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -108,7 +104,7 @@ export default {
     handleSegmentHighlighting (segmentId, highlight = false) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
@@ -139,7 +135,6 @@ export default {
       })
 
       Object.values(groupedCards).forEach(group => {
-        group.sort((a, b) => a.segment.charStart - b.segment.charStart)
         group.forEach((el, idx) => {
           el.position = idx + 1
         })
