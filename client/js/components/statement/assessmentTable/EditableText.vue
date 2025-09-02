@@ -52,9 +52,9 @@
         <template v-slot:button>
           <button
             v-if="boilerPlate"
+            v-tooltip="Translator.trans('boilerplate.insert')"
             :class="prefixClass('menubar__button')"
             type="button"
-            v-tooltip="Translator.trans('boilerplate.insert')"
             @click.stop="openBoilerPlate">
             <i :class="prefixClass('fa fa-puzzle-piece')" />
           </button>
@@ -76,8 +76,8 @@
     </div>
 
     <div
-      class="relative u-pr"
-      v-else>
+      v-else
+      class="relative u-pr">
       <template v-if="shortText !== ''">
         <height-limit
           class="c-styled-html"
@@ -88,13 +88,13 @@
           @heightLimit:toggle="update"
           @click="toggleEditMode" />
         <button
+          v-if="!loading"
           type="button"
           :disabled="!editable"
           class="c-edit-field__trigger btn--blank o-link--default"
-          v-if="!loading"
-          @click.prevent.stop="toggleEditMode"
           :title="Translator.trans(editable ? editLabel : 'locked.title')"
-          data-cy="toggleTipTapEditMode">
+          data-cy="toggleTipTapEditMode"
+          @click.prevent.stop="toggleEditMode">
           <i
             class="fa fa-pencil"
             aria-hidden="true" />
@@ -135,7 +135,7 @@ export default {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    })
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -145,105 +145,105 @@ export default {
     boilerPlate: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     editLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     // Needed to identify editor, used for inserting boilerplates into correct editor
     editorId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     entityId: {
       type: String,
-      required: true
+      required: true,
     },
 
     fieldKey: {
       type: String,
-      required: true
+      required: true,
     },
 
     fullTextFetchRoute: {
       type: String,
-      required: true
+      required: true,
     },
 
     heightLimitElementLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     initialIsShortened: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     initialText: {
       type: String,
-      required: true
+      required: true,
     },
 
     // Set to true if you want to use the 'insert/delete' buttons
     insertAndDelete: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use 'link' buttons
     linkButton: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use the 'mark' button
     mark: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     // Set to true if you want to use the 'obscure text' button
     obscure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     // Set to true if you want to enable a line through (strike through) option
     strikethrough: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     title: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'field:save'
+    'field:save',
   ],
 
   data () {
@@ -256,7 +256,7 @@ export default {
       loading: false,
       shortText: '',
       transformedText: '',
-      uneditedFullText: ''
+      uneditedFullText: '',
     }
   },
 
@@ -290,7 +290,7 @@ export default {
       }
 
       const emitData = {
-        id: this.entityId
+        id: this.entityId,
       }
 
       if (this.fullText === '' && this.fieldKey === 'text') {
@@ -354,7 +354,7 @@ export default {
       dpApi.get(
         Routing.generate(this.fullTextFetchRoute, { statementId: this.entityId }),
         params,
-        { serialize: true }
+        { serialize: true },
       ).then(response => {
         const responseData = response.data.data
         this.fullTextLoaded = true
@@ -381,12 +381,12 @@ export default {
         }
       })
         .then(() => {
-          return callback
+          return callback()
         })
         .finally(() => {
           this.loading = false
         })
-    }
+    },
   },
 
   mounted () {
@@ -415,6 +415,6 @@ export default {
         }
       }
     })
-  }
+  },
 }
 </script>

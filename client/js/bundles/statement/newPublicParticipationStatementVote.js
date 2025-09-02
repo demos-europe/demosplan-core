@@ -17,7 +17,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpMapModal,
-  DpModal
+  DpModal,
 }
 
 initialize(components)

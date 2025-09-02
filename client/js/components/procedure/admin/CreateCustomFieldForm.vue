@@ -5,8 +5,8 @@
       class="text-right mb-4">
       <dp-button
         data-cy="customFields:addField"
-        @click="open"
-        :text="Translator.trans('add')" />
+        :text="Translator.trans('add')"
+        @click="open" />
     </div>
 
     <div
@@ -19,9 +19,9 @@
         class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newFieldName"
+          v-model="customField.name"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldName"
-          v-model="customField.name"
           :label="{
             text: Translator.trans('name')
           }"
@@ -29,9 +29,9 @@
           required />
         <dp-input
           id="newFieldDescription"
+          v-model="customField.description"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldDescription"
-          v-model="customField.description"
           :label="{
             text: Translator.trans('description')
           }"
@@ -70,7 +70,7 @@ import {
   DpInput,
   DpLoading,
   DpSelect,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -81,7 +81,7 @@ export default {
     DpButtonRow,
     DpInput,
     DpLoading,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -89,7 +89,7 @@ export default {
   props: {
     handleSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isLoading: {
@@ -111,7 +111,7 @@ export default {
   emits: [
     'abort',
     'open',
-    'save'
+    'save',
   ],
 
   data () {
@@ -142,8 +142,8 @@ export default {
           this.onSuccess()
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
@@ -174,7 +174,7 @@ export default {
       this.customField.name = ''
       this.customField.description = ''
       this.customField.fieldType = this.preselectedType
-    }
-  }
+    },
+  },
 }
 </script>

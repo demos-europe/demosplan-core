@@ -13,10 +13,10 @@
       {{ Translator.trans('filter') }}
     </legend>
     <select
-      class="o-form__control-select w-10"
       id="districtFilter"
-      @change="filterItems"
-      v-model="selectedDistrict">
+      v-model="selectedDistrict"
+      class="o-form__control-select w-10"
+      @change="filterItems">
       <option
         value="all"
         selected>
@@ -30,10 +30,10 @@
       </option>
     </select><!--
  --><select
-      class="o-form__control-select u-ml-0_5 w-10"
       id="documentFilter"
-      @change="filterItems"
-      v-model="selectedDocument">
+      v-model="selectedDocument"
+      class="o-form__control-select u-ml-0_5 w-10"
+      @change="filterItems">
       <option
         value="all"
         selected>
@@ -56,17 +56,17 @@ export default {
   props: {
     items: {
       type: Array,
-      required: true
+      required: true,
     },
 
     fields: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'items-filtered'
+    'items:filtered',
   ],
 
   data () {
@@ -74,7 +74,7 @@ export default {
       selectedDocument: 'all',
       selectedDistrict: 'all',
       districtFilters: this.getFieldsByPattern(this.fields, /^district/),
-      documentFilters: this.getFieldsByPattern(this.fields, /^document/)
+      documentFilters: this.getFieldsByPattern(this.fields, /^document/),
     }
   },
 
@@ -94,7 +94,7 @@ export default {
         return filteredByDistricts && filteredByDocuments
       })
 
-      this.$emit('items-filtered', filteredItems)
+      this.$emit('items:filtered', filteredItems)
     },
 
     getFieldsByPattern (fields, pattern) {
@@ -104,7 +104,7 @@ export default {
         }
         return acc
       }, [])
-    }
-  }
+    },
+  },
 }
 </script>

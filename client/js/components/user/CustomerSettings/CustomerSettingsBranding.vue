@@ -98,30 +98,30 @@ export default {
     DpDetails,
     DpLabel,
     DpTextArea,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     brandingId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
     return {
       isBusy: false,
-      uploadedFileId: null
+      uploadedFileId: null,
     }
   },
 
   computed: {
     ...mapState('Branding', {
-      brandingList: 'items'
+      brandingList: 'items',
     }),
 
     ...mapState('File', {
-      fileList: 'items'
+      fileList: 'items',
     }),
 
     branding: {
@@ -133,25 +133,25 @@ export default {
           ...this.brandingList[this.brandingId],
           attributes: {
             ...this.brandingList[this.brandingId].attributes,
-            [key]: value
-          }
+            [key]: value,
+          },
         })
-      }
-    }
+      },
+    },
   },
 
   methods: {
     ...mapActions('Branding', {
       fetchBranding: 'list',
-      saveBranding: 'save'
+      saveBranding: 'save',
     }),
 
     ...mapMutations('Branding', {
-      updateBranding: 'setItem'
+      updateBranding: 'setItem',
     }),
 
     ...mapMutations('File', {
-      updateFile: 'setItem'
+      updateFile: 'setItem',
     }),
 
     deleteLogo () {
@@ -163,13 +163,13 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.branding
+          ...this.branding,
         },
         relationships: {
           logo: {
-            data: null
-          }
-        }
+            data: null,
+          },
+        },
       }
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
@@ -196,15 +196,15 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.brandingList[this.brandingId].attributes
-        }
+          ...this.brandingList[this.brandingId].attributes,
+        },
       }
 
       if (this.uploadedFileId || this.isLogoDeletable) {
         payload.relationships = {
           logo: {
-            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'File' }
-          }
+            data: this.isLogoDeletable ? null : { id: this.uploadedFileId, type: 'File' },
+          },
         }
       }
 
@@ -223,11 +223,11 @@ export default {
     unsetFile () {
       this.updateFile({ id: null, attributes: { hash: null } })
       this.uploadedFileId = null
-    }
+    },
   },
   mounted () {
     const file = this.brandingList[this.brandingId].relationships?.logo?.data?.id ?? null
     this.uploadedFileId = file ? this.fileList[file].id : null
-  }
+  },
 }
 </script>

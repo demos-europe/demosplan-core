@@ -21,9 +21,9 @@
   <div class="layout">
     <!-- Role of submitter (citizen or institution) -->
     <div
+      v-if="hasPermission('feature_institution_participation') && (formDefinitions.citizenXorOrgaAndOrgaName.enabled === true || participationGuestOnly === false)"
       class="layout__item u-mb-wide"
-      :class="{'u-4-of-11 u-1-of-1-desk-down': currentRoleHasSelect, 'u-1-of-1': !currentRoleHasSelect}"
-      v-if="hasPermission('feature_institution_participation') && (formDefinitions.citizenXorOrgaAndOrgaName.enabled === true || participationGuestOnly === false)">
+      :class="{'u-4-of-11 u-1-of-1-desk-down': currentRoleHasSelect, 'u-1-of-1': !currentRoleHasSelect}">
       <p class="lbl u-mb-0_5">
         {{ Translator.trans('submitted.author') }}
       </p>
@@ -31,13 +31,13 @@
         v-for="role in roles"
         :key="role.value">
         <input
+          :id="`r_role_${role.value}`"
+          v-model="currentRole"
           name="r_role"
           type="radio"
-          v-model="currentRole"
           :data-cy="`roleInput:${role.dataCy}`"
-          :id="`r_role_${role.value}`"
           :value="role.value"
-          @change="() => $emit('role-changed', currentRole)"><!--
+          @change="() => $emit('role:changed', currentRole)"><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">
@@ -47,15 +47,15 @@
     </div><!--
     Assuming t_role defaults to value=0 if feature_institution_participation is set to false:
  --><input
+      v-else
       type="hidden"
       name="r_role"
-      value="0"
-    v-else><!--
+    value="0"><!--
 
     Display the autofill interface element
  --><div
-      class="layout__item u-7-of-11 u-1-of-1-desk-down u-mb"
-      v-if="currentRoleHasSelect">
+      v-if="currentRoleHasSelect"
+      class="layout__item u-7-of-11 u-1-of-1-desk-down u-mb">
 <!-- Label & contextual help -->
       <label
         class="u-mb-0_25 flow-root"
@@ -69,8 +69,8 @@
        <!--Multiselect component-->
       <dp-multiselect
         id="submitterSelect"
-        data-cy="submitterForm:submitterSelect"
         v-model="submitter"
+        data-cy="submitterForm:submitterSelect"
         :custom-label="customOption"
         :disabled="currentListIsEmpty"
         label="submitter"
@@ -94,8 +94,8 @@
     <!-- Bob-HH displays an additional hint regarding user data. -->
     <!-- @improve T18818 -->
     <div
-      class="layout__item u-1-of-1"
-      v-if="isBobHH">
+      v-if="isBobHH"
+      class="layout__item u-1-of-1">
       <p>
         <u>{{ Translator.trans('statement.invitable_institution.hint') }}</u>:
         {{ Translator.trans('statement.invitable_institution.assessment.table.print') }}
@@ -108,10 +108,11 @@
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
     <template
-      v-if="hasPermission('feature_institution_participation') && currentRole === '1' && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name')) && this.participationGuestOnly === false">
+      v-if="hasPermission('feature_institution_participation') && currentRole === '1' && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name')) && participationGuestOnly === false">
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_name')"
         id="r_orga_name"
+        v-model="submitterData.organisation"
         data-cy="submitterForm:orgaName"
         class="layout__item u-1-of-2 u-mb-0_75"
         :label="{
@@ -119,19 +120,18 @@
         }"
         name="r_orga_name"
         :readonly="isBobHH"
-        :required="true"
-        v-model="submitterData.organisation" /><!--
+        :required="true" /><!--
    --><dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name')"
         id="r_orga_department_name"
+        v-model="submitterData.department"
         data-cy="submitterForm:orgaDepartmentName"
         class="layout__item u-1-of-2 u-mb-0_75"
         :label="{
           text: translateFieldLabel({ field: 'department', label: 'department' })
         }"
         name="r_orga_department_name"
-        :readonly="isBobHH"
-        v-model="submitterData.department" />
+        :readonly="isBobHH" />
     </template>
 
     <!-- General user fields: name, email, phoneNumber, street, postalcode, city. Email address (input.noSync) shall not be auto
@@ -142,9 +142,9 @@
       <dp-input
         v-for="(element, index) in generalElements(idx)"
         v-bind="element"
+        :key="`${element.id}_${index}`"
         v-model="submitterData[element.field]"
-        class="layout__item u-1-of-2 u-mb-0_75"
-        :key="`${element.id}_${index}`" />
+        class="layout__item u-1-of-2 u-mb-0_75" />
     </div>
   </div>
 </template>
@@ -160,7 +160,7 @@ const emptySubmitterData = {
   organisation: '',
   postalCode: '',
   street: '',
-  nr: ''
+  nr: '',
 }
 
 export default {
@@ -169,34 +169,34 @@ export default {
   components: {
     DpContextualHelp,
     DpInput,
-    DpMultiselect
+    DpMultiselect,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     formDefinitions: {
       type: Object,
-      required: true
+      required: true,
     },
 
     initSubmitter: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     participationGuestOnly: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -205,7 +205,7 @@ export default {
      */
     request: {
       type: Object,
-      required: true
+      required: true,
     },
 
     /*
@@ -230,13 +230,13 @@ export default {
      */
     submitters: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'role-changed',
-    'submitter:chosen'
+    'role:changed',
+    'submitter:chosen',
   ],
 
   data () {
@@ -246,13 +246,13 @@ export default {
         {
           value: '0',
           label: 'role.citizen',
-          dataCy: 'citizen'
+          dataCy: 'citizen',
         },
         {
           value: '1',
           label: 'invitable_institution',
-          dataCy: 'invitableInstitution'
-        }
+          dataCy: 'invitableInstitution',
+        },
       ],
 
       /*
@@ -275,7 +275,7 @@ export default {
               label: Translator.trans('statement.form.name'),
               name: 'r_author_name',
               type: 'text',
-              width: 'u-1-of-2'
+              width: 'u-1-of-2',
             },
             {
               permission: 'field_statement_meta_email',
@@ -286,7 +286,7 @@ export default {
               type: 'email',
               width: 'u-1-of-2',
               // We don't use a pattern here but we need the attribute for the customValidation. We use the native validation from html5 and rely on the customValidation until we can validate via JSON-API
-              noSync: true // Email address shall not be auto filled, see comment above
+              noSync: true, // Email address shall not be auto filled, see comment above
             },
             {
               field: 'phone',
@@ -296,8 +296,8 @@ export default {
               label: Translator.trans('statement.fieldset.phoneNumber'),
               width: 'u-1-of-2',
               pattern: '^(\\+?)(-| |[0-9]|\\(|\\))*$',
-              noSync: true // Do not autofill for now
-            }
+              noSync: true, // Do not autofill for now
+            },
           ],
           1: [
             {
@@ -306,7 +306,7 @@ export default {
               dataCy: 'submitterForm:orgaStreet',
               name: 'r_orga_street',
               type: 'text',
-              width: 'u-4-of-10'
+              width: 'u-4-of-10',
             },
             {
               permission: 'field_statement_meta_street',
@@ -315,7 +315,7 @@ export default {
               name: 'r_houseNumber',
               type: 'text',
               label: Translator.trans('street.number.short'),
-              width: 'u-1-of-10'
+              width: 'u-1-of-10',
             },
             {
               permission: 'field_statement_meta_postal_code',
@@ -325,7 +325,7 @@ export default {
               name: 'r_orga_postalcode',
               width: 'u-2-of-12',
               type: 'text',
-              pattern: '^[0-9]{4,5}$'
+              pattern: '^[0-9]{4,5}$',
             },
             {
               permission: 'field_statement_meta_city',
@@ -333,10 +333,10 @@ export default {
               dataCy: 'submitterForm:orgaCity',
               name: 'r_orga_city',
               width: 'u-4-of-12',
-              type: 'text'
-            }
-          ]
-        }
+              type: 'text',
+            },
+          ],
+        },
       },
 
       //  Initially set state of the radio to citizen
@@ -346,7 +346,7 @@ export default {
       submitter: {},
 
       //  Holds data of currently selected submitter, initially declared to add reactivity
-      submitterData: emptySubmitterData
+      submitterData: emptySubmitterData,
     }
   },
 
@@ -406,7 +406,7 @@ export default {
     //  These are the options of the select, as filtered by the currently selected `r_roles`-radio
     submitterOptions () {
       return this.submitters.filter(option => option.list === this.currentRoleKeyword)
-    }
+    },
   },
 
   watch: {
@@ -416,7 +416,7 @@ export default {
         this.submitter = {}
         this.submitterData = emptySubmitterData
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
 
     submitter: {
@@ -433,8 +433,8 @@ export default {
 
         this.submitterData = { ...this.submitter.submitter }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -485,7 +485,7 @@ export default {
         street: ['street', 'streetAndHouseNumber'],
         nr: 'streetAndHouseNumber',
         phone: ['phoneOrEmail', 'phoneNumber'],
-        email: ['emailAddress', 'phoneOrEmail']
+        email: ['emailAddress', 'phoneOrEmail'],
       }
 
       /*
@@ -500,19 +500,19 @@ export default {
       return this.inputFields.general[idx].reduce((acc, curr) => {
         const isControlledBySeveralDefinitions = Array.isArray(fieldNameMapping[curr.field]) || false
 
-        const isEnabledInFormDefinition = isControlledBySeveralDefinitions
-          ? fieldNameMapping[curr.field].some(el => definitions[el].enabled === true)
-          : definitions[fieldNameMapping[curr.field]].enabled === true
+        const isEnabledInFormDefinition = isControlledBySeveralDefinitions ?
+          fieldNameMapping[curr.field].some(el => definitions[el].enabled === true) :
+          definitions[fieldNameMapping[curr.field]].enabled === true
 
         if (isEnabledInFormDefinition && (curr.permission ? hasPermission(curr.permission) : true)) {
-          const isRequiredInFormDefinition = isControlledBySeveralDefinitions
-            ? fieldNameMapping[curr.field].some(el => definitions[el].required === true)
-            : definitions[fieldNameMapping[curr.field]].required
+          const isRequiredInFormDefinition = isControlledBySeveralDefinitions ?
+            fieldNameMapping[curr.field].some(el => definitions[el].required === true) :
+            definitions[fieldNameMapping[curr.field]].required
 
           acc.push({
             id: curr.name,
             label: {
-              text: this.translateFieldLabel(curr)
+              text: this.translateFieldLabel(curr),
             },
             name: curr.name,
             pattern: curr.pattern || '',
@@ -521,7 +521,7 @@ export default {
             type: curr.type,
             width: curr.width,
             dataCy: curr.dataCy,
-            field: curr.field
+            field: curr.field,
           })
         }
         return acc
@@ -558,7 +558,7 @@ export default {
     //  @TODO #move-to-lib
     transWithFallback (fallback, key) {
       return Translator.trans(key || fallback)
-    }
+    },
 
   },
 
@@ -577,6 +577,6 @@ export default {
         this.submitterData = init
       }
     }, 0)
-  }
+  },
 }
 </script>

@@ -93,8 +93,8 @@
      --><div class="inline-block u-2-of-3">
         <dp-datepicker
           id="planstatus"
-          class="inline-block u-3-of-4"
           v-model="planstatus"
+          class="inline-block u-3-of-4"
           :calendars-before="2"
           :disabled="!isPlanStatusEditing"
           name="planstatus" /><!--
@@ -258,57 +258,57 @@ export default {
     DpDatepicker,
     DpOlMap,
     DpOlMapLayerVector,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     drawing: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     drawingExplanation: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initExtent: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isBlueprint: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureCoordinate: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureDefaultInitialExtent: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     territory: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -319,8 +319,8 @@ export default {
           strokeColor: '#000',
           imageColor: '#fff',
           strokeLineDash: [4, 4],
-          strokeLineWidth: 3
-        })
+          strokeLineWidth: 3,
+        }),
       },
       gislayers: false,
       isMapStatusEditing: false,
@@ -334,8 +334,8 @@ export default {
       previousValues: {
         isMapEnabled: '',
         planstatus: '',
-        planningArea: ''
-      }
+        planningArea: '',
+      },
     }
   },
 
@@ -350,37 +350,37 @@ export default {
        *  to be able to use it with a generic vector layer component
        */
       return {
-        procedureCoordinate: this.procedureCoordinate
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: JSON.parse(`[${this.procedureCoordinate}]`)
-              }
-            }
-          : null,
-        initExtent: this.initExtent && `[${this.initExtent}]` !== JSON.stringify(this.procedureDefaultInitialExtent)
-          ? {
-              type: 'Feature',
-              geometry: {
-                type: 'Polygon',
-                coordinates: fromExtent(JSON.parse(`[${this.initExtent}]`)).getCoordinates()
-              }
-            }
-          : null,
-        territory: this.territory ? JSON.parse(this.territory) : null
+        procedureCoordinate: this.procedureCoordinate ?
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: JSON.parse(`[${this.procedureCoordinate}]`),
+            },
+          } :
+          null,
+        initExtent: this.initExtent && `[${this.initExtent}]` !== JSON.stringify(this.procedureDefaultInitialExtent) ?
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: fromExtent(JSON.parse(`[${this.initExtent}]`)).getCoordinates(),
+            },
+          } :
+          null,
+        territory: this.territory ? JSON.parse(this.territory) : null,
       }
     },
 
     permittedLinks () {
       return this.links ? this.links.filter(link => (!link.permission || hasPermission(link.permission)) && !link.hide) : []
-    }
+    },
   },
 
   methods: {
     href (link) {
       return Routing.generate(link.routeName, {
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       })
     },
 
@@ -402,17 +402,17 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dp_api_documents_dashboard_update', {
-          procedureId: this.procedureId
+          procedureId: this.procedureId,
         }),
         data: {
           data: {
             type: 'DocumentDashboard',
             id: this.procedureId,
             attributes: {
-              planText: this.planstatus
-            }
-          }
-        }
+              planText: this.planstatus,
+            },
+          },
+        },
       })
         .then(() => {
           this.previousValues.planstatus = this.planstatus
@@ -426,17 +426,17 @@ export default {
         method: 'PATCH',
         url: Routing.generate('dp_api_documents_elements_update', {
           procedureId: this.procedureId,
-          elementsId: this.mapIdent
+          elementsId: this.mapIdent,
         }),
         data: {
           data: {
             type: 'Elements',
             id: this.mapIdent,
             attributes: {
-              enabled: this.isMapEnabled
-            }
-          }
-        }
+              enabled: this.isMapEnabled,
+            },
+          },
+        },
       })
         .then(() => {
           this.previousValues.isMapEnabled = this.isMapEnabled
@@ -449,17 +449,17 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dp_api_documents_dashboard_update', {
-          procedureId: this.procedureId
+          procedureId: this.procedureId,
         }),
         data: {
           data: {
             type: 'DocumentDashboard',
             id: this.procedureId,
             attributes: {
-              planningArea: this.planningArea
-            }
-          }
-        }
+              planningArea: this.planningArea,
+            },
+          },
+        },
       })
         .then(() => {
           this.previousValues.planningArea = this.planningArea
@@ -496,7 +496,7 @@ export default {
           }
         })
         .catch(e => true)
-    }
+    },
   },
 
   created () {
@@ -508,7 +508,7 @@ export default {
         hash: 'drawingData',
         done: () => this.drawing && this.drawing !== '',
         labelDone: 'drawing.uploaded',
-        label: 'drawing.upload'
+        label: 'drawing.upload',
       },
       {
         permission: 'feature_map_use_plan_pdf',
@@ -517,7 +517,7 @@ export default {
         hash: 'drawingData',
         done: () => this.drawingExplanation && this.drawingExplanation !== '',
         labelDone: 'drawing.explanation.uploaded',
-        label: 'drawing.explanation.upload'
+        label: 'drawing.explanation.upload',
       },
       {
         permission: 'feature_map_hint',
@@ -527,7 +527,7 @@ export default {
         hash: 'mapHint',
         done: () => true,
         labelDone: 'map.hint.added',
-        label: 'map.hint.add'
+        label: 'map.hint.add',
       },
       {
         permission: false,
@@ -536,7 +536,7 @@ export default {
         hash: 'gislayers',
         done: () => !!(this.gislayers),
         labelDone: 'gislayer.defined',
-        label: 'gislayer.define'
+        label: 'gislayer.define',
       },
       {
         permission: 'area_procedure_adjustments_general_location',
@@ -545,7 +545,7 @@ export default {
         hash: false,
         done: () => this.procedureCoordinate && this.procedureCoordinate !== '',
         labelDone: 'location.procedure.assigned',
-        label: 'location.procedure.assign'
+        label: 'location.procedure.assign',
       },
       {
         permission: false,
@@ -554,7 +554,7 @@ export default {
         hash: false,
         done: () => this.initExtent && `[${this.initExtent}]` !== JSON.stringify(this.procedureDefaultInitialExtent),
         labelDone: 'clipping.is.set',
-        label: 'clipping.set'
+        label: 'clipping.set',
       },
       {
         permission: 'feature_map_use_territory',
@@ -563,8 +563,8 @@ export default {
         hash: false,
         done: () => this.territory && this.territory !== '' && this.territory !== JSON.stringify({}) && this.isNotEmptyFeatureCollection(this.territory),
         labelDone: 'map.territory.is.defined',
-        label: 'map.territory.define'
-      }
+        label: 'map.territory.define',
+      },
     ]
   },
 
@@ -574,7 +574,7 @@ export default {
     this.previousValues.isMapEnabled = this.isMapEnabled
     this.previousValues.planstatus = this.planstatus
     this.previousValues.planningArea = this.planningArea
-  }
+  },
 
 }
 </script>

@@ -30,6 +30,10 @@
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
             ref="drawPoint"
+            v-tooltip="{
+              content: Translator.trans('map.relation.set'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapRelation"
             :features="pointData"
             icon
@@ -37,38 +41,34 @@
             name="Point"
             :options="{ multiplePoints: true }"
             render-control
-            v-tooltip="{
-              content: Translator.trans('map.relation.set'),
-              classes: 'z-ultimate'
-            }"
             type="Point"
             @layerFeatures:changed="data => updateDrawings('Point', data)" />
           <dp-ol-map-draw-feature
-            data-cy="setMapLine"
             ref="drawLine"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_line'),
+              classes: 'z-ultimate'
+            }"
+            data-cy="setMapLine"
             :features="lineData"
             icon
             icon-class="fa-minus u-mb-0_25 font-size-h2"
             name="Line"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_line'),
-              classes: 'z-ultimate'
-            }"
             type="LineString"
             @layerFeatures:changed="data => updateDrawings('LineString', data)" />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
+            v-tooltip="{
+              content: Translator.trans('statement.map.draw.mark_polygon'),
+              classes: 'z-ultimate'
+            }"
             data-cy="setMapTerritory"
             :features="polygonData"
             icon
             icon-class="fa-square-o u-mb-0_25 font-size-h2"
             name="Polygon"
             render-control
-            v-tooltip="{
-              content: Translator.trans('statement.map.draw.mark_polygon'),
-              classes: 'z-ultimate'
-            }"
             type="Polygon"
             @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
           <dp-ol-map-edit-feature
@@ -118,43 +118,43 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature
+    DpOlMapEditFeature,
   },
 
   props: {
     mapData: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       currentPolygons: [],
       hasChanges: true,
-      initPolygons: []
+      initPolygons: [],
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapState('SegmentSlidebar', ['slidebar']),
@@ -162,21 +162,21 @@ export default {
     pointData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || []
+        features: this.initPolygons.filter(f => f.geometry.type === 'Point') || [],
       }
     },
 
     lineData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || []
+        features: this.initPolygons.filter(f => f.geometry.type === 'LineString') || [],
       }
     },
 
     polygonData () {
       return {
         type: 'FeatureCollection',
-        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || []
+        features: this.initPolygons.filter(f => f.geometry.type === 'Polygon') || [],
       }
     },
 
@@ -187,20 +187,20 @@ export default {
     featuresObject () {
       return {
         type: 'FeatureCollection',
-        features: this.currentPolygons
+        features: this.currentPolygons,
       }
     },
 
     segment () {
       return this.segments[this.segmentId] || null
-    }
+    },
   },
 
   methods: {
     ...mapMutations('StatementSegment', ['setItem']),
 
     ...mapActions('StatementSegment', {
-      saveSegmentAction: 'save'
+      saveSegmentAction: 'save',
     }),
 
     clearTools () {
@@ -236,12 +236,12 @@ export default {
 
     save () {
       const attributes = {
-        polygon: JSON.stringify(this.featuresObject)
+        polygon: JSON.stringify(this.featuresObject),
       }
       const payload = {
         type: 'StatementSegment',
         id: this.segmentId,
-        attributes
+        attributes,
       }
 
       /**
@@ -252,7 +252,7 @@ export default {
        */
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'StatementSegment',
-        resourceId: this.segmentId
+        resourceId: this.segmentId,
       }), {}, { data: payload })
         .then(() => {
           this.updateStore(attributes.polygon)
@@ -312,12 +312,12 @@ export default {
         ...this.segment,
         attributes: {
           ...this.segment.attributes,
-          polygon
+          polygon,
         },
-        id: this.segment.id
+        id: this.segment.id,
       }
       this.setItem(storePayload)
-    }
+    },
   },
 
   mounted () {
@@ -326,6 +326,6 @@ export default {
         this.initMap()
       })
     })
-  }
+  },
 }
 </script>

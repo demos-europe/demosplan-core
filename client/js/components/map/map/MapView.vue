@@ -149,7 +149,7 @@ export default {
     DpOlMapDrawFeature,
     DpOlMapEditFeature,
     DpOlMapLayerVector,
-    DpOlMapSetExtent
+    DpOlMapSetExtent,
   },
 
   props: {
@@ -157,51 +157,51 @@ export default {
     boundingBox: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     defaultAttribution: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /* GeoJSON object */
     mapExtent: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     maxExtent: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     scales: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureCoordinates: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureInitTerritory: {
       type: Object,
       required: false,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
 
   data () {
@@ -213,11 +213,11 @@ export default {
           strokeColor: '#000',
           imageColor: '#fff',
           strokeLineDash: [4, 4],
-          strokeLineWidth: 3
-        })
+          strokeLineWidth: 3,
+        }),
       },
       isActive: '',
-      territory: {}
+      territory: {},
     }
   },
 
@@ -230,9 +230,9 @@ export default {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: this.center
-            }
-          }]
+              coordinates: this.center,
+            },
+          }],
         }
       } else {
         return {}
@@ -241,7 +241,7 @@ export default {
 
     center () {
       return this.procedureCoordinates?.length > 0 ? this.procedureCoordinates : false
-    }
+    },
   },
 
   watch: {
@@ -249,8 +249,8 @@ export default {
       handler () {
         this.$refs.map.updateMapInstance()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -270,7 +270,7 @@ export default {
 
     emitFieldUpdate (data) {
       this.$emit('field:update', data)
-    }
-  }
+    },
+  },
 }
 </script>

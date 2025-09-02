@@ -113,6 +113,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->setReadableByPath();
         $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
+        $configBuilder->isRequired->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(

@@ -30,16 +30,16 @@
           :text="Translator.trans('options')" />
         <dp-input
           id="newFieldOption:1"
+          v-model="newFieldOptions[0].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption1"
-          v-model="newFieldOptions[0].label"
           maxlength="250"
           required />
         <dp-input
           id="newFieldOption:2"
+          v-model="newFieldOptions[1].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption2"
-          v-model="newFieldOptions[1].label"
           maxlength="250"
           required />
 
@@ -48,8 +48,8 @@
           :key="`option:${idx}`">
           <div class="w-[calc(100%-26px)] inline-block mb-2">
             <dp-input
-              v-model="newFieldOptions[idx + 2].label"
               :id="`option:${newFieldOptions[idx + 2].label}`"
+              v-model="newFieldOptions[idx + 2].label"
               :data-cy="`customFields:newFieldOption${idx + 2}`"
               maxlength="250" />
           </div>
@@ -83,8 +83,8 @@
       <template v-slot:name="rowData">
         <div v-if="rowData.edit">
           <dp-input
-            v-model="newRowData.name"
             id="customFieldName"
+            v-model="newRowData.name"
             required
           />
         </div>
@@ -111,25 +111,25 @@
             v-for="(option, index) in newRowData.options"
             :key="index"
             class="mb-1">
-              <div class="flex">
-                <dp-input
-                  v-model="newRowData.options[index].label"
-                  :id="`option:${index}`"
-                  :key="`option:${index}`"
-                  required
-                />
+            <div class="flex">
+              <dp-input
+                :id="`option:${index}`"
+                :key="`option:${index}`"
+                v-model="newRowData.options[index].label"
+                required
+              />
 
-                <dp-button
-                  v-if="index >= rowData.options.length"
-                  class="w-[20px] inline-block ml-1"
-                  :data-cy="`customFields:removeOptionInput:${option.label}`"
-                  hide-text
-                  icon="x"
-                  :text="Translator.trans('remove')"
-                  variant="subtle"
-                  @click="deleteOptionOnEdit(index)"
-                />
-              </div>
+              <dp-button
+                v-if="index >= rowData.options.length"
+                class="w-[20px] inline-block ml-1"
+                :data-cy="`customFields:removeOptionInput:${option.label}`"
+                hide-text
+                icon="x"
+                :text="Translator.trans('remove')"
+                variant="subtle"
+                @click="deleteOptionOnEdit(index)"
+              />
+            </div>
           </li>
           <li>
             <dp-button
@@ -199,9 +199,9 @@
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="customFields:abortEdit"
-              @click="abortFieldEdit(rowData)"
               :title="Translator.trans('abort')"
-              :aria-label="Translator.trans('abort')">
+              :aria-label="Translator.trans('abort')"
+              @click="abortFieldEdit(rowData)">
               <dp-icon
                 icon="xmark"
                 aria-hidden="true" />
@@ -258,7 +258,7 @@ import {
   DpInput,
   DpLabel,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
@@ -277,7 +277,7 @@ export default {
     DpInlineNotification,
     DpInput,
     DpLabel,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -285,13 +285,13 @@ export default {
   props: {
     isProcedureTemplate: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -314,11 +314,11 @@ export default {
       isSuccess: false,
       newFieldOptions: [
         {
-          label: ''
+          label: '',
         },
         {
-          label: ''
-        }
+          label: '',
+        },
       ],
       newRowData: {},
       required: false
@@ -327,15 +327,15 @@ export default {
 
   computed: {
     ...mapState('CustomField', {
-      customFields: 'items'
+      customFields: 'items',
     }),
 
     ...mapState('AdminProcedure', {
-      procedureCustomFieldsLoading: 'loading'
+      procedureCustomFieldsLoading: 'loading',
     }),
 
     ...mapState('ProcedureTemplate', {
-      procedureTemplateCustomFieldsLoading: 'loading'
+      procedureTemplateCustomFieldsLoading: 'loading',
     }),
 
     additionalOptions () {
@@ -368,12 +368,12 @@ export default {
         {
           field: 'name',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
-          colClass: 'u-3-of-12'
+          colClass: 'u-3-of-12',
         },
         {
           field: 'options',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('options')}*` : Translator.trans('options'),
-          colClass: 'u-4-of-12'
+          colClass: 'u-4-of-12',
         },
         {
           field: 'description',
@@ -422,8 +422,8 @@ export default {
           this.disableSaveIfFieldUnchanged(newVal)
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -432,11 +432,11 @@ export default {
     }),
 
     ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get'
+      getAdminProcedureWithFields: 'get',
     }),
 
     ...mapActions('ProcedureTemplate', {
-      getProcedureTemplateWithFields: 'get'
+      getProcedureTemplateWithFields: 'get',
     }),
 
     abortFieldEdit (rowData) {
@@ -454,7 +454,7 @@ export default {
     },
 
     addOptionInputOnEdit () {
-      this.newRowData.options.push({ label: ''})
+      this.newRowData.options.push({ label: '' })
     },
 
     /**
@@ -463,6 +463,11 @@ export default {
      */
     checkIfNameIsUnique (name) {
       const identicalNames = Object.values(this.customFields).filter(field => field.attributes.name === name)
+      const inEditMode = this.customFieldItems.filter(field => field.name === name && field.edit).length > 0
+
+      if (!inEditMode) {
+        return identicalNames.length === 0
+      }
 
       return identicalNames.length <= 1
     },
@@ -491,7 +496,7 @@ export default {
     },
 
     editCustomField (rowData) {
-      let previouslyEditedUnsavedField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
+      const previouslyEditedUnsavedField = this.customFieldItems.find(customFieldItem => customFieldItem.edit === true)
 
       if (previouslyEditedUnsavedField) {
         this.resetEditedUnsavedField(previouslyEditedUnsavedField)
@@ -504,23 +509,23 @@ export default {
      * Fetch custom fields that are available either in the procedure or in the procedure template
      */
     fetchCustomFields () {
-      const sourceEntity = this.isProcedureTemplate
-        ? 'ProcedureTemplate'
-        : 'AdminProcedure'
+      const sourceEntity = this.isProcedureTemplate ?
+        'ProcedureTemplate' :
+        'AdminProcedure'
 
       const payload = {
         id: this.procedureId,
         fields: {
           [sourceEntity]: [
-            'segmentCustomFields'
+            'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
-            'options'
-          ].join()
+            'options',
+          ].join(),
         },
-        include: ['segmentCustomFields'].join()
+        include: ['segmentCustomFields'].join(),
       }
 
       this.getCustomFields(payload).then(() => {
@@ -530,12 +535,12 @@ export default {
     },
 
     getCustomFields (payload) {
-      return this.isProcedureTemplate
-        ? this.getProcedureTemplateWithFields(payload)
+      return this.isProcedureTemplate ?
+        this.getProcedureTemplateWithFields(payload)
           .then(response => {
             return response
-          })
-        : this.getAdminProcedureWithFields(payload)
+          }) :
+        this.getAdminProcedureWithFields(payload)
           .then(response => {
             return response
           })
@@ -601,6 +606,8 @@ export default {
               edit: false,
             }
           }
+
+          return undefined
         })
         .filter(field => field !== undefined)
 
@@ -632,11 +639,11 @@ export default {
     resetNewFieldForm () {
       this.newFieldOptions = [
         {
-          label: ''
+          label: '',
         },
         {
-          label: ''
-        }
+          label: '',
+        },
       ]
     },
 
@@ -644,7 +651,7 @@ export default {
       const url = Routing.generate('api_resource_update', { resourceType: 'CustomField', resourceId: this.newRowData.id })
 
       return dpApi.patch(url, {}, {
-        data: payload
+        data: payload,
       })
     },
 
@@ -668,8 +675,8 @@ export default {
               ...storeField.attributes,
               description,
               name,
-              options
-            }
+              options,
+            },
           }
 
           await this.saveCustomField(updatedField)
@@ -677,7 +684,7 @@ export default {
               const idx = this.customFieldItems.findIndex(el => el.id === storeField.id)
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(storeField, false)
-              // fetch custom fields to get a consistent state for the custom fields
+              // Fetch custom fields to get a consistent state for the custom fields
               this.fetchCustomFields()
             })
         }
@@ -710,8 +717,8 @@ export default {
           sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
           sourceEntityId: this.procedureId,
           targetEntity: 'SEGMENT',
-          fieldType: 'singleSelect'
-        }
+          fieldType: 'singleSelect',
+        },
       }
 
       this.createCustomField(payload)
@@ -749,7 +756,7 @@ export default {
       this.initialRowData = {
         description,
         name,
-        options: JSON.parse(JSON.stringify(options))
+        options: JSON.parse(JSON.stringify(options)),
       }
     },
 
@@ -760,7 +767,7 @@ export default {
         id,
         description,
         name,
-        options
+        options,
       }
     },
 
@@ -784,7 +791,13 @@ export default {
 
       let isAnyOptionNameDuplicated = false
       customFieldOptions.forEach(option => {
-        if (option.label !== '') {
+        if (isAnyOptionNameDuplicated) {
+          /*
+           * Since the array function forEach does not accept continue in its arrow function we have to use return,
+           * also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Bad_continue for further info
+           */
+
+        } else if (option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)
         }
       })
@@ -794,11 +807,11 @@ export default {
       }
 
       return true
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomFields()
-  }
+  },
 }
 </script>

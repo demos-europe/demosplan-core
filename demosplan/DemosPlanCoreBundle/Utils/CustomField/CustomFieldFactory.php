@@ -18,15 +18,16 @@ use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
 {
-    public function __construct(private readonly CustomFieldValidator $customFieldValidator)
+    public function __construct(
+        private readonly CustomFieldTypeValidatorRegistry $validatorRegistry)
     {
     }
 
     public function createCustomField(array $attributes): CustomFieldInterface
     {
-        $this->customFieldValidator->validate($attributes);
-
         $type = $attributes['fieldType'];
+        $validator = $this->validatorRegistry->getValidatorForFieldType($type);
+        $validator->validate($attributes);
 
         $customFieldClass = CustomFieldInterface::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();

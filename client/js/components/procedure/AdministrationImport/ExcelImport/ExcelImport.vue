@@ -13,15 +13,15 @@
       <template v-if="availableEntities.length > 1">
         <dp-radio
           v-for="(entity, index) in availableEntities"
-          :key="`entity_type_${entity.key}`"
           :id="entity.key"
+          :key="`entity_type_${entity.key}`"
           :checked="entity.key === active"
           :data-cy="`entity_type_${index}`"
-          @change="active = entity.key"
           :label="{
             text: radioLabel(entity)
           }"
-          :value="entity.key" />
+          :value="entity.key"
+          @change="active = entity.key" />
       </template>
       <p
         v-else
@@ -73,20 +73,20 @@ export default {
 
   components: {
     DpRadio,
-    DpUploadFiles
+    DpUploadFiles,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       active: '',
-      fileIds: []
+      fileIds: [],
     }
   },
 
@@ -98,21 +98,21 @@ export default {
           label: 'statements.import',
           key: 'statements',
           permission: 'feature_statements_import_excel',
-          uploadPath: 'DemosPlan_statement_import'
+          uploadPath: 'DemosPlan_statement_import',
         },
         {
           exampleFile: '/files/segment_import_template.xlsx',
           label: 'segments.import',
           key: 'segments',
           permission: 'feature_segments_import_excel',
-          uploadPath: 'dplan_segments_process_import'
-        }
+          uploadPath: 'dplan_segments_process_import',
+        },
       ].filter(component => hasPermission(component.permission))
     },
 
     activeEntity () {
       return this.availableEntities.find(entity => entity.key === this.active)
-    }
+    },
   },
 
   methods: {
@@ -127,11 +127,11 @@ export default {
 
     setFileIds (file) {
       this.fileIds.push(file.hash)
-    }
+    },
   },
 
   created () {
     this.active = this.availableEntities[0].key
-  }
+  },
 }
 </script>

@@ -15,16 +15,16 @@
       {{ heading }}
     </h2>
     <div
-      class="space-stack-s"
-      v-if="hasPermission('feature_segment_comment_create')">
+      v-if="hasPermission('feature_segment_comment_create')"
+      class="space-stack-s">
       <div>
         <dp-button
           v-if="segment"
           class="w-full u-mt u-mb"
           data-cy="addCommentToSegment"
-          @click="toggleForm"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"
-          variant="outline" />
+          variant="outline"
+          @click="toggleForm" />
       </div>
       <create-comment-form
         v-show="showForm"
@@ -37,9 +37,9 @@
       class="u-mt" />
     <template v-if="hasComments">
       <segment-comment
-        :current-user="currentUser"
         v-for="(comment, idx) in comments"
         :key="idx"
+        :current-user="currentUser"
         :comment="comment"
         :segment-id="commentsList.segmentId"
         class="u-mt u-mb-0_5"
@@ -71,30 +71,30 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment'))
+    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')),
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('SegmentSlidebar', [
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
-      'statementId'
+      'statementId',
     ]),
 
     comments () {
@@ -121,25 +121,25 @@ export default {
 
     segment () {
       return this.segments[this.commentsList.segmentId] || null
-    }
+    },
   },
 
   methods: {
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('SegmentComment', {
-      listComments: 'list'
+      listComments: 'list',
     }),
 
     ...mapMutations('SegmentSlidebar', [
-      'setContent'
+      'setContent',
     ]),
 
     toggleForm () {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, showForm: !this.showForm } })
-    }
-  }
+    },
+  },
 }
 </script>

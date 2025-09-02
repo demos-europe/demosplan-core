@@ -38,35 +38,35 @@
 
 <script>
 import {
-  DpFlyout
+  DpFlyout,
 } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'ExportFlyout',
 
   components: {
-    DpFlyout
+    DpFlyout,
   },
 
   props: {
     docx: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     csv: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'export'
+    'export',
   ],
 
   data () {
     return {
-      isExpanded: false
+      isExpanded: false,
     }
   },
 
@@ -83,7 +83,7 @@ export default {
 
     handleOpen () {
       this.isExpanded = true
-    }
-  }
+    },
+  },
 }
 </script>

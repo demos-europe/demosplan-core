@@ -15,11 +15,11 @@ import { initialize } from '@DpJs/InitVue'
 const apiStores = [
   'AdminProcedure',
   'ProcedureTemplate',
-  'CustomField'
+  'CustomField',
 ]
 
 const components = {
-  AdministrationCustomFieldsList
+  AdministrationCustomFieldsList,
 }
 
 initialize(components, {}, apiStores)

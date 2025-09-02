@@ -49,7 +49,7 @@
 import {
   DpInlineNotification,
   DpInput,
-  DpSelect
+  DpSelect,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -58,44 +58,44 @@ export default {
   components: {
     DpInlineNotification,
     DpInput,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     autoswitchHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     fieldName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     helpText: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     labelText: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initSelectedPhase: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -117,35 +117,35 @@ export default {
         })
 
         return keyCounter === requiredKeys.length
-      }
+      },
     },
 
     participationPhases: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     permissionMessage: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     phaseOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'phase:select'
+    'phase:select',
   ],
 
   data () {
     return {
-      selectedPhase: this.initSelectedPhase
+      selectedPhase: this.initSelectedPhase,
     }
   },
 
@@ -166,7 +166,7 @@ export default {
 
     isInParticipation () {
       return this.participationPhases.includes(this.selectedPhase)
-    }
-  }
+    },
+  },
 }
 </script>

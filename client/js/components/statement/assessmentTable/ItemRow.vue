@@ -27,10 +27,10 @@
     </div>
     <button
       v-if="isFullscreenRow"
+      v-tooltip="Translator.trans('fullscreen')"
       :aria-label="Translator.trans('fullscreen')"
       class="btn--blank absolute right-1 top-1 z-above-zero"
       data-cy="rowFullscreen"
-      v-tooltip="Translator.trans('fullscreen')"
       @click.stop.prevent="toggleFullscreen">
       <dp-icon
         aria-hidden="true"
@@ -50,44 +50,44 @@ export default {
   name: 'DpItemRow',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   props: {
     icon: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     title: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     borderBottom: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     borderRight: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isFullscreenRow: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
     return {
-      isFullscreen: false
+      isFullscreen: false,
     }
   },
 
@@ -100,7 +100,7 @@ export default {
       } else {
         document.querySelector('html').style = ''
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -23,19 +23,19 @@
             <button
               class="btn--blank o-link--default ml-auto"
               data-cy="customSearch:searchCustomToggleAll"
-              v-text="Translator.trans('toggle_all')"
-              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
+              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"
+              v-text="Translator.trans('toggle_all')" />
           </div>
 
           <!-- Checkboxes -->
           <div class="layout--flush">
             <dp-checkbox
               v-for="({label, value}, i) in filterCheckBoxesItems"
+              :id="'filteredCheckbox' + i"
+              :key="i"
               :checked="selectedFields.includes(value)"
               class="layout__item u-1-of-2"
               :data-cy="`searchModal:${value}`"
-              :id="'filteredCheckbox' + i"
-              :key="i"
               :label="{ text: Translator.trans(label) }"
               @change="handleChange(value, !selectedFields.includes(value))" />
           </div>
@@ -63,7 +63,7 @@ import {
   DpFlyout,
   DpIcon,
   DpSearchField,
-  hasAnyPermissions
+  hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
 import lscache from 'lscache'
@@ -89,7 +89,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -100,14 +100,14 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data: () => ({
@@ -115,16 +115,16 @@ export default {
     explanations: [
       {
         title: Translator.trans('search.options'),
-        description: Translator.trans('search.options.description')
+        description: Translator.trans('search.options.description'),
       },
       {
         title: Translator.trans('search.special.characters'),
-        description: Translator.trans('search.special.characters.description')
-      }
+        description: Translator.trans('search.special.characters.description'),
+      },
     ],
     availableFilterFields,
     fields,
-    selectedFields: []
+    selectedFields: [],
   }),
 
   computed: {
@@ -139,7 +139,7 @@ export default {
 
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -171,7 +171,7 @@ export default {
       } else if (!selectField) {
         this.selectedFields = this.selectedFields.filter(f => f !== field)
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -124,7 +124,7 @@ export default {
 
   components: {
     DpButton,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin, dpValidateMixin],
@@ -133,25 +133,25 @@ export default {
     isIdp: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     isAzureSso: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     idpLoginPath: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
@@ -159,7 +159,7 @@ export default {
       this.dpValidateAction('loginForm', () => {
         this.$refs.loginForm.submit()
       }, false)
-    }
-  }
+    },
+  },
 }
 </script>

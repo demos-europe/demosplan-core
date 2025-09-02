@@ -11,7 +11,7 @@
   <div>
     <dp-toggle
       :value="newsStatus"
-      @input="e => $emit('status-changed', e)" />
+      @input="e => $emit('statusChanged', e)" />
     <dp-contextual-help
       v-if="determinedToSwitch"
       class="u-ml-0_25"
@@ -29,41 +29,41 @@ export default {
 
   components: {
     DpContextualHelp,
-    DpToggle
+    DpToggle,
   },
 
   props: {
     determinedToSwitch: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     newsStatus: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     switchDate: {
       type: [Number, String],
-      required: true
+      required: true,
     },
 
     switchState: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'status-changed'
+    'statusChanged',
   ],
 
   computed: {
     tooltipText () {
-      return this.switchDate !== ''
-        ? `${Translator.trans('phase.autoswitch.date')} ${(new Date(this.switchDate)).toLocaleDateString('de-DE')}<br>${Translator.trans('phase.autoswitch.value')} ${Translator.trans(this.switchState)}`
-        : ''
-    }
-  }
+      return this.switchDate !== '' ?
+        `${Translator.trans('phase.autoswitch.date')} ${(new Date(this.switchDate)).toLocaleDateString('de-DE')}<br>${Translator.trans('phase.autoswitch.value')} ${Translator.trans(this.switchState)}` :
+        ''
+    },
+  },
 }
 </script>

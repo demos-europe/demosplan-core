@@ -5,8 +5,8 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      class="text-right u-mt"
-      v-if="assignedSegmentCount !== 0">
+      v-if="assignedSegmentCount !== 0"
+      class="text-right u-mt">
       <dp-button
         data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
@@ -22,36 +22,36 @@ export default {
 
   components: {
     DpButton,
-    DpCard
+    DpCard,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       assignedSegmentCount: 0,
-      userHash: ''
+      userHash: '',
     }
   },
 
   computed: {
     userFilteredSegmentUrl () {
       return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash
-    }
+    },
   },
 
   mounted () {
@@ -60,15 +60,15 @@ export default {
       [this.currentUserId]: {
         condition: {
           path: 'assignee',
-          value: this.currentUserId
-        }
+          value: this.currentUserId,
+        },
       },
       sameProcedure: {
         condition: {
           path: 'parentStatement.procedure.id',
-          value: this.procedureId
-        }
-      }
+          value: this.procedureId,
+        },
+      },
     }
 
     // Get count of segments assigned to the current user
@@ -91,9 +91,9 @@ export default {
         const queryHash = splitUrl[splitUrl.length - 1]
         const filterData = {
           filter: {
-            ...filterQuery
+            ...filterQuery,
           },
-          searchPhrase: ''
+          searchPhrase: '',
         }
 
         // Get the actual filter hash
@@ -105,6 +105,6 @@ export default {
             }
           })
       })
-  }
+  },
 }
 </script>

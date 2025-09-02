@@ -20,11 +20,11 @@ import publicStatement from '@DpJs/store/statement/PublicStatement'
 const components = {
   DpMapModal,
   DpModal,
-  DpPublicStatementList
+  DpPublicStatementList,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 initialize(components, stores)
