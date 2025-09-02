@@ -53,6 +53,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-infrastructure-runtime
 
+      - name: Install Node.js and eslint
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install -g eslint
+
       - name: Install composer dependencies
         run: |
           composer --version
