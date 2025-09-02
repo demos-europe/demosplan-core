@@ -82,7 +82,6 @@ class AllAttributesTransformer extends DynamicTransformer
             $fieldset = iterator_to_array($fieldsetBag);
         }
 
-
         return array_filter(
             $this->readability->getAttributes(),
             static fn (string $attributeName): bool => in_array($attributeName, $fieldset, true),
