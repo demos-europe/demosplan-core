@@ -24,9 +24,9 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly array $classNameToClassPathtMap = [
-            'PROCEDURE'          => Procedure::class,
-            'PROCEDURE_TEMPLATE' => Procedure::class,
-            'SEGMENT'            => Segment::class,
+            'PROCEDURE'            => Procedure::class,
+            'PROCEDURE_TEMPLATE'   => Procedure::class,
+            'SEGMENT'              => Segment::class,
             'STATEMENT'            => Statement::class,
         ])
     {
