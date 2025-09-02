@@ -1042,13 +1042,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     private $anonymous = false;
 
-
     /**
      * @var CustomFieldValuesList
+     *
      * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
      */
     private $customFields;
-
 
     public function __construct()
     {
