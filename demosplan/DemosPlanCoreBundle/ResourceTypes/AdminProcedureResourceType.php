@@ -129,12 +129,10 @@ final class AdminProcedureResourceType extends DplanResourceType
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
 
-
             if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {
                 $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
                     ->readable(true, function (Procedure $procedure): ?ArrayCollection {
                         return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
-
                     });
             }
 
@@ -142,7 +140,6 @@ final class AdminProcedureResourceType extends DplanResourceType
                 $properties[] = $this->createToManyRelationship($this->statementCustomFields)
                     ->readable(true, function (Procedure $procedure): ?ArrayCollection {
                         return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'STATEMENT');
-
                     });
             }
         }
