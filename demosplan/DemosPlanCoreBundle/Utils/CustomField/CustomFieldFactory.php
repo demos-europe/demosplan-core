@@ -34,6 +34,7 @@ class CustomFieldFactory
         $customField->setFieldType($type);
         $customField->setName($attributes['name']);
         $customField->setDescription($attributes['description']);
+        $customField->setRequired($attributes['isRequired']);
 
         if (isset($attributes['options']) && method_exists($customField, 'setOptions')) {
             // Transform options to the new format if they come as strings
