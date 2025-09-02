@@ -171,7 +171,7 @@
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
       <dp-assessment-table-card
-        v-for="statement in statements"
+        v-for="(statement, _, index) in statements"
         v-else
         :ref="'itemdisplay_' + statement.id"
         :key="`statement:${statement.id}`"
