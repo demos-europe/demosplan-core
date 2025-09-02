@@ -13,15 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry;
-use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
 {
     public function __construct(
         private readonly CustomFieldTypeValidatorRegistry $validatorRegistry,
-    private readonly CustomFieldFactoryRegistry $factoryRegistry)
+        private readonly CustomFieldFactoryRegistry $factoryRegistry)
     {
     }
 
@@ -32,7 +30,7 @@ class CustomFieldFactory
         $validator->validate($attributes);
 
         $factory = $this->factoryRegistry->getFactory($type);
-        return $factory->create($attributes);
 
+        return $factory->create($attributes);
     }
 }

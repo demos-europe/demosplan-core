@@ -11,10 +11,12 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory;
+
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 
 interface CustomFieldFactoryInterface
 {
     public function supports(string $fieldType): bool;
+
     public function create(array $attributes): CustomFieldInterface;
 }

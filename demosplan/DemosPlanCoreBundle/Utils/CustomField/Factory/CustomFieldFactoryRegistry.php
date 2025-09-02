@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,6 +11,7 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory;
+
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 
 class CustomFieldFactoryRegistry
@@ -22,6 +24,7 @@ class CustomFieldFactoryRegistry
             $this->register($factory);
         }
     }
+
     public function register(CustomFieldFactoryInterface $factory): void
     {
         $this->factories[] = $factory;
