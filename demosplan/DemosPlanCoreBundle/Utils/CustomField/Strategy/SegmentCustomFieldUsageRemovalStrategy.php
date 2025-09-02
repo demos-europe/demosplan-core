@@ -93,7 +93,8 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             $this->entityManager->getConnection()->rollBack();
             $this->entityManager->clear();
 
-            throw new RuntimeException("Failed to remove deleted option usages for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+            throw new PersistResourceException("Failed to remove deleted option usages for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+
         }
     }
 
