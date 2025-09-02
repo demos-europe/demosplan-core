@@ -46,19 +46,19 @@ class OdtFileExtractor
 
         // Extract all pictures to a temporary folder using DemosPlanPath
         $tempDir = DemosPlanPath::getTemporaryPath('odt_'.basename($odtFilePath, '.odt'));
-        
+
         // Extract with security validation to prevent zip slip attacks
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $filename = $zip->getNameIndex($i);
             if (false === $filename || str_ends_with($filename, '/')) {
                 continue;
             }
-            
+
             // Security check: prevent path traversal attacks
             if (str_contains($filename, '../') || str_starts_with($filename, '/')) {
                 continue;
             }
-            
+
             $zip->extractTo($tempDir, $filename);
         }
         $zip->close();

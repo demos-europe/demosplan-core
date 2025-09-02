@@ -28,9 +28,9 @@ class ODTStyleParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->styleParser = new ODTStyleParser();
-        
+
         // Make the private method accessible for testing
         $reflection = new ReflectionClass($this->styleParser);
         $this->analyzeStyleForHeadingMethod = $reflection->getMethod('analyzeStyleForHeading');
@@ -46,15 +46,15 @@ class ODTStyleParserTest extends TestCase
                 <!-- No style:text-properties or style:paragraph-properties elements -->
             </style:style>
         </office:document-styles>');
-        
+
         $xpath = new DOMXPath($dom);
         $styleNode = $xpath->query('//style:style[@style:name="TestStyle"]')->item(0);
-        
+
         $this->assertInstanceOf(DOMElement::class, $styleNode);
-        
+
         // This should not throw any type errors even when text-properties and paragraph-properties are null
         $result = $this->analyzeStyleForHeadingMethod->invoke($this->styleParser, $xpath, $styleNode);
-        
+
         $this->assertIsInt($result);
         $this->assertGreaterThanOrEqual(0, $result);
     }
@@ -69,14 +69,14 @@ class ODTStyleParserTest extends TestCase
                 <style:paragraph-properties fo:margin-top="12pt" fo:margin-bottom="6pt"/>
             </style:style>
         </office:document-styles>');
-        
+
         $xpath = new DOMXPath($dom);
         $styleNode = $xpath->query('//style:style[@style:name="Heading1"]')->item(0);
-        
+
         $this->assertInstanceOf(DOMElement::class, $styleNode);
-        
+
         $result = $this->analyzeStyleForHeadingMethod->invoke($this->styleParser, $xpath, $styleNode);
-        
+
         $this->assertIsInt($result);
         $this->assertGreaterThan(0, $result); // Should have a positive heading score due to font-size and font-weight
     }
@@ -91,15 +91,15 @@ class ODTStyleParserTest extends TestCase
                 <!-- No style:paragraph-properties element -->
             </style:style>
         </office:document-styles>');
-        
+
         $xpath = new DOMXPath($dom);
         $styleNode = $xpath->query('//style:style[@style:name="BoldText"]')->item(0);
-        
+
         $this->assertInstanceOf(DOMElement::class, $styleNode);
-        
+
         // This should handle the case where only one property type exists
         $result = $this->analyzeStyleForHeadingMethod->invoke($this->styleParser, $xpath, $styleNode);
-        
+
         $this->assertIsInt($result);
         $this->assertGreaterThanOrEqual(0, $result);
     }
