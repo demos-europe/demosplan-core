@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use RuntimeException;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
@@ -94,7 +93,6 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             $this->entityManager->clear();
 
             throw new PersistResourceException("Failed to remove deleted option usages for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
-
         }
     }
 
