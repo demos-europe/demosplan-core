@@ -528,9 +528,17 @@ class OdtElementProcessor
     private function getImageData(string $xlinkHref): ?string
     {
         $imagePath = $this->tempDir.DIRECTORY_SEPARATOR.ltrim($xlinkHref, '/');
-        if (file_exists($imagePath)) {
-            return file_get_contents($imagePath);
-        }
+
+        // Validate path to prevent path traversal attacks
+        $realTempDir = realpath($this->tempDir);
+        $realImagePath = realpath($imagePath);
+
+        if ($realTempDir !== false && $realImagePath !== false && str_starts_with(
+                $realImagePath,
+                $realTempDir
+            ) && file_exists($realImagePath)) {
+                return file_get_contents($realImagePath);
+            }
 
         return null;
     }

@@ -367,17 +367,44 @@ class ServiceImporter implements ServiceImporterInterface
         $contentType = $fileInfo->getContentType();
         $fileName = $fileInfo->getFileName();
 
-        // Check file extension
-        if (str_ends_with(strtolower($fileName), self::ODT_EXTENSION)) {
-            return true;
+        // Check if file has ODT extension or correct MIME type
+        $hasOdtExtension = str_ends_with(strtolower($fileName), self::ODT_EXTENSION);
+        $hasOdtMimeType = self::ODT_MIME_TYPE === $contentType;
+
+        if (!$hasOdtExtension && !$hasOdtMimeType) {
+            return false;
         }
 
-        // Check MIME type
-        if (self::ODT_MIME_TYPE === $contentType) {
-            return true;
+        // Content-based validation: check if file is a ZIP archive and contains correct mimetype
+        $filePath = $fileInfo->getAbsolutePath();
+        if ($filePath && file_exists($filePath)) {
+            return $this->validateOdtStructure($filePath);
         }
 
         return false;
+    }
+
+    /**
+     * Validate ODT file structure by checking if it's a valid ZIP with correct mimetype.
+     */
+    private function validateOdtStructure(string $filePath): bool
+    {
+        // Check if file can be opened as ZIP
+        $zip = new \ZipArchive();
+        if (true !== $zip->open($filePath, \ZipArchive::RDONLY)) {
+            return false;
+        }
+
+        // Check if mimetype file exists and has correct content
+        $mimetypeContent = $zip->getFromName('mimetype');
+        $zip->close();
+
+        if (false === $mimetypeContent) {
+            return false;
+        }
+
+        // Verify mimetype content matches ODT specification
+        return trim($mimetypeContent) === self::ODT_MIME_TYPE;
     }
 
     /**

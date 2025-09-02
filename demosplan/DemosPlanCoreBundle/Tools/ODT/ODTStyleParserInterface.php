@@ -22,7 +22,7 @@ interface ODTStyleParserInterface
     /**
      * Parse ODT styles from content and styles XML.
      */
-    public function parseStyles(DOMDocument $dom): array;
+    public function parseStyles(DOMDocument $dom, ?string $stylesXml = null): array;
 
     /**
      * Parse list styles from styles XML.
