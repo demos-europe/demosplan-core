@@ -54,7 +54,7 @@ class CustomFieldFactory
             // Already in new format or ensure it has required keys
             $customFieldOption = new CustomFieldOption();
             $customFieldOption->setId(Uuid::uuid4()->toString());
-            $customFieldOption->setLabel($option);
+            $customFieldOption->setLabel($option['label']);
             $normalizedOptions[] = $customFieldOption;
         }
 
