@@ -25,22 +25,26 @@
     <tr class="color--grey">
       <td
         class="u-pb-0_5 u-pl-0_5"
-        style="width: 15%;">
+        style="width: 15%;"
+      >
         {{ Translator.trans('time') }}
       </td>
       <td
         class="u-pb-0_5 u-pl-0_5"
-        style="width: 40%;">
+        style="width: 40%;"
+      >
         {{ Translator.trans('user') }}
       </td>
       <td
         class="u-pb-0_5"
-        style="width: 40%;">
+        style="width: 40%;"
+      >
         {{ Translator.trans('fields') }}
       </td>
       <td
         class="u-pb-0_5"
-        style="width: 5%" />
+        style="width: 5%"
+      />
     </tr>
 
     <dp-version-history-item
@@ -49,7 +53,8 @@
       :procedure-id="procedureId"
       :day="day"
       :time="time.attributes"
-      :entity="entity" />
+      :entity="entity"
+    />
   </tbody>
 </template>
 

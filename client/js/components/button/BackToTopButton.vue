@@ -10,7 +10,8 @@
     :text="Translator.trans('back.to.top')"
     data-cy="backToTop"
     variant="outline"
-    @click="scrollTop" />
+    @click="scrollTop"
+  />
 </template>
 
 <script>

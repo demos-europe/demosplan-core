@@ -18,7 +18,8 @@
           text: Translator.trans('name.first')
         }"
         required
-        @input="emitUserUpdate" />
+        @input="emitUserUpdate"
+      />
     </div>
 
     <div class="inline-block w-1/2 pr-3 my-3">
@@ -30,7 +31,8 @@
           text: Translator.trans('name.last')
         }"
         required
-        @input="emitUserUpdate" />
+        @input="emitUserUpdate"
+      />
     </div>
 
     <!-- Email -->
@@ -44,13 +46,15 @@
           text: Translator.trans('email')
         }"
         required
-        @input="emitUserUpdate" />
+        @input="emitUserUpdate"
+      />
     </div>
 
     <div class="w-1/2 pr-3 inline-block">
       <label
         class="mb-1.5 mt-3"
-        :for="userId + ':organisationId'">
+        :for="userId + ':organisationId'"
+      >
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
@@ -65,7 +69,8 @@
         required
         track-by="id"
         :value="currentUserOrga"
-        @select="changeUserOrga">
+        @select="changeUserOrga"
+      >
         <template v-slot:option="{ props }">
           <span>{{ props.option.name }}</span>
         </template>
@@ -92,16 +97,19 @@
         :options="departmentSelectOptions"
         required
         :selected="localUser.relationships.department.data?.id || ''"
-        @select="changeUserDepartment" />
+        @select="changeUserDepartment"
+      />
     </div>
 
     <!-- Role -->
     <div
       v-if="organisations[currentUserOrga.id]"
-      class="w-1/2 pr-3 mt-3">
+      class="w-1/2 pr-3 mt-3"
+    >
       <label
         class="u-mt-0_75 mb-1.5"
-        :for="userId + ':userRoles'">
+        :for="userId + ':userRoles'"
+      >
         {{ Translator.trans('role') }}*
       </label>
       <dp-multiselect
@@ -117,7 +125,8 @@
         track-by="id"
         :value="localUser.relationships.roles.data"
         @remove="removeRole"
-        @select="addRole">
+        @select="addRole"
+      >
         <template v-slot:option="{ props }">
           <span>{{ roles[props.option.id].attributes.name }}</span>
         </template>
@@ -128,11 +137,13 @@
               aria-hidden="true"
               class="multiselect__tag-icon"
               tabindex="1"
-              @click="props.remove(props.option)" />
+              @click="props.remove(props.option)"
+            />
             <input
               :name="userId + ':userRoles[]'"
               type="hidden"
-              :value="props.option.id">
+              :value="props.option.id"
+            >
           </span>
         </template>
       </dp-multiselect>

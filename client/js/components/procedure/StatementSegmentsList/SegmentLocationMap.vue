@@ -11,7 +11,8 @@
   <div>
     <h2
       class="u-mb-0_75"
-      v-text="heading" />
+      v-text="heading"
+    />
 
     <div class="c-slidebar__content overflow-y-auto u-mr">
       <dp-ol-map
@@ -26,7 +27,8 @@
           autoSuggest: false,
           defaultAttribution: mapData.copyright,
           initialExtent: mapData.boundingBox ?? mapData.mapExtent ?? []
-        }">
+        }"
+      >
         <template v-if="hasPermission('feature_segment_polygon_set')">
           <dp-ol-map-draw-feature
             ref="drawPoint"
@@ -42,7 +44,8 @@
             :options="{ multiplePoints: true }"
             render-control
             type="Point"
-            @layerFeatures:changed="data => updateDrawings('Point', data)" />
+            @layer-features:changed="data => updateDrawings('Point', data)"
+          />
           <dp-ol-map-draw-feature
             ref="drawLine"
             v-tooltip="{
@@ -56,7 +59,8 @@
             name="Line"
             render-control
             type="LineString"
-            @layerFeatures:changed="data => updateDrawings('LineString', data)" />
+            @layer-features:changed="data => updateDrawings('LineString', data)"
+          />
           <dp-ol-map-draw-feature
             ref="drawPolygon"
             v-tooltip="{
@@ -70,24 +74,29 @@
             name="Polygon"
             render-control
             type="Polygon"
-            @layerFeatures:changed="data => updateDrawings('Polygon', data)" />
+            @layer-features:changed="data => updateDrawings('Polygon', data)"
+          />
           <dp-ol-map-edit-feature
             class="border--left u-ml-0_25"
-            :target="['Polygon', 'Line', 'Point']">
+            :target="['Polygon', 'Line', 'Point']"
+          >
             <template v-slot:editButtonDesc>
               <i
                 class="fa fa-pencil-square-o u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
             <template v-slot:removeButtonDesc>
               <i
                 class="fa fa-eraser u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
             <template v-slot:removeAllButtonDesc>
               <i
                 class="fa fa-trash u-mb-0_25 font-size-h2"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </template>
           </dp-ol-map-edit-feature>
         </template>
@@ -98,7 +107,8 @@
         primary
         secondary
         @primary-action="save"
-        @secondary-action="closeSlidebar" />
+        @secondary-action="closeSlidebar"
+      />
     </div>
   </div>
 </template>

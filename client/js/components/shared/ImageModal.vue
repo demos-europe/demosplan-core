@@ -2,10 +2,12 @@
   <dp-modal
     ref="imgModal"
     content-classes="w-fit"
-    :data-cy="dataCy">
+    :data-cy="dataCy"
+  >
     <img
       :alt="clickedImg.alt"
-      :src="clickedImg.src">
+      :src="clickedImg.src"
+    >
   </dp-modal>
 </template>
 <script>
