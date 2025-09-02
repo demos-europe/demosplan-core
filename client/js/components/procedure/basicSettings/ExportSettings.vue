@@ -69,7 +69,7 @@
       :selected-options="getSelectedOptions(publicationField)"
       class="inline-block align-top u-1-of-4-wide u-1-of-2-desk u-1-of-2-lap u-1-of-1-palm"
       @update="checked => updateCheckedFields(checked)"
-/>
+    />
   </div>
 </template>
 

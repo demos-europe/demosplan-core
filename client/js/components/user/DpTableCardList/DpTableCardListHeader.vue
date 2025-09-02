@@ -22,7 +22,7 @@
         :key="idx"
         class="layout__item weight--bold u-pv-0_5"
         :class="[item.classes ? item.classes : '', item.width ? item.width : '']"
->
+      >
         {{ item.label }}
       </div>
     </div>

@@ -23,7 +23,7 @@
         track-by="id"
         :value="selectedGroups"
         @input="selectGroups"
->
+      >
         <template v-slot:option="{ props }">
           <span>{{ props.option.title }}</span>
         </template>
@@ -35,7 +35,7 @@
               class="multiselect__tag-icon"
               tabindex="1"
               @click="props.remove(props.option)"
-/>
+            />
           </span>
         </template>
       </dp-multiselect>
@@ -46,7 +46,7 @@
         data-cy="enabledFaqItem"
         :value="isFaqEnabled"
         @input="handleToggle"
-/>
+    />
     </div><!--
  --><div class="layout__item u-2-of-12 text-center py-1">
       <div class="flex flex-col sm:flex-row justify-center">
@@ -55,11 +55,11 @@
           :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: faqItem.id})"
           :aria-label="Translator.trans('item.edit')"
           data-cy="editFaqItem"
->
+        >
           <i
             class="fa fa-pencil"
             aria-hidden="true"
-/>
+          />
         </a>
         <button
           type="button"
@@ -67,11 +67,11 @@
           :aria-label="Translator.trans('item.delete')"
           class="btn--blank o-link--default sm:ml-2"
           @click="deleteFaqItem"
->
+        >
           <i
             class="fa fa-trash"
             aria-hidden="true"
-/>
+          />
         </button>
       </div>
     </div>

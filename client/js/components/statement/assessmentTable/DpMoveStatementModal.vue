@@ -52,7 +52,8 @@
               name="procedure_permissions"
               value="accessibleProcedures"
               required
-            > {{ Translator.trans('procedure.accessible') }}
+            >
+            {{ Translator.trans('procedure.accessible') }}
           </label>
           <label class="u-mb-0_5 u-ml inline-block">
             <input
@@ -60,14 +61,17 @@
               type="radio"
               name="procedure_permissions"
               value="inaccessibleProcedures"
-            > {{ Translator.trans('procedure.inaccessible') }}
+            >
+            {{ Translator.trans('procedure.inaccessible') }}
           </label>
         </template>
 
         <label
           class="u-mb-0"
           for="r_target_procedure"
-        >{{ Translator.trans('statement.moveto.procedure.target') }}</label>
+        >
+          {{ Translator.trans('statement.moveto.procedure.target') }}
+        </label>
         <select
           id="r_target_procedure"
           v-model="selectedProcedureId"

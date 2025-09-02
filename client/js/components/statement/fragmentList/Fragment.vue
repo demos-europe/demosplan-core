@@ -200,7 +200,7 @@
                   :key="idx"
                   class="o-list__item"
                   v-text="county.name"
-/>
+                />
               </ul>
             </dd>
           </template>
@@ -215,7 +215,7 @@
                   :key="idx"
                   class="o-list__item"
                   v-text="priorityArea.key"
-/>
+                />
               </ul>
           </dd>
           </template>
@@ -230,7 +230,7 @@
                   :key="idx"
                   class="o-list__item"
                   v-text="municipality.name"
-/>
+                />
               </ul>
             </dd>
           </template>
@@ -258,25 +258,25 @@
               :href="Routing.generate('DemosPlan_public_plandocument_paragraph', { procedure: fragment.procedureId, elementId: fragment.elementId || '' }) || '#'"
               :title="fragment.elementTitle || ''"
               rel="noopener"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </a>
             <p
               v-else-if="fragment.elementCategory === 'file'"
               :title="fragment.elementTitle || ''"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
             <p
               v-else-if="fragment.elementCategory === 'map'"
               :title="fragment.elementTitle || ''"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
             <p
               v-else-if="fragment.elementCategory === 'statement'"
               :title="fragment.elementTitle || ''"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
           </dd>
@@ -434,7 +434,7 @@
               <span
                 v-for="(county, idx) in fragment.statement.counties"
                 :key="idx"
->
+              >
                 {{ (idx >= fragment.statement.counties.length - 1) ? county.name : county.name + ',' }}
               </span>
             </dd>
@@ -447,7 +447,7 @@
               <span
                 v-for="(priorityArea, idx) in fragment.statement.priorityAreas"
                 :key="idx"
->
+              >
                   {{ (idx >= fragment.statement.priorityAreas.length - 1) ? priorityArea.key : priorityArea.key + ',' }}
               </span>
             </dd>
@@ -460,7 +460,7 @@
               <span
                 v-for="(municipality, idx) in fragment.statement.municipalities"
                 :key="idx"
->
+              >
                 {{ (idx >= fragment.statement.municipalities.length - 1) ? municipality.name : municipality.name + ',' }}
               </span>
             </dd>
@@ -489,13 +489,13 @@
               :href="Routing.generate('DemosPlan_public_plandocument_paragraph', { procedure: fragment.procedureId, elementId: fragment.statement.elementId }) || '#'"
               rel="noopener"
               :title="fragment.statement.elementTitle || ''"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.statement.elementTitle, 'document.notavailable')) }}
             </a>
             <p
               v-else-if="fragment.statement.elementCategory === 'file'"
               :title="fragment.statement.elementTitle || ''"
->
+            >
               {{ Translator.trans(missKeyValue(fragment.statement.elementTitle, 'document.notavailable')) }}
             </p>
           </dd>

@@ -178,7 +178,7 @@
               :label="{
                 text: Translator.trans('department')
               }"
-/>
+            />
           </div>
 
           <div class="layout">
@@ -202,7 +202,7 @@
                 text: Translator.trans('email')
               }"
               type="email"
-/>
+            />
           </div>
 
           <div class="layout">
@@ -226,7 +226,7 @@
               :label="{
                 text: Translator.trans('city')
               }"
-/>
+            />
           </div>
         </div>
       </template>

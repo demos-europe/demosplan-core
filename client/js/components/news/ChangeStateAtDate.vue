@@ -61,16 +61,16 @@ All rights reserved
    --><div
         v-if="active"
         class="u-mt-0_125"
->
+      >
         <div
           class="layout__item u-2-of-12 u-6-of-12-lap-down"
           :class="{ 'color--grey': active === false }"
->
+        >
           <dp-label
             required
             :text="Translator.trans('on')"
             :for="dateId"
-/>
+          />
           <dp-datepicker
             :id="dateId"
             v-model="changeDate"
@@ -81,7 +81,7 @@ All rights reserved
             :disabled="active === false"
             :calendars-after="2"
             @change="dateChanged"
-/>
+          />
         </div><!--
      --><dp-select
           v-model="futureStatus"
@@ -91,7 +91,7 @@ All rights reserved
           }"
           :name="delayedSwitchDropdownId"
           :options="statusOptions"
-/>
+        />
       </div>
     </div>
   </div>

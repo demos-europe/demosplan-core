@@ -38,7 +38,7 @@
         type="email"
         :model-value="statement.r_email"
         @input="val => setStatementData({r_email: val})"
-/>
+      />
     </div>
   </div>
 </template>

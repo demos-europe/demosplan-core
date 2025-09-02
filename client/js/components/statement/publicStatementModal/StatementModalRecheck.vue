@@ -89,7 +89,7 @@
      --><span
           v-if="hasPermission('field_statement_user_organisation') && (fieldIsActive('citizenXorOrgaAndOrgaName') || fieldIsActive('stateAndGroupAndOrgaNameAndPosition'))"
           :class="prefixClass('layout__item u-1-of-4-desk-up')"
->
+      >
           <em>{{ Translator.trans('submitter') }}: </em>
           <template v-if="statement.r_submitter_role === 'publicagency'">
             {{ Translator.trans('invitable_institution') }} ({{ statement.r_userOrganisation }})
@@ -101,13 +101,13 @@
      --><span
           v-if="hasPermission('field_statement_user_position') && fieldIsActive('stateAndGroupAndOrgaNameAndPosition') && formOptions.userPosition"
           :class="prefixClass('layout__item u-1-of-4-desk-up')"
->
+        >
           <em>{{ Translator.trans('position') }}: </em> {{ statement.r_userPosition }}
         </span><!--
      --><span
           v-if="(hasPermission('field_statement_user_group') || hasPermission('field_statement_user_state')) && fieldIsActive('stateAndGroupAndOrgaNameAndPosition')"
           :class="prefixClass('layout__item u-1-of-4-desk-up u-pl-0')"
->
+        >
           <template v-if="hasPermission('field_statement_user_state') && statement.r_userState">
             <em>{{ Translator.trans('state') }}: </em> {{ statement.r_userState }}<br>
           </template>
@@ -118,19 +118,19 @@
      --><span
           v-if="showEmail"
           :class="prefixClass('layout__item u-1-of-4-desk-up break-all')"
->
+        >
           <em>{{ Translator.trans('email') }}: </em> {{ statement.r_email }}
         </span><!--
      --><span
           v-if="statement.r_phone !== ''"
           :class="prefixClass('layout__item u-1-of-4-desk-up')"
->
+        >
           <em>{{ Translator.trans('phone') }}: </em> {{ statement.r_phone }}
         </span><!--
      --><span
           v-if="(fieldIsActive('streetAndHouseNumber') || fieldIsActive('street')) && hasPermission('field_statement_meta_street')"
           :class="prefixClass('layout__item u-1-of-4-desk-up')"
->
+        >
           <template v-if="showStreet">
             <em>{{ Translator.trans('street') }}: </em> {{ statement.r_street }}<br>
           </template>
@@ -141,7 +141,7 @@
      --><span
           v-if="fieldIsActive('postalAndCity')"
           :class="prefixClass('layout__item u-1-of-4-desk-up')"
->
+        >
           <template v-if="showPostalCode">
             <em>{{ Translator.trans('postalcode') }}: </em> {{ statement.r_postalCode }}<br>
           </template>

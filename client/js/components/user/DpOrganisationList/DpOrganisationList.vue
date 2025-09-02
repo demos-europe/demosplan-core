@@ -109,20 +109,20 @@
         </div><!--
      --><div
           class="layout__item text-right u-4-of-7 u-mt u-mb-0_5"
->
+        >
           <dp-button
             color="warning"
             data-cy="deleteSelectedItems"
             :text="Translator.trans('entities.marked.delete', { entities: Translator.trans('organisations'), sum: selectedItems.length })"
             @click.prevent="deleteItems(selectedItems)"
-/>
+          />
           <dp-button
             class="u-ml-0_25"
             color="secondary"
             data-cy="resetSelectedItems"
             :text="Translator.trans('unselect')"
             @click="dpToggleAll(false, items)"
-/>
+          />
         </div>
       </div>
     </div>

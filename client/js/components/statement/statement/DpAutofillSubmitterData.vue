@@ -44,7 +44,7 @@
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`"
->
+        >
           {{ Translator.trans(role.label) }}
         </label>
       </template>
@@ -61,17 +61,17 @@
  --><div
       v-if="currentRoleHasSelect"
       class="layout__item u-7-of-11 u-1-of-1-desk-down u-mb"
->
+    >
 <!-- Label & contextual help -->
       <label
         class="u-mb-0_25 flow-root"
         for="submitterSelect"
->
+      >
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
         <dp-contextual-help
           class="float-right"
           :text="autoFillLabel"
-/>
+        />
       </label>
 
        <!--Multiselect component-->
@@ -87,7 +87,7 @@
         :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
         @input="emitSubmitterData"
->
+      >
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
             <span v-cleanhtml="customOption(props.option, true)" />
@@ -144,7 +144,7 @@
         }"
         name="r_orga_department_name"
         :readonly="isBobHH"
-/>
+      />
     </template>
 
     <!-- General user fields: name, email, phoneNumber, street, postalcode, city. Email address (input.noSync) shall not be auto

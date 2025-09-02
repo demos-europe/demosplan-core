@@ -70,21 +70,21 @@
           v-for="link in permittedLinks"
           :key="link.tooltipContent"
           class="layout__item"
->
+        >
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
             :data-cy="`gisLayerLink:${link.label}`"
             :href="href(link)"
->
+          >
             <i
               aria-hidden="true"
               class="w-[20px]"
               :class="{'fa fa-check color-status-complete-fill': link.done(), 'fa fa-plus': !link.done()}"
-/>
-            {{ link.done() ?
-              Translator.trans(link.labelDone)
+            />
+            {{ link.done()
+              ? Translator.trans(link.labelDone)
               : Translator.trans(link.label)
             }}
           </a>
@@ -93,11 +93,12 @@
       <div
         v-if="hasPermission('feature_map_planstate')"
         class="layout__item u-mb-0_25 u-mt-0_25"
->
+      >
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="planstatus"
->{{ Translator.trans('planstatus') }}
+        >
+          {{ Translator.trans('planstatus') }}
         </label><!--
      --><div class="inline-block u-2-of-3">
         <dp-datepicker
@@ -107,7 +108,7 @@
           :calendars-before="2"
           :disabled="!isPlanStatusEditing"
           name="planstatus"
-/><!--
+        /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
               v-if="false === isPlanStatusEditing"
@@ -116,11 +117,11 @@
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isPlanStatusEditing', true)"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-pencil"
-/>
+              />
             </button>
             <button
               v-if="isPlanStatusEditing"
@@ -128,11 +129,11 @@
               :title="Translator.trans('save')"
               type="button"
               @click="updatePlanstatus"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-check"
-/>
+              />
             </button>
             <button
               v-if="isPlanStatusEditing"
@@ -140,11 +141,11 @@
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('planstatus', 'isPlanStatusEditing')"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-times"
-/>
+              />
             </button>
           </div>
         </div>
@@ -152,11 +153,12 @@
       <div
         v-if="hasPermission('feature_map_deactivate')"
         class="layout__item u-mb-0_25"
->
+      >
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="mapStatus"
->{{ Translator.trans('map') }}
+        >
+          {{ Translator.trans('map') }}
         </label><!--
      --><div class="inline-block u-2-of-3">
 <!--
@@ -165,7 +167,7 @@
             id="mapStatus"
             v-model="isMapEnabled"
             :disabled="!isMapStatusEditing"
-/>
+          />
         </div><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
@@ -175,11 +177,11 @@
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isMapStatusEditing', true)"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-pencil"
-/>
+              />
             </button>
             <button
               v-if="isMapStatusEditing"
@@ -188,11 +190,11 @@
               :title="Translator.trans('save')"
               type="button"
               @click="updateIsMapEnabled"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-check"
-/>
+              />
             </button>
             <button
               v-if="isMapStatusEditing"
@@ -201,11 +203,11 @@
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('isMapEnabled', 'isMapStatusEditing')"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-times"
-/>
+              />
             </button>
           </div>
         </div>
@@ -213,11 +215,11 @@
       <div
         v-if="hasPermission('feature_procedure_planning_area_match')"
         class="layout__item"
->
+      >
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="planningArea"
->
+        >
           {{ Translator.trans('planningArea') }}
         </label><!--
      --><div class="inline-block u-2-of-3">
@@ -226,12 +228,12 @@
             v-model="planningArea"
             class="o-form__control-select u-3-of-4"
             :disabled="!isPlanningAreaEditing"
->
+          >
             <option
               v-for="(option, idx) in planningAreaOptions"
               :key="`planning_area_${idx}`"
               :value="option.value"
->
+            >
               {{ Translator.trans(option.label) }}
             </option>
           </select><!--
@@ -242,11 +244,11 @@
               type="button"
               class="btn--blank o-link--default"
               @click="setEditingStatus('isPlanningAreaEditing', true)"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-pencil"
-/>
+              />
             </button>
             <button
               v-if="isPlanningAreaEditing"
@@ -254,11 +256,11 @@
               :title="Translator.trans('save')"
               type="button"
               @click="updatePlanningArea"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-check"
-/>
+              />
             </button>
             <button
               v-if="isPlanningAreaEditing"
@@ -266,11 +268,11 @@
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('planningArea', 'isPlanningAreaEditing')"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-times"
-/>
+              />
             </button>
           </div>
         </div>

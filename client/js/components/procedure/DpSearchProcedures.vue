@@ -46,11 +46,11 @@
    --><div
         v-if="searchIn === 'selected'"
         class="layout__item u-2-of-3 u-pl-0"
->
+      >
         <label
           for="procedureselect"
           class="inline u-mr"
->
+        >
           {{ Translator.trans('select.procedures.search.chose') }}
         </label><!--
      --><dp-multiselect
@@ -61,7 +61,7 @@
           track-by="id"
           :multiple="true"
           label="name"
-/>
+        />
       </div>
     </div>
     <ul class="o-list o-list--table u-mb">

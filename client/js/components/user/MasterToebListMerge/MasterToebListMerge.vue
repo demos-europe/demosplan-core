@@ -55,7 +55,7 @@
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institutions.master.organisations.master_toeb_list')"
           for="r_orga_mastertoeb"
-/>
+        />
 
         <dp-multiselect
           id="r_orga_mastertoeb"
@@ -64,7 +64,7 @@
           label="orgaName"
           :options="organisationsMasterToeb"
           track-by="ident"
->
+        >
           <template v-slot:option="{ props }">
             <span class="weight--bold block">{{ props.option.orgaName }}</span>
             <span class="font-size-small">{{ props.option.departmentName }}</span>
@@ -76,7 +76,7 @@
             type="hidden"
             :value="selectedOrganisationMasterToeb.ident"
             name="r_orga_mastertoeb"
->
+          >
           <dl class="description-list">
             <dt v-text="Translator.trans('name')" />
             <dd v-text="selectedOrganisationMasterToeb.orgaName" />

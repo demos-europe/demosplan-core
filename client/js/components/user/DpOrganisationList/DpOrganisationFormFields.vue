@@ -79,11 +79,11 @@
    --><div
         v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
         class="layout__item u-2-of-12"
->
+      >
         <label
           :for="organisation.id + 'addressHouseNumber'"
           class="u-mb-0_25"
->
+        >
           {{ Translator.trans('street.number') }}
         </label>
         <input
@@ -95,11 +95,11 @@
           style="height: 27px;"
           data-cy="orgaFormField:addressHouseNumber"
           @input="emitOrganisationUpdate"
->
+        >
         <p
           v-else-if="false === canEdit('houseNumber') && organisation.attributes.houseNumber !== ''"
           class="color--grey u-mb-0_5"
->
+        >
           {{ organisation.attributes.houseNumber }}
         </p>
       </div><!--
@@ -168,7 +168,7 @@
             <label
               :for="organisation.id + ':addressCity'"
               class="u-mb-0_25"
->
+            >
               {{ Translator.trans('city') }}
             </label>
             <input
@@ -180,17 +180,17 @@
               style="height: 27px;"
               data-cy="orgaFormField:addressCity"
               @input="emitOrganisationUpdate"
->
+            >
             <p
               v-else-if="false === canEdit('city') && organisation.attributes.city !== ''"
               class="color--grey u-mb-0_5"
->
+            >
               {{ organisation.attributes.city }}
             </p>
             <p
               v-else-if="false === canEdit('city') && organisation.attributes.city === ''"
               class="color--grey u-mb-0_5"
->
+            >
               -
             </p>
           </div>
@@ -273,13 +273,13 @@
                 :name="`type_${registrationStatus.type}:${organisation.id}`"
                 data-cy="orgaFormField:editRegistrationStatus"
                 @change="emitOrganisationUpdate"
->
+              >
                 <option
                   v-for="typeStatus in typeStatuses"
                   :key="typeStatus.value"
                   :value="typeStatus.value"
                   :selected="typeStatus.value === registrationStatus.status"
->
+                >
                   {{ typeStatus.label }}
                 </option>
               </select>
@@ -301,7 +301,7 @@
             </div><!--
          --><div
               class="layout__item u-1-of-4"
->
+            >
               {{ registrationStatusLabel(registrationStatus.status) }}
             </div>
           </div>
@@ -348,12 +348,12 @@
                 class="u-1-of-1"
                 :title="Translator.trans('permission.status')"
                 data-cy="orgaFormField:permissionStatus"
->
+              >
                 <option
                   v-for="typeStatus in typeStatuses"
                   :key="typeStatus.value"
                   :value="typeStatus.value"
->
+                >
                   {{ typeStatus.label }}
                 </option>
               </select>
@@ -374,7 +374,7 @@
                 class="btn btn--secondary"
                 type="button"
                 @click="resetRegistrationStatus"
->
+              >
                 {{ Translator.trans('abort') }}
               </button>
             </div>

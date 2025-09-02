@@ -59,7 +59,7 @@
           class="inline"
           :procedure-id="procedureId"
           :selected-toeb-ids="selectedItems"
-/>
+        />
       </div>
       <div class="flex u-pb-0_5">
         <!-- Search field -->

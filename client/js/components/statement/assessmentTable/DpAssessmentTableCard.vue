@@ -70,24 +70,24 @@
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25"
->
+          >
             <DpTooltip
               :text="statementDateTooltipContent"
               placement="top"
               trigger="hover focus"
->
+            >
               <i
                 v-if="statement.isCluster && hasPermission('feature_statement_cluster')"
                 class="fa fa-object-group"
                 aria-hidden="true"
-/>
+              />
               <span data-cy="statementExtID">{{ extid }}</span>
               <!-- Display icon anyways when moved from/to another procedure, otherwise display it when frontend state changes  -->
               <i
                 v-if="!!statement.movedFromProcedureName"
                 class="fa fa-exchange"
                 aria-hidden="true"
-/>
+              />
 
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
@@ -95,21 +95,19 @@
             </DpTooltip>
           </label><!--
 
-       --><div
-            class="layout__item u-3-of-6 o-hellip"
->
+       --><div class="layout__item u-3-of-6 o-hellip">
             <!--  author  -->
             <div
               v-if="false === statement.isCluster"
               class="u-1-of-1 u-pb-0_25"
->
+            >
               <div class="o-hellip--nowrap u-1-of-1">
                 <DpTooltip
                   :text="authorTooltipContent"
                   class="o-hellip--nowrap"
                   placement="top"
                   trigger="hover focus"
->
+                >
                   <!-- Findings when refactoring this template part:
                   - manual statements will have (`isSubmittedByCitizen === true`)
                     when selected r_role == 0, and initialOrganisationName == '' when selected r_role == 1 (#1)
@@ -164,26 +162,25 @@
             <div
               v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25"
->
+            >
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}
               </div>
             </div>
           </div><!--
 
-       --><div
-            class="inline-block u-pt-0_25 text-right float-right"
->
+       --><div class="inline-block u-pt-0_25 text-right float-right">
             <!-- Votes -->
             <span
               v-if="hasPermission('feature_statements_vote') && statement.votesNum > 0"
               v-tooltip="`${Translator.trans('voted.by')}: ${statement.votesNum}`"
               class="c-at-item__badge-icon"
->
+            >
               <i
                 class="fa fa-comment-o u-mr-0_125"
                 aria-hidden="true"
-/>{{ statement.votesNum }}
+              />
+              {{ statement.votesNum }}
             </span>
 
             <!-- Likes -->
@@ -191,11 +188,12 @@
               v-if="hasPermission('feature_statements_like') && statement.likesNum > 0"
               v-tooltip="`${Translator.trans('liked.by')}: ${statement.likesNum}`"
               class="c-at-item__badge-icon"
->
+            >
               <i
                 class="fa fa-chevron-circle-up u-mr-0_125"
                 aria-hidden="true"
-/>{{ statement.likesNum }}
+              />
+              {{ statement.likesNum }}
             </span>
 
             <!-- Visibility for public -->
@@ -205,7 +203,7 @@
               class="c-at-item__badge-icon fa"
               :class="publicVerifiedKeyIcon"
               aria-hidden="true"
-/>
+            />
 
             <!-- Navigation for toOriginal, detail, createFragment -->
             <table-card-flyout-menu
@@ -219,7 +217,7 @@
               :is-cluster="statement.isCluster"
               @statement:copy="openCopyStatementModal(statement.id)"
               @statement:move="moveStatement(statement.id)"
-/>
+            />
 
             <!-- Toggle expanded/collapsed -->
             <button
@@ -227,12 +225,12 @@
               data-cy="toggleViewExpandedCollapsed"
               class="u-pr-0_5 u-pl-0_25 btn--blank o-link--default"
               @click="toggleView(expanded ? 'collapsed' : 'expanded')"
->
+            >
               <i
                 class="fa"
                 :class="{'fa-angle-down': !expanded, 'fa-angle-up': expanded}"
                 style="font-size: 1.8rem; line-height: 1.2em;"
-/>
+              />
             </button>
           </div>
           </div>
@@ -293,7 +291,7 @@
                 v-if="hasPermission('field_statement_status')"
                 class="layout__item"
                 :class="hasPermission('field_statement_priority') ? 'u-pl-0_5 u-3-of-6' : 'u-1-of-1'"
->
+                >
                   <dp-edit-field-single-select
                     ref="priority"
                     label="priority"
@@ -305,7 +303,7 @@
                     :label-grid-cols="4"
                     @field:update="updateStatement"
                     @field:save="data => saveStatement(data, 'attribute', 'priority')"
-/>
+                  />
                 </dd>
             </dl>
           </dp-item-row>
@@ -339,7 +337,7 @@
                   v-if="hasPermission('field_statement_vote_pla') && hasPermission('feature_statements_fragment_vote')"
                   class="layout__item"
                   :class="(hasPermission('field_statement_vote_stk')) ? 'u-3-of-6 u-pl-0_5' : 'u-1-of-1'"
->
+                >
                   <dp-edit-field-single-select
                     ref="votePla"
                     :label="Translator.trans('fragment.vote.short')"
@@ -351,7 +349,7 @@
                     :editable="isClaimed"
                     @field:update="updateStatement"
                     @field:save="data => saveStatement(data, 'attribute', 'votePla')"
-/>
+                  />
                 </dd>
             </dl>
           </dp-item-row>
@@ -418,7 +416,7 @@
                     href="#"
                     rel="noopener"
                     @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))"
->
+                  >
                     {{ Translator.trans('see') }}
                   </a>
                 </dd>
@@ -480,7 +478,7 @@
                     <li
                       v-for="fragmentElement in statement.fragmentsElements"
                       :key="fragmentElement.id"
->
+                    >
                       {{ fragmentElement.elementTitle }}
                       <template v-if="hasOwnProp(fragmentElement,'paragraphTitle') && fragmentElement.paragraphTitle !== null">
                         - {{ fragmentElement.paragraphTitle }}
@@ -596,15 +594,15 @@
          --><div
               v-if="statement.genericAttachments.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
               class="layout--flush u-pv-0_25 u-ph-0_5"
->
+            >
               <div
                 class="layout__item c-at-item__row-icon color--grey"
                 :title="Translator.trans('statement.files.uploaded')"
->
+              >
                 <i
                   class="fa fa-paperclip"
                   aria-hidden="true"
-/>
+                />
               </div><!--
 
            --><div class="layout--flush layout__item c-at-item__row break-words">
@@ -615,7 +613,7 @@
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachment.original')"
->
+                >
                   {{ statement.sourceAttachment.filename }}
                 </a>
                 <!-- Attached files -->
@@ -627,7 +625,7 @@
                   rel="noopener"
                   target="_blank"
                   :title="Translator.trans('attachments')"
->
+                >
                   {{ file.filename }}
                 </a>
               </div>
@@ -684,18 +682,18 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25"
->
+          >
             <DpTooltip
               :text="statementDateTooltipContent"
               class="inline-block"
               placement="top"
->
+            >
               {{ extid }}
 
               <i
                 class="fa fa-exchange"
                 aria-hidden="true"
-/>
+              />
 
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
@@ -706,11 +704,11 @@
             v-if="accessibleProcedureIds.findIndex(el => el === statement.movedToProcedureId) >= 0"
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})"
             class="float-right u-mt-0_5 u-mb-0_75 u-mr"
->
+          >
             <a
               :href="Routing.generate('dm_plan_assessment_single_view', { statement: statement.movedStatementId, procedureId: statement.movedToProcedureId })"
               rel="noopener"
->
+            >
               {{ Translator.trans('movedTo') }}: {{ statement.movedToProcedureName.slice(0,70) }}{{ (statement.movedToProcedureName.length > 70) ? '...' : '' }}
             </a>
           </div>
@@ -718,7 +716,7 @@
             v-else
             v-tooltip="Translator.trans('statement.moved', {name: statement.movedToProcedureName})"
             class="float-right u-mt-0_5 u-mb-0_75 u-mr"
->
+          >
             {{ Translator.trans('movedTo') }}: {{ statement.movedToProcedureName.slice(0,55) }}{{ (statement.movedToProcedureName.length > 55) ? '...' : '' }} ({{ Translator.trans('inaccessible') }})
           </div>
         </div>

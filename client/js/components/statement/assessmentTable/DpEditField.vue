@@ -18,37 +18,37 @@
     >
       {{ Translator.trans(label) }}:
     </dt><!--
-   --><dd
-        v-if="false === readonly"
-        class="c-edit-field layout__item"
-        data-cy="editingEnabled"
-        :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
->
-        <!-- Editing -->
-        <div
-          v-if="editable && editingEnabled"
-          class="c-edit-field__editing"
->
-          <slot name="edit" />
-        </div>
-        <!-- Displaying value in non-edit mode, also toggles edit mode -->
-        <div
-          v-if="!editable || !editingEnabled"
-          :class="{'cursor-pointer': editable}"
-          :title="Translator.trans('edit.entity', { entity: translatedLabel })"
-          @click="toggleEditing"
->
-          <slot name="display" />
-        </div>
-        <!-- Edit Trigger -->
-        <div
-          class="c-edit-field__trigger"
-          :class="{ 'block': persistIcons }"
->
-          <dp-loading
-            v-if="loading"
-            hide-label
-/>
+ --><dd
+      v-if="false === readonly"
+      class="c-edit-field layout__item"
+      data-cy="editingEnabled"
+      :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
+    >
+      <!-- Editing -->
+      <div
+        v-if="editable && editingEnabled"
+        class="c-edit-field__editing"
+      >
+        <slot name="edit" />
+      </div>
+      <!-- Displaying value in non-edit mode, also toggles edit mode -->
+      <div
+        v-if="!editable || !editingEnabled"
+        :class="{'cursor-pointer': editable}"
+        :title="Translator.trans('edit.entity', { entity: translatedLabel })"
+        @click="toggleEditing"
+      >
+        <slot name="display" />
+      </div>
+      <!-- Edit Trigger -->
+      <div
+        class="c-edit-field__trigger"
+        :class="{ 'block': persistIcons }"
+      >
+        <dp-loading
+          v-if="loading"
+          hide-label
+        />
           <template v-else>
             <template v-if="editable && editingEnabled">
               <button
@@ -57,22 +57,22 @@
                 class="btn--blank o-link--default"
                 data-cy="saveField"
                 @click="save"
->
+              >
                 <i
                   aria-hidden="true"
                   class="fa fa-check"
-/>
+                />
               </button>
               <button
                 type="button"
                 :title="Translator.trans('reset')"
                 class="btn--blank o-link--default"
                 @click="reset"
->
+              >
                 <i
                   aria-hidden="true"
                   class="fa fa-times"
-/>
+                />
               </button>
             </template>
             <button
@@ -83,11 +83,11 @@
               :title="editable ? Translator.trans('edit.entity', {entity: translatedLabel}) : Translator.trans('locked.title')"
               class="btn--blank o-link--default"
               @click="toggleEditing"
->
+            >
               <i
                 aria-hidden="true"
                 class="fa fa-pencil"
-/>
+              />
             </button>
           </template>
         </div>

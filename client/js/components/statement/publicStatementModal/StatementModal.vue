@@ -369,7 +369,7 @@
                   :class="prefixClass('mb-2')"
                   :text="Translator.trans('upload.files')"
                   for="r_file"
-/>
+                />
 
                 <dp-upload-files
                   id="upload_files"
@@ -385,7 +385,7 @@
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
                   @upload-success="addUnsavedFile"
-/>
+                />
               </div>
             </div>
             <div

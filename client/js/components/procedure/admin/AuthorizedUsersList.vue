@@ -51,7 +51,7 @@
               :label="{
                 text: Translator.trans('street')
               }"
-/>
+            />
             <dp-input
               id="submitterHouseNumber"
               v-model="newUser.submitterHouseNumber"
@@ -60,7 +60,7 @@
               :label="{
                 text: Translator.trans('street.number.short')
               }"
-/>
+            />
           </div>
 
           <div class="o-form__group">
@@ -73,7 +73,7 @@
               }"
               pattern="^[0-9]{5}$"
               :size="5"
-/>
+            />
             <dp-input
               id="submitterCity"
               v-model="newUser.submitterCity"
@@ -81,7 +81,7 @@
               :label="{
                 text: Translator.trans('city')
               }"
-/>
+            />
           </div>
         </div><!--
 
@@ -91,7 +91,7 @@
             v-model="newUser.note"
             :label="Translator.trans('memo')"
             maxlength="1000"
-/>
+          />
         </div>
 
         <dp-button-row

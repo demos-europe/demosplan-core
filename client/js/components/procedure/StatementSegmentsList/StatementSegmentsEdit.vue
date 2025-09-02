@@ -38,10 +38,10 @@
             @click="() => toggleClaimSegment(segment)"
           />
         </div><!--
-        --><div
-            class="inline-block break-words"
-            style="width: 95%"
->
+     --><div
+          class="inline-block break-words"
+          style="width: 95%"
+        >
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -53,12 +53,12 @@
             @reset="() => reset(segment.id)"
             @toggle-editing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)"
->
+          >
             <template v-slot:display>
               <text-content-renderer
                 class="pr-3"
                 :text="segment.attributes.text"
-/>
+              />
             </template>
             <template v-slot:edit>
               <dp-editor
@@ -67,7 +67,7 @@
                 :value="segment.attributes.text"
                 @transform-obscure-tag="transformObscureTag"
                 @input="(val) => updateSegmentText(segment.id, val)"
-/>
+              />
             </template>
           </dp-edit-field>
         </div>

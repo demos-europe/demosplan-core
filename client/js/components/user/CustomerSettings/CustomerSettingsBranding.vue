@@ -43,23 +43,23 @@
    --><div
         v-if="uploadedFileId && uploadedFileId !== ''"
         class="layout__item u-1-of-2"
->
+      >
         <p
           class="weight--bold"
           v-text="Translator.trans('logo.current')"
-/>
+        />
         <img
           :alt="Translator.trans('logo.alt.customer')"
           :src="Routing.generate('core_logo', { hash: uploadedFileId })"
           style="max-width: 300px"
->
+        >
         <dp-button
           class="mt-2"
           data-cy="customerBranding:deleteLogo"
           :text="Translator.trans('logo.delete')"
           variant="outline"
           @click.prevent="deleteLogo"
-/>
+        />
       </div>
     </template>
     <div

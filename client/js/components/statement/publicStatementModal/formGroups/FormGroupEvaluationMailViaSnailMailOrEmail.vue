@@ -99,7 +99,7 @@
           aria-labelledby="statement-detail-require-response-post"
           value="snailmail"
           @change="val => setStatementData({r_getEvaluation: 'snailmail'})"
-/>
+        />
         <form-group-street-and-number
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
@@ -111,7 +111,7 @@
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
           :disabled="statement.r_useName === '0'"
           :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'"
-/>
+        />
       </div>
     </div>
   </div>

@@ -94,7 +94,7 @@
                   text: Translator.trans('department')
                 }"
                 name="r_orga_department_name"
-/>
+              />
             </div>
 
             <!-- Name, E-Mail Address -->
@@ -120,7 +120,7 @@
                   }"
                   name="r_orga_email"
                   type="email"
-/>
+                />
               </div>
             </div>
 
@@ -193,7 +193,7 @@
                 :label="Translator.trans('memo')"
                 name="r_memo"
                 reduced-height
-/>
+              />
             </div>
 
             <similar-statement-submitters
@@ -237,12 +237,12 @@
        --><div
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
->
+          >
             <dp-label
               :text="Translator.trans('statement.date.authored')"
               :hint="Translator.trans('explanation.statement.date.authored')"
               for="r_authored_date"
-/>
+            />
             <dp-datepicker
               id="r_authored_date"
               v-model="values.authoredDate"
@@ -252,7 +252,7 @@
               value=""
               :calendars-before="2"
               :max-date="values.submittedDate || nowDate"
-/>
+            />
           </div>
 
           <!-- Art der Einreichung, Eingangsnummer -->
@@ -276,7 +276,7 @@
             v-if="hasPermission('field_statement_intern_id')"
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
->
+          >
             <dp-input
               id="r_internId"
               data-cy="submitterForm:internId"
@@ -289,7 +289,7 @@
               name="r_internId"
               :pattern="internIdsPattern"
               value=""
-/>
+            />
           </div>
 
           <!-- Hidden input for phase -->

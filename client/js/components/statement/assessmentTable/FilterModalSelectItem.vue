@@ -24,42 +24,42 @@
       {{ filterItem.attributes.label }}
     </label><!--
 
-     --><div class="layout__item u-2-of-3">
-          <dp-multiselect
-            :id="filterItem.id"
-            :close-on-select="false"
-            :data-cy="filterItem.attributes.name"
-            label="label"
-            :loading="isLoading"
-            multiple
-            :name="filterItem.attributes.name + '_multiselect'"
-            :options="availableOptions"
-            selection-controls
-            track-by="label"
-            :value="selected"
-            @close="updateFilterOptions"
-            @open="loadFilterOptions"
-            @remove="removeFilterOption"
-            @select="selectFilterOption"
->
-            <!-- selected options -->
-            <template v-slot:tag="{ props }">
-              <span
-                class="multiselect__tag"
-                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)"
->
-                <span>
-                  {{ props.option.label }}
-                  <template v-if="'fragment' !== filterGroup.type">
-                    ({{ props.option.count }})
-                  </template>
-                </span>
-                <i
-                  aria-hidden="true"
-                  class="multiselect__tag-icon"
-                  tabindex="1"
-                  @click="props.remove(props.option)"
-/>
+ --><div class="layout__item u-2-of-3">
+      <dp-multiselect
+        :id="filterItem.id"
+        :close-on-select="false"
+        :data-cy="filterItem.attributes.name"
+        label="label"
+        :loading="isLoading"
+        multiple
+        :name="filterItem.attributes.name + '_multiselect'"
+        :options="availableOptions"
+        selection-controls
+        track-by="label"
+        :value="selected"
+        @close="updateFilterOptions"
+        @open="loadFilterOptions"
+        @remove="removeFilterOption"
+        @select="selectFilterOption"
+      >
+        <!-- selected options -->
+        <template v-slot:tag="{ props }">
+          <span
+            class="multiselect__tag"
+            :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)"
+          >
+            <span>
+              {{ props.option.label }}
+              <template v-if="'fragment' !== filterGroup.type">
+                ({{ props.option.count }})
+              </template>
+            </span>
+            <i
+              aria-hidden="true"
+              class="multiselect__tag-icon"
+              tabindex="1"
+              @click="props.remove(props.option)"
+            />
               </span>
             </template>
 
@@ -67,21 +67,19 @@
             <template
               v-if="'fragment' !== filterGroup.type"
               v-slot:beforeList
->
+            >
               <li>
                 <button
                   v-cleanhtml="sortingLabel"
                   type="button"
                   class="btn--blank o-link--default"
                   @click="toggleSorting(filterItem.id)"
-/>
+                />
               </li>
             </template>
 
             <!-- selectable options -->
-            <template
-              v-slot:option="{ props }"
->
+            <template v-slot:option="{ props }">
               <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 {{ props.option.label }}
               </span>

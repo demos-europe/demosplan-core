@@ -58,19 +58,19 @@
          --><div
               v-else
               class="u-4-of-12 layout__item"
->
+            >
               {{ Translator.trans('unknown') }}<br>
             </div><!--
          --><div
               v-if="userOrga"
               class="layout__item u-1-of-2"
->
+            >
               {{ Translator.trans(userOrga.attributes.name) }}
               <br>
               <div
                 v-if="userDepartment !== null"
                 class="u-1-of-2 inline"
->
+              >
                 {{ Translator.trans(userDepartment.attributes.name) }}
               </div>
             </div>

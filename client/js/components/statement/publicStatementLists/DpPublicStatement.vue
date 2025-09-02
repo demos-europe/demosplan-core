@@ -47,11 +47,11 @@
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
               @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
->
+            >
               <i
                 v-tooltip="Translator.trans('unsaved.changes')"
                 class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
-/>
+              />
             </button>
           </div>
         </div><!--
@@ -61,13 +61,13 @@
               v-for="item in menuItems"
               :key="item.id"
               class="inline u-mr-0_5"
->
+            >
               <button
                 v-if="item.type === 'button'"
                 v-bind="item.attrs"
                 class="btn--blank o-link--default align-middle"
                 @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
->
+              >
                 {{ item.text }}
               </button>
               <a
@@ -75,14 +75,14 @@
                 v-bind="item.attrs"
                 class="o-link--default align-middle"
                 :href="item.url"
->
+              >
                 {{ item.text }}
               </a>
               <h4
                 v-else-if="item.type === 'heading'"
                 v-bind="item.attrs"
                 class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle"
->
+              >
                 {{ item.text }}
               </h4>
             </div>
@@ -92,13 +92,13 @@
               <div
                 v-for="item in menuItems"
                 :key="item.id"
->
+              >
                 <a
                   v-if="item.type === 'link'"
                   v-bind="item.attrs"
                   class="o-link--default"
                   :href="item.url"
->
+                >
                   {{ item.text }}
                 </a>
                 <button
@@ -106,14 +106,14 @@
                   v-bind="item.attrs"
                   class="btn--blank o-link--default"
                   @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
->
+                >
                   {{ item.text }}
                 </button>
                 <h4
                   v-if="item.type === 'heading'"
                   v-bind="item.attrs"
                   class="color--grey u-mb-0 u-mt-0_25 font-size-small"
->
+                >
                   {{ item.text }}
                 </h4>
               </div>
@@ -124,11 +124,11 @@
               type="button"
               class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle"
               @click="isOpen = false === isOpen"
->
+            >
               <i
                 class="fa"
                 :class="isOpen ? 'fa-angle-up': 'fa-angle-down'"
-/>
+              />
             </button>
           </div>
         </div>
@@ -146,9 +146,9 @@
       </div><!--
    --><div class="u-1-of-1 c-public-statement__content-item">
         <div
-            v-if="showAuthor"
-            class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label"
->
+          v-if="showAuthor"
+          class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label"
+        >
         {{ Translator.trans('authored.by') }}
       </div><!--
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
@@ -182,7 +182,7 @@
  --><div
       v-if="hasPermission('feature_documents_new_statement')"
       class="u-1-of-1 c-public-statement__content-item"
->
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('paragraph') }}
       </div><!--
@@ -204,7 +204,7 @@
             type="button"
             :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
             @click.prevent.stop="$emit('openMapModal', polygon)"
->
+          >
             {{ Translator.trans('see') }}
           </button>
           <span v-else>
@@ -216,7 +216,7 @@
  --><div
       v-if="priorityAreas !== null"
       class="u-1-of-1 c-public-statement__content-item"
->
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('potential.areas') }}
       </div><!--
@@ -227,7 +227,7 @@
    --><div
         v-if="county !== null"
         class="u-1-of-1 c-public-statement__content-item"
->
+      >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('county') }}
       </div><!--
@@ -242,7 +242,7 @@
    --><div
         v-cleanhtml="renderAttachments(attachments)"
         class="inline-block u-2-of-3 u-1-of-1-palm break-words"
-/>
+      />
       </div>
     </div>
     <dp-inline-notification

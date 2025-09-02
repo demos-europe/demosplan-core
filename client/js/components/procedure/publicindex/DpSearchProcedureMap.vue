@@ -107,13 +107,13 @@
             :class="prefixClass('o-form__control-select')"
             :value="form.sort"
             @change="setValueAndSubmitForm($event, 'sort')"
->
+          >
             <option
               v-for="option in sortOptions"
               :key="'sort_' + option.value"
               :selected="option.selected ? true : null"
               :value="option.value"
->
+            >
               {{ option.title }}
             </option>
           </select>
@@ -131,28 +131,28 @@
    --><div
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('layout__item u-1-of-1 u-mb')"
->
+      >
         <select
           id="municipalCode"
           :class="prefixClass('o-form__control-select')"
           data-cy="searchProcedureMapForm:municipalCode"
           name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')"
->
+        >
           <template
             v-for="municipalityGroup in municipalities"
             :key="`group_${municipalityGroup.label}`"
->
+          >
             <optgroup
               v-if="hasOwnProp(municipalityGroup,'options')"
               :label="municipalityGroup.label"
->
+            >
               <option
                 v-for="(county, idx) in municipalityGroup.options"
                 :key="`county:${idx}`"
                 :selected="county.value === form.municipalCode ? true : null"
                 :value="county.value"
->
+              >
                 {{ county.title }}
               </option>
             </optgroup>
@@ -160,7 +160,7 @@
               v-else
               :key="`opt_${municipalityGroup.value}`"
               :value="municipalityGroup.value"
->
+            >
               {{ municipalityGroup.label }}
             </option>
           </template>
@@ -191,7 +191,7 @@
             :data-cy="'searchProcedureMapForm:' + filter.name"
             :name="filter.name"
             @change="setValueAndSubmitForm($event, filter.name)"
->
+          >
             <option value="">
               {{ Translator.trans('all') }}
             </option>
@@ -199,7 +199,7 @@
               v-for="(filterOption, index) in filter.options"
               :key="'filter_opt_' + index"
               :value="filterOption.value"
->
+            >
               {{ filterOption.label }}
             </option>
           </select>

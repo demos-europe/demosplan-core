@@ -53,38 +53,38 @@
         </select>
       </label><!--
 
-  --><label
-      v-if="hasPermission('field_statement_user_group') && formOptions.userGroup"
-      for="r_userGroup"
-      :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
-      :title="required ? Translator.trans('statements.required.field') : false"
->
-      <span
-        id="statement-detail-organisation"
-        :class="prefixClass('block')"
->
-        {{ Translator.trans('organisation') }}
+   --><label
+        v-if="hasPermission('field_statement_user_group') && formOptions.userGroup"
+        for="r_userGroup"
+        :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
+        :title="required ? Translator.trans('statements.required.field') : false"
+      >
         <span
-          v-if="required"
-          aria-hidden="true"
->
-          *
+          id="statement-detail-organisation"
+          :class="prefixClass('block')"
+        >
+          {{ Translator.trans('organisation') }}
+          <span
+            v-if="required"
+            aria-hidden="true"
+          >
+            *
+          </span>
         </span>
-      </span>
-      <select
-        id="r_userGroup"
-        name="r_userGroup"
-        :class="prefixClass('o-form__control-select')"
-        :required="required && statement.r_useName === '1'"
-        :value="statement.r_userGroup"
-        @change="val => setStatementData({r_userGroup: val.target.value})"
->
+        <select
+          id="r_userGroup"
+          name="r_userGroup"
+          :class="prefixClass('o-form__control-select')"
+          :required="required && statement.r_useName === '1'"
+          :value="statement.r_userGroup"
+          @change="val => setStatementData({r_userGroup: val.target.value})"
+        >
         <option
           v-for="userGroup in formOptions.userGroup"
           :key="userGroup"
           :selected="userGroup === statement.r_userGroup"
           :value="userGroup"
->
+        >
           {{ userGroup }}
         </option>
       </select>
@@ -107,11 +107,11 @@
         v-if="hasPermission('field_statement_user_position') && formOptions.userPosition"
         for="r_userPosition"
         :class="prefixClass('layout__item u-1-of-2 u-1-of-4-lap-up u-mb-0 u-mt-0_5')"
->
+      >
         <span
           id="statement-detail-position"
           :class="prefixClass('block')"
->
+        >
           {{ Translator.trans('position') }}
         </span>
         <select
@@ -120,13 +120,13 @@
           :class="prefixClass('o-form__control-select')"
           :value="statement.r_userPosition"
           @change="val => setStatementData({r_userPosition: val.target.value})"
->
+        >
           <option
             v-for="userPosition in formOptions.userPosition"
             :key="userPosition"
             :selected="userPosition === statement.r_userPosition"
             :value="userPosition"
->
+          >
             {{ userPosition }}
           </option>
         </select>

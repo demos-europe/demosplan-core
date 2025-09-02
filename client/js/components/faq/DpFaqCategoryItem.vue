@@ -19,11 +19,11 @@
           :href="Routing.generate('DemosPlan_faq_administration_category_edit', {categoryId: faqCategoryItem.id})"
           :aria-label="Translator.trans('item.edit')"
           data-cy="editCategoryItem"
->
+        >
           <i
             class="fa fa-pencil"
             aria-hidden="true"
-/>
+          />
         </a>
         <div class="sm:ml-2 min-w-1">
           <a
@@ -32,11 +32,11 @@
             :href="Routing.generate('DemosPlan_faq_administration_category_delete', {categoryId: faqCategoryItem.id})"
             :aria-label="Translator.trans('item.delete')"
             data-cy="deleteCategoryItem"
->
+          >
             <i
               class="fa fa-trash"
               aria-hidden="true"
-/>
+            />
           </a>
         </div>
       </div>
