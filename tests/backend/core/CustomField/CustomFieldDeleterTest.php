@@ -6,14 +6,9 @@ namespace Tests\Core\CustomField;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Base\UnitTestCase;
 
 class CustomFieldDeleterTest extends UnitTestCase
@@ -58,4 +53,36 @@ class CustomFieldDeleterTest extends UnitTestCase
 
 
     }
+
+    public function testDeleteCustomFieldThrowsExceptionWhenNotFound(): void
+    {
+        // Arrange
+        $entityId = 'non-existent-id';
+
+        // Act & Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("CustomFieldConfiguration with ID 'non-existent-id' not found");
+
+        $this->sut->deleteCustomField($entityId);
+    }
+
+    public function testDeleteCustomFieldHandlesStrategyFactoryException(): void
+    {
+        // Arrange
+        $targetEntityClass = 'UnsupportedEntity';
+        $procedure = ProcedureFactory::createOne();
+        $customField1 = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity($targetEntityClass)
+            ->asRadioButton('Color1')->create();
+
+        $entityId = $customField1->getId();
+
+        // Act & Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("No entity usage removal strategy found for target entity class: UnsupportedEntity");
+
+        $this->sut->deleteCustomField($entityId);
+    }
+
 }
