@@ -666,6 +666,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
+        if($this->permissions->hasPermission('field_expand_procedure_description')){
+            if(array_key_exists('expandProcedureDescription', $data)){
+                $procedure['settings']['expandProcedureDescription'] = true;
+            } else {
+                $procedure['settings']['expandProcedureDescription'] = false;
+            }
+        }
+
         // Add exportSettings to procedure
         if (array_key_exists('r_export_settings', $data)) {
             $procedure['exportSettings'] = $data['r_export_settings'];
