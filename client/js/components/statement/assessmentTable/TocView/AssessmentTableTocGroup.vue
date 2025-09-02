@@ -44,7 +44,7 @@ export default {
   methods: {
     getElementId (title) {
       return this.parentId === '' ? title : `${this.parentId}_${title}`
-    }
-  }
+    },
+  },
 }
 </script>

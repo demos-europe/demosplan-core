@@ -43,9 +43,9 @@
         Vorschau:
       </label>
       <div
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
         id="previewField"
-        v-cleanhtml="previewValue" />
+        v-cleanhtml="previewValue"
+        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html" />
     </div>
   </div>
 </template>
@@ -57,60 +57,60 @@ export default {
   name: 'DpBoilerPlate',
   components: {
     DpContextualHelp,
-    DpMultiselect
+    DpMultiselect,
   },
 
   directives: {
     cleanhtml: CleanHtml,
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     boilerPlates: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     groupValues: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupLabel: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isGroupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     title: {
       required: false,
       type: String,
-      default: 'boilerplate'
-    }
+      default: 'boilerplate',
+    },
   },
 
   emits: [
-    'boilerplate-text-added'
+    'boilerplateText:added',
   ],
 
   data () {
     return {
       selectedBoilerPlate: '',
-      previewValue: ''
+      previewValue: '',
     }
   },
 
@@ -118,21 +118,21 @@ export default {
     tooltipOptions () {
       return {
         classes: 'z-modal',
-        content: Translator.trans('boilerplates.categories.explanation')
+        content: Translator.trans('boilerplates.categories.explanation'),
       }
-    }
+    },
   },
 
   methods: {
     addToTextArea (data) {
       this.previewValue = data.text
-      this.$emit('boilerplate-text-added', this.previewValue)
+      this.$emit('boilerplateText:added', this.previewValue)
     },
 
     resetBoilerPlateMultiSelect () {
       this.selectedBoilerPlate = ''
       this.previewValue = ''
-    }
-  }
+    },
+  },
 }
 </script>

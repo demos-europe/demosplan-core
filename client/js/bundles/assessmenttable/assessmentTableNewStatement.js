@@ -22,12 +22,12 @@ import VoterStore from '@DpJs/store/statement/Voter'
 const stores = {
   AssessmentTable: AssessmentTableStore,
   Statement: StatementStore,
-  Voter: VoterStore
+  Voter: VoterStore,
 }
 
 const components = {
   DpNewStatement,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components, stores).then(() => {

@@ -24,14 +24,14 @@ export default {
   name: 'OrganisationCompetence',
 
   components: {
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

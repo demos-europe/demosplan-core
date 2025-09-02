@@ -29,6 +29,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupStreet',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

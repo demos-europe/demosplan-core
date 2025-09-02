@@ -33,18 +33,18 @@
         <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
-              @change="resetSelectedProcedureId"
               value="accessibleProcedures"
-              required> {{ Translator.trans('procedure.accessible') }}
+              required
+              @change="resetSelectedProcedureId"> {{ Translator.trans('procedure.accessible') }}
           </label>
           <label class="u-mb-0_5 u-ml inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
               value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
           </label>
         </template>
@@ -54,9 +54,9 @@
           for="r_target_procedure">{{ Translator.trans('target.procedure') }}</label>
         <select
           id="r_target_procedure"
+          v-model="selectedProcedureId"
           name="r_target_procedure"
-          class="w-full u-mb"
-          v-model="selectedProcedureId">
+          class="w-full u-mb">
           <option value="">
             -
           </option>
@@ -71,8 +71,8 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          @click.prevent.stop="copyStatement"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
+          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          @click.prevent.stop="copyStatement">
           {{ Translator.trans('statement.copy.to.procedure.action') }}
         </button>
       </template>
@@ -90,30 +90,30 @@ export default {
   components: {
     DpInlineNotification,
     DpModal,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     accessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     inaccessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   emits: [
-    'statement:copyToProcedure'
+    'statement:copyToProcedure',
   ],
 
   data () {
@@ -122,25 +122,25 @@ export default {
       procedurePermissions: 'accessibleProcedures',
       selectedProcedureId: '',
       statementId: null,
-      statementFragments: []
+      statementFragments: [],
     }
   },
 
   computed: {
     ...mapGetters('AssessmentTable', [
-      'copyStatementModal'
+      'copyStatementModal',
     ]),
 
     ...mapGetters('Fragment', [
-      'fragmentsByStatement'
+      'fragmentsByStatement',
     ]),
 
     ...mapState('AssessmentTable', [
-      'currentUserId'
+      'currentUserId',
     ]),
 
     ...mapState('Statement', [
-      'statements'
+      'statements',
     ]),
 
     //  Always pick the list that is specified by radio inputs
@@ -172,16 +172,16 @@ export default {
 
     userIsAssigneeOfAllFragments () {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
-    }
+    },
   },
 
   methods: {
     ...mapActions('Fragment', [
-      'loadFragments'
+      'loadFragments',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setModalProperty'
+      'setModalProperty',
     ]),
 
     copyStatement () {
@@ -197,7 +197,7 @@ export default {
 
       this.$store.dispatch('Statement/copyStatementAction', {
         procedureId: this.selectedProcedureId,
-        statementId: this.statementId
+        statementId: this.statementId,
       })
         .then(response => {
           // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
@@ -208,7 +208,7 @@ export default {
               copiedStatementId: response.data.copiedStatementId,
               placeholderStatementId: response.data.placeholderStatementId,
               movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name
+              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
             }
 
             // Handle update of assessment table ui from TableCard.vue
@@ -270,7 +270,7 @@ export default {
           return {
             id: fragment.id,
             assigneeId: fragment.assignee.id,
-            departmentId: fragment.departmentId
+            departmentId: fragment.departmentId,
           }
         })
       }
@@ -290,13 +290,13 @@ export default {
     resetFragments () {
       this.statementFragments = []
       this.isLoading = true
-    }
+    },
   },
 
   mounted () {
     this.$nextTick(() => {
       this.handleToggleModal()
     })
-  }
+  },
 }
 </script>

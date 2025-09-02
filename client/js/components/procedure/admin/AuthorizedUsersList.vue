@@ -80,9 +80,9 @@
      --><div class="layout__item u-3-of-7">
           <dp-text-area
             id="memo"
+            v-model="newUser.note"
             :label="Translator.trans('memo')"
-            maxlength="1000"
-            v-model="newUser.note" />
+            maxlength="1000" />
         </div>
 
         <dp-button-row
@@ -116,8 +116,8 @@
       is-expandable
       is-sortable
       :table-items="tokens"
-      @updated:sortOrder="setSortOptions"
-      track-by="tokenId">
+      track-by="tokenId"
+      @updated:sortOrder="setSortOptions">
       <template v-slot:submitterName="rowData">
         <div class="o-hellip__wrapper">
           <div
@@ -256,9 +256,9 @@
                 </p>
               </div>
               <dp-text-area
+                :id="`note:${rowData.tokenId}`"
                 class="mb-3"
                 :disabled="!rowData.isEditable"
-                :id="`note:${rowData.tokenId}`"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"
@@ -295,7 +295,7 @@ import {
   DpInput,
   dpRpc,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -308,7 +308,7 @@ export default {
     DpContextualHelp,
     DpDataTableExtended,
     DpInput,
-    DpTextArea
+    DpTextArea,
   },
 
   mixins: [dpValidateMixin],
@@ -316,8 +316,8 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -327,7 +327,7 @@ export default {
         { field: 'submitterName', label: Translator.trans('name') },
         { field: 'submitterEmailAddress', label: Translator.trans('email') },
         { field: 'token', label: Translator.trans('access.token') },
-        { field: 'note', label: Translator.trans('memo') }
+        { field: 'note', label: Translator.trans('memo') },
       ],
       isLoading: false,
       isSaving: false,
@@ -341,16 +341,16 @@ export default {
         submitterPostalCode: '',
         submitterCity: '',
         externId: '',
-        statementId: ''
+        statementId: '',
       },
       selectedRow: '',
       sendTokenBy: 'email',
       showCreateForm: false,
       sortOptions: {
         direction: 'asc',
-        key: 'submitterName'
+        key: 'submitterName',
       },
-      statements: []
+      statements: [],
     }
   },
 
@@ -358,7 +358,7 @@ export default {
     exportRoute () {
       return Routing.generate('dplan_admin_procedure_authorized_users_export', {
         procedureId: this.procedureId,
-        sort: this.sortOptions
+        sort: this.sortOptions,
       })
     },
 
@@ -372,7 +372,7 @@ export default {
         const currentUser = this.tokens.find(user => user.tokenId === tokenId)
         return currentUser ? { ...currentUser } : null
       }
-    }
+    },
   },
 
   methods: {
@@ -406,7 +406,7 @@ export default {
         submitterStreet,
         submitterHouseNumber,
         submitterPostalCode,
-        submitterCity
+        submitterCity,
       }
 
       return dpRpc('consultationToken.manual.create', params)
@@ -437,9 +437,9 @@ export default {
             'submitterHouseNumber',
             'submitterPostalCode',
             'submitterCity',
-            'isManual'
-          ].join()
-        }
+            'isManual',
+          ].join(),
+        },
       }
       return dpApi.get(url, params)
         .then(response => {
@@ -452,7 +452,7 @@ export default {
                   ...token.attributes,
                   tokenId: token.id,
                   isEditable: false,
-                  statementId: statement.id
+                  statementId: statement.id,
                 }
               }
             }
@@ -514,7 +514,7 @@ export default {
         submitterStreet: user.submitterStreet,
         submitterHouseNumber: user.submitterHouseNumber,
         submitterPostalCode: user.submitterPostalCode,
-        submitterCity: user.submitterCity
+        submitterCity: user.submitterCity,
       }
       if (user.submitterEmailAddress) {
         statementAttributes.submitterEmailAddress = user.submitterEmailAddress
@@ -523,8 +523,8 @@ export default {
         data: {
           id: statementId,
           type: 'Statement',
-          attributes: statementAttributes
-        }
+          attributes: statementAttributes,
+        },
       }
       const url = Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId })
 
@@ -545,9 +545,9 @@ export default {
           id: tokenId,
           type: 'ConsultationToken',
           attributes: {
-            note: user.note
-          }
-        }
+            note: user.note,
+          },
+        },
       }
 
       const url = Routing.generate('api_resource_update', { resourceType: 'ConsultationToken', resourceId: tokenId })
@@ -564,11 +564,11 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-    }
+    },
   },
 
   mounted () {
     this.fetchInitialData()
-  }
+  },
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <form
-    class="grid grid-cols-[1fr,auto,auto] items-center gap-1"
+    class="grid grid-cols-[1fr_auto_auto] items-center gap-1"
     data-dp-validate="editTagOrCategoryForm">
     <div class="flex space-x-1">
       <dp-icon
@@ -12,11 +12,11 @@
         v-text="item.name" />
       <dp-input
         v-else
-        data-cy="tagListItem:tagName"
         id="tagName"
+        v-model="name"
+        data-cy="tagListItem:tagName"
         maxlength="250"
-        required
-        v-model="name" />
+        required />
     </div>
     <div class="flex">
       <template v-if="!isEditing">
@@ -66,7 +66,7 @@ import {
   DpButton,
   DpIcon,
   DpInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
@@ -76,7 +76,7 @@ export default {
   components: {
     DpButton,
     DpIcon,
-    DpInput
+    DpInput,
   },
 
   mixins: [dpValidateMixin],
@@ -91,52 +91,52 @@ export default {
       required: true,
       validator: (item) => {
         return item.id && item.type && item.name
-      }
-    }
+      },
+    },
   },
 
   emits: [
     'item:deleted',
     'item:saved',
-    'tagIsRemoved'
+    'tagIsRemoved',
   ],
 
   data () {
     return {
       isEditing: false,
-      name: this.item.name
+      name: this.item.name,
     }
   },
 
   computed: {
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTags: 'items'
-    })
+      institutionTags: 'items',
+    }),
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
       deleteInstitutionTagCategory: 'delete',
       restoreTagCategoryFromInitial: 'restoreFromInitial',
-      saveInstitutionTagCategory: 'save'
+      saveInstitutionTagCategory: 'save',
     }),
 
     ...mapActions('InstitutionTag', {
       deleteInstitutionTag: 'delete',
       restoreTagFromInitial: 'restoreFromInitial',
-      saveInstitutionTag: 'save'
+      saveInstitutionTag: 'save',
     }),
 
     ...mapMutations('InstitutionTagCategory', {
-      updateInstitutionTagCategory: 'setItem'
+      updateInstitutionTagCategory: 'setItem',
     }),
 
     ...mapMutations('InstitutionTag', {
-      updateInstitutionTag: 'setItem'
+      updateInstitutionTag: 'setItem',
     }),
 
     abort () {
@@ -172,9 +172,9 @@ export default {
 
     confirmAndDeleteTag () {
       const { isUsed, name } = this.item
-      const message = isUsed
-        ? Translator.trans('check.tag_is_used.delete')
-        : Translator.trans('check.tag.delete', { tag: name })
+      const message = isUsed ?
+        Translator.trans('check.tag_is_used.delete') :
+        Translator.trans('check.tag.delete', { tag: name })
 
       if (dpconfirm(message)) {
         this.deleteTag()
@@ -271,8 +271,8 @@ export default {
         type,
         attributes: {
           ...this.institutionTagCategories[id].attributes,
-          name: this.name
-        }
+          name: this.name,
+        },
       })
 
       this.saveInstitutionTagCategory(id)
@@ -295,8 +295,8 @@ export default {
         type,
         attributes: {
           ...this.institutionTags[id].attributes,
-          name: this.name
-        }
+          name: this.name,
+        },
       })
 
       this.saveInstitutionTag(id)
@@ -309,7 +309,7 @@ export default {
           this.restoreTagFromInitial(id)
           dplan.notify.error(Translator.trans('error.api.generic'))
         })
-    }
-  }
+    },
+  },
 }
 </script>
