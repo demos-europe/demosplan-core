@@ -14,12 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
 {
     public function __construct(
-        private readonly CustomFieldTypeValidatorRegistry $validatorRegistry)
+        private readonly CustomFieldTypeValidatorRegistry $validatorRegistry,
+    private readonly CustomFieldFactoryRegistry $factoryRegistry)
     {
     }
 
@@ -29,37 +31,8 @@ class CustomFieldFactory
         $validator = $this->validatorRegistry->getValidatorForFieldType($type);
         $validator->validate($attributes);
 
-        $customFieldClass = CustomFieldInterface::TYPE_CLASSES[$type];
-        $customField = new $customFieldClass();
-        $customField->setFieldType($type);
-        $customField->setName($attributes['name']);
-        $customField->setDescription($attributes['description']);
-        $customField->setRequired($attributes['isRequired']);
+        $factory = $this->factoryRegistry->getFactory($type);
+        return $factory->create($attributes);
 
-        if (isset($attributes['options']) && method_exists($customField, 'setOptions')) {
-            // Transform options to the new format if they come as strings
-            $options = $this->normalizeOptions($attributes['options']);
-            $customField->setOptions($options);
-        }
-
-        return $customField;
-    }
-
-    /**
-     * Ensure options are in the new object format.
-     */
-    private function normalizeOptions(array $options): array
-    {
-        $normalizedOptions = [];
-
-        foreach ($options as $option) {
-            // Already in new format or ensure it has required keys
-            $customFieldOption = new CustomFieldOption();
-            $customFieldOption->setId(Uuid::uuid4()->toString());
-            $customFieldOption->setLabel($option['label']);
-            $normalizedOptions[] = $customFieldOption;
-        }
-
-        return $normalizedOptions;
     }
 }
