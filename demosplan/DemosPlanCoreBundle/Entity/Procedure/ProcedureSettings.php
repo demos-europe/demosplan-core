@@ -117,10 +117,16 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     private bool $allowAnonymousStatements = true;
 
     /**
+     * @ORM\Column(name="expand_procedure_description", type="boolean", nullable=false, options={"default": true})
+     */
+    private bool $expandProcedureDescription  = true;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_ps_plan_text", type="text", length=65535, nullable=false)
      */
+
     protected $planText = '';
 
     /**
@@ -979,6 +985,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedEndDate($designatedPublicEndDate);
 
+        return $this;
+    }
+
+    public function getExpandProcedureDescription():bool
+    {
+        return $this->expandProcedureDescription;
+    }
+
+    public function setExpandProcedureDescription(bool $expandProcedureDescription):ProcedureSettingsInterface
+    {
+        $this->expandProcedureDescription = $expandProcedureDescription;
         return $this;
     }
 
