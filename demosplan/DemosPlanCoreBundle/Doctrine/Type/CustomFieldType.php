@@ -57,8 +57,6 @@ class CustomFieldType extends JsonType
                             break;
                         default:
                             throw new ConversionException("Unhandled custom field class: {$fieldType}");
-
-
                     }
 
                     return $field;
