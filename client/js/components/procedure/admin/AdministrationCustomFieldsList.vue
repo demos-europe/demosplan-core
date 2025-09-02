@@ -156,6 +156,26 @@
             />
           </button>
 
+          <button
+            v-if="!rowData.edit"
+            class="btn--blank o-link--default mr-1"
+            data-cy="customFields:deleteField"
+            :aria-label="Translator.trans('item.edit')"
+            :title="Translator.trans('edit')"
+            @click="deleteCustomField(rowData)">
+            <dp-icon
+              aria-hidden="true"
+              icon="delete"
+            />
+          </button>
+
+          <dp-confirm-dialog
+            v-if="!rowData.edit"
+            ref="deleteConfirmDialog"
+            data-cy="customFields:deleteConfirm"
+            :message="Translator.trans('custom_field.delete.message.warning')"
+          />
+
           <template v-else>
             <button
               :aria-label="Translator.trans('save')"
@@ -400,6 +420,36 @@ export default {
       const identicalNames = options.filter(option => option.label === name)
 
       return identicalNames.length <= 1
+    },
+
+    async deleteCustomField (rowData) {
+      if (this.$refs.deleteConfirmDialog?.open) {
+        const isConfirmed = await this.$refs.deleteConfirmDialog.open()
+
+        if (isConfirmed) {
+          try {
+            // Make API call to delete the custom field
+            const url = Routing.generate('api_resource_delete', {
+              resourceType: 'CustomField',
+              resourceId: rowData.id
+            })
+
+            await dpApi.delete(url)
+
+            this.$store.commit('CustomField/remove', rowData.id)
+
+            // Show success notification
+            dplan.notify.confirm(Translator.trans('confirm.deleted'))
+
+            // Refresh the custom fields list
+            this.fetchCustomFields()
+
+          } catch (error) {
+            console.error('Error deleting custom field:', error)
+            dplan.notify.error(Translator.trans('error.generic'))
+          }
+        }
+      }
     },
 
     deleteOptionOnEdit (index) {

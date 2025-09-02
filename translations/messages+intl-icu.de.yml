@@ -838,7 +838,7 @@ counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
 create.note: "Notiz anlegen"
 current.online.participation: "<strong>Aktuelle</strong> Online-Beteiligungen"
-custom.field.edit.message.warning: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird."
+custom_field.delete.message.warning: "Beim Löschen dieses Feldes werden auch die Felder in den entsprechenden Abschnitten gelöscht."
 custom_field.edit.message.warning: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird."
 customer: |
     {count, plural,
