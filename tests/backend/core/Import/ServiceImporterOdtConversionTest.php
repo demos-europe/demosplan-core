@@ -49,21 +49,6 @@ class ServiceImporterOdtConversionTest extends TestCase
 
     protected function setUp(): void
     {
-        // Create mocks for all dependencies
-        $docxImporter = $this->createMock(DocxImporterInterface::class);
-        $odtImporter = $this->createMock(OdtImporter::class);
-        $fileService = $this->createMock(FileService::class);
-        $defaultStorage = $this->createMock(FilesystemOperator::class);
-        $globalConfig = $this->createMock(GlobalConfigInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $messageBag = $this->createMock(MessageBagInterface::class);
-        $paragraphRepository = $this->createMock(ParagraphRepository::class);
-        $paragraphService = $this->createMock(ParagraphService::class);
-        $pdfCreator = $this->createMock(PdfCreatorInterface::class);
-        $router = $this->createMock(RouterInterface::class);
-        $client = $this->createMock(RpcClient::class);
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
         // Create mocks for OdtImporter dependencies
         $styleParser = $this->createMock(ODTStyleParserInterface::class);
         $htmlProcessor = $this->createMock(ODTHtmlProcessorInterface::class);
