@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -28,6 +29,10 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
     ) {
     }
 
+    /**
+     * @throws PersistResourceException
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function removeUsages(string $customFieldId): void
     {
         $this->entityManager->getConnection()->beginTransaction();
@@ -49,7 +54,8 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
             $this->entityManager->clear();
 
             // Re-throw with context
-            throw new RuntimeException("Failed to remove custom field values in segments for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+            throw new PersistResourceException("Failed to remove custom field values in segments for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+
         }
     }
 
