@@ -12,18 +12,17 @@
       :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
-      preselected-type="multiSelect"
+      :preselected-type="isStatementField ? 'multiSelect' : 'singleSelect'"
       @save="customFieldData => saveNewField(customFieldData)">
       <div>
-          <dp-checkbox
+        <dp-checkbox
           v-if="isStatementField"
-          v-model="required"
-          class="mb-2"
           id="requiredCheckbox"
+          v-model="isRequired"
+          class="mb-2"
           :label="{
             text: Translator.trans('statements.fields.configurable.required')
-          }"
-          />
+          }" />
         <dp-label
           class="mb-1"
           required
@@ -104,7 +103,6 @@
               {{ option.label }}
             </div>
           </li>
-
         </ul>
         <ul v-else>
           <li
@@ -156,15 +154,17 @@
       <template v-slot:fieldType="rowData">
         <div class="mt-1">
           <dp-badge
-          color="default"
-          :text="fieldTypeText(rowData.fieldType)"
+            color="default"
+            :text="fieldTypeText(rowData.fieldType)"
           />
         </div>
       </template>
 
       <template v-slot:required="rowData">
-        <div v-if="isStatementField" class="mt-1">
-          {{rowData.required ? Translator.trans('yes') : Translator.trans('no')}}
+        <div
+          v-if="isStatementField"
+          class="mt-1">
+          {{ rowData.required ? Translator.trans('yes') : Translator.trans('no') }}
         </div>
       </template>
 
@@ -300,12 +300,12 @@ export default {
       enabledFieldsTextConfig: {
         field_segments_custom_fields: {
           info: 'segments.fields.edit.info',
-          warning: 'segments.field.edit.message.warning'
+          warning: 'segments.field.edit.message.warning',
         },
         field_statements_custom_fields: {
           info: 'statements.fields.edit.info',
-          warning: 'statements.field.edit.message.warning'
-        }
+          warning: 'statements.field.edit.message.warning',
+        },
       },
       initialRowData: {},
       isLoading: false,
@@ -321,7 +321,7 @@ export default {
         },
       ],
       newRowData: {},
-      required: false
+      isRequired: false,
     }
   },
 
@@ -354,7 +354,7 @@ export default {
     fieldTypeText () {
       const fieldTypeMap = {
         'multiSelect': 'custom.field.type.multiSelect',
-        'singleSelect': 'custom.field.type.singleSelect'
+        'singleSelect': 'custom.field.type.singleSelect',
       }
 
       return (fieldType) => {
@@ -378,20 +378,20 @@ export default {
         {
           field: 'description',
           label: Translator.trans('description'),
-          colClass: 'u-5-of-12'
+          colClass: 'u-5-of-12',
         },
         {
           field: 'fieldType',
           label: Translator.trans('type'),
-          colClass: 'u-6-of-12'
-        }
+          colClass: 'u-6-of-12',
+        },
       ]
 
       if (this.isStatementField) {
         fields.push({
-          field: 'required',
+          field: 'isRequired',
           label: Translator.trans('field.required'),
-          colClass: 'u-7-of-12'
+          colClass: 'u-7-of-12',
         })
       }
 
@@ -412,7 +412,7 @@ export default {
 
     warningMessage () {
       return this.getTextForEnabledFieldTypes('warning', 'custom.fields.edit.message.warning')
-    }
+    },
   },
 
   watch: {
@@ -517,15 +517,17 @@ export default {
         id: this.procedureId,
         fields: {
           [sourceEntity]: [
-            'segmentCustomFields',
+            this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
             'options',
+            'fieldType',
+            ...(this.isStatementField ? ['isRequired'] : []),
           ].join(),
         },
-        include: ['segmentCustomFields'].join(),
+        include: [this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields'].join(),
       }
 
       this.getCustomFields(payload).then(() => {
@@ -566,7 +568,7 @@ export default {
       })
 
       const truePermissions = Object.keys(permissionToText).filter(permission =>
-        this.hasPermission(permission)
+        this.hasPermission(permission),
       )
 
       if (truePermissions.length > 1) {
@@ -592,15 +594,15 @@ export default {
         .map(field => {
           if (field) {
             const { id, attributes } = field
-            const { description, name, fieldType, options } = attributes
+            const { description, name, fieldType, isRequired, options } = attributes
             console.log(fieldType)
 
             return {
               id,
               name,
               description,
-              fieldType: 'multiSelect', //keep until BE ready
-              required: true, //keep until BE ready
+              fieldType,
+              ...(this.isStatementField && { isRequired }),
               options: JSON.parse(JSON.stringify(options)),
               open: false,
               edit: false,
@@ -698,7 +700,7 @@ export default {
      * @param customFieldData.description {String}
      */
     saveNewField (customFieldData) {
-      const { description, name } = customFieldData
+      const { description, name, fieldType } = customFieldData
       const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
@@ -714,10 +716,11 @@ export default {
           description,
           name,
           options,
+          fieldType,
+          ...(this.isStatementField && { isRequired: this.isRequired }),
           sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
           sourceEntityId: this.procedureId,
-          targetEntity: 'SEGMENT',
-          fieldType: 'singleSelect',
+          targetEntity: this.isStatementField ? 'STATEMENT' : 'SEGMENT',
         },
       }
 
