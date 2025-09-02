@@ -64,7 +64,7 @@ export default {
       submissionTypeShort: this.submissionTypeShort,
       showNewStatementNotification: this.showNewStatementNotification,
       presetUserOrgaId: this.presetUserOrgaId,
-      writableFields: this.writableFields
+      writableFields: this.writableFields,
     }
   },
 
@@ -72,7 +72,7 @@ export default {
     DpAccordion,
     DpButtonRow,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
-    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields'))
+    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')),
   },
 
   mixins: [dpValidateMixin],
@@ -81,7 +81,7 @@ export default {
     availableOrgaTypes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -90,7 +90,7 @@ export default {
      */
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -98,13 +98,13 @@ export default {
      */
     itemTitle: {
       type: String,
-      required: true
+      required: true,
     },
 
     presetUserOrgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -113,7 +113,7 @@ export default {
     proceduresDirectLinkPrefix: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /**
@@ -122,26 +122,26 @@ export default {
     projectName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     showNewStatementNotification: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     subdomain: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     writableFields: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
@@ -149,7 +149,7 @@ export default {
     'organisation:reset',
     'organisation:update',
     'user:reset',
-    'user:update'
+    'user:update',
   ],
 
   data () {
@@ -166,22 +166,22 @@ export default {
         organisation: {
           componentName: 'dp-organisation-form-fields',
           componentProps: {
-            availableOrgaTypes: this.availableOrgaTypes
+            availableOrgaTypes: this.availableOrgaTypes,
           },
           formName: 'newOrganisationForm',
           resetEvent: 'organisation:reset',
-          updateEvent: 'organisation:update'
+          updateEvent: 'organisation:update',
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
           resetEvent: 'user:reset',
-          updateEvent: 'user:update'
-        }
+          updateEvent: 'user:update',
+        },
       },
       isOpen: false,
-      item: {}
+      item: {},
     }
   },
 
@@ -202,51 +202,51 @@ export default {
       const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
         type,
-        ...this.item
+        ...this.item,
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Orga', {
-      createOrganisation: 'create'
+      createOrganisation: 'create',
     }),
     ...mapActions('AdministratableUser', {
-      createUser: 'create'
+      createUser: 'create',
     }),
 
     ...mapMutations('AdministratableUser', {
-      updateAdministratableUser: 'setItem'
+      updateAdministratableUser: 'setItem',
     }),
 
     changeTypeToPascalCase (payload) {
       const newPayload = {
         ...payload,
         attributes: {
-          ...payload.attributes
+          ...payload.attributes,
         },
         relationships: {
           customers: {
-            data: payload.customers?.data[0].id
-              ? payload.customers.data.map(el => {
+            data: payload.customers?.data[0].id ?
+              payload.customers.data.map(el => {
                 return {
                   ...el,
-                  type: 'Customer'
+                  type: 'Customer',
                 }
-              })
-              : null
+              }) :
+              null,
           },
           departments: {
-            data: payload.departments?.data[0].id
-              ? payload.departments.data.map(el => {
+            data: payload.departments?.data[0].id ?
+              payload.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'Department'
+                  type: 'Department',
                 }
-              })
-              : null
-          }
-        }
+              }) :
+              null,
+          },
+        },
       }
 
       return newPayload
@@ -324,7 +324,7 @@ export default {
 
     update (item) {
       this.item = item
-    }
-  }
+    },
+  },
 }
 </script>

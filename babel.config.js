@@ -16,15 +16,15 @@ const config = {
         modules: false,
         debug: false,
         corejs: '3.9',
-        useBuiltIns: 'usage'
+        useBuiltIns: 'usage',
       },
-      '@babel/preset-flow'
-    ]
+      '@babel/preset-flow',
+    ],
   ],
   plugins: [
     '@babel/transform-runtime',
     '@babel/proposal-object-rest-spread',
-    '@babel/syntax-dynamic-import'
+    '@babel/syntax-dynamic-import',
   ],
   overrides: [{
     plugins: [
@@ -32,9 +32,9 @@ const config = {
       '@babel/proposal-object-rest-spread',
       '@babel/syntax-dynamic-import',
       '@babel/transform-object-assign',
-      '@babel/transform-modules-commonjs'
-    ]
-  }]
+      '@babel/transform-modules-commonjs',
+    ],
+  }],
 }
 
 if (process.NODE_ENV === 'testing') {

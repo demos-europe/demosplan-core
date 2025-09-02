@@ -68,7 +68,7 @@ class Version20250723134332 extends AbstractMigration
         // Step 2: Update segment values from labels to IDs
         $segments = $this->connection->fetchAllAssociative(
             'SELECT _st_id, custom_fields FROM _statement
-               WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
+               WHERE entity_type = \'Segment\' AND custom_fields IS NOT NULL'
         );
 
         foreach ($segments as $segment) {
@@ -133,7 +133,7 @@ class Version20250723134332 extends AbstractMigration
         // Step 2: Update segment values from IDs back to labels
         $segments = $this->connection->fetchAllAssociative(
             'SELECT _st_id, custom_fields FROM _statement
-               WHERE entity_type = "Segment" AND custom_fields IS NOT NULL'
+               WHERE entity_type = \'Segment\' AND custom_fields IS NOT NULL'
         );
 
         foreach ($segments as $segment) {

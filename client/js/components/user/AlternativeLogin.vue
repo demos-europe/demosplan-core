@@ -24,19 +24,19 @@ export default {
   props: {
     loginRoute: {
       required: true,
-      type: String
+      type: String,
     },
 
     password: {
       required: true,
-      type: String
+      type: String,
     },
 
     users: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -45,8 +45,8 @@ export default {
         { field: 'nameMail', label: 'Name (E-Mail)' },
         { field: 'orgaDep', label: 'Orga / Abteilung' },
         { field: 'roles', label: 'Rollen' },
-        { field: 'button', label: 'Login' }
-      ]
+        { field: 'button', label: 'Login' },
+      ],
     }
   },
 
@@ -58,7 +58,7 @@ export default {
         el.index = idx
         return el
       })
-    }
-  }
+    },
+  },
 }
 </script>

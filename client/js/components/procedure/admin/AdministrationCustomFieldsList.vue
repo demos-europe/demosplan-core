@@ -251,7 +251,7 @@ import {
   DpInput,
   DpLabel,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
@@ -299,7 +299,7 @@ export default {
         },
         {
           label: '',
-        }
+        },
       ],
       newRowData: {},
     }
@@ -347,7 +347,7 @@ export default {
           field: 'description',
           label: Translator.trans('description'),
           colClass: 'u-5-of-12',
-        }
+        },
       ]
     },
 
@@ -586,7 +586,7 @@ export default {
         },
         {
           label: '',
-        }
+        },
       ]
     },
 

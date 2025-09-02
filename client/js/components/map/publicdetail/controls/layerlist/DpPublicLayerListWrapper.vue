@@ -12,8 +12,8 @@
     <div :class="prefixClass('c-map__group u-mt-0_5')">
       <button
         data-cy="publicLayerListWrapper:mapLayerShowHide"
-        @click="toggle"
-        :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]">
+        :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]"
+        @click="toggle">
         {{ Translator.trans('maplayer.show/hide') }}
       </button>
     </div>
@@ -45,24 +45,24 @@ export default {
   name: 'DpPublicLayerListWrapper',
 
   components: {
-    DpPublicLayerList
+    DpPublicLayerList,
   },
 
   props: {
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'layerList:unfold'
+    'layerList:unfolded',
   ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
@@ -81,7 +81,7 @@ export default {
 
     dimmed () {
       return (this.overlayLayers.length + this.baseLayers.length) <= 0
-    }
+    },
   },
 
   methods: {
@@ -93,13 +93,13 @@ export default {
       const unfolded = this.unfolded = !this.unfolded
 
       if (unfolded) {
-        this.$emit('layerList:unfold')
+        this.$emit('layerList:unfolded')
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

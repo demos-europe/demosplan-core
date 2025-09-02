@@ -9,8 +9,8 @@
 
 <template>
   <div
-    data-dp-validate="customerSettings"
-    ref="customerSettings">
+    ref="customerSettings"
+    data-dp-validate="customerSettings">
     <dp-loading v-if="isLoading" />
 
     <template v-else>
@@ -49,8 +49,8 @@
           :text="Translator.trans('customer.imprint.explanation', { url: imprintUrl })" />
         <dp-editor
           id="r_imprint"
-          data-cy="customerSettings:imprintTextEditor"
           v-model="customer.imprint"
+          data-cy="customerSettings:imprintTextEditor"
           hidden-input="r_imprint"
           :toolbar-items="{
             fullscreenButton: true,
@@ -78,8 +78,8 @@
           :text="Translator.trans('customer.data.protection.explanation')" />
         <dp-editor
           id="r_dataProtection"
-          data-cy="customerSettings:dataProtection"
           v-model="customer.dataProtection"
+          data-cy="customerSettings:dataProtection"
           hidden-input="r_dataProtection"
           :toolbar-items="{
             fullscreenButton: true,
@@ -164,8 +164,8 @@
           for="signLanguageOverviewDescription" />
         <dp-editor
           id="signLanguageOverviewDescription"
-          hidden-input="r_signLanguageOverviewDescription"
           v-model="customer.signLanguageOverviewDescription"
+          hidden-input="r_signLanguageOverviewDescription"
           :toolbar-items="{
             linkButton: true,
             headings: [2, 3, 4]
@@ -175,7 +175,7 @@
           v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
-          :current-customer-id="this.currentCustomerId"
+          :current-customer-id="currentCustomerId"
           :sign-language-overview-video="signLanguageOverviewVideo"
           :sign-language-overview-description="customer.signLanguageOverviewDescription"
           @created="fetchCustomerData"
@@ -287,7 +287,7 @@ export default {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    })
+    }),
   },
 
   mixins: [dpValidateMixin],
@@ -295,38 +295,38 @@ export default {
   props: {
     currentCustomerId: {
       required: true,
-      type: String
+      type: String,
     },
 
     imprintUrl: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initLayerUrl: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initLayer: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapAttribution: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapExtent: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -339,7 +339,7 @@ export default {
         signLanguageOverviewDescription: '',
         signLanguageOverviewVideo: '',
         termsOfUse: '',
-        xplanning: ''
+        xplanning: '',
       },
       isLoading: true,
       isLoadingSignLanguageOverviewVideo: true,
@@ -350,19 +350,19 @@ export default {
         file: '',
         id: null,
         mimetype: '',
-        title: ''
+        title: '',
       },
-      isBusy: false
+      isBusy: false,
     }
   },
 
   computed: {
     ...mapState('Branding', {
-      brandingList: 'items'
+      brandingList: 'items',
     }),
 
     ...mapState('Customer', {
-      customerList: 'items'
+      customerList: 'items',
     }),
 
     customerBrandingId () {
@@ -372,32 +372,32 @@ export default {
     isUnsavedSignLanguageVideo () {
       // The signLanguageOverviewVideo.file is available after the video was uploaded and the signLanguageOverviewVideo.id is only available after the video was saved
       return this.signLanguageOverviewVideo.file && !this.signLanguageOverviewVideo.id
-    }
+    },
   },
 
   methods: {
     ...mapActions('Branding', {
       fetchBranding: 'list',
-      saveBranding: 'save'
+      saveBranding: 'save',
     }),
 
     ...mapActions('Customer', {
       fetchCustomer: 'list',
-      saveCustomer: 'save'
+      saveCustomer: 'save',
     }),
 
     ...mapMutations('Branding', {
-      updateBranding: 'setItem'
+      updateBranding: 'setItem',
     }),
 
     ...mapMutations('Customer', {
-      updateCustomer: 'setItem'
+      updateCustomer: 'setItem',
     }),
 
     addAttributesToField (field, attributes) {
       this.requestFields[field] = [
         ...(this.requestFields[field] ? this.requestFields[field] : []),
-        ...attributes
+        ...attributes,
       ]
     },
 
@@ -413,7 +413,7 @@ export default {
 
           this.customer = {
             ...this.customer,
-            ...currentData
+            ...currentData,
           }
         })
         .catch(err => {
@@ -498,12 +498,12 @@ export default {
           isCurrentCustomer: {
             condition: {
               path: 'id',
-              value: this.currentCustomerId
-            }
-          }
+              value: this.currentCustomerId,
+            },
+          },
         },
         fields: this.requestFields,
-        include: this.requestIncludes.join(',')
+        include: this.requestIncludes.join(','),
       }
     },
 
@@ -519,8 +519,8 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          [property]: this.customer[property]
-        }
+          [property]: this.customer[property],
+        },
       }
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
@@ -537,11 +537,11 @@ export default {
 
       const form = this.$refs.customerSettings
       form.submit()
-    }
+    },
   },
 
   mounted () {
     this.fetchCustomerData()
-  }
+  },
 }
 </script>

@@ -22,8 +22,8 @@ statements and fragments is now in DpAssessmentTableCard.vue
   <div>
     <div class="o-switcher">
       <input
-        type="checkbox"
         :id="'switcher' + statementId"
+        type="checkbox"
         @change="toggle">
       <label :for="'switcher' + statementId">
         <span
@@ -49,9 +49,9 @@ statements and fragments is now in DpAssessmentTableCard.vue
         :for="'show-all-fragments' + statementId"
         class="inline-block u-mb-0">
         <input
+          :id="'show-all-fragments' + statementId"
           type="checkbox"
           name="show-all-fragments"
-          :id="'show-all-fragments' + statementId"
           @click="showAllFragments">
         {{ Translator.trans('show.all.fragments', { sum: totalFragmentsLength }) }}
       </label>
@@ -68,42 +68,42 @@ export default {
   props: {
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementFragmentsTotal: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     statementFragmentsLength: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     isFiltered: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statementTabVisible: { // Shows if tab === 'statement' in tableCard.vue
       required: false,
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
   emits: [
     'fragments:showall',
-    'toggletabs'
+    'toggletabs',
   ],
 
   data () {
     return {
-      allFragmentsShown: false
+      allFragmentsShown: false,
     }
   },
 
@@ -164,7 +164,7 @@ export default {
       }
 
       return 0
-    }
+    },
   },
 
   methods: {
@@ -179,7 +179,7 @@ export default {
 
     toggle () {
       this.$emit('toggletabs', (this.statementTabVisible === false))
-    }
-  }
+    },
+  },
 }
 </script>

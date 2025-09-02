@@ -76,7 +76,7 @@ export default {
   name: 'EvaluationMailViaEmail',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   mixins: [formGroupMixin],
@@ -85,8 +85,8 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>

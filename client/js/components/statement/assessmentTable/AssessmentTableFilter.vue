@@ -58,8 +58,8 @@
     </fieldset>
 
     <div
-      class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
-      ref="header">
+      ref="header"
+      class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25">
       <search-and-sorting
         :search-term="searchTerm"
         @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
@@ -70,9 +70,9 @@
           class="o-link--default u-mb-0"
           :class="{'color--grey': areFragmentsSelected}">
           <input
+            v-model="allItemsOnPageSelected"
             class="u-mr-0"
             type="checkbox"
-            v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
             :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
@@ -112,9 +112,9 @@
               </button>
 
               <div
+                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)"
                 class="c-actionmenu__menu"
-                role="menu"
-                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)">
+                role="menu">
                 <button
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
@@ -261,7 +261,7 @@
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"
-                @click.prevent="$emit('handle-sort-change', option)">
+                @click.prevent="$emit('handle:sortChange', option)">
                 {{ option.label }}
               </button>
             </div>
@@ -292,26 +292,26 @@ export default {
 
   components: {
     DpInlineNotification,
-    SearchAndSorting
+    SearchAndSorting,
   },
 
   props: {
     //  Export options that define which formats / fields to display
     assessmentExportOptions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     hasChangedStatements: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     sortingOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -320,13 +320,13 @@ export default {
     viewMode: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'exportModal:toggle',
-    'handle-sort-change'
+    'handle-sort-change',
   ],
 
   data () {
@@ -334,19 +334,19 @@ export default {
       viewModes: [
         { type: 'view_mode_default', label: 'assessmenttable.view.mode.default' },
         { type: 'view_mode_tag', label: 'assessmenttable.view.mode.tags' },
-        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' }
-      ]
+        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' },
+      ],
     }
   },
 
   computed: {
     ...mapGetters('Fragment', [
-      'selectedFragments'
+      'selectedFragments',
     ]),
 
     ...mapGetters('Statement', [
       'selectedElementsLength',
-      'statements'
+      'statements',
     ]),
 
     ...mapState('AssessmentTable', [
@@ -354,11 +354,11 @@ export default {
       'currentTableView',
       'filterSet',
       'searchTerm',
-      'sort'
+      'sort',
     ]),
 
     ...mapState('Statement', [
-      'selectedElements'
+      'selectedElements',
     ]),
 
     allItemsOnPageSelected: {
@@ -367,7 +367,7 @@ export default {
       },
       set (status) {
         this.toggleAllCheckboxes(status)
-      }
+      },
     },
 
     areFragmentsSelected () {
@@ -378,7 +378,7 @@ export default {
       const options = {
         exportOptions: 0,
         tab: '',
-        buttonLabelSingle: ''
+        buttonLabelSingle: '',
       }
 
       Object.entries(this.assessmentExportOptions).forEach(([key, val]) => {
@@ -420,16 +420,16 @@ export default {
 
     viewModeActivated () {
       return this.viewMode === 'view_mode_tag' || this.viewMode === 'view_mode_elements'
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', [
-      'setSelectionAction'
+      'setSelectionAction',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setProperty'
+      'setProperty',
     ]),
 
     determineExternId (statement) {
@@ -449,7 +449,7 @@ export default {
             movedToProcedure: (statement.movedToProcedureId !== ''),
             assignee: statement.assignee,
             extid: this.determineExternId(statement),
-            isCluster: statement.isCluster
+            isCluster: statement.isCluster,
           }
         }
         payload.statements = statements
@@ -465,7 +465,7 @@ export default {
       const form = document.bpform
       form.r_view_mode.value = mode
       window.submitForm(null, 'viewMode')
-    }
-  }
+    },
+  },
 }
 </script>
