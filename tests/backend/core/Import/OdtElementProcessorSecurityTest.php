@@ -28,18 +28,18 @@ class OdtElementProcessorSecurityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->processor = new OdtElementProcessor();
         $this->tempDir = DemosPlanPath::getTemporaryPath('odt_processor_security_test');
-        
+
         // Create temp directory
         if (!is_dir($this->tempDir)) {
             mkdir($this->tempDir, 0755, true);
         }
-        
+
         // Initialize processor with empty style maps
         $this->processor->initialize([], [], [], $this->tempDir);
-        
+
         // Make getImageData method accessible for testing
         $reflection = new ReflectionClass($this->processor);
         $this->getImageDataMethod = $reflection->getMethod('getImageData');
@@ -58,21 +58,21 @@ class OdtElementProcessorSecurityTest extends TestCase
     public function testGetImageDataBlocksPathTraversalAttacks(): void
     {
         // Create a legitimate image file in temp directory
-        $legitimateImagePath = $this->tempDir . '/legitimate.png';
+        $legitimateImagePath = $this->tempDir.'/legitimate.png';
         file_put_contents($legitimateImagePath, 'fake image data');
-        
+
         // Create a sensitive file outside temp directory
-        $sensitiveDir = dirname($this->tempDir) . '/sensitive';
+        $sensitiveDir = dirname($this->tempDir).'/sensitive';
         if (!is_dir($sensitiveDir)) {
             mkdir($sensitiveDir, 0755, true);
         }
-        $sensitiveFile = $sensitiveDir . '/secret.txt';
+        $sensitiveFile = $sensitiveDir.'/secret.txt';
         file_put_contents($sensitiveFile, 'sensitive data');
-        
+
         // Test legitimate access works
         $result = $this->getImageDataMethod->invoke($this->processor, 'legitimate.png');
         $this->assertSame('fake image data', $result, 'Legitimate file access should work');
-        
+
         // Test path traversal attempts are blocked
         $pathTraversalAttempts = [
             '../sensitive/secret.txt',
@@ -82,16 +82,16 @@ class OdtElementProcessorSecurityTest extends TestCase
             './.././sensitive/secret.txt',
             'subdir/../../../sensitive/secret.txt',
         ];
-        
+
         foreach ($pathTraversalAttempts as $maliciousPath) {
             $result = $this->getImageDataMethod->invoke($this->processor, $maliciousPath);
             $this->assertNull($result, "Path traversal attempt '$maliciousPath' should be blocked");
         }
-        
+
         // Test absolute path attempts are blocked
         $result = $this->getImageDataMethod->invoke($this->processor, $sensitiveFile);
         $this->assertNull($result, 'Absolute path access should be blocked');
-        
+
         // Clean up sensitive file
         unlink($sensitiveFile);
         rmdir($sensitiveDir);
@@ -106,25 +106,25 @@ class OdtElementProcessorSecurityTest extends TestCase
     public function testGetImageDataHandlesSymbolicLinks(): void
     {
         // Create a file outside temp directory
-        $externalDir = dirname($this->tempDir) . '/external';
+        $externalDir = dirname($this->tempDir).'/external';
         if (!is_dir($externalDir)) {
             mkdir($externalDir, 0755, true);
         }
-        $externalFile = $externalDir . '/external.txt';
+        $externalFile = $externalDir.'/external.txt';
         file_put_contents($externalFile, 'external data');
-        
+
         // Create a symbolic link inside temp directory pointing outside
-        $symlinkPath = $this->tempDir . '/symlink.txt';
+        $symlinkPath = $this->tempDir.'/symlink.txt';
         if (function_exists('symlink') && !$this->is_windows()) {
             symlink($externalFile, $symlinkPath);
-            
+
             // Test that symbolic links pointing outside are blocked
             $result = $this->getImageDataMethod->invoke($this->processor, 'symlink.txt');
             $this->assertNull($result, 'Symbolic link pointing outside temp directory should be blocked');
-            
+
             unlink($symlinkPath);
         }
-        
+
         // Clean up
         unlink($externalFile);
         rmdir($externalDir);
@@ -150,10 +150,10 @@ class OdtElementProcessorSecurityTest extends TestCase
 
         $dom = new DOMDocument();
         $dom->loadXML($contentXml);
-        
+
         // Process the document
         $result = $this->processor->processContent($dom);
-        
+
         // Should not contain any image content since path traversal was blocked
         $this->assertStringNotContainsString('<img', $result, 'Malicious image should not be processed');
         $this->assertStringNotContainsString('data:', $result, 'No base64 data should be present');
@@ -164,10 +164,10 @@ class OdtElementProcessorSecurityTest extends TestCase
         if (!is_dir($dir)) {
             return;
         }
-        
+
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
-            $path = $dir . '/' . $file;
+            $path = $dir.'/'.$file;
             if (is_dir($path)) {
                 $this->removeDirectory($path);
             } else {
@@ -179,6 +179,6 @@ class OdtElementProcessorSecurityTest extends TestCase
 
     private function is_windows(): bool
     {
-        return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        return 'WIN' === strtoupper(substr(PHP_OS, 0, 3));
     }
 }

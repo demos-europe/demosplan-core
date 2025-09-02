@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use ZipArchive;
 
 /**
  * Import von Planunterlagen-Absaetzen.
@@ -390,8 +391,8 @@ class ServiceImporter implements ServiceImporterInterface
     private function validateOdtStructure(string $filePath): bool
     {
         // Check if file can be opened as ZIP
-        $zip = new \ZipArchive();
-        if (true !== $zip->open($filePath, \ZipArchive::RDONLY)) {
+        $zip = new ZipArchive();
+        if (true !== $zip->open($filePath, ZipArchive::RDONLY)) {
             return false;
         }
 
@@ -404,7 +405,7 @@ class ServiceImporter implements ServiceImporterInterface
         }
 
         // Verify mimetype content matches ODT specification
-        return trim($mimetypeContent) === self::ODT_MIME_TYPE;
+        return self::ODT_MIME_TYPE === trim($mimetypeContent);
     }
 
     /**

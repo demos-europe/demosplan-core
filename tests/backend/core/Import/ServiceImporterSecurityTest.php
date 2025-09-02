@@ -117,7 +117,7 @@ class ServiceImporterSecurityTest extends TestCase
     public function testIsOdtFileRejectsFileWithOdtExtensionButInvalidContent(): void
     {
         // Create a file with ODT extension but invalid content
-        $invalidFile = $this->tempDir . '/fake.odt';
+        $invalidFile = $this->tempDir.'/fake.odt';
         file_put_contents($invalidFile, 'This is not a valid ODT file');
 
         $fileInfo = $this->createFileInfo($invalidFile, 'fake.odt', 'text/plain');
@@ -130,7 +130,7 @@ class ServiceImporterSecurityTest extends TestCase
     public function testIsOdtFileRejectsFileWithCorrectMimeTypeButInvalidStructure(): void
     {
         // Create a file with correct MIME type but invalid ZIP structure
-        $invalidFile = $this->tempDir . '/fake_mime.odt';
+        $invalidFile = $this->tempDir.'/fake_mime.odt';
         file_put_contents($invalidFile, 'Invalid ZIP content');
 
         $fileInfo = $this->createFileInfo($invalidFile, 'fake_mime.odt', 'application/vnd.oasis.opendocument.text');
@@ -143,7 +143,7 @@ class ServiceImporterSecurityTest extends TestCase
     public function testIsOdtFileRejectsZipFileWithWrongMimetype(): void
     {
         // Create a ZIP file with wrong mimetype
-        $zipFile = $this->tempDir . '/wrong_mimetype.odt';
+        $zipFile = $this->tempDir.'/wrong_mimetype.odt';
         $zip = new ZipArchive();
         $zip->open($zipFile, ZipArchive::CREATE);
         $zip->addFromString('mimetype', 'application/zip'); // Wrong mimetype
@@ -160,7 +160,7 @@ class ServiceImporterSecurityTest extends TestCase
     public function testIsOdtFileRejectsZipFileWithoutMimetype(): void
     {
         // Create a ZIP file without mimetype file
-        $zipFile = $this->tempDir . '/no_mimetype.odt';
+        $zipFile = $this->tempDir.'/no_mimetype.odt';
         $zip = new ZipArchive();
         $zip->open($zipFile, ZipArchive::CREATE);
         $zip->addFromString('content.xml', '<?xml version="1.0"?><content></content>');
@@ -176,7 +176,7 @@ class ServiceImporterSecurityTest extends TestCase
     public function testIsOdtFileRejectsExecutableFilesDisguisedAsOdt(): void
     {
         // Create an executable file with ODT extension
-        $executableFile = $this->tempDir . '/malicious.odt';
+        $executableFile = $this->tempDir.'/malicious.odt';
         file_put_contents($executableFile, "#!/bin/bash\necho 'malicious code'");
         chmod($executableFile, 0755);
 
@@ -198,7 +198,7 @@ class ServiceImporterSecurityTest extends TestCase
 
     public function testValidateOdtStructureRejectsNonZipFile(): void
     {
-        $textFile = $this->tempDir . '/text.odt';
+        $textFile = $this->tempDir.'/text.odt';
         file_put_contents($textFile, 'This is plain text');
 
         $result = $this->validateOdtStructureMethod->invoke($this->serviceImporter, $textFile);
@@ -208,8 +208,8 @@ class ServiceImporterSecurityTest extends TestCase
 
     public function testValidateOdtStructureRejectsCorruptedZipFile(): void
     {
-        $corruptedZip = $this->tempDir . '/corrupted.odt';
-        file_put_contents($corruptedZip, 'PK' . random_bytes(100)); // Corrupted ZIP signature
+        $corruptedZip = $this->tempDir.'/corrupted.odt';
+        file_put_contents($corruptedZip, 'PK'.random_bytes(100)); // Corrupted ZIP signature
 
         $result = $this->validateOdtStructureMethod->invoke($this->serviceImporter, $corruptedZip);
 
@@ -218,7 +218,7 @@ class ServiceImporterSecurityTest extends TestCase
 
     private function createValidOdtFile(): string
     {
-        $odtFile = $this->tempDir . '/valid.odt';
+        $odtFile = $this->tempDir.'/valid.odt';
         $zip = new ZipArchive();
         $zip->open($odtFile, ZipArchive::CREATE);
 
@@ -271,7 +271,7 @@ class ServiceImporterSecurityTest extends TestCase
 
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
-            $path = $dir . '/' . $file;
+            $path = $dir.'/'.$file;
             if (is_dir($path)) {
                 $this->removeDirectory($path);
             } else {

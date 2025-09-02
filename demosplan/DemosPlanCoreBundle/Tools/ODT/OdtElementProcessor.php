@@ -533,12 +533,12 @@ class OdtElementProcessor
         $realTempDir = realpath($this->tempDir);
         $realImagePath = realpath($imagePath);
 
-        if ($realTempDir !== false && $realImagePath !== false && str_starts_with(
-                $realImagePath,
-                $realTempDir
-            ) && file_exists($realImagePath)) {
-                return file_get_contents($realImagePath);
-            }
+        if (false !== $realTempDir && false !== $realImagePath && str_starts_with(
+            $realImagePath,
+            $realTempDir
+        ) && file_exists($realImagePath)) {
+            return file_get_contents($realImagePath);
+        }
 
         return null;
     }
