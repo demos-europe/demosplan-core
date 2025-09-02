@@ -84,9 +84,8 @@ class CustomFieldDeleterTest extends UnitTestCase
 
         // Act & Assert
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("No entity usage removal strategy found for target entity class: UnsupportedEntity");
+        $this->expectExceptionMessage('No entity usage removal strategy found for target entity class: UnsupportedEntity');
 
         $this->sut->deleteCustomField($entityId);
     }
-
 }
