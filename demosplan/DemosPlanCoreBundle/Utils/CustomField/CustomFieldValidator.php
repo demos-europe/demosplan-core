@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -26,6 +27,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
             'PROCEDURE'          => Procedure::class,
             'PROCEDURE_TEMPLATE' => Procedure::class,
             'SEGMENT'            => Segment::class,
+            'STATEMENT'            => Statement::class,
         ])
     {
     }
