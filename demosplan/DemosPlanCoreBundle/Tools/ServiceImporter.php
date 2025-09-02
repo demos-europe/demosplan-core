@@ -279,7 +279,7 @@ class ServiceImporter implements ServiceImporterInterface
             }
         }
         $this->getLogger()->debug('Anzahl Paragraphs: '.$order);
-        if (0 < (is_countable($exception->getErrorParagraphs()) ? count($exception->getErrorParagraphs()) : 0)) {
+        if (0 < count($exception->getErrorParagraphs())) {
             throw $exception;
         }
     }
@@ -417,7 +417,7 @@ class ServiceImporter implements ServiceImporterInterface
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
     protected function getLogger()
     {

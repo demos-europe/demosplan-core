@@ -227,8 +227,11 @@ class ODTStyleParser implements ODTStyleParserInterface
      */
     private function analyzeStyleForHeading(DOMXPath $xpath, DOMElement $styleNode): int
     {
-        $textProps = $xpath->query('style:text-properties', $styleNode)->item(0);
-        $paraProps = $xpath->query('style:paragraph-properties', $styleNode)->item(0);
+        $textPropsNode = $xpath->query('style:text-properties', $styleNode)->item(0);
+        $paraPropsNode = $xpath->query('style:paragraph-properties', $styleNode)->item(0);
+
+        $textProps = ($textPropsNode instanceof DOMElement) ? $textPropsNode : null;
+        $paraProps = ($paraPropsNode instanceof DOMElement) ? $paraPropsNode : null;
 
         $fontSize = $this->extractFontSize($textProps);
         $headingScore = $this->calculateHeadingScore($textProps, $paraProps, $fontSize);
