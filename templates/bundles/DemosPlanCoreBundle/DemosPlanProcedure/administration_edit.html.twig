@@ -424,6 +424,26 @@
                                     {% endblock oeb_desc %}
                                 {% endif %}
 
+                                {% if hasPermission('field_expand_procedure_description') %}
+                                    <dp-checkbox
+                                        id="expandProcedureDescription"
+                                        :checked="{{ proceduresettings.expandProcedureDescription ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.context.expand') }"
+                                        class="mb-4"
+                                        data-cy="procedure:descriptionExpanded"
+                                        name="expandProcedureDescription"
+                                    >
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <!--                                            <dp-input
+                                                :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                                name="allowAnonymousStatements"
+                                                type="hidden"
+                                            >
+                                            </dp-input>-->
+                                {% endif %}
+
                                 {% if hasPermission('field_procedure_contact_person') %}
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_publicParticipationContact">
