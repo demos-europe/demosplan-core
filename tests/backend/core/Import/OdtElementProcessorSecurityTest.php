@@ -115,7 +115,7 @@ class OdtElementProcessorSecurityTest extends TestCase
 
         // Create a symbolic link inside temp directory pointing outside
         $symlinkPath = $this->tempDir.'/symlink.txt';
-        if (function_exists('symlink') && !$this->is_windows()) {
+        if (function_exists('symlink') && !$this->isWindows()) {
             symlink($externalFile, $symlinkPath);
 
             // Test that symbolic links pointing outside are blocked
@@ -134,7 +134,7 @@ class OdtElementProcessorSecurityTest extends TestCase
     {
         // Create ODT content with malicious image reference
         $contentXml = '<?xml version="1.0" encoding="UTF-8"?>
-        <office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" 
+        <office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
                                 xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
                                 xmlns:xlink="http://www.w3.org/1999/xlink">
             <office:body>
@@ -177,7 +177,7 @@ class OdtElementProcessorSecurityTest extends TestCase
         rmdir($dir);
     }
 
-    private function is_windows(): bool
+    private function isWindows(): bool
     {
         return 'WIN' === strtoupper(substr(PHP_OS, 0, 3));
     }

@@ -35,6 +35,8 @@ use ZipArchive;
 
 class ServiceImporterSecurityTest extends TestCase
 {
+    private const ODT_MIME_TYPE = 'application/vnd.oasis.opendocument.text';
+    
     private ServiceImporter $serviceImporter;
     private ReflectionMethod $isOdtFileMethod;
     private ReflectionMethod $validateOdtStructureMethod;
@@ -102,7 +104,7 @@ class ServiceImporterSecurityTest extends TestCase
     {
         // Create a legitimate ODT file
         $validOdtPath = $this->createValidOdtFile();
-        $fileInfo = $this->createFileInfo($validOdtPath, 'test.odt', 'application/vnd.oasis.opendocument.text');
+        $fileInfo = $this->createFileInfo($validOdtPath, 'test.odt', self::ODT_MIME_TYPE);
 
         // Debug: check if file exists and can be accessed
         $this->assertTrue(file_exists($validOdtPath), 'Test ODT file should exist');
@@ -133,7 +135,7 @@ class ServiceImporterSecurityTest extends TestCase
         $invalidFile = $this->tempDir.'/fake_mime.odt';
         file_put_contents($invalidFile, 'Invalid ZIP content');
 
-        $fileInfo = $this->createFileInfo($invalidFile, 'fake_mime.odt', 'application/vnd.oasis.opendocument.text');
+        $fileInfo = $this->createFileInfo($invalidFile, 'fake_mime.odt', self::ODT_MIME_TYPE);
 
         $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
 
@@ -150,7 +152,7 @@ class ServiceImporterSecurityTest extends TestCase
         $zip->addFromString('content.xml', '<?xml version="1.0"?><content></content>');
         $zip->close();
 
-        $fileInfo = $this->createFileInfo($zipFile, 'wrong_mimetype.odt', 'application/vnd.oasis.opendocument.text');
+        $fileInfo = $this->createFileInfo($zipFile, 'wrong_mimetype.odt', self::ODT_MIME_TYPE);
 
         $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
 
@@ -166,7 +168,7 @@ class ServiceImporterSecurityTest extends TestCase
         $zip->addFromString('content.xml', '<?xml version="1.0"?><content></content>');
         $zip->close();
 
-        $fileInfo = $this->createFileInfo($zipFile, 'no_mimetype.odt', 'application/vnd.oasis.opendocument.text');
+        $fileInfo = $this->createFileInfo($zipFile, 'no_mimetype.odt', self::ODT_MIME_TYPE);
 
         $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
 
@@ -189,7 +191,7 @@ class ServiceImporterSecurityTest extends TestCase
 
     public function testIsOdtFileRejectsNonExistentFile(): void
     {
-        $fileInfo = $this->createFileInfo('/nonexistent/file.odt', 'nonexistent.odt', 'application/vnd.oasis.opendocument.text');
+        $fileInfo = $this->createFileInfo('/nonexistent/file.odt', 'nonexistent.odt', self::ODT_MIME_TYPE);
 
         $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
 
@@ -223,7 +225,7 @@ class ServiceImporterSecurityTest extends TestCase
         $zip->open($odtFile, ZipArchive::CREATE);
 
         // Add correct mimetype
-        $zip->addFromString('mimetype', 'application/vnd.oasis.opendocument.text');
+        $zip->addFromString('mimetype', self::ODT_MIME_TYPE);
 
         // Add minimal content.xml
         $contentXml = '<?xml version="1.0" encoding="UTF-8"?>

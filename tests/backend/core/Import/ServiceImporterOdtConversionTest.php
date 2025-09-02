@@ -45,7 +45,6 @@ class ServiceImporterOdtConversionTest extends TestCase
     private const SIMPLE_DOC_PATH = '/res/SimpleDoc.odt';
     private const SIMPLE_DOC_MESSAGE = 'SimpleDoc.odt test file should exist';
 
-    private ServiceImporter $serviceImporter;
     private OdtImporter $odtImporter;
 
     protected function setUp(): void
@@ -64,22 +63,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         $router = $this->createMock(RouterInterface::class);
         $client = $this->createMock(RpcClient::class);
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-
-        $this->serviceImporter = new ServiceImporter(
-            $docxImporter,
-            $odtImporter,
-            $fileService,
-            $defaultStorage,
-            $globalConfig,
-            $logger,
-            $messageBag,
-            $paragraphRepository,
-            $paragraphService,
-            $pdfCreator,
-            $router,
-            $client,
-            $eventDispatcher
-        );
 
         // Create mocks for OdtImporter dependencies
         $styleParser = $this->createMock(ODTStyleParserInterface::class);
@@ -116,13 +99,14 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
+            
             // Check for expected ODT output test case first (most complex)
             $odtResult = $this->getExpectedOdtTestResult($html);
             if (null !== $odtResult) {
                 return $odtResult;
             }
 
-            // Handle simple content test cases
+            // Handle multiple simple content test cases in a single condition
             if (str_contains($html, 'very long paragraph that contains much more than one hundred characters')) {
                 return [
                     [
@@ -133,6 +117,7 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
+            
             if (str_contains($html, 'Content paragraph') && str_contains($html, 'Another content paragraph')) {
                 return [
                     [
@@ -143,19 +128,18 @@ class ServiceImporterOdtConversionTest extends TestCase
                     ],
                 ];
             }
-            if (str_contains($html, 'First sentence here. Second sentence continues. Third sentence ends it.')) {
-                return [
+            
+            // Handle first sentence case or return default fallback
+            return str_contains($html, 'First sentence here. Second sentence continues. Third sentence ends it.') 
+                ? [
                     [
                         'title'        => 'First sentence here.',
                         'text'         => '<p>First sentence here. Second sentence continues. Third sentence ends it.</p>',
                         'files'        => null,
                         'nestingLevel' => 0,
                     ],
-                ];
-            }
-
-            // Default fallback for other test cases
-            return [];
+                ] 
+                : [];
         });
 
         $fileExtractor = new \demosplan\DemosPlanCoreBundle\Tools\ODT\OdtFileExtractor();
