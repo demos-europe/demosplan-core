@@ -30,6 +30,7 @@ class CustomFieldDeleterTest extends UnitTestCase
      */
     protected $sut;
     private $repository;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -115,12 +116,9 @@ class CustomFieldDeleterTest extends UnitTestCase
         $customFieldValue1->setId($customFieldId);
         $customFieldValue1->setValue($option1->getId());
 
-
-
         $customFieldValue2 = new CustomFieldValue();
         $customFieldValue2->setId($customFieldId);
         $customFieldValue2->setValue($option2->getId());
-
 
         $customFieldsList1 = new CustomFieldValuesList();
         $customFieldsList1->addCustomFieldValue($customFieldValue1);
@@ -162,6 +160,4 @@ class CustomFieldDeleterTest extends UnitTestCase
             'Segment 2 should no longer have the custom field value'
         );
     }
-
-
 }
