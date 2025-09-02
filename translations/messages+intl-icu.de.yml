@@ -1480,6 +1480,7 @@ explanation.export.statementsAndFragments: "Es wird die Stellungnahme exportiert
 explanation.export.topicsAndTags: "Es werden die Begründungen zu den Stellungnahmen mit Themen und Schlagworten exportiert."
 explanation.feedback.email: "An die hinterlegte E-Mail-Adresse erhalten Sie die Bestätigung Ihrer Stellungnahme und eine Information, sobald die Ergebnisse der Online-Beteiligung vorliegen."
 explanation.feedback.vote.email: "Die Rückmeldung zu dieser Stellungnahme erhalten Sie an die hinterlegte E-Mail-Adresse."
+explanation.field.type: "Bestimmt Datentyp und Eingabemodus des Feldes"
 explanation.file.noupload: "Es wurde keine Datei hochgeladen."
 explanation.file.upload: "Nach dem Upload wird die Datei auf Viren gescannt."
 explanation.fragment.access.denied: "Die Stellungnahme muss Ihnen zugewiesen sein, um Zugriff auf diese Funktion zu erhalten."

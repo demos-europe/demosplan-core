@@ -38,12 +38,12 @@
           maxlength="250" />
         <dp-select
           id="newFieldType"
+          v-model="customField.fieldType"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldType"
-          v-model="customField.fieldType"
           :label="{
             text: Translator.trans('type'),
-            tooltip: Translator.trans('explanation.customfield.type')
+            tooltip: Translator.trans('explanation.field.type')
           }"
           :options="typeOptions"
           :disabled="disableTypeSelection"
@@ -94,18 +94,18 @@ export default {
 
     isLoading: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     preselectedType: {
       type: String,
-      default: ''
+      default: '',
     },
 
     disableTypeSelection: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
@@ -119,19 +119,19 @@ export default {
       customField: {
         name: '',
         description: '',
-        fieldType: this.preselectedType
+        fieldType: this.preselectedType,
       },
       isOpen: false,
       typeOptions: [
         {
           value: 'multiSelect',
-          label: 'Mehrfachauswahl'
+          label: 'Mehrfachauswahl',
         },
         {
           value: 'singleSelect',
-          label: 'Einzelauswahl'
-        }
-      ]
+          label: 'Einzelauswahl',
+        },
+      ],
     }
   },
 
