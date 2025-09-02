@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -10,17 +11,17 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory;
+
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use Ramsey\Uuid\Uuid;
 
 class MultiSelectFieldFactory implements CustomFieldFactoryInterface
 {
     public function supports(string $fieldType): bool
     {
-        return $fieldType === 'multiSelect';
+        return 'multiSelect' === $fieldType;
     }
 
     public function create(array $attributes): CustomFieldInterface
@@ -31,6 +32,7 @@ class MultiSelectFieldFactory implements CustomFieldFactoryInterface
         $field->setDescription($attributes['description']);
         $field->setRequired($attributes['isRequired']);
         $field->setOptions($this->normalizeOptions($attributes['options']));
+
         return $field;
     }
 
