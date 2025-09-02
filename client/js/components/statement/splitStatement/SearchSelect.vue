@@ -20,23 +20,27 @@
       :preserve-search="true"
       selection-controls
       track-by="title"
-      @input="updateSelected">
+      @input="updateSelected"
+    >
       <template v-slot:option="{ props }">
         <input
           :id="`tag_${props.option.id}`"
           type="checkbox"
           :checked="typeof selected.find(el => el.id === props.option.id || el.attributes.title === props.option.title) !== 'undefined'"
-          :value="props.option.id">
+          :value="props.option.id"
+        >
         <label
           class="pointer-events-none"
-          :for="`tag_${props.option.id}`">
+          :for="`tag_${props.option.id}`"
+        >
           {{ props.option.title }}
         </label>
       </template>
       <template v-slot:beforeList>
         <button
           class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap"
-          @click="$emit('open-create-form')">
+          @click="$emit('openCreateForm')"
+        >
           {{ Translator.trans('tag.topic.new') }}
         </button>
       </template>
@@ -73,7 +77,7 @@ export default {
   },
 
   emits: [
-    'open-create-form',
+    'openCreateForm',
   ],
 
   computed: {

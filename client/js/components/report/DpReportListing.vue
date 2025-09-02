@@ -10,18 +10,22 @@
 <template>
   <dp-loading
     v-if="isFirstLoad"
-    class="u-mt-2" />
+    class="u-mt-2"
+  />
 
   <div v-else>
     <div
       v-if="hasPermission('feature_export_protocol')"
-      class="float-right u-mt-0_25">
+      class="float-right u-mt-0_25"
+    >
       <a
         data-cy="exportTriggerPdf"
-        :href="Routing.generate('dplan_export_report', { procedureId })">
+        :href="Routing.generate('dplan_export_report', { procedureId })"
+      >
         <i
           class="fa fa-share-square"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export.trigger.pdf') }}
       </a>
     </div>
@@ -35,7 +39,8 @@
       :current-page="generalCurrentPage"
       :total-pages="generalTotalPages"
       :is-loading="generalLoading"
-      @page-change="handlePageChange('general', $event)" />
+      @page-change="handlePageChange('general', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_public_phase')"
@@ -46,7 +51,8 @@
       :current-page="publicPhaseCurrentPage"
       :total-pages="publicPhaseTotalPages"
       :is-loading="publicPhaseLoading"
-      @page-change="handlePageChange('publicPhase', $event)" />
+      @page-change="handlePageChange('publicPhase', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_invitations')"
@@ -57,7 +63,8 @@
       :current-page="invitationsCurrentPage"
       :total-pages="invitationsTotalPages"
       :is-loading="invitationsLoading"
-      @page-change="handlePageChange('invitations', $event)" />
+      @page-change="handlePageChange('invitations', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_register_invitations')"
@@ -68,7 +75,8 @@
       :current-page="registerInvitationsCurrentPage"
       :total-pages="registerInvitationsTotalPages"
       :is-loading="registerInvitationsLoading"
-      @page-change="handlePageChange('registerInvitations', $event)" />
+      @page-change="handlePageChange('registerInvitations', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_final_mails')"
@@ -79,7 +87,8 @@
       :current-page="finalMailsCurrentPage"
       :total-pages="finalMailsTotalPages"
       :is-loading="finalMailsLoading"
-      @page-change="handlePageChange('finalMails', $event)" />
+      @page-change="handlePageChange('finalMails', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_statements')"
@@ -90,7 +99,8 @@
       :current-page="statementsCurrentPage"
       :total-pages="statementsTotalPages"
       :is-loading="statementsLoading"
-      @page-change="handlePageChange('statements', $event)" />
+      @page-change="handlePageChange('statements', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_elements')"
@@ -101,7 +111,8 @@
       :current-page="elementsCurrentPage"
       :total-pages="elementsTotalPages"
       :is-loading="elementsLoading"
-      @page-change="handlePageChange('elements', $event)" />
+      @page-change="handlePageChange('elements', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_single_documents')"
@@ -112,7 +123,8 @@
       :current-page="singleDocumentsCurrentPage"
       :total-pages="singleDocumentsTotalPages"
       :is-loading="singleDocumentsLoading"
-      @page-change="handlePageChange('singleDocuments', $event)" />
+      @page-change="handlePageChange('singleDocuments', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_paragraphs')"
@@ -123,7 +135,8 @@
       :current-page="paragraphsCurrentPage"
       :total-pages="paragraphsTotalPages"
       :is-loading="paragraphsLoading"
-      @page-change="handlePageChange('paragraphs', $event)" />
+      @page-change="handlePageChange('paragraphs', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_drawings')"
@@ -134,7 +147,8 @@
       :current-page="drawingsCurrentPage"
       :total-pages="drawingsTotalPages"
       :is-loading="drawingsLoading"
-      @page-change="handlePageChange('drawings', $event)" />
+      @page-change="handlePageChange('drawings', $event)"
+    />
   </div>
 </template>
 

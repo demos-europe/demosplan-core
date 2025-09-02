@@ -18,7 +18,8 @@
     :min-zoom="7"
     :max-zoom="18"
     :options="mapOptions"
-    :crs="mapCRS">
+    :crs="mapCRS"
+  >
     <l-icon-default />
 
     <l-wms-tile-layer
@@ -34,19 +35,22 @@
       :bound="layer.bounds"
       :min-zoom="layer.minZoom"
 
-      layer-type="base" />
+      layer-type="base"
+    />
 
     <template v-if="procedures.length">
       <l-marker-cluster
         ref="clusters"
-        :options="clusterOptions">
+        :options="clusterOptions"
+      >
         <l-marker
           v-for="procedure in procedures"
           :key="procedure.id"
           :icon="customMarker(procedure)"
           :lat-lng="coordinate(procedure.coordinate)"
           :options="{ id: procedure.id }"
-          @click="activateMarker(procedure.id)">
+          @click="activateMarker(procedure.id)"
+        >
           <l-tooltip :options="{direction: 'top', offset: tooltipOffset}">
             {{ tooltipContent(procedure) }}
           </l-tooltip>

@@ -11,7 +11,8 @@
   <div>
     <button
       class="btn btn--primary"
-      @click.prevent="inviteToeb">
+      @click.prevent="inviteToeb"
+    >
       {{ Translator.trans('invitable_institution.add') }}
     </button>
   </div>

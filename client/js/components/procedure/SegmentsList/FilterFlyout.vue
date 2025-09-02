@@ -52,43 +52,51 @@
     variant="dark"
     :padded="false"
     @close="handleClose"
-    @open="handleOpen">
+    @open="handleOpen"
+  >
     <template v-slot:trigger>
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
           v-if="appliedQuery.length > 0"
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1">
+          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
+        >
           {{ appliedQuery.length }}
         </span>
       </span>
       <i
         class="fa"
         :class="isExpanded ? 'fa-angle-up' : 'fa-angle-down'"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap">
+      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap"
+    >
       <dp-resettable-input
         :id="`searchField_${path}`"
         v-model="searchTerm"
         :data-cy="`searchField:${path}`"
         :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
-        @reset="resetSearch" />
+        @reset="resetSearch"
+      />
     </div>
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml-0_5 u-pb" />
+      class="u-mt u-ml-0_5 u-pb"
+    />
 
     <div v-else>
       <div
         :style="maxHeight"
-        class="w-full border--bottom overflow-y-scroll u-p-0_5">
+        class="w-full border--bottom overflow-y-scroll u-p-0_5"
+      >
         <ul
           v-if="ungroupedOptions?.length > 0"
-          class="o-list line-height--1_6">
+          class="o-list line-height--1_6"
+        >
           <filter-flyout-checkbox
             v-for="option in searchedUngroupedOptions"
             :key="option.id"
@@ -96,12 +104,14 @@
             instance="ungrouped"
             :option="option"
             :show-count="showCount.ungroupedOptions"
-            @change="updateQuery" />
+            @change="updateQuery"
+          />
         </ul>
         <ul
           v-for="group in searchedGroupedOptions"
           :key="`list_${group.id}}`"
-          class="o-list line-height--1_6">
+          class="o-list line-height--1_6"
+        >
           <span class="font-size-small">
             {{ group.label }}
           </span>
@@ -112,7 +122,8 @@
             :instance="group.id"
             :option="option"
             :show-count="showCount.groupedOptions"
-            @change="updateQuery" />
+            @change="updateQuery"
+          />
         </ul>
 
         <span v-if="searchedGroupedOptions.length === 0 && searchedUngroupedOptions?.length === 0">
@@ -121,21 +132,25 @@
       </div>
       <div
         v-if="itemsSelected.length > 0"
-        class="flow-root">
+        class="flow-root"
+      >
         <h3
-          class="inline-block font-size-small weight--normal u-m-0_5">
+          class="inline-block font-size-small weight--normal u-m-0_5"
+        >
           {{ Translator.trans('filter.active') }}
         </h3>
         <button
           v-if="currentQuery.length"
           class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
           :data-cy="`filter:removeActiveFilter:${path}`"
-          @click="resetAndApply">
+          @click="resetAndApply"
+        >
           {{ Translator.trans('filter.active.remove') }}
         </button>
       </div>
       <ul
-        class="o-list u-p-0_5 u-pt-0 line-height--1_6">
+        class="o-list u-p-0_5 u-pt-0 line-height--1_6"
+      >
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
           :key="`itemsSelected_${item.id}}`"
@@ -143,20 +158,23 @@
           :highlight="appliedQuery.includes(item.id) === false"
           instance="itemsSelected"
           :option="item"
-          @change="updateQuery" />
+          @change="updateQuery"
+        />
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
           class="float-left"
           :data-cy="`filter:applyFilter:${path}`"
           :text="Translator.trans('apply')"
-          @click="apply" />
+          @click="apply"
+        />
         <dp-button
           class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
-          @click="close" />
+          @click="close"
+        />
       </div>
     </div>
   </dp-flyout>

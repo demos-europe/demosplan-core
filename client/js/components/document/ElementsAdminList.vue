@@ -20,16 +20,19 @@
       v-show="selectedElements.length > 0"
       class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-text="Translator.trans('elements.selected', { count: selectedElements.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <template v-slot:default>
         <button
           v-if="hasPermission('feature_auto_switch_element_state')"
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
-          @click="bulkEdit">
+          @click="bulkEdit"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-pencil u-mr-0_125" />
+            class="fa fa-pencil u-mr-0_125"
+          />
           {{ Translator.trans('change.state.at.date') }}
         </button>
         <button
@@ -37,10 +40,12 @@
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
           :title="Translator.trans('plandocuments.delete')"
-          @click="bulkDelete">
+          @click="bulkDelete"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-trash u-mr-0_125" />
+            class="fa fa-trash u-mr-0_125"
+          />
           {{ Translator.trans('delete') }}
         </button>
       </template>
@@ -48,7 +53,8 @@
     <dp-loading v-if="isLoading" />
     <p
       v-else-if="treeData.length < 1"
-      v-text="Translator.trans('plandocuments.no_elements')" />
+      v-text="Translator.trans('plandocuments.no_elements')"
+    />
     <dp-tree-list
       v-else
       ref="treeList"
@@ -59,7 +65,8 @@
       :tree-data="treeData"
       @end="(event, item, parentId) => saveNewSort(event, parentId)"
       @node-selection-change="nodeSelectionChange"
-      @tree:change="updateTreeData">
+      @tree:change="updateTreeData"
+    >
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -74,11 +81,13 @@
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
           <icon-published :published="nodeElement.attributes.visible" />
           <icon-statement-enabled
             v-if="hasPermission('feature_single_document_statement')"
-            :enabled="nodeElement.attributes.statementEnabled" />
+            :enabled="nodeElement.attributes.statementEnabled"
+          />
         </div>
       </template>
     </dp-tree-list>

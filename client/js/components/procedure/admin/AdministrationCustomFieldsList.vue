@@ -6,41 +6,48 @@
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="Translator.trans('segments.fields.edit.info')"
-      type="info" />
+      type="info"
+    />
 
     <create-custom-field-form
       :handle-success="isSuccess"
       :is-loading="isLoading"
-      @save="customFieldData => saveNewField(customFieldData)">
+      @save="customFieldData => saveNewField(customFieldData)"
+    >
       <div>
         <dp-label
           class="mb-1"
           required
-          :text="Translator.trans('options')" />
+          :text="Translator.trans('options')"
+        />
         <dp-input
           id="newFieldOption:1"
           v-model="newFieldOptions[0].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption1"
           maxlength="250"
-          required />
+          required
+        />
         <dp-input
           id="newFieldOption:2"
           v-model="newFieldOptions[1].label"
           class="mb-2 w-[calc(100%-26px)]"
           data-cy="customFields:newFieldOption2"
           maxlength="250"
-          required />
+          required
+        />
 
         <div
           v-for="(option, idx) in additionalOptions"
-          :key="`option:${idx}`">
+          :key="`option:${idx}`"
+        >
           <div class="w-[calc(100%-26px)] inline-block mb-2">
             <dp-input
               :id="`option:${newFieldOptions[idx + 2].label}`"
               v-model="newFieldOptions[idx + 2].label"
               :data-cy="`customFields:newFieldOption${idx + 2}`"
-              maxlength="250" />
+              maxlength="250"
+            />
           </div>
           <dp-button
             class="w-[20px] inline-block ml-1"
@@ -49,7 +56,8 @@
             icon="x"
             :text="Translator.trans('remove')"
             variant="subtle"
-            @click="removeOptionInput(idx + 2)" />
+            @click="removeOptionInput(idx + 2)"
+          />
         </div>
 
         <dp-button
@@ -57,7 +65,8 @@
           icon="plus"
           variant="subtle"
           :text="Translator.trans('option.add')"
-          @click="addOptionInput" />
+          @click="addOptionInput"
+        />
       </div>
     </create-custom-field-form>
 
@@ -68,7 +77,8 @@
       has-flyout
       :header-fields="headerFields"
       :items="customFieldItems"
-      track-by="id">
+      track-by="id"
+    >
       <template v-slot:name="rowData">
         <div v-if="rowData.edit">
           <dp-input
@@ -88,7 +98,8 @@
             v-for="(option, index) in displayedOptions(rowData)"
             :key="index"
             class="mb-1"
-            :data-cy="`customFields:option${option.label}`">
+            :data-cy="`customFields:option${option.label}`"
+          >
             <div>
               {{ option.label }}
             </div>
@@ -98,7 +109,8 @@
           <li
             v-for="(option, index) in newRowData.options"
             :key="index"
-            class="mb-1">
+            class="mb-1"
+          >
             <div class="flex">
               <dp-input
                 :id="`option:${index}`"
@@ -125,7 +137,8 @@
               icon="plus"
               variant="subtle"
               :text="Translator.trans('option.add')"
-              @click="addOptionInputOnEdit(rowData)" />
+              @click="addOptionInputOnEdit(rowData)"
+            />
           </li>
         </ul>
       </template>
@@ -134,7 +147,8 @@
         <div v-if="rowData.edit">
           <dp-input
             id="customFieldDescription"
-            v-model="newRowData.description" />
+            v-model="newRowData.description"
+          />
         </div>
         <div v-else>
           {{ rowData.description }}
@@ -149,7 +163,8 @@
             data-cy="customFields:editField"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
-            @click="editCustomField(rowData)">
+            @click="editCustomField(rowData)"
+          >
             <dp-icon
               aria-hidden="true"
               icon="edit"
@@ -163,10 +178,12 @@
               data-cy="customFields:saveEdit"
               :disabled="isSaveDisabled[rowData.id]"
               :title="Translator.trans('save')"
-              @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)">
+              @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)"
+            >
               <dp-icon
                 icon="check"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
 
             <button
@@ -174,17 +191,20 @@
               data-cy="customFields:abortEdit"
               :title="Translator.trans('abort')"
               :aria-label="Translator.trans('abort')"
-              @click="abortFieldEdit(rowData)">
+              @click="abortFieldEdit(rowData)"
+            >
               <dp-icon
                 icon="xmark"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </template>
 
           <dp-confirm-dialog
             ref="confirmDialog"
             data-cy="customFields:saveEditConfirm"
-            :message="Translator.trans('custom.field.edit.message.warning')" />
+            :message="Translator.trans('custom.field.edit.message.warning')"
+          />
 
           <button
             v-if="!rowData.open"
@@ -192,10 +212,12 @@
             class="btn--blank o-link--default"
             data-cy="customFields:showOptions"
             :disabled="rowData.options.length < 3"
-            @click="showOptions(rowData)">
+            @click="showOptions(rowData)"
+          >
             <dp-icon
               aria-hidden="true"
-              icon="caret-down" />
+              icon="caret-down"
+            />
           </button>
 
           <template v-else>
@@ -204,10 +226,12 @@
               :aria-label="Translator.trans('aria.collapse')"
               class="btn--blank o-link--default"
               data-cy="customFields:hideOptions"
-              @click="hideOptions(rowData)">
+              @click="hideOptions(rowData)"
+            >
               <dp-icon
                 aria-hidden="true"
-                icon="caret-up" />
+                icon="caret-up"
+              />
             </button>
           </template>
         </div>
