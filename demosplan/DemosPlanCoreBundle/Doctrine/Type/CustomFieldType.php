@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
@@ -24,7 +25,8 @@ class CustomFieldType extends JsonType
     final public const DPLAN_STORED_QUERY = 'dplan.custom_field_configuration';
 
     private const TYPE_CLASSES = [
-        RadioButtonField::class
+        RadioButtonField::class,
+        MultiSelectField::class,
     ];
 
     public function loadFromJson(
@@ -34,28 +36,44 @@ class CustomFieldType extends JsonType
             return null;
         }
 
+        if (!isset($json['fieldType'])) {
+            throw new ConversionException('Missing fieldType in custom field JSON');
+        }
+
+        $fieldType = $json['fieldType'];
+
         return collect(self::TYPE_CLASSES)
             ->map(
-                static function (string $queryClass) {
+                static function (string $fieldType) {
                     // explicitly switch the classes to get IDE-findable class uses
-                    $query = null;
+                    $field = null;
 
-                    switch ($queryClass) {
+                    switch ($fieldType) {
                         case RadioButtonField::class:
-                            $query = new RadioButtonField();
+                            $field = new RadioButtonField();
                             break;
+                        case MultiSelectField::class:
+                            $field = new MultiSelectField();
+                            break;
+                        default:
+                            throw new ConversionException("Unhandled custom field class: {$fieldType}");
+
+
                     }
 
-                    return $query;
+                    return $field;
                 }
             )
+            ->filter(
+                static fn (CustomFieldInterface $field) =>  $fieldType === $field->getFormat()
+            )
             ->map(
-                static function (CustomFieldInterface $query) use (
+                static function (CustomFieldInterface $field) use (
                     $json
                 ) {
-                    $query->fromJson($json);
+                    $field->fromJson($json);
 
-                    return $query;
+                    return $field;
                 }
             )
             ->first();
