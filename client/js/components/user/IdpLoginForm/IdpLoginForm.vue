@@ -10,8 +10,8 @@
 <template>
   <div>
     <!-- To test the functionality of this component you need to set the variable $useIdp in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserAuthenticationController.php:258 to true-->
-    <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
-      <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
+    <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') || isAzureSso ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
+      <div :class="prefixClass(`${isIdp || hasPermission('feature_identity_broker_login') || isAzureSso ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
         <form
           ref="loginForm"
           :action="Routing.generate('DemosPlan_user_login')"
@@ -68,7 +68,7 @@
       </div>
 
       <div
-        v-if="isIdp || hasPermission('feature_identity_broker_login')"
+        v-if="isIdp || hasPermission('feature_identity_broker_login') || isAzureSso"
         :class="prefixClass('c-login-register__col c-login-register__col-right')">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
@@ -80,6 +80,15 @@
           <dp-button
             :href="idpLoginPath"
             :text="Translator.trans('login.idp.action')"
+            variant="outline" />
+        </div>
+        <div v-if="isAzureSso">
+          <p
+            :class="prefixClass('u-mt u-mb-0_125')"
+            v-html="Translator.trans('login.azure.description')" />
+          <dp-button
+            :href="Routing.generate('connect_azure_start')"
+            :text="Translator.trans('login.azure.action')"
             variant="outline" />
         </div>
         <div v-if="hasPermission('feature_identity_broker_login')">
@@ -102,7 +111,7 @@
 
     <p
       v-if="hasPermission('feature_citizen_registration') && hasPermission('feature_orga_registration')"
-      :class="isIdp ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
+      :class="(isIdp || hasPermission('feature_identity_broker_login') || isAzureSso) ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
       v-html="Translator.trans('register.navigation.text', { organisation: Routing.generate('DemosPlan_citizen_registration_form'), user: Routing.generate('DemosPlan_orga_register_form') })" />
   </div>
 </template>
@@ -115,7 +124,7 @@ export default {
 
   components: {
     DpButton,
-    DpInput
+    DpInput,
   },
 
   mixins: [prefixClassMixin, dpValidateMixin],
@@ -124,19 +133,25 @@ export default {
     isIdp: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
+    },
+
+    isAzureSso: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     idpLoginPath: {
       type: String,
       required: true,
-      default: ''
+      default: '',
     },
 
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
@@ -144,7 +159,7 @@ export default {
       this.dpValidateAction('loginForm', () => {
         this.$refs.loginForm.submit()
       }, false)
-    }
-  }
+    },
+  },
 }
 </script>

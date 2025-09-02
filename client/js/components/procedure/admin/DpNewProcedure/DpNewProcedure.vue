@@ -9,12 +9,12 @@
 
 <template>
   <form
+    ref="newProcedureForm"
     :action="Routing.generate('DemosPlan_procedure_new')"
     data-dp-validate="newProcedureForm"
     enctype="multipart/form-data"
     method="post"
-    name="xsubmititem"
-    ref="newProcedureForm">
+    name="xsubmititem">
     <input
       type="hidden"
       name="_token"
@@ -64,39 +64,42 @@
 
         <dl>
           <dt
-            v-text="Translator.trans('public.participation.desc')"
-            class="weight--bold" />
+            class="weight--bold"
+            v-text="Translator.trans('public.participation.desc')" />
           <dd
-            v-text="Translator.trans('planningcause.select.hint')"
             id="js__plisPlanungsanlass"
-            class="u-m-0 lbl__hint" />
+            class="u-m-0 lbl__hint"
+            v-text="Translator.trans('planningcause.select.hint')" />
         </dl>
       </template>
 
       <dp-input
         v-else
+        id="r_name"
+        v-model="procedureName"
+        :label="{ text: Translator.trans('name') }"
+        :required="requireField"
         class="mb-4"
         data-cy="newProcedureTitle"
-        id="r_name"
-        :label="{ text: Translator.trans('name') }"
         maxlength="200"
         name="r_name"
-        :required="requireField"
-        type="text" />
+        type="text"
+      />
 
       <dp-select
         v-if="hasPermission('feature_procedure_templates')"
         id="blueprint"
-        class="mb-4"
         :label="{
           hint: procedureTemplateHint,
           text: Translator.trans('master')
         }"
-        name="r_copymaster"
-        data-cy="newProcedureForm:blueprintOptions"
         :options="blueprintOptions"
         :selected="masterBlueprintId"
-        @select="setBlueprintData" />
+        class="mb-4"
+        data-cy="newProcedureForm:blueprintOptions"
+        name="r_copymaster"
+        @select="setBlueprintData"
+      />
 
       <!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
       <template v-if="procedureTypes.length > 1">
@@ -133,6 +136,7 @@
 
       <dp-input
         id="main-email"
+        v-model="mainEmail"
         class="mb-4"
         data-cy="agencyMainEmailAddress"
         :label="{
@@ -141,8 +145,7 @@
         }"
         name="agencyMainEmailAddress[fullAddress]"
         required
-        type="email"
-        :value="mainEmail" />
+        type="email" />
 
       <dp-text-area
         id="r_desc"
@@ -176,8 +179,8 @@
 
         <p
           v-if="hasPermission('feature_use_plis')"
-          class="sr-only flash"
-          id="js__statusBox" />
+          id="js__statusBox"
+          class="sr-only flash" />
       </div>
 
       <div
@@ -202,8 +205,8 @@
           id="saveBtn"
           :text="Translator.trans('save')"
           type="submit"
-          @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
-          data-cy="newProcedureForm:saveNewProcedure" />
+          data-cy="newProcedureForm:saveNewProcedure"
+          @click.prevent="dpValidateAction('newProcedureForm', submit, false)" />
         <dp-button
           color="secondary"
           data-cy="newProcedureForm:abort"
@@ -225,7 +228,7 @@ import {
   DpMultiselect,
   DpSelect,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CoupleTokenInput from './CoupleTokenInput'
@@ -243,7 +246,7 @@ export default {
     DpInlineNotification,
     DpMultiselect,
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   mixins: [dpValidateMixin],
@@ -252,49 +255,49 @@ export default {
     blueprintOptions: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     masterBlueprintId: {
       type: String,
       required: false,
-      default: () => ''
+      default: () => '',
     },
 
     plisNameOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureTemplateHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureTypes: {
       type: Array,
       required: true,
-      default: () => []
+      default: () => [],
     },
 
     token: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     tokenLength: {
       type: Number,
       required: false,
-      default: 12
-    }
+      default: 12,
+    },
   },
 
   data () {
@@ -303,20 +306,21 @@ export default {
       description: '',
       emptyBlueprintData: {
         description: '',
-        agencyMainEmailAddress: ''
+        agencyMainEmailAddress: '',
       },
-      mainEmail: ''
+      mainEmail: '',
+      procedureName: '',
     }
   },
 
   computed: {
     ...mapState('NewProcedure', [
-      'requireField'
+      'requireField',
     ]),
 
     currentProcedureTypeId () {
       return this.currentProcedureType.id || ''
-    }
+    },
   },
 
   methods: {
@@ -324,7 +328,10 @@ export default {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprintData = payload.value === this.masterBlueprintId ? this.emptyBlueprintData : await this.fetchBlueprintData(payload)
       this.description = blueprintData.description
-      this.mainEmail = blueprintData.agencyMainEmailAddress
+
+      if (blueprintData.agencyMainEmailAddress !== '') {
+        this.mainEmail = blueprintData.agencyMainEmailAddress
+      }
     },
 
     fetchBlueprintData (blueprintId) {
@@ -335,10 +342,10 @@ export default {
           fields: {
             ProcedureTemplate: [
               'agencyMainEmailAddress',
-              'description'
-            ].join()
-          }
-        })
+              'description',
+            ].join(),
+          },
+        }),
       )
         .then(({ data }) => data.data.attributes)
         .catch(() => this.emptyBlueprintData) // When the request fails planners will have to fill in an address manually
@@ -346,7 +353,7 @@ export default {
 
     submit () {
       this.$refs.newProcedureForm.submit()
-    }
-  }
+    },
+  },
 }
 </script>

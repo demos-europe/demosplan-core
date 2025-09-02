@@ -42,17 +42,17 @@
         <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
               value="accessibleProcedures"
               required> {{ Translator.trans('procedure.accessible') }}
           </label>
           <label class="u-mb-0_5 u-ml inline-block">
             <input
+              v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              v-model="procedurePermissions"
               value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
           </label>
         </template>
@@ -62,9 +62,9 @@
           for="r_target_procedure">{{ Translator.trans('statement.moveto.procedure.target') }}</label>
         <select
           id="r_target_procedure"
+          v-model="selectedProcedureId"
           name="r_target_procedure"
-          class="w-full u-mb"
-          v-model="selectedProcedureId">
+          class="w-full u-mb">
           <option value="">
             -
           </option>
@@ -79,9 +79,9 @@
           v-if="hasPermission('feature_statement_content_changes_view') || hasPermission('feature_statement_content_changes_save')"
           class="u-mb">
           <input
-            type="checkbox"
             id="deleteVersionHistory"
             v-model="deleteVersionHistory"
+            type="checkbox"
             aria-describedby="deleteHistoryDesc">
           <label
             for="deleteVersionHistory"
@@ -89,8 +89,8 @@
             {{ Translator.trans('delete.history') }}
           </label>
           <p
-            class="lbl__hint"
-            id="deleteHistoryDesc">
+            id="deleteHistoryDesc"
+            class="lbl__hint">
             {{ Translator.trans('delete.history.description') }}
           </p>
         </div>
@@ -98,8 +98,8 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          @click.prevent.stop="moveStatement"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
+          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          @click.prevent.stop="moveStatement">
           {{ Translator.trans('statement.moveto.procedure.action') }}
         </button>
       </template>
@@ -117,30 +117,30 @@ export default {
   components: {
     DpInlineNotification,
     DpModal,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     accessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     inaccessibleProcedures: {
       required: false,
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   emits: [
-    'statement:moveToProcedure'
+    'statement:moveToProcedure',
   ],
 
   data () {
@@ -150,7 +150,7 @@ export default {
       selectedProcedureId: '',
       statementId: null,
       statementFragments: [],
-      deleteVersionHistory: false
+      deleteVersionHistory: false,
     }
   },
 
@@ -184,7 +184,7 @@ export default {
     selectedProcedureName () {
       //  Get the object corresponding with the current selection
       return this.selectedProcedureId ? this.availableProcedures[this.selectedProcedureId].name : ''
-    }
+    },
   },
 
   watch: {
@@ -193,8 +193,8 @@ export default {
         //  Reset selection when radio list changes
         this.selectedProcedureId = ''
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -260,7 +260,7 @@ export default {
       this.$store.dispatch('Statement/moveStatementAction', {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId,
-        deleteVersionHistory: this.deleteVersionHistory
+        deleteVersionHistory: this.deleteVersionHistory,
       })
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
@@ -285,12 +285,12 @@ export default {
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
           this.toggleModal(null)
         })
-    }
+    },
   },
 
   mounted () {
     //  Emitted from TableCard.vue
     this.$root.$on('moveStatement:toggle', (statementId) => this.toggleModal(statementId))
-  }
+  },
 }
 </script>

@@ -19,7 +19,7 @@
     pattern="^(\+?)(-| |[0-9]|\(|\))*$"
     :required="required && statement.r_useName === '1'"
     type="tel"
-    :value="statement.r_phone"
+    :model-value="statement.r_phone"
     @input="val => setStatementData({r_phone: val})" />
 </template>
 
@@ -29,6 +29,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupPhoneNumber',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

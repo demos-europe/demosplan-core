@@ -35,9 +35,9 @@
         <button
           v-if="hasPermission('feature_admin_element_bulk_delete')"
           type="button"
-          @click="bulkDelete"
           class="btn--blank o-link--default u-mr-0_5"
-          :title="Translator.trans('plandocuments.delete')">
+          :title="Translator.trans('plandocuments.delete')"
+          @click="bulkDelete">
           <i
             aria-hidden="true"
             class="fa fa-trash u-mr-0_125" />
@@ -92,7 +92,7 @@ import {
   dpRpc,
   DpTreeList,
   hasAnyPermissions,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -109,7 +109,7 @@ export default {
     DpTreeList,
     FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
     IconPublished: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconPublished')),
-    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled'))
+    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled')),
   },
 
   data () {
@@ -119,13 +119,13 @@ export default {
       isLoading: true,
       treeData: [],
       selectedElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     treeListOptions () {
@@ -138,28 +138,28 @@ export default {
         rootDraggable: true,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
       elementList: 'list',
-      deleteElement: 'delete'
+      deleteElement: 'delete',
     }),
 
     ...mapMutations('Elements', {
-      setElement: 'set'
+      setElement: 'set',
     }),
 
     /**
@@ -386,7 +386,7 @@ export default {
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
         newIndex: newIndex === 0 ? newIndex : index,
-        parentId
+        parentId,
       })
         .then(response => {
           /*
@@ -405,8 +405,8 @@ export default {
                 attributes: {
                   ...storeElement.attributes,
                   index: mapElement.index,
-                  parentId: mapElement.parentId
-                }
+                  parentId: mapElement.parentId,
+                },
               })
             }
           }
@@ -472,14 +472,14 @@ export default {
               attributes: {
                 ...this.elements[el.id].attributes,
                 idx,
-                parentId: updatedSort.nodeId
-              }
+                parentId: updatedSort.nodeId,
+              },
             })
           })
 
         this.buildTree('idx')
       }
-    }
+    },
   },
 
   mounted () {
@@ -490,9 +490,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'procedure.id',
-            value: dplan.procedureId
-          }
-        }
+            value: dplan.procedureId,
+          },
+        },
       },
       fields: {
         Elements: [
@@ -505,16 +505,16 @@ export default {
           'filePathWithHash',
           'index',
           'parentId',
-          'title'
+          'title',
         ].join(),
         SingleDocument: [
           'fileInfo',
           'index',
           'statementEnabled',
           'title',
-          'visible'
-        ].join()
-      }
+          'visible',
+        ].join(),
+      },
     })
       .then(() => {
         this.buildTree()
@@ -526,6 +526,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

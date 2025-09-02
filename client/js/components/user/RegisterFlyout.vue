@@ -44,7 +44,7 @@ export default {
   name: 'RegisterFlyout',
 
   components: {
-    DpFlyout
+    DpFlyout,
   },
 
   mounted () {
@@ -56,6 +56,6 @@ export default {
     if (placeholder) {
       placeholder.remove()
     }
-  }
+  },
 }
 </script>

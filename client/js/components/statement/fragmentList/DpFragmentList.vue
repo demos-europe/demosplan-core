@@ -11,10 +11,10 @@
   <section class="u-mb">
     <template v-if="fragments.length">
       <dp-statement-fragment
-        :csrf-token="csrfToken"
-        :is-archive="isArchive"
         v-for="fragment in fragments"
         :key="missKeyValue(fragment.id, 0)"
+        :csrf-token="csrfToken"
+        :is-archive="isArchive"
         :fragment-id="missKeyValue(fragment.id, 0)"
         :statement-id="missKeyValue(fragment.statement.id, 0)"
         :current-user-id="currentUserId"
@@ -38,43 +38,43 @@ export default {
   name: 'DpFragmentList',
 
   components: {
-    DpStatementFragment
+    DpStatementFragment,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     isArchive: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     fragments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     adviceValues: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   methods: {
@@ -90,7 +90,7 @@ export default {
       }
 
       return value
-    }
+    },
   },
 
   created () {
@@ -112,13 +112,13 @@ export default {
     while (i--) {
       this.$store.commit('fragment/addFragment', {
         statementId: this.fragments[i].statement.id,
-        fragment: this.fragments[i]
+        fragment: this.fragments[i],
       })
     }
   },
 
   mounted () {
     AnimateById()
-  }
+  },
 }
 </script>

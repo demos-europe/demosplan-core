@@ -36,48 +36,48 @@ export default {
 
   components: {
     AssessmentTableTocGroup,
-    DpButton
+    DpButton,
   },
 
   props: {
     filterHash: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'update-assessment-table'
+    'update:assessmentTable',
   ],
 
   computed: {
     ...mapGetters('AssessmentTable', [
-      'isRefreshButtonVisible'
+      'isRefreshButtonVisible',
     ]),
 
     ...mapGetters('Statement', [
-      'getToc'
-    ])
+      'getToc',
+    ]),
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setRefreshButtonVisibility'
+      'setRefreshButtonVisibility',
     ]),
 
     triggerUpdate () {
       this.setRefreshButtonVisibility(false)
       /*
-       *  Update-assessment-table is defined in mounted() of DpTable.vue.
+       *  Update:assessmentTable is defined in mounted() of DpTable.vue.
        *  Otherwise triggerApiCallForStatements() would not be accessible in AssessmentTableToc which refreshes the assessment list without page reload
        */
-      this.$root.$emit('update-assessment-table')
-    }
-  }
+      this.$root.$emit('update:assessmentTable')
+    },
+  },
 }
 </script>

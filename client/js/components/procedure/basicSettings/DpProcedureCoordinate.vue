@@ -17,15 +17,15 @@
 <template>
   <div>
     <dp-ol-map
-      :procedure-id="procedureId"
       ref="map"
+      :procedure-id="procedureId"
       :map-options="mapOptions"
       :small="small"
       :is-valid="requiredMapIsValid"
       :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }">
       <template
-        v-slot:controls
-        v-if="editable">
+        v-if="editable"
+        v-slot:controls>
         <dp-procedure-coordinate-input
           v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
@@ -45,17 +45,17 @@
             @tool:setPoint="checkProcedureValidation"
             @tool:activated="setDrawingActive" />
           <dp-ol-map-drag-zoom
-            :class="prefixClass('u-mb-0_5')"
             ref="dragzoom"
+            :class="prefixClass('u-mb-0_5')"
             @tool:activated="newValue => isDrawingActive = !newValue" />
         </div>
       </template>
 
       <dp-ol-map-layer-vector
-        :features="featuresFromCoordinate"
         ref="procedureCoordinateDrawer"
+        :features="featuresFromCoordinate"
         name="procedureCoordinateDrawer"
-        @layer:features:changed="updateProcedureCoordinate" />
+        @layerFeatures:changed="updateProcedureCoordinate" />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.
@@ -63,8 +63,8 @@
          other form elements (that do not share the vue context) also need to be validated. -->
     <template v-if="hasPermission('feature_procedure_require_location')">
       <input
-        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         v-model="currentProcedureCoordinate"
+        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         name="r_coordinate"
         required
         type="hidden">
@@ -100,7 +100,7 @@ export default {
     DpOlMapDrawPoint,
     DpOlMapLayerVector,
     DpProcedureCoordinateInput,
-    ProcedureCoordinateGeolocation
+    ProcedureCoordinateGeolocation,
   },
 
   mixins: [prefixClassMixin],
@@ -109,51 +109,51 @@ export default {
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureCoordinate: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureLocation: {
       required: false,
       type: Object,
-      default: () => { return {} }
+      default: () => { return {} },
     },
 
     mapOptions: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initExtent: {
       required: false,
       type: Array,
-      default: () => { return [] }
+      default: () => { return [] },
     },
 
     // Bobhh does not use the opengeodb; but there is no permission for that atm.
     useOpengeodb: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     small: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -161,7 +161,7 @@ export default {
       currentProcedureCoordinate: '',
       isDrawingActive: true,
       coordinate: [],
-      requiredMapIsValid: true
+      requiredMapIsValid: true,
     }
   },
 
@@ -173,13 +173,13 @@ export default {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: this.coordinate
-          }
+            coordinates: this.coordinate,
+          },
         }
       } else {
         return {}
       }
-    }
+    },
   },
 
   methods: {
@@ -235,7 +235,7 @@ export default {
       if (newValue === true) {
         this.$refs.dragzoom.deactivateTool()
       }
-    }
+    },
   },
 
   mounted () {
@@ -268,6 +268,6 @@ export default {
     document.addEventListener('customValidationFailed', () => {
       this.setProcedureCoordinateValidState()
     })
-  }
+  },
 }
 </script>

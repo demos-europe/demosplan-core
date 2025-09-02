@@ -26,13 +26,13 @@ All rights reserved
     <!--  In the following section, v-model is replaced with :value && @input to enable custom display of input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
-        v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
         id="statementDepartmentName"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('department')
         }"
-        :value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
         class="mb-2"
         data-cy="statementSubmitter:departmentName"
         @input="value => localStatement.attributes.initialOrganisationDepartmentName = value"
@@ -40,13 +40,13 @@ All rights reserved
 
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
-        v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="!localStatement.attributes.isSubmittedByCitizen"
         id="statementOrgaName"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('organisation')
         }"
-        :value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
         @input="value => localStatement.attributes.initialOrganisationName = value"
@@ -58,13 +58,13 @@ All rights reserved
         class="float-right mt-0.5"
       />
       <dp-input
-        v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+        v-if="hasPermission('field_statement_meta_submit_name') && statementFormDefinitions.name.enabled"
         id="statementSubmitterName"
         :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
         :label="{
           text: Translator.trans('name')
         }"
-        :value="getSubmitterNameValue()"
+        :model-value="getSubmitterNameValue()"
         class="mb-2"
         data-cy="statementSubmitter:submitterName"
         @input="value => localStatement.attributes[statementSubmitterField] = value"
@@ -77,7 +77,7 @@ All rights reserved
         :label="{
           text: Translator.trans('email')
         }"
-        :value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
+        :model-value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
         class="mb-2"
         data-cy="statementSubmitter:emailAddress"
         type="email"
@@ -90,7 +90,7 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.representation.assessment')
         }"
-        :value="localStatement.attributes.represents"
+        :model-value="localStatement.attributes.represents"
         data-cy="statementSubmitter:representation"
         disabled
       />
@@ -112,7 +112,7 @@ All rights reserved
           :label="{
             text: Translator.trans('street')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
           class="o-form__group-item"
           data-cy="statementSubmitter:street"
           @input="value => localStatement.attributes.initialOrganisationStreet = value"
@@ -124,8 +124,8 @@ All rights reserved
             text: Translator.trans('street.number.short')
           }"
           :size="3"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
-          class="o-form__group-item shrink"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
+          class="o-form__group-item !w-1/5 shrink"
           data-cy="statementSubmitter:houseNumber"
           @input="value => localStatement.attributes.initialOrganisationHouseNumber = value"
         />
@@ -137,8 +137,8 @@ All rights reserved
           :label="{
             text: Translator.trans('postalcode')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
-          class="o-form__group-item shrink"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
+          class="o-form__group-item !w-1/4 shrink"
           data-cy="statementSubmitter:postalCode"
           pattern="^[0-9]{4,5}$"
           @input="value => localStatement.attributes.initialOrganisationPostalCode = value"
@@ -149,7 +149,7 @@ All rights reserved
           :label="{
             text: Translator.trans('city')
           }"
-          :value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
           class="o-form__group-item"
           data-cy="statementSubmitter:city"
           @input="value => localStatement.attributes.initialOrganisationCity = value"
@@ -172,7 +172,6 @@ All rights reserved
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
       :statement-id="statement.id"
-      class="mb-4"
     />
   </fieldset>
 </template>
@@ -182,10 +181,11 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import { mapState } from 'vuex'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+
 export default {
   name: 'StatementSubmitter',
 
@@ -193,7 +193,7 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpInput,
-    SimilarStatementSubmitters
+    SimilarStatementSubmitters,
   },
 
   mixins: [dpValidateMixin],
@@ -202,38 +202,38 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      localStatement: null
+      localStatement: null,
     }
   },
 
   computed: {
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     isStatementManual () {
@@ -284,17 +284,17 @@ export default {
         this.localStatement.attributes.submitterRole !== 'publicagency'
 
       return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
-    }
+    },
   },
 
   methods: {
     getDisplayValue (value) {
       const isDisabled = !this.editable || !this.isStatementManual
 
-      return (isDisabled && (!value || value.trim() === '')) ? '---' : value
+      return (isDisabled && (!value || value.trim() === '')) ? '-' : value
     },
 
-    getSubmitterNameValue() {
+    getSubmitterNameValue () {
       if (this.isSubmitterAnonymized()) {
         return Translator.trans('anonymized')
       }
@@ -331,8 +331,8 @@ export default {
           initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
           initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
           initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
-          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity
-        }
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity,
+        },
       }
 
       this.$emit('save', updatedStatement)
@@ -340,11 +340,11 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    }
+    },
   },
 
   created () {
     this.setInitValues()
-  }
+  },
 }
 </script>

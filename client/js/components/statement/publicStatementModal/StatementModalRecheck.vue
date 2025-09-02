@@ -9,8 +9,8 @@
 
 <template>
   <fieldset
-    :class="prefixClass('c-statement__step')"
     id="check"
+    :class="prefixClass('c-statement__step')"
     tabindex="-1">
     <legend
       :class="prefixClass('sr-only')"
@@ -40,10 +40,10 @@
       <button
         type="button"
         data-cy="statementModalRecheck:statementDetailFormPersonalPublish"
-        @click="$emit('edit-input', 'r_makePublic')"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="statementDetailFormPersonalPublish inputDataChange">
+        aria-labelledby="statementDetailFormPersonalPublish inputDataChange"
+        @click="$emit('editInput', 'r_makePublic')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -62,7 +62,7 @@
             aria-labelledby="useNameText inputDataChange"
             data-cy="statementModalRecheck:useNameText"
             type="button"
-            @click="$emit('edit-input', 'r_useName_1')"
+            @click="$emit('editInput', 'r_useName_1')"
           >
             <i
               :class="prefixClass('fa fa-pencil')"
@@ -142,9 +142,9 @@
         type="button"
         data-cy="statementModalRecheck:useNameText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="useNameText inputDataChange">
+        aria-labelledby="useNameText inputDataChange"
+        @click="$emit('editInput', 'r_useName_0')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -184,18 +184,18 @@
 
       <!-- this span is only to combine aria-labelledby of some elements with the text 'Eingabe ändern' -->
       <span
+        id="inputDataChange"
         :class="prefixClass('hidden')"
-        aria-hidden="true"
-        id="inputDataChange">
+        aria-hidden="true">
         {{ Translator.trans('statement.form.input.change') }}
       </span>
       <button
         type="button"
         data-cy="statementModalRecheck:getFeedbackText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
-        aria-labelledby="getFeedbackText inputDataChange">
+        aria-labelledby="getFeedbackText inputDataChange"
+        @click="$emit('editInput', 'r_getFeedback')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -209,9 +209,9 @@
           type="button"
           data-cy="statementModalRecheck:statementAlter"
           :class="prefixClass('o-link--default btn-icns float-right')"
-          @click="$emit('edit-input', 'r_text')"
           :title="Translator.trans('statement.alter')"
-          :aria-label="Translator.trans('statement.alter')">
+          :aria-label="Translator.trans('statement.alter')"
+          @click="$emit('editInput', 'r_text')">
           <i
             :class="prefixClass('fa fa-pencil')"
             aria-hidden="true" />
@@ -219,8 +219,8 @@
       </span>
 
       <div
-        :class="prefixClass('sm:h-9 overflow-auto c-styled-html')"
-        v-cleanhtml="statement.r_text" />
+        v-cleanhtml="statement.r_text"
+        :class="prefixClass('sm:h-9 overflow-auto c-styled-html')" />
     </div>
   </fieldset>
 </template>
@@ -232,11 +232,11 @@ export default {
   name: 'StatementModalRecheck',
 
   components: {
-    DpInlineNotification
+    DpInlineNotification,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [prefixClassMixin],
@@ -245,47 +245,47 @@ export default {
     allowAnonymousStatements: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     formFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFeedbackDefinitions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
-    'edit-input'
+    'editInput',
   ],
 
   computed: {
@@ -315,13 +315,13 @@ export default {
 
     showStreet () {
       return this.statement.r_street && this.statement.r_street !== ''
-    }
+    },
   },
 
   methods: {
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
-    }
-  }
+    },
+  },
 }
 </script>

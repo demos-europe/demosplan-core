@@ -20,7 +20,7 @@ import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagMa
 const components = {
   AdministrationMemberList,
   DpContextualHelp,
-  OrganisationTable
+  OrganisationTable,
 }
 
 const apiStores = [
@@ -28,11 +28,11 @@ const apiStores = [
   'InvitedToeb',
   'InstitutionTag',
   'InstitutionTagCategory',
-  'InstitutionLocationContact'
+  'InstitutionLocationContact',
 ]
 
 const stores = {
-  FilterFlyout: FilterFlyoutStore
+  FilterFlyout: FilterFlyoutStore,
 }
 
 initialize(components, stores, apiStores).then(() => {

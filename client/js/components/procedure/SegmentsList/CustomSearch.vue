@@ -18,7 +18,8 @@
         <dp-flyout
           align="left"
           data-cy="customSearch:searchCustomLimitFields"
-          class="top-px right-0 absolute"
+          class="top-0.5 right-0"
+          position="absolute"
           :padded="false">
           <template v-slot:trigger>
             <dp-icon
@@ -34,17 +35,17 @@
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
-                v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.length < fields.length)" />
+                @click="toggleAllFields(selectedFields.length < fields.length)"
+                v-text="Translator.trans('toggle_all')" />
             </div>
             <div
-              class="o-list--col-3"
-              v-if="isLoading === false">
+              v-if="isLoading === false"
+              class="o-list--col-3">
               <dp-checkbox
                 v-for="({label, value}, i) in fields"
-                :data-cy="'customSearch:' + value"
                 :id="value"
                 :key="i"
+                :data-cy="'customSearch:' + value"
                 :checked="selectedFields.includes(value)"
                 :label="{
                   text: Translator.trans(label)
@@ -82,7 +83,7 @@ import {
   DpIcon,
   dpRpc,
   DpSearchField,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
@@ -94,7 +95,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -109,7 +110,7 @@ export default {
         return ['entity', 'function', 'accessGroup'].every((prop) => {
           return hasOwnProp(obj, prop) && obj[prop] !== ''
         })
-      }
+      },
     },
 
     /**
@@ -117,7 +118,7 @@ export default {
      */
     id: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -127,20 +128,20 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     searchTerm: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data () {
@@ -152,23 +153,23 @@ export default {
         {
           title: Translator.trans('search.options'),
           dataCy: 'searchOptions',
-          description: Translator.trans('search.options.description')
+          description: Translator.trans('search.options.description'),
         },
         {
           title: Translator.trans('search.special.characters'),
           dataCy: 'searchSpecialCharacters',
-          description: Translator.trans('search.special.characters.description')
-        }
+          description: Translator.trans('search.special.characters.description'),
+        },
       ],
       maxHeight: null,
-      selectedFields: []
+      selectedFields: [],
     }
   },
 
   computed: {
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -208,7 +209,7 @@ export default {
           this.fields = Object.keys(fields).map((field) => {
             return {
               label: fields[field],
-              value: field
+              value: field,
             }
           })
           this.isLoading = false
@@ -239,7 +240,7 @@ export default {
         set.delete(field)
         this.selectedFields = [...set]
       }
-    }
+    },
   },
 
   mounted () {
@@ -249,6 +250,6 @@ export default {
 
     // Emit selection in case there was something stored (if storage is enabled).
     this.storeSelection && this.$emit('changeFields', this.selectedFields)
-  }
+  },
 }
 </script>

@@ -37,19 +37,21 @@
         v-text="Translator.trans('blueprint.data')" />
       <dp-input
         id="r_name"
-        data-cy="newMasterName"
+        v-model="name"
         :label="{
           text: Translator.trans('name')
         }"
+        data-cy="newMasterName"
         maxlength="200"
         name="r_name"
-        required />
+        required
+      />
 
       <dp-select
         id="r_copymaster"
+        v-model="selectedBlueprint"
         class="mt-4"
         data-cy="NewBlueprintForm:selectedBlueprint"
-        v-model="selectedBlueprint"
         :label="{
           hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
           text: Translator.trans('master')
@@ -73,6 +75,7 @@
 
         <dp-input
           :id="agencyMainEmailId"
+          v-model="mainEmail"
           class="mt-4"
           data-cy="agencyMainEmailAddress"
           :label="{
@@ -81,8 +84,7 @@
             tooltip: Translator.trans('email.procedure.agency.help')
           }"
           name="agencyMainEmailAddress[fullAddress]"
-          type="email"
-          v-model="mainEmail" />
+          type="email" />
 
         <dp-label
           class="mt-4"
@@ -98,10 +100,10 @@
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
+          id="r_publicParticipationContact"
           class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
-          id="r_publicParticipationContact"
           name="r_publicParticipationContact"
           :value="publicParticipationContact" />
 
@@ -123,10 +125,10 @@
 
         <div class="text-right space-inline-s">
           <input
+            id="saveButton"
             class="btn btn--primary"
             type="submit"
             :value="Translator.trans('save')"
-            id="saveButton"
             data-cy="NewBlueprintForm:saveButton">
 
           <a
@@ -151,7 +153,7 @@ import {
   DpLabel,
   DpLoading,
   DpSelect,
-  DpTextArea
+  DpTextArea,
 } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 
@@ -159,7 +161,7 @@ export default {
   name: 'NewBlueprintForm',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   components: {
@@ -170,44 +172,44 @@ export default {
     DpLabel,
     DpLoading,
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     agencyMainEmailId: {
       type: String,
-      required: true
+      required: true,
     },
 
     agencyMainEmailFullAddress: {
       type: String,
-      required: true
+      required: true,
     },
 
     blueprintOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     initEmailAddresses: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isCustomerMasterBlueprintExisting: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     masterBlueprintId: {
       type: String,
       required: false,
-      default: () => ''
+      default: () => '',
     },
 
     /*
@@ -218,27 +220,28 @@ export default {
      */
     procedureTemplateFields: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationContact: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     tokenVarsValue: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: false,
       mainEmail: this.agencyMainEmailFullAddress || '',
+      name: '',
       selectedBlueprint: this.masterBlueprintId,
-      emailAddresses: this.initEmailAddresses
+      emailAddresses: this.initEmailAddresses,
     }
   },
 
@@ -249,16 +252,16 @@ export default {
       const params = {
         fields: {
           ProcedureTemplate: 'agencyMainEmailAddress,agencyExtraEmailAddresses',
-          AgencyEmailAddress: 'fullAddress'
+          AgencyEmailAddress: 'fullAddress',
         },
-        include: 'agencyExtraEmailAddresses'
+        include: 'agencyExtraEmailAddresses',
       }
       return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
           return {
             mainMail: data.data.attributes.agencyMainEmailAddress,
-            agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress }))
+            agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress })),
           }
         })
         // When the request fails planners will have to fill in an address manually
@@ -272,7 +275,7 @@ export default {
       const blueprint = await this.fetchSelectedBlueprint(blueprintId)
       this.mainEmail = blueprintId === this.masterBlueprintId ? '' : blueprint.mainMail
       this.emailAddresses = blueprintId === this.masterBlueprintId ? [] : blueprint.agencyMailAddresses
-    }
-  }
+    },
+  },
 }
 </script>

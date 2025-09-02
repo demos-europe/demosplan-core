@@ -19,17 +19,17 @@ const Filter = {
     filterGroups: [
       {
         type: 'submission',
-        label: 'submission'
+        label: 'submission',
       },
       {
         type: 'statement',
-        label: 'statement'
+        label: 'statement',
       },
       {
         type: 'fragment',
         label: 'fragment',
-        permission: ['area_statements_fragment']
-      }
+        permission: ['area_statements_fragment'],
+      },
     ],
     filterHash: '',
     // List of empty filters
@@ -44,8 +44,8 @@ const Filter = {
     userFilterSets: {
       data: [],
       included: [],
-      relationships: []
-    }
+      relationships: [],
+    },
   },
 
   mutations: {
@@ -239,7 +239,7 @@ const Filter = {
      */
     updateUserFilterSets (state, userFilterSets) {
       state.userFilterSets = userFilterSets
-    }
+    },
   },
 
   actions: {
@@ -254,7 +254,7 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        url: Routing.generate(route, { procedureId: state.procedureId })
+        url: Routing.generate(route, { procedureId: state.procedureId }),
       })
         .then(({ data }) => {
           commit('updateFilterList', data.data)
@@ -282,16 +282,16 @@ const Filter = {
 
       return dpApi({
         method: 'GET',
-        url: Routing.generate(route, { procedureId: state.procedureId, filterHash: data.filterHash })
+        url: Routing.generate(route, { procedureId: state.procedureId, filterHash: data.filterHash }),
       })
         .then(response => {
           let filtersToUpdateInStore
           // Update only options for one filter
           if (data.filterId) {
-            filtersToUpdateInStore = response.data.filter(filter => filter.id === data.filterId)
+            filtersToUpdateInStore = response.data.data.filter(filter => filter.id === data.filterId)
           } else {
             // Update options for all selected filters
-            filtersToUpdateInStore = response.data
+            filtersToUpdateInStore = response.data.data
           }
 
           commit('loadAvailableFilterListOptions', filtersToUpdateInStore)
@@ -316,8 +316,8 @@ const Filter = {
         include: 'filterSet',
         fields: {
           UserFilterSet: ['filterSet', 'name'].join(),
-          FilterSet: ['hash', 'name'].join()
-        }
+          FilterSet: ['hash', 'name'].join(),
+        },
       }
       return dpApi.get(url, params)
         .then(({ data }) => commit('updateUserFilterSets', data))
@@ -336,8 +336,8 @@ const Filter = {
         method: 'DELETE',
         url: Routing.generate('dplan_api_procedure_delete_statement_filter', {
           procedureId: state.procedureId,
-          filterSetId: userFilterSetId
-        })
+          filterSetId: userFilterSetId,
+        }),
       })
         .then(() => {
           commit('removeUserFilterSet', userFilterSetId)
@@ -356,7 +356,7 @@ const Filter = {
     updateBaseState ({ commit }, { procedureId, original }) {
       commit('updateProcedureId', procedureId)
       commit('updateOriginal', original)
-    }
+    },
   },
 
   getters: {
@@ -370,7 +370,7 @@ const Filter = {
             if (option.filterId === filterItem.id) {
               optionsForFilterHash.push({
                 name: filterItem.attributes.name + '[]',
-                value: option.value
+                value: option.value,
               })
             }
           })
@@ -470,8 +470,8 @@ const Filter = {
      * Get filter combinations saved by user, a.k.a. filterSets
      * @return array
      */
-    userFilterSets: state => state.userFilterSets.data.filter(el => hasOwnProp(el, 'attributes'))
-  }
+    userFilterSets: state => state.userFilterSets.data.filter(el => hasOwnProp(el, 'attributes')),
+  },
 }
 
 export default Filter

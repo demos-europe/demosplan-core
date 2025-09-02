@@ -10,14 +10,14 @@
 <template>
   <div>
     <dp-editable-list
+      ref="listComponent"
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
+      :translation-keys="translationKeys"
       @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
-      @show-update-form="showUpdateForm"
-      :translation-keys="translationKeys"
-      ref="listComponent">
+      @show-update-form="showUpdateForm">
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
@@ -31,10 +31,10 @@
       <template v-slot:form>
         <dp-input
           id="emailAddress"
+          v-model="formFields.mail"
           :data-cy="dataCy !== '' ? `${dataCy}:emailAddressInput` : `emailAddressInput`"
           :placeholder="Translator.trans('email.address')"
           type="email"
-          v-model="formFields.mail"
           width="u-1-of-2"
           @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
       </template>
@@ -50,42 +50,42 @@ export default {
 
   components: {
     DpEditableList,
-    DpInput
+    DpInput,
   },
 
   props: {
     allowUpdatesFromOutside: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initEmails: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     formFieldName: {
       type: String,
       required: false,
-      default: 'agencyExtraEmailAddresses[][fullAddress]'
-    }
+      default: 'agencyExtraEmailAddresses[][fullAddress]',
+    },
   },
 
   emits: [
-    'saved'
+    'saved',
   ],
 
   data () {
     return {
       formFields: {
-        mail: ''
+        mail: '',
       },
       itemIndex: null,
       emails: this.initEmails,
@@ -95,8 +95,8 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('email.address.update'),
         noEntries: Translator.trans('email.address.no'),
-        delete: Translator.trans('email.address.delete')
-      }
+        delete: Translator.trans('email.address.delete'),
+      },
     }
   },
 
@@ -107,14 +107,14 @@ export default {
           this.emails = newVal
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     addElement () {
       this.emails.push({
-        mail: this.formFields.mail
+        mail: this.formFields.mail,
       })
     },
 
@@ -158,7 +158,7 @@ export default {
 
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
-    }
-  }
+    },
+  },
 }
 </script>

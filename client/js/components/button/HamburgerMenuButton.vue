@@ -18,7 +18,7 @@
 <script>
 
 export default {
-  name: 'HamburgerMenuButton'
+  name: 'HamburgerMenuButton',
 }
 
 </script>

@@ -19,7 +19,7 @@ function addTitleAttr (data) {
   if (hasElement) {
     titleAttrs = {
       elementId: data.data.relationships.elements.data.id,
-      elementTitle: ''
+      elementTitle: '',
     }
   }
 
@@ -111,7 +111,7 @@ function mapRelations (data, includes) {
     .map(item => ({
       id: item.id,
       ...item.attributes,
-      ...(item.relationships && { relationships: item.relationships })
+      ...(item.relationships && { relationships: item.relationships }),
     }))
 }
 
@@ -126,21 +126,21 @@ function setUpdatedProps (data) {
   // If we update element/paragraph/document we want to update title too, so we set it as attribute to get the value from response in the loop below
   data.data.attributes = {
     ...data.data.attributes,
-    ...addTitleAttr(data)
+    ...addTitleAttr(data),
   }
 
   //  Loop over data (a.k.a. what is passed from component to be saved)
   let updatedData = {}
   if (data.data.attributes) {
     updatedData = {
-      ...data.data.attributes
+      ...data.data.attributes,
     }
   }
 
   if (data.data.relationships) {
     updatedData = {
       ...updatedData,
-      ...data.data.relationships
+      ...data.data.relationships,
     }
   }
 
@@ -234,7 +234,7 @@ export default {
     pagination: {},
     persistStatementSelection: true,
     initStatements: [],
-    statementGrouping: {}
+    statementGrouping: {},
   },
 
   mutations: {
@@ -398,7 +398,7 @@ export default {
        */
       const newStatement = { [data.id]: { ...state.statements[data.id], ...data } }
       state.statements = { ...state.statements, ...newStatement }
-    }
+    },
   },
 
   actions: {
@@ -435,8 +435,8 @@ export default {
         url: Routing.generate('dplan_api_statement_copy_to_procedure', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
-        })
+          targetProcedureId: data.procedureId,
+        }),
       })
     },
 
@@ -448,13 +448,13 @@ export default {
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_api_create_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
         .then(response => {
           dispatch('resetSelection') // The selected statements were deleted, so we can completely reset selection
@@ -492,7 +492,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
-        'genericAttachments.file'
+        'genericAttachments.file',
       ]
 
       /*
@@ -538,7 +538,7 @@ export default {
           filterSetHash: data.filterHash,
           page: {
             number: data.pagination.current_page,
-            size: data.pagination.count
+            size: data.pagination.count,
           },
           view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
@@ -595,32 +595,32 @@ export default {
               'userState',
               'votePla',
               'votesNum',
-              'voteStk'
+              'voteStk',
             ].join(),
             Claim: [
               'name',
-              'orgaName'
+              'orgaName',
             ].join(),
             Elements: 'title',
             File: [
               'filename',
-              'hash'
+              'hash',
             ].join(),
             StatementFragmentsElements: [
               'elementTitle',
-              'paragraphTitle'
+              'paragraphTitle',
             ].join(),
             SingleDocument: [
               'parentId',
-              'title'
+              'title',
             ].join(),
             SourceStatementAttachment: [
               'file',
-              'attachmentType'
-            ].join()
+              'attachmentType',
+            ].join(),
           },
-          include: includes.join(',')
-        })
+          include: includes.join(','),
+        }),
       })
         .then(({ data }) => {
           performance.mark('start')
@@ -673,11 +673,11 @@ export default {
         url: Routing.generate('dplan_api_statement_move', {
           procedureId: state.procedureId,
           statementId: data.statementId,
-          targetProcedureId: data.procedureId
+          targetProcedureId: data.procedureId,
         }),
         data: {
-          deleteVersionHistory: data.deleteVersionHistory
-        }
+          deleteVersionHistory: data.deleteVersionHistory,
+        },
       })
     },
 
@@ -743,13 +743,13 @@ export default {
         data: {
           data: {
             type: 'user',
-            id: assigneeId
-          }
+            id: assigneeId,
+          },
         },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
         .then(response => {
           let assignee = {}
@@ -762,7 +762,7 @@ export default {
               id: response.data.data.id,
               uId: response.data.data.id,
               name: response.data.data.attributes.name,
-              orgaName: response.data.data.attributes.orgaName
+              orgaName: response.data.data.attributes.orgaName,
             }
             commit('updateStatement', { id: statementId, assignee })
             return { id: statementId, assignee }
@@ -876,13 +876,13 @@ export default {
             'fragmentsElements',
             'paragraph',
             'priorityAreas',
-            'tags'
-          ].join(',')
+            'tags',
+          ].join(','),
         }),
         data: payload,
         headers: {
-          'Content-type': 'application/json'
-        }
+          'Content-type': 'application/json',
+        },
       })
         .then(response => {
           let dataToUpdate = {}
@@ -897,7 +897,7 @@ export default {
 
           dataToUpdate = {
             ...dataToUpdate,
-            ...addIdAttr(dataToUpdate, data)
+            ...addIdAttr(dataToUpdate, data),
           }
 
           //  Keep id to find statement in mutation
@@ -922,13 +922,13 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dplan_api_update_group_statement', {
-          procedureId: state.procedureId
+          procedureId: state.procedureId,
         }),
         data: { data },
         headers: {
           'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        }
+          Accept: 'application/vnd.api+json',
+        },
       })
         .then(response => {
           dispatch('resetSelection')
@@ -945,7 +945,7 @@ export default {
           }
           return e
         })
-    }
+    },
   },
 
   getters: {
@@ -1004,7 +1004,7 @@ export default {
 
     statementsInOrder: state => ids => {
       return ids.map(id => state.statements[id])
-    }
-  }
+    },
+  },
 
 }

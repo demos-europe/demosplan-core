@@ -25,9 +25,9 @@
     </div>
 
     <ul
+      v-show="unfolded"
       id="mapTools"
-      :class="prefixClass('c-map__group')"
-      v-show="unfolded">
+      :class="prefixClass('c-map__group')">
       <li
         v-for="tool in toolList"
         :id="tool.id"
@@ -121,7 +121,7 @@ export default {
   mixins: [prefixClassMixin],
 
   emits: [
-    'map-tools:unfolded'
+    'mapTools:unfolded',
   ],
 
   data () {
@@ -133,27 +133,27 @@ export default {
           isActive: false,
           id: 'measureLineButton',
           title: 'Entfernung messen',
-          transkey: 'distancemeasure'
+          transkey: 'distancemeasure',
         },
         {
           isActive: false,
           id: 'measurePolygonButton',
           title: 'Fläche messen',
-          transkey: 'areameasure'
+          transkey: 'areameasure',
         },
         {
           isActive: false,
           id: 'measureRadiusButton',
           title: 'Radius messen',
-          transkey: 'radiusmeasure'
+          transkey: 'radiusmeasure',
         },
         {
           isActive: false,
           id: 'dragZoomButton',
           title: 'Ausschnitt wählen',
-          transkey: 'section.zoom'
-        }
-      ]
+          transkey: 'section.zoom',
+        },
+      ],
     }
   },
 
@@ -165,7 +165,7 @@ export default {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$emit('map-tools:unfolded')
+        this.$emit('mapTools:unfolded')
       }
     },
 
@@ -176,13 +176,13 @@ export default {
       for (let i = 0; i < this.toolList.length; i++) {
         this.toolList[i].isActive = document.getElementById(this.toolList[i].id).classList.contains(this.prefixClass('is-active'))
       }
-    }
+    },
   },
 
   created () {
     this.$root.$on('changeActive', () => {
       this.checkIfActive()
     })
-  }
+  },
 }
 </script>

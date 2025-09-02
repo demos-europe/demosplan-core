@@ -24,7 +24,7 @@ function registerPresetModules (store, presetStoreModules) {
 
           store.createPresetModule(presetModule.name, {
             base: rootModule,
-            defaultQuery: presetModule.defaultQuery
+            defaultQuery: presetModule.defaultQuery,
           })
         })
       }
@@ -59,9 +59,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     baseUrl = '/app_dev.php' + baseUrl
   }
 
-  // eslint-disable-next-line no-undef
   if (URL_PATH_PREFIX) {
-    // eslint-disable-next-line no-undef
     baseUrl = URL_PATH_PREFIX + baseUrl
   }
 
@@ -80,14 +78,14 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId,
-              'X-CSRF-Token': dplan.csrfToken
+              'X-CSRF-Token': dplan.csrfToken,
             },
             successCallbacks: [
-              handleResponse
+              handleResponse,
             ],
             errorCallbacks: [
-              handleResponse
-            ]
+              handleResponse,
+            ],
           }),
           store => {
             store.api.newStaticRoute = (route) => {
@@ -97,8 +95,8 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               return new Route(route)
             }
             store.api.handleResponse = handleResponse
-          }
-        ]
+          },
+        ],
       })
 
       if (process.env.NODE_ENV === 'development') {
