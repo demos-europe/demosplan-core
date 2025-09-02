@@ -43,31 +43,31 @@
               maxlength="250" />
           </div>
           <dp-button
-            class="w-[20px] inline-block ml-1"
             :data-cy="`customFields:removeOptionInput:${option.label}`"
+            :text="Translator.trans('remove')"
+            class="w-[20px] inline-block ml-1"
             hide-text
             icon="x"
-            :text="Translator.trans('remove')"
             variant="subtle"
             @click="removeOptionInput(idx + 2)" />
         </div>
 
         <dp-button
+          :text="Translator.trans('option.add')"
           data-cy="customFields:addOption"
           icon="plus"
           variant="subtle"
-          :text="Translator.trans('option.add')"
           @click="addOptionInput" />
       </div>
     </create-custom-field-form>
 
     <dp-data-table
       v-if="isProcedureTemplate ? !procedureTemplateCustomFieldsLoading : !procedureCustomFieldsLoading"
+      :header-fields="headerFields"
+      :items="customFieldItems"
       data-cy="customFields:table"
       data-dp-validate="editCustomFieldsForm"
       has-flyout
-      :header-fields="headerFields"
-      :items="customFieldItems"
       track-by="id">
       <template v-slot:name="rowData">
         <div v-if="rowData.edit">
@@ -87,8 +87,8 @@
           <li
             v-for="(option, index) in displayedOptions(rowData)"
             :key="index"
-            class="mb-1"
-            :data-cy="`customFields:option${option.label}`">
+            :data-cy="`customFields:option${option.label}`"
+            class="mb-1">
             <div>
               {{ option.label }}
             </div>
@@ -108,7 +108,6 @@
               />
 
               <dp-button
-                v-if="index >= rowData.options.length"
                 class="w-[20px] inline-block ml-1"
                 :data-cy="`customFields:removeOptionInput:${option.label}`"
                 hide-text
@@ -156,42 +155,65 @@
             />
           </button>
 
+          <button
+            v-if="!rowData.edit"
+            class="btn--blank o-link--default mr-1"
+            data-cy="customFields:deleteField"
+            :aria-label="Translator.trans('item.edit')"
+            :title="Translator.trans('edit')"
+            @click="deleteCustomField(rowData)">
+            <dp-icon
+              aria-hidden="true"
+              icon="delete"
+            />
+          </button>
+
+          <dp-confirm-dialog
+            v-if="!rowData.edit"
+            ref="deleteConfirmDialog"
+            data-cy="customFields:deleteConfirm"
+            :message="Translator.trans('custom_field.delete.message.warning')"
+          />
+
           <template v-else>
             <button
               :aria-label="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25 inline-block"
-              data-cy="customFields:saveEdit"
               :disabled="isSaveDisabled[rowData.id]"
               :title="Translator.trans('save')"
+              class="btn--blank o-link--default u-mr-0_25 inline-block"
+              data-cy="customFields:saveEdit"
               @click="dpValidateAction('editCustomFieldsForm', () => saveEditedFields(), false)">
               <dp-icon
+                aria-hidden="true"
                 icon="check"
-                aria-hidden="true" />
+              />
             </button>
 
             <button
+              :aria-label="Translator.trans('abort')"
+              :title="Translator.trans('abort')"
               class="btn--blank o-link--default inline-block"
               data-cy="customFields:abortEdit"
-              :title="Translator.trans('abort')"
-              :aria-label="Translator.trans('abort')"
               @click="abortFieldEdit(rowData)">
               <dp-icon
+                aria-hidden="true"
                 icon="xmark"
-                aria-hidden="true" />
+              />
             </button>
           </template>
 
           <dp-confirm-dialog
             ref="confirmDialog"
+            :message="Translator.trans('custom_field.edit.message.warning')"
             data-cy="customFields:saveEditConfirm"
-            :message="Translator.trans('custom.field.edit.message.warning')" />
+          />
 
           <button
             v-if="!rowData.open"
             :aria-label="Translator.trans('aria.expand')"
+            :disabled="rowData.options.length < 3"
             class="btn--blank o-link--default"
             data-cy="customFields:showOptions"
-            :disabled="rowData.options.length < 3"
             @click="showOptions(rowData)">
             <dp-icon
               aria-hidden="true"
@@ -402,7 +424,40 @@ export default {
       return identicalNames.length <= 1
     },
 
+    async deleteCustomField (rowData) {
+      if (this.$refs.deleteConfirmDialog?.open) {
+        const isConfirmed = await this.$refs.deleteConfirmDialog.open()
+
+        if (isConfirmed) {
+          try {
+            // Make API call to delete the custom field
+            const url = Routing.generate('api_resource_delete', {
+              resourceType: 'CustomField',
+              resourceId: rowData.id
+            })
+
+            await dpApi.delete(url)
+
+            this.$store.commit('CustomField/remove', rowData.id)
+
+            // Show success notification
+            dplan.notify.confirm(Translator.trans('confirm.deleted'))
+
+            // Refresh the custom fields list
+            this.fetchCustomFields()
+          } catch (error) {
+            console.error('Error deleting custom field:', error)
+            dplan.notify.error(Translator.trans('error.generic'))
+          }
+        }
+      }
+    },
+
     deleteOptionOnEdit (index) {
+      if (this.newRowData.options.length < 3) {
+        return dplan.notify.error(Translator.trans('error.custom_field.minimum.option.count'))
+      }
+
       this.newRowData.options.splice(index, 1)
     },
 
@@ -679,13 +734,7 @@ export default {
 
       let isAnyOptionNameDuplicated = false
       customFieldOptions.forEach(option => {
-        if (isAnyOptionNameDuplicated) {
-          /*
-           * Since the array function forEach does not accept continue in its arrow function we have to use return,
-           * also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Bad_continue for further info
-           */
-
-        } else if (option.label !== '') {
+        if (!isAnyOptionNameDuplicated && option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)
         }
       })
