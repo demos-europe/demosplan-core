@@ -18,7 +18,7 @@
           <custom-search-statements
             ref="customSearchStatements"
             :search-in-fields="searchFields"
-            @changeFields="updateSearchFields"
+            @change-fields="updateSearchFields"
             @reset="resetSearch"
             @search="(term) => applySearch(term)" />
         </div>

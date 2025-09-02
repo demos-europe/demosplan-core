@@ -211,7 +211,7 @@ export default {
   emits: [
     'abort',
     'save',
-    'save-and-finish',
+    'saveAndFinish',
   ],
 
   data () {
@@ -316,11 +316,6 @@ export default {
 
     getPlaceById () {
       return this.availablePlaces.find(place => place.id === this.currentSegment.placeId)
-    },
-
-    handleClick () {
-      this.setProperty({ prop: 'isBusy', val: true })
-      this.$emit('save-and-finish')
     },
 
     hasOwnProp (obj, prop) {

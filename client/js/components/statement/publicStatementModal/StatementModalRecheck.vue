@@ -43,7 +43,7 @@
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="statementDetailFormPersonalPublish inputDataChange"
-        @click="$emit('edit-input', 'r_makePublic')">
+        @click="$emit('editInput', 'r_makePublic')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -62,7 +62,7 @@
             aria-labelledby="useNameText inputDataChange"
             data-cy="statementModalRecheck:useNameText"
             type="button"
-            @click="$emit('edit-input', 'r_useName_1')"
+            @click="$emit('editInput', 'r_useName_1')"
           >
             <i
               :class="prefixClass('fa fa-pencil')"
@@ -144,7 +144,7 @@
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="useNameText inputDataChange"
-        @click="$emit('edit-input', 'r_useName_0')">
+        @click="$emit('editInput', 'r_useName_0')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -195,7 +195,7 @@
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="getFeedbackText inputDataChange"
-        @click="$emit('edit-input', 'r_getFeedback')">
+        @click="$emit('editInput', 'r_getFeedback')">
         <i
           :class="prefixClass('fa fa-pencil')"
           aria-hidden="true" />
@@ -211,7 +211,7 @@
           :class="prefixClass('o-link--default btn-icns float-right')"
           :title="Translator.trans('statement.alter')"
           :aria-label="Translator.trans('statement.alter')"
-          @click="$emit('edit-input', 'r_text')">
+          @click="$emit('editInput', 'r_text')">
           <i
             :class="prefixClass('fa fa-pencil')"
             aria-hidden="true" />
@@ -285,7 +285,7 @@ export default {
   },
 
   emits: [
-    'edit-input',
+    'editInput',
   ],
 
   computed: {

@@ -110,7 +110,7 @@ export default {
   },
 
   emits: [
-    'page-change',
+    'pageChange',
   ],
 
   data () {
@@ -155,7 +155,7 @@ export default {
     },
 
     handlePageChange (requestedPage) {
-      this.$emit('page-change', requestedPage)
+      this.$emit('pageChange', requestedPage)
     },
   },
 }

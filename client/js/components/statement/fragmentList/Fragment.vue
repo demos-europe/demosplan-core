@@ -685,7 +685,7 @@ export default {
     this.considerationAdvice = this.fragment.considerationAdvice
     this.editable = hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id === this.currentUserId
     //  Sync contents of child components on save
-    this.$root.$on('fragment-saved', data => {
+    this.$root.$on('fragment:saved', data => {
       if (this.fragmentId === data.id) {
         data.fragmentId = data.id
         data.statementId = this.statementId
@@ -704,7 +704,7 @@ export default {
     })
 
     //  Destroy instance on reassign
-    this.$root.$on('fragment-reassigned', data => {
+    this.$root.$on('fragment:reassigned', data => {
       if (data.id === this.fragmentId) {
         this.deleteFragment({ fragmentId: this.fragmentId, statementId: this.fragment.statement.id })
         /*

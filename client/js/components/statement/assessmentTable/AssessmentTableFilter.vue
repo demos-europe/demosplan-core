@@ -261,7 +261,7 @@
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"
-                @click.prevent="$emit('handle-sort-change', option)">
+                @click.prevent="$emit('handle:sortChange', option)">
                 {{ option.label }}
               </button>
             </div>
