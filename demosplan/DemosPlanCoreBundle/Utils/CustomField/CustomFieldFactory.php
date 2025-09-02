@@ -29,7 +29,6 @@ class CustomFieldFactory
         $validator = $this->validatorRegistry->getValidatorForFieldType($type);
         $validator->validate($attributes);
 
-
         $customFieldClass = CustomFieldInterface::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
         $customField->setFieldType($type);

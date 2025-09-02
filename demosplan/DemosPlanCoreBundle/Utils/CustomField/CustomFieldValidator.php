@@ -30,7 +30,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
     {
     }
 
-    public abstract function getSourceToTargetMapping():array;
+    abstract public function getSourceToTargetMapping(): array;
 
     public function validate(array $attributes): void
     {
