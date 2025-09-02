@@ -68,13 +68,20 @@ class AllAttributesTransformer extends DynamicTransformer
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
         if (null === $fieldsetBag) {
-            // If no fieldset was requested, return ALL attribute fields
-            // Get attributes from the ResourceReadability which is accessible in this class
-            return $this->readability->getAttributes();
+            $fieldType = $scope->getResource()->getData()->getType();
+
+            if ('singleSelect' === $fieldType) {
+                $fieldset = ['name', 'description', 'options'];
+            }
+
+            if ('multiSelect' === $fieldType) {
+                $fieldset = ['name', 'description', 'options', 'isRequired'];
+            }
+        } else {
+            // If specific fields were requested, handle them as normal
+            $fieldset = iterator_to_array($fieldsetBag);
         }
 
-        // If specific fields were requested, handle them as normal
-        $fieldset = iterator_to_array($fieldsetBag);
 
         return array_filter(
             $this->readability->getAttributes(),
