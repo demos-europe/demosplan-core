@@ -27,9 +27,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'yarn'
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
       - run: yarn install --immutable
-      - run: yarn add eslint@8.57.0 eslint-plugin-vue
 
       - uses: reviewdog/action-setup@v1.3.2
 
@@ -58,12 +58,6 @@ jobs:
           key: ${{ runner.os }}-infrastructure-runtime
           restore-keys: |
             ${{ runner.os }}-infrastructure-runtime
-
-      - name: Install Node.js and eslint
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - run: npm install -g eslint
 
       - name: Install composer dependencies
         run: |
