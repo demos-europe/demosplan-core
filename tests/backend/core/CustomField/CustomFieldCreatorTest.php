@@ -139,7 +139,7 @@ class CustomFieldCreatorTest extends UnitTestCase
     {
         // Arrange
         $baseAttributes = [
-            'sourceEntityId' => $attributes['sourceEntityId']?:$this->procedure->getId(),
+            'sourceEntityId' => $attributes['sourceEntityId'] ?: $this->procedure->getId(),
         ];
         $fullAttributes = array_merge($baseAttributes, $attributes);
 
@@ -163,15 +163,15 @@ class CustomFieldCreatorTest extends UnitTestCase
             ],
             'invalidSourceEntityId' => [
                 'attributes' => [
-                    'fieldType'   => 'singleSelect',
+                    'fieldType'      => 'singleSelect',
                     'sourceEntityId' => 'invalid-id',
-                    'sourceEntity' => 'PROCEDURE',
-                    'targetEntity' => 'SEGMENT', // Wrong target for singleSelect
-                    'name'        => 'Test Field',
-                    'description' => 'Test',
-                    'options'     => [['label' => 'One'], ['label' => 'Two']],
+                    'sourceEntity'   => 'PROCEDURE',
+                    'targetEntity'   => 'SEGMENT', // Wrong target for singleSelect
+                    'name'           => 'Test Field',
+                    'description'    => 'Test',
+                    'options'        => [['label' => 'One'], ['label' => 'Two']],
                 ],
-                'expectedErrorMessage' => 'The sourceEntityId "invalid-id" was not found in the sourceEntity "PROCEDURE"'
+                'expectedErrorMessage' => 'The sourceEntityId "invalid-id" was not found in the sourceEntity "PROCEDURE"',
             ],
             'singleSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
