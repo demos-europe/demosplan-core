@@ -431,12 +431,11 @@
                                         :label="{ text: Translator.trans('procedure.context.expand') }"
                                         class="mb-4"
                                         data-cy="procedure:descriptionExpanded"
-                                        name="expandProcedureDescription"
-                                    >
+                                        name="expandProcedureDescription">
                                     </dp-checkbox>
                                 {% else %}
-
                                     <dp-input
+                                        id="expandProcedureDescription"
                                         :value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
                                         name="expandProcedureDescription"
                                         type="hidden">
@@ -1010,16 +1009,15 @@
                                         :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
                                         class="mb-4"
                                         data-cy="procedure:publicParticipationPublicationEnabled"
-                                        name="allowAnonymousStatements"
-                                    >
+                                        name="allowAnonymousStatements">
                                     </dp-checkbox>
                                 {% else %}
                                     {# Allow anonymous statements by default #}
                                     <dp-input
+                                        id="allowAnonymousStatements"
                                         :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
-                                        type="hidden"
-                                    >
+                                        type="hidden">
                                     </dp-input>
                                 {% endif %}
                             </div>
