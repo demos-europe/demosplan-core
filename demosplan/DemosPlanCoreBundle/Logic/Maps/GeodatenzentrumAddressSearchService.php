@@ -49,39 +49,40 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
      */
     public function searchAddress(string $query, int $limit = 20, ?array $maxExtent = null): array
     {
-        if ($this->currentUser->hasPermission('feature_geocoder_address_search')) {
-            $startTime = microtime(true);
-            $logContext = [
-                'service'      => 'GeodatenzentrumAddressSearchService',
-                'method'       => 'searchAddress',
-                'query'        => $query,
-                'limit'        => $limit,
-                'maxExtent'    => $maxExtent,
-                'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
-            ];
-
-            // Second: make call to external API provider
-            // Third: format and filter results
-            try {
-                $rawFeatures = $this->makeApiCall($query, $limit);
-                $formattedResults = $this->formatResult($rawFeatures);
-                $this->logSuccess($logContext, $startTime, count($formattedResults));
-
-                return $formattedResults;
-            } catch (Exception $e) {
-                $this->logError($e, $logContext, $startTime);
-                if (str_contains($e->getMessage(), 'Permission')) {
-                    throw $e;
-                }
-
-                return [];
-            } catch (Throwable $e) {
-                $this->logError($e, $logContext, $startTime);
-
-                return [];
-            }
-        } else {
+        if (!$this->currentUser->hasPermission('feature_geocoder_address_search'))
+        {
             throw AccessDeniedException::missingPermission('feature_geocoder_address_search');
+        }
+
+        $startTime = microtime(true);
+        $logContext = [
+            'service'      => 'GeodatenzentrumAddressSearchService',
+            'method'       => 'searchAddress',
+            'query'        => $query,
+            'limit'        => $limit,
+            'maxExtent'    => $maxExtent,
+            'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
+        ];
+
+        // Second: make call to external API provider
+        // Third: format and filter results
+        try {
+            $rawFeatures = $this->makeApiCall($query, $limit);
+            $formattedResults = $this->formatResult($rawFeatures);
+            $this->logSuccess($logContext, $startTime, count($formattedResults));
+
+            return $formattedResults;
+        } catch (Exception $e) {
+            $this->logError($e, $logContext, $startTime);
+            if (str_contains($e->getMessage(), 'Permission')) {
+                throw $e;
+            }
+
+            return [];
+        } catch (Throwable $e) {
+            $this->logError($e, $logContext, $startTime);
+
+            return [];
         }
     }
 
