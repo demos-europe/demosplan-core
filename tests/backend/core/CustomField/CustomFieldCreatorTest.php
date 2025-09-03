@@ -82,25 +82,25 @@ class CustomFieldCreatorTest extends UnitTestCase
     }
 
     /**
-     * Test MultiSelect field creation with isRequired attribute
+     * Test MultiSelect field creation with isRequired attribute.
      */
     public function testCreateMultiSelectFieldSuccessfully(): void
     {
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $attributes = [
-            'fieldType' => 'multiSelect',
-            'name' => 'Categories',
+            'fieldType'   => 'multiSelect',
+            'name'        => 'Categories',
             'description' => 'Select applicable categories',
-            'isRequired' => true,
-            'options' => [
+            'isRequired'  => true,
+            'options'     => [
                 ['label' => 'Environment'],
                 ['label' => 'Traffic'],
-                ['label' => 'Housing']
+                ['label' => 'Housing'],
             ],
-            'sourceEntity' => 'PROCEDURE',
+            'sourceEntity'   => 'PROCEDURE',
             'sourceEntityId' => $procedure->getId(),
-            'targetEntity' => 'STATEMENT'
+            'targetEntity'   => 'STATEMENT',
         ];
 
         // Act
@@ -124,7 +124,4 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         static::assertNotEmpty($result->getId());
     }
-
-
-
 }
