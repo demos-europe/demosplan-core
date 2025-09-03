@@ -78,8 +78,24 @@ jobs:
       - name: Warmup cache
         run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
 
+      - name: Debug environment
+        run: |
+          echo "=== Environment Debug ==="
+          pwd
+          echo "Working directory contents:"
+          ls -la
+          echo "=== Cache directories ==="
+          ls -la var/cache/test/ || echo "var/cache/test not found"
+          ls -la var/cache/ || echo "var/cache not found"
+          echo "=== Container XML search ==="
+          find var -name "*Container.xml" -type f 2>/dev/null || echo "No Container.xml found"
+          echo "=== Environment variables ==="
+          echo "DEVELOPMENT_CONTAINER=$DEVELOPMENT_CONTAINER"
+          echo "PWD=$PWD"
+          echo "HOME=$HOME"
+
       - name: Generate PHPStan config
-        run: DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --only-dump-config --ci
+        run: DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --only-dump-config --ci -vvv
 
       - name: Woof
         env:
