@@ -138,11 +138,6 @@ class PhpStanCommand extends CoreCommand
             $cmd[] = $level;
         }
 
-        if ($isCi) {
-            $cmd[] = '--error-format';
-            $cmd[] = 'raw';
-        }
-
         $output->writeln(implode(' ', $cmd));
 
         $process = new Process($cmd);
