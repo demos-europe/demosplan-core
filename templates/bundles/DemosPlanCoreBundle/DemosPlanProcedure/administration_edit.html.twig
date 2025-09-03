@@ -435,13 +435,12 @@
                                     >
                                     </dp-checkbox>
                                 {% else %}
-                                    {# Allow anonymous statements by default #}
-                                    <!--                                            <dp-input
-                                                :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
-                                                name="allowAnonymousStatements"
-                                                type="hidden"
-                                            >
-                                            </dp-input>-->
+
+                                    <dp-input
+                                        :value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
+                                        name="expandProcedureDescription"
+                                        type="hidden">
+                                    </dp-input>
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_contact_person') %}
