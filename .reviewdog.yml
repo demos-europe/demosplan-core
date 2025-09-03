@@ -1,3 +1,7 @@
 runner:
+    eslint:
+        cmd: "yarn eslint client --format=checkstyle"
+        format: checkstyle
+
     phpstan:
         cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l1"
