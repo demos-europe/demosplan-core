@@ -82,6 +82,7 @@ defaults:
     buttonLabel: export.zip
 original_statements:
   docx:  false
+  odt: false
   pdf:
     _defaults:
         newPagePerStn: false
