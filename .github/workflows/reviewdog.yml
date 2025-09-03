@@ -101,6 +101,15 @@ jobs:
           DEVELOPMENT_CONTAINER: 1
         run: php bin/test dplan:phpstan --only-dump-config --ci -vvv
 
+      - name: Debug generated PHPStan config
+        run: |
+          echo "=== Generated phpstan.neon content ==="
+          cat phpstan.neon || echo "phpstan.neon not found"
+          echo "=== Verify container file at generated path ==="
+          CONTAINER_PATH=$(grep "container_xml_path:" phpstan.neon | sed 's/.*container_xml_path: //' | tr -d ' ')
+          echo "Container path from config: $CONTAINER_PATH"
+          ls -la "$CONTAINER_PATH" || echo "Container file not found at: $CONTAINER_PATH"
+
       - name: Woof
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
