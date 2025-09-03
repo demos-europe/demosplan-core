@@ -147,14 +147,13 @@ class CustomFieldCreatorTest extends UnitTestCase
         return [
             'invalidFieldType' => [
                 'attributes' => [
-                    'fieldType' => 'invalidType',
-                    'name' => 'Test Field',
+                    'fieldType'   => 'invalidType',
+                    'name'        => 'Test Field',
                     'description' => 'Test',
-                    'options' => [['label' => 'One'], ['label' => 'Two']]
+                    'options'     => [['label' => 'One'], ['label' => 'Two']],
                 ],
-                'expectedErrorType' => 'invalidFieldType'
-            ]
+                'expectedErrorType' => 'invalidFieldType',
+            ],
         ];
     }
-
 }
