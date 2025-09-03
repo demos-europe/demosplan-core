@@ -22,17 +22,20 @@
           data-cy="search:currentSearchTerm"
           :placeholder="Translator.trans('searchterm')"
           @search="handleSearch"
-          @reset="handleReset" />
+          @reset="handleReset"
+        />
         <dp-contextual-help :text="tooltipContent" />
       </div>
     </div>
     <dp-loading
       v-if="isLoading"
-      class="u-ml u-mt" />
+      class="u-ml u-mt"
+    />
     <!-- List of all items -->
     <div
       v-if="false === isLoading"
-      class="layout">
+      class="layout"
+    >
       <div class="u-mt flex">
         <!-- 'Select all'-Checkbox -->
         <div class="layout__item u-3-of-7">
@@ -41,11 +44,13 @@
             type="checkbox"
             data-cy="allSelected"
             :checked="allSelected"
-            @change="dpToggleAll(!allSelected, items)">
+            @change="dpToggleAll(!allSelected, items)"
+          >
           <label
             v-if="hasPermission('feature_user_delete') || true"
             for="select_all"
-            class="cursor-pointer btn-icns inline-block">
+            class="cursor-pointer btn-icns inline-block"
+          >
             {{ Translator.trans('select.all.on.page') }}
           </label>
         </div>
@@ -56,7 +61,8 @@
             data-cy="userList:manageUsers"
             value="inviteSelected"
             name="manageUsers"
-            type="submit">
+            type="submit"
+          >
             {{ Translator.trans('user.marked.invite') }}
           </button>
 
@@ -65,17 +71,20 @@
             class="btn btn--warning mb-1.5"
             type="button"
             data-cy="deleteSelectedItems"
-            @click="deleteItems(selectedItems)">
+            @click="deleteItems(selectedItems)"
+          >
             {{ deleteSelectedUsersLabel }}
           </button>
         </div>
       </div>
     </div>
     <template
-      v-if="false === isLoading">
+      v-if="false === isLoading"
+    >
       <ul
         class="o-list o-list--card u-mb"
-        data-cy="userList:userListWrapper">
+        data-cy="userList:userListWrapper"
+      >
         <dp-user-list-item
           v-for="(item, idx, index) in items"
           :key="idx"
@@ -84,14 +93,16 @@
           :user="item"
           :data-cy="`userList:userListBlk:${index}`"
           :project-name="projectName"
-          @item:selected="dpToggleOne" />
+          @item:selected="dpToggleOne"
+        />
       </ul>
 
       <dp-sliding-pagination
         :current="currentPage"
         :total="totalPages"
         :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+        @page-change="getItemsByPage"
+      />
     </template>
   </div>
 </template>

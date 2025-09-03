@@ -33,17 +33,20 @@ useful info about the component:
     <!-- CHECKBOX & CLAIM -->
     <div
       class="u-ml-0_5 u-pt-0_5"
-      data-cy="fragmentHead">
+      data-cy="fragmentHead"
+    >
       <div>
         <input
           v-model="fragmentSelected"
           type="checkbox"
           :disabled="Object.keys(selectedElements).length > 0"
-          :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false">
+          :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false"
+        >
         <v-popover
           class="inline-block u-ml-0_125 weight--bold"
           placement="top"
-          trigger="hover focus">
+          trigger="hover focus"
+        >
           {{ fragment.displayId }}
           <template v-slot:popover>
             <div>
@@ -63,7 +66,8 @@ useful info about the component:
           :extern-id="fragment.displayId"
           :fragment-assignee-id="fragment.assignee?.id"
           :statement-id="statement.id"
-          @fragment:delete="deleteFragment" />
+          @fragment:delete="deleteFragment"
+        />
       </div><!--
    --><dp-claim
         v-if="hasPermission('feature_statement_assignment')"
@@ -76,16 +80,19 @@ useful info about the component:
         :current-user-name="currentUserName"
         :is-loading="updatingClaimState"
         :last-claimed-user-id="fragment.lastClaimedUserId"
-        @click="updateClaim" />
+        @click="updateClaim"
+      />
     </div>
 
     <article
       :id="'fragment_' + initialFragment.id"
-      class="c-at-item u-ml-1_5 o-animate--bg-color-light">
+      class="c-at-item u-ml-1_5 o-animate--bg-color-light"
+    >
       <!--REVIEWER - assign fragment to reviewer orga - Reviewer can be assigned only if no voteAdvice has been given-->
       <div
         v-if="hasPermission('feature_statements_fragment_add_reviewer')"
-        class="layout--flush border--bottom border--top">
+        class="layout--flush border--bottom border--top"
+      >
 <!--
      --><template v-if="fragment.archivedOrgaName === null && fragment.archivedDepartmentName === null && fragment.voteAdvice === null">
           <div class="layout__item c-at-item__row u-1-of-1 u-pr-0_5">
@@ -99,17 +106,23 @@ useful info about the component:
               :editable="isClaimed && fragment.voteAdvice === null"
               :label-grid-cols="5"
               @field:save="saveFragment"
-              @toggleEditing="isEditing => { reviewerEditing = isEditing }" />
+              @toggle-editing="isEditing => { reviewerEditing = isEditing }"
+            />
             <div
               v-if="reviewerEditing"
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float-right">
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-7-of-12 float-right"
+            >
               <input
                 id="notifyOrga"
                 v-model="notifyOrga"
-                type="checkbox">
+                type="checkbox"
+              >
               <label
                 for="notifyOrga"
-                class="inline-block u-mb-0_25">{{ Translator.trans('fragment.notify.reviewer') }}</label>
+                class="inline-block u-mb-0_25"
+              >
+                {{ Translator.trans('fragment.notify.reviewer') }}
+              </label>
             </div>
           </div>
         </template>
@@ -133,7 +146,8 @@ useful info about the component:
 <!--
    --><div
           v-if="hasPermission('field_fragment_status')"
-          class="layout__item c-at-item__row u-1-of-2 u-pr-0_5 border--right">
+          class="layout__item c-at-item__row u-1-of-2 u-pr-0_5 border--right"
+        >
           <!--  If fragment has been assignedToFB, status select is disabled  -->
           <dp-edit-field-single-select
             ref="status"
@@ -145,56 +159,62 @@ useful info about the component:
             :title="fragment.status === 'assignedToFB' ? 'Dieser Status wird vom System automatisch zugewiesen.' : ''"
             :editable="isClaimed"
             :label-grid-cols="4"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
         </div><!--
-      --><div
-           v-if="hasPermission('feature_statements_fragment_vote')"
-           class="layout__item c-at-item__row u-1-of-2">
-            <dp-edit-field-single-select
-              ref="vote"
-              label="fragment.vote.short"
-              class="u-mh-0_5"
-              field-key="vote"
-              :entity-id="fragment.id"
-              :options="adviceValues"
-              :value="fragment.vote || ''"
-              data-cy="fragmentVote"
-              :editable="isClaimed && editableVoteAdvice === false && !fragment.departmentId"
-              :label-grid-cols="4"
-              @field:save="saveFragment" />
+     --><div
+          v-if="hasPermission('feature_statements_fragment_vote')"
+          class="layout__item c-at-item__row u-1-of-2"
+        >
+          <dp-edit-field-single-select
+            ref="vote"
+            label="fragment.vote.short"
+            class="u-mh-0_5"
+            field-key="vote"
+            :entity-id="fragment.id"
+            :options="adviceValues"
+            :value="fragment.vote || ''"
+            data-cy="fragmentVote"
+            :editable="isClaimed && editableVoteAdvice === false && !fragment.departmentId"
+            :label-grid-cols="4"
+            @field:save="saveFragment"
+          />
         </div><!--
-       --><div
-        v-if="hasPermission('field_statement_fragment_advice')"
-        class="layout__item c-at-item__row u-1-of-1 u-pr-0_5 border--top">
-            <!-- If project features Reviewers, voteAdvice can only be modified when fragment is not assigned to Reviewer (so departmentId is '' or null) -->
-            <dp-edit-field-single-select
-              v-if="(hasPermission('feature_statements_fragment_add_reviewer') && !fragment.departmentId) || false === hasPermission('feature_statements_fragment_add_reviewer')"
-              ref="voteAdvice"
-              label="fragment.voteAdvice.short"
-              field-key="voteAdvice"
-              :entity-id="fragment.id"
-              :options="adviceValues"
-              :value="fragment.voteAdvice || ''"
-              :v-tooltip="voteAdvicePending"
-              :readonly="editableVoteAdvice === false"
-              :editable="editableVoteAdvice && fragment.archivedOrgaName === null && isClaimed"
-              :label-grid-cols="2"
-              @field:save="saveFragment" />
-            <template v-else>
-              <div class="inline-block u-2-of-8 weight--bold align-top u-mt-0_25">
-                {{ Translator.trans('fragment.voteAdvice.short') }}:
-              </div><!--
-           --><div class="inline-block u-6-of-8 flash-warning lbl__hint u-ph-0_25 u-mt-0_25">
-                {{ Translator.trans('fragment.voteAdvice.assigned') }}
-              </div>
-            </template>
-          </div>
+     --><div
+          v-if="hasPermission('field_statement_fragment_advice')"
+          class="layout__item c-at-item__row u-1-of-1 u-pr-0_5 border--top"
+        >
+          <!-- If project features Reviewers, voteAdvice can only be modified when fragment is not assigned to Reviewer (so departmentId is '' or null) -->
+          <dp-edit-field-single-select
+            v-if="(hasPermission('feature_statements_fragment_add_reviewer') && !fragment.departmentId) || false === hasPermission('feature_statements_fragment_add_reviewer')"
+            ref="voteAdvice"
+            label="fragment.voteAdvice.short"
+            field-key="voteAdvice"
+            :entity-id="fragment.id"
+            :options="adviceValues"
+            :value="fragment.voteAdvice || ''"
+            :v-tooltip="voteAdvicePending"
+            :readonly="editableVoteAdvice === false"
+            :editable="editableVoteAdvice && fragment.archivedOrgaName === null && isClaimed"
+            :label-grid-cols="2"
+            @field:save="saveFragment"
+          />
+          <template v-else>
+            <div class="inline-block u-2-of-8 weight--bold align-top u-mt-0_25">
+              {{ Translator.trans('fragment.voteAdvice.short') }}:
+            </div><!--
+         --><div class="inline-block u-6-of-8 flash-warning lbl__hint u-ph-0_25 u-mt-0_25">
+              {{ Translator.trans('fragment.voteAdvice.assigned') }}
+            </div>
+          </template>
+        </div>
       </div>
 
       <!-- TAGS -->
       <div
         v-if="hasPermission('feature_statements_fragment_add')"
-        class="layout--flush border--bottom">
+        class="layout--flush border--bottom"
+      >
 <!--
      --><div class="layout__item c-at-item__row u-1-of-1 u-pr-0_5">
           <dp-edit-field-multi-select
@@ -211,19 +231,23 @@ useful info about the component:
             :editable="isClaimed"
             :label-grid-cols="2"
             @field:save="saveFragment"
-            @toggleEditing="isEditing => { tagsEditing = isEditing }" />
+            @toggle-editing="isEditing => { tagsEditing = isEditing }"
+          />
 
             <div
               v-if="tagsEditing && hasPermission('feature_optional_tag_propagation')"
-              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float-right">
+              class="layout__item c-at-item__row u-pt-0_25 lbl__hint u-10-of-12 float-right"
+            >
               <label
                 class="inline-block u-mb-0_25"
-                :for="`r_forward_tags_to_statements_${fragment.id}`">
+                :for="`r_forward_tags_to_statements_${fragment.id}`"
+              >
                 <input
                   :id="`r_forward_tags_to_statements_${fragment.id}`"
                   v-model="forwardTags"
                   type="checkbox"
-                  data-cy="forwardTagsToStatementsTable">
+                  data-cy="forwardTagsToStatementsTable"
+                >
                 {{ Translator.trans('forward.tags.to.statements') }}
               </label>
             </div>
@@ -233,9 +257,10 @@ useful info about the component:
       <!-- LOCATION - counties / municipalities / priorityAreas -->
       <div
         v-if="showLocationRow"
-        class="layout--flush border--bottom">
+        class="layout--flush border--bottom"
+      >
 <!--
-       --><div class="layout__item c-at-item__row u-1-of-1 u-pr-0_5">
+     --><div class="layout__item c-at-item__row u-1-of-1 u-pr-0_5">
           <dp-edit-field-multi-select
             v-if="hasPermission('field_statement_county')"
             ref="counties"
@@ -246,7 +271,8 @@ useful info about the component:
             :value="Object.values(fragment.counties)"
             :editable="isClaimed"
             :label-grid-cols="2"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
 
         <dp-edit-field-multi-select
           v-if="hasPermission('field_statement_municipality') && statementFormDefinitions.mapAndCountyReference.enabled"
@@ -258,7 +284,8 @@ useful info about the component:
           :value="Object.values(fragment.municipalities)"
           :editable="isClaimed"
           :label-grid-cols="2"
-          @field:save="saveFragment" />
+          @field:save="saveFragment"
+        />
 
           <dp-edit-field-multi-select
             v-if="dplan.procedureStatementPriorityArea && statementFormDefinitions.mapAndCountyReference.enabled"
@@ -270,14 +297,16 @@ useful info about the component:
             :value="Object.values(fragment.priorityAreas)"
             :editable="isClaimed"
             :label-grid-cols="2"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
         </div>
       </div>
 
       <!--fragment ELEMENT -->
       <div
         v-if="hasPermission('field_procedure_elements')"
-        class="layout--flush border--bottom u-pr-0_5">
+        class="layout--flush border--bottom u-pr-0_5"
+      >
 <!--
      --><div class="layout__item c-at-item__row u-1-of-1">
           <dp-edit-field-single-select
@@ -290,7 +319,8 @@ useful info about the component:
             :options="elements"
             :label-grid-cols="2"
             :editable="isClaimed"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
 
           <!--PARAGRAPH-->
           <dp-edit-field-single-select
@@ -304,7 +334,8 @@ useful info about the component:
             :value="fragment.paragraphParentId ? fragment.paragraphParentId : ''"
             :options="selectedElementParagraph"
             :editable="isClaimed"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
 
           <!--FILE-->
           <dp-edit-field-single-select
@@ -318,7 +349,8 @@ useful info about the component:
             :value="fragment.documentParentId ? fragment.documentParentId : ''"
             :options="selectedElementFile"
             :editable="isClaimed"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
         </div>
       </div>
 
@@ -342,7 +374,8 @@ useful info about the component:
             strikethrough
             :obscure="hasPermission('feature_obscure_text')"
             height-limit-element-label="fragment"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
 
           <editable-text
             v-if="editableConsiderationAdvice"
@@ -361,7 +394,8 @@ useful info about the component:
             :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             data-cy="considerationAdvice"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
           <editable-text
             v-else
             ref="consideration"
@@ -379,7 +413,8 @@ useful info about the component:
             :boiler-plate="hasPermission('area_admin_boilerplates')"
             height-limit-element-label="fragment"
             data-cy="fragmentConsideration"
-            @field:save="saveFragment" />
+            @field:save="saveFragment"
+          />
         </div>
       </div>
     </article>

@@ -17,15 +17,18 @@
       'is-active-toggle': active
     }"
     :href="'#' + statementId + '_fragments'"
-    @click="loadFragments(statementId)">
+    @click="loadFragments(statementId)"
+  >
     <i
       class="fa fa-sitemap"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
       class="font-size-smaller text-center block"
-      style="margin-top: -4px;">
+      style="margin-top: -4px;"
+    >
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>
   </a>

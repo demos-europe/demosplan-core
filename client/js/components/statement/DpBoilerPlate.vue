@@ -14,7 +14,8 @@
       <label class="u-mb-0_5">
         <dp-contextual-help
           class="float-right u-mt-0_125"
-          :tooltip-options="tooltipOptions" />
+          :tooltip-options="tooltipOptions"
+        />
         {{ title }}
       </label>
       <dp-multiselect
@@ -26,7 +27,8 @@
         label="title"
         :options="boilerPlates"
         track-by="id"
-        @input="addToTextArea">
+        @input="addToTextArea"
+      >
         <template v-slot:option="{ props }">
           {{ props.option.title }}
           <span v-if="props.option.$isLabel">
@@ -39,13 +41,15 @@
     <div>
       <label
         for="previewField"
-        class="u-mb-0_25 u-mt-0_5">
+        class="u-mb-0_25 u-mt-0_5"
+      >
         Vorschau:
       </label>
       <div
         id="previewField"
         v-cleanhtml="previewValue"
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html" />
+        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
+      />
     </div>
   </div>
 </template>
