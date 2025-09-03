@@ -88,7 +88,6 @@ class OdtHtmlProcessor
             '<?xml encoding="utf-8" ?>'.$html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
-        $errors = libxml_get_errors();
         libxml_use_internal_errors($originalInternalErrors);
         libxml_clear_errors();
 
