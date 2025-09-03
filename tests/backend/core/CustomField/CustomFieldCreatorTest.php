@@ -129,7 +129,7 @@ class CustomFieldCreatorTest extends UnitTestCase
     }
 
     #[DataProvider('validationErrorDataProvider')]
-    public function testCreateCustomFieldValidationErrors(array $attributes, string $expectedErrorType): void
+    public function testCreateCustomFieldValidationErrors(array $attributes, string $expectedErrorMessage): void
     {
         // Arrange
         $baseAttributes = [
@@ -139,6 +139,7 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         // Assert & Act
         $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($expectedErrorMessage);
         $this->sut->createCustomField($fullAttributes);
     }
 
@@ -152,7 +153,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'description' => 'Test',
                     'options'     => [['label' => 'One'], ['label' => 'Two']],
                 ],
-                'expectedErrorType' => 'invalidFieldType',
+                'expectedErrorMessage' => 'No validator found for field type: invalidType'
             ],
             'singleSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
@@ -163,7 +164,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'description'  => 'Test',
                     'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],
-                'expectedErrorType' => 'singleSelectInvalidSourceTargetEntityCombination',
+                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "" for source entity "PROCEDURE".'
             ],
         ];
     }
