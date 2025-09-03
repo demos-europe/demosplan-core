@@ -15,8 +15,6 @@ namespace Tests\Core\Logic\Export;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
-use PhpOffice\PhpWord\PhpWord;
-use ReflectionClass;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\UnitTestCase;
 
@@ -58,12 +56,11 @@ class DocxExporterOdtTest extends UnitTestCase
     {
         // This is an integration test to verify DocxExporter properly uses OdtHtmlProcessor
         // The actual ODT processing logic is tested in OdtHtmlProcessorTest
-        
+
         // Arrange
         $this->permissions->method('hasPermission')->willReturn(true);
 
         // Act & Assert - verify that DocxExporter doesn't throw errors when using OdtHtmlProcessor
-        self::assertInstanceOf(\demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter::class, $this->sut);
+        self::assertInstanceOf(DocxExporter::class, $this->sut);
     }
-
 }

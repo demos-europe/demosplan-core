@@ -34,7 +34,7 @@ class DocumentWriterSelectorTest extends UnitTestCase
         $this->requestStack = $this->createMock(RequestStack::class);
         $this->request = $this->createMock(Request::class);
         $this->requestAttributes = $this->createMock(ParameterBag::class);
-        
+
         $this->request->attributes = $this->requestAttributes;
         $this->requestStack->method('getCurrentRequest')->willReturn($this->request);
         $this->sut = new DocumentWriterSelector($this->permissions, $this->requestStack);
@@ -224,10 +224,10 @@ class DocumentWriterSelectorTest extends UnitTestCase
     {
         // Arrange
         $cellStyle = [
-            'valign' => 'center',
+            'valign'        => 'center',
             'textDirection' => 'rtl',
-            'bgColor' => 'FFFFFF',
-            'borderSize' => 1
+            'bgColor'       => 'FFFFFF',
+            'borderSize'    => 1,
         ];
 
         // Act

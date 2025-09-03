@@ -64,7 +64,7 @@ abstract class AssessmentTableFileExporterAbstract
         LoggerInterface $logger,
         RequestStack $requestStack,
         StatementHandler $statementHandler,
-        DocumentWriterSelector $writerSelector
+        DocumentWriterSelector $writerSelector,
     ) {
         $this->assessmentHandler = $assessmentHandler;
         $this->assessmentTableOutput = $assessmentTableServiceOutput;

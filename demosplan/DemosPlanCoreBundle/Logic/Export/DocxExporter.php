@@ -60,7 +60,6 @@ class DocxExporter
 {
     use RequiresTranslatorTrait;
 
-
     final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
     final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
     final public const EXPORT_SORT_DEFAULT = 'default';
@@ -996,11 +995,6 @@ class DocxExporter
 
         return '';
     }
-
-
-
-
-
 
     private static function replaceTags(string $text): string
     {

@@ -54,7 +54,7 @@ class DocumentWriterSelector
         // Priority: explicit format from request attributes > permission-based fallback
         $request = $this->requestStack->getCurrentRequest();
         $explicitFormat = $request?->attributes->get('export_format');
-        
+
         if (null !== $explicitFormat) {
             return 'odt' === $explicitFormat;
         }

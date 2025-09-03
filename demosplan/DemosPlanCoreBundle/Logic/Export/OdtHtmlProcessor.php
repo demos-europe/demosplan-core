@@ -98,13 +98,13 @@ class OdtHtmlProcessor
     {
         return match (true) {
             $bold && $italic && $underline => self::ODT_BOLD_ITALIC_UNDERLINE_STYLE,
-            $bold && $italic => self::ODT_BOLD_ITALIC_STYLE,
-            $bold && $underline => self::ODT_BOLD_UNDERLINE_STYLE,
-            $italic && $underline => self::ODT_ITALIC_UNDERLINE_STYLE,
-            $bold => self::ODT_BOLD_STYLE,
-            $italic => self::ODT_ITALIC_STYLE,
-            $underline => self::ODT_UNDERLINE_STYLE,
-            default => self::ODT_PLAIN_STYLE,
+            $bold && $italic               => self::ODT_BOLD_ITALIC_STYLE,
+            $bold && $underline            => self::ODT_BOLD_UNDERLINE_STYLE,
+            $italic && $underline          => self::ODT_ITALIC_UNDERLINE_STYLE,
+            $bold                          => self::ODT_BOLD_STYLE,
+            $italic                        => self::ODT_ITALIC_STYLE,
+            $underline                     => self::ODT_UNDERLINE_STYLE,
+            default                        => self::ODT_PLAIN_STYLE,
         };
     }
 

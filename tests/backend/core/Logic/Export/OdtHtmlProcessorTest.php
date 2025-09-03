@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\Logic\Export;
 
 use demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor;
-use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\PhpWord;
 use ReflectionClass;
 use Tests\Base\UnitTestCase;
