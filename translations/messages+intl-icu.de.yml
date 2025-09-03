@@ -2711,7 +2711,7 @@ procedure.by.phase.public: |
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
 procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
-procedure.context.expand: "\"Planungsanlass\" beim Seitenaufruf ausgeklappt darstellen"
+procedure.description.expand: "\"Planungsanlass\" beim Seitenaufruf ausgeklappt darstellen"
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
