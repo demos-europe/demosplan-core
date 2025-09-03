@@ -3,4 +3,4 @@ runner:
         cmd: "yarn eslint client"
 
     phpstan:
-        cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l2"
+        cmd: "vendor/bin/phpstan analyse -c phpstan.neon demosplan -l 2"
