@@ -156,14 +156,14 @@ class CustomFieldCreatorTest extends UnitTestCase
             ],
             'singleSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
-                    'fieldType' => 'singleSelect',
+                    'fieldType'    => 'singleSelect',
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'STATEMENT', // Wrong target for singleSelect
-                    'name' => 'Test Field',
-                    'description' => 'Test',
-                    'options' => [['label' => 'Only One'], ['label' => 'Two']]
+                    'name'         => 'Test Field',
+                    'description'  => 'Test',
+                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],
-                'expectedErrorType' => 'singleSelectInvalidSourceTargetEntityCombination'
+                'expectedErrorType' => 'singleSelectInvalidSourceTargetEntityCombination',
             ],
         ];
     }
