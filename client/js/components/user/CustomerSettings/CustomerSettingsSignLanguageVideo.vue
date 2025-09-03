@@ -10,14 +10,16 @@
 <template>
   <div
     data-dp-validate="signLanguageVideo"
-    class="space-stack-s">
+    class="space-stack-s"
+  >
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
           :id="`file${video.file}`"
           class="shadow-sm h-fit w-12"
           :sources="videoSources"
-          icon-url="/img/plyr.svg" />
+          icon-url="/img/plyr.svg"
+        />
 
         <dl class="description-list">
           <dt>{{ Translator.trans('title') }}</dt>
@@ -30,7 +32,8 @@
       <dp-button
         color="warning"
         :text="Translator.trans('delete')"
-        @click="deleteVideo" />
+        @click="deleteVideo"
+      />
     </template>
 
     <template v-else>
@@ -43,7 +46,8 @@
           text: Translator.trans('title')
         }"
         name="videoTitle"
-        required />
+        required
+      />
 
       <dp-upload-files
         id="videoSrc"
@@ -60,7 +64,8 @@
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
-        @upload-success="setVideoSrcId" />
+        @upload-success="setVideoSrcId"
+      />
 
       <dp-text-area
         id="videoDescription"
@@ -70,7 +75,8 @@
         name="videoDescription"
         required
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoTitle!==''"
-        reduced-height />
+        reduced-height
+      />
 
       <dp-button-row
         class="u-mt"
@@ -79,7 +85,8 @@
         secondary
         :busy="isBusy"
         :secondary-text="Translator.trans('reset')"
-        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
+        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)"
+      />
     </template>
   </div>
 </template>

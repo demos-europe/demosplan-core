@@ -10,13 +10,16 @@
 <template>
   <dp-card
     :heading="Translator.trans('analytics.visitorMetrics')"
-    :heading-tooltip="Translator.trans('analytics.visitorMetrics.contextualHelp')">
+    :heading-tooltip="Translator.trans('analytics.visitorMetrics.contextualHelp')"
+  >
     <dp-loading
       v-if="isLoading"
-      class="u-mt-0_5" />
+      class="u-mt-0_5"
+    />
     <div
       v-else
-      class="u-mt-0_5">
+      class="u-mt-0_5"
+    >
       <div v-if="analyticsData.length">
         <template v-if="totalViews > 0">
           <div
@@ -29,7 +32,8 @@
               'no-data-fallback' : Translator.trans('analytics.visitorMetrics.none'),
               'data-names' : Translator.trans('analytics.visitorMetrics'),
               'data-name' : Translator.trans('analytics.metric')
-            })" />
+            })"
+          />
           <div id="procedureAnalyticsChartLegend" />
         </template>
         <p v-else>

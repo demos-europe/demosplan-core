@@ -12,7 +12,8 @@
     <dp-sticky-element
       border
       class="pt-2 pb-3"
-      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
+    >
       <div class="flex items-start mb-2">
         <custom-search
           id="customSearch"
@@ -23,9 +24,10 @@
             accessGroup: 'planner'
           }"
           :search-term="searchTerm"
-          @changeFields="updateSearchFields"
+          @change-fields="updateSearchFields"
           @search="term => updateSearchQuery(term)"
-          @reset="handleResetSearch" />
+          @reset="handleResetSearch"
+        />
         <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
@@ -44,8 +46,9 @@
               groupedOptions: true,
               ungroupedOptions: true
             }"
-            @filterApply="sendFilterQuery"
-            @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
+            @filter-apply="sendFilterQuery"
+            @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
+          />
         </div>
         <dp-button
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -54,7 +57,8 @@
           :disabled="noQuery"
           :text="Translator.trans('reset')"
           variant="outline"
-          @click="resetQuery" />
+          @click="resetQuery"
+        />
         <dp-button
           class="ml-auto"
           data-cy="editorFullscreen"
@@ -63,21 +67,25 @@
           hide-text
           variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
-          @click="handleFullscreenMode()" />
+          @click="handleFullscreenMode()"
+        />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
         class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
-        @reset-selection="resetSelection">
+        @reset-selection="resetSelection"
+      >
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
           variant="outline"
-          @click.prevent="handleBulkEdit" />
+          @click.prevent="handleBulkEdit"
+        />
       </dp-bulk-edit-header>
       <div
         v-if="items.length > 0"
-        class="flex justify-between items-center mt-4">
+        class="flex justify-between items-center mt-4"
+      >
         <dp-pager
           v-if="pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
@@ -88,26 +96,30 @@
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
           @page-change="applyQuery"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
           :initial-selection="currentSelection"
           local-storage-key="segmentList"
           :selectable-columns="selectableColumns"
           use-local-storage
-          @selection-changed="setCurrentSelection" />
+          @selection-changed="setCurrentSelection"
+        />
       </div>
     </dp-sticky-element>
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
 
     <template v-else>
       <template v-if="items.length > 0">
         <image-modal
           ref="imageModal"
-          data-cy="segment:imgModal" />
+          data-cy="segment:imgModal"
+        />
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3 min-h-12"
@@ -123,8 +135,9 @@
           :multi-page-selection-items-toggled="toggledItems.length"
           :should-be-selected-items="currentlySelectedItems"
           track-by="id"
-          @selectAll="handleSelectAll"
-          @items-toggled="handleToggleItem">
+          @select-all="handleSelectAll"
+          @items-toggled="handleToggleItem"
+        >
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
               <div class="whitespace-nowrap">
@@ -135,21 +148,24 @@
                   :assignable-users="assignableUsers"
                   :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
                   :segment="rowData"
-                  :places="places" />
+                  :places="places"
+                />
               </template>
             </v-popover>
           </template>
           <template v-slot:statementStatus="rowData">
             <status-badge
               class="mt-0.5"
-              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
+              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
+            />
           </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
               <div
                 v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
                 class="o-hellip--nowrap text-right"
-                dir="rtl">
+                dir="rtl"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
               </div>
             </div>
@@ -158,17 +174,20 @@
             <ul class="o-list max-w-12">
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
               </li>
               <li
                 v-else
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
               </li>
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
               </li>
             </ul>
@@ -177,13 +196,15 @@
             <ul class="o-list">
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
               </li>
               <li
                 v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
-                class="o-list__item o-hellip--nowrap">
+                class="o-list__item o-hellip--nowrap"
+              >
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
                 {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
               </li>
@@ -195,7 +216,8 @@
           <template v-slot:text="rowData">
             <text-content-renderer
               class="overflow-word-break c-styled-html"
-              :text="rowData.attributes.text" />
+              :text="rowData.attributes.text"
+            />
           </template>
           <template v-slot:recommendation="rowData">
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -205,14 +227,16 @@
               v-for="tag in getTagsBySegment(rowData.id)"
               :key="tag.id"
               class="rounded-md"
-              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
+              style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;"
+            >
               {{ tag.attributes.title }}
             </span>
           </template>
           <template
             v-for="customField in selectedCustomFields"
             :key="customField.field"
-            v-slot:[customField.field]="rowData">
+            v-slot:[customField.field]="rowData"
+          >
             <div>
               {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
             </div>
@@ -228,7 +252,8 @@
                   statementId: rowData.relationships.parentStatement.data.id
                 })"
                 data-cy="segmentsList:edit"
-                rel="noopener">
+                rel="noopener"
+              >
                 {{ Translator.trans('edit') }}
               </a>
               <a
@@ -240,7 +265,8 @@
                   statementId: rowData.relationships.parentStatement.data.id
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
-                rel="noopener">
+                rel="noopener"
+              >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
               <!-- Version history view -->
@@ -248,7 +274,8 @@
                 type="button"
                 class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
-                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
+                @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
+              >
                 {{ Translator.trans('history') }}
               </button>
               <a
@@ -258,7 +285,8 @@
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
                 :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 {{ Translator.trans('original.pdf') }}
               </a>
             </dp-flyout>
@@ -268,7 +296,8 @@
         <div
           v-show="!isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
+        >
           <div />
         </div>
       </template>
@@ -277,7 +306,8 @@
         v-else
         :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans('segments.none')"
-        type="info" />
+        type="info"
+      />
     </template>
   </div>
 </template>

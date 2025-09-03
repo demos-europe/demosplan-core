@@ -15,16 +15,19 @@
       <dp-data-table
         :header-fields="fields"
         :items="Object.values(items)"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:date="rowData">
           <span
             v-tooltip="createdDateTimeItem(rowData)"
-            v-text="createdDateItem(rowData)" />
+            v-text="createdDateItem(rowData)"
+          />
         </template>
         <template v-slot:content="rowData">
           <div
             v-cleanhtml="rowData.attributes.message"
-            class="break-words" />
+            class="break-words"
+          />
         </template>
         <template v-slot:user="rowData">
           {{ rowData.attributes.createdByDataInputOrga ? rowData.attributes.orgaName : rowData.attributes.userName }}
@@ -34,18 +37,21 @@
       <div class="layout u-mv-0_5">
         <div
           v-if="totalPages > 1"
-          class="layout__item u-1-of-2">
+          class="layout__item u-1-of-2"
+        >
           <dp-sliding-pagination
             :current="currentPage"
             :total="totalPages"
             :non-sliding-size="10"
             :aria-label="paginationLabel"
-            @page-change="handlePageChange" />
+            @page-change="handlePageChange"
+          />
         </div><!--
      --><div class="layout__item u-1-of-2">
-        <dp-loading
-          v-if="isLoading"
-          class="u-mt-0_5 float-right" />
+          <dp-loading
+            v-if="isLoading"
+            class="u-mt-0_5 float-right"
+          />
         </div>
       </div>
     </template>

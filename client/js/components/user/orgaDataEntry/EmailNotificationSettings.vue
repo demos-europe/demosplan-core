@@ -1,11 +1,13 @@
 <template>
   <fieldset
-    class="w-3/4">
+    class="w-3/4"
+  >
     <legend
       v-if="user.isPublicAgency ||
         (user.isPublicAgency && hasPermission('field_organisation_email2_cc')) ||
         (hasPermission('feature_organisation_email_reviewer_admin') && hasPermission('field_organisation_email_reviewer_admin'))"
-      class="font-size-large weight--normal u-mb-0_75">
+      class="font-size-large weight--normal u-mb-0_75"
+    >
       {{ Translator.trans('email.notifications') }}
     </legend>
     <!-- Email2 address for Public Agencies -->
@@ -20,7 +22,8 @@
         text: Translator.trans('email.participation'),
         hint: Translator.trans('explanation.organisation.email.participation')
       }"
-      required />
+      required
+    />
 
     <!-- ccEmail2 for adding extra addresses for participation invitations -->
     <dp-input
@@ -33,7 +36,8 @@
       :label="{
         text: Translator.trans('email.cc.participation'),
         hint: Translator.trans('explanation.organisation.email.cc')
-      }" />
+      }"
+    />
 
     <!-- PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone -->
     <dp-input
@@ -46,7 +50,8 @@
       :label="{
         text: Translator.trans('email.reviewer.admin'),
         hint: Translator.trans('explanation.organisation.email.reviewer.admin')
-      }" />
+      }"
+    />
 
     <!-- Notifications Section -->
     <div v-if="hasNotificationSection && hasNotificationSectionPermission">
@@ -65,7 +70,8 @@
         :label="{
           text: Translator.trans('explanation.notification.new.statement')
         }"
-        :checked="organisation.emailNotificationNewStatement.content === 'true'" />
+        :checked="organisation.emailNotificationNewStatement.content === 'true'"
+      />
 
       <!-- Ending Phase Notification -->
       <dp-checkbox
@@ -76,7 +82,8 @@
         :label="{
           text: Translator.trans('explanation.notification.phase.ending')
         }"
-        :checked="organisation.emailNotificationEndingPhase.content === 'true'" />
+        :checked="organisation.emailNotificationEndingPhase.content === 'true'"
+      />
     </div>
   </fieldset>
 </template>

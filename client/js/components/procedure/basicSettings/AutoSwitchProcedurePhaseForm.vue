@@ -22,10 +22,12 @@
 
     <transition
       name="slide-fade"
-      mode="out-in">
+      mode="out-in"
+    >
       <div
         v-if="!hasPermission('feature_auto_switch_to_procedure_end_phase') || (hasPermission('feature_auto_switch_to_procedure_end_phase') && !isParticipationPhaseSelected)"
-        class="layout u-mt-0_25 u-pl">
+        class="layout u-mt-0_25 u-pl"
+      >
         <dp-select
           v-model="selectedPhase"
           :data-cy="`selectedPhase:${checkboxId}`"
@@ -112,7 +114,8 @@
 
         <transition
           name="slide-fade"
-          mode="out-in">
+          mode="out-in"
+        >
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
             :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"

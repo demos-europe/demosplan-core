@@ -15,7 +15,8 @@
   <tr
     v-if="Object.entries(time).length"
     class="border--top"
-    data-cy="versionHistoryItem">
+    data-cy="versionHistoryItem"
+  >
     <td colspan="4">
       <table>
         <thead>
@@ -35,12 +36,14 @@
         <tbody>
           <tr
             class="o-sortablelist__item cursor-pointer"
-            @click="getContent">
+            @click="getContent"
+          >
             <!-- time -->
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
               style="width: 15%;"
-              data-cy="historyTime">
+              data-cy="historyTime"
+            >
               {{ timeCreated }} {{ Translator.trans('clock') }}
             </td>
 
@@ -49,26 +52,30 @@
               v-if="time.userName !== null"
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
               style="width: 40%;"
-              data-cy="historyUserName">
+              data-cy="historyUserName"
+            >
               {{ time.userName }}
             </td>
             <td
               v-else
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
-              style="width: 40%;">
+              style="width: 40%;"
+            >
               -
             </td>
 
             <!-- fields -->
             <td
               class="line-height--1_6 u-pv-0_5"
-              style="width: 40%;">
+              style="width: 40%;"
+            >
               <ul class="o-list o-list--csv">
                 <li
                   v-for="field in time.fieldNames"
                   :key="field"
                   class="o-list__item"
-                  data-cy="historyField">
+                  data-cy="historyField"
+                >
                   {{ Translator.trans(field) }}
                 </li>
               </ul>
@@ -76,11 +83,13 @@
 
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
-              style="width: 5%">
+              style="width: 5%"
+            >
               <i
                 class="btn-icns fa cursor-pointer"
                 :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
-                data-cy="toggleIcon" />
+                data-cy="toggleIcon"
+              />
             </td>
           </tr>
 
@@ -91,12 +100,14 @@
                   <tr class="sr-only">
                     <th
                       v-if="isOpen && isLoading"
-                      colspan="4">
+                      colspan="4"
+                    >
                       {{ Translator.trans('loading') }}
                     </th>
                     <th
                       v-if="isOpen && !isLoading"
-                      colspan="4">
+                      colspan="4"
+                    >
                       {{ Translator.trans('dropdown.open') }}
                     </th>
                   </tr>
@@ -107,13 +118,15 @@
                     <td
                       v-if="isOpen && isLoading"
                       class="u-ml u-mb u-mt inline-block"
-                      colspan="4">
+                      colspan="4"
+                    >
                       <dp-loading />
                     </td>
 
                     <td
                       v-if="isOpen && !isLoading"
-                      colspan="4">
+                      colspan="4"
+                    >
                       <table v-if="time.displayChange">
                         <thead>
                           <tr class="sr-only">
@@ -127,11 +140,13 @@
                             v-for="(content, fieldName) in history.attributes"
                             :key="fieldName + 'content'"
                             class="u-pb-0_25"
-                            data-cy="historyItemElement">
+                            data-cy="historyItemElement"
+                          >
                             <td
                               :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
                               class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
-                              data-cy="fieldName">
+                              data-cy="fieldName"
+                            >
                               <strong>
                                 {{ Translator.trans(fieldName) }}
                               </strong>
@@ -141,11 +156,13 @@
                               v-cleanhtml="content"
                               style="width: 79%;"
                               class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
-                              data-cy="contentChange" />
+                              data-cy="contentChange"
+                            />
                             <td
                               v-else-if="content === null"
                               style="width: 82%;"
-                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block">
+                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block"
+                            >
                               {{ Translator.trans('formatting.change') }}
                             </td>
                           </tr>

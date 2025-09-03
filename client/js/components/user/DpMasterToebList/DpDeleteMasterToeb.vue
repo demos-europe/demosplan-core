@@ -11,10 +11,12 @@
   <div>
     <button
       class="btn-icns u-m-0 u-pl-0"
-      @click.prevent="deleteOrga">
+      @click.prevent="deleteOrga"
+    >
       <i
         class="fa fa-trash"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </button>
   </div>
 </template>

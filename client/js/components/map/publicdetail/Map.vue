@@ -25,7 +25,8 @@
       track-by="value"
       @search-changed="(response) => sortResults(response.data.data || [])"
       @selected="zoomToSuggestion"
-      @searched="selectFirstOption" />
+      @searched="selectFirstOption"
+    />
     <slot />
   </div>
 </template>

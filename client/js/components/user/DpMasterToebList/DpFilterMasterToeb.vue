@@ -16,16 +16,19 @@
       id="districtFilter"
       v-model="selectedDistrict"
       class="o-form__control-select w-10"
-      @change="filterItems">
+      @change="filterItems"
+    >
       <option
         value="all"
-        selected>
+        selected
+      >
         Alle Verfahrensträger
       </option>
       <option
         v-for="district in districtFilters"
         :key="district.field"
-        :value="district.field">
+        :value="district.field"
+      >
         {{ district.value }}
       </option>
     </select><!--
@@ -33,16 +36,19 @@
       id="documentFilter"
       v-model="selectedDocument"
       class="o-form__control-select u-ml-0_5 w-10"
-      @change="filterItems">
+      @change="filterItems"
+>
       <option
         value="all"
-        selected>
+        selected
+>
         Alle Dokumente
       </option>
       <option
         v-for="doc in documentFilters"
         :key="doc.field"
-        :value="doc.field">
+        :value="doc.field"
+>
         {{ doc.value }}
       </option>
     </select>

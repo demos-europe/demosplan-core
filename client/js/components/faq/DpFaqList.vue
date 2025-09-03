@@ -16,7 +16,8 @@
       :branch-identifier="branchFunc()"
       :options="options"
       @end="(event, item, parentId) => updateCategorySort(event, item, parentId)"
-      @tree:change="updateCategorySort">
+      @tree:change="updateCategorySort"
+    >
       <template v-slot:header="">
         <div class="layout--flush">
           <div class="layout__item u-4-of-12">
@@ -38,13 +39,15 @@
       <template v-slot:branch="{ nodeElement, nodeChildren }">
         <dp-faq-category-item
           :faq-category-item="nodeElement"
-          :category-children="nodeChildren" />
+          :category-children="nodeChildren"
+        />
       </template>
       <template v-slot:leaf="{ nodeElement, parentId }">
         <dp-faq-item
           :available-group-options="availableGroupOptions"
           :faq-item="nodeElement"
-          :parent-id="parentId" />
+          :parent-id="parentId"
+        />
       </template>
     </dp-tree-list>
   </div>

@@ -11,14 +11,16 @@
   <!-- assessment table search and sorting header -->
   <div
     v-cloak
-    class="layout--flush u-1-of-1">
+    class="layout--flush u-1-of-1"
+  >
     <!-- info-box when elements are selected -->
     <dp-edit-selected-items-menu
       ref="editSelectedItemsMenu"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
-      @exportModal:toggle="tab => $emit('exportModal:toggle', tab)">
+      @export-modal:toggle="tab => $emit('exportModal:toggle', tab)"
+    >
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
         <search-modal
@@ -27,24 +29,28 @@
           :preselected-fields="searchFields"
           :table-search="searchTerm"
           is-form
-          @close="setProperty({ prop: 'showSearchModal', val: false })" />
+          @close="setProperty({ prop: 'showSearchModal', val: false })"
+        />
 
         <dp-filter-modal
           ref="filterModal"
           :applied-filter-options="appliedFilters"
           :filter-hash="initFilterHash"
           :procedure-id="procedureId"
-          @close="setProperty({ prop: 'showFilterModal', val: false })" />
+          @close="setProperty({ prop: 'showFilterModal', val: false })"
+        />
 
         <!-- Reset filters -->
         <div
           v-if="Object.keys(filterSet).length || searchFields.length || searchTerm.length"
-          class="ml-auto">
+          class="ml-auto"
+        >
           <dp-button
             :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId })"
             :text="Translator.trans('reset')"
             data-cy="reset"
-            variant="outline" />
+            variant="outline"
+          />
         </div>
       </div>
     </dp-edit-selected-items-menu>
