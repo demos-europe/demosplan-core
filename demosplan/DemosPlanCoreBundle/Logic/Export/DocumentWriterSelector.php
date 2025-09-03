@@ -17,8 +17,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class DocumentWriterSelector
 {
-    private ?bool $useOdtFormat = null;
-
     public function __construct(
         private readonly PermissionsInterface $permissions,
         private readonly RequestStack $requestStack,
@@ -53,19 +51,15 @@ class DocumentWriterSelector
 
     private function shouldUseOdt(): bool
     {
-        if (null === $this->useOdtFormat) {
-            // Priority: explicit format from request attributes > permission-based fallback
-            $request = $this->requestStack->getCurrentRequest();
-            $explicitFormat = $request?->attributes->get('export_format');
+        // Priority: explicit format from request attributes > permission-based fallback
+        $request = $this->requestStack->getCurrentRequest();
+        $explicitFormat = $request?->attributes->get('export_format');
 
-            if (null !== $explicitFormat) {
-                $this->useOdtFormat = 'odt' === $explicitFormat;
-            } else {
-                $this->useOdtFormat = $this->permissions->hasPermission('feature_export_odt_instead_of_docx');
-            }
+        if (null !== $explicitFormat) {
+            return 'odt' === $explicitFormat;
         }
 
-        return $this->useOdtFormat;
+        return $this->permissions->hasPermission('feature_export_odt_instead_of_docx');
     }
 
     public function getTableStyleForFormat(array $tableStyle): array

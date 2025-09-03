@@ -292,10 +292,9 @@ class DocxExporter
 
                         foreach ($items as $item) {
                             $fragmentRow = $assessmentTable->addRow(null);
-                            $cellStyleStatementDetails = $styles['cellStyleStatementDetails'];
                             $metaInfoCell = $fragmentRow->addCell(
                                 $styles['cellWidthTotal'] * 0.12,
-                                $cellStyleStatementDetails
+                                $styles['cellStyleStatementDetails']
                             );
 
                             // SN von Töbs
@@ -359,12 +358,11 @@ class DocxExporter
                                 $styles['textStyleStatementDetailsParagraphStyles']
                             );
 
-                            $cellStyleTop = $styles['cellTop'];
-                            $textCell = $fragmentRow->addCell($styles['cellWidthTotal'] * 0.44, $cellStyleTop);
+                            $textCell = $fragmentRow->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
                             // T6679:
                             $fragmentText = $this->editorService->handleObscureTags($item->getText(), $anonym);
                             $this->addHtml($textCell, $fragmentText, $styles);
-                            $considerationCell = $fragmentRow->addCell($styles['cellWidthTotal'] * 0.44, $cellStyleTop);
+                            $considerationCell = $fragmentRow->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
                             $consideration = $item->getConsideration();
                             $consideration = $this->editorService->handleObscureTags($consideration, $anonym);
                             $this->addHtml($considerationCell, $consideration, $styles);
