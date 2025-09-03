@@ -49,8 +49,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
      */
     public function searchAddress(string $query, int $limit = 20, ?array $maxExtent = null): array
     {
-        if (!$this->currentUser->hasPermission('feature_geocoder_address_search'))
-        {
+        if (!$this->currentUser->hasPermission('feature_geocoder_address_search')) {
             throw AccessDeniedException::missingPermission('feature_geocoder_address_search');
         }
 
