@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
@@ -79,4 +80,51 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Verify ID is set from configuration
         static::assertNotEmpty($result->getId());
     }
+
+    /**
+     * Test MultiSelect field creation with isRequired attribute
+     */
+    public function testCreateMultiSelectFieldSuccessfully(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $attributes = [
+            'fieldType' => 'multiSelect',
+            'name' => 'Categories',
+            'description' => 'Select applicable categories',
+            'isRequired' => true,
+            'options' => [
+                ['label' => 'Environment'],
+                ['label' => 'Traffic'],
+                ['label' => 'Housing']
+            ],
+            'sourceEntity' => 'PROCEDURE',
+            'sourceEntityId' => $procedure->getId(),
+            'targetEntity' => 'STATEMENT'
+        ];
+
+        // Act
+        $result = $this->sut->createCustomField($attributes);
+
+        // Assert
+        static::assertInstanceOf(CustomFieldInterface::class, $result);
+        static::assertInstanceOf(MultiSelectField::class, $result);
+        static::assertEquals('Categories', $result->getName());
+        static::assertEquals('Select applicable categories', $result->getDescription());
+        static::assertEquals('multiSelect', $result->getType());
+
+        // Test MultiSelect specific behavior - has isRequired
+        static::assertTrue($result->getRequired() ?? false);
+
+        $options = $result->getOptions();
+        static::assertCount(3, $options);
+        static::assertEquals('Environment', $options[0]->getLabel());
+        static::assertEquals('Traffic', $options[1]->getLabel());
+        static::assertEquals('Housing', $options[2]->getLabel());
+
+        static::assertNotEmpty($result->getId());
+    }
+
+
+
 }
