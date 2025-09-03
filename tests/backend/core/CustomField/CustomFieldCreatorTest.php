@@ -139,7 +139,7 @@ class CustomFieldCreatorTest extends UnitTestCase
     {
         // Arrange
         $baseAttributes = [
-            'sourceEntityId' => $this->procedure->getId(),
+            'sourceEntityId' => $attributes['sourceEntityId']?:$this->procedure->getId(),
         ];
         $fullAttributes = array_merge($baseAttributes, $attributes);
 
@@ -160,6 +160,18 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'options'     => [['label' => 'One'], ['label' => 'Two']],
                 ],
                 'expectedErrorMessage' => 'No validator found for field type: invalidType',
+            ],
+            'invalidSourceEntityId' => [
+                'attributes' => [
+                    'fieldType'   => 'singleSelect',
+                    'sourceEntityId' => 'invalid-id',
+                    'sourceEntity' => 'PROCEDURE',
+                    'targetEntity' => 'SEGMENT', // Wrong target for singleSelect
+                    'name'        => 'Test Field',
+                    'description' => 'Test',
+                    'options'     => [['label' => 'One'], ['label' => 'Two']],
+                ],
+                'expectedErrorMessage' => 'The sourceEntityId "invalid-id" was not found in the sourceEntity "PROCEDURE"'
             ],
             'singleSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
