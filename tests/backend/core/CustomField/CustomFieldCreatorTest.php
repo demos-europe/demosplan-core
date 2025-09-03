@@ -75,14 +75,17 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertEquals('Medium', $options[1]->getLabel());
         static::assertEquals('Low', $options[2]->getLabel());
 
-        // Verify all options have UUIDs
+        $this->verifyAllOptionsHaveUUIDs($options);
+
+        // Verify ID is set from configuration
+        static::assertNotEmpty($result->getId());
+    }
+
+    private function verifyAllOptionsHaveUUIDs(array $options): void {
         foreach ($options as $option) {
             static::assertNotEmpty($option->getId());
             static::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $option->getId());
         }
-
-        // Verify ID is set from configuration
-        static::assertNotEmpty($result->getId());
     }
 
     /**
@@ -124,6 +127,8 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertEquals('Environment', $options[0]->getLabel());
         static::assertEquals('Traffic', $options[1]->getLabel());
         static::assertEquals('Housing', $options[2]->getLabel());
+
+        $this->verifyAllOptionsHaveUUIDs($options);
 
         static::assertNotEmpty($result->getId());
     }
