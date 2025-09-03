@@ -58,7 +58,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
     {
         $sourceToTargetMap = $this->getSourceToTargetMapping();
         if ($sourceToTargetMap[$sourceEntity] !== $targetEntity) {
-            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $this->sourceToTargetMap[$sourceEntity], $sourceEntity));
+            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $sourceToTargetMap[$sourceEntity], $sourceEntity));
         }
     }
 
