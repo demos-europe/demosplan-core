@@ -18,6 +18,7 @@ use Exception;
 use InvalidArgumentException;
 use LogicException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -29,13 +30,15 @@ use UnexpectedValueException;
 
 class GeodatenzentrumAddressSearchService implements GeocoderInterface
 {
-    private const GEODATENZENTRUM_ADDRESS_SEARCH = '';
+    private  string $geodatenzentrumAddressSearchUrl = '';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
         private readonly CurrentUserInterface $currentUser,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
+        $this->geodatenzentrumAddressSearchUrl = $parameterBag->get('geodatenzentrum_address_search_url');
     }
 
     /**
@@ -60,7 +63,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             'query'        => $query,
             'limit'        => $limit,
             'maxExtent'    => $maxExtent,
-            'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
+            'api_endpoint' => $this->geodatenzentrumAddressSearchUrl,
         ];
 
         // Second: make call to external API provider
@@ -98,7 +101,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
             ],
         ];
         try {
-            $response = $this->httpClient->request('GET', self::GEODATENZENTRUM_ADDRESS_SEARCH, $requestOptions);
+            $response = $this->httpClient->request('GET', $this->geodatenzentrumAddressSearchUrl, $requestOptions);
             $statusCode = $response->getStatusCode();
             if (200 !== $statusCode) {
                 $this->logger->error('Geodatenzentrum API request failed', [
