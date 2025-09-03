@@ -633,12 +633,6 @@ class FileService implements FileServiceInterface
         $newHash = $this->createHash();
         $newFilename = $fileToCopy->getPath().'/'.$newHash;
 
-        // Check if source file physically exists before attempting to copy
-        if (!$this->defaultStorage->fileExists($fileToCopy->getFilePathWithHash())) {
-            $this->logger->error('Source file does not exist', [$fileToCopy->getFilePathWithHash()]);
-            throw new FileNotFoundException('Source file not found: '.$fileToCopy->getFilePathWithHash());
-        }
-
         try {
             $this->defaultStorage->copy($fileToCopy->getFilePathWithHash(), $newFilename);
         } catch (FilesystemException|UnableToCopyFile $e) {
