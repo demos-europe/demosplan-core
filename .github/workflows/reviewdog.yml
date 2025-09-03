@@ -76,7 +76,9 @@ jobs:
           composer install --no-interaction
 
       - name: Warmup cache
-        run: DEVELOPMENT_CONTAINER=1 php bin/test cache:clear
+        env:
+          DEVELOPMENT_CONTAINER: 1
+        run: php bin/test cache:clear
 
       - name: Debug environment
         run: |
@@ -95,7 +97,9 @@ jobs:
           echo "HOME=$HOME"
 
       - name: Generate PHPStan config
-        run: DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --only-dump-config --ci -vvv
+        env:
+          DEVELOPMENT_CONTAINER: 1
+        run: php bin/test dplan:phpstan --only-dump-config --ci -vvv
 
       - name: Woof
         env:
