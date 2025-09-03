@@ -1,6 +1,3 @@
 runner:
-    eslint:
-        cmd: "yarn eslint client"
-
     phpstan:
         cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l1"
