@@ -227,6 +227,9 @@ export default function ToggleAnything () {
           el.one('click', function () {
             el.config.targetObj.removeClass(prefixClass('is-run', omitPrefix))
           })
+          // Update trigger's visual state and aria attributes to match expanded content
+          toggleAriaAttrs(el, true)
+          el.addClass(el.config.propertyClass + '-toggle')
         }
 
         //  Activate toggle on page load when toggles are checked checkboxes / radios
