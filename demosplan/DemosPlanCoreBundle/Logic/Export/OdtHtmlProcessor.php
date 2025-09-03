@@ -93,6 +93,7 @@ class OdtHtmlProcessor
         if (!$success) {
             // Fallback to treating as plain text if HTML parsing fails
             $segments[] = $this->createTextSegment(strip_tags($html), false, false, false);
+
             return $segments;
         }
 
@@ -130,9 +131,9 @@ class OdtHtmlProcessor
     private function traverseDom(DOMNode $node, array &$segments, bool $bold = false, bool $italic = false, bool $underline = false): void
     {
         foreach ($node->childNodes as $child) {
-            if ($child->nodeType === XML_ELEMENT_NODE) {
+            if (XML_ELEMENT_NODE === $child->nodeType) {
                 $this->processElementNode($child, $segments, $bold, $italic, $underline);
-            } elseif ($child->nodeType === XML_TEXT_NODE) {
+            } elseif (XML_TEXT_NODE === $child->nodeType) {
                 $this->processTextNode($child, $segments, $bold, $italic, $underline);
             }
         }
@@ -184,8 +185,8 @@ class OdtHtmlProcessor
         $currentUnderline = $underline || ('u' === $tag);
 
         return [
-            'bold' => $currentBold,
-            'italic' => $currentItalic,
+            'bold'      => $currentBold,
+            'italic'    => $currentItalic,
             'underline' => $currentUnderline,
         ];
     }
@@ -207,9 +208,9 @@ class OdtHtmlProcessor
     private function createTextSegment(string $text, bool $bold, bool $italic, bool $underline): array
     {
         return [
-            'text' => $text,
-            'bold' => $bold,
-            'italic' => $italic,
+            'text'      => $text,
+            'bold'      => $bold,
+            'italic'    => $italic,
             'underline' => $underline,
         ];
     }
