@@ -12,11 +12,13 @@
     v-if="!isBroken"
     v-show="isVisible"
     class="h-auto"
-    :class="prefixClass('c-map__group-item c-map__layer')">
+    :class="prefixClass('c-map__group-item c-map__layer')"
+  >
     <img
       :src="legend.url"
       alt=""
-      @error="deleteImage">
+      @error="deleteImage"
+    >
   </li>
 </template>
 
@@ -31,13 +33,13 @@ export default {
     legend: {
       required: true,
       type: Object,
-      default: () => { return { layerId: '', url: '#' } }
-    }
+      default: () => { return { layerId: '', url: '#' } },
+    },
   },
 
   data () {
     return {
-      isBroken: false
+      isBroken: false,
     }
   },
 
@@ -46,7 +48,7 @@ export default {
 
     isVisible () {
       return this.isLayerVisible(this.legend.layerId)
-    }
+    },
   },
 
   methods: {
@@ -56,7 +58,7 @@ export default {
 
     deleteImage () {
       this.isBroken = true
-    }
-  }
+    },
+  },
 }
 </script>

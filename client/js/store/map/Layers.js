@@ -29,7 +29,7 @@ const LayersStore = {
     visibleVisibilityGroups: [],
     draggableOptions: {},
     draggableOptionsForBaseLayer: {},
-    isMapLoaded: false
+    isMapLoaded: false,
   },
 
   mutations: {
@@ -237,12 +237,12 @@ const LayersStore = {
 
       const rootEl = state.apiData.data[0]
       // Get the old and new categories
-      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id)
-        ? rootEl
-        : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
-      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id)
-        ? rootEl
-        : state.apiData.included.find(elem => elem.id === data.newCategoryId)
+      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ?
+        rootEl :
+        state.apiData.included.find(elem => elem.id === data.oldCategoryId)
+      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ?
+        rootEl :
+        state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
 
       if (!oldCategory || !newCategory || !currentElement) {
@@ -251,9 +251,9 @@ const LayersStore = {
         return
       }
 
-      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory'
-        ? { parentIdKey: 'parentId', relationshipKey: 'categories' }
-        : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
+      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ?
+        { parentIdKey: 'parentId', relationshipKey: 'categories' } :
+        { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
       const isBaseLayer = currentElement.attributes.layerType === 'base'
       // List all elements with the given categoryId
       const childElements = state.apiData.included
@@ -281,9 +281,9 @@ const LayersStore = {
            * To align it with the other elements, we have to calculate the order number
            * This is probably a migration issue, where the orderNumber was handled differently before
            */
-          const orderNumber = el.attributes[data.orderType] < data.parentOrder * 100
-            ? data.parentOrder * 100 + el.attributes[data.orderType]
-            : el.attributes[data.orderType]
+          const orderNumber = el.attributes[data.orderType] < data.parentOrder * 100 ?
+            data.parentOrder * 100 + el.attributes[data.orderType] :
+            el.attributes[data.orderType]
 
           return { ...el, attributes: { ...el.attributes, [data.orderType]: orderNumber } }
         })
@@ -295,7 +295,7 @@ const LayersStore = {
         // And add it to the new List ...
         newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({
           id: currentElement.id,
-          type: currentElement.type
+          type: currentElement.type,
         }))
         // ... And set the new parentId or categoryId for the current element
         currentElement.attributes[parentIdKey] = newCategory.id
@@ -374,7 +374,7 @@ const LayersStore = {
      */
     setIsMapLoaded (state) {
       state.isMapLoaded = true
-    }
+    },
   },
 
   actions: {
@@ -397,10 +397,10 @@ const LayersStore = {
           name: {
             condition: {
               path: 'parentId',
-              operator: 'IS NULL'
-            }
-          }
-        }
+              operator: 'IS NULL',
+            },
+          },
+        },
       }))
         .then(({ data }) => {
           commit('updateApiData', data)
@@ -436,7 +436,7 @@ const LayersStore = {
               treeOrder: layer.attributes.treeOrder,
               mapOrder: layer.attributes.mapOrder,
               defaultVisibility: layer.attributes.hasDefaultVisibility,
-              url: legendUrl
+              url: legendUrl,
             }
             commit('setLegend', legend)
           }
@@ -478,7 +478,7 @@ const LayersStore = {
         isMinimap,
         mapOrder,
         treeOrder,
-        visibilityGroupId
+        visibilityGroupId,
       } = attributes
 
       if (resource.type === 'GisLayer') {
@@ -491,17 +491,17 @@ const LayersStore = {
               isMinimap,
               mapOrder,
               treeOrder,
-              visibilityGroupId
+              visibilityGroupId,
             },
             relationships: {
               parentCategory: {
                 data: {
                   id: categoryId,
-                  type: 'GisLayerCategory'
-                }
-              }
-            }
-          }
+                  type: 'GisLayerCategory',
+                },
+              },
+            },
+          },
         }
       }
 
@@ -512,17 +512,17 @@ const LayersStore = {
             type,
             attributes: {
               treeOrder,
-              hasDefaultVisibility
+              hasDefaultVisibility,
             },
             relationships: {
               parentCategory: {
                 data: {
                   id: parentId,
-                  type: 'GisLayerCategory'
-                }
-              }
-            }
-          }
+                  type: 'GisLayerCategory',
+                },
+              },
+            },
+          },
         }
       }
 
@@ -569,15 +569,15 @@ const LayersStore = {
           messages: {
             204: {
               text: Translator.trans('confirm.gislayer.delete'),
-              type: 'confirm'
-            }
-          }
+              type: 'confirm',
+            },
+          },
         })
         .then(() => {
           commit('removeElement', {
             id: element.id,
             categoryId: element.categoryId,
-            relationshipType: element.relationshipType
+            relationshipType: element.relationshipType,
           })
         })
     },
@@ -642,9 +642,9 @@ const LayersStore = {
      */
     toggleBaselayer ({ dispatch, state, commit }, { id, setToVisible }) {
       // You can't toggle a base layer "off" if it is visible because we don't know which layer to show instead.
-      const currentBaseLayerIsVisible = state.layerStates[id]?.isVisible
-        ? true
-        : state.apiData.included.find(layer => layer.id === id).attributes.isVisible
+      const currentBaseLayerIsVisible = state.layerStates[id]?.isVisible ?
+        true :
+        state.apiData.included.find(layer => layer.id === id).attributes.isVisible
 
       if (!(currentBaseLayerIsVisible && setToVisible)) {
         state.apiData.included.forEach(potentialBaseLayer => {
@@ -735,7 +735,7 @@ const LayersStore = {
 
         Promise.resolve()
       }
-    }
+    },
   },
 
   getters: {
@@ -947,8 +947,8 @@ const LayersStore = {
       } else {
         return { id: '', attributes: { name: 'default' } }
       }
-    }
-  }
+    },
+  },
 }
 
 export default LayersStore

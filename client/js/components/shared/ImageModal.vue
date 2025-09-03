@@ -2,10 +2,12 @@
   <dp-modal
     ref="imgModal"
     content-classes="w-fit"
-    :data-cy="dataCy">
+    :data-cy="dataCy"
+  >
     <img
-      :alt="this.clickedImg.alt"
-      :src="this.clickedImg.src">
+      :alt="clickedImg.alt"
+      :src="clickedImg.src"
+    >
   </dp-modal>
 </template>
 <script>
@@ -15,23 +17,23 @@ export default {
   name: 'ImageModal',
 
   components: {
-    DpModal
+    DpModal,
   },
 
   props: {
     dataCy: {
       type: String,
       required: false,
-      default: 'imageModal'
-    }
+      default: 'imageModal',
+    },
   },
 
   data () {
     return {
       clickedImg: {
         alt: '',
-        src: ''
-      }
+        src: '',
+      },
     }
   },
 
@@ -46,7 +48,7 @@ export default {
       this.clickedImg.src = target.src
       this.clickedImg.alt = target.alt
       this.$refs.imgModal.toggle()
-    }
-  }
+    },
+  },
 }
 </script>

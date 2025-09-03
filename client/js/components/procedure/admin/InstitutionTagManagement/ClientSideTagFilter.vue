@@ -14,13 +14,15 @@ All rights reserved
         align="left"
         :aria-label="Translator.trans('filters.more')"
         class="bg-surface-medium rounded pb-1 pt-[4px] rounded-md"
-        data-cy="clientSideTagFilter:filterCategories">
+        data-cy="clientSideTagFilter:filterCategories"
+      >
         <template v-slot:trigger>
           <span :title="Translator.trans('filters.more')">
             <dp-icon
               aria-hidden="true"
               class="inline"
-              icon="faders" />
+              icon="faders"
+            />
           </span>
         </template>
         <!-- 'More filters' flyout -->
@@ -28,20 +30,22 @@ All rights reserved
           <button
             class="btn--blank o-link--default ml-auto"
             data-cy="clientSideTagFilter:toggleFilterCategories"
+            @click="toggleAllCategories"
             v-text="Translator.trans('toggle_all')"
-            @click="toggleAllCategories" />
+          />
           <div v-if="!isLoading">
             <dp-checkbox
               v-for="category in filterCategories"
-              :key="category.id"
               :id="`filterCategorySelect:${category.label}`"
+              :key="category.id"
               :checked="selectedFilterCategories.includes(category.label)"
               :data-cy="`clientSideTagFilter:filterCategoriesSelect:${category.label}`"
               :disabled="checkIfDisabled(appliedFilterQuery, category.id)"
               :label="{
                 text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
               }"
-              @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+              @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))"
+            />
           </div>
         </div>
       </dp-flyout>
@@ -58,18 +62,20 @@ All rights reserved
       :member-of="category.memberOf"
       :operator="category.comparisonOperator"
       :path="category.rootPath"
-      @filterApply="(filtersToBeApplied) => applyFilter(filtersToBeApplied, category.id)"
-      @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
+      @filter-apply="(filtersToBeApplied) => applyFilter(filtersToBeApplied, category.id)"
+      @filter-options:request="(params) => createFilterOptions({ ...params, categoryId: category.id})"
+    />
   </div>
 
   <dp-button
+    v-tooltip="Translator.trans('search.filter.reset')"
     class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
     data-cy="ClientSideTagFilter:resetFilter"
     :disabled="!isQueryApplied"
     :text="Translator.trans('reset')"
     variant="outline"
-    v-tooltip="Translator.trans('search.filter.reset')"
-    @click="reset" />
+    @click="reset"
+  />
 </template>
 
 <script>
@@ -97,30 +103,30 @@ export default {
     DpCheckbox,
     DpIcon,
     DpFlyout,
-    FilterFlyout
+    FilterFlyout,
   },
 
   props: {
     filterCategories: {
       type: Array,
-      required: true
+      required: true,
     },
 
     rawItems: {
       type: Array,
-      required: true
+      required: true,
     },
 
     searchApplied: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'itemsFiltered',
-    'reset'
+    'reset',
   ],
 
   data () {
@@ -129,21 +135,21 @@ export default {
       currentlySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
-      isLoading: true
+      isLoading: true,
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
+      filterQuery: 'getFilterQuery',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTagItems: 'items'
+      institutionTagItems: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     filterCategoriesToBeDisplayed () {
@@ -167,7 +173,7 @@ export default {
 
     selectedFilterCategories () {
       return this.currentlySelectedFilterCategories
-    }
+    },
   },
 
   watch: {
@@ -176,37 +182,37 @@ export default {
         this.filterAndEmitItems()
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
 
     rawItems: {
       handler () {
         this.filterAndEmitItems()
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
     ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
+      'updateFilterQuery',
     ]),
 
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsFilterFlyoutLoading: 'setIsLoading',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
+      setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
     applyFilter (filter, categoryId) {
       this.appliedFilterQuery = this.setAppliedFilterQuery(
         filter,
         this.appliedFilterQuery,
-        categoryId
+        categoryId,
       )
 
       this.updateFilterQuery(filter)
@@ -227,9 +233,9 @@ export default {
       const { categoryId, isInitialWithQuery } = params
       const selectedFilterOptionIds = Object.keys(this.appliedFilterQuery).filter(id => !id.includes('_group'))
 
-      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0
-        ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list()
-        : []
+      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ?
+        this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() :
+        []
 
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions)
@@ -241,7 +247,7 @@ export default {
             return {
               id,
               label: name,
-              selected
+              selected,
             }
           })
       }
@@ -291,19 +297,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
@@ -311,9 +317,9 @@ export default {
           if (isInitial) {
             const selectedFilterCategoriesInStorage = this.getFilterCategoriesStorage()
 
-            this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
-              ? selectedFilterCategoriesInStorage
-              : Object.values(this.institutionTagCategoriesCopy).slice(0, 5).map(category => category.attributes.name)
+            this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ?
+              selectedFilterCategoriesInStorage :
+              Object.values(this.institutionTagCategoriesCopy).slice(0, 5).map(category => category.attributes.name)
 
             this.currentlySelectedFilterCategories = [...this.initiallySelectedFilterCategories]
           }
@@ -333,9 +339,9 @@ export default {
 
     getFilterQueryStorage () {
       const filterQueryInStorage = localStorage.getItem('filterQuery')
-      return filterQueryInStorage && filterQueryInStorage !== 'undefined'
-        ? JSON.parse(filterQueryInStorage)
-        : {}
+      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ?
+        JSON.parse(filterQueryInStorage) :
+        {}
     },
 
     getSelectedOptionsCount (appliedFilterQuery, categoryId) {
@@ -411,7 +417,7 @@ export default {
      */
     setAppliedFilterQuery (filter, currentlyAppliedFilterQuery, categoryId = null) {
       const selectedFilterOptions = Object.fromEntries(
-        Object.entries(filter).filter(([_key, value]) => value.condition)
+        Object.entries(filter).filter(([_key, value]) => value.condition),
       )
       const isReset = Object.keys(selectedFilterOptions).length === 0
       const isAppliedFilterQueryEmpty = Object.keys(currentlyAppliedFilterQuery).length === 0
@@ -466,9 +472,9 @@ export default {
         }
       })
 
-      this.currentlySelectedFilterCategories = allSelected
-        ? categoriesWithSelectedOptions
-        : this.filterCategories.map(filterCategory => filterCategory.label)
+      this.currentlySelectedFilterCategories = allSelected ?
+        categoriesWithSelectedOptions :
+        this.filterCategories.map(filterCategory => filterCategory.label)
 
       this.setFilterCategoriesStorage(this.currentlySelectedFilterCategories)
     },
@@ -476,20 +482,20 @@ export default {
     updateLocalFilterQuery (payload) {
       this.updateFilterQuery(payload)
       this.setFilterQueryStorage(this.appliedFilterQuery)
-    }
+    },
   },
 
   mounted () {
     this.loadFilterStateFromStorage()
 
     const promises = [
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

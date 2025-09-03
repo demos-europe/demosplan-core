@@ -13,21 +13,24 @@
       class="mt-3 mb-2"
       dismissible
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
-      type="info" />
+      type="info"
+    />
 
     <dp-loading
       v-if="isLoading"
-      class="mt-4" />
+      class="mt-4"
+    />
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
         <dp-search-field
+          ref="searchField"
           class="h-fit mt-1 col-span-1 sm:col-span-3"
           data-cy="institutionList:searchField"
           input-width="u-1-of-1"
-          ref="searchField"
           @reset="handleReset"
-          @search="val => handleSearch(val)" />
+          @search="val => handleSearch(val)"
+        />
 
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
@@ -35,7 +38,8 @@
           :raw-items="institutionList"
           :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
-          @reset="resetSearch" />
+          @reset="resetSearch"
+        />
       </div>
 
       <div class="flex justify-end mt-4">
@@ -45,7 +49,8 @@
           local-storage-key="institutionList"
           :selectable-columns="selectableColumns"
           use-local-storage
-          @selection-changed="setCurrentlySelectedColumns" />
+          @selection-changed="setCurrentlySelectedColumns"
+        />
       </div>
 
       <dp-data-table
@@ -56,7 +61,8 @@
         :header-fields="headerFields"
         is-resizable
         :items="filteredItems || institutionList"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:name="institution">
           <ul class="o-list max-w-12">
             <li>
@@ -69,7 +75,8 @@
         </template>
         <template
           v-for="(category, idx) in institutionTagCategoriesCopy"
-          v-slot:[category.attributes.name]="institution">
+          v-slot:[category.attributes.name]="institution"
+        >
           <dp-multiselect
             v-if="institution.edit"
             :key="idx"
@@ -78,11 +85,13 @@
             label="name"
             multiple
             :options="getCategoryTags(category.id)"
-            track-by="id" />
+            track-by="id"
+          />
           <div
             v-else
             :key="`tags:${idx}`"
-            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
+            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))"
+          />
         </template>
         <template v-slot:action="institution">
           <div class="float-right">
@@ -91,19 +100,23 @@
                 :aria-label="Translator.trans('save')"
                 class="btn--blank o-link--default mr-1"
                 data-cy="institutionList:saveTag"
-                @click="addTagsToInstitution(institution.id)">
+                @click="addTagsToInstitution(institution.id)"
+              >
                 <dp-icon
                   icon="check"
-                  aria-hidden="true" />
+                  aria-hidden="true"
+                />
               </button>
               <button
                 :aria-label="Translator.trans('abort')"
                 class="btn--blank o-link--default"
                 data-cy="institutionList:abortTag"
-                @click="abortEdit()">
+                @click="abortEdit()"
+              >
                 <dp-icon
                   icon="xmark"
-                  aria-hidden="true" />
+                  aria-hidden="true"
+                />
               </button>
             </template>
             <button
@@ -111,10 +124,12 @@
               :aria-label="Translator.trans('item.edit')"
               class="btn--blank o-link--default"
               data-cy="institutionList:editTag"
-              @click="editInstitution(institution.id)">
+              @click="editInstitution(institution.id)"
+            >
               <dp-icon
                 icon="edit"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </div>
         </template>
@@ -122,7 +137,8 @@
 
       <div
         ref="scrollBar"
-        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
+      >
         <div />
       </div>
     </template>
@@ -133,7 +149,8 @@
       :current="currentPage"
       :total="totalPages"
       :non-sliding-size="50"
-      @page-change="getInstitutionsByPage" />
+      @page-change="getInstitutionsByPage"
+    />
   </div>
 </template>
 
@@ -147,7 +164,7 @@ import {
   DpMultiselect,
   DpSearchField,
   DpSlidingPagination,
-  formatDate
+  formatDate,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
@@ -165,7 +182,7 @@ export default {
     DpInlineNotification,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination
+    DpSlidingPagination,
   },
 
   mixins: [tableScrollbarMixin],
@@ -174,8 +191,8 @@ export default {
     isActive: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -188,23 +205,23 @@ export default {
       initiallySelectedColumns: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
-      searchTerm: ''
+      searchTerm: '',
     }
   },
 
   computed: {
     ...mapState('InstitutionTag', {
-      institutionTagList: 'items'
+      institutionTagList: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
       currentPage: 'currentPage',
-      totalPages: 'totalPages'
+      totalPages: 'totalPages',
     }),
 
     allFilterCategories () {
@@ -220,7 +237,7 @@ export default {
             label: attributes.name,
             rootPath: 'assignedTags',
             selected: false,
-            memberOf: groupKey
+            memberOf: groupKey,
           }
         })
     },
@@ -228,20 +245,20 @@ export default {
     categoryFieldsAvailable () {
       return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
-        label: category.attributes.name
+        label: category.attributes.name,
       }))
     },
 
     headerFields () {
       const institutionField = {
         field: 'name',
-        label: Translator.trans('institution')
+        label: Translator.trans('institution'),
       }
 
       const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
       const actionField = {
-        field: 'action'
+        field: 'action',
       }
 
       return [institutionField, ...categoryFields, actionField]
@@ -263,9 +280,9 @@ export default {
               id: tag.id,
               type: tag.type,
               name: tagDetails.name,
-              category: tagDetails.category
+              category: tagDetails.category,
             }
-          })
+          }),
         }
       })
     },
@@ -290,10 +307,10 @@ export default {
         return {
           id,
           name: attributes.name,
-          category: relationships?.category?.data
+          category: relationships?.category?.data,
         }
       })
-    }
+    },
   },
 
   watch: {
@@ -301,22 +318,22 @@ export default {
       if (newValue) {
         this.getInstitutionTagCategories()
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
 
     ...mapActions('InvitableInstitution', {
       fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
-      restoreInstitutionFromInitial: 'restoreFromInitial'
+      restoreInstitutionFromInitial: 'restoreFromInitial',
     }),
 
     ...mapMutations('InvitableInstitution', {
-      updateInvitableInstitution: 'setItem'
+      updateInvitableInstitution: 'setItem',
     }),
 
     abortEdit () {
@@ -329,7 +346,7 @@ export default {
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
-          type: 'InstitutionTag'
+          type: 'InstitutionTag',
         }
       })
 
@@ -339,9 +356,9 @@ export default {
         attributes: { ...this.invitableInstitutionList[id].attributes },
         relationships: {
           assignedTags: {
-            data: payload
-          }
-        }
+            data: payload,
+          },
+        },
       })
 
       this.saveInvitableInstitution(id)
@@ -376,7 +393,7 @@ export default {
         if (!this.editingInstitutionTags[category.id]) {
           this.editingInstitutionTags = {
             ...this.editingInstitutionTags,
-            [category.id]: []
+            [category.id]: [],
           }
         }
       })
@@ -392,7 +409,7 @@ export default {
       return Object.values(tags).map(tag => {
         return {
           id: tag.id,
-          name: tag.attributes.name
+          name: tag.attributes.name,
         }
       })
     },
@@ -401,36 +418,36 @@ export default {
       const args = {
         page: {
           number: page,
-          size: 50
+          size: 50,
         },
         sort: '-createdDate',
         fields: {
           InvitableInstitution: [
             'name',
             'createdDate',
-            'assignedTags'
+            'assignedTags',
           ].join(),
           InstitutionTag: [
             'category',
-            'name'
+            'name',
           ].join(),
           InstitutionTagCategory: [
-            'name'
-          ].join()
+            'name',
+          ].join(),
         },
         filter: {
           namefilter: {
             condition: {
               path: 'name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm
-            }
-          }
+              value: this.searchTerm,
+            },
+          },
         },
         include: [
           'assignedTags',
-          'assignedTags.category'
-        ].join()
+          'assignedTags.category',
+        ].join(),
       }
 
       return this.fetchInvitableInstitution(args)
@@ -445,19 +462,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           // Copy the object to avoid issues with filter requests that update the categories in the store
@@ -520,19 +537,19 @@ export default {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
-    }
+    },
   },
 
   mounted () {
     const promises = [
       this.getInstitutionsByPage(1),
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

@@ -10,6 +10,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
 const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
+const sass = require('sass-embedded')
 
 /**
  * List of modules which need to be transpiled with Babel
@@ -19,7 +20,7 @@ const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
 let transpiledModules = [
   // Core modules first
   resolveDir('demosplan'),
-  resolveDir('projects')
+  resolveDir('projects'),
 ]
 
 // Npm-managed modules that require transpilation
@@ -27,15 +28,15 @@ transpiledModules = transpiledModules.concat(
   [
     '@efrane/vuex-json-api',
     '@mapbox', // Ol sub-dependency
-    'vue-resize'
-  ].map(nodeModule => resolveDir('node_modules/' + nodeModule))
+    'vue-resize',
+  ].map(nodeModule => resolveDir('node_modules/' + nodeModule)),
 )
 
 const postcssPrefixSelector = require('postcss-prefix-selector')({
   prefix: config.cssPrefix,
   exclude: [
     ...config.cssPrefixExcludes.defaultExcludePatterns,
-    ...config.cssPrefixExcludes.externalClassPrefixes
+    ...config.cssPrefixExcludes.externalClassPrefixes,
   ],
   transform (prefix, selector) {
     selector = selector.split(' ').map((selector) => {
@@ -54,7 +55,7 @@ const postcssPrefixSelector = require('postcss-prefix-selector')({
 
     return selector
   },
-  ignoreFiles: [/.+style\.scss/]
+  ignoreFiles: [/.+style\.scss/],
 })
 
 const tailwindCss = require('@tailwindcss/postcss')
@@ -71,15 +72,15 @@ const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
 const postcssPresetEnv = require('postcss-preset-env')({
   features: {
     'cascade-layers': false, // 1
-    'focus-visible-pseudo-class': false // 2
-  }
+    'focus-visible-pseudo-class': false, // 2
+  },
 })
 const postcssPurgeCss = purgeCSSPlugin({
   ...config.purgeCss,
   defaultExtractor (content) {
     const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
     return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
-  }
+  },
 })
 
 const postCssPlugins = [
@@ -87,7 +88,7 @@ const postCssPlugins = [
   tailwindCss,
   postcssFlexbugsFixes,
   postcssPresetEnv,
-  postcssPurgeCss
+  postcssPurgeCss,
 ]
 
 /**
@@ -100,7 +101,7 @@ const moduleRules =
     {
       test: /\.css$/,
       use: [MiniCssExtractPlugin.loader],
-      exclude: [/client\/css\/(tailwind|preflight)\.css/]
+      exclude: [/client\/css\/(tailwind|preflight)\.css/],
     },
     {
       test: /\.scss$/,
@@ -110,8 +111,8 @@ const moduleRules =
           loader: 'css-loader',
           options: {
             sourceMap: false,
-            url: false
-          }
+            url: false,
+          },
         },
         {
           loader: 'postcss-loader',
@@ -120,26 +121,28 @@ const moduleRules =
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
               return {
-                plugins: skipPostCss ? [] : postCssPlugins
+                plugins: skipPostCss ? [] : postCssPlugins,
               }
             },
-            sourceMap: false
-          }
+            sourceMap: false,
+          },
         },
         {
           loader: 'sass-loader',
           options: {
-            implementation: require('sass-embedded'),
+            implementation: sass,
             sassOptions: {
+              logger: sass.Logger.silent,
+              quietDeps: true,
               additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
               loadPaths: [
                 config.projectRoot + 'web/',
-                config.publicPath
-              ]
-            }
-          }
-        }
-      ]
+                config.publicPath,
+              ],
+            },
+          },
+        },
+      ],
     },
     {
       test: /\.css$/,
@@ -149,19 +152,19 @@ const moduleRules =
           loader: 'css-loader',
           options: {
             sourceMap: false,
-            url: false
-          }
+            url: false,
+          },
         },
         {
           loader: 'postcss-loader',
           options: {
             postcssOptions: {
-              plugins: [tailwindCss]
+              plugins: [tailwindCss],
             },
-            sourceMap: false
-          }
-        }
-      ]
+            sourceMap: false,
+          },
+        },
+      ],
     },
     {
       test: /\.vue$/,
@@ -169,20 +172,20 @@ const moduleRules =
       options: {
         compilerOptions: {
           compatConfig: {
-            MODE: 2
-          }
-        }
-      }
+            MODE: 2,
+          },
+        },
+      },
     },
     {
       test: /\.js$/,
       include: transpiledModules,
       exclude: [
-        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
+        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy'),
       ],
       use: {
-        loader: 'babel-loader'
-      }
+        loader: 'babel-loader',
+      },
     },
     {
       test: /\.js$/,
@@ -190,24 +193,24 @@ const moduleRules =
       enforce: 'pre',
       exclude: (path) => {
         return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|tooltip|fscreen)/.test(path)
-      }
+      },
     },
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
       type: 'asset/resource',
       generator: {
         filename: '[name].[ext]',
-        outputPath: 'fonts/'
-      }
+        outputPath: 'fonts/',
+      },
     },
     {
       test: /\.(png|jp(e)?g|gif|svg)$/,
       type: 'asset/resource',
       generator: {
         filename: '[name].[ext]',
-        outputPath: 'img/'
-      }
-    }
+        outputPath: 'img/',
+      },
+    },
   ]
 
 module.exports = { moduleRules }
