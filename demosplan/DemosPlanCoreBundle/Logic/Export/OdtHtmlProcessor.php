@@ -84,12 +84,15 @@ class OdtHtmlProcessor
         $dom = new DOMDocument();
         // Handle XML/HTML parsing errors safely
         $originalInternalErrors = libxml_use_internal_errors(true);
-        $success = $dom->loadHTML(
-            '<?xml encoding="utf-8" ?>'.$html,
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
-        libxml_use_internal_errors($originalInternalErrors);
-        libxml_clear_errors();
+        try {
+            $success = $dom->loadHTML(
+                '<?xml encoding="utf-8" ?>'.$html,
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            );
+        } finally {
+            libxml_use_internal_errors($originalInternalErrors);
+            libxml_clear_errors();
+        }
 
         if (!$success) {
             // Fallback to treating as plain text if HTML parsing fails
