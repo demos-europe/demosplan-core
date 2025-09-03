@@ -30,7 +30,7 @@ use UnexpectedValueException;
 
 class GeodatenzentrumAddressSearchService implements GeocoderInterface
 {
-    private  string $geodatenzentrumAddressSearchUrl = '';
+    private string $geodatenzentrumAddressSearchUrl = '';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
