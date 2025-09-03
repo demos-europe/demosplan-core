@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\CustomField;
 
@@ -24,24 +33,24 @@ class CustomFieldCreatorTest extends UnitTestCase
     }
 
     /**
-     * Test SingleSelect field creation with all attributes properly set
+     * Test SingleSelect field creation with all attributes properly set.
      */
     public function testCreateSingleSelectFieldSuccessfully(): void
     {
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $attributes = [
-            'fieldType' => 'singleSelect',
-            'name' => 'Priority Level',
+            'fieldType'   => 'singleSelect',
+            'name'        => 'Priority Level',
             'description' => 'Select priority level for this item',
-            'options' => [
+            'options'     => [
                 ['label' => 'High'],
                 ['label' => 'Medium'],
-                ['label' => 'Low']
+                ['label' => 'Low'],
             ],
-            'sourceEntity' => 'PROCEDURE',
+            'sourceEntity'   => 'PROCEDURE',
             'sourceEntityId' => $procedure->getId(),
-            'targetEntity' => 'SEGMENT'
+            'targetEntity'   => 'SEGMENT',
         ];
 
         // Act
@@ -70,6 +79,4 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Verify ID is set from configuration
         static::assertNotEmpty($result->getId());
     }
-
-
 }
