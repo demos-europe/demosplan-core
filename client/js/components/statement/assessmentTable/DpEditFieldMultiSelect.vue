@@ -13,18 +13,21 @@
     :label="label"
     :label-grid-cols="labelGridCols"
     @save="save"
-    @toggleEditing="isEditing => $emit('toggleEditing', isEditing)"
-    @reset="reset">
+    @toggle-editing="isEditing => $emit('toggleEditing', isEditing)"
+    @reset="reset"
+  >
     <template v-slot:display>
       <div>
         <ul
+          v-if="0 < selected.length"
           class="o-list o-list--csv"
-          v-if="0 < selected.length">
+        >
           <li
-            class="o-list__item o-hellip max-w-full"
             v-for="item in selected"
             :key="item.id"
-            v-text="item.name" />
+            class="o-list__item o-hellip max-w-full"
+            v-text="item.name"
+          />
         </ul>
         <span v-if="0 === selected.length || 'undefined' === typeof selected">-</span>
       </div>
@@ -42,7 +45,8 @@
         :name="`${entityId}:${fieldKey}`"
         :options="options"
         track-by="id"
-        @input="val => handleInput(val)">
+        @input="val => handleInput(val)"
+      >
         <template v-slot:option="{ props }">
           <strong v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</strong>
           <span v-else>{{ props.option.name }}</span>
@@ -54,7 +58,8 @@
               aria-hidden="true"
               class="multiselect__tag-icon"
               tabindex="1"
-              @click="props.remove(props.option)" />
+              @click="props.remove(props.option)"
+            />
           </span>
         </template>
       </dp-multiselect>
@@ -72,14 +77,14 @@ export default {
 
   components: {
     DpEditField,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     //  Used by Mutations/Actions to identify item
     entityId: {
       required: true,
-      type: String
+      type: String,
     },
 
     /*
@@ -88,77 +93,77 @@ export default {
      */
     fieldKey: {
       required: true,
-      type: String
+      type: String,
     },
 
     //  Is there the overall possibility to edit the item?
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     //  Sets the label and some titles on buttons
     label: {
       required: true,
-      type: String
+      type: String,
     },
 
     //  Array of objects with keys `id` and `title`
     options: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     //  The initial value is passed here
     value: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     groupValues: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupLabel: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     groupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isGroupSelect: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // Grid-size for label -> input = 12 -label
     labelGridCols: {
       required: false,
       type: Number,
-      default: 2
+      default: 2,
     },
 
     readonly: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'field:input',
     'field:save',
-    'toggleEditing'
+    'toggleEditing',
   ],
 
   data () {
@@ -167,7 +172,7 @@ export default {
       selected: [],
 
       //  Previously selected value to be able to restore it on reset
-      selectedBefore: []
+      selectedBefore: [],
     }
   },
 
@@ -176,15 +181,15 @@ export default {
       handler () {
         this.setInitialValues()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     //  Here, the data emitted on update/save is set.
     emitData () {
       const emitData = {
-        id: this.entityId
+        id: this.entityId,
       }
       emitData[this.fieldKey] = this.selected.map(item => item.id)
       return emitData
@@ -230,12 +235,12 @@ export default {
 
     sortSelected () {
       this.selected.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-    }
+    },
   },
 
   created () {
     // This.function has to be called if assessmentBase loads because of the ajax call, but also on mounted because of the paragraph inline edit
     this.setInitialValues()
-  }
+  },
 }
 </script>

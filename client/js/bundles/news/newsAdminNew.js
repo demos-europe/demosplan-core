@@ -22,7 +22,7 @@ const components = {
   ChangeStateAtDate,
   DpEditor,
   DpLabel,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 const stores = {}

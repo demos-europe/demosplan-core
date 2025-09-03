@@ -45,15 +45,16 @@
                 class="u-mr-0"
                 type="checkbox"
                 :value="allItemsOnPageSelected"
-                @click="$root.$emit('toggle-select-all')"
+                @click="$root.$emit('toggleSelectAll')"
                 data-cy="checkAllOriginalStatements">
             {{ 'visible.entries'|trans }}
         </label>
 
         <button
-            type="submit"
-            data-cy="copyStatement"
             class="o-link--default btn--blank weight--normal line-height--2 u-ph-0_25"
+            data-cy="copyStatement"
+            type="submit"
+            :disabled="isNoItemSelected"
             @click.stop.prevent="copyStatements">
             <i class="fa fa-files-o" aria-hidden="true"></i>
             {{ "copy"|trans }}

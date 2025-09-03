@@ -109,6 +109,8 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
+        init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
         procedure-id="{{ proceduresettings.id|default }}">
         <form
             ref="configForm"
@@ -198,13 +200,15 @@
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
-                                <input id="{{ form.agencyMainEmailAddress.vars.id }}"
-                                       name="agencyMainEmailAddress[fullAddress]"
-                                       value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                                       data-cy="internal:agencyMainEmailAddress"
-                                       class="o-form__control-input w-full"
-                                       type="email"
-                                       required>
+                                <dp-input
+                                    id="{{ form.agencyMainEmailAddress.vars.id }}"
+                                    data-cy="agencyMainEmailAddress"
+                                    data-dp-validate-error-fieldname="{{ 'email.procedure.agency'|trans }}"
+                                    name="agencyMainEmailAddress[fullAddress]"
+                                    required
+                                    type="email"
+                                    model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
+                                </dp-input>
                             </div>
 
                             <div class="u-mb">
@@ -291,8 +295,8 @@
                                         :options="authUsersOptions"
                                         selection-controls
                                         track-by="id"
-                                        @select-all="selectAllAuthUsers"
-                                        @unselect-all="unselectAllAuthUsers">
+                                        @selectAll="selectAllAuthUsers"
+                                        @deselectAll="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
@@ -334,19 +338,17 @@
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                                <textarea
-                                    class="o-form__control-textarea h-7"
+                                <dp-text-area
+                                    class="bg-surface"
                                     data-cy="internal:internalNote"
+                                    grow-to-parent
                                     id="r_desc"
-                                    name="r_desc">
-                                    {%- if proceduresettings.desc is defined %}
-                                        {{- proceduresettings.desc -}}
-                                    {% else %}
-                                        {{- 'notspecified'|trans -}}
-                                    {% endif -%}
-                                </textarea>
+                                    name="r_desc"
+                                    reduced-height
+                                    value="{{ proceduresettings.desc is defined ? proceduresettings.desc
+                                    : 'notspecified'|trans }}"
+                                />
                             </div>
-
                         </div>
 
                         <label class="o-wizard__mark u-mb-0">
@@ -382,6 +384,7 @@
                         name="infoForm"
                         {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.info'|trans }}"
                         class="o-wizard"
                         data-dp-validate="infoForm">
 
@@ -458,7 +461,10 @@
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
-                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                                            <img
+                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
+                                                alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
                                          --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
@@ -486,26 +492,26 @@
 
                                         <dp-input
                                             id="r_pictogramCopyright"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
+                                            v-model="pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
                                             }"
-                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
                                             required>
                                         </dp-input>
 
                                         <dp-input
                                             id="r_pictogramAltText"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
+                                            v-model="pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText'),
                                                 tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
                                             }"
-                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
                                             required>
                                         </dp-input>
                                     </div>
@@ -737,6 +743,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
                                         data-cy="internalPhase"
@@ -752,7 +759,7 @@
                                             name: 'r_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedInternalPhase">
                                     </participation-phases>
                                 {% endif %}
@@ -886,6 +893,7 @@
                                             permissionset: phase.permissionset,
                                         }]) %}
                                     {% endfor %}
+
                                     <participation-phases
                                         autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.external.evaluating'|trans }) }}"
                                         data-cy="publicPhase"
@@ -901,7 +909,7 @@
                                             name: 'r_public_participation_phase_iteration',
                                             tooltip: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
-                                        }"
+                                            }"
                                         @phase:select="setSelectedPublicPhase">
                                     </participation-phases>
                                 {% endif %}
@@ -964,6 +972,36 @@
                                 {% else %}
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('feature_feedback_on_statement_controllable') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" {#  #}{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'checked' : '' }}>
+                                        {{ "public.participation.feedback"|trans }}
+                                    </label>
+                                {% else %}
+                                    {# allow publishing the possibility of Feedback by default #}
+                                    <input type="hidden" name="r_publicParticipationFeedbackEnabled" value="1">
+                                {% endif %}
+
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <dp-checkbox
+                                        id="allowAnonymousStatements"
+                                        :checked="{{ proceduresettings.allowAnonymousStatements ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
+                                        class="mb-4"
+                                        data-cy="procedure:publicParticipationPublicationEnabled"
+                                        name="allowAnonymousStatements"
+                                    >
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <dp-input
+                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        name="allowAnonymousStatements"
+                                        type="hidden"
+                                    >
+                                    </dp-input>
                                 {% endif %}
                             </div>
 

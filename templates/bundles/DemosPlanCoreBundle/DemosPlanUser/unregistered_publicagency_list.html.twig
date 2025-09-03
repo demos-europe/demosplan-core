@@ -65,6 +65,7 @@
         <h3 class="u-mt-0_5 u-pt">{{ 'invitable_institutions.unregistered'|trans }}</h3>
 
         <form
+            id="unregisteredPublicAgencyList"
             action="{{ path('DemosPlan_delete_email_addresses_entry', {'organisationId': currentUser.organisationId}) }}"
             method="post">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}

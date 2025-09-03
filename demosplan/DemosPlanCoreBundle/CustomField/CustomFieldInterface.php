@@ -33,6 +33,8 @@ interface CustomFieldInterface
 
     public function getType(): string;
 
+    public function getName(): string;
+
     /**
      * Will be called during database fetch
      * to fill the query object with the stored data.
@@ -53,4 +55,8 @@ interface CustomFieldInterface
     public function setId($id): void;
 
     public function getId(): string;
+
+    public function getOptions(): array;
+
+    public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 }

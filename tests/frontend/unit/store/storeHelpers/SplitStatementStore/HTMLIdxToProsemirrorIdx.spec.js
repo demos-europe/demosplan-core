@@ -14,7 +14,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     const initText = '<p>12345</p><ul><li>6</li></ul>'
     const segments = [
       { charStart: 3, charEnd: 8 },
-      { charStart: 20, charEnd: 21 }
+      { charStart: 20, charEnd: 21 },
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
@@ -28,7 +28,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     const initText = '<a href="#">12345</a><ul><li>6</li></ul>'
     const segments = [
       { charStart: 12, charEnd: 17 },
-      { charStart: 29, charEnd: 30 }
+      { charStart: 29, charEnd: 30 },
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
@@ -42,7 +42,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     const initText = '0123&nbsp;56&#181;89'
     const segments = [
       { charStart: 0, charEnd: 10 },
-      { charStart: 10, charEnd: 20 }
+      { charStart: 10, charEnd: 20 },
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
@@ -56,7 +56,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     const initText = '<p>12345</p><ul><li>6</li></ul>'
     const segments = [
       { charStart: 3, charEnd: 8 },
-      { charStart: 20, charEnd: 21 }
+      { charStart: 20, charEnd: 21 },
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText, ['div'])
@@ -70,7 +70,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     const initText = '<em>12345</em><ul><li>6</li></ul>'
     const segments = [
       { charStart: 4, charEnd: 9 },
-      { charStart: 21, charEnd: 22 }
+      { charStart: 21, charEnd: 22 },
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText, ['div'], ['strong'])

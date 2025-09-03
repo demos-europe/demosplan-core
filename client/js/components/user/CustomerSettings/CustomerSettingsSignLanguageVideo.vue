@@ -10,14 +10,16 @@
 <template>
   <div
     data-dp-validate="signLanguageVideo"
-    class="space-stack-s">
+    class="space-stack-s"
+  >
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow h-fit w-12"
-          :sources="videoSources"
           :id="`file${video.file}`"
-          icon-url="/img/plyr.svg" />
+          class="shadow-sm h-fit w-12"
+          :sources="videoSources"
+          icon-url="/img/plyr.svg"
+        />
 
         <dl class="description-list">
           <dt>{{ Translator.trans('title') }}</dt>
@@ -30,7 +32,8 @@
       <dp-button
         color="warning"
         :text="Translator.trans('delete')"
-        @click="deleteVideo" />
+        @click="deleteVideo"
+      />
     </template>
 
     <template v-else>
@@ -43,13 +46,14 @@
           text: Translator.trans('title')
         }"
         name="videoTitle"
-        required />
+        required
+      />
 
       <dp-upload-files
+        id="videoSrc"
         :allowed-file-types="['video/*']"
         :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
-        id="videoSrc"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
         name="videoSrc"
@@ -60,17 +64,19 @@
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '400MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         @file-remove="unsetVideoSrcId"
-        @upload-success="setVideoSrcId" />
+        @upload-success="setVideoSrcId"
+      />
 
       <dp-text-area
         id="videoDescription"
+        v-model="video.description"
         data-cy="customerSettings:videoDescription"
         :label="Translator.trans('video.description')"
         name="videoDescription"
         required
         data-dp-validate-if="input[name='uploadedFiles[videoSrc]']!=='', #videoTitle!==''"
-        v-model="video.description"
-        reduced-height />
+        reduced-height
+      />
 
       <dp-button-row
         class="u-mt"
@@ -79,7 +85,8 @@
         secondary
         :busy="isBusy"
         :secondary-text="Translator.trans('reset')"
-        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)" />
+        @primary-action="dpValidateAction('signLanguageVideo', saveSignLanguageVideo, false)"
+      />
     </template>
   </div>
 </template>
@@ -92,7 +99,7 @@ import {
   DpTextArea,
   DpUploadFiles,
   dpValidateMixin,
-  getFileIdsByHash
+  getFileIdsByHash,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -108,7 +115,7 @@ export default {
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
-    })
+    }),
   },
 
   mixins: [dpValidateMixin],
@@ -116,7 +123,7 @@ export default {
   props: {
     currentCustomerId: {
       type: String,
-      required: true
+      required: true,
     },
 
     signLanguageOverviewVideo: {
@@ -128,33 +135,33 @@ export default {
           file: '',
           id: null,
           mimetype: '',
-          title: ''
+          title: '',
         }
-      }
+      },
     },
 
     signLanguageOverviewDescription: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'created',
-    'deleted'
+    'deleted',
   ],
 
   data () {
     return {
       isBusy: false,
-      video: this.signLanguageOverviewVideo
+      video: this.signLanguageOverviewVideo,
     }
   },
 
   computed: {
     ...mapState('Customer', {
-      customerList: 'items'
+      customerList: 'items',
     }),
 
     hasNoVideoInput () {
@@ -165,20 +172,20 @@ export default {
       return [
         {
           src: Routing.generate('core_file', { hash: this.video.file }),
-          type: this.video.mimetype
-        }
+          type: this.video.mimetype,
+        },
       ]
-    }
+    },
   },
 
   methods: {
     ...mapActions('Customer', {
       fetchCustomer: 'list',
-      saveCustomer: 'save'
+      saveCustomer: 'save',
     }),
 
     ...mapMutations('Customer', {
-      updateCustomer: 'setItem'
+      updateCustomer: 'setItem',
     }),
 
     saveSignLanguageVideo () {
@@ -206,8 +213,8 @@ export default {
         type: 'Customer',
         attributes: {
           ...this.customerList[this.currentCustomerId].attributes,
-          signLanguageOverviewDescription: this.signLanguageOverviewDescription
-        }
+          signLanguageOverviewDescription: this.signLanguageOverviewDescription,
+        },
       }
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
@@ -223,16 +230,16 @@ export default {
         type: 'SignLanguageOverviewVideo',
         attributes: {
           description: this.video.description,
-          title: this.video.title
+          title: this.video.title,
         },
         relationships: {
           file: {
             data: {
               type: 'File',
-              id: fileIds[0]
-            }
-          }
-        }
+              id: fileIds[0],
+            },
+          },
+        },
       }
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SignLanguageOverviewVideo' }), {}, { data: payload })
     },
@@ -243,7 +250,7 @@ export default {
 
     unsetVideoSrcId () {
       this.video.file = ''
-    }
-  }
+    },
+  },
 }
 </script>

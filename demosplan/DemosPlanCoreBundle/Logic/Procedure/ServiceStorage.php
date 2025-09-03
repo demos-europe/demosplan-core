@@ -88,6 +88,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     protected $masterProcedurePhase;
 
+    private const MAX_PHASE_ITERATION_VALUE = 100;
+
     public function __construct(
         private readonly ArrayHelper $arrayHelper,
         ContentService $contentService,
@@ -352,9 +354,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
-        $phaseIterationError = $this->validatePhaseIterations($procedure);
-        if (count($phaseIterationError) > 0) {
-            $mandatoryErrors[] = $phaseIterationError;
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
+        if (!empty($phaseErrorMessage)) {
+            $mandatoryErrors[] = $phaseErrorMessage;
+        }
+        $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
+        if (!empty($phaseErrorMessage)) {
+            $mandatoryErrors[] = $phaseErrorMessage;
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'ident');
@@ -492,6 +498,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['publicParticipationPublicationEnabled'] = true;
         } else {
             $procedure['publicParticipationPublicationEnabled'] = false;
+        }
+
+        if ($this->permissions->hasPermission('feature_feedback_on_statement_controllable')) {
+            if (array_key_exists('r_publicParticipationFeedbackEnabled', $data)) {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = true;
+            } else {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = false;
+            }
         }
 
         // liegt das Enddatum vor dem Startdatum?
@@ -635,11 +649,20 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
             }
+
             if (array_key_exists('r_pictogramCopyright', $data)) {
                 $procedure['settings']['pictogramCopyright'] = $data['r_pictogramCopyright'];
             }
             if (array_key_exists('r_pictogramAltText', $data)) {
                 $procedure['settings']['pictogramAltText'] = $data['r_pictogramAltText'];
+            }
+        }
+
+        if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
+            if (array_key_exists('allowAnonymousStatements', $data)) {
+                $procedure['settings']['allowAnonymousStatements'] = true;
+            } else {
+                $procedure['settings']['allowAnonymousStatements'] = false;
             }
         }
 
@@ -668,7 +691,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
-
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
@@ -1045,19 +1067,33 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         string $endDate,
         $mandatoryErrors,
     ) {
+        $this->logger->info('checkSwitchDateValidFields called', [
+            'startDate'         => $startDate,
+            'endDate'           => $endDate,
+            'currentErrorCount' => count($mandatoryErrors),
+        ]);
+
         $hasMandatoryAutoSwitchError = false;
 
-        $designatedSwitchDate = Carbon::createFromFormat(Carbon::ATOM, date(DATE_ATOM, strtotime($startDate)));
-        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate);
-        if (!$designatedSwitchDate->isFuture()) {
-            $mandatoryErrors[] = [
-                'type'    => 'error',
-                'message' => $this->translator
-                    ->trans('error.designated.switchdate.in.past'),
-            ];
-            $hasMandatoryAutoSwitchError = true;
-        }
-        if (!$designatedSwitchEndDate->isFuture()) {
+        $designatedSwitchDate = Carbon::make($startDate);
+        $designatedSwitchEndDate = Carbon::createFromFormat('d.m.Y', $endDate)->endOfDay();
+
+        $now = Carbon::now();
+
+        $this->logger->info('Parsed dates for validation', [
+            'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
+            'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+            'now'                     => $now->toISOString(),
+        ]);
+
+        // Check if end date is in the future
+        if (!$designatedSwitchEndDate->greaterThan($now)) {
+            $this->logger->warning('Switch date validation failed: end date is not in the future', [
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'now'                     => $now->toISOString(),
+                'differenceInMinutes'     => $now->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
@@ -1065,7 +1101,15 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
             $hasMandatoryAutoSwitchError = true;
         }
-        if (!$designatedSwitchDate->lt($designatedSwitchEndDate)) {
+
+        // Check if start date is before end date
+        if ($designatedSwitchDate->startOfDay()->greaterThanOrEqualTo($designatedSwitchEndDate)) {
+            $this->logger->warning('Switch date validation failed: start date is not before end date', [
+                'designatedSwitchDate'    => $designatedSwitchDate->toISOString(),
+                'designatedSwitchEndDate' => $designatedSwitchEndDate->toISOString(),
+                'differenceInMinutes'     => $designatedSwitchDate->diffInMinutes($designatedSwitchEndDate, false),
+            ]);
+
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator
@@ -1126,27 +1170,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         return $token;
     }
 
-    private function validatePhaseIterations(array $procedure): array
+    private function validatePhaseIteration(array $procedure, string $fieldName, string $errorMessageKey): array
     {
-        $phaseIteration = 'phase_iteration';
-        if (isset($procedure[$phaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$phaseIteration]);
+        if (!isset($procedure[$fieldName])) {
+            return [];
         }
-
-        $publicPhaseIteration = 'public_participation_phase_iteration';
-        if (isset($procedure[$publicPhaseIteration])) {
-            return $this->validatePhaseIterationValue($procedure[$publicPhaseIteration]);
-        }
-
-        return [];
-    }
-
-    private function validatePhaseIterationValue($value): array
-    {
-        if (!is_numeric($value) || (int) $value < 1) {
+        $value = $procedure[$fieldName];
+        if (!is_numeric($value) || (int) $value < 1 || (int) $value > self::MAX_PHASE_ITERATION_VALUE) {
             return [
                 'type'    => 'error',
-                'message' => $this->translator->trans('error.phaseIteration.invalid'),
+                'message' => $this->translator->trans($errorMessageKey),
             ];
         }
 

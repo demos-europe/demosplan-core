@@ -24,14 +24,14 @@ import StatementStore from '@DpJs/store/statement/Statement'
 const stores = {
   AssessmentTable: AssessmentTableStore,
   Filter: FilterStore,
-  Statement: StatementStore
+  Statement: StatementStore,
 }
 
 const components = {
   DpButton,
   DpFilterModal,
   OriginalStatementsTable,
-  SearchModal
+  SearchModal,
 }
 
 initialize(components, stores).then(() => {

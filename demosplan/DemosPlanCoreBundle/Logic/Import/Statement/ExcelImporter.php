@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\WorkflowPlaceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\HtmlSanitizerService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -56,6 +57,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -117,6 +119,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly HtmlSanitizerService $htmlSanitizerService
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -246,7 +249,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 continue;
             }
 
-            $statement[self::STATEMENT_TEXT] = implode(' ', array_column($correspondingSegments, 'Einwand'));
+            $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
+
+            $statement[self::STATEMENT_TEXT] = $text;
 
             $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
             $generatedStatement = $this->createCopy($generatedOriginalStatement);
@@ -442,11 +447,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitles = explode(',', (string) $tagTitlesString);
 
             foreach ($tagTitles as $tagTitle) {
+                $tagTitle = new UnicodeString($tagTitle);
+                $tagTitle = $tagTitle->trim()->toString();
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
 
                 $createNewTag = null === $matchingTag;
                 if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag(trim($tagTitle), $miscTopic, false);
+                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
                 }
 
                 // Check if valid tag
@@ -646,7 +653,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), ['title']),
+            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         );
 

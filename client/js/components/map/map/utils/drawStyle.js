@@ -23,18 +23,18 @@ import { Circle, Fill, Stroke, Style } from 'ol/style'
 export default function drawStyle ({ fillColor, strokeColor, imageColor, strokeLineDash, strokeLineWidth }) {
   return new Style({
     fill: new Fill({
-      color: fillColor
+      color: fillColor,
     }),
     stroke: new Stroke({
       color: strokeColor,
       width: strokeLineWidth || 1,
-      lineDash: strokeLineDash || 0
+      lineDash: strokeLineDash || 0,
     }),
     image: new Circle({
       radius: 5,
       fill: new Fill({
-        color: imageColor
-      })
-    })
+        color: imageColor,
+      }),
+    }),
   })
 }

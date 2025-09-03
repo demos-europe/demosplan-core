@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -72,5 +74,10 @@ class CustomFieldValuesList
             CustomFieldValue $b) {
             return strcmp($a->getId(), $b->getId());
         });
+    }
+
+    public function isEmpty(): bool
+    {
+        return 0 === count($this->customFieldValues);
     }
 }

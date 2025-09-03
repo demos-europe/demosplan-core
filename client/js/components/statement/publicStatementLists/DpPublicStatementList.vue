@@ -12,7 +12,8 @@
     <dp-inline-notification
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
-      type="info" />
+      type="info"
+    />
     <div class="space-stack-m">
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
@@ -23,26 +24,31 @@
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+      />
       <dp-map-modal
         ref="mapModal"
-        :procedure-id="procedureId" />
+        :procedure-id="procedureId"
+      />
     </div>
   </div>
   <dp-tabs
     v-else
     :active-id="activeTabId"
-    @change="id => activeTabId = id">
+    @change="id => activeTabId = id"
+  >
     <slot>
       <dp-tab
         id="publicStatements"
         :is-active="activeTabId === 'publicStatements'"
-        :label="Translator.trans('statements.draft.organisation')">
+        :label="Translator.trans('statements.draft.organisation')"
+      >
         <div class="space-stack-m pt-2">
           <dp-inline-notification
             v-if="hasPublicStatements"
             :message="Translator.trans('statement.list.empty')"
-            type="info" />
+            type="info"
+          />
           <dp-public-statement
             v-for="(statement, idx) in publicStatements"
             v-bind="statement"
@@ -52,21 +58,25 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+          />
           <dp-map-modal
             ref="mapModal"
-            :procedure-id="procedureId" />
+            :procedure-id="procedureId"
+          />
         </div>
       </dp-tab>
       <dp-tab
         id="privateStatements"
         :is-active="activeTabId === 'privateStatements'"
-        :label="Translator.trans('statements.draft')">
+        :label="Translator.trans('statements.draft')"
+      >
         <div class="space-stack-m pt-2">
           <dp-inline-notification
             v-if="hasNoPublicStatements"
             :message="Translator.trans('statement.list.empty')"
-            type="info" />
+            type="info"
+          />
           <dp-public-statement
             v-for="(statement, idx) in privateStatements"
             v-bind="statement"
@@ -76,7 +86,8 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
+          />
         </div>
       </dp-tab>
     </slot>
@@ -84,7 +95,7 @@
 </template>
 
 <script>
-import { DpInlineNotification, DpTab, DpTabs, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, DpTab, DpTabs, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -93,21 +104,21 @@ const editPermissions = {
   draft: 'feature_statements_draft_edit',
   released: 'feature_statements_released_edit',
   released_group: 'feature_statements_released_group_edit',
-  final_group: 'feature_statements_final_group_edit'
+  final_group: 'feature_statements_final_group_edit',
 }
 
 const deletePermissions = {
   draft: 'feature_statements_draft_delete',
   released: 'feature_statements_released_delete',
   released_group: 'feature_statements_released_group_delete',
-  final_group: 'feature_statements_final_group_delete'
+  final_group: 'feature_statements_final_group_delete',
 }
 
 const emailPermissions = {
   draft: 'feature_statements_draft_email',
   released: 'feature_statements_released_email',
   released_group: 'feature_statements_released_group_email',
-  final_group: 'feature_statements_final_email' // Feature name is not the same as target name
+  final_group: 'feature_statements_final_email', // Feature name is not the same as target name
 }
 
 export default {
@@ -118,7 +129,7 @@ export default {
     DpMapModal,
     DpPublicStatement,
     DpTabs,
-    DpTab
+    DpTab,
   },
 
   mixins: [dpSelectAllMixin],
@@ -127,93 +138,93 @@ export default {
     counties: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     hasTabs: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     showAuthor: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
 
     },
 
     showCheckbox: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showDelete: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showEdit: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showEmail: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showPdfDownload: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     showPublish: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showReject: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     showVersions: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statements: {
       type: Array,
-      required: true
+      required: true,
     },
 
     target: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'open-statement-modal-from-list'
+    'open-statement-modal-from-list',
   ],
 
   data () {
     return {
       transformedStatements: this.transformStatements(this.statements),
-      activeTabId: 'publicStatements'
+      activeTabId: 'publicStatements',
     }
   },
 
@@ -252,11 +263,11 @@ export default {
     },
 
     hasNoPublicStatements () {
-      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
+      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0
     },
 
     hasPublicStatements () {
-      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0
     },
 
     menuItemCallback () {
@@ -267,17 +278,17 @@ export default {
         id,
         elementId,
         paragraphId,
-        isPublished
+        isPublished,
       })
     },
 
     publicStatements () {
-      return this.transformedStatements.filter(statement => !statement.authorOnly);
+      return this.transformedStatements.filter(statement => !statement.authorOnly)
     },
 
     privateStatements () {
-      return this.transformedStatements.filter(statement => statement.authorOnly);
-    }
+      return this.transformedStatements.filter(statement => statement.authorOnly)
+    },
   },
 
   methods: {
@@ -305,7 +316,7 @@ export default {
         paragraphId,
         showToAll,
         submitted,
-        rejectedReason
+        rejectedReason,
       } = statement
 
       // Depending on `votedStatement` or `own Statement`, we receive one or the other from the Backend
@@ -359,13 +370,13 @@ export default {
         elementId,
         paragraphId,
         isPublished: showToAll,
-        rejectedReason
+        rejectedReason,
       }
     },
 
     transformStatements (statements) {
       return statements.map(s => this.transformStatement(s))
-    }
-  }
+    },
+  },
 }
 </script>
