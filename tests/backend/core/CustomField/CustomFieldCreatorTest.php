@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
 
 class CustomFieldCreatorTest extends UnitTestCase
@@ -26,11 +28,14 @@ class CustomFieldCreatorTest extends UnitTestCase
      */
     protected $sut;
 
+    protected $procedure;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(CustomFieldCreator::class);
+        $this->procedure = ProcedureFactory::createOne();
     }
 
     /**
@@ -39,7 +44,6 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateSingleSelectFieldSuccessfully(): void
     {
         // Arrange
-        $procedure = ProcedureFactory::createOne();
         $attributes = [
             'fieldType'   => 'singleSelect',
             'name'        => 'Priority Level',
@@ -50,7 +54,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                 ['label' => 'Low'],
             ],
             'sourceEntity'   => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
+            'sourceEntityId' => $this->procedure->getId(),
             'targetEntity'   => 'SEGMENT',
         ];
 
@@ -87,7 +91,6 @@ class CustomFieldCreatorTest extends UnitTestCase
     public function testCreateMultiSelectFieldSuccessfully(): void
     {
         // Arrange
-        $procedure = ProcedureFactory::createOne();
         $attributes = [
             'fieldType'   => 'multiSelect',
             'name'        => 'Categories',
@@ -99,7 +102,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                 ['label' => 'Housing'],
             ],
             'sourceEntity'   => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
+            'sourceEntityId' => $this->procedure->getId(),
             'targetEntity'   => 'STATEMENT',
         ];
 
@@ -124,4 +127,34 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         static::assertNotEmpty($result->getId());
     }
+
+    #[DataProvider('validationErrorDataProvider')]
+    public function testCreateCustomFieldValidationErrors(array $attributes, string $expectedErrorType): void
+    {
+        // Arrange
+        $baseAttributes = [
+            'sourceEntityId' => $this->procedure->getId(),
+        ];
+        $fullAttributes = array_merge($baseAttributes, $attributes);
+
+        // Assert & Act
+        $this->expectException(InvalidArgumentException::class);
+        $this->sut->createCustomField($fullAttributes);
+    }
+
+    public function validationErrorDataProvider(): array
+    {
+        return [
+            'invalidFieldType' => [
+                'attributes' => [
+                    'fieldType' => 'invalidType',
+                    'name' => 'Test Field',
+                    'description' => 'Test',
+                    'options' => [['label' => 'One'], ['label' => 'Two']]
+                ],
+                'expectedErrorType' => 'invalidFieldType'
+            ]
+        ];
+    }
+
 }
