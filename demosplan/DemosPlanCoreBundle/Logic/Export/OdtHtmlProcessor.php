@@ -92,8 +92,7 @@ class OdtHtmlProcessor
 
         if (!$success) {
             // Fallback to treating as plain text if HTML parsing fails
-            $segments[] = ['text' => strip_tags($html), 'bold' => false, 'italic' => false, 'underline' => false];
-
+            $segments[] = $this->createTextSegment(strip_tags($html), false, false, false);
             return $segments;
         }
 
@@ -131,46 +130,87 @@ class OdtHtmlProcessor
     private function traverseDom(DOMNode $node, array &$segments, bool $bold = false, bool $italic = false, bool $underline = false): void
     {
         foreach ($node->childNodes as $child) {
-            $currentBold = $bold;
-            $currentItalic = $italic;
-            $currentUnderline = $underline;
-
-            if (XML_ELEMENT_NODE === $child->nodeType) {
-                $tag = strtolower($child->nodeName);
-
-                // Handle paragraph breaks
-                if ('p' === $tag && !empty($segments)) {
-                    $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
-                }
-
-                // Handle formatting tags
-                if (in_array($tag, ['strong', 'b'])) {
-                    $currentBold = true;
-                }
-                if (in_array($tag, ['em', 'i'])) {
-                    $currentItalic = true;
-                }
-                if ('u' === $tag) {
-                    $currentUnderline = true;
-                }
-
-                // Handle break tags
-                if ('br' === $tag) {
-                    $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
-                }
-
-                $this->traverseDom($child, $segments, $currentBold, $currentItalic, $currentUnderline);
-            } elseif (XML_TEXT_NODE === $child->nodeType) {
-                $text = $child->nodeValue;
-                if ('' !== trim($text)) {
-                    $segments[] = [
-                        'text'      => $text,
-                        'bold'      => $currentBold,
-                        'italic'    => $currentItalic,
-                        'underline' => $currentUnderline,
-                    ];
-                }
+            if ($child->nodeType === XML_ELEMENT_NODE) {
+                $this->processElementNode($child, $segments, $bold, $italic, $underline);
+            } elseif ($child->nodeType === XML_TEXT_NODE) {
+                $this->processTextNode($child, $segments, $bold, $italic, $underline);
             }
         }
+    }
+
+    /**
+     * Process an element node and handle formatting tags.
+     */
+    private function processElementNode(DOMNode $child, array &$segments, bool $bold, bool $italic, bool $underline): void
+    {
+        $tag = strtolower($child->nodeName);
+
+        $this->handleSpecialTags($tag, $segments);
+
+        $formatting = $this->updateFormattingForTag($tag, $bold, $italic, $underline);
+
+        $this->traverseDom($child, $segments, $formatting['bold'], $formatting['italic'], $formatting['underline']);
+    }
+
+    /**
+     * Handle special tags like paragraph breaks and line breaks.
+     */
+    private function handleSpecialTags(string $tag, array &$segments): void
+    {
+        if ('p' === $tag && !empty($segments)) {
+            $segments[] = $this->createLineBreakSegment();
+        }
+
+        if ('br' === $tag) {
+            $segments[] = $this->createLineBreakSegment();
+        }
+    }
+
+    /**
+     * Create a line break segment.
+     */
+    private function createLineBreakSegment(): array
+    {
+        return ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
+    }
+
+    /**
+     * Update formatting based on HTML tag.
+     */
+    private function updateFormattingForTag(string $tag, bool $bold, bool $italic, bool $underline): array
+    {
+        $currentBold = $bold || in_array($tag, ['strong', 'b']);
+        $currentItalic = $italic || in_array($tag, ['em', 'i']);
+        $currentUnderline = $underline || ('u' === $tag);
+
+        return [
+            'bold' => $currentBold,
+            'italic' => $currentItalic,
+            'underline' => $currentUnderline,
+        ];
+    }
+
+    /**
+     * Process a text node and add it to segments.
+     */
+    private function processTextNode(DOMNode $child, array &$segments, bool $bold, bool $italic, bool $underline): void
+    {
+        $text = $child->nodeValue;
+        if ('' !== trim($text)) {
+            $segments[] = $this->createTextSegment($text, $bold, $italic, $underline);
+        }
+    }
+
+    /**
+     * Create a text segment with formatting information.
+     */
+    private function createTextSegment(string $text, bool $bold, bool $italic, bool $underline): array
+    {
+        return [
+            'text' => $text,
+            'bold' => $bold,
+            'italic' => $italic,
+            'underline' => $underline,
+        ];
     }
 }

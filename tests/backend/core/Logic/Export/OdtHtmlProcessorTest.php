@@ -27,14 +27,14 @@ class OdtHtmlProcessorTest extends UnitTestCase
         $this->sut = new OdtHtmlProcessor();
     }
 
-    public function testParseHtmlWithRegexHandlesParagraphs(): void
+    public function testParseHtmlWithDomHandlesParagraphs(): void
     {
         // Arrange
         $html = '<p>first paragraph</p><p>second paragraph</p>';
 
         // Act - use reflection to access private method
         $reflection = new ReflectionClass($this->sut);
-        $method = $reflection->getMethod('parseHtmlWithRegex');
+        $method = $reflection->getMethod('parseHtmlWithDom');
         $method->setAccessible(true);
         $result = $method->invoke($this->sut, $html);
 
@@ -47,14 +47,14 @@ class OdtHtmlProcessorTest extends UnitTestCase
         self::assertCount(2, $textSegments);
     }
 
-    public function testParseHtmlWithRegexExtractsFormatting(): void
+    public function testParseHtmlWithDomExtractsFormatting(): void
     {
         // Arrange
         $html = '<p><strong>bold text</strong></p>';
 
         // Act
         $reflection = new ReflectionClass($this->sut);
-        $method = $reflection->getMethod('parseHtmlWithRegex');
+        $method = $reflection->getMethod('parseHtmlWithDom');
         $method->setAccessible(true);
         $result = $method->invoke($this->sut, $html);
 
