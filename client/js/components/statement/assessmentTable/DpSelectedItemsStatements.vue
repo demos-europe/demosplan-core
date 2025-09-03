@@ -300,9 +300,9 @@ export default {
               dplan.notify.notify('warning', Translator.trans('statement.copy.to.assessment.table.error', { count: placeholderStatements.length, extids: JSON.stringify(placeholderStatements) }))
             }
 
+            dplan.notify.notify('confirm', Translator.trans('statement.copy.to.assessment.table.confirm', { count: params.statementIds.length }))
             this.$root.$emit('update:paginationAssessmentTable')
             this.$root.$emit('update:assessmentTable')
-            dplan.notify.notify('confirm', Translator.trans('statement.copy.to.assessment.table.confirm', { count: params.statementIds.length }))
           })
           .catch(() => {
             dplan.notify.notify('error', Translator.trans('error.copy'))
