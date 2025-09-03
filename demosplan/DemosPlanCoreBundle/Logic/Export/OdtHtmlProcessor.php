@@ -76,7 +76,7 @@ class OdtHtmlProcessor
     private function parseHtmlWithDom(string $html): array
     {
         $segments = [];
-        
+
         if ('' === trim($html)) {
             return $segments;
         }
@@ -85,7 +85,7 @@ class OdtHtmlProcessor
         // Suppress warnings for malformed HTML
         $originalErrorLevel = error_reporting(E_ERROR);
         $success = $dom->loadHTML(
-            '<?xml encoding="utf-8" ?>' . $html,
+            '<?xml encoding="utf-8" ?>'.$html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
         error_reporting($originalErrorLevel);
@@ -93,6 +93,7 @@ class OdtHtmlProcessor
         if (!$success) {
             // Fallback to treating as plain text if HTML parsing fails
             $segments[] = ['text' => strip_tags($html), 'bold' => false, 'italic' => false, 'underline' => false];
+
             return $segments;
         }
 
@@ -134,14 +135,14 @@ class OdtHtmlProcessor
             $currentItalic = $italic;
             $currentUnderline = $underline;
 
-            if ($child->nodeType === XML_ELEMENT_NODE) {
+            if (XML_ELEMENT_NODE === $child->nodeType) {
                 $tag = strtolower($child->nodeName);
-                
+
                 // Handle paragraph breaks
                 if ('p' === $tag && !empty($segments)) {
                     $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
                 }
-                
+
                 // Handle formatting tags
                 if (in_array($tag, ['strong', 'b'])) {
                     $currentBold = true;
@@ -152,14 +153,14 @@ class OdtHtmlProcessor
                 if ('u' === $tag) {
                     $currentUnderline = true;
                 }
-                
+
                 // Handle break tags
                 if ('br' === $tag) {
                     $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
                 }
-                
+
                 $this->traverseDom($child, $segments, $currentBold, $currentItalic, $currentUnderline);
-            } elseif ($child->nodeType === XML_TEXT_NODE) {
+            } elseif (XML_TEXT_NODE === $child->nodeType) {
                 $text = $child->nodeValue;
                 if ('' !== trim($text)) {
                     $segments[] = [
