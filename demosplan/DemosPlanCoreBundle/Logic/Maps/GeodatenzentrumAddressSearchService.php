@@ -39,7 +39,7 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
 
     /**
      * Search for addresses using the Geodatenzentrum search service. Enables search by street names and not only zip code.
-     *
+     * TEST
      * @param string     $query     Search query for addresses
      * @param int        $limit     Maximum number of results to return (default: 20)
      * @param array|null $maxExtent Optional map extent for filtering results (not used by external API)
