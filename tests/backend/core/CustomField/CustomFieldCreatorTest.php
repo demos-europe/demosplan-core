@@ -170,7 +170,18 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'description'  => 'Test',
                     'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],
-                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "" for source entity "PROCEDURE".',
+                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "SEGMENT" for source entity "PROCEDURE".',
+            ],
+            'multiSelectInvalidSourceTargetEntityCombination' => [
+                'attributes' => [
+                    'fieldType'    => 'multiSelect',
+                    'sourceEntity' => 'PROCEDURE',
+                    'targetEntity' => 'SEGMENT', // Wrong target for multiSelect
+                    'name'         => 'Test Field',
+                    'description'  => 'Test',
+                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
+                ],
+                'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
             ],
         ];
     }
