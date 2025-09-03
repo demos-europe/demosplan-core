@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
+use DOMDocument;
+use DOMNode;
 use Exception;
 use PhpOffice\PhpWord\Element\Cell;
 use PhpOffice\PhpWord\PhpWord;
@@ -36,7 +38,7 @@ class OdtHtmlProcessor
      */
     public function processHtmlForCell(Cell $cell, string $html): void
     {
-        $segments = $this->parseHtmlWithRegex($html);
+        $segments = $this->parseHtmlWithDom($html);
         foreach ($segments as $segment) {
             if ("\n" === $segment['text']) {
                 $cell->addTextBreak();
@@ -69,23 +71,37 @@ class OdtHtmlProcessor
     }
 
     /**
-     * Parse HTML using regex to extract formatted text segments.
+     * Parse HTML using DOMDocument to extract formatted text segments.
      */
-    private function parseHtmlWithRegex(string $html): array
+    private function parseHtmlWithDom(string $html): array
     {
         $segments = [];
-        // Split by paragraph tags first
-        $paragraphs = preg_split('/<\/?p[^>]*>/i', $html);
-        foreach ($paragraphs as $index => $paragraph) {
-            if ('' === trim($paragraph)) {
-                continue;
-            }
-            // Add line break between paragraphs (except first)
-            if ($index > 0 && !empty($segments)) {
-                $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
-            }
-            // Process formatting within paragraph
-            $this->processFormattedText($paragraph, $segments);
+        
+        if ('' === trim($html)) {
+            return $segments;
+        }
+
+        $dom = new DOMDocument();
+        // Suppress warnings for malformed HTML
+        $originalErrorLevel = error_reporting(E_ERROR);
+        $success = $dom->loadHTML(
+            '<?xml encoding="utf-8" ?>' . $html,
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+        );
+        error_reporting($originalErrorLevel);
+
+        if (!$success) {
+            // Fallback to treating as plain text if HTML parsing fails
+            $segments[] = ['text' => strip_tags($html), 'bold' => false, 'italic' => false, 'underline' => false];
+            return $segments;
+        }
+
+        $body = $dom->getElementsByTagName('body')->item(0);
+        if ($body) {
+            $this->traverseDom($body, $segments);
+        } else {
+            // If no body found, traverse the document node directly
+            $this->traverseDom($dom, $segments);
         }
 
         return $segments;
@@ -109,40 +125,49 @@ class OdtHtmlProcessor
     }
 
     /**
-     * Process formatted text segments using regex patterns.
+     * Recursively traverse DOM nodes to extract text segments with formatting.
      */
-    private function processFormattedText(string $text, array &$segments): void
+    private function traverseDom(DOMNode $node, array &$segments, bool $bold = false, bool $italic = false, bool $underline = false): void
     {
-        // Pattern to match nested formatting tags
-        $pattern = '/(<(strong|b|em|i|u)[^>]*>.*?<\/\2>)|([^<]+)/i';
-        if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                if (!empty($match[1])) {
-                    // Formatted text found
-                    $content = $match[1];
-                    $innerText = strip_tags($content);
-                    if ('' !== trim($innerText)) {
-                        $bold = preg_match('/<(strong|b)[^>]*>/i', $content);
-                        $italic = preg_match('/<(em|i)[^>]*>/i', $content);
-                        $underline = preg_match('/<u[^>]*>/i', $content);
-                        $segments[] = [
-                            'text'      => $innerText,
-                            'bold'      => (bool) $bold,
-                            'italic'    => (bool) $italic,
-                            'underline' => (bool) $underline,
-                        ];
-                    }
-                } elseif (!empty($match[3])) {
-                    // Plain text
-                    $plainText = trim($match[3]);
-                    if ('' !== $plainText) {
-                        $segments[] = [
-                            'text'      => $plainText,
-                            'bold'      => false,
-                            'italic'    => false,
-                            'underline' => false,
-                        ];
-                    }
+        foreach ($node->childNodes as $child) {
+            $currentBold = $bold;
+            $currentItalic = $italic;
+            $currentUnderline = $underline;
+
+            if ($child->nodeType === XML_ELEMENT_NODE) {
+                $tag = strtolower($child->nodeName);
+                
+                // Handle paragraph breaks
+                if ('p' === $tag && !empty($segments)) {
+                    $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
+                }
+                
+                // Handle formatting tags
+                if (in_array($tag, ['strong', 'b'])) {
+                    $currentBold = true;
+                }
+                if (in_array($tag, ['em', 'i'])) {
+                    $currentItalic = true;
+                }
+                if ('u' === $tag) {
+                    $currentUnderline = true;
+                }
+                
+                // Handle break tags
+                if ('br' === $tag) {
+                    $segments[] = ['text' => "\n", 'bold' => false, 'italic' => false, 'underline' => false];
+                }
+                
+                $this->traverseDom($child, $segments, $currentBold, $currentItalic, $currentUnderline);
+            } elseif ($child->nodeType === XML_TEXT_NODE) {
+                $text = $child->nodeValue;
+                if ('' !== trim($text)) {
+                    $segments[] = [
+                        'text'      => $text,
+                        'bold'      => $currentBold,
+                        'italic'    => $currentItalic,
+                        'underline' => $currentUnderline,
+                    ];
                 }
             }
         }
