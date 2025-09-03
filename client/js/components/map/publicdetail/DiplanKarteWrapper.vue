@@ -31,7 +31,7 @@
 <script setup>
 import { computed, getCurrentInstance, onMounted, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
+import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 
@@ -72,13 +72,6 @@ const instance = getCurrentInstance()
 const store = useStore()
 
 instance.appContext.app.mixin(prefixClassMixin)
-instance.appContext.app.use(MapPlugin, {
-  template: {
-    compilerOptions: {
-      isCustomElement: (tag) => tag === 'diplan-karte',
-    }
-  }
-})
 
 const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
