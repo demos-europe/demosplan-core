@@ -91,7 +91,7 @@ class PhpStanCommand extends CoreCommand
 
         // Handle host path format
         if (str_starts_with($containerPath, $rootPath)) {
-            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+            $containerPath = substr($containerPath, strlen($rootPath));
         }
 
         // Ensure the container path exists and is accessible
