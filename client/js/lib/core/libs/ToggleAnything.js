@@ -227,7 +227,7 @@ export default function ToggleAnything () {
           el.one('click', function () {
             el.config.targetObj.removeClass(prefixClass('is-run', omitPrefix))
           })
-          // Update trigger's visual state and aria attributes to match expanded content
+          // Sync element's visual state and aria attributes
           toggleAriaAttrs(el, true)
           el.addClass(el.config.propertyClass + '-toggle')
         }
