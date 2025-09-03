@@ -98,6 +98,11 @@ class MultiSelectField extends AbstractCustomField
         $this->isRequired = $isRequired;
     }
 
+    public function getRequired(): bool
+    {
+        return $this->isRequired;
+    }
+
     public function getCustomFieldsList(): ?array
     {
         return [];
