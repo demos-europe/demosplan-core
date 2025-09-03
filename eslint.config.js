@@ -5,7 +5,7 @@ const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
 
-// Trigger reviewdog xx
+// Trigger reviewdog xxx
 
 module.exports = [
   {
