@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Maps;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use Exception;
 use InvalidArgumentException;
 use LogicException;
@@ -48,44 +49,42 @@ class GeodatenzentrumAddressSearchService implements GeocoderInterface
      */
     public function searchAddress(string $query, int $limit = 20, ?array $maxExtent = null): array
     {
-        $startTime = microtime(true);
-        $logContext = [
-            'service'      => 'GeodatenzentrumAddressSearchService',
-            'method'       => 'searchAddress',
-            'query'        => $query,
-            'limit'        => $limit,
-            'maxExtent'    => $maxExtent,
-            'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
-        ];
+        if ($this->currentUser->hasPermission('feature_geocoder_address_search'))
+        {
+            $startTime = microtime(true);
+            $logContext = [
+                'service'      => 'GeodatenzentrumAddressSearchService',
+                'method'       => 'searchAddress',
+                'query'        => $query,
+                'limit'        => $limit,
+                'maxExtent'    => $maxExtent,
+                'api_endpoint' => self::GEODATENZENTRUM_ADDRESS_SEARCH,
+            ];
 
-        // First step: validate permissions before making external API call
-        // Second: make call to external API provider
-        // Third: format and filter results
-        try {
-            $this->validatePermissions();
-            $rawFeatures = $this->makeApiCall($query, $limit);
-            $formattedResults = $this->formatResult($rawFeatures);
-            $this->logSuccess($logContext, $startTime, count($formattedResults));
+            // Second: make call to external API provider
+            // Third: format and filter results
+            try {
+                $rawFeatures = $this->makeApiCall($query, $limit);
+                $formattedResults = $this->formatResult($rawFeatures);
+                $this->logSuccess($logContext, $startTime, count($formattedResults));
 
-            return $formattedResults;
-        } catch (Exception $e) {
-            $this->logError($e, $logContext, $startTime);
-            if (str_contains($e->getMessage(), 'Permission')) {
-                throw $e;
+                return $formattedResults;
+            } catch (Exception $e) {
+                $this->logError($e, $logContext, $startTime);
+                if (str_contains($e->getMessage(), 'Permission')) {
+                    throw $e;
+                }
+
+                return [];
+            } catch (Throwable $e) {
+                $this->logError($e, $logContext, $startTime);
+
+                return [];
             }
+        } else {
+            throw AccessDeniedException::missingPermission('feature_geocoder_address_search');
 
-            return [];
-        } catch (Throwable $e) {
-            $this->logError($e, $logContext, $startTime);
-
-            return [];
         }
-    }
-
-    // Function to check if user has permission to use the Geodatenzentrum API call
-    private function validatePermissions(): void
-    {
-        $this->currentUser->hasPermission('feature_geocoder_address_search');
     }
 
     // make call to external API via HttpClient
