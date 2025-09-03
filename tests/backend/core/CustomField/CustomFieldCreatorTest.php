@@ -81,7 +81,8 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertNotEmpty($result->getId());
     }
 
-    private function verifyAllOptionsHaveUUIDs(array $options): void {
+    private function verifyAllOptionsHaveUUIDs(array $options): void
+    {
         foreach ($options as $option) {
             static::assertNotEmpty($option->getId());
             static::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $option->getId());
