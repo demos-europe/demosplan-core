@@ -153,7 +153,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'description' => 'Test',
                     'options'     => [['label' => 'One'], ['label' => 'Two']],
                 ],
-                'expectedErrorMessage' => 'No validator found for field type: invalidType'
+                'expectedErrorMessage' => 'No validator found for field type: invalidType',
             ],
             'singleSelectInvalidSourceTargetEntityCombination' => [
                 'attributes' => [
@@ -164,7 +164,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'description'  => 'Test',
                     'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],
-                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "" for source entity "PROCEDURE".'
+                'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "" for source entity "PROCEDURE".',
             ],
         ];
     }
