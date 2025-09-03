@@ -82,13 +82,15 @@ class OdtHtmlProcessor
         }
 
         $dom = new DOMDocument();
-        // Suppress warnings for malformed HTML
-        $originalErrorLevel = error_reporting(E_ERROR);
+        // Handle XML/HTML parsing errors safely
+        $originalInternalErrors = libxml_use_internal_errors(true);
         $success = $dom->loadHTML(
             '<?xml encoding="utf-8" ?>'.$html,
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
-        error_reporting($originalErrorLevel);
+        $errors = libxml_get_errors();
+        libxml_use_internal_errors($originalInternalErrors);
+        libxml_clear_errors();
 
         if (!$success) {
             // Fallback to treating as plain text if HTML parsing fails
