@@ -28,7 +28,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Throwable;
 use UnexpectedValueException;
 
-class GeodatenzentrumAddressSearchService implements GeocoderInterface
+class GeodatenzentrumAddressSearchService
 {
     private string $geodatenzentrumAddressSearchUrl = '';
 

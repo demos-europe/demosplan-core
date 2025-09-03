@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
-use demosplan\DemosPlanCoreBundle\Logic\Maps\GeocoderInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -29,7 +29,7 @@ class LocationService
     public function __construct(
         ManagerRegistry $registry,
         private readonly LoggerInterface $logger,
-        private readonly GeocoderInterface $geocoder,
+        private readonly GeodatenzentrumAddressSearchService $geocoder,
         private readonly CurrentUserInterface $currentUser,
     ) {
         $this->em = $registry->getManager();
