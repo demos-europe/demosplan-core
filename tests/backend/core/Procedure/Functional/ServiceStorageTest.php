@@ -233,6 +233,7 @@ class ServiceStorageTest extends FunctionalTestCase
             'r_procedure_type'         => $this->procedureType->getId(),
         ];
     }
+
     #[DataProvider('settingDataProvider')]
     public function testProcedureSettingWithPermission(string $permission, string $attribute, string $method, bool $defaultValue): void
     {
@@ -247,22 +248,21 @@ class ServiceStorageTest extends FunctionalTestCase
         // Test with setting set to true
         $dataWithTrue = $this->getBaseEditData([$attribute => '1']);
         $this->testProcedureSetting($dataWithTrue, true, $method);
-
     }
 
     public function settingDataProvider(): array
     {
         return [
             'allowAnonymousStatementsWithPermission' => [
-                'permission' => 'field_submit_anonymous_statements',
-                'attribute' => 'allowAnonymousStatements',
-                'method' => 'getAllowAnonymousStatements',
+                'permission'   => 'field_submit_anonymous_statements',
+                'attribute'    => 'allowAnonymousStatements',
+                'method'       => 'getAllowAnonymousStatements',
                 'defaultValue' => true,
             ],
             'allowExpandedProcedureDescriptionWithPermission' => [
-                'permission' => 'field_expand_procedure_description',
-                'attribute' => 'expandProcedureDescription',
-                'method' => 'getExpandProcedureDescription',
+                'permission'   => 'field_expand_procedure_description',
+                'attribute'    => 'expandProcedureDescription',
+                'method'       => 'getExpandProcedureDescription',
                 'defaultValue' => false,
             ],
         ];
