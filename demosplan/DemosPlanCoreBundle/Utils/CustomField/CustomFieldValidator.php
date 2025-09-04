@@ -13,9 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -26,6 +23,7 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
     }
 
     abstract public function getSourceToTargetMapping(): array;
+
     abstract public function getClassNameToClassPathMap(): array;
 
     public function validate(array $attributes): void
