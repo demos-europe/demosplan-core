@@ -21,18 +21,12 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly array $classNameToClassPathtMap = [
-            'PROCEDURE'            => Procedure::class,
-            'PROCEDURE_TEMPLATE'   => Procedure::class,
-            'SEGMENT'              => Segment::class,
-            'STATEMENT'            => Statement::class,
-        ])
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
     abstract public function getSourceToTargetMapping(): array;
+    abstract public function getClassNameToClassPathMap(): array;
 
     public function validate(array $attributes): void
     {
@@ -64,7 +58,8 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 
     private function validateSourceEntityIdExists(string $sourceEntity, string $sourceEntityId): void
     {
-        $sourceEntityClass = $this->classNameToClassPathtMap[$sourceEntity];
+        $classNameToClassPathMap = $this->getClassNameToClassPathMap();
+        $sourceEntityClass = $classNameToClassPathMap[$sourceEntity];
 
         // Query the repository for the entity
         $repository = $this->entityManager->getRepository($sourceEntityClass);

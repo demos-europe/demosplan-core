@@ -22,7 +22,7 @@ class SingleSelectFieldValidator extends CustomFieldValidator
         'PROCEDURE_TEMPLATE' => 'SEGMENT',
     ];
 
-    protected const classNameToClassPathtMap = [
+    protected const CLASS_NAME_TO_CLASS_PATH_MAP = [
         'PROCEDURE'          => Procedure::class,
         'PROCEDURE_TEMPLATE' => Procedure::class,
         'SEGMENT'            => Segment::class,
@@ -41,5 +41,10 @@ class SingleSelectFieldValidator extends CustomFieldValidator
     public function getSourceToTargetMapping(): array
     {
         return self::SOURCE_TO_TARGET_MAPPING;
+    }
+
+    public function getClassNameToClassPathMap(): array
+    {
+        return self::CLASS_NAME_TO_CLASS_PATH_MAP;
     }
 }
