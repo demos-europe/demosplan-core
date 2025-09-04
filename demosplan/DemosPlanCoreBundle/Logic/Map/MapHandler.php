@@ -16,24 +16,28 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\FunctionalLogicException;
 use demosplan\DemosPlanCoreBundle\Exception\GisLayerCategoryTreeTooDeepException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class MapHandler extends CoreHandler
+class MapHandler
 {
     /**
      * @var MapService
      */
     protected $mapService;
 
-    public function __construct(MapService $mapService, MessageBagInterface $messageBag, private readonly EntityManagerInterface $entityManager)
+    public function __construct(
+        MapService $mapService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger)
     {
+        // inject mapService
         $this->mapService = $mapService;
-        parent::__construct($messageBag);
     }
 
     /**
@@ -92,6 +96,18 @@ class MapHandler extends CoreHandler
     }
 
     /**
+     * @param string $className
+     *
+     * @return string
+     */
+    public function getBaseClassName($className)
+    {
+        $absolutePathAsArray = explode('\\', $className);
+
+        return end($absolutePathAsArray);
+    }
+
+    /**
      * The root Category itself, cant be changed by user.
      * This method will update all related GisLayer and GisLayerCategories.
      *
@@ -101,8 +117,8 @@ class MapHandler extends CoreHandler
     public function updateElementsOfRootCategory(array $rootCategory)
     {
         // todo: check detach and attach to rootcategory
-        $gisLayerClassName = $this->getRelativeClassName(GisLayer::class);
-        $gisLayerCategoryClassName = $this->getRelativeClassName(GisLayerCategory::class);
+        $gisLayerClassName = $this->getBaseClassName(GisLayer::class);
+        $gisLayerCategoryClassName = $this->getBaseClassName(GisLayerCategory::class);
 
         // rootCategory itself cant be modified, therefore update related Categories and GisLayers
         $flatList = $rootCategory['included'];
@@ -191,7 +207,7 @@ class MapHandler extends CoreHandler
             // sowohl gestezte visibilityGroup als auch zu setztende visibilityGroup ist unzulässig wenn $canUserToggleVisibility == false
             $gisLayerData['visibilityGroupId'] = '';
             $isMemberOfVisibilityGroup = false;
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'warning.gisLayer.automatic.removed.from.group',
                 ['gisLayerName' => $gisLayerData['name']]);
@@ -290,7 +306,7 @@ class MapHandler extends CoreHandler
             $gisLayerCategory = $this->getGisLayerCategory($gisLayerCategoryId);
 
             $categoryName = $gisLayerCategory instanceof GisLayerCategory ? $gisLayerCategory->getName() : '';
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'warning',
                 'warning.gisLayerCategory.delete.because.of.children',
                 ['categoryName' => $categoryName]

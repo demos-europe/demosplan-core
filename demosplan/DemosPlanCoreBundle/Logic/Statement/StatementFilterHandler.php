@@ -10,21 +10,21 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class StatementFilterHandler extends CoreHandler
+class StatementFilterHandler
 {
     /** @var Permissions */
     protected $permissions;
 
-    public function __construct(MessageBagInterface $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
-    {
-        parent::__construct($messageBag);
+    public function __construct(
+        private readonly GlobalConfigInterface $globalConfig,
+        Permissions $permissions,
+        private readonly TranslatorInterface $translator,
+    ) {
         $this->permissions = $permissions;
     }
 
@@ -104,8 +104,8 @@ class StatementFilterHandler extends CoreHandler
     protected function getTranslatedPhaseOptions($options)
     {
         $translator = $this->translator;
-        $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
-        $externalPhases = $this->getDemosplanConfig()->getExternalPhasesAssoc();
+        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
 
         foreach ($options as $key => $phase) {
             $transKey = 'filter.phase.'.$phase['value'];
@@ -116,12 +116,12 @@ class StatementFilterHandler extends CoreHandler
             }
             // Wenn es keine besonderen Übersetzungen gibt, nimm die konfigurierten Bezeichner
             if (array_key_exists($phase['value'], $internalPhases)) {
-                $options[$key]['label'] = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal(
+                $options[$key]['label'] = $this->globalConfig->getPhaseNameWithPriorityInternal(
                     $phase['value']
                 );
             }
             if (array_key_exists($phase['value'], $externalPhases)) {
-                $options[$key]['label'] = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal(
+                $options[$key]['label'] = $this->globalConfig->getPhaseNameWithPriorityExternal(
                     $phase['value']
                 );
             }
@@ -165,6 +165,18 @@ class StatementFilterHandler extends CoreHandler
             ->toArray();
 
         return $this->getTranslatedLabelMapOptions($options, $statusLabels);
+    }
+
+    /**
+     * Get form option from globally defined parameter.
+     *
+     * @return mixed|null
+     */
+    protected function getFormParameter(string $key): mixed
+    {
+        $formOptions = $this->globalConfig->getFormOptions();
+
+        return $formOptions[$key] ?? null;
     }
 
     /**

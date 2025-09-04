@@ -11,18 +11,16 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayHelper;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 
-class ElementHandler extends CoreHandler
+class ElementHandler
 {
     /**
      * Die rekursive Funktion ist leichter mit einem Klassenspeicher umzusetzen.
@@ -31,9 +29,13 @@ class ElementHandler extends CoreHandler
      */
     protected $elementsWitchChildrenFlat;
 
-    public function __construct(private readonly ArrayHelper $arrayHelper, private readonly ElementsService $elementService, private readonly FlashMessageHandler $flashMessageHandler, MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
+    public function __construct(
+        private readonly ArrayHelper $arrayHelper,
+        private readonly ElementsService $elementService,
+        private readonly FlashMessageHandler $flashMessageHandler,
+        private readonly PermissionsInterface $permissions,
+        private readonly TranslatorInterface $translator)
     {
-        parent::__construct($messageBag);
     }
 
     /**

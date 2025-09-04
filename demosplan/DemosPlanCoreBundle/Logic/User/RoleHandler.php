@@ -11,17 +11,15 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use Psr\Log\LoggerInterface;
 use Webmozart\Assert\Assert;
 
-class RoleHandler extends CoreHandler
+class RoleHandler
 {
-    public function __construct(private readonly RoleService $roleService, MessageBagInterface $messageBag)
+    public function __construct(private readonly RoleService $roleService, private readonly LoggerInterface $logger)
     {
-        parent::__construct($messageBag);
     }
 
     /**
