@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * Base class that validates custom field options
@@ -63,4 +65,22 @@ abstract class AbstractCustomField implements CustomFieldInterface
                 }
             });
     }
+
+    public function getApiAttributes(): array
+    {
+        // static::class gets the name of the actual class being used, not the parent class
+        // For example: if MultiSelectField calls this method, static::class = "MultiSelectField"
+        // This lets us inspect the right class properties even though the method is in AbstractCustomField
+        $reflection = new ReflectionClass(static::class);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PUBLIC);
+
+        $attributes = [];
+        foreach ($properties as $property) {
+            $name = $property->getName();
+            $attributes[] = $name;
+        }
+
+        return $attributes;
+    }
+
 }

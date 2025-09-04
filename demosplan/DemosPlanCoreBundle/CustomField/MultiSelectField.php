@@ -157,8 +157,4 @@ class MultiSelectField extends AbstractCustomField
         }
     }
 
-    public function getApiAttributes(): array
-    {
-        return ['name', 'description', 'options', 'isRequired', 'fieldType'];
-    }
 }
