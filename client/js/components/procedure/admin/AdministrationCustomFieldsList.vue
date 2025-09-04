@@ -161,7 +161,7 @@
             data-cy="customFields:deleteField"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
-            @click="deleteCustomField(rowData)">
+            @click="handleDeleteCustomField(rowData)">
             <dp-icon
               aria-hidden="true"
               icon="delete"
@@ -253,7 +253,7 @@ import {
   DpLoading,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapMutations } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
@@ -370,6 +370,7 @@ export default {
   methods: {
     ...mapActions('CustomField', {
       createCustomField: 'create',
+      deleteCustomField: 'delete',
     }),
 
     ...mapActions('AdminProcedure', {
@@ -378,6 +379,10 @@ export default {
 
     ...mapActions('ProcedureTemplate', {
       getProcedureTemplateWithFields: 'get',
+    }),
+
+    ...mapMutations('CustomField', {
+      addCustomField: 'setItem',
     }),
 
     abortFieldEdit (rowData) {
@@ -424,29 +429,23 @@ export default {
       return identicalNames.length <= 1
     },
 
-    async deleteCustomField (rowData) {
+    async handleDeleteCustomField (rowData) {
       if (this.$refs.deleteConfirmDialog?.open) {
         const isConfirmed = await this.$refs.deleteConfirmDialog.open()
 
         if (isConfirmed) {
+          const currentField = { ...this.customFields[rowData.id] }
           try {
-            // Make API call to delete the custom field
-            const url = Routing.generate('api_resource_delete', {
-              resourceType: 'CustomField',
-              resourceId: rowData.id
-            })
-
-            await dpApi.delete(url)
-
-            this.$store.commit('CustomField/remove', rowData.id)
+            await this.deleteCustomField(rowData.id)
 
             // Show success notification
             dplan.notify.confirm(Translator.trans('confirm.deleted'))
-
-            // Refresh the custom fields list
-            this.fetchCustomFields()
           } catch (error) {
+            // Re-add field to store, if anything goes wrong
+            this.addCustomField(currentField)
+
             console.error('Error deleting custom field:', error)
+
             dplan.notify.error(Translator.trans('error.generic'))
           }
         }
