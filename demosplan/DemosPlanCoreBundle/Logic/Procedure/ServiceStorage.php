@@ -660,9 +660,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
             if (array_key_exists('allowAnonymousStatements', $data)) {
-                $procedure['settings']['allowAnonymousStatements'] = true;
-            } else {
                 $procedure['settings']['allowAnonymousStatements'] = false;
+            } else {
+                $procedure['settings']['allowAnonymousStatements'] = true;
             }
         }
 
