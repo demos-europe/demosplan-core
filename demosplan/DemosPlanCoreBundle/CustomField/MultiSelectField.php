@@ -21,7 +21,7 @@ class MultiSelectField extends AbstractCustomField
     protected string $fieldType = 'multiSelect';
 
     /**
-     * Radio button options.
+     * Options for multi-select field (checkboxes).
      */
     protected array $options = [];
 
