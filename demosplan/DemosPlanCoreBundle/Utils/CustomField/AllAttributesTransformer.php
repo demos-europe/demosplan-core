@@ -65,22 +65,24 @@ class AllAttributesTransformer extends DynamicTransformer
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
         if (null === $fieldsetBag) {
-            return $this->getApiAttributesForField($scope);
+            $fieldInstance = $scope->getResource()->getData();
+            // Check if it's already a CustomField instance
+            if ($fieldInstance instanceof CustomFieldInterface) {
+                $fieldset = $fieldInstance->getApiAttributes();
+            } else {
+                // If no fieldset was requested, return ALL attribute fields
+                // Get attributes from the ResourceReadability which is accessible in this class
+                return $this->readability->getAttributes();
+            }
+        } else {
+            // If specific fields were requested, handle them as normal
+            $fieldset = iterator_to_array($fieldsetBag);
         }
 
-        return parent::getEffectiveAttributeReadabilities($scope);
-    }
-
-    private function getApiAttributesForField($scope): array
-    {
-        $customFieldInstance = $scope->getResource()->getData();
-
-        if ($customFieldInstance instanceof CustomFieldInterface) {
-            return $customFieldInstance->getApiAttributes();
-        }
-
-        // If no fieldset was requested, return ALL attribute fields
-        // Get attributes from the ResourceReadability which is accessible in this class
-        return $this->readability->getAttributes();
+        return array_filter(
+            $this->readability->getAttributes(),
+            static fn (string $attributeName): bool => in_array($attributeName, $fieldset, true),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }
