@@ -384,9 +384,9 @@ class DemosPlanStatementAPIController extends APIController
                 if (null !== $documents) {
                     foreach ($documents as $document) {
                         $elementDocuments[] = [
-                            'id' => $document->getId(),
-                            'title' => $document->getTitle(),
-                            'fileInfo' => $document->getSingleDocumentInfo()
+                            'id'       => $document->getId(),
+                            'title'    => $document->getTitle(),
+                            'fileInfo' => $document->getSingleDocumentInfo(),
                         ];
                     }
                 }
