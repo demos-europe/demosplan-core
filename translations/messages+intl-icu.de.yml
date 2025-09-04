@@ -838,8 +838,6 @@ counties.and.municipalities: "Kreise und Gemeinden"
 county: "Kreis"
 create.note: "Notiz anlegen"
 current.online.participation: "<strong>Aktuelle</strong> Online-Beteiligungen"
-custom_field.delete.message.warning: "Beim Löschen dieses Feldes werden auch die Felder in den entsprechenden Abschnitten gelöscht."
-custom_field.edit.message.warning: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird."
 customer: |
     {count, plural,
         =0 {Bundesland}
@@ -4147,6 +4145,8 @@ warning.changed.organisation_name: "Der Master-User Ihrer Organisation hat im Se
 warning.char.removed: "Das Zeichen {character} wurde entfernt."
 warning.char.replaced.by: "Das Zeichen {character} wurde durch {replacement} ersetzt."
 warning.consolidate.only.clusters.selected: "Sie haben nur Stellungnahmengruppen ausgewählt. Für eine Gruppierung muss mindestens eine einzelne Stellungnahme ausgewählt werden, damit diese als Hauptstellungnahme genutzt werden kann."
+warning.custom_field.delete.message: "Beim Löschen dieses Feldes wird das Feld und dessen zugewiesene Optionen auch von den Abschnitten entfernt, an denen das Feld verwendet wird."
+warning.custom_field.edit.message: "Ihre Änderung wird automatisch für alle Abschnitte übernommen, an denen dieses Feld verwendet wird. Entfernte Optionen werden auch in allen Abschnitten entfernt, denen sie zugewiesen wurden."
 warning.edit.selection.fragments.not.claimed: "Sie können die aktuelle Auswahl nicht bearbeiten, weil Ihnen nicht alle Datensätze zugewiesen sind"
 warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl nicht bearbeiten, weil Ihnen nicht alle Stellungnahmen zugewiesen sind"
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
