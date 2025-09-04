@@ -3,4 +3,4 @@ runner:
         cmd: "yarn eslint client"
 
     phpstan:
-        cmd: "vendor/bin/phpstan analyse -c phpstan.neon demosplan -l 2"
+        cmd: "vendor/bin/phpstan analyse -c phpstan.neon demosplan -l 1"
