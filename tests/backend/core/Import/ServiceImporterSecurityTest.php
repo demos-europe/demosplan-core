@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionMethod;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use ZipArchive;
@@ -111,7 +112,8 @@ class ServiceImporterSecurityTest extends TestCase
         $this->assertNotNull($fileInfo->getAbsolutePath(), 'FileInfo should have absolute path');
         $this->assertEquals($validOdtPath, $fileInfo->getAbsolutePath(), 'Absolute paths should match');
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($validOdtPath);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertTrue($result, 'Valid ODT file should be accepted');
     }
@@ -124,7 +126,8 @@ class ServiceImporterSecurityTest extends TestCase
 
         $fileInfo = $this->createFileInfo($invalidFile, 'fake.odt', 'text/plain');
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($invalidFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'File with ODT extension but invalid content should be rejected');
     }
@@ -137,7 +140,8 @@ class ServiceImporterSecurityTest extends TestCase
 
         $fileInfo = $this->createFileInfo($invalidFile, 'fake_mime.odt', self::ODT_MIME_TYPE);
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($invalidFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'File with correct MIME type but invalid structure should be rejected');
     }
@@ -154,7 +158,8 @@ class ServiceImporterSecurityTest extends TestCase
 
         $fileInfo = $this->createFileInfo($zipFile, 'wrong_mimetype.odt', self::ODT_MIME_TYPE);
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($zipFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'ZIP file with wrong mimetype should be rejected');
     }
@@ -170,7 +175,8 @@ class ServiceImporterSecurityTest extends TestCase
 
         $fileInfo = $this->createFileInfo($zipFile, 'no_mimetype.odt', self::ODT_MIME_TYPE);
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($zipFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'ZIP file without mimetype should be rejected');
     }
@@ -184,7 +190,8 @@ class ServiceImporterSecurityTest extends TestCase
 
         $fileInfo = $this->createFileInfo($executableFile, 'malicious.odt', 'application/x-executable');
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        $file = new File($executableFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'Executable file with ODT extension should be rejected');
     }
@@ -193,7 +200,11 @@ class ServiceImporterSecurityTest extends TestCase
     {
         $fileInfo = $this->createFileInfo('/nonexistent/file.odt', 'nonexistent.odt', self::ODT_MIME_TYPE);
 
-        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo);
+        // Create a dummy file for the non-existent case
+        $dummyFile = $this->tempDir.'/dummy.odt';
+        file_put_contents($dummyFile, 'dummy');
+        $file = new File($dummyFile);
+        $result = $this->isOdtFileMethod->invoke($this->serviceImporter, $fileInfo, $file);
 
         $this->assertFalse($result, 'Non-existent file should be rejected');
     }
