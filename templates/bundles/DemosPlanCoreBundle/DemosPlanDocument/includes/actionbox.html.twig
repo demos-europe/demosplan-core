@@ -18,7 +18,7 @@
             {% endif %}
             @click.stop.prevent="toggleStatementModal({})"
             class="{{ 'c-actionbox__title--button is-active text-h4 mb-0.5 has-i'|prefixClass }} {{ context == 'statements' ? 'u-nojs-hide--block'|prefixClass : '' }}"
-            data-cy="statementModal"
+            data-cy="publicStatementButton"
             aria-controls="statementModal"
             aria-describedby="statementActionDescription{{ context|capitalize }}"
             role="button"

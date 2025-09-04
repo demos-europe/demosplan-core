@@ -10,36 +10,41 @@
 <template>
   <li class="c-at-item">
     <a
+      :id="`viewMode_${elementId}`"
       class="o-link--offset"
-      :id="`viewMode_${elementId}`" />
+    />
 
     <component
-      v-if="depth > 0 && depth < 6"
       :is="headingTag"
-      class="u-mt">
+      v-if="depth > 0 && depth < 6"
+      class="u-mt"
+    >
       {{ headingText }}
     </component>
     <ul class="o-list o-list--card">
       <dp-assessment-table-card
-        :csrf-token="csrfToken"
         v-for="(statement, idx) in statementsInOrder(statementIds)"
         :key="idx"
+        :csrf-token="csrfToken"
         class="o-list__item"
         :is-selected="getSelectionStateById(statement.id)"
         :statement-id="statement.id"
         :statement-procedure-id="statement.procedureId"
-        @statement:addToSelection="addToSelectionAction"
-        @statement:removeFromSelection="removeFromSelectionAction" />
+        @statement:add-to-selection="addToSelectionAction"
+        @statement:remove-from-selection="removeFromSelectionAction"
+      />
     </ul>
 
     <ul
       v-if="group.subgroups.length"
-      class="o-list o-list--card">
+      class="o-list o-list--card"
+    >
       <assessment-table-group
         v-for="(subgroup, idx) in group.subgroups"
         :key="`subGroup:${idx}`"
         :group="subgroup"
-        :parent-id="elementId" />
+        :parent-id="elementId"
+      />
     </ul>
   </li>
 </template>
@@ -53,7 +58,7 @@ export default {
   name: 'AssessmentTableGroup',
 
   components: {
-    DpAssessmentTableCard
+    DpAssessmentTableCard,
   },
 
   mixins: [tocViewGroupMixin],
@@ -61,14 +66,14 @@ export default {
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapGetters('Statement', [
       'getSelectionStateById',
-      'statementsInOrder'
+      'statementsInOrder',
     ]),
 
     /**
@@ -93,14 +98,14 @@ export default {
      */
     statementIds () {
       return this.group ? this.group.entries : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', [
       'addToSelectionAction',
-      'removeFromSelectionAction'
-    ])
-  }
+      'removeFromSelectionAction',
+    ]),
+  },
 }
 </script>

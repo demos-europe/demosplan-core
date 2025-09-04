@@ -29,45 +29,54 @@
         autoSuggest: false,
         defaultAttribution: defaultAttribution
       }"
-      :procedure-id="procedureId">
+      :procedure-id="procedureId"
+    >
       <template v-slot:controls>
         <div class="border--bottom u-pv-0_5 flow-root">
           <i
             aria-hidden="true"
-            class="fa fa-map u-ml-0_25 color--grey-light" />
+            class="fa fa-map u-ml-0_25 color--grey-light"
+          />
           <dp-ol-map-layer-vector
             v-if="boundingBox"
             class="u-mb-0_5"
             :features="boundingBox"
             name="mapSettingsPreviewInitExtent"
-            zoom-to-drawing />
+            zoom-to-drawing
+          />
 
           <dp-ol-map-layer-vector
             v-if="mapExtent"
             class="u-mb-0_5"
             :draw-style="drawingStyles.mapExtent"
             :features="mapExtent"
-            name="mapSettingsPreviewMapExtent" />
+            name="mapSettingsPreviewMapExtent"
+          />
           <dp-ol-map-set-extent
             data-cy="mapDefaultBounds"
             translation-key="map.default.bounds"
-            @extentSet="data => emitFieldUpdate({ field: 'boundingBox', data: data })" />
+            @extent-set="data => emitFieldUpdate({ field: 'boundingBox', data: data })"
+          />
           <dp-ol-map-set-extent
             v-if="hasPermission('feature_map_max_extent')"
             data-cy="boundsApply"
             translation-key="bounds.apply"
-            @extentSet="data => emitFieldUpdate({ field: 'mapExtent', data: data })" />
+            @extent-set="data => emitFieldUpdate({ field: 'mapExtent', data: data })"
+          />
           <dp-contextual-help
             class="float-right"
-            :text="Translator.trans('text.mapsection')" />
+            :text="Translator.trans('text.mapsection')"
+          />
         </div>
 
         <div
           v-if="hasPermission('feature_map_use_territory')"
-          class="border--bottom u-pv-0_5 flow-root">
+          class="border--bottom u-pv-0_5 flow-root"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-pencil u-ml-0_25 color--grey-light" />
+            class="fa fa-pencil u-ml-0_25 color--grey-light"
+          />
           <dp-ol-map-draw-feature
             v-tooltip="{
               content: Translator.trans('explanation.territory.help.draw', {
@@ -89,19 +98,23 @@
             name="Territory"
             render-control
             type="Polygon"
-            @layerFeatures:changed="updateTerritory" />
+            @layer-features:changed="updateTerritory"
+          />
           <dp-ol-map-edit-feature target="Territory" />
           <dp-contextual-help
             class="float-right"
-            :text="Translator.trans('explanation.territory.desc')" />
+            :text="Translator.trans('explanation.territory.desc')"
+          />
         </div>
 
         <div
           v-if="hasPermission('area_procedure_adjustments_general_location')"
-          class="border--bottom u-pv-0_5 u-mb-0_5 flow-root">
+          class="border--bottom u-pv-0_5 u-mb-0_5 flow-root"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-map-marker u-ml-0_25 color--grey-light" />
+            class="fa fa-map-marker u-ml-0_25 color--grey-light"
+          />
           <dp-ol-map-draw-feature
             data-cy="setMapRelation"
             :features="procedureCoordinatesFeature"
@@ -109,10 +122,12 @@
             name="Coordinates"
             render-control
             type="Point"
-            @layerFeatures:changed="updateCoordinates" />
+            @layer-features:changed="updateCoordinates"
+          />
           <dp-contextual-help
             class="float-right"
-            :text="Translator.trans('text.mapsection.hint')" />
+            :text="Translator.trans('text.mapsection.hint')"
+          />
         </div>
         <template v-else>
           <dp-ol-map-draw-feature
@@ -121,7 +136,8 @@
             :label="Translator.trans('map.relation.set')"
             name="Coordinates"
             type="Point"
-            @layerFeatures:changed="updateCoordinates" />
+            @layer-features:changed="updateCoordinates"
+          />
         </template>
 
         <dp-ol-map-drag-zoom class="u-mb-0_5" />
@@ -149,7 +165,7 @@ export default {
     DpOlMapDrawFeature,
     DpOlMapEditFeature,
     DpOlMapLayerVector,
-    DpOlMapSetExtent
+    DpOlMapSetExtent,
   },
 
   props: {
@@ -157,51 +173,51 @@ export default {
     boundingBox: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     defaultAttribution: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     /* GeoJSON object */
     mapExtent: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     maxExtent: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     scales: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureCoordinates: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureInitTerritory: {
       type: Object,
       required: false,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
 
   data () {
@@ -213,11 +229,11 @@ export default {
           strokeColor: '#000',
           imageColor: '#fff',
           strokeLineDash: [4, 4],
-          strokeLineWidth: 3
-        })
+          strokeLineWidth: 3,
+        }),
       },
       isActive: '',
-      territory: {}
+      territory: {},
     }
   },
 
@@ -230,9 +246,9 @@ export default {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: this.center
-            }
-          }]
+              coordinates: this.center,
+            },
+          }],
         }
       } else {
         return {}
@@ -241,7 +257,7 @@ export default {
 
     center () {
       return this.procedureCoordinates?.length > 0 ? this.procedureCoordinates : false
-    }
+    },
   },
 
   watch: {
@@ -249,8 +265,8 @@ export default {
       handler () {
         this.$refs.map.updateMapInstance()
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -270,7 +286,7 @@ export default {
 
     emitFieldUpdate (data) {
       this.$emit('field:update', data)
-    }
-  }
+    },
+  },
 }
 </script>

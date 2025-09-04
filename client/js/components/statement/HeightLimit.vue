@@ -3,12 +3,13 @@
     <text-content-renderer :text="currentText !== '' ? currentText : ' '" />
 
     <button
+      v-if="isShortened"
       class="btn--blank o-link--default"
       :data-cy="isExpanded ? 'showLessText' : 'showMoreText'"
       type="button"
       :aria-label="Translator.trans('aria.toggle')"
       @click.stop="toggle"
-      v-if="isShortened">
+    >
       {{ Translator.trans(isExpanded ? 'show.less' : 'show.more') }}
     </button>
   </div>
@@ -21,7 +22,7 @@ export default {
   name: 'HeightLimit',
 
   components: {
-    TextContentRenderer
+    TextContentRenderer,
   },
 
   props: {
@@ -30,7 +31,7 @@ export default {
      */
     shortText: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -38,7 +39,7 @@ export default {
      */
     fullText: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -47,7 +48,7 @@ export default {
     noEvent: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     /**
@@ -55,30 +56,30 @@ export default {
      */
     element: {
       type: String,
-      required: true
+      required: true,
     },
 
     isShortened: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'heightLimit:toggle'
+    'heightLimit:toggle',
   ],
 
   data () {
     return {
-      isExpanded: false
+      isExpanded: false,
     }
   },
 
   computed: {
     currentText () {
       return (this.isExpanded) ? this.fullText : this.shortText
-    }
+    },
   },
 
   methods: {
@@ -91,7 +92,7 @@ export default {
       this.$emit('heightLimit:toggle', () => {
         this.isExpanded = !this.isExpanded
       })
-    }
-  }
+    },
+  },
 }
 </script>

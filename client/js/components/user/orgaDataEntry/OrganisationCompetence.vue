@@ -1,7 +1,8 @@
 <template>
   <fieldset
     id="organisationCompetence"
-    class="w-3/4">
+    class="w-3/4"
+  >
     <legend class="font-size-large weight--normal mb-3">
       {{ Translator.trans('competence') }}
     </legend>
@@ -12,7 +13,8 @@
         :hint="Translator.trans('explanation.organisation.competence')"
         :label="Translator.trans('competence.explanation')"
         :name="`${organisation.id}:competence`"
-        :value="organisation.competence" />
+        :value="organisation.competence"
+      />
     </div>
   </fieldset>
 </template>
@@ -24,14 +26,14 @@ export default {
   name: 'OrganisationCompetence',
 
   components: {
-    DpTextArea
+    DpTextArea,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

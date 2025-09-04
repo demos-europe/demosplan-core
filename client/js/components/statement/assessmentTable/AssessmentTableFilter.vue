@@ -12,41 +12,49 @@
     <!-- show active filters -->
     <fieldset
       v-if="hasActiveFilters || searchTerm !== ''"
-      class="u-mt-0_5 u-pb-0 border--bottom">
+      class="u-mt-0_5 u-pb-0 border--bottom"
+    >
       <legend
         class="sr-only"
-        v-text="Translator.trans('filter.searchterm.active')" />
+        v-text="Translator.trans('filter.searchterm.active')"
+      />
 
       <div
         v-if="searchTerm !== ''"
-        @click="setProperty({ prop: 'showSearchModal', val: true })">
+        @click="setProperty({ prop: 'showSearchModal', val: true })"
+      >
         <div class="layout__item u-1-of-6 u-pl-0">
           <label
             id="searchTermLabel"
-            class="u-mv-0_25">
+            class="u-mv-0_25"
+          >
             {{ Translator.trans('searchterm') }}:
           </label>
         </div><!--
      --><div
           class="layout__item u-4-of-6 u-mt-0_25 cursor-pointer"
-          aria-labelledby="searchTermLabel">
+          aria-labelledby="searchTermLabel"
+>
           {{ searchTerm }}
         </div>
       </div>
 
       <div
         v-if="hasActiveFilters"
-        @click="setProperty({ prop: 'showFilterModal', val: true })">
+        @click="setProperty({ prop: 'showFilterModal', val: true })"
+      >
         <div class="layout__item u-1-of-6 u-pl-0">
           <label
             class="u-mv-0_25"
-            data-cy="filterActive">
+            data-cy="filterActive"
+          >
             {{ Translator.trans('filter.active') }}:
           </label>
         </div><!--
      --><div
           class="layout__item u-4-of-6 u-mt-0_25 cursor-pointer"
-          :aria-label="Translator.trans('aria.maximize_filters')">
+          :aria-label="Translator.trans('aria.maximize_filters')"
+>
           {{ filterSet.activeFilters.join(', ') }}
         </div>
       </div>
@@ -54,28 +62,33 @@
         v-if="hasActiveFilters && hasChangedStatements"
         class="mt-3 mb-2"
         :message="Translator.trans('filter.settings_not_current')"
-        type="warning" />
+        type="warning"
+      />
     </fieldset>
 
     <div
+      ref="header"
       class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
-      ref="header">
+    >
       <search-and-sorting
         :search-term="searchTerm"
-        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
+        @export-modal:toggle="tab => $emit('exportModal:toggle', tab)"
+      />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
         <label
           class="o-link--default u-mb-0"
-          :class="{'color--grey': areFragmentsSelected}">
+          :class="{'color--grey': areFragmentsSelected}"
+        >
           <input
+            v-model="allItemsOnPageSelected"
             class="u-mr-0"
             type="checkbox"
-            v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
-            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
+            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null"
+          >
           {{ Translator.trans('visible.entries') }}
         </label>
 
@@ -88,33 +101,39 @@
             type="button"
             aria-haspopup="true"
             aria-expanded="false"
-            @click.prevent="$emit('exportModal:toggle', exportModalOptions.tab)">
+            @click.prevent="$emit('exportModal:toggle', exportModalOptions.tab)"
+          >
             <i
               class="fa fa-share-square u-mr-0_125"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans(exportModalOptions.buttonLabelSingle) }}
           </button>
           <template v-else>
             <div
               class="c-actionmenu"
-              data-actionmenu>
+              data-actionmenu
+            >
               <button
                 :disabled="selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0"
                 class="c-actionmenu__trigger"
                 data-cy="exportModal:open"
                 aria-haspopup="true"
                 aria-expanded="false"
-                type="button">
+                type="button"
+              >
                 <i
                   class="fa fa-share-square u-mr-0_125"
-                  aria-hidden="true" />
+                  aria-hidden="true"
+                />
                 {{ Translator.trans('export') }}
               </button>
 
               <div
+                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)"
                 class="c-actionmenu__menu"
                 role="menu"
-                v-show="false === (selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0)">
+              >
                 <button
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
@@ -123,7 +142,8 @@
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
-                  @click.prevent="$emit('exportModal:toggle', Object.keys(option)[0])">
+                  @click.prevent="$emit('exportModal:toggle', Object.keys(option)[0])"
+                >
                   {{ Translator.trans(Object.values(option)[0].buttonLabel) }}
                 </button>
               </div>
@@ -135,20 +155,24 @@
         <div
           v-if="hasPermission('feature_assessmenttable_structural_view_mode')"
           class="c-actionmenu"
-          data-actionmenu>
+          data-actionmenu
+        >
           <button
             class="c-actionmenu__trigger"
             type="button"
             aria-haspopup="true"
-            aria-expanded="false">
+            aria-expanded="false"
+          >
             <i
               class="fa fa-list-ul u-mr-0_125"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('assessmenttable.view.mode') }}
           </button>
           <div
             class="c-actionmenu__menu"
-            role="menu">
+            role="menu"
+          >
             <button
               v-for="(mode, idx) in viewModes"
               :key="`${mode.type}:${idx}`"
@@ -157,7 +181,8 @@
               role="menuitem"
               data-actionmenu-menuitem
               tabindex="-1"
-              @click.prevent="toggleViewMode(mode.type)">
+              @click.prevent="toggleViewMode(mode.type)"
+            >
               {{ Translator.trans(mode.label) }}
             </button>
           </div>
@@ -166,21 +191,25 @@
         <!-- List modes -->
         <div
           class="c-actionmenu"
-          data-actionmenu>
+          data-actionmenu
+        >
           <button
             class="c-actionmenu__trigger"
             data-cy="actionMenuTrigger"
             type="button"
             aria-haspopup="true"
-            aria-expanded="false">
+            aria-expanded="false"
+          >
             <i
               class="fa fa-th-large u-mr-0_125"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('display') }}
           </button>
           <div
             class="c-actionmenu__menu"
-            role="menu">
+            role="menu"
+          >
             <button
               class="c-actionmenu__menuitem"
               data-cy="displayListExpanded"
@@ -189,7 +218,8 @@
               data-actionmenu-menuitem
               :data-actionmenu-current="currentTableView === 'statement' ? true : null"
               :class="{'pointer-events-none': !assessmentBaseLoaded }"
-              @click.prevent="setProperty({ prop: 'currentTableView', val: 'statement' })">
+              @click.prevent="setProperty({ prop: 'currentTableView', val: 'statement' })"
+            >
               {{ Translator.trans(hasPermission('area_statements_fragment') ? 'statements' : 'display.list.expanded') }}
             </button>
 
@@ -202,7 +232,8 @@
                 data-actionmenu-menuitem
                 :data-actionmenu-current="currentTableView === 'fragments' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
-                @click.prevent="setProperty({ prop: 'currentTableView', val: 'fragments' })">
+                @click.prevent="setProperty({ prop: 'currentTableView', val: 'fragments' })"
+              >
                 {{ Translator.trans('fragments') }}
               </button>
               <button
@@ -213,7 +244,8 @@
                 data-actionmenu-menuitem
                 :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
-                @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
+                @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })"
+              >
                 {{ Translator.trans('display.list') }}
               </button>
             </template>
@@ -226,7 +258,8 @@
                 data-actionmenu-menuitem
                 :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
-                @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
+                @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })"
+              >
                 {{ Translator.trans('display.list.collapsed') }}
               </button>
             </template>
@@ -238,20 +271,24 @@
           <div
             v-if="searchTerm.length === 0 && !viewModeActivated"
             class="c-actionmenu"
-            data-actionmenu>
+            data-actionmenu
+          >
             <button
               class="c-actionmenu__trigger"
               data-cy="assessmentTableFilter:sorting"
               aria-haspopup="true"
-              aria-expanded="false">
+              aria-expanded="false"
+            >
               <i
                 class="fa fa-sort u-mr-0_25"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
               {{ sort.label }}
             </button>
             <div
               class="c-actionmenu__menu"
-              role="menu">
+              role="menu"
+            >
               <button
                 v-for="(option, i) in sortingOptions"
                 :key="`${option.value}:${i}`"
@@ -261,7 +298,8 @@
                 data-actionmenu-menuitem
                 role="menuitem"
                 tabindex="-1"
-                @click.prevent="$emit('handle-sort-change', option)">
+                @click.prevent="$emit('handle:sortChange', option)"
+              >
                 {{ option.label }}
               </button>
             </div>
@@ -271,7 +309,8 @@
           <template v-else>
             <i
               class="fa fa-sort u-mr-0_25"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             <span>
               {{ sortLabel }}
             </span>
@@ -292,26 +331,26 @@ export default {
 
   components: {
     DpInlineNotification,
-    SearchAndSorting
+    SearchAndSorting,
   },
 
   props: {
     //  Export options that define which formats / fields to display
     assessmentExportOptions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     hasChangedStatements: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     sortingOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     /**
@@ -320,13 +359,13 @@ export default {
     viewMode: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'exportModal:toggle',
-    'handle-sort-change'
+    'handle-sort-change',
   ],
 
   data () {
@@ -334,19 +373,19 @@ export default {
       viewModes: [
         { type: 'view_mode_default', label: 'assessmenttable.view.mode.default' },
         { type: 'view_mode_tag', label: 'assessmenttable.view.mode.tags' },
-        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' }
-      ]
+        { type: 'view_mode_elements', label: 'assessmenttable.view.mode.elements' },
+      ],
     }
   },
 
   computed: {
     ...mapGetters('Fragment', [
-      'selectedFragments'
+      'selectedFragments',
     ]),
 
     ...mapGetters('Statement', [
       'selectedElementsLength',
-      'statements'
+      'statements',
     ]),
 
     ...mapState('AssessmentTable', [
@@ -354,11 +393,11 @@ export default {
       'currentTableView',
       'filterSet',
       'searchTerm',
-      'sort'
+      'sort',
     ]),
 
     ...mapState('Statement', [
-      'selectedElements'
+      'selectedElements',
     ]),
 
     allItemsOnPageSelected: {
@@ -367,7 +406,7 @@ export default {
       },
       set (status) {
         this.toggleAllCheckboxes(status)
-      }
+      },
     },
 
     areFragmentsSelected () {
@@ -378,7 +417,7 @@ export default {
       const options = {
         exportOptions: 0,
         tab: '',
-        buttonLabelSingle: ''
+        buttonLabelSingle: '',
       }
 
       Object.entries(this.assessmentExportOptions).forEach(([key, val]) => {
@@ -420,16 +459,16 @@ export default {
 
     viewModeActivated () {
       return this.viewMode === 'view_mode_tag' || this.viewMode === 'view_mode_elements'
-    }
+    },
   },
 
   methods: {
     ...mapActions('Statement', [
-      'setSelectionAction'
+      'setSelectionAction',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setProperty'
+      'setProperty',
     ]),
 
     determineExternId (statement) {
@@ -449,7 +488,7 @@ export default {
             movedToProcedure: (statement.movedToProcedureId !== ''),
             assignee: statement.assignee,
             extid: this.determineExternId(statement),
-            isCluster: statement.isCluster
+            isCluster: statement.isCluster,
           }
         }
         payload.statements = statements
@@ -465,7 +504,7 @@ export default {
       const form = document.bpform
       form.r_view_mode.value = mode
       window.submitForm(null, 'viewMode')
-    }
-  }
+    },
+  },
 }
 </script>

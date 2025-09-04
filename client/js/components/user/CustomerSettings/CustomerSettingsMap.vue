@@ -19,7 +19,8 @@
         text: Translator.trans('map.base.url')
       }"
       name="r_baseLayerUrl"
-      @input="debounceUpdate" />
+      @input="debounceUpdate"
+    />
 
     <dp-input
       id="r_baseLayerLayers"
@@ -31,10 +32,12 @@
         text: Translator.trans('layers')
       }"
       name="r_baseLayerLayers"
-      @input="debounceUpdate" />
+      @input="debounceUpdate"
+    />
 
     <dp-input
       id="r_mapAttribution"
+      v-model="mapAttribution"
       class="u-mb-0_75"
       data-cy="customerSettingsMap:mapAttribution"
       :label="{
@@ -42,7 +45,7 @@
         text: Translator.trans('map.attribution')
       }"
       name="r_mapAttribution"
-      v-model="mapAttribution" />
+    />
 
     <p class="weight--bold u-mb-0">
       {{ Translator.trans('map.base.settings.preview') }}:
@@ -62,7 +65,8 @@
         controls: [attributionControl],
         autoSuggest: { enabled: false },
         defaultAttribution: mapAttribution,
-      }" />
+      }"
+    />
 
     <dp-button-row
       class="u-mt"
@@ -71,7 +75,8 @@
       secondary
       :secondary-text="Translator.trans('reset')"
       @secondary-action="resetMapSettings"
-      @primary-action="saveMapSettings" />
+      @primary-action="saveMapSettings"
+    />
   </div>
 </template>
 
@@ -87,38 +92,38 @@ export default {
   components: {
     DpButtonRow,
     DpInput,
-    DpOlMap
+    DpOlMap,
   },
 
   props: {
     currentCustomerId: {
       required: true,
-      type: String
+      type: String,
     },
 
     initLayerUrl: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initLayer: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initMapAttribution: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     mapExtent: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -126,27 +131,27 @@ export default {
       mapAttribution: this.initMapAttribution,
       baseLayerLayers: this.initLayer,
       baseLayerUrl: this.initLayerUrl,
-      mapKey: 0
+      mapKey: 0,
     }
   },
 
   computed: {
     ...mapState('Customer', {
-      customerItems: 'items'
+      customerItems: 'items',
     }),
 
     attributionControl () {
       return new Attribution({ collapsible: false })
-    }
+    },
   },
 
   methods: {
     ...mapActions('Customer', {
-      saveCustomer: 'save'
+      saveCustomer: 'save',
     }),
 
     ...mapMutations('Customer', {
-      updateCustomer: 'setItem'
+      updateCustomer: 'setItem',
     }),
 
     debounceUpdate: debounce(({ id, value }) => {
@@ -177,14 +182,14 @@ export default {
           ...this.customerItems[this.currentCustomerId].attributes,
           baseLayerLayers,
           baseLayerUrl,
-          mapAttribution
-        }
+          mapAttribution,
+        },
       }
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
       })
-    }
-  }
+    },
+  },
 }
 </script>

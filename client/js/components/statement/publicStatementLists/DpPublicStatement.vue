@@ -10,26 +10,31 @@
 <template>
   <dp-table-card
     class="c-public-statement"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <template v-slot:header="">
       <div
         class="c-public-statement__header"
-        :class="{'border--bottom': isOpen}">
+        :class="{'border--bottom': isOpen}"
+      >
         <div class="layout__item u-11-of-12 u-1-of-4-desk-up align-sub u-pl-0">
           <div class="inline-block u-mr-0_5">
             <input
               v-if="showCheckbox"
-              type="checkbox"
               :id="number"
+              type="checkbox"
               name="item_check[]"
-              :value="id">
+              :value="id"
+            >
             <span
+              v-tooltip="renderTooltipContent(tooltipContent)"
               class="c-public-statement__tooltip"
-              v-tooltip="renderTooltipContent(tooltipContent)">
+            >
               <label
                 :for="number"
                 data-cy="statementNumber"
-                class="inline u-mb-0">
+                class="inline u-mb-0"
+              >
                 {{ `${ number || externId }` }}
               </label>
             </span>
@@ -41,10 +46,12 @@
               v-bind="unsavedChangesItem.attrs"
               :key="unsavedChangesItem.name"
               class="btn--blank o-link--default"
-              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false">
+              @click.prevent.stop="(e) => typeof unsavedChangesItem.callback === 'function' ? unsavedChangesItem.callback(e, _self) : false"
+            >
               <i
+                v-tooltip="Translator.trans('unsaved.changes')"
                 class="fa fa-exclamation-circle color-message-severe-fill u-mr-0_5"
-                v-tooltip="Translator.trans('unsaved.changes')" />
+              />
             </button>
           </div>
         </div><!--
@@ -53,25 +60,29 @@
             <div
               v-for="item in menuItems"
               :key="item.id"
-              class="inline u-mr-0_5">
+              class="inline u-mr-0_5"
+            >
               <button
                 v-if="item.type === 'button'"
                 v-bind="item.attrs"
                 class="btn--blank o-link--default align-middle"
-                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
+                @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
+              >
                 {{ item.text }}
               </button>
               <a
                 v-else-if="item.type === 'link'"
                 v-bind="item.attrs"
                 class="o-link--default align-middle"
-                :href="item.url">
+                :href="item.url"
+              >
                 {{ item.text }}
               </a>
               <h4
                 v-else-if="item.type === 'heading'"
                 v-bind="item.attrs"
-                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle">
+                class="color--grey u-mb-0 u-mt-0_25 font-size-small align-middle"
+              >
                 {{ item.text }}
               </h4>
             </div>
@@ -80,25 +91,29 @@
             <dp-flyout>
               <div
                 v-for="item in menuItems"
-                :key="item.id">
+                :key="item.id"
+              >
                 <a
                   v-if="item.type === 'link'"
                   v-bind="item.attrs"
                   class="o-link--default"
-                  :href="item.url">
+                  :href="item.url"
+                >
                   {{ item.text }}
                 </a>
                 <button
                   v-if="item.type === 'button'"
                   v-bind="item.attrs"
                   class="btn--blank o-link--default"
-                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false">
+                  @click="(e) => typeof item.callback === 'function' ? item.callback(e, _self) : false"
+                >
                   {{ item.text }}
                 </button>
                 <h4
                   v-if="item.type === 'heading'"
                   v-bind="item.attrs"
-                  class="color--grey u-mb-0 u-mt-0_25 font-size-small">
+                  class="color--grey u-mb-0 u-mt-0_25 font-size-small"
+                >
                   {{ item.text }}
                 </h4>
               </div>
@@ -106,12 +121,14 @@
           </div><!--
        --><div class="inline">
             <button
-              @click="isOpen = false === isOpen"
               type="button"
-              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle">
+              class="btn--blank o-link--default u-pr-0_25 c-public-statement__toggle"
+              @click="isOpen = false === isOpen"
+            >
               <i
                 class="fa"
-                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
+                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'"
+              />
             </button>
           </div>
         </div>
@@ -129,8 +146,9 @@
       </div><!--
    --><div class="u-1-of-1 c-public-statement__content-item">
         <div
-            v-if="showAuthor"
-            class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
+          v-if="showAuthor"
+          class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label"
+        >
         {{ Translator.trans('authored.by') }}
       </div><!--
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
@@ -163,7 +181,8 @@
       </div><!--
  --><div
       v-if="hasPermission('feature_documents_new_statement')"
-      class="u-1-of-1 c-public-statement__content-item">
+      class="u-1-of-1 c-public-statement__content-item"
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('paragraph') }}
       </div><!--
@@ -183,8 +202,9 @@
             v-if="Object.keys(polygon).length > 0"
             class="btn--blank o-link--default"
             type="button"
-            @click.prevent.stop="$emit('open-map-modal', polygon)"
-            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`">
+            :aria-label="`${Translator.trans('statement.map.drawing.show')} ${Translator.trans('statement')}: ${number}`"
+            @click.prevent.stop="$emit('openMapModal', polygon)"
+          >
             {{ Translator.trans('see') }}
           </button>
           <span v-else>
@@ -194,8 +214,9 @@
       </template>
     </div><!--
  --><div
+      v-if="priorityAreas !== null"
       class="u-1-of-1 c-public-statement__content-item"
-      v-if="priorityAreas !== null">
+    >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('potential.areas') }}
       </div><!--
@@ -204,8 +225,9 @@
       </div>
     </div><!--
    --><div
+        v-if="county !== null"
         class="u-1-of-1 c-public-statement__content-item"
-        v-if="county !== null">
+      >
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('county') }}
       </div><!--
@@ -218,14 +240,16 @@
         {{ Translator.trans('attachments') }}
       </div><!--
    --><div
+        v-cleanhtml="renderAttachments(attachments)"
         class="inline-block u-2-of-3 u-1-of-1-palm break-words"
-        v-cleanhtml="renderAttachments(attachments)" />
+      />
       </div>
     </div>
     <dp-inline-notification
       v-if="rejectedReason"
       class="mt"
-      type="info">
+      type="info"
+    >
       <div>{{ Translator.trans('statement.rejected.with.reason') }}:</div>
       <div>{{ rejectedReason }}</div>
     </dp-inline-notification>
@@ -234,8 +258,9 @@
         {{ Translator.trans('statementtext') }}
       </div>
       <div
+        v-cleanhtml="text"
         class="c-styled-html"
-        v-cleanhtml="text" />
+      />
     </div>
   </dp-table-card>
 </template>
@@ -252,7 +277,7 @@ export default {
   components: {
     DpFlyout,
     DpInlineNotification,
-    DpTableCard
+    DpTableCard,
   },
 
   directives: { cleanhtml: CleanHtml },
@@ -261,136 +286,136 @@ export default {
     attachments: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
     authorOnly: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     county: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     createdDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     department: {
       type: String,
-      required: true
+      required: true,
     },
     document: {
       type: String,
       required: false,
-      default: () => Translator.trans('none')
+      default: () => Translator.trans('none'),
     },
     elementId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     externId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     id: {
       type: String,
-      required: true
+      required: true,
     },
     isPublished: {
       type: Boolean,
       required: false,
-      default: () => false
+      default: () => false,
     },
     menuItemsGenerator: {
       type: Function,
-      required: true
+      required: true,
     },
     number: {
       type: Number,
       required: false,
-      default: 0
+      default: 0,
     },
     organisation: {
       type: String,
-      required: true
+      required: true,
     },
     paragraph: {
       type: String,
       required: false,
-      default: () => Translator.trans('none')
+      default: () => Translator.trans('none'),
     },
     paragraphId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
     phase: {
       type: String,
-      required: true
+      required: true,
     },
     polygon: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
     priorityAreas: {
       type: [String, null, Array],
       required: false,
       validator: (val) => typeof val === 'string' || Array.isArray(val) || val === null,
-      default: null
+      default: null,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     rejectedReason: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     showAuthor: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     showCheckbox: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     submittedDate: {
       type: [String, null],
       required: false,
       validator: (val) => typeof val === 'string' || val === null,
-      default: null
+      default: null,
     },
     text: {
       type: String,
-      required: true
+      required: true,
     },
     user: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'open-map-modal'
+    'openMapModal',
   ],
 
   data () {
     return {
-      isOpen: true
+      isOpen: true,
     }
   },
 
@@ -404,9 +429,9 @@ export default {
     headerContent () {
       const user = this.showAuthor ? `${this.user} | ` : ''
 
-      return this.submittedDate
-        ? `${user}${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}`
-        : `${Translator.trans('date.created')} ${this.createdDate} ${Translator.trans('clock')}`
+      return this.submittedDate ?
+        `${user}${Translator.trans('date.submitted')} ${this.submittedDate} ${Translator.trans('clock')}` :
+        `${Translator.trans('date.created')} ${this.createdDate} ${Translator.trans('clock')}`
     },
 
     menuItems () {
@@ -424,7 +449,7 @@ export default {
 
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
-    }
+    },
   },
 
   methods: {
@@ -443,7 +468,7 @@ export default {
         content += `${ln}<br />`
       })
       return DomPurify.sanitize(content)
-    }
-  }
+    },
+  },
 }
 </script>

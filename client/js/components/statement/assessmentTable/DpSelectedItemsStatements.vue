@@ -12,44 +12,51 @@
   <div class="inline-block">
     <!--if all chosen items are not in the procedure -->
     <button
+      v-if="Object.values(selectedElements).every(elem => elem.movedToProcedure === true)"
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
       disabled
       :title="Translator.trans('statement.moved.not.editable')"
-      v-if="Object.values(this.selectedElements).every(elem => elem.movedToProcedure === true)">
+    >
       <i
         aria-hidden="true"
-        class="fa fa-pencil u-mr-0_125" />
+        class="fa fa-pencil u-mr-0_125"
+      />
       {{ Translator.trans('edit') }}
     </button>
     <!--if all items are claimed and at least one statement in this procedure is chosen, go to group edit or if claiming is not enabled in project -->
     <a
+      v-else-if="editable || false === hasPermission('feature_statement_assignment')"
       role="button"
       class="btn--blank u-mr-0_5"
       data-cy="selectedItemsStatements:edit"
       :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })"
-      v-else-if="editable || false === hasPermission('feature_statement_assignment')">
+    >
       <i
         aria-hidden="true"
-        class="fa fa-pencil u-mr-0_125" />
+        class="fa fa-pencil u-mr-0_125"
+      />
       {{ Translator.trans('edit') }}
     </a>
     <!--if at least one item is not claimed -->
     <button
+      v-else
       class="btn--blank o-link--default u-mr-0_5"
       type="button"
       data-cy="claimAll"
       @click="claimAll"
-      v-else>
+    >
       <dp-loading
         v-if="loading"
         class="inline-block"
-        hide-label />
+        hide-label
+      />
       <i
         v-else
         aria-hidden="true"
-        class="fa fa-user u-mr-0_125" />
+        class="fa fa-user u-mr-0_125"
+      />
       {{ Translator.trans('assign.to.me') }}
     </button>
 
@@ -58,10 +65,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:consolidate"
-      @click="openConsolidateModal">
+      @click="openConsolidateModal"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-object-group u-mr-0_125" />
+        class="fa fa-object-group u-mr-0_125"
+      />
       {{ Translator.trans('consolidate') }}
     </button>
 
@@ -69,10 +78,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:copy"
-      @click="copyElements">
+      @click="copyElements"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-files-o u-mr-0_125" />
+        class="fa fa-files-o u-mr-0_125"
+      />
       {{ Translator.trans('copy') }}
     </button>
 
@@ -80,10 +91,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:delete"
-      @click="triggerDeletion">
+      @click="triggerDeletion"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-trash u-mr-0_125" />
+        class="fa fa-trash u-mr-0_125"
+      />
       {{ Translator.trans('delete') }}
     </button>
 
@@ -91,10 +104,12 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:export"
-      @click.prevent="$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-share-square u-mr-0_125" />
+        class="fa fa-share-square u-mr-0_125"
+      />
       {{ Translator.trans('export') }}
     </button>
   </div>
@@ -105,7 +120,7 @@ import {
   dpApi,
   DpLoading,
   dpRpc,
-  handleResponseMessages
+  handleResponseMessages,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { v4 as uuid } from 'uuid'
@@ -114,57 +129,57 @@ export default {
   name: 'DpSelectedItemsStatements',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'exportModal:toggle',
-    'update-assessment-table',
-    'update-pagination-assessment-table'
+    'update:assessmentTable',
+    'update:paginationAssessmentTable',
   ],
 
   data () {
     return {
-      loading: false
+      loading: false,
     }
   },
 
   computed: {
     ...mapGetters('Statement', [
       'selectedElementsLength',
-      'selectedElements'
+      'selectedElements',
     ]),
 
     ...mapGetters('Fragment', [
-      'fragmentsByStatement'
+      'fragmentsByStatement',
     ]),
 
     ...mapState('Statement', [
       'filterHash',
-      'statements'
+      'statements',
     ]),
 
     ...mapState('Fragment', [
-      'fragments'
+      'fragments',
     ]),
 
     editable () {
@@ -197,7 +212,7 @@ export default {
 
     selectionContainsUnclaimedStatements () {
       return !Object.values(this.selectedElements).every(statement => statement.assignee.id === this.currentUserId)
-    }
+    },
   },
 
   watch: {
@@ -205,22 +220,22 @@ export default {
       handler () {
         this.fetchRelatedFragments()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
     ...mapActions('Fragment', [
-      'loadFragments'
+      'loadFragments',
     ]),
 
     ...mapMutations('Statement', [
       'updateStatement',
-      'resetSelection'
+      'resetSelection',
     ]),
 
     ...mapMutations('AssessmentTable', [
-      'setModalProperty'
+      'setModalProperty',
     ]),
 
     claimAll () {
@@ -230,17 +245,17 @@ export default {
           id: uuid(),
           type: 'statementBulkEdit',
           attributes: {
-            markedStatementsCount: this.selectedElementsLength
+            markedStatementsCount: this.selectedElementsLength,
           },
           relationships: {
             assignee: {
-              data: { type: 'User', id: this.currentUserId }
+              data: { type: 'User', id: this.currentUserId },
             },
             statements: {
-              data: unclaimedElements
-            }
-          }
-        }
+              data: unclaimedElements,
+            },
+          },
+        },
       }
 
       this.loading = true
@@ -248,9 +263,9 @@ export default {
         method: 'POST',
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
           procedureId: this.procedureId,
-          include: ['assignee', 'statements'].join()
+          include: ['assignee', 'statements'].join(),
         }),
-        data: payload
+        data: payload,
       })
         .then(({ data }) => {
           const assignee = data.included.find(elem => elem.id === data.data.relationships.assignee.data.id)
@@ -263,9 +278,9 @@ export default {
               id: assignee.id,
               name: assignee.attributes.name,
               orgaName,
-              uId: assignee.id
+              uId: assignee.id,
             },
-            currentUserId: this.currentUserId
+            currentUserId: this.currentUserId,
           }))
         })
         .catch(error => {
@@ -277,7 +292,7 @@ export default {
 
     copyElements () {
       const params = {
-        statementIds: []
+        statementIds: [],
       }
 
       const placeholderStatements = Object.values(this.selectedElements)
@@ -300,9 +315,9 @@ export default {
               dplan.notify.notify('warning', Translator.trans('statement.copy.to.assessment.table.error', { count: placeholderStatements.length, extids: JSON.stringify(placeholderStatements) }))
             }
 
-            this.$root.$emit('update-pagination-assessment-table')
-            this.$root.$emit('update-assessment-table')
             dplan.notify.notify('confirm', Translator.trans('statement.copy.to.assessment.table.confirm', { count: params.statementIds.length }))
+            this.$root.$emit('update:paginationAssessmentTable')
+            this.$root.$emit('update:assessmentTable')
           })
           .catch(() => {
             dplan.notify.notify('error', Translator.trans('error.copy'))
@@ -376,11 +391,11 @@ export default {
 
     triggerWarning (msg) {
       dplan.notify.notify('warning', Translator.trans(msg))
-    }
+    },
   },
 
   created () {
     this.fetchRelatedFragments()
-  }
+  },
 }
 </script>

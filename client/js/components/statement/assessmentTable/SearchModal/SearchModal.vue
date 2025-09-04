@@ -19,26 +19,29 @@
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
         :class="{'color-highlight': true === highlighted}"
-        @click="submit" />
+        @click="submit"
+      />
       <dp-input
-        has-icon
         id="searchterm"
+        v-model="searchString"
+        has-icon
         name="search_word2"
         data-cy="searchAssessmentWordField"
         :placeholder="placeholder"
-        v-model="searchString"
         width="w-12"
         :aria-label="Translator.trans('search.assessment.table')"
-        @enter="submit" />
+        @enter="submit"
+      />
     </label>
 
     <!-- Advanced Search button to open modal -->
     <button
       type="button"
       data-cy="searchAdvanced"
-      @click.prevent="toggleModal"
       :class="{'color-highlight':true === highlighted}"
-      class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">
+      class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5"
+      @click.prevent="toggleModal"
+    >
       {{ Translator.trans('search.advanced') }}
     </button>
 
@@ -46,19 +49,21 @@
     <dp-modal
       ref="searchModal"
       content-classes="u-4-of-8-wide u-2-of-3-desk-down"
-      @modal:toggled="modalToggled">
+      @modal:toggled="modalToggled"
+    >
       <h2>{{ Translator.trans('search.advanced') }}</h2>
 
       <!-- Search Field -->
       <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
         <dp-input
           id="searchterm2"
+          v-model="searchString"
           name="search_word"
           data-cy="searchModal:searchAssessmentTableAdvanced"
           :placeholder="Translator.trans('searchterm')"
-          v-model="searchString"
           :aria-label="Translator.trans('search.assessment.table')"
-          @enter="submit" />
+          @enter="submit"
+        />
       </label>
 
       <!-- search hint -->
@@ -71,7 +76,8 @@
         <dp-details
           v-for="(explanation, index) in explanations"
           :key="index"
-          :summary="explanation.title">
+          :summary="explanation.title"
+        >
           <span v-html="explanation.description" />
         </dp-details>
       </div>
@@ -85,97 +91,108 @@
         <div class="layout--flush">
           <dp-checkbox
             v-for="checkbox in filterCheckBoxesItems"
-            :data-cy="`searchModal:${checkbox.id}`"
             :id="checkbox.id"
             :key="'checkbox_' + checkbox.id"
             v-model="checkbox.checked"
+            :data-cy="`searchModal:${checkbox.id}`"
             class="layout__item u-1-of-2"
             :label="{
               text: Translator.trans(checkbox.label)
             }"
-            name="search_fields[]" />
+            name="search_fields[]"
+          />
 
           <!-- department is added as hidden field when organisation is selected -->
           <input
+            v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
             name="search_fields[]"
             value="dName"
-            checked="checked">
+            checked="checked"
+          >
           <!-- last name is added as hidden field if submitter is selected -->
           <input
+            v-if="selectedFields.includes('uName')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('uName')"
             name="search_fields[]"
             value="meta_submitLastName"
-            checked="checked">
+            checked="checked"
+          >
           <!-- sachbearbeiter is added as hidden field if submitter is selected -->
           <input
+            v-if="selectedFields.includes('uName')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('uName')"
             name="search_fields[]"
             value="meta_caseWorkerLastName"
-            checked="checked">
+            checked="checked"
+          >
           <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
           <input
+            v-if="selectedFields.includes('uName')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('uName')"
             name="search_fields[]"
             value="cluster_uName"
-            checked="checked">
+            checked="checked"
+          >
           <!-- paragraph is added as hidden field if document is selected -->
           <input
+            v-if="selectedFields.includes('documentTitle')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('documentTitle')"
             name="search_fields[]"
             value="paragraphTitle"
-            checked="checked">
+            checked="checked"
+          >
           <!-- element title is added as hidden field if document is selected -->
           <input
+            v-if="selectedFields.includes('documentTitle')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('documentTitle')"
             name="search_fields[]"
             value="elementTitle"
-            checked="checked">
+            checked="checked"
+          >
           <!-- public/external id of group is added as hidden field if statement id is selected -->
           <input
+            v-if="selectedFields.includes('externId')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('externId')"
             name="search_fields[]"
             value="cluster_externId"
-            checked="checked">
+            checked="checked"
+          >
           <!-- counties is added as hidden field if municipalities is selected -->
           <input
+            v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
             name="search_fields[]"
             value="countyNames"
-            checked="checked">
+            checked="checked"
+          >
           <!-- tags is added as hidden field if topics is selected -->
           <input
+            v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
             name="search_fields[]"
             value="tagNames"
             checked="checked"
-            aria-hidden="true">
+            aria-hidden="true"
+          >
           <!-- fragment consideration is added as hidden field if consideration is selected -->
           <input
+            v-if="selectedFields.includes('recommendation')"
             class="hidden"
             type="hidden"
-            v-if="selectedFields.includes('recommendation')"
             name="search_fields[]"
             value="fragments_consideration"
-            checked="checked">
+            checked="checked"
+          >
         </div>
       </div>
 
@@ -185,14 +202,16 @@
           class="btn btn--primary u-mr"
           type="button"
           data-cy="searchModal:submitSearchAdvanced"
-          @click="submit">
+          @click="submit"
+        >
           {{ Translator.trans('apply') }}
         </button><!--
 
      --><button
           class="btn btn--secondary"
           data-cy="searchModal:resetSearchAdvanced"
-          @click.prevent="reset">
+          @click.prevent="reset"
+>
           {{ Translator.trans('reset') }}
         </button>
       </div>
@@ -212,11 +231,11 @@ export default {
     DpCheckbox,
     DpDetails,
     DpModal,
-    DpInput
+    DpInput,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
@@ -241,38 +260,38 @@ export default {
         'statementText',
         'topics',
         'typeOfSubmission',
-        'voters'
-      ]
+        'voters',
+      ],
     },
 
     preselectedFields: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     preselectedExactSearch: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     // Search string entered in the search field
     tableSearch: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     isForm: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'close',
-    'search'
+    'search',
   ],
 
   data () {
@@ -283,14 +302,14 @@ export default {
       explanations: [
         {
           title: Translator.trans('search.options'),
-          description: Translator.trans('search.options.description')
+          description: Translator.trans('search.options.description'),
         },
         {
           title: Translator.trans('search.special.characters'),
-          description: Translator.trans('search.special.characters.description')
-        }
+          description: Translator.trans('search.special.characters.description'),
+        },
       ],
-      availableFilterFields
+      availableFilterFields,
     }
   },
 
@@ -313,7 +332,7 @@ export default {
 
     selectedFields () {
       return this.availableFilterFields.filter(checkbox => checkbox.checked).map(checkbox => checkbox.value)
-    }
+    },
   },
 
   methods: {
@@ -356,7 +375,7 @@ export default {
     saveSelectedCheckboxes () {
       const selectedCheckboxes = this.filterCheckBoxesItems.map(checkbox => ({
         id: checkbox.id,
-        checked: checkbox.checked
+        checked: checkbox.checked,
       }))
 
       localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes))
@@ -375,7 +394,7 @@ export default {
       }
 
       this.saveSelectedCheckboxes()
-    }
+    },
   },
 
   created () {
@@ -390,6 +409,6 @@ export default {
     })
 
     this.loadSelectedCheckboxes()
-  }
+  },
 }
 </script>

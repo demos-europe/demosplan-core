@@ -47,12 +47,12 @@ export default () => {
   const elementsHiddenForBaseMap = [
     {
       node: document.querySelector('input[name="r_user_toggle_visibility"]'),
-      defaultValue: true
+      defaultValue: true,
     },
     {
       node: document.querySelector('input[name="r_opacity"]'),
-      defaultValue: '100'
-    }
+      defaultValue: '100',
+    },
   ]
 
   // Check if base layer and disable user toggling on load

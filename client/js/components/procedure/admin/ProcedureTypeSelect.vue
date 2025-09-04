@@ -16,7 +16,8 @@
       }"
       :options="procedureTypes"
       :selected="selectedId"
-      @select="handleSelect" />
+      @select="handleSelect"
+    />
   </div>
 </template>
 
@@ -27,26 +28,26 @@ export default {
   name: 'ProcedureTypeSelect',
 
   components: {
-    DpSelect
+    DpSelect,
   },
 
   props: {
     procedureTypes: {
       type: Array,
       required: false,
-      default: () => ([])
+      default: () => ([]),
     },
 
     selectedId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
     return {
-      selectedProcedureTypeId: this.selectedId
+      selectedProcedureTypeId: this.selectedId,
     }
   },
 
@@ -58,7 +59,7 @@ export default {
 
     redirectToEditForm () {
       window.location.href = Routing.generate('DemosPlan_procedureType_duplicate', { procedureTypeId: this.selectedProcedureTypeId, isCreate: true })
-    }
-  }
+    },
+  },
 }
 </script>

@@ -19,7 +19,7 @@ import {
   DpInput,
   DpMultiselect,
   dpValidateMixin,
-  sortAlphabetically
+  sortAlphabetically,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { defineAsyncComponent } from 'vue'
@@ -48,7 +48,7 @@ export default {
       return DpUploadFiles
     }),
     ExportSettings,
-    ParticipationPhases
+    ParticipationPhases,
   },
 
   mixins: [dpValidateMixin],
@@ -57,91 +57,91 @@ export default {
     authorizedUsersOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     initAgencies: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initAuthUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initDataInputOrgas: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initPictogramAltText: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initPictogramCopyright: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initProcedureCategories: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initProcedureName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initProcedurePhaseInternal: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initProcedurePhasePublic: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     participationPhases: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     plisId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureExternalDesc: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -152,7 +152,7 @@ export default {
         initValue: '',
         resourceType: '',
         url: '',
-        value: ''
+        value: '',
       },
       isLoadingPlisData: false,
       pictogramAltText: this.initPictogramAltText,
@@ -165,7 +165,7 @@ export default {
       selectedInternalPhase: this.initProcedurePhaseInternal,
       selectedProcedureCategories: this.initProcedureCategories,
       selectedPublicPhase: this.initProcedurePhasePublic,
-      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures
+      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
     }
   },
 
@@ -173,7 +173,7 @@ export default {
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
-    }
+    },
   },
 
   methods: {
@@ -182,24 +182,24 @@ export default {
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update'
-          ? undefined
-          : {
-              procedure: {
-                data: {
-                  type: 'Procedure',
-                  id: this.procedureId
-                }
-              }
+        relationships: url === 'api_resource_update' ?
+          undefined :
+          {
+            procedure: {
+              data: {
+                type: 'Procedure',
+                id: this.procedureId,
+              },
             },
-        ...(url === 'api_resource_update' ? { id } : {})
+          },
+        ...(url === 'api_resource_update' ? { id } : {}),
       }
     },
 
     getDataPlis (plisId, routeName) {
       return dpApi({
         method: 'GET',
-        url: Routing.generate(routeName, { uuid: plisId })
+        url: Routing.generate(routeName, { uuid: plisId }),
       })
         .then(data => {
           return data.data
@@ -213,11 +213,11 @@ export default {
         method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
         url: Routing.generate(this.addonPayload.url, {
           resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
         }),
         data: {
-          data: payload
-        }
+          data: payload,
+        },
       })
 
       return addonRequest
@@ -267,12 +267,12 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
-    }
+    },
   },
 
   mounted () {
     const users = JSON.parse(JSON.stringify(this.initAuthUsers))
     this.selectedAuthUsers = sortAlphabetically(users, 'name')
-  }
+  },
 }
 </script>
