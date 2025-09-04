@@ -22,9 +22,6 @@ use InvalidArgumentException;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
 
-use function in_array;
-
-use const ARRAY_FILTER_USE_KEY;
 
 /**
  * A custom transformer that always returns all attributes in the response,
@@ -59,8 +56,9 @@ class AllAttributesTransformer extends DynamicTransformer
     }
 
     /**
-     * Override the parent method to return all attributes regardless of
-     * their default status, unless specific fields were requested.
+     * Determines which attributes to include in the API response.
+     * If specific fields were requested via fieldset, uses parent behavior.
+     * Otherwise, gets attributes from the CustomField instance or returns all available attributes.
      *
      * @return array<non-empty-string, AttributeReadabilityInterface<TEntity>>
      */
@@ -68,24 +66,22 @@ class AllAttributesTransformer extends DynamicTransformer
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
         if (null === $fieldsetBag) {
-            $fieldInstance = $scope->getResource()->getData();
-            // Check if it's already a CustomField instance
-            if ($fieldInstance instanceof CustomFieldInterface) {
-                $fieldset = $fieldInstance->getApiAttributes();
-            } else {
-                // If no fieldset was requested, return ALL attribute fields
-                // Get attributes from the ResourceReadability which is accessible in this class
-                return $this->readability->getAttributes();
-            }
-        } else {
-            // If specific fields were requested, handle them as normal
-            $fieldset = iterator_to_array($fieldsetBag);
+            return $this->getApiAttributesForField($scope);
         }
 
-        return array_filter(
-            $this->readability->getAttributes(),
-            static fn (string $attributeName): bool => in_array($attributeName, $fieldset, true),
-            ARRAY_FILTER_USE_KEY
-        );
+        return parent::getEffectiveAttributeReadabilities($scope);
+    }
+
+
+    private function getApiAttributesForField($scope):array{
+        $customFieldInstance = $scope->getResource()->getData();
+
+        if ($customFieldInstance instanceof CustomFieldInterface) {
+            return $customFieldInstance->getApiAttributes();
+        }
+
+        // If no fieldset was requested, return ALL attribute fields
+        // Get attributes from the ResourceReadability which is accessible in this class
+        return $this->readability->getAttributes();
     }
 }
