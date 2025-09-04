@@ -160,11 +160,11 @@
         </div>
       </template>
 
-      <template v-slot:required="rowData">
+      <template v-slot:isRequired="rowData">
         <div
           v-if="isStatementField"
           class="mt-1">
-          {{ rowData.required ? Translator.trans('yes') : Translator.trans('no') }}
+          {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
         </div>
       </template>
 
