@@ -156,4 +156,9 @@ class MultiSelectField extends AbstractCustomField
             throw new InvalidArgumentException('Multi select fields must have at least 2 options');
         }
     }
+
+    public function getApiAttributes(): array
+    {
+        return ['name', 'description', 'options', 'isRequired', 'fieldType'];
+    }
 }

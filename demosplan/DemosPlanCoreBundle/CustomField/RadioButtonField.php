@@ -142,4 +142,9 @@ class RadioButtonField extends AbstractCustomField
             throw new InvalidArgumentException('Radio button fields must have at least 2 options');
         }
     }
+
+    public function getApiAttributes(): array
+    {
+        return ['name', 'description', 'options', 'fieldType'];
+    }
 }

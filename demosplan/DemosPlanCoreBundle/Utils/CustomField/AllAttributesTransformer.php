@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -41,7 +42,6 @@ use const ARRAY_FILTER_USE_KEY;
 class AllAttributesTransformer extends DynamicTransformer
 {
     /**
-     * /**
      * @param non-empty-string                                   $typeName
      * @param class-string<TEntity>                              $entityClass
      * @param ResourceReadability<TCondition, TSorting, TEntity> $readability
@@ -68,14 +68,14 @@ class AllAttributesTransformer extends DynamicTransformer
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
         if (null === $fieldsetBag) {
-            $fieldType = $scope->getResource()->getData()->getType();
-
-            if ('singleSelect' === $fieldType) {
-                $fieldset = ['name', 'description', 'options', 'fieldType'];
-            }
-
-            if ('multiSelect' === $fieldType) {
-                $fieldset = ['name', 'description', 'options', 'isRequired', 'fieldType'];
+            $fieldInstance = $scope->getResource()->getData();
+            // Check if it's already a CustomField instance
+            if ($fieldInstance instanceof CustomFieldInterface) {
+                $fieldset = $fieldInstance->getApiAttributes();
+            } else {
+                // If no fieldset was requested, return ALL attribute fields
+                // Get attributes from the ResourceReadability which is accessible in this class
+                return $this->readability->getAttributes();
             }
         } else {
             // If specific fields were requested, handle them as normal
