@@ -22,7 +22,6 @@ use InvalidArgumentException;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
 
-
 /**
  * A custom transformer that always returns all attributes in the response,
  * regardless of their default status.
@@ -72,8 +71,8 @@ class AllAttributesTransformer extends DynamicTransformer
         return parent::getEffectiveAttributeReadabilities($scope);
     }
 
-
-    private function getApiAttributesForField($scope):array{
+    private function getApiAttributesForField($scope): array
+    {
         $customFieldInstance = $scope->getResource()->getData();
 
         if ($customFieldInstance instanceof CustomFieldInterface) {
