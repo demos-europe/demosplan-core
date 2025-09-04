@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Location;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\GeodatenzentrumAddressSearchService;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -24,19 +25,47 @@ class LocationService
      */
     protected $em;
 
-    public function __construct(ManagerRegistry $registry, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly LoggerInterface $logger,
+        private readonly GeodatenzentrumAddressSearchService $geodatenzentrumAddressSearchService,
+    ) {
         $this->em = $registry->getManager();
     }
 
     /**
-     * Get a City by Name or postal code.
+     * Get an address suggestion by typing in a street name.
+     * Uses the external Geocoder API for autosuggestions.
+     *
+     * @param string $searchString
+     * @param int    $limit
+     *
+     * @return array
+     */
+    public function searchAddress($searchString, $limit = 20)
+    {
+        try {
+            $locations = $this->geodatenzentrumAddressSearchService
+                ->searchAddress($searchString, $limit);
+            // return results from Geocoder API
+            if (!empty($locations)) {
+                return ['body' => $locations];
+            }
+
+            return ['body' => []];
+        } catch (Exception $e) {
+            $this->logger->error('Fehler bei der Adresssuche: ', [$e]);
+
+            return ['body' => []];
+        }
+    }
+
+    /**
+     * Get a City by Name or postal code. Database-based query.
      *
      * @param string     $searchString
      * @param int        $limit
      * @param array|null $maxExtent
-     *
-     * @return array
      */
     public function searchCity($searchString, $limit = 20, $maxExtent = null): ?array
     {
