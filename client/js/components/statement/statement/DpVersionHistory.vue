@@ -22,13 +22,15 @@
     <dp-loading
       v-if="isLoading"
       data-cy="loadingSpinner"
-      class="u-mt-1_5 u-ml" />
+      class="u-mt-1_5 u-ml"
+    />
 
     <div
       v-else-if="!isLoading"
       class="c-slidebar__content overflow-y-auto"
       :class="{'u-mr': days.length === 0}"
-      style="height: 88vh;">
+      style="height: 88vh;"
+    >
       <table class="u-mb">
         <thead class="sr-only">
           <tr>
@@ -44,11 +46,13 @@
             <td
               data-cy="noEntries"
               colspan="4"
-              class="u-mr">
+              class="u-mr"
+            >
               <dp-inline-notification
                 class="mt-3 mb-2"
                 :message="Translator.trans('explanation.noentries')"
-                type="info" />
+                type="info"
+              />
             </td>
           </tr>
           <!-- if there are history items -->
@@ -61,7 +65,8 @@
               :date="day.attributes.day"
               :day="day"
               :all-times="times"
-              :entity="entity" />
+              :entity="entity"
+            />
           </template>
         </tbody>
       </table>

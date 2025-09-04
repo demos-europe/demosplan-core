@@ -19,7 +19,8 @@
         text: Translator.trans('map.base.url')
       }"
       name="r_baseLayerUrl"
-      @input="debounceUpdate" />
+      @input="debounceUpdate"
+    />
 
     <dp-input
       id="r_baseLayerLayers"
@@ -31,7 +32,8 @@
         text: Translator.trans('layers')
       }"
       name="r_baseLayerLayers"
-      @input="debounceUpdate" />
+      @input="debounceUpdate"
+    />
 
     <dp-input
       id="r_mapAttribution"
@@ -42,7 +44,8 @@
         hint: `${Translator.trans('map.attribution.hint')} ${Translator.trans('map.attribution.placeholder')}`,
         text: Translator.trans('map.attribution')
       }"
-      name="r_mapAttribution" />
+      name="r_mapAttribution"
+    />
 
     <p class="weight--bold u-mb-0">
       {{ Translator.trans('map.base.settings.preview') }}:
@@ -62,7 +65,8 @@
         controls: [attributionControl],
         autoSuggest: { enabled: false },
         defaultAttribution: mapAttribution,
-      }" />
+      }"
+    />
 
     <dp-button-row
       class="u-mt"
@@ -71,7 +75,8 @@
       secondary
       :secondary-text="Translator.trans('reset')"
       @secondary-action="resetMapSettings"
-      @primary-action="saveMapSettings" />
+      @primary-action="saveMapSettings"
+    />
   </div>
 </template>
 

@@ -345,7 +345,7 @@
                     <dp-public-layer-list-wrapper
                         ref="layerList"
                         :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"
-                        @layer-list:unfold="foldOpenToolbarItems(['layerLegend', 'mapTools', 'customLayer'])">
+                        @layer-list:unfolded="foldOpenToolbarItems(['layerLegend', 'mapTools', 'customLayer'])">
                     </dp-public-layer-list-wrapper>
 
                     {# Legends #}
@@ -395,7 +395,7 @@
         :procedure-initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureInitialExtent|json_encode|e('js', 'utf-8') }}')"
         :procedure-default-max-extent="JSON.parse('{{ templateVars.mapOptions.procedureDefaultMaxExtent|json_encode|e('js', 'utf-8') }}')"
         :procedure-default-initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-        @fullscreen-toggle="handleFullscreenFocus">
+        @fullscreen:toggle="handleFullscreenFocus">
 
         {#  @TODO make everything inside this slot vue-components and move to Map.vue template #}
         {% block callToActionLayerSwitcherButtons %}

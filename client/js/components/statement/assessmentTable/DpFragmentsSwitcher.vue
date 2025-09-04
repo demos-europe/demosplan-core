@@ -24,35 +24,41 @@ statements and fragments is now in DpAssessmentTableCard.vue
       <input
         :id="'switcher' + statementId"
         type="checkbox"
-        @change="toggle">
+        @change="toggle"
+      >
       <label :for="'switcher' + statementId">
         <span
           class="o-switcher__option float-left"
-          :class="{'o-switcher__option--checked': statementTabVisible}">
+          :class="{'o-switcher__option--checked': statementTabVisible}"
+        >
           {{ Translator.trans('statement') }}
         </span>
         <span
           class="o-switcher__option float-right"
           :class="{'o-switcher__option--checked': !statementTabVisible}"
-          data-cy="fragmentTab">
+          data-cy="fragmentTab"
+        >
           {{ fragmentsButtonText }}
         </span>
       </label>
     </div>
     <div
       v-if="isFiltered && showFragmentResults"
-      class="inline-block align-top u-pv-0_25 float-right">
+      class="inline-block align-top u-pv-0_25 float-right"
+    >
       <p class="inline-block u-mb-0 u-mr">
         {{ Translator.trans('found.fragments', {hits: filteredFragmentsLength, sum: totalFragmentsLength}) }}
       </p>
       <label
         :for="'show-all-fragments' + statementId"
-        class="inline-block u-mb-0">
+        class="inline-block u-mb-0"
+      >
         <input
           :id="'show-all-fragments' + statementId"
           type="checkbox"
           name="show-all-fragments"
-          @click="showAllFragments">
+          @click="showAllFragments"
+        >
         {{ Translator.trans('show.all.fragments', { sum: totalFragmentsLength }) }}
       </label>
     </div>

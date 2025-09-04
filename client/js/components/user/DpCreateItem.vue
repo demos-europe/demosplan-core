@@ -20,18 +20,21 @@
   <dp-accordion
     :is-open="isOpen"
     :title="Translator.trans(itemTitle)"
-    @item:toggle="(open) => { toggleItem(open) }">
+    @item:toggle="(open) => { toggleItem(open) }"
+  >
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
         :data-cy="customComponent[entity].formName"
-        :data-dp-validate="customComponent[entity].formName">
+        :data-dp-validate="customComponent[entity].formName"
+      >
         <!-- Form fields   -->
         <component
           v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          @[dynamicEvent]="update" />
+          @[dynamicEvent]="update"
+        />
 
         <!-- Save/Abort buttons   -->
         <dp-button-row
@@ -41,7 +44,8 @@
           primary
           secondary
           @primary-action="dpValidateAction(customComponent[entity].formName, save)"
-          @secondary-action="reset" />
+          @secondary-action="reset"
+        />
       </div>
     </div>
   </dp-accordion>
