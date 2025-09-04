@@ -1209,7 +1209,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    #[Route(name: 'DemosPlan_procedure_edit', path: '/verfahren/{procedure}/einstellungen', defaults: ['isMaster' => false])]
+    #[Route(name: 'DemosPlan_procedure_edit', path: '/verfahren/{procedure}/einstellungen', options: ['expose' => true], defaults: ['isMaster' => false])]
     #[Route(name: 'DemosPlan_procedure_edit_master', path: '/verfahren/blaupause/{procedure}/einstellungen', defaults: ['isMaster' => true])]
     public function administrationEditAction(
         ContentService $contentService,

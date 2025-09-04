@@ -2652,6 +2652,7 @@ field_procedure_adjustments_planning_agency:
     label: 'Planungsbüro einem Verfahren zuordnen'
     loginRequired: true
     parent: field_procedure
+    expose: true
 field_procedure_administration:
     label: 'Anzeige der Behörde im Header der Detailansicht eines Verfahrens'
     loginRequired: false
