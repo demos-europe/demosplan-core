@@ -2553,7 +2553,7 @@ field_expand_procedure_description:
     description: 'Expand full procedure description on page load'
     expose: true
     label: 'Expand procedure description'
-    loginRequired: false
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
