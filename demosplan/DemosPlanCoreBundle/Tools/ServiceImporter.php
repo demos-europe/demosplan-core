@@ -312,7 +312,7 @@ class ServiceImporter implements ServiceImporterInterface
             $this->checkFileIsValidToImport($fileInfo);
 
             // Detect file type and use appropriate importer
-            if ($this->isOdtFile($fileInfo)) {
+            if ($this->isOdtFile($fileInfo, $file)) {
                 $importResult = $this->importOdtFile(
                     $file,
                     $elementId,
@@ -363,7 +363,7 @@ class ServiceImporter implements ServiceImporterInterface
     /**
      * Detect if file is ODT based on file extension and content.
      */
-    private function isOdtFile(FileInfo $fileInfo): bool
+    private function isOdtFile(FileInfo $fileInfo, File $file): bool
     {
         $contentType = $fileInfo->getContentType();
         $fileName = $fileInfo->getFileName();
@@ -377,7 +377,7 @@ class ServiceImporter implements ServiceImporterInterface
         }
 
         // Content-based validation: check if file is a ZIP archive and contains correct mimetype
-        $filePath = $fileInfo->getAbsolutePath();
+        $filePath = $file->getRealPath();
         if ($filePath && file_exists($filePath)) {
             return $this->validateOdtStructure($filePath);
         }
