@@ -668,9 +668,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         if ($this->permissions->hasPermission('field_expand_procedure_description')) {
             if (array_key_exists('expandProcedureDescription', $data)) {
-                $procedure['settings']['expandProcedureDescription'] = true;
-            } else {
                 $procedure['settings']['expandProcedureDescription'] = false;
+            } else {
+                $procedure['settings']['expandProcedureDescription'] = true;
             }
         }
 

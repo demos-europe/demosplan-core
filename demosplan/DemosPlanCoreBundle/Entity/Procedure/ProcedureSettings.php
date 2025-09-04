@@ -117,9 +117,9 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     private bool $allowAnonymousStatements = true;
 
     /**
-     * @ORM\Column(name="expand_procedure_description", type="boolean", nullable=false, options={"default": true})
+     * @ORM\Column(name="expand_procedure_description", type="boolean", nullable=false, options={"default": false})
      */
-    private bool $expandProcedureDescription = true;
+    private bool $expandProcedureDescription = false;
 
     /**
      * @var string
