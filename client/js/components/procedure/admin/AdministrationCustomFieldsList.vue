@@ -595,7 +595,6 @@ export default {
           if (field) {
             const { id, attributes } = field
             const { description, name, fieldType, isRequired, options } = attributes
-            console.log(fieldType)
 
             return {
               id,
