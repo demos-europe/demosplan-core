@@ -673,12 +673,14 @@ export default {
 
           const updatedField = {
             ...storeField,
-            attributes: {
-              ...storeField.attributes,
-              description,
-              name,
-              options,
-            },
+            attributes: Object.fromEntries(
+              Object.entries({
+                ...storeField.attributes,
+                description,
+                name,
+                options,
+              }).filter(([key]) => key !== 'fieldType'),
+            ),
           }
 
           await this.saveCustomField(updatedField)
