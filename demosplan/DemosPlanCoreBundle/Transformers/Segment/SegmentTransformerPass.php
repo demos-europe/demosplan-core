@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use Symfony\Component\Form\Exception\RuntimeException;
 
 /**

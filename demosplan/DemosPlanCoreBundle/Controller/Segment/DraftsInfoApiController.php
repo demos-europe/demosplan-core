@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
