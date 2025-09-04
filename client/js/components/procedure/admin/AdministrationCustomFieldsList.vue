@@ -172,7 +172,7 @@
             v-if="!rowData.edit"
             ref="deleteConfirmDialog"
             data-cy="customFields:deleteConfirm"
-            :message="Translator.trans('custom_field.delete.message.warning')"
+            :message="Translator.trans('warning.custom_field.delete.message')"
           />
 
           <template v-else>
@@ -204,7 +204,7 @@
 
           <dp-confirm-dialog
             ref="confirmDialog"
-            :message="Translator.trans('custom_field.edit.message.warning')"
+            :message="Translator.trans('warning.custom_field.edit.message')"
             data-cy="customFields:saveEditConfirm"
           />
 
