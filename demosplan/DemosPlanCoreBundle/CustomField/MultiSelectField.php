@@ -156,5 +156,4 @@ class MultiSelectField extends AbstractCustomField
             throw new InvalidArgumentException('Multi select fields must have at least 2 options');
         }
     }
-
 }

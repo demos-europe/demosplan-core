@@ -82,5 +82,4 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
         return $attributes;
     }
-
 }
