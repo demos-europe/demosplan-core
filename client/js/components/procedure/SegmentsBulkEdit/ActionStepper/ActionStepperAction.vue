@@ -23,10 +23,12 @@
         bold: modelValue,
         text: label
       }"
-      @change="isChecked => $emit('update:modelValue', isChecked)" />
+      @change="isChecked => $emit('update:modelValue', isChecked)"
+    />
     <div
       v-if="modelValue"
-      class="u-ml">
+      class="u-ml"
+    >
       <slot />
     </div>
   </div>
@@ -39,33 +41,33 @@ export default {
   name: 'ActionStepperAction',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   compatConfig: {
-    COMPONENT_V_MODEL: false
+    COMPONENT_V_MODEL: false,
   },
 
   props: {
     modelValue: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     id: {
       required: true,
-      type: String
+      type: String,
     },
 
     label: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
-    'update:modelValue'
-  ]
+    'update:modelValue',
+  ],
 }
 </script>

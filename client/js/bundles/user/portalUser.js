@@ -19,7 +19,7 @@ import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
 const components = {
   ChangePassword,
   DpAccordion,
-  PersonalData
+  PersonalData,
 }
 
 initialize(components).then(() => {

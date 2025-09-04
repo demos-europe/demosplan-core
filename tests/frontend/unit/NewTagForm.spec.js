@@ -19,10 +19,10 @@ describe('NewTagForm', () => {
           {
             id: 1,
             name: 'Category 1',
-            children: [{ name: 'Existing Tag' }]
-          }
-        ]
-      }
+            children: [{ name: 'Existing Tag' }],
+          },
+        ],
+      },
     })
   })
 
@@ -43,7 +43,7 @@ describe('NewTagForm', () => {
 
   it('resets the form and emits close event when resetNewTagForm is called', () => {
     wrapper.setData({
-      newTag: { name: 'Test Tag', category: 1 }
+      newTag: { name: 'Test Tag', category: 1 },
     })
     wrapper.vm.resetNewTagForm()
     expect(wrapper.vm.newTag).toEqual({})

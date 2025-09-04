@@ -50,6 +50,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupStreetAndNumber',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

@@ -14,7 +14,7 @@ export default {
 
   state: {
     messages: [],
-    uid: 1
+    uid: 1,
   },
 
   mutations: {
@@ -36,7 +36,7 @@ export default {
         linkUrl: message.linkUrl || '',
         linkText: message.linkText || '',
         persist: message.persist || false,
-        uid: state.uid++
+        uid: state.uid++,
       })
     },
 
@@ -53,6 +53,6 @@ export default {
      */
     remove (state, messageToRemove) {
       state.messages = state.messages.filter((message) => message.uid !== messageToRemove.uid)
-    }
-  }
+    },
+  },
 }

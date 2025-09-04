@@ -22,44 +22,53 @@
     <dp-loading
       v-if="isLoading"
       data-cy="loadingSpinner"
-      class="u-mt-1_5 u-ml" />
+      class="u-mt-1_5 u-ml"
+    />
 
     <div
       v-else-if="!isLoading"
       class="c-slidebar__content overflow-y-auto"
       :class="{'u-mr': days.length === 0}"
-      style="height: 88vh;">
+      style="height: 88vh;"
+    >
       <table class="u-mb">
-        <tr class="sr-only">
-          <th>
-            {{ Translator.trans('history') }}
-          </th>
-        </tr>
-        <tr>
+        <thead class="sr-only">
+          <tr>
+            <th>
+              {{ Translator.trans('history') }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
           <!-- if history is empty -->
-          <td
-            v-if="days === null || typeof days === 'undefined' || days.length === 0"
-            data-cy="noEntries"
-            colspan="4"
-            class="u-mr">
-            <dp-inline-notification
-              class="mt-3 mb-2"
-              :message="Translator.trans('explanation.noentries')"
-              type="info" />
-          </td>
-        </tr>
-        <!-- if there are history items -->
-        <!-- for each day -->
-        <template v-if="days.length">
-          <dp-version-history-day
-            v-for="(day, idx) in days"
-            :procedure-id="procedureId"
-            :key="idx"
-            :date="day.attributes.day"
-            :day="day"
-            :all-times="times"
-            :entity="entity" />
-        </template>
+          <tr v-if="!days || days.length === 0">
+            <td
+              data-cy="noEntries"
+              colspan="4"
+              class="u-mr"
+            >
+              <dp-inline-notification
+                class="mt-3 mb-2"
+                :message="Translator.trans('explanation.noentries')"
+                type="info"
+              />
+            </td>
+          </tr>
+          <!-- if there are history items -->
+          <!-- for each day -->
+          <template v-if="days.length">
+            <dp-version-history-day
+              v-for="(day, idx) in days"
+              :key="idx"
+              :procedure-id="procedureId"
+              :date="day.attributes.day"
+              :day="day"
+              :all-times="times"
+              :entity="entity"
+            />
+          </template>
+        </tbody>
       </table>
     </div>
   </div>
@@ -79,14 +88,14 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    DpVersionHistoryDay
+    DpVersionHistoryDay,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -96,7 +105,7 @@ export default {
       entityId: null,
       externId: '',
       isLoading: true,
-      times: []
+      times: [],
     }
   },
 
@@ -120,28 +129,28 @@ export default {
       }
 
       return `${entityKey} ${this.externId} - ${Translator.trans('history')}`
-    }
+    },
   },
 
   methods: {
     loadItems (id, type) {
       this.isLoading = true
-      const route = type === 'statement'
-        ? 'dplan_api_statement_history_get'
-        : type === 'segment'
-          ? 'dplan_api_segment_history_get'
-          : 'dplan_api_statement_fragment_history'
+      const route = type === 'statement' ?
+        'dplan_api_statement_history_get' :
+        type === 'segment' ?
+          'dplan_api_segment_history_get' :
+          'dplan_api_statement_fragment_history'
 
-      const params = type === 'statement'
-        ? { statementId: id }
-        : type === 'segment'
-          ? { segmentId: id }
-          : { statementFragmentId: id, procedureId: this.procedureId }
+      const params = type === 'statement' ?
+        { statementId: id } :
+        type === 'segment' ?
+          { segmentId: id } :
+          { statementFragmentId: id, procedureId: this.procedureId }
 
       this.entityId = id
       return dpApi({
         method: 'GET',
-        url: Routing.generate(route, params)
+        url: Routing.generate(route, params),
       })
         .then(({ data }) => {
           this.days = data.data
@@ -154,7 +163,7 @@ export default {
       if (entityId === this.entityId) {
         this.loadItems(entityId, entityType)
       }
-    }
+    },
   },
 
   mounted () {
@@ -168,6 +177,6 @@ export default {
     this.$root.$on('entity:updated', (entityId, entityType) => {
       this.updateVersionHistory(entityId, entityType)
     })
-  }
+  },
 }
 </script>

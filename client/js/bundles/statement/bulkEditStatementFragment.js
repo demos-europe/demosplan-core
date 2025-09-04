@@ -22,11 +22,11 @@ import StatementStore from '@DpJs/store/statement/Statement'
 const stores = {
   AssessmentTable: AssessmentTableStore,
   Fragment: FragmentStore,
-  Statement: StatementStore
+  Statement: StatementStore,
 }
 
 const components = {
-  DpBulkEditFragment
+  DpBulkEditFragment,
 }
 
 if (hasPermission('area_admin_boilerplates')) {

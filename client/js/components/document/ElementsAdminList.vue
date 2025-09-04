@@ -20,27 +20,32 @@
       v-show="selectedElements.length > 0"
       class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-text="Translator.trans('elements.selected', { count: selectedElements.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <template v-slot:default>
         <button
           v-if="hasPermission('feature_auto_switch_element_state')"
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
-          @click="bulkEdit">
+          @click="bulkEdit"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-pencil u-mr-0_125" />
+            class="fa fa-pencil u-mr-0_125"
+          />
           {{ Translator.trans('change.state.at.date') }}
         </button>
         <button
           v-if="hasPermission('feature_admin_element_bulk_delete')"
           type="button"
-          @click="bulkDelete"
           class="btn--blank o-link--default u-mr-0_5"
-          :title="Translator.trans('plandocuments.delete')">
+          :title="Translator.trans('plandocuments.delete')"
+          @click="bulkDelete"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-trash u-mr-0_125" />
+            class="fa fa-trash u-mr-0_125"
+          />
           {{ Translator.trans('delete') }}
         </button>
       </template>
@@ -48,7 +53,8 @@
     <dp-loading v-if="isLoading" />
     <p
       v-else-if="treeData.length < 1"
-      v-text="Translator.trans('plandocuments.no_elements')" />
+      v-text="Translator.trans('plandocuments.no_elements')"
+    />
     <dp-tree-list
       v-else
       ref="treeList"
@@ -59,7 +65,8 @@
       :tree-data="treeData"
       @end="(event, item, parentId) => saveNewSort(event, parentId)"
       @node-selection-change="nodeSelectionChange"
-      @tree:change="updateTreeData">
+      @tree:change="updateTreeData"
+    >
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -74,11 +81,13 @@
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
           <icon-published :published="nodeElement.attributes.visible" />
           <icon-statement-enabled
             v-if="hasPermission('feature_single_document_statement')"
-            :enabled="nodeElement.attributes.statementEnabled" />
+            :enabled="nodeElement.attributes.statementEnabled"
+          />
         </div>
       </template>
     </dp-tree-list>
@@ -92,7 +101,7 @@ import {
   dpRpc,
   DpTreeList,
   hasAnyPermissions,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -109,7 +118,7 @@ export default {
     DpTreeList,
     FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
     IconPublished: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconPublished')),
-    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled'))
+    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled')),
   },
 
   data () {
@@ -119,13 +128,13 @@ export default {
       isLoading: true,
       treeData: [],
       selectedElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     treeListOptions () {
@@ -138,28 +147,28 @@ export default {
         rootDraggable: true,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
       elementList: 'list',
-      deleteElement: 'delete'
+      deleteElement: 'delete',
     }),
 
     ...mapMutations('Elements', {
-      setElement: 'set'
+      setElement: 'set',
     }),
 
     /**
@@ -386,7 +395,7 @@ export default {
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
         newIndex: newIndex === 0 ? newIndex : index,
-        parentId
+        parentId,
       })
         .then(response => {
           /*
@@ -405,8 +414,8 @@ export default {
                 attributes: {
                   ...storeElement.attributes,
                   index: mapElement.index,
-                  parentId: mapElement.parentId
-                }
+                  parentId: mapElement.parentId,
+                },
               })
             }
           }
@@ -472,14 +481,14 @@ export default {
               attributes: {
                 ...this.elements[el.id].attributes,
                 idx,
-                parentId: updatedSort.nodeId
-              }
+                parentId: updatedSort.nodeId,
+              },
             })
           })
 
         this.buildTree('idx')
       }
-    }
+    },
   },
 
   mounted () {
@@ -490,9 +499,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'procedure.id',
-            value: dplan.procedureId
-          }
-        }
+            value: dplan.procedureId,
+          },
+        },
       },
       fields: {
         Elements: [
@@ -505,16 +514,16 @@ export default {
           'filePathWithHash',
           'index',
           'parentId',
-          'title'
+          'title',
         ].join(),
         SingleDocument: [
           'fileInfo',
           'index',
           'statementEnabled',
           'title',
-          'visible'
-        ].join()
-      }
+          'visible',
+        ].join(),
+      },
     })
       .then(() => {
         this.buildTree()
@@ -526,6 +535,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>
