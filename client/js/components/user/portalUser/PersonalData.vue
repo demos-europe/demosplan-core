@@ -60,11 +60,13 @@
     <input
       type="hidden"
       name="email"
-      :value="user.email">
+      :value="user.email"
+    >
     <input
       type="hidden"
       name="lastname"
-      :value="user.lastName">
+      :value="user.lastName"
+    >
 
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
@@ -76,7 +78,8 @@
           text: Translator.trans('email.daily.subscribe')
         }"
         name="assignedTaskNotification"
-        value-to-send="on" />
+        value-to-send="on"
+      />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>

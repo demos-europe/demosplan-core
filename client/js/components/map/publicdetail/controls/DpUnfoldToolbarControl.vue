@@ -25,12 +25,14 @@
     :class="prefixClass('c-map__unfold-button')"
     draggable="true"
     @mousedown.prevent="startDrag"
-    @touchstart="startDrag">
+    @touchstart="startDrag"
+  >
     <slot>
       <div :class="prefixClass('c-map__unfold-button-inner')">
         <i
           aria-hidden="true"
-          :class="prefixClass('c-map__unfold-button-handle')" />
+          :class="prefixClass('c-map__unfold-button-handle')"
+        />
       </div>
     </slot>
   </div>

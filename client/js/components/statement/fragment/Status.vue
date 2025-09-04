@@ -14,7 +14,8 @@
       v-if="!tooltip"
       class="cursor-help"
       :class="{'c-at-item__badge': badge}"
-      :title="voteString">
+      :title="voteString"
+    >
       <slot name="title" />
 
       <i
@@ -24,14 +25,16 @@
           'fa-question': status === '',
           'fa-check': status !== ''
         }"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </div>
 
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
     <v-popover
       v-else
       placement="top"
-      trigger="hover focus">
+      trigger="hover focus"
+    >
       <!-- Target/Trigger (for the events and position) -->
       <div>
         <slot name="title" />
@@ -42,7 +45,8 @@
             'fa-question': status === '',
             'fa-check': status !== ''
           }"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </div>
 
       <!-- Content -->
@@ -51,15 +55,18 @@
           <!-- fragment is assigned to reviewer, planners see this -->
           <div
             v-if="hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending"
-            v-cleanhtml="voteAdvicePending" />
+            v-cleanhtml="voteAdvicePending"
+          />
           <!-- no process until now -->
           <div
             v-else-if="status === ''"
-            v-cleanhtml="Translator.trans(transNone)" />
+            v-cleanhtml="Translator.trans(transNone)"
+          />
           <!-- show state -->
           <div
             v-else
-            v-cleanhtml="voteSentence" />
+            v-cleanhtml="voteSentence"
+          />
         </div>
       </template>
     </v-popover>

@@ -2,7 +2,8 @@
   <dp-badge
     class="inline-block whitespace-nowrap"
     :color="color"
-    :text="Translator.trans(status)" />
+    :text="Translator.trans(status)"
+  />
 </template>
 
 <script>

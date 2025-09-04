@@ -20,10 +20,12 @@
         class="u-ph-0_25"
         :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null">
+        @mouseleave="hoveredSegment = null"
+      >
         <div
           class="inline-block"
-          style="width: 5%">
+          style="width: 5%"
+        >
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -33,11 +35,13 @@
             :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
             entity-type="segment"
             :is-loading="claimLoading === segment.id"
-            @click="() => toggleClaimSegment(segment)" />
+            @click="() => toggleClaimSegment(segment)"
+          />
         </div><!--
-        --><div
-            class="inline-block break-words"
-            style="width: 95%">
+     --><div
+          class="inline-block break-words"
+          style="width: 95%"
+        >
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -47,20 +51,23 @@
             no-margin
             persist-icons
             @reset="() => reset(segment.id)"
-            @toggleEditing="() => addToEditing(segment.id)"
-            @save="() => saveSegment(segment.id)">
+            @toggle-editing="() => addToEditing(segment.id)"
+            @save="() => saveSegment(segment.id)"
+          >
             <template v-slot:display>
               <text-content-renderer
                 class="pr-3"
-                :text="segment.attributes.text" />
+                :text="segment.attributes.text"
+              />
             </template>
             <template v-slot:edit>
               <dp-editor
                 class="u-mr u-pt-0_25"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
-                @transformObscureTag="transformObscureTag"
-                @input="(val) => updateSegmentText(segment.id, val)" />
+                @transform-obscure-tag="transformObscureTag"
+                @input="(val) => updateSegmentText(segment.id, val)"
+              />
             </template>
           </dp-edit-field>
         </div>
@@ -75,24 +82,28 @@
           required
           :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
-          @transformObscureTag="transformObscureTag"
-          @input="updateStatementText" />
+          @transform-obscure-tag="transformObscureTag"
+          @input="updateStatementText"
+        />
         <dp-button-row
           class="u-mv"
           primary
           secondary
           :secondary-text="Translator.trans('discard.changes')"
           @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-          @secondary-action="resetStatement" />
+          @secondary-action="resetStatement"
+        />
       </template>
       <div
         v-else
-        class="border space-inset-s">
+        class="border space-inset-s"
+      >
         <dp-inline-notification
           v-if="hasDraftSegments"
           class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
-          type="warning" />
+          type="warning"
+        />
         <p class="weight--bold">
           {{ Translator.trans('statement.text.short') }}
         </p>
@@ -165,8 +176,8 @@ export default {
   },
 
   emits: [
-    'save-statement',
-    'statement-text-updated',
+    'saveStatement',
+    'statementText:updated',
   ],
 
   data () {
@@ -347,7 +358,7 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('save-statement', this.statement)
+      this.$emit('saveStatement', this.statement)
     },
 
     scrollToSegment () {
@@ -414,7 +425,7 @@ export default {
     updateStatementText (val) {
       const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
-      this.$emit('statement-text-updated')
+      this.$emit('statementText:updated')
 
       const updated = {
         ...this.statement,
