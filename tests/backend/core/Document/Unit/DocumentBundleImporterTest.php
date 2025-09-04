@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
+use demosplan\DemosPlanCoreBundle\Tools\OdtImporter;
 use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -52,6 +53,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
 
         $this->sut = new ServiceImporter(
             self::getContainer()->get(DocxImporterInterface::class),
+            self::getContainer()->get(OdtImporter::class),
             self::getContainer()->get(FileService::class),
             $this->createMock(FilesystemOperator::class),
             self::getContainer()->get(GlobalConfigInterface::class),

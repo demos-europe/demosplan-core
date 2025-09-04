@@ -22,6 +22,7 @@ parameters:
 # text/html für den Paragraph HTML-Importer
     - text/html
     - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    - application/vnd.oasis.opendocument.text
     - application/msword
 # txt Datei mit 0 bytes werden als inode/x-empty erkannt
     - inode/x-empty

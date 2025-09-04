@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add html paragraph import from odt files
 
 ## v4.11.0 (2025-08-27)
 - Allow to edit custom field type singleSelect
