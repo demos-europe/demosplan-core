@@ -38,7 +38,7 @@ class GeodatenzentrumAddressSearchService
         private readonly CurrentUserInterface $currentUser,
         private readonly ParameterBagInterface $parameterBag,
     ) {
-        $this->geodatenzentrumAddressSearchUrl = $parameterBag->get('geodatenzentrum_address_search_url');
+        $this->geodatenzentrumAddressSearchUrl = $this->parameterBag->get('geodatenzentrum_address_search_url');
     }
 
     /**
