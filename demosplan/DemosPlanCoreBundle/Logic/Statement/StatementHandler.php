@@ -10,8 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
@@ -108,6 +111,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
@@ -244,7 +248,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
+        private readonly StatementDeleter $statementDeleter,
+        private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
+        private readonly ManagerRegistry $doctrine,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -2285,7 +2292,22 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $reader->setEscape('');
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
+        // Ensure proper UTF-8 encoding by detecting and converting from potential encodings
         $records = $reader->getRecords();
+        $convertedRecords = [];
+
+        // Process records to ensure UTF-8 encoding
+        foreach ($records as $record) {
+            $convertedRow = [];
+            foreach ($record as $cell) {
+                $convertedRow[] = mb_convert_encoding($cell, 'UTF-8',
+                    mb_detect_encoding($cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
+            }
+            $convertedRecords[] = $convertedRow;
+        }
+
+        // Create a new records collection from the converted data
+        $records = new ArrayIterator($convertedRecords);
         $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {
@@ -2325,52 +2347,66 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Will be filled with the tag topics needed to create the imported tags
         // with the tag topic title as key and the object as value.
         $topics = [];
-        $persistedTag = [];
+        $newTagsAndOrMatchingExistingTags = [];
 
         foreach ($newTags as $tagData) {
             $currentTopicTitle = $tagData['topic'];
             $currentTagTitle = $tagData['tag'];
             // Create topic if not already present
+
             if ($currentTopicTitle !== $lastTopic) {
                 try {
                     Assert::stringNotEmpty($currentTopicTitle);
                     Assert::stringNotEmpty($currentTagTitle);
-                    $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
-                } catch (InvalidArgumentException) {
+
+                    // Check if topic already exists before creating
+                    $existingTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
+                    if (null !== $existingTopic) {
+                        $topics[$currentTopicTitle] = $existingTopic;
+                    } else {
+                        $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
+                    }
+                } catch (Exception $e) {
+                    $this->logger->error('Error creating topic during tag import', [
+                        'topicTitle'  => $currentTopicTitle,
+                        'tagTitle'    => $currentTagTitle,
+                        'procedureId' => $procedureId,
+                        'exception'   => $e->getMessage(),
+                        'trace'       => $e->getTraceAsString(),
+                    ]);
                     $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
-                } catch (DuplicatedTagTopicTitleException) {
-                    $alreadyCreatedTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
-                    Assert::notNull($alreadyCreatedTopic);
-                    $topics[$currentTopicTitle] = $alreadyCreatedTopic;
                 }
                 $lastTopic = $currentTopicTitle;
             }
 
             // Create the tag
-            $tag = $this->tagService->createTag(
-                $currentTagTitle,
-                $topics[$currentTopicTitle]
-            );
+            // Check if tag already exists in the target topic
+            $existingTagInTopic = $this->findExistingTagInTopic($currentTagTitle, $topics[$currentTopicTitle]);
 
-            $persistedTag[] = $tag;
-
-            // Create and attach a boilerplate object if required
-            if ($tagData['useBoilerplate']) {
-                $boilerplateData = [
-                    'title' => $currentTagTitle,
-                    'text'  => $tagData['boilerplate'],
-                ];
-                $boilerplate = $this->procedureService->addBoilerplate(
+            if (null !== $existingTagInTopic) {
+                // Tag already exists in target topic - add to event array but skip boilerplate processing
+                $newTagsAndOrMatchingExistingTags[] = $existingTagInTopic;
+            } else {
+                // Tag doesn't exist in target topic - proceed with import using integrated boilerplate handling
+                $tag = $this->handleTagImportWithBoilerplate(
+                    $currentTagTitle,
+                    $topics[$currentTopicTitle],
                     $procedureId,
-                    $boilerplateData
+                    $tagData['useBoilerplate'],
+                    $tagData['useBoilerplate'] ? $currentTagTitle : '',
+                    $tagData['useBoilerplate'] ? $tagData['boilerplate'] : ''
                 );
-                $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
+
+                // Only add tag to event array if it was successfully created (not null due to conflicts)
+                if (null !== $tag) {
+                    $newTagsAndOrMatchingExistingTags[] = $tag;
+                }
             }
         }
 
         $this->eventDispatcher->dispatch(
-            new ExcelImporterPrePersistTagsEvent(tags: $persistedTag),
+            new ExcelImporterPrePersistTagsEvent(tags: $newTagsAndOrMatchingExistingTags),
             ExcelImporterPrePersistTagsEventInterface::class
         );
     }
@@ -2484,6 +2520,165 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 ]
             );
         }
+    }
+
+    /**
+     * Finds an existing tag by title within a specific procedure.
+     *
+     * @throws Exception
+     */
+    protected function findExistingTagInProcedure(string $procedureId, string $tagTitle): ?Tag
+    {
+        $procedure = $this->procedureService->getProcedure($procedureId);
+        $matchingTags = $procedure->getTags()->filter(
+            static fn (Tag $tag) => $tag->getTitle() === $tagTitle
+        );
+
+        return $matchingTags->isEmpty() ? null : $matchingTags->first();
+    }
+
+    /**
+     * Finds an existing tag with the given title in the specified topic.
+     *
+     * @param string   $tagTitle The title of the tag to find
+     * @param TagTopic $topic    The topic to search in
+     *
+     * @return Tag|null The existing tag if found, null otherwise
+     */
+    protected function findExistingTagInTopic(string $tagTitle, TagTopic $topic): ?Tag
+    {
+        $topicTags = $topic->getTags();
+        $existingTags = $topicTags->filter(
+            static fn (Tag $tag) => $tag->getTitle() === $tagTitle
+        );
+
+        if (!$existingTags->isEmpty()) {
+            /* @var Collection<TagInterface> $existingTags */
+            return $existingTags->first();
+        }
+
+        return null;
+    }
+
+    /**
+     * Creates a new tag and optionally attaches a boilerplate to it.
+     *
+     * @param string   $tagTitle         The title of the tag to create
+     * @param TagTopic $topic            The target topic for the tag
+     * @param string   $procedureId      The procedure ID for boilerplate lookup
+     * @param bool     $useBoilerplate   Whether to attach boilerplate
+     * @param string   $boilerplateTitle The title of the boilerplate (if useBoilerplate is true)
+     * @param string   $boilerplateText  The text of the boilerplate (if useBoilerplate is true)
+     *
+     * @return Tag The newly created tag
+     *
+     * @throws Exception
+     */
+    protected function createTagWithOptionalBoilerplate(
+        string $tagTitle,
+        TagTopic $topic,
+        string $procedureId,
+        bool $useBoilerplate = false,
+        string $boilerplateTitle = '',
+        string $boilerplateText = '',
+    ): Tag {
+        // Create the tag
+        $tag = $this->tagService->createTag($tagTitle, $topic);
+
+        // Attach boilerplate if requested
+        if ($useBoilerplate) {
+            $this->handleBoilerplateImportForTag($tag, $boilerplateTitle, $boilerplateText, $procedureId);
+        }
+
+        return $tag;
+    }
+
+    /**
+     * Handles tag import with integrated boilerplate processing.
+     * This method combines tag creation and boilerplate attachment in a single operation.
+     *
+     * @param string   $tagTitle         The title of the tag to create
+     * @param TagTopic $topic            The target topic for the tag
+     * @param string   $procedureId      The procedure ID for uniqueness checking
+     * @param bool     $useBoilerplate   Whether to attach boilerplate
+     * @param string   $boilerplateTitle The title of the boilerplate (if useBoilerplate is true)
+     * @param string   $boilerplateText  The text of the boilerplate (if useBoilerplate is true)
+     *
+     * @return Tag|null The created tag entity, or null if conflicts prevent creation
+     *
+     * @throws Exception
+     */
+    protected function handleTagImportWithBoilerplate(
+        string $tagTitle,
+        TagTopic $topic,
+        string $procedureId,
+        bool $useBoilerplate = false,
+        string $boilerplateTitle = '',
+        string $boilerplateText = '',
+    ): ?Tag {
+        // Check if tag title exists elsewhere in this procedure
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {
+            // Tag exists in different topic - add error message and skip processing
+            $existingTagInProcedure = $this->findExistingTagInProcedure($procedureId, $tagTitle);
+            if (null !== $existingTagInProcedure) {
+                $existingTopic = $existingTagInProcedure->getTopic();
+                $this->getMessageBag()->add('error', 'tags.import.conflict.tag.exists.in.different.topic', [
+                    'tagTitle'      => $tagTitle,
+                    'existingTopic' => $existingTopic->getTitle(),
+                    'targetTopic'   => $topic->getTitle(),
+                ]);
+
+                return null;
+            }
+
+            // Inconsistent state: isTagTitleFree said tag exists but findExistingTagInProcedure found nothing
+            $this->logger->error('Tag import inconsistency: isTagTitleFree returned false but tag not found', [
+                'procedureId'   => $procedureId,
+                'tagTitle'      => $tagTitle,
+                'targetTopicId' => $topic->getId(),
+            ]);
+            throw new TagNotFoundException("Tag title '{$tagTitle}' reported as taken in procedure '{$procedureId}' but tag not found");
+        }
+
+        // Tag doesn't exist anywhere in procedure - create new one with optional boilerplate
+        return $this->createTagWithOptionalBoilerplate(
+            $tagTitle,
+            $topic,
+            $procedureId,
+            $useBoilerplate,
+            $boilerplateTitle,
+            $boilerplateText
+        );
+    }
+
+    /**
+     * Handles boilerplate creation for a tag during import.
+     * Since all tags calling this method are new during import, they won't have existing boilerplates attached.
+     * Looks for existing boilerplate with matching title and text in procedure.
+     * If found, attaches the existing one to the tag.
+     * If not found, creates new boilerplate and attaches it to the tag.
+     *
+     * @throws Exception
+     */
+    protected function handleBoilerplateImportForTag(Tag $tag, string $title, string $text, string $procedureId): void
+    {
+        // Look for existing boilerplate with matching title AND text in procedure
+        $existingBoilerplates = $this->procedureService->getBoilerplateList($procedureId);
+        $matchingBoilerplate = collect($existingBoilerplates)
+            ->filter(fn (BoilerplateInterface $boilerplate) => $boilerplate->getTitle() === $title && $boilerplate->getText() === $text)
+            ->first();
+
+        if (null === $matchingBoilerplate) {
+            // Create new boilerplate and attach to tag
+            $boilerplateData = ['title' => $title, 'text' => $text];
+            $boilerplate = $this->procedureService->addBoilerplate($procedureId, $boilerplateData);
+        } else {
+            // Use existing matching boilerplate
+            $boilerplate = $matchingBoilerplate;
+        }
+
+        // Attach the boilerplate (new or existing) to the tag
+        $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
     }
 
     /**
@@ -4046,8 +4241,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
 
             /** @var StatementRepository $statementRepository */
-            $statementRepository = $this->statementService
-                ->getDoctrine()
+            $statementRepository = $this->doctrine
                 ->getManager()
                 ->getRepository(Statement::class);
             $voteObjects = $statementRepository

@@ -11,7 +11,8 @@
   <div>
     <button
       class="btn btn--primary"
-      @click.prevent="inviteToeb">
+      @click.prevent="inviteToeb"
+    >
       {{ Translator.trans('invitable_institution.add') }}
     </button>
   </div>
@@ -25,13 +26,13 @@ export default {
     selectedToebIds: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
@@ -45,7 +46,7 @@ export default {
         form.appendChild(additionalParam)
       })
       form.submit()
-    }
-  }
+    },
+  },
 }
 </script>

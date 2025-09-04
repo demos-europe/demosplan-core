@@ -17,7 +17,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpElementAdminEdit,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components).then(() => {

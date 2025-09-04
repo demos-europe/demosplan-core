@@ -19,9 +19,10 @@ import {
   DpContextualHelp,
   DpDatepicker,
   DpMultiselect,
-  DpUploadFiles
+  DpUploadFiles,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
@@ -44,90 +45,95 @@ export default {
     DpUploadFiles,
 
     // Only needed in statement detail view
-    DpSelectStatementCluster: () => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster'),
+    DpSelectStatementCluster: defineAsyncComponent(() => import(/* webpackChunkName: "select-statement-cluster" */ '@DpJs/components/statement/statement/SelectStatementCluster')),
 
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
-    },
-    DpEditor: async () => {
+    }),
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpVersionHistory: () => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'),
-    StatementReplySelect: () => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect'),
-    StatementVoter: () => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')
+    }),
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
+    StatementReplySelect: defineAsyncComponent(() => import(/* webpackChunkName: "statement-reply-select" */ '@DpJs/components/statement/assessmentTable/StatementReplySelect')),
+    StatementVoter: defineAsyncComponent(() => import(/* webpackChunkName: "statement-voter" */ '@DpJs/components/statement/voter/StatementVoter')),
   },
 
   directives: {
-    'save-and-return': saveAndReturn
+    'save-and-return': saveAndReturn,
   },
 
   props: {
     // Statement or cluster
     entity: {
       required: true,
-      type: String
+      type: String,
     },
 
     externId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initCounties: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initMunicipalities: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initPriorityAreas: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     initRecommendation: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initTags: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     // Only needed in statement detail view
     isCopy: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     readonly: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
+
+  emits: [
+    'show-slidebar',
+    'version:history',
+  ],
 
   data () {
     return {
@@ -136,12 +142,12 @@ export default {
       selectedCounties: [],
       selectedMunicipalities: [],
       selectedPriorityAreas: [],
-      selectedTags: []
+      selectedTags: [],
     }
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
+    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags']),
   },
 
   methods: {
@@ -194,7 +200,7 @@ export default {
     sortSelected (type) {
       const area = `selected${type}`
       this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
-    }
+    },
   },
 
   mounted () {
@@ -225,6 +231,6 @@ export default {
         this.$root.$emit('show-slidebar')
       })
     }
-  }
+  },
 }
 </script>

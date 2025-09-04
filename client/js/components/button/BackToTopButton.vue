@@ -1,7 +1,7 @@
 <template>
   <dp-button
     class="sticky z-above-zero"
-    :class="{ 'sr-only': hide }"
+    :class="{ 'sr-only border-none p-0': hide }"
     hide-text
     icon="arrow-up"
     icon-size="large"
@@ -10,17 +10,18 @@
     :text="Translator.trans('back.to.top')"
     data-cy="backToTop"
     variant="outline"
-    @click="scrollTop" />
+    @click="scrollTop"
+  />
 </template>
 
 <script>
 import { DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpBackToTop',
+  name: 'BackToTop',
 
   components: {
-    DpButton
+    DpButton,
   },
 
   data () {
@@ -31,14 +32,14 @@ export default {
       footerHeight: 0,
       positionFromLeft: 0,
       scrollPos: 0,
-      windowHeight: 0
+      windowHeight: 0,
     }
   },
 
   computed: {
     hide () {
       return this.scrollPos < this.windowHeight * 0.7
-    }
+    },
   },
 
   methods: {
@@ -58,7 +59,7 @@ export default {
 
     scrollTop () {
       window.scrollTo(0, 0)
-    }
+    },
   },
 
   mounted () {
@@ -75,7 +76,7 @@ export default {
       this.calculatePosition()
     })
       .observe(document.getElementById('app'))
-  }
+  },
 }
 
 </script>

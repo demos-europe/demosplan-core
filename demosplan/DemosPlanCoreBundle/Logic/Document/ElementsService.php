@@ -19,16 +19,19 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ElementReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
@@ -43,14 +46,16 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
-class ElementsService extends CoreService implements ElementsServiceInterface
+class ElementsService implements ElementsServiceInterface
 {
     /**
      * @var SingleDocumentService
@@ -76,6 +81,10 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         SingleDocumentService $singleDocumentService,
         private readonly SortMethodFactory $sortMethodFactory,
         protected readonly ValidatorInterface $validator,
+        private readonly ElementReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -311,8 +320,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function getMapElements(string $procedureId)
     {
-        return $this->getElementsRepository()
-            ->getOneBy(['pId' => $procedureId, 'category' => 'map']);
+        return $this->getElementsRepository()->getOneBy(['pId' => $procedureId, 'category' => 'map']);
     }
 
     /**
@@ -411,9 +419,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     {
         try {
             $this->validateParentsCount($data);
-            $result = $this->getElementsRepository()->add($data);
+            $element = $this->getElementsRepository()->add($data);
 
-            return $this->convertElementToArray($result);
+            $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+            $this->eventDispatcher->dispatch($reportEntryEvent);
+
+            return $this->convertElementToArray($element);
         } catch (Exception $e) {
             $this->logger->warning('addElement failed. ', [$e]);
             throw $e;
@@ -425,7 +436,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function addEntity(Elements $element): Elements
     {
-        return $this->getElementsRepository()->updateObject($element);
+        $element = $this->getElementsRepository()->updateObject($element);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $element;
     }
 
     public function getNextFreeOrderIndex(Procedure $procedure): int
@@ -455,7 +471,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getDocuments() as $singleDocument) {
                             $deletedDocument = $this->singleDocumentService->deleteSingleDocument($singleDocument->getId());
                             if (false === $deletedDocument) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Single Document %s. could not be deleted.',
                                     $singleDocument->getTitle()
                                 ));
@@ -464,12 +480,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                     }
 
                     // lösche ggf paragraphs
-                    $paragraphIds = $this->getElementsRepository()
-                        ->getParagraphIds($elementId);
+                    $paragraphIds = $this->getElementsRepository()->getParagraphIds($elementId);
 
                     $paragraphDeleted = $this->paragraphService->deleteParaDocument($paragraphIds);
                     if (false === $paragraphDeleted) {
-                        $this->getLogger()->error(sprintf(
+                        $this->logger->error(sprintf(
                             'deleteElement: Error while deleting a Kapitel of the element with ID: %s',
                             $elementId
                         ));
@@ -480,13 +495,17 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                         foreach ($elementEntity->getChildren() as $child) {
                             $deleted = $this->deleteElement($child->getId());
                             if (false === $deleted) {
-                                $this->getLogger()->error(sprintf(
+                                $this->logger->error(sprintf(
                                     'deleteElement: Element %s could not be deleted',
                                     $child->getTitle()
                                 ));
                             }
                         }
                     }
+
+                    $elementToDelete = $this->getElementObject($elementId);
+                    $reportEntryEvent = new CreateReportEntryEvent($elementToDelete, ReportEntry::CATEGORY_DELETE);
+                    $this->eventDispatcher->dispatch($reportEntryEvent);
                     $this->getElementsRepository()->delete($elementId);
                 } catch (Exception $e) {
                     $this->logger->error('An error occurred while deleting an element: ', [$e]);
@@ -535,9 +554,12 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $element['title'] = $defaultStatementElementTitle;
         }
 
-        $result = $repository->update($element['ident'], $element);
+        $element = $repository->update($element['ident'], $element);
 
-        return $this->convertElementToArray($result);
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $this->convertElementToArray($element);
     }
 
     /**
@@ -570,7 +592,13 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $element->setTitle($defaultStatementElementTitle);
         }
 
-        return $repository->updateObject($element);
+        /** @var Elements $element */
+        $element = $repository->updateObject($element);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        return $element;
     }
 
     /**
@@ -585,7 +613,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -603,11 +631,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
+            $this->logger->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
+            $this->logger->error('Organisation konnte nicht für die Kategorie '.$elementId.' berechtigt werden ', [$e]);
 
             return false;
         }
@@ -625,7 +653,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             if (!is_array($orgaIds)) {
                 $orgaIds = [$orgaIds];
             }
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->entityManager;
             $elementEntity = $this->getElementsRepository()
                 ->get($elementId);
 
@@ -639,11 +667,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->getLogger()->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
+            $this->logger->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
 
             return true;
         } catch (Exception $e) {
-            $this->getLogger()->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
+            $this->logger->error('Berechtigungen der Organisation konnten nicht von der Kategorie '.$elementId.' entfernt werden ', [$e]);
 
             return false;
         }
@@ -796,11 +824,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Kopiert alle Elements (Planunterlagenkategorien) von einem Verfahren in ein anderes.
      *
-     * @return array<string, string>
-     *
-     * @throws Exception
+     * @throws Exception|Throwable
      */
-    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): array
+    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): void
     {
         $entityManager = $this->entityManager;
 
@@ -849,8 +875,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $elementIds[$elementToCopy->getId()] = $copiedElement->getId();
             }
             $entityManager->flush();
-
-            return $elementIds;
         } catch (Exception $e) {
             $this->logger->warning('Copy elements failed. Message: ', [$e]);
             throw $e;

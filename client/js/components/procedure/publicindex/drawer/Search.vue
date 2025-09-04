@@ -18,23 +18,27 @@
       type="search"
       @blur="onBlur"
       @focus="onFocus"
-      @keyup="search">
+      @keyup="search"
+    >
 
     <dp-loading
       v-if="isLoading"
       class="c-search__loading"
-      hide-label />
+      hide-label
+    />
 
     <div
       v-show="showSuggestions && locations.length && changed && !selected && focused"
-      class="c-search__content-wrapper">
+      class="c-search__content-wrapper"
+    >
       <ul class="c-search__content">
         <li
           v-for="(location, idx) in locations"
           :key="idx"
           class="c-search__option"
           :value="location"
-          @click="submit(location)">
+          @click="submit(location)"
+        >
           {{ location }}
         </li>
       </ul>
@@ -46,10 +50,12 @@
       :class="{ 'hidden': !changed }"
       data-cy="search:searchButton"
       type="button"
-      @click="submit">
+      @click="submit"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-search" />
+        class="fa fa-search"
+      />
     </button>
 
     <button
@@ -57,17 +63,20 @@
       class="c-search__icon c-search__icon--reset btn--blank absolute"
       :class="{ 'hidden': !searchedAndNotChanged }"
       type="button"
-      @click="reset">
+      @click="reset"
+    >
       <svg
         fill=""
         height="24"
         viewBox="0 0 24 24"
         width="24"
-        xmlns="http://www.w3.org/2000/svg">
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
         <path
           d="M0 0h24v24H0z"
-          fill="none" />
+          fill="none"
+        />
       </svg>
     </button>
   </div>
@@ -81,16 +90,20 @@ export default {
   name: 'DpSearch',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
     showSuggestions: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
+
+  emits: [
+    'procedureSearch:focused',
+  ],
 
   data () {
     return {
@@ -100,13 +113,13 @@ export default {
       searched: false,
       searchTerm: '',
       selected: false,
-      value: ''
+      value: '',
     }
   },
 
   computed: {
     ...mapState('Location', [
-      'locations'
+      'locations',
     ]),
 
     changed () {
@@ -115,16 +128,16 @@ export default {
 
     searchedAndNotChanged () {
       return this.searched && !this.changed
-    }
+    },
   },
 
   methods: {
     ...mapActions('Location', {
-      getLocationSuggestions: 'get'
+      getLocationSuggestions: 'get',
     }),
 
     ...mapActions('Procedure', {
-      getProcedures: 'get'
+      getProcedures: 'get',
     }),
 
     asyncFind: debounce(function (query) {
@@ -149,7 +162,7 @@ export default {
 
     onFocus () {
       this.focused = true
-      this.$emit('procedure-search-focused')
+      this.$emit('procedureSearch:focused')
     },
 
     reset () {
@@ -184,7 +197,7 @@ export default {
         .then(() => {
           this.searched = searchTerm
         })
-    }
-  }
+    },
+  },
 }
 </script>

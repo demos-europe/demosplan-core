@@ -13,94 +13,110 @@
       {{ Translator.trans('statement.voter') }}
     </p>
     <dp-editable-list
+      ref="listComponent"
       :entries="voters"
       :has-permission-to-edit="!!(readonly !== '1' && isManual)"
       :translation-keys="translationKeys"
+      @delete="handleDelete"
       @reset="resetForm"
-      @saveEntry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
-      ref="listComponent">
+      @save-entry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
+      @show-update-form="index => showUpdateForm(index)"
+    >
       <!-- List of voters -->
       <template v-slot:list="{entry, index}">
         <ul class="o-list o-list--csv inline">
           <input
+            :id="preFix(index) + '[id]'"
             type="hidden"
             :name="preFix(index) + '[id]'"
-            :id="preFix(index) + '[id]'"
-            :value="entry.id">
+            :value="entry.id"
+          >
           <input
+            :id="preFix(index) + '[role_' + entry.role + ']'"
             type="hidden"
             :name="preFix(index) + '[role]'"
-            :id="preFix(index) + '[role_' + entry.role + ']'"
-            :value="entry.role">
+            :value="entry.role"
+          >
 
           <!-- User name -->
           <li
             v-if="entry.userName"
-            class="o-list__item">
+            class="o-list__item"
+          >
             {{ entry.userName }}
             <input
+              :id="preFix(index) + '[author_name]'"
               type="hidden"
               :name="preFix(index) + '[author_name]'"
-              :id="preFix(index) + '[author_name]'"
-              :value="entry.userName">
+              :value="entry.userName"
+            >
           </li>
 
           <!-- Organisation name -->
           <li
             v-if="entry.organisationName"
-            class="o-list__item">
+            class="o-list__item"
+          >
             {{ entry.organisationName }}
             <input
+              :id="preFix(index) + '[orga_name]'"
               type="hidden"
               :name="preFix(index) + '[orga_name]'"
-              :id="preFix(index) + '[orga_name]'"
-              :value="entry.organisationName">
+              :value="entry.organisationName"
+            >
           </li>
 
           <!-- Department name -->
           <li
             v-if="entry.departmentName"
-            class="o-list__item">
+            class="o-list__item"
+          >
             {{ entry.departmentName }}
             <input
+              :id="preFix(index) + '[orga_department_name]'"
               type="hidden"
               :name="preFix(index) + '[orga_department_name]'"
-              :id="preFix(index) + '[orga_department_name]'"
-              :value="entry.departmentName">
+              :value="entry.departmentName"
+            >
           </li>
 
           <!-- User postal code +  city -->
           <li
             v-if="entry.userPostcode || entry.userCity"
-            class="o-list__item">
+            class="o-list__item"
+          >
             <span v-if="entry.userPostcode">
               {{ entry.userPostcode }}
               <input
+                :id="preFix(index) + '[postalcode]'"
                 type="hidden"
                 :name="preFix(index) + '[postalcode]'"
-                :id="preFix(index) + '[postalcode]'"
-                :value="entry.userPostcode">
+                :value="entry.userPostcode"
+              >
             </span>
             <span v-if="entry.userCity">
               {{ entry.userCity }}
               <input
+                :id="preFix(index) + '[orga_city]'"
                 type="hidden"
                 :name="preFix(index) + '[orga_city]'"
-                :id="preFix(index) + '[orga_city]'"
-                :value="entry.userCity">
+                :value="entry.userCity"
+              >
             </span>
           </li>
 
           <!-- User Mail -->
           <li
             v-if="entry.userMail"
-            class="o-list__item">
+            class="o-list__item"
+          >
             {{ entry.userMail }}
             <input
+              :id="preFix(index) + '[email]'"
               type="hidden"
               :value="entry.userMail"
               :name="preFix(index) + '[email]'"
-              :id="preFix(index) + '[email]'">
+            >
           </li>
         </ul>
       </template>
@@ -108,9 +124,10 @@
       <!-- Form to add new voters -->
       <template v-slot:form>
         <div
-          data-dp-validate="newVoterForm"
           v-if="readonly !== '1' && isManual"
-          class="space-stack-s space-inset-s border">
+          data-dp-validate="newVoterForm"
+          class="space-stack-s space-inset-s border"
+        >
           <p class="lbl">
             {{ updating ? Translator.trans("statement.voter.change") : translationKeys.new }}:
           </p>
@@ -124,7 +141,8 @@
               }"
               value="0"
               :checked="formFields.role === 0"
-              @change="formFields.role = 0" />
+              @change="formFields.role = 0"
+            />
             <dp-radio
               id="role_1"
               data-cy="statementVoter:invitableInstitution"
@@ -133,74 +151,82 @@
               }"
               value="1"
               :checked="formFields.role === 1"
-              @change="formFields.role = 1" />
+              @change="formFields.role = 1"
+            />
           </div>
 
           <div
             v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
-            class="layout">
+            class="layout"
+          >
             <dp-input
               v-show="hasPermission('field_statement_meta_orga_name')"
               id="voter_publicagency"
-              data-cy="voterPublicAgency"
               v-model="formFields.organisationName"
+              data-cy="voterPublicAgency"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('invitable_institution')
-              }" /><!--
+              }"
+            /><!--
          --><dp-input
               v-show="hasPermission('field_statement_meta_orga_department_name')"
               id="voter_department"
-              data-cy="voterDepartment"
               v-model="formFields.departmentName"
+              data-cy="voterDepartment"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('department')
-              }" />
+              }"
+            />
           </div>
 
           <div class="layout">
             <dp-input
               v-if="hasPermission('field_statement_meta_submit_name')"
               id="voter_username"
-              data-cy="voterUsername"
               v-model="formFields.userName"
+              data-cy="voterUsername"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('statement.form.name')
-              }" /><!--
+              }"
+            /><!--
          --><dp-input
               v-if="hasPermission('field_statement_meta_email')"
               id="voter_email"
-              data-cy="voterEmail"
               v-model="formFields.userMail"
+              data-cy="voterEmail"
               class="layout__item u-1-of-2"
               :label="{
                 text: Translator.trans('email')
               }"
-              type="email" />
+              type="email"
+            />
           </div>
 
           <div class="layout">
             <dp-input
               v-if="hasPermission('field_statement_meta_postal_code')"
               id="voter_postalcode"
-              data-cy="voterPostalCode"
               v-model="formFields.userPostcode"
+              data-cy="voterPostalCode"
               class="layout__item u-1-of-8"
               :label="{
                 text: Translator.trans('postalcode')
               }"
-              pattern="^[0-9]{4,5}$" /><!--
+              pattern="^[0-9]{4,5}$"
+            /><!--
          --><dp-input
               v-if="hasPermission('field_statement_meta_city')"
               id="voter_city"
-              data-cy="voterCity"
               v-model="formFields.userCity"
+              data-cy="voterCity"
               :class="hasPermission('field_statement_meta_postal_code') ? 'layout__item u-3-of-8' : 'layout__item'"
               :label="{
                 text: Translator.trans('city')
-              }" />
+              }"
+            />
           </div>
         </div>
       </template>
@@ -219,7 +245,8 @@
           name="r_voters_anonym"
           placeholder=""
           type="number"
-          @input="event => $emit('updateAnonymVotes', event.target.value)">
+          @input="event => $emit('updateAnonymVotes', event.target.value)"
+        >
       </label>
     </div>
   </div>
@@ -235,7 +262,7 @@ export default {
   components: {
     DpEditableList,
     DpInput,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [dpValidateMixin],
@@ -244,39 +271,44 @@ export default {
     anonymVotesString: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     dataAttr: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initVoters: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     isManual: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     publicAllowed: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     readonly: {
       required: false,
       type: String,
-      default: '1'
-    }
+      default: '1',
+    },
   },
+
+  emits: [
+    'updateAnonymVotes',
+    'updateVoter',
+  ],
 
   data () {
     return {
@@ -290,7 +322,7 @@ export default {
         userCity: '',
         id: '',
         active: true,
-        manual: true
+        manual: true,
       },
       updating: false,
       anonymVotes: 0,
@@ -301,8 +333,8 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
         noEntries: Translator.trans('none'),
-        delete: Translator.trans('statement.voter.delete')
-      }
+        delete: Translator.trans('statement.voter.delete'),
+      },
     }
   },
 
@@ -322,7 +354,7 @@ export default {
     votersLength: {
       get () {
         return (this.anonymVotes + Object.keys(this.getVoters).length)
-      }
+      },
     },
 
     editable () {
@@ -331,7 +363,7 @@ export default {
 
     isInstitutionParticipation () {
       return hasPermission('feature_institution_participation') && this.formFields.role === 1
-    }
+    },
   },
 
   methods: {
@@ -339,7 +371,7 @@ export default {
       'addNewVoter',
       'removeVoter',
       'setVoters',
-      'updateVoter'
+      'updateVoter',
     ]),
 
     addElement (index) {
@@ -366,14 +398,31 @@ export default {
 
     checkIfEmpty () {
       let isEmpty = true
-      const fieldsToCheck = ['organisationName', 'departmentName', 'userName', 'userMail', 'userPostcode', 'userCity']
+      const fieldsToCheck = [
+        'organisationName',
+        'departmentName',
+        'userName',
+        'userMail',
+        'userPostcode',
+        'userCity',
+      ]
 
       for (let i = 0; i < fieldsToCheck.length; i++) {
         if (this.formFields[fieldsToCheck[i]] !== '' && typeof this.formFields[fieldsToCheck[i]] !== 'undefined') {
           isEmpty = false
+
+          return isEmpty
         }
       }
+
       return isEmpty
+    },
+
+    handleDelete (index) {
+      this.removeVoter(index)
+      this.resetForm()
+
+      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
     },
 
     resetForm () {
@@ -387,15 +436,25 @@ export default {
         userCity: '',
         id: '',
         manual: true,
-        active: true
+        active: true,
       }
+
       this.updating = false
-    }
+    },
+
+    showUpdateForm (index) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.getVoters[index][key]
+      }
+
+      this.updating = true
+    },
   },
 
   mounted () {
     // Make an object from the array of initial voters, that was passed in twig
     const objVoters = {}
+
     this.initVoters.forEach((elem, index) => {
       // Set the role of the voter, as it is not defined in BE response
       if (elem.role === '' || typeof elem.role === 'undefined') {
@@ -412,19 +471,6 @@ export default {
     this.setVoters(objVoters)
     this.voters = this.getVoters
 
-    // Event handlers for emitted events
-    this.$on('delete', (index) => {
-      this.removeVoter(index)
-      this.resetForm()
-      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.getVoters[index][key]
-      }
-      this.updating = true
-    })
     // Add event listener to statement voter div to prevent form submit on enter
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').addEventListener('keydown', preventSend)
@@ -435,12 +481,12 @@ export default {
     this.anonymVotes = parseInt(this.anonymVotesString)
   },
 
-  beforeDestroy () {
+  unmounted () {
     // Remove event listener from statement voter div
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').removeEventListener('keydown', preventSend, false)
     }
-  }
+  },
 }
 
 const preventSend = function (e) {

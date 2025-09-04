@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -18,7 +18,7 @@ describe('SearchModal', () => {
 
   beforeEach(() => {
     mutations = {
-      setCurrentSearch: jest.fn()
+      setCurrentSearch: jest.fn(),
     }
 
     store = new Vuex.Store({
@@ -26,21 +26,26 @@ describe('SearchModal', () => {
         Filter: {
           namespaced: true,
           state: {},
-          mutations
-        }
-      }
+          mutations,
+        },
+      },
     })
   })
 
   it('renders the correct markup with deactivated feature_statements_tag and feature_statement_fragments_tag', () => {
     global.dplan.permissions = {
       feature_statements_tag: false,
-      feature_statement_fragments_tag: false
+      feature_statement_fragments_tag: false,
     }
 
     const wrapper = shallowMountWithGlobalMocks(
       SearchModal,
-      { store }
+      {
+        store,
+        global: {
+          renderStubDefaultSlot: true,
+        },
+      },
     )
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -48,12 +53,12 @@ describe('SearchModal', () => {
 
   it('renders the correct markup for activated field_statement_municipality', () => {
     global.dplan.permissions = {
-      field_statement_municipality: true
+      field_statement_municipality: true,
     }
 
     const wrapper = shallowMountWithGlobalMocks(
       SearchModal,
-      { store }
+      { store },
     )
 
     expect(wrapper.html()).toMatchSnapshot()

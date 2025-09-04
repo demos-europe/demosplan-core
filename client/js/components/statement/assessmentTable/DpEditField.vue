@@ -14,68 +14,80 @@
       v-if="label !== ''"
       class="layout__item weight--bold u-pb-0_25"
       :class="[labelGrid]"
-      :data-cy="label">
+      :data-cy="label"
+    >
       {{ Translator.trans(label) }}:
     </dt><!--
-   --><dd
-        v-if="false === readonly"
-        class="c-edit-field layout__item"
-        data-cy="editingEnabled"
-        :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]">
-        <!-- Editing -->
-        <div
-          class="c-edit-field__editing"
-          v-if="editable && editingEnabled">
-          <slot name="edit" />
-        </div>
-        <!-- Displaying value in non-edit mode, also toggles edit mode -->
-        <div
-          :class="{'cursor-pointer': editable}"
-          :title="Translator.trans('edit.entity', { entity: translatedLabel })"
-          @click="toggleEditing"
-          v-if="!editable || !editingEnabled">
-          <slot name="display" />
-        </div>
-        <!-- Edit Trigger -->
-        <div
-          class="c-edit-field__trigger"
-          :class="{ 'block': persistIcons }">
-          <dp-loading
-            v-if="loading"
-            hide-label />
+ --><dd
+      v-if="false === readonly"
+      class="c-edit-field layout__item"
+      data-cy="editingEnabled"
+      :class="[(editingEnabled || loading) ? 'is-editing': '', inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
+    >
+      <!-- Editing -->
+      <div
+        v-if="editable && editingEnabled"
+        class="c-edit-field__editing"
+      >
+        <slot name="edit" />
+      </div>
+      <!-- Displaying value in non-edit mode, also toggles edit mode -->
+      <div
+        v-if="!editable || !editingEnabled"
+        :class="{'cursor-pointer': editable}"
+        :title="Translator.trans('edit.entity', { entity: translatedLabel })"
+        @click="toggleEditing"
+      >
+        <slot name="display" />
+      </div>
+      <!-- Edit Trigger -->
+      <div
+        class="c-edit-field__trigger"
+        :class="{ 'block': persistIcons }"
+      >
+        <dp-loading
+          v-if="loading"
+          hide-label
+        />
           <template v-else>
             <template v-if="editable && editingEnabled">
               <button
                 type="button"
                 :title="Translator.trans('save')"
                 class="btn--blank o-link--default"
+                data-cy="saveField"
                 @click="save"
-                data-cy="saveField">
+              >
                 <i
                   aria-hidden="true"
-                  class="fa fa-check" />
+                  class="fa fa-check"
+                />
               </button>
               <button
                 type="button"
                 :title="Translator.trans('reset')"
                 class="btn--blank o-link--default"
-                @click="reset">
+                @click="reset"
+              >
                 <i
                   aria-hidden="true"
-                  class="fa fa-times" />
+                  class="fa fa-times"
+                />
               </button>
             </template>
             <button
+              v-if="false === editingEnabled"
               type="button"
               data-cy="toggleEditing"
               :disabled="!editable"
-              v-if="false === editingEnabled"
               :title="editable ? Translator.trans('edit.entity', {entity: translatedLabel}) : Translator.trans('locked.title')"
               class="btn--blank o-link--default"
-              @click="toggleEditing">
+              @click="toggleEditing"
+            >
               <i
                 aria-hidden="true"
-                class="fa fa-pencil" />
+                class="fa fa-pencil"
+              />
             </button>
           </template>
         </div>
@@ -83,7 +95,8 @@
     <dd
       v-else
       class="c-edit-field layout__item"
-      :class="[inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]">
+      :class="[inputGrid, {'u-ml-0': noMargin, 'u-pl-0': noMargin}]"
+    >
       <slot name="display" />
     </dd>
   </dl>
@@ -97,7 +110,7 @@ export default {
   name: 'DpEditField',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   props: {
@@ -107,45 +120,51 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     //  Sets the label and some titles on buttons
     label: {
       required: true,
-      type: String
+      type: String,
     },
 
     labelGridCols: {
       required: false,
       type: Number,
-      default: 2
+      default: 2,
     },
 
     readonly: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     noMargin: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     persistIcons: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'reset',
+    'save',
+    'toggleEditing',
+  ],
 
   data () {
     return {
       //  Is the item currently in editing mode (vs. just displaying its contents)?
       editingEnabled: false,
-      loading: false
+      loading: false,
     }
   },
 
@@ -167,23 +186,26 @@ export default {
 
     inputGrid () {
       return 'u-' + (12 - this.labelGridCols) + '-of-12'
-    }
+    },
   },
 
   watch: {
     /*
      * When `editable` being set to false from outside, editing is also being disabled.
      */
-    editable (newVal) {
-      if (newVal === false) {
-        this.editingEnabled = false
-      }
-    }
+    editable: {
+      handler (newVal) {
+        if (newVal === false) {
+          this.editingEnabled = false
+        }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     ...mapMutations('AssessmentTable', [
-      'setRefreshButtonVisibility'
+      'setRefreshButtonVisibility',
     ]),
 
     reset () {
@@ -202,14 +224,14 @@ export default {
       this.setRefreshButtonVisibility(true)
       this.loading = true
       this.$emit('save')
-    }
+    },
   },
 
   mounted () {
-    this.$root.$on('save-success', () => {
+    this.$root.$on('saveSuccess', () => {
       this.loading = false
       this.editingEnabled = false
     })
-  }
+  },
 }
 </script>

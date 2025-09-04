@@ -2,7 +2,9 @@
 
 
 {% block component_part %}
-    <tags-list :procedure-id="{{ templateVars.procedure|json_encode }}">
+    <tags-list
+        :is-master-procedure="Boolean({{ templateVars.procedureTemplate }})"
+        :procedure-id="{{ templateVars.procedure|json_encode }}">
     </tags-list>
 {% endblock component_part %}
 

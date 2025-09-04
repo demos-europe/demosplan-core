@@ -114,6 +114,7 @@ class OwnsProcedureConditionFactory
         $relevantRoles = [
             ...User::PLANNING_AGENCY_ROLES,
             ...User::HEARING_AUTHORITY_ROLES,
+            ...User::CUSTOMER_MASTER_USER_ROLE
         ];
 
         if ($this->userOrProcedure instanceof User) {

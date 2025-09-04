@@ -14,22 +14,25 @@
     hidden-input="r_send_body"
     :readonly="!editable"
     :toolbar-items="toolbarItems"
-    @input="$emit('emailBody:input', $event)">
+    @input="$emit('emailBody:input', $event)"
+  >
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         v-if="hasPermission('area_admin_boilerplates')"
         ref="boilerPlateModal"
         boiler-plate-type="email"
         :procedure-id="procedureId"
-        @insert="text => modalProps.handleInsertText(text)" />
+        @insert="text => modalProps.handleInsertText(text)"
+      />
     </template>
     <template v-slot:button>
       <button
         v-if="hasPermission('area_admin_boilerplates')"
+        v-tooltip="Translator.trans('boilerplate.insert')"
         :class="prefixClass('menubar__button')"
         type="button"
-        v-tooltip="Translator.trans('boilerplate.insert')"
-        @click.stop="openBoilerPlate">
+        @click.stop="openBoilerPlate"
+      >
         <i :class="prefixClass('fa fa-puzzle-piece')" />
       </button>
     </template>
@@ -37,6 +40,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
@@ -45,10 +49,10 @@ export default {
 
   components: {
     DpBoilerPlateModal,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    }),
   },
 
   mixins: [prefixClassMixin],
@@ -57,40 +61,44 @@ export default {
     dataCy: {
       type: String,
       required: false,
-      default: 'statementDetailFinalEmailBody'
+      default: 'statementDetailFinalEmailBody',
     },
 
     editable: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     initText: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'emailBody:input',
+  ],
 
   data () {
     return {
       text: this.initText,
       toolbarItems: {
         headings: [1, 2, 3],
-        linkButton: true
-      }
+        linkButton: true,
+      },
     }
   },
 
   watch: {
     initText (newVal) {
       this.text = newVal
-    }
+    },
   },
 
   methods: {
@@ -102,7 +110,7 @@ export default {
 
     resetText () {
       this.text = this.initText
-    }
-  }
+    },
+  },
 }
 </script>

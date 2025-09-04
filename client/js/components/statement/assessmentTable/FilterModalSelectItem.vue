@@ -10,70 +10,76 @@
 <template>
   <div
     v-if="false === hidden"
-    :data-cy="filterItem.attributes.label">
+    :data-cy="filterItem.attributes.label"
+  >
     <label
       :for="filterItem.id"
-      class="layout__item u-1-of-3 u-pl-0 text-right">
+      class="layout__item u-1-of-3 u-pl-0 text-right"
+    >
       <dp-loading
         v-if="isUpdating"
         hide-label
-        class="inline-block u-mr-0_5" />
+        class="inline-block u-mr-0_5"
+      />
       {{ filterItem.attributes.label }}
     </label><!--
 
-     --><div class="layout__item u-2-of-3">
-          <dp-multiselect
-            :id="filterItem.id"
-            :close-on-select="false"
-            :data-cy="filterItem.attributes.name"
-            label="label"
-            :loading="isLoading"
-            multiple
-            :name="filterItem.attributes.name + '_multiselect'"
-            :options="availableOptions"
-            selection-controls
-            track-by="label"
-            :value="selected"
-            @close="updateFilterOptions"
-            @open="loadFilterOptions"
-            @remove="removeFilterOption"
-            @select="selectFilterOption">
-            <!-- selected options -->
-            <template v-slot:tag="{ props }">
-              <span
-                class="multiselect__tag"
-                :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)">
-                <span>
-                  {{ props.option.label }}
-                  <template v-if="'fragment' !== filterGroup.type">
-                    ({{ props.option.count }})
-                  </template>
-                </span>
-                <i
-                  aria-hidden="true"
-                  class="multiselect__tag-icon"
-                  tabindex="1"
-                  @click="props.remove(props.option)" />
+ --><div class="layout__item u-2-of-3">
+      <dp-multiselect
+        :id="filterItem.id"
+        :close-on-select="false"
+        :data-cy="filterItem.attributes.name"
+        label="label"
+        :loading="isLoading"
+        multiple
+        :name="filterItem.attributes.name + '_multiselect'"
+        :options="availableOptions"
+        selection-controls
+        track-by="label"
+        :value="selected"
+        @close="updateFilterOptions"
+        @open="loadFilterOptions"
+        @remove="removeFilterOption"
+        @select="selectFilterOption"
+      >
+        <!-- selected options -->
+        <template v-slot:tag="{ props }">
+          <span
+            class="multiselect__tag"
+            :data-cy="'tag-' + generateDataCy(filterItem.attributes.name, props.option.label)"
+          >
+            <span>
+              {{ props.option.label }}
+              <template v-if="'fragment' !== filterGroup.type">
+                ({{ props.option.count }})
+              </template>
+            </span>
+            <i
+              aria-hidden="true"
+              class="multiselect__tag-icon"
+              tabindex="1"
+              @click="props.remove(props.option)"
+            />
               </span>
             </template>
 
             <!-- sorting -->
-            <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
             <template
               v-if="'fragment' !== filterGroup.type"
-              v-slot:beforeList>
+              v-slot:beforeList
+            >
               <li>
                 <button
-                  type="button"
-                  @click="toggleSorting(filterItem.id)"
                   v-cleanhtml="sortingLabel"
-                  class="btn--blank o-link--default" />
+                  type="button"
+                  class="btn--blank o-link--default"
+                  @click="toggleSorting(filterItem.id)"
+                />
               </li>
             </template>
 
             <!-- selectable options -->
-            <template
-              v-slot:option="{ props }">
+            <template v-slot:option="{ props }">
               <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 {{ props.option.label }}
               </span>
@@ -91,12 +97,14 @@
     :id="filterItem.attributes.name+ '[]'"
     :name="filterItem.attributes.name + '[]'"
     multiple
-    style="display: none">
+    style="display: none"
+  >
     <option
       v-for="(option, idx) in filteredSelectedOptions"
       :key="idx"
       :value="option.value"
-      selected>
+      selected
+    >
       {{ option.label }}
     </option>
   </select>
@@ -111,47 +119,50 @@ export default {
 
   components: {
     DpLoading,
-    DpMultiselect
+    DpMultiselect,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     appliedFilterOptions: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     // Tab that selectItem is displayed in
     filterGroup: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     filterItem: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     hidden: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'updatedFilters',
+    'updatingFilters',
+    'updateSelected',
+  ],
 
   data () {
     return {
       isUpdating: false,
       sortingType: 'count',
       isInitialLoad: true,
-      isLoading: false,
-      // All available options for this filter
-      availableOptions: [],
-      selected: []
+      selected: [],
     }
   },
 
@@ -159,19 +170,28 @@ export default {
     ...mapGetters('Filter', {
       // Available options for current filter
       getFilterOptionsByFilter: 'filterOptionsByFilter',
+      getIsLoading: 'isLoading',
       // Selected options for current filter
       selectedFilterOptionsFromStore: 'selectedFilterOptionsByFilter',
-      optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName'
+      optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName',
     }),
 
     ...mapState('Filter', [
       'original',
       'procedureId',
-      'selectedOptions'
+      'selectedOptions',
     ]),
+
+    availableOptions () {
+      return this.getFilterOptionsByFilter(this.filterItem.id)
+    },
 
     filteredSelectedOptions () {
       return this.selectedFilterOptionsFromStore(this.filterItem.id)
+    },
+
+    isLoading () {
+      return this.getIsLoading(this.filterItem.id)
     },
 
     sortingLabel () {
@@ -180,23 +200,27 @@ export default {
       } else {
         return '<i aria-hidden="true" class="fa fa-sort-alpha-asc u-pr-0_25"></i>' + Translator.trans('sort.alphabet.asc')
       }
-    }
+    },
   },
 
   watch: {
-    filteredSelectedOptions: function () {
-      this.selected = this.filteredSelectedOptions
-    }
+    filteredSelectedOptions: {
+      handler () {
+        this.selected = this.filteredSelectedOptions
+      },
+      deep: true,
+    },
   },
 
   methods: {
     ...mapActions('Filter', [
-      'getFilterOptionsAction'
+      'getFilterOptionsAction',
     ]),
 
     ...mapMutations('Filter', [
+      'setLoading',
       'sortFilterOptions',
-      'updateSelectedOptions'
+      'updateSelectedOptions',
     ]),
 
     generateDataCy (name, option) {
@@ -209,8 +233,8 @@ export default {
      */
     loadFilterOptions () {
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
-      this.isLoading = true
+      this.$emit('updatingFilters')
+      this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       const optionsForFilterHash = this.prepareOptionsForFilterHash()
 
@@ -219,14 +243,13 @@ export default {
           // Get filter options for current filter
           this.getFilterOptionsAction({ filterHash, filterId: this.filterItem.id })
             .then(() => {
-              this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
               if (this.isInitialLoad) {
                 this.sortFilterOptions({ id: this.filterItem.id, sortingType: 'alphabetic' })
                 this.isInitialLoad = false
               }
               // Used in DpFilterModal to enable submit-button after updating
-              this.$emit('updated-filters')
-              this.isLoading = false
+              this.$emit('updatedFilters')
+              this.setLoading({ filterId: this.filterItem.id, isLoading: false })
             })
         })
     },
@@ -262,13 +285,13 @@ export default {
       }
 
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
+      this.$emit('updatingFilters')
 
       // Remove option from selectedOptions in store
       this.updateSelectedOptions({ selectedOption: option, filterId: this.filterItem.id })
 
       // Used in DpFilterModal to update filterHash and get all selected options from store
-      this.$emit('update-selected', this.filterItem.id)
+      this.$emit('updateSelected', this.filterItem.id)
     },
 
     // @select of filter dropdown
@@ -281,25 +304,23 @@ export default {
 
     // @close of filter dropdown
     updateFilterOptions () {
-      this.isLoading = true
+      this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
+      this.$emit('updatingFilters')
 
       /*
        * Used in DpFilterModal to update the filterHash with all selected options; DpFilterModal then emits the filterHash
        * and gets updated filterOptions for the selected filters, which are then loaded from the store into this.availableOptions
        */
-      this.$emit('update-selected')
+      this.$emit('updateSelected', this.filterItem.id)
     },
 
     toggleSorting (id) {
       // Sort options in store
       this.sortFilterOptions({ id, sortingType: this.sortingType })
-      // Get sorted options from store
-      this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
       this.sortingType = this.sortingType === 'count' ? 'alphabetic' : 'count'
-    }
+    },
   },
 
   mounted () {
@@ -309,15 +330,6 @@ export default {
      * Otherwise, selected filters are not shown.
      */
     this.selected = this.filteredSelectedOptions
-
-    /*
-     * Emitted by DpFilterModal after it updates filterHash after filterOption has been selected
-     * after the filterHash is updated, we get the updated options from the store
-     */
-    this.$root.$on('selected-updated', () => {
-      this.isLoading = false
-      this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
-    })
-  }
+  },
 }
 </script>

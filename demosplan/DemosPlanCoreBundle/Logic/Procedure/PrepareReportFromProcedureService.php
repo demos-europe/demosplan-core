@@ -23,27 +23,43 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PlanDrawReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
-class PrepareReportFromProcedureService extends CoreService
+class PrepareReportFromProcedureService
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementsService, private readonly GlobalConfigInterface $globalConfig, private readonly MapService $mapService, private readonly ParagraphService $paragraphDocumentService, private readonly PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly ProcedureReportEntryFactory $procedureReportEntryFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementsService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MapService $mapService,
+        private readonly ParagraphService $paragraphDocumentService,
+        private readonly PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -58,7 +74,7 @@ class PrepareReportFromProcedureService extends CoreService
         array $ccAddresses,
         string $procedureId,
         string $phase,
-        string $mailSubject
+        string $mailSubject,
     ): void {
         $reportEntry = $this->procedureReportEntryFactory->createRegisterInvitationEntry(
             $recipients,
@@ -87,7 +103,7 @@ class PrepareReportFromProcedureService extends CoreService
             );
             $this->reportService->persistAndFlushReportEntries($reportEntry);
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not add report to protocol: ', [$e]);
+            $this->logger->error('Could not add report to protocol: ', [$e]);
         }
     }
 
@@ -146,6 +162,23 @@ class PrepareReportFromProcedureService extends CoreService
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
         $update = [];
+
+        // if the procedure is deleted, only a deletion entry will be created.
+        if (true === $destinationProcedure->isDeleted()) {
+            $update = [
+                'ident'    => $destinationProcedure->getId(),
+                'customer' => null,
+                'deleted'  => true,
+            ];
+
+            $deletionEntry = $this->procedureReportEntryFactory->createProcedureDeletionEntry(
+                $update,
+                $destinationProcedure
+            );
+            $this->reportService->persistAndFlushReportEntries($deletionEntry);
+
+            return;
+        }
 
         $sourceDateOfSwitchPublicPhase = $sourceProcedure->getSettings()->getDesignatedPublicSwitchDate();
         $destinationDateOfSwitchPublicPhase = $destinationProcedure->getSettings()->getDesignatedPublicSwitchDate();
@@ -220,6 +253,23 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
         }
 
+        if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
+        || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
+            $reportEntryEvent = new ProcedureEditedEvent(
+                $sourceProcedure->getId(),
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $sourceProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $sourceProcedureSettings->getPlanDrawPDF(),
+                ],
+                [
+                    ProcedureEditedEvent::PLAN_PDF      => $destinationProcedureSettings->getPlanPDF(),
+                    ProcedureEditedEvent::PLAN_DRAW_PDF => $destinationProcedureSettings->getPlanDrawPDF(),
+                ],
+                $this->currentUser->getUser()
+            );
+            $this->eventDispatcher->dispatch($reportEntryEvent);
+        }
+
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
             $sourceProcedure,
             $destinationProcedure,
@@ -267,7 +317,7 @@ class PrepareReportFromProcedureService extends CoreService
         Procedure $sourceProcedure,
         Procedure $destinationProcedure,
         User|string $user,
-        bool $createdBySystem
+        bool $createdBySystem,
     ): ?ReportEntry {
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
             $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
@@ -325,7 +375,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     private function createPhaseChangeMessageData(
         Procedure $sourceProcedure,
-        Procedure $destinationProcedure
+        Procedure $destinationProcedure,
     ): array {
         $procedureId = $sourceProcedure->getId();
         $changes = [];
@@ -438,7 +488,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     private function hasPublicParticipationDateChanged(
         Procedure $sourceProcedure,
-        Procedure $destinationProcedure
+        Procedure $destinationProcedure,
     ): bool {
         $currentStartDate = new Carbon($sourceProcedure->getPublicParticipationStartDate());
         $newStartDate = new Carbon($destinationProcedure->getPublicParticipationStartDate());
@@ -455,7 +505,7 @@ class PrepareReportFromProcedureService extends CoreService
      */
     private function hasPublicAgencyParticipationDateChanged(
         Procedure $sourceProcedure,
-        Procedure $destinationProcedure
+        Procedure $destinationProcedure,
     ): bool {
         $currentStartDate = new Carbon($sourceProcedure->getStartDate());
         $newStartDate = new Carbon($destinationProcedure->getStartDate());
@@ -493,6 +543,7 @@ class PrepareReportFromProcedureService extends CoreService
         $elementEntry = [];
         // category has uploaded pdf file
         if ('' !== $element->getFile()) {
+            $elementEntry['paragraphPdfName'] = $element->getFileInfo()->getFileName();
             $elementEntry['hasParagraphPdf'] = true;
         }
 

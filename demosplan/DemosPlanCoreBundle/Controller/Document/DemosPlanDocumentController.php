@@ -61,6 +61,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -455,7 +456,10 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_singledocument_administration_new', path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}')]
+    #[Route(
+        name: 'DemosPlan_singledocument_administration_new',
+        path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}'
+    )]
     public function singleDocumentAdminNewAction(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
@@ -667,7 +671,9 @@ class DemosPlanDocumentController extends BaseController
          *
          * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
-        $errorReports = $session->getFlashBag()->get('errorReports');
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $errorReports = $flashBag->get('errorReports');
         $templateVars['errorReport'] = [];
 
         if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
@@ -732,7 +738,9 @@ class DemosPlanDocumentController extends BaseController
         );
 
         // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
-        $session->getFlashBag()->add('errorReports', $errorReport);
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $flashBag->add('errorReports', $errorReport);
 
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
@@ -890,7 +898,7 @@ class DemosPlanDocumentController extends BaseController
 
         try {
             $documentlistPager->setMaxPerPage((int) $request->get('r_limit', 3));
-            $documentlistPager->setCurrentPage((int)$currentPage);
+            $documentlistPager->setCurrentPage((int) $currentPage);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not set paginate: ', [$e]);
 
@@ -1033,7 +1041,11 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_elements_administration_edit', path: '/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit', options: ['expose' => true])]
+    #[Route(
+        name: 'DemosPlan_elements_administration_edit',
+        path: '/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit',
+        options: ['expose' => true]
+    )]
     public function elementAdminEditAction(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
@@ -1054,20 +1066,16 @@ class DemosPlanDocumentController extends BaseController
         $requestPost = $request->request->all();
 
         if (!empty($requestPost['r_action']) && 'singledocumentdelete' === $requestPost['r_action'] && array_key_exists('document_delete', $requestPost)) {
-            // Storage Formulardaten übergeben
             $storageResult = $singleDocumentService->deleteSingleDocument($requestPost['document_delete']);
             if (true === $storageResult) {
-                // Erfolgsmeldung
-                $this->getMessageBag()->add('confirm', 'confirm.plandocument.deleted');
+                $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
             }
         }
 
         if (!empty($requestPost['r_action']) && 'saveSort' === $requestPost['r_action'] && array_key_exists('r_sorting', $requestPost)) {
-            // Storage Formulardaten übergeben
             $sortArray = explode(', ', (string) $requestPost['r_sorting']);
             $storageResult = $singleDocumentService->sortDocuments($sortArray);
             if ($storageResult) {
-                // Erfolgsmeldung
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.sorted');
             }
         }
@@ -1075,7 +1083,6 @@ class DemosPlanDocumentController extends BaseController
         if (!empty($requestPost['r_action']) && 'elementedit' === $requestPost['r_action']) {
             $inData = $this->prepareIncomingData($request, 'elementedit');
 
-            // Storage Formulardaten übergeben
             if (null !== $inData) {
                 $inData['r_picture'] = $fileUploadService->prepareFilesUpload($request);
 
@@ -1088,13 +1095,12 @@ class DemosPlanDocumentController extends BaseController
 
                     $storageResult = $elementHandler->administrationElementDeleteHandler($inData['r_ident']);
                     if ($storageResult) {
-                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.deleted');
+                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
                     }
 
                     return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
                 } else {
                     $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
-                    // Wenn Storage erfolgreich: Erfolgsmeldung
                     if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
                         $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
                     }
@@ -1336,19 +1342,8 @@ class DemosPlanDocumentController extends BaseController
             $documentList = $documentHandler->getPublicParaDocuments($procedureId, $elementId);
         } catch (RuntimeException $e) {
             if ('Access to this document is forbidden.' === $e->getMessage()) {
-                $templateVars = [];
-
-                if ($this->permissions instanceof Permissions
-                    && $this->permissions->hasPermission('area_combined_participation_area')
-                ) {
-                    $templateVars['procedureLayer'] = 'participation';
-                }
-
-                return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
-                    'procedure'    => $procedureId,
-                    'templateVars' => $templateVars,
-                    'title'        => 'element.paragraph',
-                    'category'     => $category,
+                return $this->redirectToRoute('core_404', [
+                    'currentPage' => $request->getPathInfo(),
                 ]);
             }
         }

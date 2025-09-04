@@ -10,19 +10,20 @@
 <template>
   <dp-input
     id="r_email"
-    autocomplete="email"
-    data-cy="emailAddress"
     :class="prefixClass('layout__item')"
-    data-dp-validate-if="#r_useName_1"
     :label="{
       text: Translator.trans('email')
     }"
-    name="r_email"
+    :model-value="statement.r_email"
     :required="required && statement.r_useName === '1'"
+    autocomplete="email"
+    data-cy="emailAddress"
+    data-dp-validate-if="#r_useName_1"
+    name="r_email"
     type="email"
-    :value="statement.r_email"
     width="u-1-of-2"
-    @input="val => setStatementData({r_email: val})" />
+    @input="val => setStatementData({r_email: val})"
+  />
 </template>
 
 <script>
@@ -31,6 +32,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupEmailAddress',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

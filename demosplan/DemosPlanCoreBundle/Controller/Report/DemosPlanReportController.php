@@ -59,18 +59,21 @@ class DemosPlanReportController extends BaseController
      *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
-     * @param string $procedureId
-     *
      * @throws Exception
      */
-    #[Route(name: 'dplan_export_report', path: '/report/export/{procedureId}', methods: ['GET'], options: ['expose' => true])]
+    #[Route(
+        name: 'dplan_export_report',
+        path: '/report/export/{procedureId}',
+        methods: ['GET'],
+        options: ['expose' => true]
+    )]
     public function exportProcedureReportAction(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,
         NameGenerator $nameGenerator,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-        $procedureId,
+        string $procedureId,
     ): Response {
         $slugify = new Slugify();
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
@@ -88,7 +91,7 @@ class DemosPlanReportController extends BaseController
         $response = new StreamedResponse(
             static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
                 $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
-                $pdfReport = $reportService->generateProcedureReport($reportInfo, $reportMeta);
+                $pdfReport = $reportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
                 $pdfReport->save('php://output');
             }
         );

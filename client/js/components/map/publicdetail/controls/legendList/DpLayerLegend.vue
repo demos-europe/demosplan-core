@@ -11,30 +11,35 @@
   <div>
     <div
       v-if="hasPermission('feature_map_layer_legend_file') || hasPermission('feature_map_use_plan_draw_pdf')"
-      :class="prefixClass('c-map__group')">
+      :class="prefixClass('c-map__group')"
+    >
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
         data-cy="layerLegend:legend"
         :disabled="!hasLegend"
         :title="buttonTitle"
-        @click="toggle">
+        @click="toggle"
+      >
         {{ Translator.trans('legend') }}
       </button>
     </div>
 
     <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
       <ul
+        v-show="unfolded"
         :class="prefixClass('c-map__group js__mapLayerLegends')"
-        v-show="unfolded">
+      >
         <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
           <a
             :class="prefixClass('c-map__group-item block')"
             target="_blank"
             :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedureId: procedureId})"
-            :title="planPdfTitle">
+            :title="planPdfTitle"
+          >
             <i
               :class="prefixClass('fa fa-download')"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('legend.download') }}
           </a>
         </li>
@@ -42,18 +47,21 @@
         <dp-layer-legend-item
           v-for="item in legends"
           :key="item.id"
-          :legend="item" />
+          :legend="item"
+        />
 
         <template v-if="hasPermission('feature_map_layer_legend_file')">
           <li
             v-for="(layer, idx) in layersWithLegendFiles"
             :key="idx"
-            :data-layername="layer.name">
+            :data-layername="layer.name"
+          >
             <a
               :class="prefixClass('c-map__group-item block')"
               target="_blank"
               :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedureId: procedureId })"
-              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`">
+              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`"
+            >
               {{ layer.name }}
             </a>
           </li>
@@ -71,7 +79,7 @@ export default {
   name: 'DpLayerLegend',
 
   components: {
-    DpLayerLegendItem
+    DpLayerLegendItem,
   },
 
   mixins: [prefixClassMixin],
@@ -79,29 +87,33 @@ export default {
   props: {
     layersWithLegendFiles: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     planPdf: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'layerLegend:unfolded',
+  ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
   computed: {
     ...mapGetters('Layers', {
-      legends: 'elementListForLegendSidebar'
+      legends: 'elementListForLegendSidebar',
     }),
 
     buttonTitle () {
@@ -122,20 +134,20 @@ export default {
         fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
       }
       return `${Translator.trans('legend.download')}${fileInfo}`
-    }
+    },
   },
 
   methods: {
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.$emit('layer-legend:unfolded')
+        this.$emit('layerLegend:unfolded')
       }
-    }
+    },
   },
-
-  created () {
-    this.$root.$on('layer-list:unfolded map-tools:unfolded custom-layer:unfolded', () => { this.unfolded = false })
-  }
 }
 </script>

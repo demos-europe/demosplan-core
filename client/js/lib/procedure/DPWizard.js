@@ -32,7 +32,7 @@ export default function DpWizard () {
         prev: $wizardElements.find('.o-wizard__btn--prev'),
         next: $form.find('.o-wizard__btn--next'),
         done: $wizardElements.find('.o-wizard__btn--done'),
-        close: $wizardElements.find('.o-wizard__close')
+        close: $wizardElements.find('.o-wizard__close'),
       },
       $menu: null,
       topics: [],
@@ -90,7 +90,7 @@ export default function DpWizard () {
           .addClass('o-wizard--active')
           .find('.o-wizard__content')
           .append(
-            $wizardElements.attr('aria-hidden', false)
+            $wizardElements.attr('aria-hidden', false),
           )
           .addClass('is-active')
 
@@ -107,7 +107,7 @@ export default function DpWizard () {
       showElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', 'display: block !important')
+          element.style.display = 'block'
         })
       },
 
@@ -124,7 +124,7 @@ export default function DpWizard () {
       hideElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', '')
+          element.style.display = 'none'
         })
       },
 
@@ -144,7 +144,7 @@ export default function DpWizard () {
           listFragment.append(
             listElement
               .append('<i class="fa fa-check-circle"></i>')
-              .append(textNode)
+              .append(textNode),
           )
           if (!i) listElement.addClass('active')
           if (done.indexOf(i) !== -1) {
@@ -209,7 +209,7 @@ export default function DpWizard () {
 
       save: function () {
         const url = Routing.generate('DemosPlan_procedure_edit_ajax', {
-          procedure: $form.data('procedure')
+          procedure: $form.data('procedure'),
         })
 
         $.post(url, $form.serialize())
@@ -240,7 +240,7 @@ export default function DpWizard () {
           this.$actions.close.off('click')
           this.$menu.off('click')
         }
-      }
+      },
     }).init()
   }
 }

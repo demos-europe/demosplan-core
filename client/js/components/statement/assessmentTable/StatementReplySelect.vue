@@ -21,7 +21,8 @@
       :label="{
         text: Translator.trans('statement.in.compass.was.answered')
       }"
-      name="r_replied" />
+      name="r_replied"
+    />
   </div>
 </template>
 
@@ -32,7 +33,7 @@ export default {
   name: 'StatementReplySelect',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   props: {
@@ -41,30 +42,30 @@ export default {
       default: () => ({
         id: '',
         title: '',
-        url: ''
-      })
+        url: '',
+      }),
     },
 
     isStatementReplied: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     readonly: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     replyOptions: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       checked: true,
-      selected: {}
+      selected: {},
     }
   },
 
@@ -72,15 +73,18 @@ export default {
     options () {
       return [...this.replyOptions]
         .sort((a, b) => a.title.localeCompare(b.title, 'de', { sensitivity: 'base' }))
-    }
+    },
   },
 
   watch: {
-    checked () {
-      if (!this.checked) {
-        this.setEmptyValue()
-      }
-    }
+    checked: {
+      handler (val) {
+        if (!val) {
+          this.setEmptyValue()
+        }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -90,12 +94,12 @@ export default {
 
     setInitialValue () {
       this.selected = { ...this.initialAnswer }
-    }
+    },
   },
 
   mounted () {
     this.checked = this.isStatementReplied
     this.setInitialValue()
-  }
+  },
 }
 </script>

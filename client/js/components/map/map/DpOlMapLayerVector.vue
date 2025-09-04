@@ -25,32 +25,36 @@ export default {
     features: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     name: {
       required: false,
       type: String,
-      default: uuid()
+      default: uuid(),
     },
 
     zoomToDrawing: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     drawStyle: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'layerFeatures:changed',
+  ],
 
   data () {
     return {
       drawingExtent: '',
-      layer: {}
+      layer: {},
     }
   },
 
@@ -66,14 +70,17 @@ export default {
     geoJsonFeatures () {
       // Validate geojson? https://github.com/craveprogramminginc/GeoJSON-Validation
       return this.isFeatureGeoJSON ? new GeoJSON().readFeatures({ properties: { id: `feature:${this.name}` }, ...this.features }) : []
-    }
+    },
   },
 
   watch: {
-    features () {
-      this.map.removeLayer(this.layer)
-      this.addLayer()
-    }
+    features: {
+      handler () {
+        this.map.removeLayer(this.layer)
+        this.addLayer()
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -106,12 +113,12 @@ export default {
       const vectorSource = new VectorSource({
         format: new GeoJSON(),
         projection: this.map.getView().getProjection(),
-        features: this.geoJsonFeatures
+        features: this.geoJsonFeatures,
       })
       //  Define layer source to draw into
       const VectorSourceOptions = {
         format: new GeoJSON(),
-        projection: this.map.getView().getProjection()
+        projection: this.map.getView().getProjection(),
       }
 
       // Validate geojson? https://github.com/craveprogramminginc/GeoJSON-Validation
@@ -127,18 +134,18 @@ export default {
         name: this.name,
         type: 'draw',
         properties: {
-          name: `layer:${this.name}`
+          name: `layer:${this.name}`,
         },
-        style: this.drawStyle !== '' ? drawStyle(JSON.parse(this.drawStyle)) : drawStyle(this.olMapState.drawStyles)
+        style: this.drawStyle !== '' ? drawStyle(JSON.parse(this.drawStyle)) : drawStyle(this.olMapState.drawStyles),
       })
 
       this.map.addLayer(this.layer)
 
       //  Whenever drawing changes, emit current features
       vectorSource.on('change', () => {
-        this.$emit('layer:features:changed', vectorSource.getFeatures())
+        this.$emit('layerFeatures:changed', vectorSource.getFeatures())
       })
-    }
+    },
   },
 
   mounted () {
@@ -152,6 +159,6 @@ export default {
     }
   },
 
-  render: () => null
+  render: () => null,
 }
 </script>

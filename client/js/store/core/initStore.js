@@ -8,11 +8,10 @@
  */
 
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { checkResponse, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
+import { createStore } from 'vuex'
 import notify from './Notify'
-import Vue from 'vue'
-import Vuex from 'vuex'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -25,7 +24,7 @@ function registerPresetModules (store, presetStoreModules) {
 
           store.createPresetModule(presetModule.name, {
             base: rootModule,
-            defaultQuery: presetModule.defaultQuery
+            defaultQuery: presetModule.defaultQuery,
           })
         })
       }
@@ -34,9 +33,21 @@ function registerPresetModules (store, presetStoreModules) {
   return store
 }
 
-function initStore (storeModules, apiStoreModules, presetStoreModules) {
-  Vue.use(Vuex)
+const handleResponse = async (response, messages = {}) => {
+  // If the response body is empty, contentType will be null
+  const contentType = response.headers.get('Content-Type')
+  let payload = null
 
+  if (contentType && contentType.includes('json')) {
+    payload = await response.json()
+  } else {
+    payload = await response
+  }
+
+  return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url }, messages)
+}
+
+function initStore (storeModules, apiStoreModules, presetStoreModules) {
   const staticModules = { notify, ...storeModules }
   const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
@@ -48,18 +59,16 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     baseUrl = '/app_dev.php' + baseUrl
   }
 
-  // eslint-disable-next-line no-undef
   if (URL_PATH_PREFIX) {
-    // eslint-disable-next-line no-undef
     baseUrl = URL_PATH_PREFIX + baseUrl
   }
 
   return router
     .updateRoutes()
     .then(router => {
-      const store = new Vuex.Store({
+      const store = createStore({
         strict: process.env.NODE_ENV !== 'production',
-
+        devtools: process.env.NODE_ENV !== 'production',
         modules: prepareModuleHashMap(staticModules),
         plugins: [
           initJsonApiPlugin({
@@ -69,62 +78,25 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId,
-              'X-CSRF-Token': dplan.csrfToken
+              'X-CSRF-Token': dplan.csrfToken,
             },
             successCallbacks: [
-              async (success) => {
-                // If the response body is empty, contentType will be null
-                const contentType = success.headers.get('Content-Type')
-
-                if (contentType && contentType.includes('json')) {
-                  const response = await success.json()
-
-                  const meta = response.data?.meta
-                    ? response.data.meta
-                    : response.meta || null
-                  if (meta?.messages) {
-                    handleResponseMessages(meta)
-                  }
-
-                  return Promise.resolve(response)
-                }
-
-                return Promise.resolve(success)
-              }
+              handleResponse,
             ],
             errorCallbacks: [
-              async (error) => {
-                // If the response body is empty, contentType will be null
-                const contentType = error.headers.get('Content-Type')
-
-                if (contentType && contentType.includes('json')) {
-                  const response = await error.json()
-
-                  const meta = response.data?.meta
-                    ? response.data.meta
-                    : response.meta || null
-
-                  if (meta?.messages) {
-                    handleResponseMessages(meta)
-                  }
-
-                  return Promise.reject(response)
-                }
-
-                return Promise.reject(error)
-              }
-            ]
+              handleResponse,
+            ],
           }),
           store => {
-            store.api.checkResponse = checkResponse
             store.api.newStaticRoute = (route) => {
               return new StaticRoute(route)
             }
             store.api.newRoute = (route) => {
               return new Route(route)
             }
-          }
-        ]
+            store.api.handleResponse = handleResponse
+          },
+        ],
       })
 
       if (process.env.NODE_ENV === 'development') {

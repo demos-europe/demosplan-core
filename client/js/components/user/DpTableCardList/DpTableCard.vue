@@ -1,17 +1,20 @@
 <template>
   <li
+    v-cloak
     :class="{'is-expanded': isOpen}"
-    v-cloak>
+  >
     <!--  item header  -->
     <div
-      data-add-animation>
+      data-add-animation
+    >
       <slot name="header" />
     </div>
     <!--  item content - hidden with table-cards:toggle-view 'collapsed' (List view)  -->
     <transition name="fading">
       <div
         v-show="isOpen"
-        class="u-p-0_5">
+        class="u-p-0_5"
+      >
         <slot />
       </div>
     </transition>
@@ -27,26 +30,29 @@ export default {
     open: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
     return {
-      isOpen: this.open
+      isOpen: this.open,
     }
   },
 
   watch: {
-    open (newVal) {
-      this.isOpen = newVal
-    }
+    open: {
+      handler (newVal) {
+        this.isOpen = newVal
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
     toggle (val) {
       this.isOpen = (typeof val !== 'undefined') ? val : (this.isOpen === false)
-    }
-  }
+    },
+  },
 }
 </script>
