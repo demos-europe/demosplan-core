@@ -33,7 +33,7 @@ export default {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }),
-    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList'))
+    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
@@ -42,25 +42,25 @@ export default {
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     userId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       activeTab: '#procedureDetailsDocumentlist',
       consultationTokenInputField: '',
-      isSubmitting: false
+      isSubmitting: false,
     }
   },
 
@@ -69,12 +69,12 @@ export default {
       'activeActionBoxTab',
       'initForm',
       'statement',
-      'unsavedDrafts'
+      'unsavedDrafts',
     ]),
 
     activeStatement () {
       return this.initForm !== JSON.stringify(this.statement)
-    }
+    },
   },
 
   methods: {
@@ -110,7 +110,7 @@ export default {
       this.toggleStatementModal(updateStatementPayload)
       this.updateHighlighted({ key: 'documents', val: false })
       this.updateHighlighted({ key: 'documents', val: true })
-    }
+    },
   },
 
   created () {
@@ -128,6 +128,6 @@ export default {
     this.$on('open-statement-modal-from-list', (id) => {
       this.$refs.statementModal.getDraftStatement(id, true)
     })
-  }
+  },
 }
 </script>

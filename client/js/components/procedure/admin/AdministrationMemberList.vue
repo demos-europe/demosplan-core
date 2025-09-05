@@ -13,11 +13,12 @@ All rights reserved
   </p>
 
   <organisation-table
-    :header-fields="headerFields"
     ref="organisationTable"
+    :header-fields="headerFields"
     resource-type="InvitedToeb"
     :procedure-id="procedureId"
-    @selected-items="setSelectedItems">
+    @selected-items="setSelectedItems"
+  >
     <template v-slot:bulkActions>
       <!-- Bulk Actions Section -->
       <div class="my-2">
@@ -26,10 +27,12 @@ All rights reserved
           :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
           data-cy="administrationMemberList:deleteSelected"
           type="button"
-          @click="deleteSelected">
+          @click="deleteSelected"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-times-circle" />
+            class="fa fa-times-circle"
+          />
           {{ Translator.trans('remove') }}
         </button>
 
@@ -37,10 +40,12 @@ All rights reserved
           class="btn--blank o-link--default u-mr-0_5"
           data-cy="administrationMemberList:writeEmail"
           type="button"
-          @click="writeEmail">
+          @click="writeEmail"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-envelope" />
+            class="fa fa-envelope"
+          />
           {{ Translator.trans('email.invitation.write') }}
         </button>
 
@@ -48,10 +53,12 @@ All rights reserved
           class="btn--blank o-link--default"
           data-cy="administrationMemberList:exportPdf"
           type="button"
-          @click="exportPdf">
+          @click="exportPdf"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-file" />
+            class="fa fa-file"
+          />
           {{ Translator.trans('pdf.export') }}
         </button>
 
@@ -76,14 +83,14 @@ export default {
 
   components: {
     OrganisationTable,
-    DpButton
+    DpButton,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -92,40 +99,40 @@ export default {
       headerFields: [
         {
           field: 'legalName',
-          label: Translator.trans('invitable_institution')
+          label: Translator.trans('invitable_institution'),
         },
-        ...(hasPermission('field_organisation_paper_copy_spec')
-          ? [{
-              field: 'paperCopySpec',
-              label: Translator.trans('copies.kind')
-            }]
-          : []),
-        ...(hasPermission('field_organisation_paper_copy')
-          ? [{
-              field: 'paperCopy',
-              label: Translator.trans('copies')
-            }]
-          : []),
+        ...(hasPermission('field_organisation_paper_copy_spec') ?
+          [{
+            field: 'paperCopySpec',
+            label: Translator.trans('copies.kind'),
+          }] :
+          []),
+        ...(hasPermission('field_organisation_paper_copy') ?
+          [{
+            field: 'paperCopy',
+            label: Translator.trans('copies'),
+          }] :
+          []),
         {
           field: 'originalStatementsCountInProcedure',
-          label: Translator.trans('statement')
+          label: Translator.trans('statement'),
         },
         {
           field: 'hasReceivedInvitationMailInCurrentProcedurePhase',
-          label: Translator.trans('invitation')
-        }
-      ]
+          label: Translator.trans('invitation'),
+        },
+      ],
     }
   },
 
   computed: {
     addMemberPath () {
-      const routeName = hasPermission('area_use_mastertoeblist')
-        ? 'DemosPlan_procedure_member_add_mastertoeblist'
-        : 'DemosPlan_procedure_member_add'
+      const routeName = hasPermission('area_use_mastertoeblist') ?
+        'DemosPlan_procedure_member_add_mastertoeblist' :
+        'DemosPlan_procedure_member_add'
 
       return Routing.generate(routeName, { procedure: this.procedureId })
-    }
+    },
   },
 
   methods: {
@@ -145,15 +152,15 @@ export default {
       }
       // SelectedItems from DpDataTable are strings in an array, so we need to map them to ids
       const organisationIds = this.selectedItems.map(item =>
-        typeof item === 'string' ? item : item.id
+        typeof item === 'string' ? item : item.id,
       )
 
       dpRpc('invitedInstitutions.bulk.delete', {
-        ids: organisationIds.map(id => ({ id }))
+        ids: organisationIds.map(id => ({ id })),
       })
         .then(response => {
           this.$refs.organisationTable.getInstitutionsWithContacts()
-          dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.deleted', { count: organisationIds.length }))
+          this.$refs.organisationTable.resetSelection()
           this.selectedItems = []
         })
         .catch(() => {
@@ -168,7 +175,7 @@ export default {
     exportPdf () {
       this.submitBulkActionForm(
         'DemosPlan_procedure_member_index_pdf',
-        { procedure: this.procedureId }
+        { procedure: this.procedureId },
       )
     },
 
@@ -229,9 +236,9 @@ export default {
       this.submitBulkActionForm(
         'DemosPlan_admin_member_email',
         { procedureId: this.procedureId },
-        'email_orga_action'
+        'email_orga_action',
       )
-    }
-  }
+    },
+  },
 }
 </script>

@@ -16,7 +16,7 @@ import {
   isSuperset,
   range,
   rangesEqual,
-  serializeRange
+  serializeRange,
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
@@ -63,7 +63,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           isEditing: false,
           decorations: null,
           position: {},
-          activeDecorationPosition: null
+          activeDecorationPosition: null,
         }
       },
       apply (tr, pluginState, _, newState) {
@@ -86,7 +86,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: true,
             decorations: decos,
             position: { from: meta.from, to: meta.to },
-            activeDecorationPosition: null
+            activeDecorationPosition: null,
           }
         } else if (meta && !meta.editing) {
           /**
@@ -102,7 +102,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: false,
             decorations: pluginState.decorations.remove(pluginState.decorations.find(0, newState.doc.nodeSize)),
             position: {},
-            activeDecorationPosition: null
+            activeDecorationPosition: null,
           }
         } else if (move.moving) {
           const { fixed } = move.positions
@@ -115,12 +115,12 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             isEditing: true,
             decorations: genEditingDecorations(newState, from, to, move.id, newDecorationPosition),
             position: { from, to },
-            activeDecorationPosition: newDecorationPosition
+            activeDecorationPosition: newDecorationPosition,
           }
         } else {
           return pluginState
         }
-      }
+      },
     },
     props: {
       decorations (state) {
@@ -140,8 +140,8 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           toggleRangeEdit(view, rangeTrackerKey, editingTrackerKey, pluginKey, e.target)
 
           return true
-        }
-      }
+        },
+      },
     },
     appendTransaction (_, oldState, newState) {
       const position = pluginKey.getState(newState).position
@@ -186,9 +186,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       updateFunc = updateFunc.bind(this)
 
       return {
-        update: updateFunc
+        update: updateFunc,
       }
-    }
+    },
   })
 }
 
@@ -210,7 +210,7 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           id: null,
           moving: null,
           pos: null,
-          positions: null
+          positions: null,
         }
       },
       apply (tr, pluginState) {
@@ -221,7 +221,7 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           id: null,
           moving: null,
           pos: null,
-          positions: null
+          positions: null,
         }
         let returnVal = pluginState
         if (meta) {
@@ -232,8 +232,8 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
         }
 
         return returnVal
-      }
-    }
+      },
+    },
   })
 }
 
@@ -286,7 +286,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, range: null })
           const reducedSchema = new Schema({
             nodes: schema.spec.nodes,
-            marks: rangeMarksRemoved
+            marks: rangeMarksRemoved,
           })
           Object.entries(ranges).forEach(([id, range]) => {
             ranges[id].text = serializeRange(range, newState, reducedSchema)
@@ -304,7 +304,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
 
           return ranges
         }
-      }
+      },
     },
     view (view) {
       let updateFunc = (view, state) => {
@@ -320,9 +320,9 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
       updateFunc = updateFunc.bind(this)
 
       return {
-        update: updateFunc
+        update: updateFunc,
       }
-    }
+    },
   })
 }
 
@@ -394,9 +394,9 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
       return {
         destroy () {
           document.removeEventListener('mouseup', globalHandler)
-        }
+        },
       }
-    }
+    },
   })
 }
 
@@ -416,7 +416,7 @@ const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
   marks = marks.addToStart('rangeselection', rangeSelectionMark)
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
-    marks
+    marks,
   })
 
   const editingDecorationsKey = new PluginKey('editing-decorations')
@@ -436,8 +436,8 @@ const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
       rangeTrackerKey,
       editStateTrackerKey,
       editingDecorationsKey,
-      rangeCreatorKey
-    }
+      rangeCreatorKey,
+    },
   }
 }
 

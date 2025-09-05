@@ -52,7 +52,7 @@ class DraftsInfoApiController extends APIController
     public function editAction(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         try {
             $draftInfo = $transformer->transform($statementId);
@@ -86,7 +86,7 @@ class DraftsInfoApiController extends APIController
     public function saveAction(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): JsonResponse {
         try {
             $data = $request->getContent();
@@ -127,7 +127,7 @@ class DraftsInfoApiController extends APIController
         SegmentHandlerInterface $segmentHandler,
         SegmentTransformerPass $transformer,
         StatementHandler $statementHandler,
-        string $procedureId
+        string $procedureId,
     ): JsonResponse {
         try {
             $data = $request->getContent();
@@ -184,7 +184,7 @@ class DraftsInfoApiController extends APIController
         User $user,
         DraftsInfoHandler $draftsInfoHandler,
         StatementHandler $statementHandler,
-        string $data
+        string $data,
     ): JsonResponse {
         $responseData = [];
         $draftsInfoArray = Json::decodeToArray($data);

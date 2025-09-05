@@ -32,6 +32,6 @@ import formGroupMixin from '../mixins/formGroupMixin'
 export default {
   name: 'FormGroupEmailAddress',
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
 }
 </script>

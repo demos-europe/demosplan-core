@@ -15,13 +15,13 @@ export default {
   props: {
     value: {
       type: [String, Number],
-      required: true
+      required: true,
     },
 
     isEditing: {
       type: Boolean,
-      required: true
-    }
+      required: true,
+    },
   },
 
   render: function (h, ctx) {
@@ -33,5 +33,5 @@ export default {
       out = ctx._v(ctx.props.value)
     }
     return out
-  }
+  },
 }

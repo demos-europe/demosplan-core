@@ -1,7 +1,8 @@
 <template>
   <fieldset
     v-if="hasOrganisationBrandingPermission"
-    class="w-3/4">
+    class="w-3/4"
+  >
     <template v-if="hasPermission('feature_orga_logo_edit')">
       <legend class="font-size-large weight--normal u-mb-0_25">
         {{ Translator.trans('organisation.procedures.branding') }}
@@ -17,10 +18,12 @@
     <!-- Data Protection -->
     <div
       v-if="hasPermission('field_data_protection_text_customized_edit_orga')"
-      class="o-form__label w-full">
+      class="o-form__label w-full"
+    >
       <label
         :for="`${organisation.id}:data_protection`"
-        class="o-form__label w-full">
+        class="o-form__label w-full"
+      >
         {{ Translator.trans('data.protection.notes') }}
         <small class="lbl__hint block">
           {{ Translator.trans('customer.data.protection.explanation') }}
@@ -35,16 +38,19 @@
           linkButton: true,
           headings: [3, 4]
         }"
-        :value="organisation.dataProtection || ''" />
+        :value="organisation.dataProtection || ''"
+      />
     </div>
 
     <!-- Imprint -->
     <div
       v-if="hasPermission('field_imprint_text_customized_edit_orga')"
-      class="w-full">
+      class="w-full"
+    >
       <label
         :for="`${organisation.id}:imprint`"
-        class="o-form__label w-full">
+        class="o-form__label w-full"
+      >
         {{ Translator.trans('imprint') }}
         <small class="lbl__hint block">
           {{ Translator.trans('organisation.imprint.hint') }}
@@ -59,21 +65,25 @@
           linkButton: true,
           headings: [3, 4]
         }"
-        :value="organisation.imprint || ''" />
+        :value="organisation.imprint || ''"
+      />
     </div>
 
     <!-- Public Display -->
     <div
       v-if="hasPermission('field_organisation_agreement_showname')"
-      class="mb-0">
+      class="mb-0"
+    >
       <!-- showList needs to be defined as it is an mandatory field, if orga is changed by support user (bobhh) -->
       <input
         type="hidden"
         :name="`${organisation.id}:showlist`"
-        :value="organisation && organisation.showlist ? 1 : 0">
+        :value="organisation && organisation.showlist ? 1 : 0"
+      >
       <label
         for="orga_showname"
-        class="o-form__label bald">
+        class="o-form__label bald"
+      >
         {{ Translator.trans('agree.publication') }}
       </label>
       <small class="lbl__hint">
@@ -86,7 +96,8 @@
         :label="{
           text: Translator.trans('agree.publication.text'),
           bold: true
-        }" />
+        }"
+      />
     </div>
   </fieldset>
 </template>
@@ -99,23 +110,23 @@ export default {
 
   components: {
     DpEditor,
-    DpCheckbox
+    DpCheckbox,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     organisation: {
       type: Object,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
@@ -124,7 +135,7 @@ export default {
         hasPermission('field_data_protection_text_customized_edit_orga') ||
         hasPermission('field_imprint_text_customized_edit_orga') ||
         hasPermission('field_organisation_agreement_showname')
-    }
+    },
   },
 
   methods: {
@@ -132,12 +143,12 @@ export default {
       if (hasPermission('feature_orga_logo_edit')) {
         return Translator.trans('organisation.procedures.branding.link', {
           href: Routing.generate('DemosPlan_orga_branding_edit', {
-            orgaId: this.organisation.id || ''
-          })
+            orgaId: this.organisation.id || '',
+          }),
         })
       }
       return ''
-    }
-  }
+    },
+  },
 }
 </script>

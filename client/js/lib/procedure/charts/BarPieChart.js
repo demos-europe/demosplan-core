@@ -53,7 +53,7 @@ export default class BarPieChart {
       colors: {
         bar: ['#cccccc', '#999999'],
         pie: ['#ff0000', '#00ff00', '#0000ff'],
-        active: ['#ff0000']
+        active: ['#ff0000'],
       },
       texts: {
         'no-data-fallback': Translator.trans('statements.none'),
@@ -62,14 +62,14 @@ export default class BarPieChart {
         pie: {
           'legend-headline': 'statements.grouped.priority',
           'data-names': Translator.trans('statements'),
-          'data-name': Translator.trans('statement')
+          'data-name': Translator.trans('statement'),
         },
         bar: {
           'legend-headline': 'statements.grouped.status',
           'data-names': Translator.trans('statements'),
-          'data-name': Translator.trans('statement')
-        }
-      }
+          'data-name': Translator.trans('statement'),
+        },
+      },
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -80,7 +80,7 @@ export default class BarPieChart {
       type: d.key,
       label: d.label,
       freq: sum(this.fData.map(t => t.freq[d.key])),
-      index: idx
+      index: idx,
     }))
 
     // Store overall total
@@ -117,7 +117,7 @@ export default class BarPieChart {
         colors: this.colors.bar,
         activeColor: this.colors.active,
         texts: this.texts.bar,
-        total: this.total
+        total: this.total,
       })
       this.pLeg = new Legend({
         data: this.tF,
@@ -126,7 +126,7 @@ export default class BarPieChart {
         colors: this.colors.pie,
         activeColor: this.colors.active,
         texts: this.texts.pie,
-        total: this.total
+        total: this.total,
       })
     } else {
       // Display a message if no data is found to be displayed.
