@@ -121,10 +121,6 @@ export default {
     },
   },
 
-  emits: [
-    'statement:copyToProcedure',
-  ],
-
   data () {
     return {
       isLoading: true,
@@ -208,29 +204,16 @@ export default {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId,
       })
-        .then(response => {
-          // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
-          if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
-            const copyToProcedureParams = {
-              copyToProcedureId: response.data.copyToProcedureId,
-              statementId: this.statementId,
-              copiedStatementId: response.data.copiedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
-            }
-
-            // Handle update of assessment table ui from TableCard.vue
-            this.$root.$emit('statement:copyToProcedure', copyToProcedureParams)
+        .finally(() => {
+        this.setModalProperty({
+          prop: 'copyStatementModal',
+          val: {
+            ...this.copyStatementModal,
+            statementId: null
           }
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
-          this.handleToggleModal()
         })
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.results.loading'))
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
-          this.handleToggleModal()
-        })
+        this.handleToggleModal()
+      })
     },
 
     // Fetch statement fragments to check if user can move this statement
