@@ -2554,6 +2554,11 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_expand_procedure_description:
+    description: 'Expand full procedure description on page load'
+    expose: true
+    label: 'Expand procedure description'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
