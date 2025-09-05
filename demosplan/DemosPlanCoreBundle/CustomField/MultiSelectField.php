@@ -29,7 +29,7 @@ class MultiSelectField extends AbstractCustomField
 
     protected bool $isRequired = false;
 
-    public function getFormat(): string
+    public function getFieldType(): string
     {
         return 'multiSelect';
     }
@@ -91,11 +91,6 @@ class MultiSelectField extends AbstractCustomField
     public function setFieldType(string $type): void
     {
         $this->fieldType = $type;
-    }
-
-    public function getType(): string
-    {
-        return $this->getFormat();
     }
 
     public function isValueValid(?string $value): bool

@@ -29,9 +29,7 @@ interface CustomFieldInterface
      * The format is a unique identifier which is used by
      * the object to json mapping in the database.
      */
-    public function getFormat(): string;
-
-    public function getType(): string;
+    public function getFieldType(): string;
 
     public function getName(): string;
 

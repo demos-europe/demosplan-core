@@ -71,7 +71,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertInstanceOf(RadioButtonField::class, $result);
         static::assertEquals('Priority Level', $result->getName());
         static::assertEquals('Select priority level for this item', $result->getDescription());
-        static::assertEquals('singleSelect', $result->getType());
+        static::assertEquals('singleSelect', $result->getFieldType());
 
         // Verify options are properly created with UUIDs
         $options = $result->getOptions();
@@ -123,7 +123,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertInstanceOf(MultiSelectField::class, $result);
         static::assertEquals('Categories', $result->getName());
         static::assertEquals('Select applicable categories', $result->getDescription());
-        static::assertEquals('multiSelect', $result->getType());
+        static::assertEquals('multiSelect', $result->getFieldType());
 
         // Test MultiSelect specific behavior - has isRequired
         static::assertTrue($result->getRequired() ?? false);

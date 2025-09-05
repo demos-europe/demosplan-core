@@ -27,7 +27,7 @@ class RadioButtonField extends AbstractCustomField
 
     protected string $description = '';
 
-    public function getFormat(): string
+    public function getFieldType(): string
     {
         return 'singleSelect';
     }
@@ -77,11 +77,6 @@ class RadioButtonField extends AbstractCustomField
     public function setFieldType(string $type): void
     {
         $this->fieldType = $type;
-    }
-
-    public function getType(): string
-    {
-        return 'singleSelect';
     }
 
     public function isValueValid(?string $value): bool
