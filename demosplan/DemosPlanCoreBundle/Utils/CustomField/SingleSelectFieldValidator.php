@@ -10,41 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-
 class SingleSelectFieldValidator extends CustomFieldValidator
 {
-    private const FIELD_TYPE = 'singleSelect';
-
-    protected const SOURCE_TO_TARGET_MAPPING = [
-        'PROCEDURE'          => 'SEGMENT',
-        'PROCEDURE_TEMPLATE' => 'SEGMENT',
-    ];
-
-    protected const CLASS_NAME_TO_CLASS_PATH_MAP = [
-        'PROCEDURE'          => Procedure::class,
-        'PROCEDURE_TEMPLATE' => Procedure::class,
-        'SEGMENT'            => Segment::class,
-    ];
-
-    public function supports(string $fieldType): bool
-    {
-        return self::FIELD_TYPE === $fieldType;
-    }
-
     public function getFieldType(): string
     {
-        return self::FIELD_TYPE;
+        return 'singleSelect';
     }
 
     public function getSourceToTargetMapping(): array
     {
-        return self::SOURCE_TO_TARGET_MAPPING;
-    }
-
-    public function getClassNameToClassPathMap(): array
-    {
-        return self::CLASS_NAME_TO_CLASS_PATH_MAP;
+        return [
+            'PROCEDURE'          => 'SEGMENT',
+            'PROCEDURE_TEMPLATE' => 'SEGMENT',
+        ];
     }
 }
