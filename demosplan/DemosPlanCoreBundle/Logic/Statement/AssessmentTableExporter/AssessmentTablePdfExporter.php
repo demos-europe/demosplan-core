@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ErroneousDoctrineResult;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -61,6 +62,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         CurrentProcedureService $currentProcedureService,
         // : TODO: By Config ?
         private readonly CurrentUserInterface $currentUser,
+        DocumentWriterSelector $writerSelector,
         Environment $twig,
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
@@ -79,7 +81,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $translator,
             $logger,
             $requestStack,
-            $statementHandler
+            $statementHandler,
+            $writerSelector
         );
         $this->twig = $twig;
         $this->serviceImport = $serviceImport;

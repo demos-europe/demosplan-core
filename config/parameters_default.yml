@@ -436,6 +436,8 @@ parameters:
     pdf_renderer_path: '%kernel.project_dir%/vendor/dompdf/dompdf'
     pdf_renderer_name: DomPDF
 
+   # uses the BKG address search for autosuggestions
+    geodatenzentrum_address_search_url: ''
 
     #### project specific settings
 
@@ -487,7 +489,7 @@ parameters:
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    file.formats.doc: [doc, docx]
+    file.formats.doc: [doc, docx, odt]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
     file.formats.zip: [zip]

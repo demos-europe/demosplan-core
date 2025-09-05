@@ -1026,6 +1026,15 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Document Writer Selector
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector: ~
+
+    # ODT HTML Processor
+    demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor: ~
+
+    # DOCX Exporter (explicit configuration for proper DI)
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter: ~
+
     # File Response Generator Strategy
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy:
         lazy: true
