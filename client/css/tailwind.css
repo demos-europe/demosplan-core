@@ -31,5 +31,5 @@
 */
 @source inline('text-status-{progress,changed,complete}-icon');
 
-@import "./theme-test.css";
+@import "carbon.css";
 
