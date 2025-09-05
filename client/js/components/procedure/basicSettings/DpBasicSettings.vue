@@ -141,7 +141,7 @@
 
             <dp-email-list
               data-cy="administrationEdit"
-              :init-emails="[]"> <!-- ToDo: formData.agencyExtraEmailAddresses -->
+              :init-emails="formData.agencyExtraEmailAddresses">
             </dp-email-list>
           </div>
 
@@ -198,7 +198,9 @@
           <div
             v-if="hasPermission('feature_procedure_user_restrict_access_edit') && hasProcedureUserRestrictedAccess"
             class="u-mb">
-            <label class="inline-block u-mb-0" for="r_authorizedUsers">
+            <label
+              class="inline-block u-mb-0"
+              for="r_authorizedUsers">
               {{ Translator.trans('authorized.users') }}
             </label>
 

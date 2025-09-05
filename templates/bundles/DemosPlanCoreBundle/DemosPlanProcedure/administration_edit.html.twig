@@ -7,36 +7,39 @@
     {% set proceduresettings = templateVars.proceduresettings %}
 
     {% set proceduresettingstest = {
-        ident: templateVars.proceduresettings.ident,
-        publicParticipationPhase: templateVars.proceduresettings.publicParticipationPhase,
-        desc: templateVars.proceduresettings.desc,
-        procedureType: templateVars.proceduresettings.procedureType,
-        externalDesc: templateVars.proceduresettings.externalDesc,
-        publicParticipationContact: templateVars.proceduresettings.publicParticipationContact,
-        settings: templateVars.proceduresettings.settings,
-        locationPostCode: templateVars.proceduresettings.locationPostCode,
-        locationName: templateVars.proceduresettings.locationName,
-        phase: templateVars.proceduresettings.phase,
-        phaseObject: templateVars.proceduresettings.phaseObject,
-        startDate: templateVars.proceduresettings.startDate,
-        endDate: templateVars.proceduresettings.endDate,
-        publicParticipationPhaseObject: templateVars.proceduresettings.publicParticipationPhaseObject,
-        publicParticipationStartDate: templateVars.proceduresettings.publicParticipationStartDate,
-        publicParticipationEndDate: templateVars.proceduresettings.publicParticipationEndDate,
-        publicParticipationPublicationEnabled: templateVars.proceduresettings.publicParticipationPublicationEnabled,
-        allowAnonymousStatements: templateVars.proceduresettings.allowAnonymousStatements,
-        name: templateVars.proceduresettings.name,
-        externalName: templateVars.proceduresettings.externalName,
-        exportSettings: templateVars.proceduresettings.exportSettings,
-        internalComplete: templateVars.proceduresettings.internalComplete|default,
-        infoComplete: templateVars.proceduresettings.infoComplete|default,
-        locationComplete: templateVars.proceduresettings.locationComplete|default,
-        phaseInternalComplete: templateVars.proceduresettings.phaseInternalComplete|default,
-        phaseExternalComplete: templateVars.proceduresettings.phaseExternalComplete|default,
-        nameUrlComplete: templateVars.proceduresettings.nameUrlComplete|default,
-        exportSettingsComplete: templateVars.proceduresettings.exportSettingsComplete|default,
-        additionalComplete: templateVars.proceduresettings.additionalComplete|default,
-        statementFieldDefinitions: templateVars.proceduresettings.statementFieldDefinitions|default
+        ident: proceduresettings.ident,
+        publicParticipationPhase: proceduresettings.publicParticipationPhase,
+        desc: proceduresettings.desc,
+        procedureType: proceduresettings.procedureType ? {
+            name: proceduresettings.procedureType.name,
+            description: proceduresettings.procedureType.description,
+        } : null,
+        externalDesc: proceduresettings.externalDesc,
+        publicParticipationContact: proceduresettings.publicParticipationContact,
+        settings: proceduresettings.settings,
+        locationPostCode: proceduresettings.locationPostCode,
+        locationName: proceduresettings.locationName,
+        phase: proceduresettings.phase,
+        phaseObject: proceduresettings.phaseObject,
+        startDate: proceduresettings.startDate,
+        endDate: proceduresettings.endDate,
+        publicParticipationPhaseObject: proceduresettings.publicParticipationPhaseObject,
+        publicParticipationStartDate: proceduresettings.publicParticipationStartDate,
+        publicParticipationEndDate: proceduresettings.publicParticipationEndDate,
+        publicParticipationPublicationEnabled: proceduresettings.publicParticipationPublicationEnabled,
+        allowAnonymousStatements: proceduresettings.allowAnonymousStatements,
+        name: proceduresettings.name,
+        externalName: proceduresettings.externalName,
+        exportSettings: proceduresettings.exportSettings,
+        internalComplete: proceduresettings.internalComplete|default,
+        infoComplete: proceduresettings.infoComplete|default,
+        locationComplete: proceduresettings.locationComplete|default,
+        phaseInternalComplete: proceduresettings.phaseInternalComplete|default,
+        phaseExternalComplete: proceduresettings.phaseExternalComplete|default,
+        nameUrlComplete: proceduresettings.nameUrlComplete|default,
+        exportSettingsComplete: proceduresettings.exportSettingsComplete|default,
+        additionalComplete: proceduresettings.additionalComplete|default,
+        statementFieldDefinitions: proceduresettings.statementFieldDefinitions|default
     } %}
 
 
@@ -146,9 +149,6 @@
         },
         token: form._token.vars.value
     } %}
-
-    {{ dump(hasPermission('field_procedure_adjustments_planning_agency')) }}
-
 
     <dp-basic-settings
         inline-template
