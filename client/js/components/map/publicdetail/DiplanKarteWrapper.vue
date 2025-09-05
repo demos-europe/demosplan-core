@@ -109,7 +109,7 @@ const handleDrawing = (event) => {
       r_location_priority_area_key: '',
       r_location_priority_area_type: '',
       r_location_geometry: '',
-      location_is_set: 'point'
+      location_is_set: 'point',
     }
     closeLocationInfo()
     toggleStatementModal()
