@@ -36,6 +36,18 @@
             text: Translator.trans('description')
           }"
           maxlength="250" />
+        <dp-select
+          id="newFieldType"
+          v-model="customField.fieldType"
+          class="w-[calc(100%-26px)]"
+          data-cy="customFields:newFieldType"
+          :label="{
+            text: Translator.trans('type'),
+            tooltip: Translator.trans('explanation.field.type')
+          }"
+          :options="typeOptions"
+          :disabled="disableTypeSelection"
+          :required="preselectedType === ''" />
 
         <slot />
 
@@ -57,6 +69,7 @@ import {
   DpButtonRow,
   DpInput,
   DpLoading,
+  DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
@@ -68,6 +81,7 @@ export default {
     DpButtonRow,
     DpInput,
     DpLoading,
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -79,6 +93,16 @@ export default {
     },
 
     isLoading: {
+      type: Boolean,
+      default: false,
+    },
+
+    preselectedType: {
+      type: String,
+      default: '',
+    },
+
+    disableTypeSelection: {
       type: Boolean,
       default: false,
     },
@@ -95,8 +119,19 @@ export default {
       customField: {
         name: '',
         description: '',
+        fieldType: this.preselectedType,
       },
       isOpen: false,
+      typeOptions: [
+        {
+          value: 'multiSelect',
+          label: 'Mehrfachauswahl',
+        },
+        {
+          value: 'singleSelect',
+          label: 'Einzelauswahl',
+        },
+      ],
     }
   },
 
@@ -138,6 +173,7 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
+      this.customField.fieldType = this.preselectedType
     },
   },
 }

@@ -5,14 +5,24 @@
       data-cy="places:editInfo"
       dismissible
       :dismissible-key="helpTextDismissibleKey"
-      :message="Translator.trans('segments.fields.edit.info')"
+      :message="Translator.trans(helpText)"
       type="info" />
 
     <create-custom-field-form
+      :disable-type-selection="true"
       :handle-success="isSuccess"
       :is-loading="isLoading"
+      :preselected-type="isStatementField ? 'multiSelect' : 'singleSelect'"
       @save="customFieldData => saveNewField(customFieldData)">
       <div>
+        <dp-checkbox
+          v-if="isStatementField"
+          id="requiredCheckbox"
+          v-model="isRequired"
+          class="mb-2"
+          :label="{
+            text: Translator.trans('statements.fields.configurable.required')
+          }" />
         <dp-label
           class="mb-1"
           required
@@ -141,6 +151,23 @@
         </div>
       </template>
 
+      <template v-slot:fieldType="rowData">
+        <div class="mt-1">
+          <dp-badge
+            color="default"
+            :text="fieldTypeText(rowData.fieldType)"
+          />
+        </div>
+      </template>
+
+      <template v-slot:isRequired="rowData">
+        <div
+          v-if="isStatementField"
+          class="mt-1">
+          {{ rowData.isRequired ? Translator.trans('yes') : Translator.trans('no') }}
+        </div>
+      </template>
+
       <template v-slot:flyout="rowData">
         <div class="flex float-right">
           <button
@@ -184,7 +211,7 @@
           <dp-confirm-dialog
             ref="confirmDialog"
             data-cy="customFields:saveEditConfirm"
-            :message="Translator.trans('custom.field.edit.message.warning')" />
+            :message="Translator.trans(warningMessage)" />
 
           <button
             v-if="!rowData.open"
@@ -221,7 +248,9 @@
 <script>
 import {
   dpApi,
+  DpBadge,
   DpButton,
+  DpCheckbox,
   DpConfirmDialog,
   DpDataTable,
   DpIcon,
@@ -239,7 +268,9 @@ export default {
 
   components: {
     CreateCustomFieldForm,
+    DpBadge,
     DpButton,
+    DpCheckbox,
     DpConfirmDialog,
     DpDataTable,
     DpIcon,
@@ -266,6 +297,16 @@ export default {
   data () {
     return {
       customFieldItems: [],
+      enabledFieldsTextConfig: {
+        field_segments_custom_fields: {
+          info: 'segments.fields.edit.info',
+          warning: 'segments.field.edit.message.warning',
+        },
+        field_statements_custom_fields: {
+          info: 'statements.fields.edit.info',
+          warning: 'statements.field.edit.message.warning',
+        },
+      },
       initialRowData: {},
       isLoading: false,
       isNewFieldFormOpen: false,
@@ -280,6 +321,7 @@ export default {
         },
       ],
       newRowData: {},
+      isRequired: false,
     }
   },
 
@@ -309,8 +351,20 @@ export default {
       }
     },
 
+    fieldTypeText () {
+      const fieldTypeMap = {
+        'multiSelect': 'custom.field.type.multiSelect',
+        'singleSelect': 'custom.field.type.singleSelect',
+      }
+
+      return (fieldType) => {
+        const translationKey = fieldTypeMap[fieldType]
+        return translationKey ? Translator.trans(translationKey) : fieldType
+      }
+    },
+
     headerFields () {
-      return [
+      const fields = [
         {
           field: 'name',
           label: Object.keys(this.newRowData).length > 0 ? `${Translator.trans('name')}*` : Translator.trans('name'),
@@ -326,11 +380,38 @@ export default {
           label: Translator.trans('description'),
           colClass: 'u-5-of-12',
         },
+        {
+          field: 'fieldType',
+          label: Translator.trans('type'),
+          colClass: 'u-6-of-12',
+        },
       ]
+
+      if (this.isStatementField) {
+        fields.push({
+          field: 'isRequired',
+          label: Translator.trans('field.required'),
+          colClass: 'u-7-of-12',
+        })
+      }
+
+      return fields
+    },
+
+    helpText () {
+      return this.getTextForEnabledFieldTypes('info', 'custom.fields.edit.info')
     },
 
     helpTextDismissibleKey () {
       return 'customFieldsHint'
+    },
+
+    isStatementField () {
+      return this.hasPermission('field_statements_custom_fields')
+    },
+
+    warningMessage () {
+      return this.getTextForEnabledFieldTypes('warning', 'custom.fields.edit.message.warning')
     },
   },
 
@@ -436,15 +517,17 @@ export default {
         id: this.procedureId,
         fields: {
           [sourceEntity]: [
-            'segmentCustomFields',
+            this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields',
           ].join(),
           CustomField: [
             'name',
             'description',
             'options',
+            'fieldType',
+            ...(this.isStatementField ? ['isRequired'] : []),
           ].join(),
         },
-        include: ['segmentCustomFields'].join(),
+        include: [this.isStatementField ? 'statementCustomFields' : 'segmentCustomFields'].join(),
       }
 
       this.getCustomFields(payload).then(() => {
@@ -469,6 +552,34 @@ export default {
       return this.customFieldItems.findIndex(el => el.id === rowData.id)
     },
 
+    /**
+     * Returns appropriate text based on which custom field types are enabled in the project
+     * @param textType {String} The type of text to retrieve (e.g., 'info', 'warning')
+     * @param multiplePermissionsText {String} Text to return when multiple field types are enabled
+     * @returns {String} The appropriate text message or empty string
+     */
+    getTextForEnabledFieldTypes (textType, multiplePermissionsText) {
+      const permissionToText = {}
+
+      Object.keys(this.enabledFieldsTextConfig).forEach(permission => {
+        if (this.enabledFieldsTextConfig[permission][textType]) {
+          permissionToText[permission] = this.enabledFieldsTextConfig[permission][textType]
+        }
+      })
+
+      const truePermissions = Object.keys(permissionToText).filter(permission =>
+        this.hasPermission(permission),
+      )
+
+      if (truePermissions.length > 1) {
+        return multiplePermissionsText
+      } else if (truePermissions.length === 1) {
+        return permissionToText[truePermissions[0]]
+      }
+
+      return ''
+    },
+
     hideOptions (rowData) {
       const idx = this.getIndexOfRowData(rowData)
 
@@ -483,12 +594,14 @@ export default {
         .map(field => {
           if (field) {
             const { id, attributes } = field
-            const { description, name, options } = attributes
+            const { description, name, fieldType, isRequired, options } = attributes
 
             return {
               id,
               name,
               description,
+              fieldType,
+              ...(this.isStatementField && { isRequired }),
               options: JSON.parse(JSON.stringify(options)),
               open: false,
               edit: false,
@@ -559,12 +672,14 @@ export default {
 
           const updatedField = {
             ...storeField,
-            attributes: {
-              ...storeField.attributes,
-              description,
-              name,
-              options,
-            },
+            attributes: Object.fromEntries(
+              Object.entries({
+                ...storeField.attributes,
+                description,
+                name,
+                options,
+              }).filter(([key]) => key !== 'fieldType'),
+            ),
           }
 
           await this.saveCustomField(updatedField)
@@ -586,7 +701,7 @@ export default {
      * @param customFieldData.description {String}
      */
     saveNewField (customFieldData) {
-      const { description, name } = customFieldData
+      const { description, name, fieldType } = customFieldData
       const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
@@ -602,10 +717,11 @@ export default {
           description,
           name,
           options,
+          fieldType,
+          ...(this.isStatementField && { isRequired: this.isRequired }),
           sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
           sourceEntityId: this.procedureId,
-          targetEntity: 'SEGMENT',
-          fieldType: 'singleSelect',
+          targetEntity: this.isStatementField ? 'STATEMENT' : 'SEGMENT',
         },
       }
 
