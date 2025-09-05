@@ -1775,6 +1775,7 @@ feature_procedure_user_restrict_access_edit:
     label: 'May edit restricted access (if user is authorized)'
     description: |
         Config Variable hasProcedureUserRestrictedAccess needs to be true to use this feature at all
+    expose: true
     loginRequired: true
 feature_procedures_count_released_drafts:
     description: 'Show how many statements the institution has already submitted for each procedure.'
@@ -2494,6 +2495,7 @@ feature_toggle_public_participation_publication:
     loginRequired: false
 feature_use_data_input_orga:
     description: 'Enable possibility to input statements for helping orgas'
+    expose: true
     label: 'Are helping data input orgas enabled in this project?'
     loginRequired: false
 feature_use_plis:
@@ -2662,6 +2664,7 @@ field_procedure_adjustments_planning_agency:
     label: 'Planungsbüro einem Verfahren zuordnen'
     loginRequired: true
     parent: field_procedure
+    expose: true
 field_procedure_administration:
     label: 'Anzeige der Behörde im Header der Detailansicht eines Verfahrens'
     loginRequired: false
