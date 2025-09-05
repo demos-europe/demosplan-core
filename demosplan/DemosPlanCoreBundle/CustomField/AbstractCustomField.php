@@ -22,6 +22,8 @@ use ReflectionProperty;
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
+    protected string $id = '';
+
     protected string $name = '';
 
     protected string $description = '';
@@ -81,6 +83,16 @@ abstract class AbstractCustomField implements CustomFieldInterface
         }
 
         return $attributes;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     public function getName(): string
