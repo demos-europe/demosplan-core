@@ -115,7 +115,7 @@
     text-overflow: ellipsis !important;
 }
 
-/* Fix ID column width to prevent shifting */
+/* Fix id column width to prevent shifting */
 #cv-statement-table th:nth-child(2),
 #cv-statement-table td:nth-child(2),
 #cv-segment-table th:nth-child(2),
