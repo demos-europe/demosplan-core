@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 
-use DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 
 class SegmentFactory implements SegmentFactoryInterface
