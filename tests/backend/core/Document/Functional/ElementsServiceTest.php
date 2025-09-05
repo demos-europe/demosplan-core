@@ -773,7 +773,7 @@ class ElementsServiceTest extends FunctionalTestCase
         static::assertNotNull($updatedElement['ident'],
             'updateElementArray should return a non-null ident. Returned ident: '.var_export($updatedElement['ident'] ?? 'KEY_MISSING', true));
 
-        $updatedElement = $this->find(Elements::class, $updatedElement['ident']);
+        $updatedElement = $this->find(Elements::class, $updatedElement['id']);
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [

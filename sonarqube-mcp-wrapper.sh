@@ -1,0 +1,1 @@
+/home/caro/Development/demos-mcp/sonarqube-mcp-wrapper.sh

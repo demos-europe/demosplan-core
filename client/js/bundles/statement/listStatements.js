@@ -11,15 +11,13 @@
  * This is the entrypoint for list_statements.html.twig
  */
 
-import CvStatementList from '@DpJs/components/statement/CvStatementList'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {
-  ListOriginalStatements,
-  CvStatementList,
-  ListStatements
+  ListStatements,
+  ListOriginalStatements
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 

@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Entity\OpenGeoDbShortTable;
 use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
 
-class OpenGeoDbService extends CoreService
+class OpenGeoDbService
 {
     public function __construct(private readonly OpenGeoDbRepository $openGeoDbRepository)
     {

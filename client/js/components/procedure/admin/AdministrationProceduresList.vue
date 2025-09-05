@@ -30,6 +30,7 @@
 
     <div class="flex w-full">
       <dp-search-field
+        class="w-full"
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
         @reset="resetAdministrationProceduresList" />
@@ -300,7 +301,7 @@ export default {
             }
           }
         },
-        include: 'procedure',
+
         sort
       }
 

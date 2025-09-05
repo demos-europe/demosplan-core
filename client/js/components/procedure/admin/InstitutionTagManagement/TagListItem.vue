@@ -1,6 +1,6 @@
 <template>
   <form
-    class="grid grid-cols-[1fr,auto,auto] items-center gap-1"
+    class="grid grid-cols-[1fr_auto_auto] items-center gap-1"
     data-dp-validate="editTagOrCategoryForm">
     <div class="flex space-x-1">
       <dp-icon

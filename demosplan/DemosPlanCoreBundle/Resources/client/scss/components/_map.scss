@@ -179,6 +179,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             @include media-query('palm') {
                 height: 80vh;
+                padding-left: 24px;
             }
 
             z-index: 0;
@@ -541,6 +542,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
             min-width: 200px;
             background-color: $dp-color-white;
             width: auto !important;
+
+            @include media-query('palm') {
+                left: 72px;
+            }
         }
 
         //  Custom zoom controls
@@ -874,6 +879,10 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
     .c-map .ol-zoom {
         left: $inuit-base-spacing-unit--small;
         top: $inuit-base-spacing-unit--small;
+
+        @include media-query('palm') {
+            left: 36px;
+        }
     }
 
     .c-map .ol-viewport {

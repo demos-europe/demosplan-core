@@ -13,7 +13,7 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 
 // Test data which is defined in Twig
-import Submitters from './__mocks__/DpAutofillSubmitterData.json'
+import Submitters from './fixtures/DpAutofillSubmitterData.json'
 
 describe('Submitter', () => {
   it.skip('renders correct markup with permission..SubmitterInvited but permission..SubmitterCitizens = false', () => {

@@ -103,7 +103,6 @@ export default {
       filterValue: '',
       headerItems: [
         { label: 'Name', width: 'u-1-of-4' },
-        { label: 'Login', width: 'u-1-of-4' },
         { label: 'E-Mail', width: 'u-1-of-4' }
       ],
       isFiltered: false,
@@ -224,9 +223,9 @@ export default {
             memberOf: 'name'
           }
         }
-        filter[`login_${idx}`] = {
+        filter[`email_${idx}`] = {
           condition: {
-            path: 'login',
+            path: 'email',
             value: subString,
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
             memberOf: 'name'

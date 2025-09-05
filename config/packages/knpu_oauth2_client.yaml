@@ -1,6 +1,25 @@
 knpu_oauth2_client:
     clients:
         # configure your clients as described here: https://github.com/knpuniversity/oauth2-client-bundle#configuration
+        # composer require thenetworg/oauth2-azure
+        azure:
+            # must be "azure" - it activates that type!
+            type: azure
+            # add and set these environment variables in your .env files
+            client_id: '%env(OAUTH_AZURE_CLIENT_ID)%'
+            # a route name you'll create
+            redirect_route: connect_azure_check
+            redirect_params: { }
+            # The shared client secret if you don't use a certificate
+            client_secret: '%env(OAUTH_AZURE_CLIENT_SECRET)%'
+            # Domain to build login URL
+            url_login: '%env(OAUTH_AZURE_URL_LOGIN)%'
+            # Oauth path to authorize against
+            path_authorize: "%env(OAUTH_AZURE_PATH_AUTHORIZE)%"
+            # Oauth path to retrieve a token
+            path_token: "%env(OAUTH_AZURE_PATH_TOKEN)%"
+            # The tenant to use, default is `common`
+            tenant: "%env(OAUTH_AZURE_TENANT)%"
         # will create service: "knpu.oauth2.client.keycloak"
         # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\KeycloakClient
         # composer require stevenmaguire/oauth2-keycloak

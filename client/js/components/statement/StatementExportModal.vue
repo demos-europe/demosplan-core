@@ -130,7 +130,7 @@
 
       <dp-button-row
         class="text-right mt-auto"
-        data-cy="statementExport"
+        data-cy="exportModal"
         primary
         secondary
         :primary-text="Translator.trans('export.statements')"

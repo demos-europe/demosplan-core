@@ -11,7 +11,6 @@ All rights reserved
   <div
     ref="contentArea"
     class="mt-2">
-
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
@@ -30,8 +29,9 @@ All rights reserved
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
           :raw-items="rowItems"
+          :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
-          @reset="handleFilterReset" />
+          @reset="resetSearch" />
 
         <!-- Slot for bulk actions -->
       </div>
@@ -264,6 +264,10 @@ export default {
       return this.pagination.currentPage || 1
     },
 
+    isSearchApplied () {
+      return this.searchTerm !== ''
+    },
+
     itemsPerPage () {
       return this.pagination.perPage || this.defaultPagination.perPage
     },
@@ -467,10 +471,6 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    resetSearch() {
-      this.$refs.searchField.handleReset()
-    },
-
     handleReset () {
       this.searchTerm = ''
       this.getInstitutionsWithContacts(1)
@@ -509,6 +509,10 @@ export default {
     resetQuery () {
       this.searchTerm = ''
       this.filterManager.reset()
+    },
+
+    resetSearch () {
+      this.$refs.searchField.handleReset()
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {

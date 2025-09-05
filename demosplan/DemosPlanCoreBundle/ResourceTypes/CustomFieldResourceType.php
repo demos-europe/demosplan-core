@@ -18,12 +18,14 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
@@ -38,6 +40,7 @@ use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
@@ -57,6 +60,7 @@ use Pagerfanta\Pagerfanta;
  * @property-read End $description
  * @property-read End $targetEntity
  * @property-read End $sourceEntity
+ * @property-read End $options
  *
  * @method bool isNullSafe(int $index)
  */
@@ -68,6 +72,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
+        private readonly CustomFieldUpdater $customFieldUpdater,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly Reindexer $reindexer,
         private readonly CurrentUserInterface $currentUser)
@@ -107,10 +112,15 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->setReadableByPath();
-        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior();
+        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->options
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): array => array_map(static fn (CustomFieldOption $option) => $option->toJson(), $customField->getOptions())
+            )
+            ->addPathCreationBehavior()
+            ->addPathUpdateBehavior();
+        $configBuilder->description->setReadableByPath()->addPathCreationBehavior()->addPathUpdateBehavior();
         $configBuilder->targetEntity->addPathCreationBehavior();
         $configBuilder->sourceEntity->addPathCreationBehavior();
         $configBuilder->sourceEntityId->addPathCreationBehavior();
@@ -223,7 +233,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isUpdateAllowed(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function getUpdatability(): ResourceUpdatability
@@ -254,5 +264,14 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
             throw $exception;
         }
+    }
+
+    public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
+    {
+        // Update the fields from the request
+        $attributes = $entityData->getAttributes();
+        $customField = $this->customFieldUpdater->updateCustomField($entityId, $attributes);
+
+        return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
 }
