@@ -2713,6 +2713,7 @@ procedure.by.phase.public: |
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
 procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
+procedure.description.expand: "\"Planungsanlass\" beim Seitenaufruf ausgeklappt darstellen"
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
 procedure.current: "Dieses Verfahren"
@@ -2919,7 +2920,7 @@ public.participation.panel.institution.description_1: "Institutionen benötigen 
 public.participation.panel.institution.description_2: "<a class=\"{css}\" href=\"{url}\">Jetzt registrieren.</a>"
 public.participation.participate: "Stellung nehmen"
 public.participation.publication: "Veröffentlichung von Stellungnahmen von Bürger*innen in diesem Verfahren erlauben"
-public.participation.feedback: 'Die Checkbox "Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten" für die Bürger*innen hinzufügen.'
+public.participation.feedback: "Die Checkbox \"Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten\" für die Bürger*innen hinzufügen"
 public.participation.receive_notifications: "Expert*innen prüfen Ihre Stellungnahme. Lassen Sie sich über das Ergebnis informieren!"
 public.participation.relation: "Ortsbezug"
 public.participation.relation.map: "Ortsbezug in der Karte"

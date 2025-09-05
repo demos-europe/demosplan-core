@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 - Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
 - Use external Geocoder API as service for address auto-suggestions
 
 ## v4.11.0 (2025-08-27)
