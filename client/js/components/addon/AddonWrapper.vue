@@ -7,7 +7,8 @@
       :key="`addon:${addon.name}`"
       :ref="`${addon.name}${refComponent}`"
       :data-cy="`addon:${addon.name}`"
-      @addonEvent:emit="(event) => $emit(event.name, event.payload)" />
+      @addon-event:emit="(event) => $emit(event.name, event.payload)"
+    />
   </div>
 </template>
 

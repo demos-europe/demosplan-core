@@ -17,19 +17,22 @@
 
     <div
       v-else
-      class="flex">
+      class="flex"
+    >
       <dp-input
         id="postalcode"
+        v-model="locationPostalCode"
         data-cy="procedureCoordinate:postalCode"
         :disabled="readonly"
         :label="{
           text: Translator.trans('postalcode')
         }"
         name="r_locationPostCode"
-        v-model="locationPostalCode"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="locationName"
+        v-model="locationName"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:city"
         :disabled="readonly"
@@ -37,10 +40,11 @@
           text: Translator.trans('city')
         }"
         name="r_locationName"
-        v-model="locationName"
-        width="w-9" />
+        width="w-9"
+      />
       <dp-input
         id="municipalCode"
+        v-model="municipalCode"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:municipalCode"
         :disabled="readonly"
@@ -48,10 +52,11 @@
           text: Translator.trans('municipal_code')
         }"
         name="r_municipalCode"
-        v-model="municipalCode"
-        width="w-10" />
+        width="w-10"
+      />
       <dp-input
         id="ars"
+        v-model="ars"
         class="u-ml-0_25"
         data-cy="procedureCoordinate:regionKey"
         :disabled="readonly"
@@ -59,8 +64,8 @@
           text: Translator.trans('ars')
         }"
         name="r_ars"
-        v-model="ars"
-        width="w-10" />
+        width="w-10"
+      />
     </div>
   </div>
 </template>

@@ -61,7 +61,8 @@
       data-cy="editButtonDesc"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
       :class="{ 'color-highlight' : currentlyActive }"
-      @click="toggle">
+      @click="toggle"
+    >
       <slot name="editButtonDesc">
         {{ Translator.trans('map.territory.tools.edit') }}
       </slot>
@@ -78,7 +79,8 @@
       data-cy="removeButtonDesc"
       class="btn--blank u-ml-0_5 weight--bold"
       :class="disabled ? 'color--grey-light cursor-default' : 'o-link--default'"
-      @click="removeFeature">
+      @click="removeFeature"
+    >
       <slot name="removeButtonDesc">
         {{ Translator.trans('map.territory.tools.removeSelected') }}
       </slot>
@@ -91,7 +93,8 @@
       type="button"
       data-cy="removeAllButtonDesc"
       class="btn--blank u-ml-0_5 o-link--default weight--bold"
-      @click="clearAll">
+      @click="clearAll"
+    >
       <slot name="removeAllButtonDesc">
         {{ Translator.trans('map.territory.tools.removeAll') }}
       </slot>

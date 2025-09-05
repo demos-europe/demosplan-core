@@ -14,15 +14,18 @@
       <div class="annotator__wrapper">
         <div
           id="map"
-          class="annotator__canvas" />
+          class="annotator__canvas"
+        />
         <dp-label-modal
           ref="labelModal"
           :labels="selectElementLabels"
-          @set-label="setLabel" />
+          @set-label="setLabel"
+        />
         <dp-sticky-element>
           <div class="u-ml w-12">
             <p
-              class="weight--bold">
+              class="weight--bold"
+            >
               {{ Translator.trans('tool.active') }}
             </p>
             <div>
@@ -31,11 +34,13 @@
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'select'}"
                   aria-labelledby="elementSelectLabel"
-                  @click="setInteraction('select')">
+                  @click="setInteraction('select')"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 10 17"
-                    style="width: 20px; height: 20px;">
+                    style="width: 20px; height: 20px;"
+                  >
                     <defs>
                       <clipPath id="selectIcon">
                         <path d="M0 0h12v17H0z" />
@@ -44,14 +49,16 @@
                     <g :clip-path="`url(#selectIcon)`">
                       <path
                         d="M0 0v17l4.849-4.973H12z"
-                        :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
+                        :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'"
+                      />
                     </g>
                   </svg>
                 </button>
               </div>
               <span
                 id="elementSelectLabel"
-                class="align-middle u-ml-0_5">
+                class="align-middle u-ml-0_5"
+              >
                 {{ Translator.trans('select.or.edit') }}
               </span>
             </div>
@@ -61,37 +68,43 @@
                   class="btn annotator__button annotator__button--toggle"
                   :class="{'is-current': currentInteractionName === 'draw'}"
                   aria-labelledby="elementDrawLabel"
-                  @click="setInteraction('draw')">
+                  @click="setInteraction('draw')"
+                >
                   <i class="fa fa-plus" />
                 </button>
               </div>
               <span
                 id="elementDrawLabel"
-                class="align-middle u-ml-0_5">
+                class="align-middle u-ml-0_5"
+              >
                 {{ Translator.trans('element.add') }}
               </span>
             </div>
             <div class="u-mt-2">
               <p
                 class="weight--bold"
-                :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
+                :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+              >
                 {{ Translator.trans('element.selected') }}
                 <dp-contextual-help
                   class="float-right u-mt-0_12"
-                  :text="Translator.trans('annotator.modify.explanation')" />
+                  :text="Translator.trans('annotator.modify.explanation')"
+                />
               </p>
               <div>
                 <button
                   class="annotator__button btn btn--warning btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
                   aria-labelledby="elementDeleteLabel"
-                  @click="deleteFeature(editingFeature)">
+                  @click="deleteFeature(editingFeature)"
+                >
                   <i class="fa fa-trash" />
                 </button>
                 <span
                   id="elementDeleteLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                >
                   {{ Translator.trans('element.delete') }}
                 </span>
               </div>
@@ -100,13 +113,15 @@
                   class="annotator__button btn btn--primary btn--outline u-ml-0_25"
                   :disabled="currentInteractionName !== 'select' || !editingFeature"
                   aria-labelledby="formatChangeLabel"
-                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))">
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
+                >
                   <i class="fa fa-tag" />
                 </button>
                 <span
                   id="formatChangeLabel"
                   class="align-middle u-ml-0_5"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                >
                   {{ Translator.trans('format.change') }}
                 </span>
               </div>
@@ -119,12 +134,14 @@
                   class="w-11 u-mb-0_25"
                   :disabled="documentLengthTotal === 0"
                   :text="buttonText"
-                  @click="save" />
+                  @click="save"
+                />
                 <dp-button
                   class="w-11"
                   color="secondary"
                   :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
-                  :text="Translator.trans('abort')" />
+                  :text="Translator.trans('abort')"
+                />
               </div>
             </div>
           </div>
@@ -135,7 +152,8 @@
       :url="Routing.generate('dplan_annotated_statement_pdf_pause_box_review', {
         documentId: initDocumentId,
         procedureId: procedureId
-      })" />
+      })"
+    />
   </div>
 </template>
 

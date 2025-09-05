@@ -436,6 +436,8 @@ parameters:
     pdf_renderer_path: '%kernel.project_dir%/vendor/dompdf/dompdf'
     pdf_renderer_name: DomPDF
 
+   # uses the BKG address search for autosuggestions
+    geodatenzentrum_address_search_url: ''
 
     #### project specific settings
 

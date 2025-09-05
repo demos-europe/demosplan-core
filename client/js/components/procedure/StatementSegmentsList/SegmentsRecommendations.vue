@@ -21,7 +21,8 @@
             v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')"
             class="segment-list-toggle-button btn--blank u-mh-auto"
             :class="{'reverse': isAllCollapsed === false}"
-            @click="toggleAll">
+            @click="toggleAll"
+          >
             <i class="fa fa-arrow-up" />
             <i class="fa fa-arrow-down" />
           </button>
@@ -40,7 +41,8 @@
         <div class="text-right u-mb-2">
           <dp-button
             :text="Translator.trans('split.now')"
-            @click="claimAndRedirect" />
+            @click="claimAndRedirect"
+          />
         </div>
       </div>
       <!--Segments, if there are any-->
@@ -54,7 +56,8 @@
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
-          :current-user-orga="currentUser.orgaName" />
+          :current-user-orga="currentUser.orgaName"
+        />
       </div>
     </div>
   </div>
