@@ -23,54 +23,54 @@ export default {
     attributions: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     layerType: {
       required: false,
       type: String,
-      default: 'base'
+      default: 'base',
     },
 
     layers: {
       required: true,
-      type: String
+      type: String,
     },
 
     name: {
       required: false,
       type: String,
-      default: 'baselayer_global'
+      default: 'baselayer_global',
     },
 
     opacity: {
       required: false,
       type: Number,
-      default: 100
+      default: 100,
     },
 
     order: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     projection: {
       required: false,
       type: String,
-      default: window.dplan.defaultProjectionLabel
+      default: window.dplan.defaultProjectionLabel,
     },
 
     title: {
       required: false,
       type: String,
-      default: 'Global Baselayer'
+      default: 'Global Baselayer',
     },
 
     url: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -88,17 +88,17 @@ export default {
      */
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
-      return this.attributions
-        ? this.attributions.replaceAll('{currentYear}', currentYear)
-        : Translator.trans('map.attribution.default', {
+      return this.attributions ?
+        this.attributions.replaceAll('{currentYear}', currentYear) :
+        Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
-          currentYear
+          currentYear,
         })
     },
 
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   watch: {
@@ -106,8 +106,8 @@ export default {
       handler (newVal) {
         this.source.setAttributions(newVal)
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -136,7 +136,7 @@ export default {
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(this.order, this.layer)
-    }
+    },
   },
 
   mounted () {
@@ -149,7 +149,7 @@ export default {
     }
   },
 
-  render: () => null
+  render: () => null,
 }
 
 /**
@@ -171,15 +171,15 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
     url,
     params: {
       LAYERS: layers || '',
-      FORMAT: 'image/png'
+      FORMAT: 'image/png',
     },
     projection,
     tileGrid: new TileGrid({
       origin,
       resolutions,
-      matrixIds: getMatrixIds(resolutions)
+      matrixIds: getMatrixIds(resolutions),
     }),
-    attributions
+    attributions,
   })
 }
 
@@ -199,7 +199,7 @@ const createTileLayer = (title, name, source, opacity, layerType = 'base') => {
     opacity: opacity / 100,
     type: layerType,
     visible: true,
-    source
+    source,
   })
 }
 

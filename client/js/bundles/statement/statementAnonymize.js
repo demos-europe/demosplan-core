@@ -15,7 +15,7 @@ import DpStatementAnonymize from '@DpJs/components/statement/DpStatementAnonymiz
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpStatementAnonymize
+  DpStatementAnonymize,
 }
 
 initialize(components)

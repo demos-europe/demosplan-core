@@ -26,11 +26,11 @@ const components = {
   DpPublicDetailNoMap,
   DpPublicStatementList,
   DpUploadFiles,
-  StatementModal
+  StatementModal,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 initialize(components, stores).then(() => {

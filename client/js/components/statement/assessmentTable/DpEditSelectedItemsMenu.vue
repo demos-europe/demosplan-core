@@ -13,7 +13,8 @@
     <div
       v-if="areElementsSelected"
       role="menu"
-      class="layout__item u-12-of-12 u-p-0_5 bg-color-selection line-height--1_6">
+      class="layout__item u-12-of-12 u-p-0_5 bg-color-selection line-height--1_6"
+    >
       <span class="u-mr">
         {{ selectedItemsText }}
       </span>
@@ -23,15 +24,17 @@
         :procedure-id="procedureId"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
-        @consolidateStatements="$root.$emit('consolidateStatements')"
-        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
+        @consolidate-statements="$root.$emit('consolidateStatements')"
+        @export-modal:toggle="tab => $emit('exportModal:toggle', tab)"
+      />
 
       <dp-button
         class="float-right"
         data-cy="editSelectedItemsMenu:unselect"
         :text="Translator.trans('unselect')"
         variant="outline"
-        @click="resetSelection" />
+        @click="resetSelection"
+      />
     </div>
     <!--this slot is needed for the search field and filter modal etc.-->
     <div v-show="!areElementsSelected">
@@ -50,50 +53,50 @@ export default {
   components: {
     DpButton,
     DpSelectedItemsStatements: () => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements'),
-    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments')
+    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments'),
   },
 
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'consolidateStatements',
-    'exportModal:toggle'
+    'exportModal:toggle',
   ],
 
   data () {
     return {
-      loading: false
+      loading: false,
     }
   },
 
   computed: {
     ...mapGetters('Statement', {
-      selectedStatementsLength: 'selectedElementsLength'
+      selectedStatementsLength: 'selectedElementsLength',
     }),
 
     ...mapGetters('Fragment', [
-      'selectedFragmentsLength'
+      'selectedFragmentsLength',
     ]),
 
     ...mapState('Statement', [
-      'statements'
+      'statements',
     ]),
 
     areElementsSelected () {
@@ -130,7 +133,7 @@ export default {
       } else {
         return 'statement'
       }
-    }
+    },
   },
 
   methods: {
@@ -141,7 +144,7 @@ export default {
     resetSelection () {
       this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
     },
-    ...mapMutations('Statement', ['updateStatement'])
-  }
+    ...mapMutations('Statement', ['updateStatement']),
+  },
 }
 </script>

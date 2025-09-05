@@ -13,20 +13,23 @@
       v-if="allComponentsLoaded"
       :active-id="activeTabId"
       use-url-fragment
-      @change="setActiveTabId">
+      @change="setActiveTabId"
+    >
       <dp-tab
         v-for="(option, index) in availableImportOptions"
-        :key="index"
         :id="option.name"
+        :key="index"
         :is-active="activeTabId === option.name"
-        :label="Translator.trans(option.title)">
+        :label="Translator.trans(option.title)"
+      >
         <slot>
           <keep-alive>
             <component
-              class="u-mt"
               :is="option.name"
+              class="u-mt"
               :demosplan-ui="demosplanUi"
-              :csrf-token="csrfToken" />
+              :csrf-token="csrfToken"
+            />
           </keep-alive>
         </slot>
       </dp-tab>
@@ -34,7 +37,8 @@
 
     <dp-loading
       v-else
-      class="u-mv" />
+      class="u-mv"
+    />
   </div>
 </template>
 
@@ -57,7 +61,7 @@ export default {
     DpTabs,
     ExcelImport,
     ParticipationImport,
-    StatementFormImport
+    StatementFormImport,
   },
 
   provide () {
@@ -67,49 +71,49 @@ export default {
       procedureId: this.procedureId,
       submitTypeOptions: this.submitTypeOptions,
       tags: this.tags,
-      usedInternIds: this.usedInternIds
+      usedInternIds: this.usedInternIds,
     }
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     newestInternId: {
       type: String,
       required: false,
-      default: '-'
+      default: '-',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     tags: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     usedInternIds: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -117,7 +121,7 @@ export default {
       activeTabId: '',
       allComponentsLoaded: false,
       asyncComponents: [],
-      demosplanUi: shallowRef(demosplanUi)
+      demosplanUi: shallowRef(demosplanUi),
     }
   },
 
@@ -127,22 +131,22 @@ export default {
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
-          title: 'import.options.xls'
+          title: 'import.options.xls',
         },
         {
           name: StatementFormImport.name,
           permissions: ['feature_simplified_new_statement_create'],
-          title: 'import.options.form'
+          title: 'import.options.form',
         },
         {
           name: ParticipationImport.name,
           permissions: ['feature_statements_participation_import_excel'],
-          title: 'import.options.participation'
-        }
+          title: 'import.options.participation',
+        },
       ].filter((component) => {
         return hasAnyPermissions(component.permissions)
       }).concat(this.asyncComponents)
-    }
+    },
   },
 
   methods: {
@@ -158,7 +162,7 @@ export default {
 
     loadComponents (hookName) {
       const params = {
-        hookName
+        hookName,
       }
 
       return dpRpc('addons.assets.load', params)
@@ -180,11 +184,11 @@ export default {
 
             this.asyncComponents.push({
               name: addon.entry,
-              title: addon.options.title
+              title: addon.options.title,
             })
           }
         })
-    }
+    },
   },
 
   mounted () {
@@ -197,6 +201,6 @@ export default {
         this.allComponentsLoaded = true
         this.setActiveTabId()
       })
-  }
+  },
 }
 </script>

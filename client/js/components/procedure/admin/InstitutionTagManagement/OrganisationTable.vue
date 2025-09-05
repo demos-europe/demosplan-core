@@ -10,21 +10,23 @@ All rights reserved
 <template>
   <div
     ref="contentArea"
-    class="mt-2">
-
+    class="mt-2"
+  >
     <dp-loading
       v-if="isLoading"
-      class="mt-4" />
+      class="mt-4"
+    />
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
         <dp-search-field
+          ref="searchField"
           class="h-fit mt-1 col-span-1 sm:col-span-3"
           data-cy="addOrganisationList:searchField"
           input-width="u-1-of-1"
-          ref="searchField"
           @reset="handleReset"
-          @search="handleSearch" />
+          @search="handleSearch"
+        />
 
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
@@ -32,7 +34,8 @@ All rights reserved
           :raw-items="rowItems"
           :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
-          @reset="resetSearch" />
+          @reset="resetSearch"
+        />
 
         <!-- Slot for bulk actions -->
       </div>
@@ -48,11 +51,12 @@ All rights reserved
       :total-items="totalItems"
       :total-pages="totalPages"
       @page-change="page => getInstitutionsWithContacts(page)"
-      @size-change="handleItemsPerPageChange" />
+      @size-change="handleItemsPerPageChange"
+    />
 
     <dp-data-table
-      class="mt-2"
       ref="DpDataTable"
+      class="mt-2"
       :header-fields="headerFields"
       is-expandable
       is-selectable
@@ -60,7 +64,8 @@ All rights reserved
       lock-checkbox-by="hasNoEmail"
       track-by="id"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
-      @items-selected="setSelectedItems">
+      @items-selected="setSelectedItems"
+    >
       <!-- Resource-specific content based on resourceType -->
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -71,23 +76,27 @@ All rights reserved
             <template v-if="locationContacts && hasAdress(locationContacts)">
               <dd
                 v-if="locationContacts.street"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.street }}
               </dd>
               <dd
                 v-if="locationContacts.postalcode"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.postalcode }}
               </dd>
               <dd
                 v-if="locationContacts.city"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.city }}
               </dd>
             </template>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('notspecified') }}
             </dd>
           </dl>
@@ -97,12 +106,14 @@ All rights reserved
             </dt>
             <dd
               v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
-              class="ml-0">
+              class="ml-0"
+            >
               {{ locationContacts.phone }}
             </dd>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('notspecified') }}
             </dd>
             <dt class="color--grey mt-2">
@@ -110,12 +121,14 @@ All rights reserved
             </dt>
             <dd
               v-if="participationFeedbackEmailAddress"
-              class="ml-0">
+              class="ml-0"
+            >
               {{ participationFeedbackEmailAddress }}
             </dd>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('no.participation.email') }}
             </dd>
             <template v-if="ccEmailAddresses">
@@ -137,7 +150,8 @@ All rights reserved
           </dl>
           <dl
             v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
-            class="pl-4 w-full">
+            class="pl-4 w-full"
+          >
             <dt class="color--grey">
               {{ Translator.trans('tags') }}
             </dt>
@@ -160,7 +174,7 @@ import {
   DpDataTable,
   DpLoading,
   DpPager,
-  DpSearchField
+  DpSearchField,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
@@ -174,7 +188,7 @@ export default {
     DpDataTable,
     DpLoading,
     DpPager,
-    DpSearchField
+    DpSearchField,
   },
 
   mixins: [paginationMixin],
@@ -182,23 +196,23 @@ export default {
   props: {
     headerFields: {
       type: Array,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     resourceType: {
       type: String,
       required: true,
-      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value)
-    }
+      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value),
+    },
   },
 
   emits: [
-    'selectedItems'
+    'selectedItems',
   ],
 
   data () {
@@ -206,32 +220,32 @@ export default {
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
-        perPage: 50
+        perPage: 50,
       },
       filteredItems: null,
       isLoading: true,
       locationContactFields: ['street', 'postalcode', 'city'],
       pagination: {},
       searchTerm: '',
-      selectedItems: []
+      selectedItems: [],
     }
   },
 
   computed: {
     ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
+      filterQuery: 'getFilterQuery',
     }),
 
     ...mapState('InstitutionLocationContact', {
-      institutionLocationContactItems: 'items'
+      institutionLocationContactItems: 'items',
     }),
 
     ...mapState('InstitutionTagCategory', {
-      institutionTagCategories: 'items'
+      institutionTagCategories: 'items',
     }),
 
     ...mapState('InstitutionTag', {
-      institutionTagItems: 'items'
+      institutionTagItems: 'items',
     }),
 
     allFilterCategories () {
@@ -247,7 +261,7 @@ export default {
             label: attributes.name,
             rootPath: 'assignedTags',
             selected: false,
-            memberOf: groupKey
+            memberOf: groupKey,
           }
         })
     },
@@ -285,7 +299,7 @@ export default {
         const tagReferences = item.relationships.assignedTags?.data || []
         const institutionTags = tagReferences.map(tag => ({
           id: tag.id,
-          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
+          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound'),
         }))
 
         return {
@@ -294,20 +308,20 @@ export default {
 
           // Add icon for hasReceivedInvitationMailInCurrentProcedurePhase
           hasReceivedInvitationMailInCurrentProcedurePhase:
-            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase
-              ? '<i class="fa fa-check-circle text-[#4c8b22]" ></i>'
-              : '',
+            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase ?
+              '<i class="fa fa-check-circle text-[#4c8b22]" ></i>' :
+              '',
           originalStatementsCountInProcedure: item.attributes.originalStatementsCountInProcedure ||
             '-',
           competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
-          locationContacts: locationContact
-            ? {
-                id: locationContact.id,
-                ...locationContact.attributes
-              }
-            : null,
+          locationContacts: locationContact ?
+            {
+              id: locationContact.id,
+              ...locationContact.attributes,
+            } :
+            null,
           assignedTags: institutionTags,
-          hasNoEmail
+          hasNoEmail,
         }
       })
     },
@@ -336,12 +350,12 @@ export default {
 
     totalPages () {
       return this.pagination.totalPages || 0
-    }
+    },
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      fetchInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list',
     }),
 
     getInstitutionTagCategories (isInitial = false) {
@@ -354,19 +368,19 @@ export default {
           InstitutionTagCategory: [
             'creationDate',
             'name',
-            'tags'
+            'tags',
           ].join(),
           InstitutionTag: [
             'creationDate',
             'isUsed',
             'name',
-            'category'
-          ].join()
+            'category',
+          ].join(),
         },
         include: [
           'tags',
-          'tags.category'
-        ].join()
+          'tags.category',
+        ].join(),
       })
         .then(() => {
           // Copy the object to avoid issues with filter requests that update the categories in the store
@@ -385,27 +399,27 @@ export default {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
-        { permission: 'field_organisation_competence', value: 'competenceDescription' }
+        { permission: 'field_organisation_competence', value: 'competenceDescription' },
       ]
 
       const permissionChecksContact = [
-        { permission: 'field_organisation_phone', value: 'phone' }
+        { permission: 'field_organisation_phone', value: 'phone' },
       ]
 
-      const includeParams = hasPermission('feature_institution_tag_read')
-        ? ['locationContacts', 'assignedTags']
-        : ['locationContacts']
+      const includeParams = hasPermission('feature_institution_tag_read') ?
+        ['locationContacts', 'assignedTags'] :
+        ['locationContacts']
 
       const requestParams = {
         page: {
           number: page,
-          size: this.pagination.perPage
+          size: this.pagination.perPage,
         },
         include: includeParams.join(),
         fields: {
           [this.resourceType]: this.apiRequestFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
-          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
-        }
+          InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join(),
+        },
       }
 
       if (hasPermission('feature_institution_tag_read')) {
@@ -419,9 +433,9 @@ export default {
               path: 'legalName',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
-          }
+              memberOf: 'searchFieldsGroup',
+            },
+          },
         }
 
         if (hasPermission('field_organisation_competence')) {
@@ -430,8 +444,8 @@ export default {
               path: 'competenceDescription',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
@@ -441,15 +455,15 @@ export default {
               path: 'assignedTags.name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup'
-            }
+              memberOf: 'searchFieldsGroup',
+            },
           }
         }
 
         filters.searchFieldsGroup = {
           group: {
-            conjunction: 'OR'
-          }
+            conjunction: 'OR',
+          },
         }
 
         requestParams.filter = filters
@@ -516,6 +530,12 @@ export default {
       this.$refs.searchField.handleReset()
     },
 
+    resetSelection () {
+      this.$refs.DpDataTable.resetSelection()
+      this.$refs.DpDataTable.elementSelections = {}
+      this.$refs.DpDataTable.selectedElements = []
+    },
+
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {
@@ -527,7 +547,7 @@ export default {
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
-    }
+    },
   },
 
   mounted () {
@@ -535,13 +555,13 @@ export default {
     this.getInstitutionsWithContacts()
 
     const promises = [
-      this.getInstitutionTagCategories(true)
+      this.getInstitutionTagCategories(true),
     ]
 
     Promise.allSettled(promises)
       .then(() => {
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

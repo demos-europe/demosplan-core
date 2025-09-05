@@ -51,7 +51,7 @@ const statementStructure = {
   r_userPosition: '',
   r_userState: '',
   url: '',
-  uploadedFiles: ''
+  uploadedFiles: '',
 }
 
 const PublicStatementStore = {
@@ -64,7 +64,7 @@ const PublicStatementStore = {
     activeTab: '',
     highlighted: {
       location: false,
-      documents: false
+      documents: false,
     },
     initDraftStatements: {},
     initForm: '',
@@ -75,7 +75,7 @@ const PublicStatementStore = {
     statement: statementStructure,
     storeInitialised: false,
     draftStatements: {},
-    unsavedDrafts: []
+    unsavedDrafts: [],
   },
 
   mutations: {
@@ -204,14 +204,14 @@ const PublicStatementStore = {
       }
       state.statement = JSON.parse(state.initForm)
       localStorage.removeItem(state.localStorageName)
-    }
+    },
   },
 
   actions: {
   },
 
   getters: {
-  }
+  },
 }
 
 export default PublicStatementStore

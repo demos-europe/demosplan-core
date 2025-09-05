@@ -12,7 +12,7 @@ export default async function loadAddonComponents (hookName) {
   window.dplan.loadedAddons[hookName] = 'pending'
 
   const params = {
-    hookName
+    hookName,
   }
 
   return await dpRpc('addons.assets.load', params)
@@ -37,13 +37,12 @@ export default async function loadAddonComponents (hookName) {
          * While eval is generally a BAD IDEA, we really need to evaluate the code
          * we're adding dynamically to use the provided addon's script from now on.
          */
-        // eslint-disable-next-line no-eval
         eval(content)
 
         addons.push({
           entry: content,
           name: addon.entry,
-          options: addon.options ?? ''
+          options: addon.options ?? '',
         })
       }
 

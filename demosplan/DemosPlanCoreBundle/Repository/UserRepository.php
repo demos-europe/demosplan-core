@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -176,6 +177,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             $this->invalidateCachedLoginList();
 
+            // Force reload from database to trigger postLoad event
+            $em->refresh($user);
+
             return $user;
         } catch (Exception $e) {
             $this->logger->warning('User could not be added. ', [$e]);
@@ -209,11 +213,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         try {
             $em = $this->getEntityManager();
 
-            try {
-                $user = $this->get($entityId);
-            } catch (NoResultException) {
-                $user = null;
-            }
+            $user = $this->get($entityId);
             // this is where the magical mapping happens
             $user = $this->generateObjectValues($user, $data);
 
@@ -288,6 +288,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
                 'gwId',
                 'lastname',
                 'password',
+                'providedByIdentityProvider',
             ]
         );
 
@@ -514,8 +515,13 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
             $randomNumber = random_int(1, PHP_INT_MAX - 1);
 
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->find($userId);
+
+            // Check if user exists before wiping data
+            if (null === $user) {
+                return false;
+            }
 
             //          wipeData:
             $user->setGender(null);
@@ -606,31 +612,27 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * @return array Array containing users and pagination info
      */
-    public function getUsers(int $startIndex, int $count, array $criteria = []): array
+    public function getUsers(int $startIndex, int $count, array $criteria = [], string $sort = 'u.login', string $sortDir = 'ASC'): array
     {
         $qb = $this->createQueryBuilder('u')
             ->setFirstResult($startIndex - 1)
-            ->setMaxResults($count);
+            ->setMaxResults($count)
+            ->where('u.deleted = false')
+            ->orderBy($sort, $sortDir);
 
         // Apply criteria filters
-        foreach ($criteria as $field => $value) {
-            if (null !== $value) {
-                if (is_array($value)) {
-                    $qb->andWhere("u.{$field} IN (:{$field})")
-                       ->setParameter($field, $value);
-                } else {
-                    $qb->andWhere("u.{$field} = :{$field}")
-                       ->setParameter($field, $value);
-                }
-            }
-        }
+        $qb = $this->applyCriteriaFilters($criteria, $qb);
 
         $users = $qb->getQuery()->getResult();
 
         // Get total count for pagination
-        $totalCount = $this->createQueryBuilder('u')
+        $totalCountQb = $this->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->getQuery()
+            ->where('u.deleted = false');
+
+        // Apply criteria filters
+        $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
+        $totalCount = $totalCountQb->getQuery()
             ->getSingleScalarResult();
 
         return [
@@ -720,5 +722,22 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     private function invalidateCachedLoginList(): void
     {
         $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+    }
+
+    private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder
+    {
+        foreach ($criteria as $field => $value) {
+            if (null !== $value) {
+                if (is_array($value)) {
+                    $qb->andWhere("u.{$field} IN (:{$field})")
+                        ->setParameter($field, $value);
+                } else {
+                    $qb->andWhere("u.{$field} = :{$field}")
+                        ->setParameter($field, $value);
+                }
+            }
+        }
+
+        return $qb;
     }
 }

@@ -13,17 +13,18 @@ import {
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
-  Tooltip
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import {
   initGlobalEventListener,
   ToggleSideMenu,
-  touchFriendlyUserbox
+  touchFriendlyUserbox,
 } from '@DpJs/lib/core/libs'
 import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
@@ -32,13 +33,14 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
     configureCompat({
-      RENDER_FUNCTION: false
+      RENDER_FUNCTION: false,
     })
 
     const app = createApp({
@@ -61,7 +63,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         setTimeout(() => {
           window.mounted = true
         }, 5)
-      }
+      },
     })
 
     app.config.globalProperties.dplan = window.dplan
@@ -84,6 +86,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     app.use(store)
 
+    // The diplankarte needs a pinia instance
+    if (hasPermission('feature_diplan_karte')) {
+      app.use(createPinia())
+    }
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
 
@@ -96,6 +102,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('RegisterFlyout', RegisterFlyout)
     app.component('DpContextualHelp', DpContextualHelp)
+
+    if (window.hasPermission('feature_auto_logout_warning')) {
+      app.component('SessionTimer', SessionTimer)
+    }
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {
