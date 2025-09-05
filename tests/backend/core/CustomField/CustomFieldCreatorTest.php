@@ -24,6 +24,9 @@ use Tests\Base\UnitTestCase;
 class CustomFieldCreatorTest extends UnitTestCase
 {
     private const TEST_FIELD_NAME = 'Test Field';
+    private const TEST_DESCRIPTION = 'Test';
+    private const TEST_OPTIONS_ONE_TWO = [['label' => 'One'], ['label' => 'Two']];
+    private const TEST_OPTIONS_ONLY_ONE_TWO = [['label' => 'Only One'], ['label' => 'Two']];
 
     /**
      * @var CustomFieldCreator|null
@@ -158,8 +161,8 @@ class CustomFieldCreatorTest extends UnitTestCase
                 'attributes' => [
                     'fieldType'   => 'invalidType',
                     'name'        => self::TEST_FIELD_NAME,
-                    'description' => 'Test',
-                    'options'     => [['label' => 'One'], ['label' => 'Two']],
+                    'description' => self::TEST_DESCRIPTION,
+                    'options'     => self::TEST_OPTIONS_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'No validator found for field type: invalidType',
             ],
@@ -170,8 +173,8 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'sourceEntity'   => 'PROCEDURE',
                     'targetEntity'   => 'SEGMENT', // Wrong target for singleSelect
                     'name'           => self::TEST_FIELD_NAME,
-                    'description'    => 'Test',
-                    'options'        => [['label' => 'One'], ['label' => 'Two']],
+                    'description'    => self::TEST_DESCRIPTION,
+                    'options'        => self::TEST_OPTIONS_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The sourceEntityId "invalid-id" was not found in the sourceEntity "PROCEDURE"',
             ],
@@ -181,8 +184,8 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'STATEMENT', // Wrong target for singleSelect
                     'name'         => self::TEST_FIELD_NAME,
-                    'description'  => 'Test',
-                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
+                    'description'  => self::TEST_DESCRIPTION,
+                    'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The target entity "STATEMENT" does not match the expected target entity "SEGMENT" for source entity "PROCEDURE".',
             ],
@@ -192,8 +195,8 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'SEGMENT', // Wrong target for multiSelect
                     'name'         => self::TEST_FIELD_NAME,
-                    'description'  => 'Test',
-                    'options'      => [['label' => 'Only One'], ['label' => 'Two']],
+                    'description'  => self::TEST_DESCRIPTION,
+                    'options'      => self::TEST_OPTIONS_ONLY_ONE_TWO,
                 ],
                 'expectedErrorMessage' => 'The target entity "SEGMENT" does not match the expected target entity "STATEMENT" for source entity "PROCEDURE".',
             ],
