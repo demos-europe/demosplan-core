@@ -336,7 +336,14 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return [];
                 })
-                ->readable()
+                ->readable(true, function (Statement $statement): ?Elements {
+                    $element = $statement->getElement();
+                    if ($element && $element->getDocuments()) {
+                        // Force load documents to ensure they're available for sub-transformation
+                        $element->getDocuments()->initialize();
+                    }
+                    return $element;
+                }, true) // Mark as default include
                 ->aliasedPath(Paths::statement()->element);
             $configBuilder->paragraphVersion
                 ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())

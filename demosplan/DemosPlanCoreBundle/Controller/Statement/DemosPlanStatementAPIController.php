@@ -376,25 +376,6 @@ class DemosPlanStatementAPIController extends APIController
 
             $item = $this->resourceService->makeItemOfResource($statement, StatementResourceType::getName());
 
-            // Extract element documents before Fractal serialization strips them
-            $elementDocuments = [];
-            $element = $item->getData()->getElement();
-            if (null !== $element) {
-                $documents = $element->getDocuments();
-                if (null !== $documents) {
-                    foreach ($documents as $document) {
-                        $elementDocuments[] = [
-                            'id'       => $document->getId(),
-                            'title'    => $document->getTitle(),
-                            'fileInfo' => $document->getSingleDocumentInfo(),
-                        ];
-                    }
-                }
-            }
-
-            // Add element documents to the item's meta
-            $item->setMeta(['elementDocuments' => $elementDocuments]);
-
             return $this->renderResource($item);
         } catch (Exception $e) {
             return $this->handleApiError($e);
