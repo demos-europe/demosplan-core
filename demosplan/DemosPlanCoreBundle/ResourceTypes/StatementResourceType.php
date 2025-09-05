@@ -342,6 +342,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                         // Force load documents to ensure they're available for sub-transformation
                         $element->getDocuments()->initialize();
                     }
+
                     return $element;
                 }, true) // Mark as default include
                 ->aliasedPath(Paths::statement()->element);
@@ -365,7 +366,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->user
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
-
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
