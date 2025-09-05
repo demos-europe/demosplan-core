@@ -489,7 +489,7 @@ parameters:
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    file.formats.doc: [doc, docx]
+    file.formats.doc: [doc, docx, odt]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
     file.formats.zip: [zip]

@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add ODT export functionality for assessment tables
 - Use external Geocoder API as service for address auto-suggestions
 
 ## v4.11.0 (2025-08-27)

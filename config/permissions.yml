@@ -902,6 +902,11 @@ feature_export_docx_elements_view_mode_only:
     label: 'always export elements view in docx export'
     loginRequired: true
     parent: area_admin_assessmenttable
+feature_export_odt_instead_of_docx:
+    description: 'When enabled, export with ODT format when no other format is specified in assessmenttable'
+    label: 'Export ODT instead of DOCX as default format'
+    loginRequired: true
+    parent: feature_admin
 feature_export_protocol:
     expose: true
     label: 'Exportieren des Verfahrensprotokolls'
