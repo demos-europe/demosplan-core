@@ -69,16 +69,6 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
-    public function getCustomFieldsList(): ?array
-    {
-        return [];
-    }
-
-    public function setFieldType(string $type): void
-    {
-        $this->fieldType = $type;
-    }
-
     public function isValueValid(?string $value): bool
     {
         if (null === $value) {

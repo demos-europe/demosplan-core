@@ -83,16 +83,6 @@ class MultiSelectField extends AbstractCustomField
         return $this->isRequired;
     }
 
-    public function getCustomFieldsList(): ?array
-    {
-        return [];
-    }
-
-    public function setFieldType(string $type): void
-    {
-        $this->fieldType = $type;
-    }
-
     public function isValueValid(?string $value): bool
     {
         if (null === $value) {

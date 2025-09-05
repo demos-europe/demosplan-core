@@ -48,8 +48,6 @@ interface CustomFieldInterface
      */
     public function toJson(): array;
 
-    public function getCustomFieldsList(): ?array;
-
     public function setId($id): void;
 
     public function getId(): string;

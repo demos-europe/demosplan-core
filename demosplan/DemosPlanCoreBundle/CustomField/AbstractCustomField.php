@@ -26,6 +26,8 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $name = '';
 
+    protected string $fieldType = '';
+
     protected string $description = '';
 
     abstract public function isValueValid(string $value): bool;
@@ -113,5 +115,10 @@ abstract class AbstractCustomField implements CustomFieldInterface
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function setFieldType(string $type): void
+    {
+        $this->fieldType = $type;
     }
 }
