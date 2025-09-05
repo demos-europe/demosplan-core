@@ -23,6 +23,8 @@ use Tests\Base\UnitTestCase;
 
 class CustomFieldCreatorTest extends UnitTestCase
 {
+    private const TEST_FIELD_NAME = 'Test Field';
+
     /**
      * @var CustomFieldCreator|null
      */
@@ -155,7 +157,7 @@ class CustomFieldCreatorTest extends UnitTestCase
             'invalidFieldType' => [
                 'attributes' => [
                     'fieldType'   => 'invalidType',
-                    'name'        => 'Test Field',
+                    'name'        => self::TEST_FIELD_NAME,
                     'description' => 'Test',
                     'options'     => [['label' => 'One'], ['label' => 'Two']],
                 ],
@@ -167,7 +169,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'sourceEntityId' => 'invalid-id',
                     'sourceEntity'   => 'PROCEDURE',
                     'targetEntity'   => 'SEGMENT', // Wrong target for singleSelect
-                    'name'           => 'Test Field',
+                    'name'           => self::TEST_FIELD_NAME,
                     'description'    => 'Test',
                     'options'        => [['label' => 'One'], ['label' => 'Two']],
                 ],
@@ -178,7 +180,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'fieldType'    => 'singleSelect',
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'STATEMENT', // Wrong target for singleSelect
-                    'name'         => 'Test Field',
+                    'name'         => self::TEST_FIELD_NAME,
                     'description'  => 'Test',
                     'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],
@@ -189,7 +191,7 @@ class CustomFieldCreatorTest extends UnitTestCase
                     'fieldType'    => 'multiSelect',
                     'sourceEntity' => 'PROCEDURE',
                     'targetEntity' => 'SEGMENT', // Wrong target for multiSelect
-                    'name'         => 'Test Field',
+                    'name'         => self::TEST_FIELD_NAME,
                     'description'  => 'Test',
                     'options'      => [['label' => 'Only One'], ['label' => 'Two']],
                 ],

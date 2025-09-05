@@ -95,7 +95,7 @@ class MultiSelectField extends AbstractCustomField
 
     public function getType(): string
     {
-        return 'multiSelect';
+        return $this->getFormat();
     }
 
     public function isValueValid(?string $value): bool
