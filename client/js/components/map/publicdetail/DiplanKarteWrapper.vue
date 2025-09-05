@@ -31,14 +31,14 @@
 <script setup>
 import { computed, getCurrentInstance, onMounted, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
+import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 
 const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
   activeStatement: {
     type: Boolean,
-    required: true
+    required: true,
   },
 
   initDrawing: {
@@ -46,25 +46,25 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
     required: false,
     default: () => ({
       type: 'FeatureCollection',
-      features: []
-    })
+      features: [],
+    }),
   },
 
   loginPath: {
     type: String,
-    required: true
+    required: true,
   },
 
   styleNonce: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const drawing = computed(() => {
-  return initDrawing
-    ? transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326')
-    : ''
+  return initDrawing ?
+    transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
+    ''
 })
 const emit = defineEmits(['locationDrawing'])
 
@@ -72,13 +72,6 @@ const instance = getCurrentInstance()
 const store = useStore()
 
 instance.appContext.app.mixin(prefixClassMixin)
-instance.appContext.app.use(MapPlugin, {
-  template: {
-    compilerOptions: {
-      isCustomElement: (tag) => tag === 'diplan-karte',
-    }
-  }
-})
 
 const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
@@ -104,7 +97,7 @@ const handleDrawing = (event) => {
       r_location: 'notLocated',
       r_location_geometry: '',
       r_location_point: '',
-      location_is_set: ''
+      location_is_set: '',
     }
   } else {
     payload = {
@@ -113,7 +106,7 @@ const handleDrawing = (event) => {
       r_location_priority_area_key: '',
       r_location_priority_area_type: '',
       r_location_point: '',
-      location_is_set: 'geometry'
+      location_is_set: 'geometry',
     }
   }
 
@@ -142,7 +135,7 @@ const toggleStatementModal = (updateStatementPayload) => {
 
 onMounted(() => {
   registerWebComponent({
-    nonce: styleNonce
+    nonce: styleNonce,
   })
 })
 
