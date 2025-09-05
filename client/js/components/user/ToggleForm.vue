@@ -2,7 +2,8 @@
   <dp-accordion
     ref="accordion"
     data-cy="toggleForm:toggle"
-    :title="title">
+    :title="title"
+  >
     <!-- this is where the form fields go -->
     <slot />
 
@@ -12,7 +13,8 @@
         secondary
         data-cy="toggleForm"
         @primary-action="dpValidateAction(formId, save, false)"
-        @secondary-action="abort" />
+        @secondary-action="abort"
+      />
     </slot>
   </dp-accordion>
 </template>

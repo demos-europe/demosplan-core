@@ -13,7 +13,8 @@
       <button
         data-cy="publicLayerListWrapper:mapLayerShowHide"
         :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]"
-        @click="toggle">
+        @click="toggle"
+      >
         {{ Translator.trans('maplayer.show/hide') }}
       </button>
     </div>
@@ -21,11 +22,13 @@
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="overlayLayers"
       :unfolded="unfolded"
-      layer-type="overlay" />
+      layer-type="overlay"
+    />
 
     <div
       v-if="baseLayers.length > 0 && unfolded && showBaseLayers"
-      :class="prefixClass('c-map__group')">
+      :class="prefixClass('c-map__group')"
+    >
       <div :class="prefixClass('c-map__layer pointer-events-none bg-color--grey-light-1')">
         {{ Translator.trans('map.bases') }}
       </div>
@@ -33,7 +36,8 @@
     <dp-public-layer-list
       :layers="baseLayers"
       :unfolded="unfolded"
-      layer-type="base" />
+      layer-type="base"
+    />
   </div>
 </template>
 

@@ -14,22 +14,27 @@
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
-      type="info" />
+      type="info"
+    />
     <div
       v-if="!addNewPlace"
-      class="text-right">
+      class="text-right"
+    >
       <dp-button
         data-cy="places:addPlace"
         :text="Translator.trans('places.addPlace')"
-        @click="addNewPlace = true" />
+        @click="addNewPlace = true"
+      />
     </div>
     <div
       v-if="addNewPlace"
       class="relative"
-      data-dp-validate="addNewPlaceForm">
+      data-dp-validate="addNewPlaceForm"
+    >
       <dp-loading
         v-if="isLoading"
-        overlay />
+        overlay
+      />
       <div class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
@@ -39,7 +44,8 @@
             text: Translator.trans('name')
           }"
           maxlength="250"
-          required />
+          required
+        />
         <dp-input
           id="newPlaceDescription"
           v-model="newPlace.description"
@@ -47,20 +53,23 @@
           :label="{
             text: Translator.trans('description')
           }"
-          maxlength="250" />
+          maxlength="250"
+        />
         <dp-checkbox
           id="newPlaceSolved"
           v-model="newPlace.solved"
           :label="{
             text: Translator.trans('completed')
-          }" />
+          }"
+        />
         <dp-button-row
           :busy="isLoading"
           data-cy="addNewPlace"
           primary
           secondary
           @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
-          @secondary-action="addNewPlace = false" />
+          @secondary-action="addNewPlace = false"
+        />
       </div>
     </div>
     <dp-data-table
@@ -72,42 +81,49 @@
       is-draggable
       :items="places"
       track-by="id"
-      @changed-order="changeManualsort">
+      @changed-order="changeManualsort"
+    >
       <template v-slot:header-solved="headerData">
         {{ headerData.label }}
         <dp-contextual-help
           class="float-right u-mt-0_125"
-          :text="Translator.trans('statement.solved.hint')" />
+          :text="Translator.trans('statement.solved.hint')"
+        />
       </template>
       <template v-slot:name="rowData">
         <div
           v-if="!rowData.edit"
-          v-text="rowData.name" />
+          v-text="rowData.name"
+        />
         <dp-input
           v-else
           id="editPlaceName"
           v-model="newRowData.name"
           data-cy="places:editPlaceName"
           maxlength="250"
-          required />
+          required
+        />
       </template>
       <template v-slot:description="rowData">
         <div
           v-if="!rowData.edit"
-          v-text="rowData.description" />
+          v-text="rowData.description"
+        />
         <dp-input
           v-else
           id="editPlaceDescription"
           v-model="newRowData.description"
           data-cy="places:editPlaceDescription"
-          maxlength="250" />
+          maxlength="250"
+        />
       </template>
       <template v-slot:solved="rowData">
         <dp-checkbox
           id="editPlaceSolved"
           :disabled="!rowData.edit"
           :checked="rowData.edit ? newRowData.solved : rowData.solved"
-          @change="checked => newRowData.solved = checked" />
+          @change="checked => newRowData.solved = checked"
+        />
       </template>
       <template v-slot:flyout="rowData">
         <div class="float-right">
@@ -116,29 +132,35 @@
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
             data-cy="places:editPlace"
-            @click="editPlace(rowData)">
+            @click="editPlace(rowData)"
+          >
             <i
               class="fa fa-pencil"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
           </button>
           <template v-else>
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="places:saveEdit"
-              @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)">
+              @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)"
+            >
               <dp-icon
                 icon="check"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
               :aria-label="Translator.trans('abort')"
-              @click="abort(rowData)">
+              @click="abort(rowData)"
+            >
               <dp-icon
                 icon="xmark"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </template>
         </div>

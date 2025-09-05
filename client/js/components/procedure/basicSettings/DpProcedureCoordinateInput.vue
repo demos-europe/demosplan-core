@@ -11,7 +11,8 @@
   <div class="block u-mb-0_5 u-pv-0_5 border--top flow-root">
     <label
       class="inline-block u-m-0"
-      for="customLatitude">
+      for="customLatitude"
+    >
       {{ Translator.trans('coordinate.right.value') }}
     </label>
     <input
@@ -20,11 +21,13 @@
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      class="c-ol-map__select w-9 u-mr">
+      class="c-ol-map__select w-9 u-mr"
+    >
 
     <label
       class="inline-block u-m-0"
-      for="customLongitude">
+      for="customLongitude"
+    >
       {{ Translator.trans('coordinate.top.value') }}
     </label>
     <input
@@ -33,13 +36,15 @@
       type="text"
       pattern="[0-9]*[.|,]?[0-9]+"
       required
-      class="c-ol-map__select w-9 u-mr">
+      class="c-ol-map__select w-9 u-mr"
+    >
 
     <button
       ref="myBtnCoordinates"
       :disabled="!isCoordinatesValid"
       class="btn btn--primary float-right"
-      @click.prevent="addMarker">
+      @click.prevent="addMarker"
+    >
       {{ Translator.trans('coordinate.location.submite') }}
     </button>
   </div>

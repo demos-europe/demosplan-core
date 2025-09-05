@@ -17,10 +17,12 @@
           :action="Routing.generate('DemosPlan_user_login')"
           data-dp-validate="loginForm"
           method="post"
-          name="login">
+          name="login"
+        >
           <h2
             :class="prefixClass('font-size-large u-mb')"
-            v-text="Translator.trans('login.email')" />
+            v-text="Translator.trans('login.email')"
+          />
 
           <!-- This slot is used to pass markup from the twig template into here that is needed for spam protection. -->
           <slot />
@@ -35,7 +37,8 @@
               }"
               name="r_useremail"
               :prevent-default-on-enter="false"
-              required />
+              required
+            />
             <dp-input
               id="password"
               data-cy="password"
@@ -46,63 +49,76 @@
               name="password"
               :prevent-default-on-enter="false"
               required
-              type="password" />
+              type="password"
+            />
             <input
               type="hidden"
               name="_csrf_token"
-              :value="csrfToken">
+              :value="csrfToken"
+            >
 
             <dp-button
               :class="prefixClass('u-mt')"
               data-cy="submit"
               :text="Translator.trans('login')"
               type="submit"
-              @click.prevent="submit" />
+              @click.prevent="submit"
+            />
           </div>
           <a
             :class="prefixClass('o-link--default')"
             data-cy="password_forgot"
             :href="Routing.generate('DemosPlan_user_password_recover')"
-            v-text="Translator.trans('password.forgot')" />
+            v-text="Translator.trans('password.forgot')"
+          />
         </form>
       </div>
 
       <div
         v-if="isIdp || hasPermission('feature_identity_broker_login') || isAzureSso"
-        :class="prefixClass('c-login-register__col c-login-register__col-right')">
+        :class="prefixClass('c-login-register__col c-login-register__col-right')"
+      >
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
-          v-text="Translator.trans('login.other_account')" />
+          v-text="Translator.trans('login.other_account')"
+        />
         <div v-if="isIdp">
           <p
             :class="prefixClass('u-mb-0_125')"
-            v-html="Translator.trans('login.idp.description')" />
+            v-html="Translator.trans('login.idp.description')"
+          />
           <dp-button
             :href="idpLoginPath"
             :text="Translator.trans('login.idp.action')"
-            variant="outline" />
+            variant="outline"
+          />
         </div>
         <div v-if="isAzureSso">
           <p
             :class="prefixClass('u-mt u-mb-0_125')"
-            v-html="Translator.trans('login.azure.description')" />
+            v-html="Translator.trans('login.azure.description')"
+          />
           <dp-button
             :href="Routing.generate('connect_azure_start')"
             :text="Translator.trans('login.azure.action')"
-            variant="outline" />
+            variant="outline"
+          />
         </div>
         <div v-if="hasPermission('feature_identity_broker_login')">
           <p
             :class="prefixClass('u-mt u-mb-0_125')"
-            v-html="Translator.trans('login.bund.description')" />
+            v-html="Translator.trans('login.bund.description')"
+          />
 
           <!-- Insert identity broker Url when activated -->
           <dp-button
             href="#"
             :text="Translator.trans('login.bund.action')"
-            variant="outline" />
+            variant="outline"
+          />
           <div
-            :class="prefixClass('u-mt-2 u-mb-0_125')">
+            :class="prefixClass('u-mt-2 u-mb-0_125')"
+          >
             <p v-html="Translator.trans('faq.section', { url: Routing.generate('DemosPlan_faq') })" />
           </div>
         </div>
@@ -112,7 +128,8 @@
     <p
       v-if="hasPermission('feature_citizen_registration') && hasPermission('feature_orga_registration')"
       :class="(isIdp || hasPermission('feature_identity_broker_login') || isAzureSso) ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
-      v-html="Translator.trans('register.navigation.text', { organisation: Routing.generate('DemosPlan_citizen_registration_form'), user: Routing.generate('DemosPlan_orga_register_form') })" />
+      v-html="Translator.trans('register.navigation.text', { organisation: Routing.generate('DemosPlan_citizen_registration_form'), user: Routing.generate('DemosPlan_orga_register_form') })"
+    />
   </div>
 </template>
 

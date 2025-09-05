@@ -12,7 +12,8 @@
     <div class="flex items-center space-inline-s mt-2">
       <p
         class="weight--bold u-m-0"
-        v-text="Translator.trans('statement.similarStatementSubmitters')" />
+        v-text="Translator.trans('statement.similarStatementSubmitters')"
+      />
       <dp-contextual-help :text="Translator.trans('statement.similarStatementSubmitters.hint')" />
     </div>
     <dp-editable-list
@@ -23,72 +24,86 @@
       :translation-keys="translationKeys"
       @delete="deleteEntry"
       @reset="resetFormFields"
-      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
-      @show-update-form="setFormFields">
+      @save-entry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
+      @show-update-form="setFormFields"
+    >
       <template v-slot:list="{ entry, index }">
         <template v-if="isRequestFormPost">
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
-            :value="entry.submitterName">
+            :value="entry.submitterName"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][city]'"
-            :value="entry.submitterCity">
+            :value="entry.submitterCity"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
-            :value="entry.submitterAddress">
+            :value="entry.submitterAddress"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
-            :value="entry.submitterHouseNumber">
+            :value="entry.submitterHouseNumber"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
-            :value="entry.submitterPostalCode">
+            :value="entry.submitterPostalCode"
+          >
 
           <input
             type="hidden"
             :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
-            :value="entry.submitterEmailAddress">
+            :value="entry.submitterEmailAddress"
+          >
         </template>
 
         <span
           v-if="entry.submitterName"
           class="o-list__item separated"
-          v-text="entry.submitterName" />
+          v-text="entry.submitterName"
+        />
         <span
           v-if="entry.submitterEmailAddress"
           class="o-list__item separated"
-          v-text="entry.submitterEmailAddress" />
+          v-text="entry.submitterEmailAddress"
+        />
         <span
           v-if="entry.submitterAddress"
           class="o-list__item separated"
-          v-text="entry.submitterAddress" />
+          v-text="entry.submitterAddress"
+        />
         <span
           v-if="entry.submitterHouseNumber"
           class="o-list__item separated"
-          v-text="entry.submitterHouseNumber" />
+          v-text="entry.submitterHouseNumber"
+        />
         <span
           v-if="entry.submitterPostalCode"
           class="o-list__item separated"
-          v-text="entry.submitterPostalCode" />
+          v-text="entry.submitterPostalCode"
+        />
         <span
           v-if="entry.submitterCity"
           class="o-list__item separated"
-          v-text="entry.submitterCity" />
+          v-text="entry.submitterCity"
+        />
       </template>
 
       <template v-slot:form>
         <div
           class="grid grid-cols-1 gap-x-4"
           :class="fieldsFullWidth ? '' : 'md:grid-cols-2'"
-          data-dp-validate="similarStatementSubmitterForm">
+          data-dp-validate="similarStatementSubmitterForm"
+        >
           <dp-input
             id="statementSubmitterName"
             v-model="formFields.submitterName"
@@ -97,7 +112,8 @@
             :label="{
               text: Translator.trans('name')
             }"
-            required />
+            required
+          />
           <dp-input
             id="statementSubmitterEmail"
             v-model="formFields.submitterEmailAddress"
@@ -106,7 +122,8 @@
             :label="{
               text: Translator.trans('email')
             }"
-            type="email" />
+            type="email"
+          />
 
           <div class="o-form__group mb-2">
             <dp-input
@@ -116,7 +133,8 @@
               data-cy="voterStreet"
               :label="{
                 text: Translator.trans('street')
-              }" />
+              }"
+            />
             <dp-input
               id="statementSubmitterHouseNumber"
               v-model="formFields.submitterHouseNumber"
@@ -125,7 +143,8 @@
               :label="{
                 text: Translator.trans('street.number.short')
               }"
-              :size="3" />
+              :size="3"
+            />
           </div>
 
           <div class="o-form__group mb-2">
@@ -138,7 +157,8 @@
                 text: Translator.trans('postalcode')
               }"
               pattern="^[0-9]{4,5}$"
-              :size="5" />
+              :size="5"
+            />
             <dp-input
               id="statementSubmitterCity"
               v-model="formFields.submitterCity"
@@ -146,7 +166,8 @@
               data-cy="voterCity"
               :label="{
                 text: Translator.trans('city')
-              }" />
+              }"
+            />
           </div>
         </div>
       </template>

@@ -15,10 +15,12 @@
 
     <div class="flex items-center u-pv-0_5">
       <a
-        :href="exportSubmitterList">
+        :href="exportSubmitterList"
+      >
         <i
           class="fa fa-download"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export') }}
       </a>
 
@@ -29,7 +31,8 @@
         :selectable-columns="selectableColumns"
         use-local-storage
         local-storage-key="submitterList"
-        @selection-changed="setCurrentSelection" />
+        @selection-changed="setCurrentSelection"
+      />
     </div>
 
     <dp-loading v-if="isLoading" />
@@ -39,11 +42,13 @@
         class="overflow-x-auto"
         :header-fields="headerFields"
         :items="items"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:statement="rowData">
           <a
             :href="SubmitterListItem(rowData)"
-            data-cy="SubmitterListItem">
+            data-cy="SubmitterListItem"
+          >
             {{ rowData.statement }}
           </a>
         </template>
@@ -59,12 +64,14 @@
         </template>
         <template v-slot:internId="{ internId }">
           <div
-            class="o-hellip__wrapper">
+            class="o-hellip__wrapper"
+          >
             <div
               v-tooltip="internId"
               class="o-hellip--nowrap text-right"
               dir="rtl"
-              v-text="internId" />
+              v-text="internId"
+            />
           </div>
         </template>
       </dp-data-table>

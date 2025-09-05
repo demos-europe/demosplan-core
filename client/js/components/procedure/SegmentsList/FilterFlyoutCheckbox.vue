@@ -15,17 +15,20 @@
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
       type="checkbox"
-      @change="toggle">
+      @change="toggle"
+    >
     <label
       :class="{'weight--normal': highlight === false }"
       class="inline-block u-m-0"
-      :for="`${instance}_id_${option.id}`">
+      :for="`${instance}_id_${option.id}`"
+    >
       {{ option.label }} <template v-if="showCount">({{ option.count }})</template>
     </label>
     <dp-contextual-help
       v-if="option.description && instance !=='itemsSelected'"
       class="float-right mt-0.5"
-      :text="option.description" />
+      :text="option.description"
+    />
   </li>
 </template>
 

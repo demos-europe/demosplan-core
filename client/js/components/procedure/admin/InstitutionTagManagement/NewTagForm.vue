@@ -11,13 +11,15 @@ All rights reserved
   <form data-dp-validate="addNewTagForm">
     <dp-loading
       v-if="isLoading"
-      overlay />
+      overlay
+    />
     <div class="border rounded-sm space-stack-m space-inset-m">
       <div class="relative u-pb-0_5 font-size-large">
         {{ Translator.trans('entity.create', { entity: Translator.trans('tag') }) }}
         <button
           class="btn--blank o-link--default float-right"
-          @click="handleCloseForm">
+          @click="handleCloseForm"
+        >
           <dp-icon icon="close" />
         </button>
       </div>
@@ -28,7 +30,8 @@ All rights reserved
         :label="{
           text: Translator.trans('name')
         }"
-        required />
+        required
+      />
       <dp-select
         v-model="newTag.category"
         data-cy="newTagForm:category"
@@ -36,14 +39,16 @@ All rights reserved
           text: Translator.trans('category')
         }"
         :options="tagCategoryOptions"
-        required />
+        required
+      />
       <dp-button-row
         alignment="left"
         :busy="isLoading"
         primary
         secondary
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="handleCloseForm" />
+        @secondary-action="handleCloseForm"
+      />
     </div>
   </form>
 </template>

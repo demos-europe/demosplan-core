@@ -10,37 +10,44 @@
 <template>
   <li
     class="c-publicindex__list-item"
-    data-cy="procedureListItem">
+    data-cy="procedureListItem"
+  >
     <a
       class="block o-link--default cursor-pointer o-hellip"
       data-cy="zoomIn"
       href="#"
-      @click.prevent="showDetailView(procedure.id)">
+      @click.prevent="showDetailView(procedure.id)"
+    >
       {{ procedureName() }}
     </a>
     <span
       v-cleanhtml="procedurePeriod"
-      class="block" />
+      class="block"
+    />
     <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-puzzle-piece"
         aria-hidden="true"
-        :title="Translator.trans('procedure.public.phase')" />
+        :title="Translator.trans('procedure.public.phase')"
+      />
       {{ phaseName() }}
     </span>
     <span class="block">
       <i
         class="c-publicindex__icon-content fa fa-university"
         aria-hidden="true"
-        :title="Translator.trans('administration.alt')" />
+        :title="Translator.trans('administration.alt')"
+      />
       {{ procedure.owningOrganisationName }}
     </span>
     <span
       v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0"
-      class="block">
+      class="block"
+    >
       <i
         class="c-publicindex__icon-content fa fa-comment-o"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('statements.submitted.institution') }}: {{ procedure.statementSubmitted }}
     </span>
   </li>

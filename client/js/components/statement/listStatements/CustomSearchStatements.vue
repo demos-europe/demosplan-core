@@ -3,7 +3,8 @@
     data-cy="customSearchStatements:search"
     :placeholder="Translator.trans('searchterm')"
     @reset="$emit('reset')"
-    @search="term => handleSearch(term)">
+    @search="term => handleSearch(term)"
+  >
     <template v-slot:default>
       <dp-flyout
         align="left"
@@ -19,12 +20,14 @@
           <div class="flex">
             <span
               class="weight--bold"
-              v-text="Translator.trans('search.custom.limit_fields')" />
+              v-text="Translator.trans('search.custom.limit_fields')"
+            />
             <button
               class="btn--blank o-link--default ml-auto"
               data-cy="customSearch:searchCustomToggleAll"
               @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"
-              v-text="Translator.trans('toggle_all')" />
+              v-text="Translator.trans('toggle_all')"
+            />
           </div>
 
           <!-- Checkboxes -->
@@ -37,7 +40,8 @@
               class="layout__item u-1-of-2"
               :data-cy="`searchModal:${value}`"
               :label="{ text: Translator.trans(label) }"
-              @change="handleChange(value, !selectedFields.includes(value))" />
+              @change="handleChange(value, !selectedFields.includes(value))"
+            />
           </div>
 
           <!-- Search options and special characters -->
@@ -46,7 +50,8 @@
             <dp-details
               v-for="(explanation, index) in explanations"
               :key="index"
-              :summary="explanation.title">
+              :summary="explanation.title"
+            >
               <span v-html="explanation.description" />
             </dp-details>
           </div>

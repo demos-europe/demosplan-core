@@ -48,18 +48,22 @@ the FB is ready with editing of fragments.
     :data-assigned="isAssignedToMe ? 'true' : 'false'"
     data-cy="claimIcon"
     :aria-label="status.text"
-    @click.prevent.stop="updateAssignment">
+    @click.prevent.stop="updateAssignment"
+  >
     <dp-loading
       v-if="isLoading"
-      hide-label />
+      hide-label
+    />
     <i
       v-else
       class="fa"
       :class="status.icon"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     <span
       v-if="label"
-      v-text="label" />
+      v-text="label"
+    />
   </button>
 </template>
 

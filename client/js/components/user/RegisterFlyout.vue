@@ -10,15 +10,18 @@ All rights reserved
 <template>
   <dp-flyout
     align="left"
-    class="u-ml-0_5">
+    class="u-ml-0_5"
+  >
     <template v-slot:trigger>
       <div
         class="c-header__nav-item-link"
-        data-cy="headerNav:registerAction">
+        data-cy="headerNav:registerAction"
+      >
         {{ Translator.trans('register.action') }}
         <i
           class="fa fa-angle-down"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </div>
     </template>
 
@@ -27,12 +30,14 @@ All rights reserved
         class="block"
         data-cy="headerNav:register"
         :href="Routing.generate('DemosPlan_citizen_registration_form')"
-        v-text="Translator.trans('register')" />
+        v-text="Translator.trans('register')"
+      />
       <a
         class="block"
         data-cy="headerNav:registerOrga"
         :href="Routing.generate('DemosPlan_orga_register_form')"
-        v-text="Translator.trans('register.orga')" />
+        v-text="Translator.trans('register.orga')"
+      />
     </div>
   </dp-flyout>
 </template>
