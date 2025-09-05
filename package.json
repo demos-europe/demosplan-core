@@ -189,5 +189,8 @@
   "resolutions": {
     "globals": "15.13.0"
   },
+  "workspaces": [
+    "projects/*"
+  ],
   "packageManager": "yarn@4.2.2"
 }
