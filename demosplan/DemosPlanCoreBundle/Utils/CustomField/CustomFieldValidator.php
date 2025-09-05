@@ -15,23 +15,33 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CustomFieldValidator
+abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
-    public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly array $sourceToTargetMap = [
-            'PROCEDURE'          => 'SEGMENT',
-            'PROCEDURE_TEMPLATE' => 'SEGMENT',
-        ],
-        private readonly array $classNameToClassPathtMap = [
-            'PROCEDURE'          => Procedure::class,
-            'PROCEDURE_TEMPLATE' => Procedure::class,
-            'SEGMENT'            => Segment::class,
-        ])
+    protected const COMMON_CLASS_NAME_TO_CLASS_PATH_MAP = [
+        'PROCEDURE'          => Procedure::class,
+        'PROCEDURE_TEMPLATE' => Procedure::class,
+        'SEGMENT'            => Segment::class,
+        'STATEMENT'          => Statement::class,
+    ];
+
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
+    }
+
+    abstract public function getSourceToTargetMapping(): array;
+
+    public function supports(string $fieldType): bool
+    {
+        return $this->getFieldType() === $fieldType;
+    }
+
+    public function getClassNameToClassPathMap(): array
+    {
+        return static::COMMON_CLASS_NAME_TO_CLASS_PATH_MAP;
     }
 
     public function validate(array $attributes): void
@@ -56,14 +66,16 @@ class CustomFieldValidator
 
     private function validateSourceToTargetMapping(?string $sourceEntity, ?string $targetEntity): void
     {
-        if ($this->sourceToTargetMap[$sourceEntity] !== $targetEntity) {
-            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $this->sourceToTargetMap[$sourceEntity], $sourceEntity));
+        $sourceToTargetMap = $this->getSourceToTargetMapping();
+        if ($sourceToTargetMap[$sourceEntity] !== $targetEntity) {
+            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $sourceToTargetMap[$sourceEntity], $sourceEntity));
         }
     }
 
     private function validateSourceEntityIdExists(string $sourceEntity, string $sourceEntityId): void
     {
-        $sourceEntityClass = $this->classNameToClassPathtMap[$sourceEntity];
+        $classNameToClassPathMap = $this->getClassNameToClassPathMap();
+        $sourceEntityClass = $classNameToClassPathMap[$sourceEntity];
 
         // Query the repository for the entity
         $repository = $this->entityManager->getRepository($sourceEntityClass);
