@@ -59,16 +59,6 @@ class RadioButtonField extends AbstractCustomField
         ];
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function getOptions(): array
     {
         return $this->options;
@@ -77,16 +67,6 @@ class RadioButtonField extends AbstractCustomField
     public function setOptions(array $options): void
     {
         $this->options = $options;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function getCustomFieldsList(): ?array
