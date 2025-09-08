@@ -129,7 +129,7 @@ class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
     private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
-    
+
     private const PARAM_BOILERPLATE_DELETE_CHECKED = 'boilerplateDeleteChecked';
     private const PARAM_BOILERPLATE_DELETE = 'boilerplate_delete';
     private const PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE = 'boilerplateGroupIdsTo_delete';
