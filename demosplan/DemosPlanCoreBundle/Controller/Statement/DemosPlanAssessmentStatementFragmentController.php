@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NotAssignedException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
@@ -58,8 +59,11 @@ use function strlen;
  */
 class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessmentController
 {
-    public function __construct(private readonly PermissionsInterface $permissions, private readonly StatementHandler $statementHandler)
-    {
+    public function __construct(
+        private readonly PermissionsInterface $permissions,
+        private readonly StatementHandler $statementHandler,
+        private readonly RequestDataHandler $requestDataHandler,
+    ) {
         parent::__construct($permissions);
     }
 
@@ -80,7 +84,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         Request $request,
         StatementHandler $statementHandler,
         string $statementId,
-        string $procedure
+        string $procedure,
     ) {
         try {
             $templateVars = [];
@@ -176,7 +180,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         $templateVars['formAction'] = $router->generate('DemosPlan_statement_fragment_update_redirect_fragment_reviewer').'?'.http_build_query($pagerQuerystring);
 
         $requestPost = $this->rememberFilters($request);
-        $statementHandler->setRequestValues($requestPost);
+        $this->requestDataHandler->setRequestValues($requestPost);
 
         $departmentId = $currentUser->getUser()->getDepartmentId();
 
@@ -255,7 +259,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         MunicipalityService $municipalityService,
         PriorityAreaService $priorityAreaService,
         Request $request,
-        RouterInterface $router
+        RouterInterface $router,
     ) {
         $pagerQuerystring = collect($request->query->all())->only(['r_limit', 'page'])->all();
         $templateVars = [];
@@ -273,7 +277,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $requestPost[str_replace('_', '.', (string) $filterName)] = $value;
         }
 
-        $statementHandler->setRequestValues($requestPost);
+        $this->requestDataHandler->setRequestValues($requestPost);
         $result = $statementHandler->getStatementFragmentsDepartment($departmentId);
 
         $templateVars['list'] = $result;
@@ -368,7 +372,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 return $this->renderJson([], 500, false, 500);
             }
 
-            $namespacedParams = $this->transformRequestVariables($requestPost);
+            $namespacedParams = $this->requestDataHandler->transformRequestVariables($requestPost);
             $updateData = $namespacedParams[$fragmentId];
             // add archived user name
             $user = $currentUser->getUser();
@@ -523,7 +527,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         Request $request,
         StatementHandler $statementHandler,
         string $procedure,
-        string $statementId
+        string $statementId,
     ) {
         try {
             $postRequest = $request->request;
@@ -606,9 +610,9 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         CurrentUserService $currentUser,
         StatementFragmentService $statementFragmentService,
         Request $request,
-        $isReviewer = false
+        $isReviewer = false,
     ) {
-        $data = $this->transformRequestVariables($request->request->all());
+        $data = $this->requestDataHandler->transformRequestVariables($request->request->all());
 
         $anchor = '';
         $user = $currentUser->getUser();
@@ -690,7 +694,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         StatementHandler $statementHandler,
         StatementService $statementService,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): JsonResponse {
         try {
             $rParams = $assessmentTableServiceOutput->getFormValues($request->request->all());
@@ -761,7 +765,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
         CurrentUserService $currentUser,
         Request $request,
         NameGenerator $nameGenerator,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $vars = $request->request->all();
         $fragmentIds = [];

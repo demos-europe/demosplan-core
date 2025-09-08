@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -17,17 +18,20 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\ImprintOrganisation;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrgaHandler extends CoreHandler
+class OrgaHandler
 {
-    public function __construct(private readonly OrgaService $orgaService, MessageBagInterface $messageBag, private readonly TranslatorInterface $translator, private readonly CurrentUserInterface $currentUser)
-    {
-        parent::__construct($messageBag);
+    public function __construct(
+        private readonly OrgaService $orgaService,
+        private readonly MessageBagInterface $messageBag,
+        private readonly TranslatorInterface $translator,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly GlobalConfigInterface $globalConfig,
+    ) {
     }
 
     public function getOrgaService(): OrgaService
@@ -99,7 +103,7 @@ class OrgaHandler extends CoreHandler
         try {
             return $this->getOrgaService()->deleteOrga($orgaId);
         } catch (Exception) {
-            $this->getMessageBag()->add(
+            $this->messageBag->add(
                 'error',
                 $this->translator->trans('error.save')
             );
@@ -186,7 +190,7 @@ class OrgaHandler extends CoreHandler
         }
 
         // these are writable in 'portal' mode only
-        if ('portal' === $this->getDemosplanConfig()->getProjectType()) {
+        if ('portal' === $this->globalConfig->getProjectType()) {
             $writableAttributes = [...$writableAttributes, 'allowedRoleIds', 'competence', 'contactPerson', 'city', 'dataProtection', 'emailReviewerAdmin', 'houseNumber', 'imprint', 'name', 'paperCopy', 'paperCopySpec', 'phone', 'postalcode', 'street', 'submissionType', 'types'];
         }
 

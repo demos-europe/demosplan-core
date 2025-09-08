@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -26,8 +27,8 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\PublicAffairsAgentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\Request\RequestDataHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
@@ -39,13 +40,14 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
 
 use function array_key_exists;
 
-class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
+class ProcedureHandler implements ProcedureHandlerInterface
 {
     /**
      * @var ServiceStorage
@@ -88,19 +90,21 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly EntityManagerInterface $entityManager,
         Environment $twig,
         MailService $mailService,
-        MessageBagInterface $messageBag,
+        private readonly MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureDeleter $procedureDeleter,
         private readonly ProcedureService $procedureService,
+        private readonly RequestDataHandler $requestDataHandler,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
         ServiceStorage $serviceStorage,
         TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
+        private readonly GlobalConfigInterface $globalConfig,
     ) {
-        parent::__construct($messageBag);
         $this->contentService = $contentService;
         $this->esQueryProcedure = $esQueryProcedure;
         $this->mailService = $mailService;
@@ -124,7 +128,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     {
         $templatefilters = [];
         $returnVars = [];
-        $requestValues = $this->getRequestValues();
+        $requestValues = $this->requestDataHandler->getRequestValues();
 
         // initialize storage and output
         $serviceOutput = $this->serviceOutput;
@@ -336,7 +340,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
         // generiere eine Erfolgsmeldung
         $confirmmsg = $this->translator->trans('confirm.notification.saved');
-        $this->getMessageBag()->add('confirm', $confirmmsg);
+        $this->messageBag->add('confirm', $confirmmsg);
     }
 
     /**
@@ -358,13 +362,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      */
     public function sendInvitationEmails(array $procedure, array $request): InvitationEmailResult
     {
-        $helperServices = $this->getHelperServices();
-        if (!array_key_exists('serviceMail', $helperServices)
-            || !array_key_exists('serviceDemosPlan', $helperServices)
-        ) {
-            throw new \InvalidArgumentException('Mandatory Parameter missing');
-        }
-
         $outputResult = $this->serviceOutput->procedureMemberListHandler($procedure['id'], null);
 
         $providedEmailTitle = $request['r_emailTitle'] ?? '';
@@ -538,7 +535,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             // How many days in advance should notification been sent?
             $daysToGo = $this->limitForNotification;
             // Look only fpr participation phases for publicAgencies
-            $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
             $phases = [];
             foreach ($internalPhases as $phase) {
                 if ('write' === $phase['permissionset']) {
@@ -550,7 +547,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
             // Get all involved public Agencies of these procedures
             foreach ($resultProcedures as $procedure) {
-                $this->getLogger()->info('Soon ending procedures found for procedure', [$procedure->getName()]);
+                $this->logger->info('Soon ending procedures found for procedure', [$procedure->getName()]);
                 $involvedPublicAgencies = $procedure->getOrganisation();
                 // Do they want to have a notification email? ->Info saved in Settings
                 $recipients = $this->serviceOutput->checkNotificationFlagAndReturnEmailsOfAgencies($involvedPublicAgencies);
@@ -558,7 +555,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // if there are recipients go further
                 if (0 < count($recipients)) {
                     // save same for the mailtemplate
-                    $procedure->setPhaseName($this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($procedure->getPhase()));
+                    $procedure->setPhaseName($this->globalConfig->getPhaseNameWithPriorityInternal($procedure->getPhase()));
                     $mailTemplateVars['procedure'] = $procedure;
                     $mailTemplateVars['daysToGo'] = $daysToGo;
 
@@ -624,7 +621,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             // Fetch all procedure with soon ending phases
             $procedures = $this->procedureService->getListOfProceduresEndingSoon($exactlyDaysToGo, $internal);
         } catch (Exception) {
-            $this->getLogger()->error('Could not get procedureList with soon ending phases');
+            $this->logger->error('Could not get procedureList with soon ending phases');
         }
 
         // Choose all procedures with given phases
@@ -637,7 +634,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
 
         if (0 === count($proceduresWithSoonEndingPhase)) {
-            $this->getLogger()->info('No soon ending procedures found');
+            $this->logger->info('No soon ending procedures found');
         }
 
         return $proceduresWithSoonEndingPhase;
@@ -862,15 +859,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $changedExternalProcedures = collect([]);
 
         // internal:
-        $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
+        $internalWritePhaseKeys = $this->globalConfig->getInternalPhaseKeys('write');
         $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
 
         $internalPhaseKey = 'evaluating';
-        $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
+        $internalPhaseName = $this->globalConfig->getPhaseNameWithPriorityInternal($internalPhaseKey);
         // T17248: necessary because of different phasekeys per project:
         if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
+            $internalPhaseName = $this->globalConfig->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
         /** @var Procedure $endedInternalProcedure */
@@ -888,15 +885,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
 
         // external:
-        $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
+        $externalWritePhaseKeys = $this->globalConfig->getExternalPhaseKeys('write');
         $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
 
         $externalPhaseKey = 'evaluating';
-        $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
+        $externalPhaseName = $this->globalConfig->getPhaseNameWithPriorityExternal($externalPhaseKey);
         // T17248: necessary because of different phasekeys per project:
         if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
+            $externalPhaseName = $this->globalConfig->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
         /** @var Procedure $endedExternalProcedure */
@@ -914,8 +911,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         }
 
         // Success notice
-        $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
-        $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
+        $this->logger->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
+        $this->logger->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
         return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
     }
@@ -1005,9 +1002,19 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             );
         } catch (Exception $exception) {
             $this->logger->error('sendPublicAgencyInvitationMail to '.$to.' failed', [$exception]);
-            $this->getMessageBag()->add('error', 'error.email.send.distinct.address',
+            $this->messageBag->add('error', 'error.email.send.distinct.address',
                 ['eMailAddress' => $to]
             );
         }
+    }
+
+    /**
+     * Set request values.
+     *
+     * @param array<string, mixed> $values
+     */
+    public function setRequestValues(array $values): void
+    {
+        $this->requestDataHandler->setRequestValues($values);
     }
 }

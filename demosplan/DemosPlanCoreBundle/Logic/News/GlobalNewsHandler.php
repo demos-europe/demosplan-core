@@ -10,26 +10,23 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\News;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use ReflectionException;
 
-class GlobalNewsHandler extends CoreHandler
+class GlobalNewsHandler
 {
     /**
      * @var ContentService
      */
     protected $contentService;
 
-    public function __construct(ContentService $contentService, MessageBagInterface $messageBag)
+    public function __construct(ContentService $contentService)
     {
-        parent::__construct($messageBag);
         $this->contentService = $contentService;
     }
 
