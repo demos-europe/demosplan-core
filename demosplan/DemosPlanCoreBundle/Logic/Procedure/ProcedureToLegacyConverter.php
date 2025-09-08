@@ -69,6 +69,7 @@ class ProcedureToLegacyConverter
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
             $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
+            $procedureArray['expandProcedureDescription'] = $procedureArray['settings']['expandProcedureDescription'];
             $procedureArray['publicParticipationFeedbackEnabled'] = $procedureArray['settings']['publicParticipationFeedbackEnabled'];
         }
 

@@ -653,7 +653,7 @@
 
                     {% else %}
                         {# set all options for optgroups only for edit-mode #}
-                        {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
+                        {% if statement.isSubmittedByCitizen == false %}
                             {% set phases = templateVars.internalPhases|default %}
                         {% else %}
                             {% set phases = templateVars.externalPhases|default %}
