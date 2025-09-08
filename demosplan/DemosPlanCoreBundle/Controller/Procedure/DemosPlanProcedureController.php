@@ -129,6 +129,14 @@ class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
     private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+    
+    private const PARAM_BOILERPLATE_DELETE_CHECKED = 'boilerplateDeleteChecked';
+    private const PARAM_BOILERPLATE_DELETE = 'boilerplate_delete';
+    private const PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE = 'boilerplateGroupIdsTo_delete';
+    private const PARAM_BOILERPLATE_DELETE_ITEM = 'boilerplateDeleteItem';
+    private const PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT = 'boilerplateGroupDeleteAllContent';
+    private const PARAM_CREATE_GROUP = 'r_createGroup';
+    private const PARAM_NEW_GROUP = 'r_newGroup';
 
     /**
      * @var MapService
@@ -2372,6 +2380,8 @@ class DemosPlanProcedureController extends BaseController
         $this->processBoilerplateActions($procedureHandler, $requestPost, $procedureId);
 
         if (!$request->isMethod('GET')) {
+            // prevent sending the same post multiple times when browser reloads the same page (F5)
+            // therefore redirect to self as a get call instead.
             return $this->redirectBack($request);
         }
 
@@ -2396,19 +2406,19 @@ class DemosPlanProcedureController extends BaseController
 
     private function processDeleteCheckedBoilerplates(ProcedureHandler $procedureHandler, ParameterBag $requestPost): void
     {
-        if (!$requestPost->has('boilerplateDeleteChecked')) {
+        if (!$requestPost->has(self::PARAM_BOILERPLATE_DELETE_CHECKED)) {
             return;
         }
 
-        $hasBoilerplateDelete = $requestPost->has('boilerplate_delete');
-        $hasGroupDelete = $requestPost->has('boilerplateGroupIdsTo_delete');
+        $hasBoilerplateDelete = $requestPost->has(self::PARAM_BOILERPLATE_DELETE);
+        $hasGroupDelete = $requestPost->has(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE);
 
         if ($hasBoilerplateDelete) {
-            $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all('boilerplate_delete'));
+            $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all(self::PARAM_BOILERPLATE_DELETE));
         }
 
         if ($hasGroupDelete) {
-            $this->handleDeleteBoilerplateGroups($requestPost->all('boilerplateGroupIdsTo_delete'));
+            $this->handleDeleteBoilerplateGroups($requestPost->all(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE));
         }
 
         if (!$hasBoilerplateDelete && !$hasGroupDelete) {
@@ -2418,23 +2428,23 @@ class DemosPlanProcedureController extends BaseController
 
     private function processSingleBoilerplateDeletion(ParameterBag $requestPost): void
     {
-        if ($requestPost->has('boilerplateDeleteItem')) {
-            $this->handleDeleteBoilerplate($requestPost->get('boilerplateDeleteItem'));
+        if ($requestPost->has(self::PARAM_BOILERPLATE_DELETE_ITEM)) {
+            $this->handleDeleteBoilerplate($requestPost->get(self::PARAM_BOILERPLATE_DELETE_ITEM));
         }
 
-        if ($requestPost->has('boilerplateGroupDeleteAllContent')) {
-            $this->handleDeleteBoilerplateGroup($requestPost->get('boilerplateGroupDeleteAllContent'));
+        if ($requestPost->has(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT)) {
+            $this->handleDeleteBoilerplateGroup($requestPost->get(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT));
         }
     }
 
     private function processGroupCreation(ParameterBag $requestPost, string $procedureId): void
     {
-        if (!$requestPost->has('r_createGroup') || !$requestPost->has('r_newGroup')) {
+        if (!$requestPost->has(self::PARAM_CREATE_GROUP) || !$requestPost->has(self::PARAM_NEW_GROUP)) {
             return;
         }
 
         try {
-            $createdGroup = $this->procedureService->createBoilerplateGroup($requestPost->get('r_newGroup'), $procedureId);
+            $createdGroup = $this->procedureService->createBoilerplateGroup($requestPost->get(self::PARAM_NEW_GROUP), $procedureId);
             $this->getMessageBag()->add(
                 'confirm',
                 'confirm.boilerplate.group.created',
@@ -2444,7 +2454,7 @@ class DemosPlanProcedureController extends BaseController
             $this->getMessageBag()->add(
                 'error',
                 'error.boilerplate.group.not.created',
-                ['title' => $requestPost['r_newGroup']]
+                ['title' => $requestPost[self::PARAM_NEW_GROUP]]
             );
         }
     }
