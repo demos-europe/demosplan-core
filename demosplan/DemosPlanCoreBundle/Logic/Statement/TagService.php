@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -33,7 +34,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class TagService
+class TagService implements TagServiceInterface
 {
     public function __construct(
         private readonly BoilerplateRepository $boilerplateRepository,
