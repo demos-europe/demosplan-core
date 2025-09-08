@@ -24,6 +24,8 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
@@ -367,6 +369,14 @@ services:
         abstract: true
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
+
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
 
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:

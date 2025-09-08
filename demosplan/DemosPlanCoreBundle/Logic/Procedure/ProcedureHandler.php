@@ -877,11 +877,12 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
-                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
-                $endedInternalProcedure->setPhaseName($internalPhaseName);
-                $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
+                $data = [
+                    'id'       => $endedInternalProcedure->getId(),
+                    'phase'    => $internalPhaseKey,
+                    'customer' => $endedInternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -902,11 +903,12 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
-                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
-                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
-                $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
+                $data = [
+                    'id'                       => $endedExternalProcedure->getId(),
+                    'publicParticipationPhase' => $internalPhaseKey,
+                    'customer'                 => $endedExternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }

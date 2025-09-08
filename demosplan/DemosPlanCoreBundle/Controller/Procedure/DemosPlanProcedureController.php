@@ -1401,11 +1401,21 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
+                $evaluatingPhase = null;
                 foreach ($templateVars['internalPhases'] as $internalPhase) {
                     if ('evaluating' === $internalPhase['key']) {
                         $evaluatingPhase = $internalPhase['name'];
-
                         break;
+                    }
+                }
+
+                // Fallback to 'analysis' if 'evaluating' phase not found
+                if (null === $evaluatingPhase) {
+                    foreach ($templateVars['internalPhases'] as $internalPhase) {
+                        if ('analysis' === $internalPhase['key']) {
+                            $evaluatingPhase = $internalPhase['name'];
+                            break;
+                        }
                     }
                 }
             }
@@ -2373,6 +2383,12 @@ class DemosPlanProcedureController extends BaseController
 
             if (false ===
                 $requestPost->has('boilerplate_delete') || $requestPost->has('boilerplateGroupIdsTo_delete')
+            ) {
+                $this->getMessageBag()->add('warning', 'warning.select.entries');
+            }
+
+            if (false === $requestPost->has('boilerplate_delete')
+                || false === $requestPost->has('boilerplateGroupIdsTo_delete')
             ) {
                 $this->getMessageBag()->add('warning', 'warning.select.entries');
             }
