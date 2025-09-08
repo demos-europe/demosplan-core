@@ -67,7 +67,6 @@ class FrontendBuildinfoCommand extends CoreCommand
 
     private function createProjectCSSFile(string $project): void
     {
-
         $projectCSS = <<<CSS
 /*
     Project specific CSS for {$project}
@@ -83,7 +82,7 @@ CSS;
 
         $projectCSS .= "\n";
         $projectCSS .= collect(glob(DemosPlanPath::getProjectPath('client/css/*.css')))
-            ->map(function($file) use ($project) {
+            ->map(function ($file) use ($project) {
                 $basename = basename($file);
 
                 return "@source \"../../../projects/{$project}/client/css/{$basename}\";";
