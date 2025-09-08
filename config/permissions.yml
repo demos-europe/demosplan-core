@@ -1485,6 +1485,7 @@ feature_procedure_categories:
     parent: area_main_procedures
 feature_procedure_categories_edit:
     description: 'Allows editing of procedure categories.'
+    expose: true
     label: 'May edit procedure categories'
     loginRequired: true
     parent: area_main_procedures_categories
@@ -2661,11 +2662,13 @@ field_procedure_administration:
     parent: field_procedure
 field_procedure_contact_person:
     description: 'Set the contact person for procedure in settings (procedure/blueprint) and display it in public detail in procedure info.'
+    expose: true
     label: 'Field for contact person for procedure'
     loginRequired: false
     parent: field_procedure
 field_procedure_description:
     description: 'Enables a short publicly visible information text about the procedure'
+    expose: true
     label: 'Öffentliche Verfahrensbeschreibung'
     loginRequired: false
     parent: field_procedure
@@ -2681,6 +2684,7 @@ field_procedure_elements:
     parent: field_procedure
 field_procedure_linkbox:
     description: 'Set links for procedure in settings (procedure/blueprint) and display them in public detail in procedure info.'
+    expose: true
     label: 'Field for links in procedure'
     loginRequired: false
     parent: field_procedure
@@ -2705,6 +2709,7 @@ field_procedure_phase_filter:
     loginRequired: false
     parent: field_procedure
 field_procedure_pictogram:
+    expose: true
     label: Verfahrenspiktogramm
     loginRequired: false
     parent: field_procedure

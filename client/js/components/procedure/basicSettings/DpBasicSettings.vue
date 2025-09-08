@@ -12,8 +12,8 @@
     ref="configForm"
     name="configForm"
     enctype="multipart/form-data"
-    :data-procedure="procedureIdent"
     data-dp-validate="configForm"
+    :data-procedure="procedureIdent"
     method="post"
     :action="Routing.generate('DemosPlan_procedure_edit', {'procedure': procedureIdent })">
 
@@ -28,280 +28,89 @@
       :value="initProcedurePhasePublic"
     >
 
-    <!-- {# wizard item: Intern #} -->
+    <procedure-general-settings
+      :agencies="agencies"
+      :authorized-users-options="authorizedUsersOptions"
+      :data-input-orgas="dataInputOrgas"
+      :form-data="formData"
+      :init-agencies="initAgencies"
+      :init-auth-users="initAuthUsers"
+      :init-data-input-orgas="initDataInputOrgas"
+      :has-procedure-user-restricted-access="hasProcedureUserRestrictedAccess"
+      :procedure-settings="procedureSettings"
+    />
+
+    <procedure-info-settings
+      :available-procedure-categories="availableProcedureCategories"
+      :init-pictogram-copyright="initPictogramCopyright"
+      :init-procedure-categories="initProcedureCategories"
+      :init-pictogram-alt-text="initPictogramAltText"
+      :procedure-settings="procedureSettings"
+      :procedure-id="procedureId"
+    />
+
+    <!-- wizard item: Done -->
     <fieldset
-      class="o-wizard"
-      :data-wizard-finished="procedureSettings.internalComplete ? 'true' : null"
-      :data-wizard-topic="Translator.trans('wizard.topic.internal')"
-      :data-dp-validate-topic="Translator.trans('wizard.topic.internal')"
-      data-dp-validate="internalForm">
-
-      <legend
-        data-toggle-id="internal"
-        data-cy="internal"
-        class="js__toggleAnything">
-        <i class="caret"></i>
-        {{ Translator.trans('wizard.topic.internal') }}
-        <i class="fa fa-check"></i>
-      </legend>
-
-      <div
-        data-toggle-id="internal"
-        class="o-wizard__content">
+      :data-wizard-topic="Translator.trans('wizard.topic.done')"
+      class="o-wizard">
+      <div class="o-wizard__content">
         <div class="o-wizard__main">
-          <div
-            v-if="hasPermission('field_procedure_adjustments_planning_agency')"
-            class="u-mb">
-            <label
-              class="inline-block u-mb-0"
-              for="r_agency">
-              {{ Translator.trans('planningagency.participating') }}
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('text.procedure.edit.planning_agency')"
-            />
-
-            <dp-multiselect
-              id="r_agency"
-              v-model="selectedAgencies"
-              data-cy="internal:selectedAgencies"
-              label="name"
-              multiple
-              :options="agencies"
-              track-by="id">
-              <template v-slot:option="{ props }">
-                {{ props.option.name }}
-              </template>
-              <template v-slot:tag="{ props }">
-                <span class="multiselect__tag">
-                  {{ props.option.name }}
-                  <i
-                    aria-hidden="true"
-                    @click="props.remove(props.option)"
-                    tabindex="1"
-                    class="multiselect__tag-icon">
-                  </i>
-                  <input
-                    type="hidden"
-                    :value="props.option.id"
-                    name="r_agency[]"/>
-                </span>
-              </template>
-            </dp-multiselect>
-          </div>
-
-          <div class="u-mb">
-            <label
-              class="inline-block u-mb-0"
-              :for="formData.agencyMainEmailAddress.id">
-                {{ Translator.trans('email.procedure.agency') }}*
-              <p class="weight--normal">
-                {{ Translator.trans('explanation.organisation.email.procedure.agency') }}
-              </p>
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('email.procedure.agency.help')"
-            />
-
-            <dp-inline-notification
-              v-if="formData.agencyMainEmailAddress.errors && formData.agencyMainEmailAddress.errors.length > 0"
-              type="error"
-              :message="formData.agencyMainEmailAddress.errors.join(', ')"
-            />
-
-            <dp-input
-              :id="formData.agencyMainEmailAddress.id"
-              data-cy="agencyMainEmailAddress"
-              :data-dp-validate-error-fieldname="Translator.trans('email.procedure.agency')"
-              name="agencyMainEmailAddress[fullAddress]"
-              required
-              type="email"
-              :model-value="formData.agencyMainEmailAddress.fullAddress">
-            </dp-input>
-          </div>
-
-          <div class="u-mb">
-            <label
-              class="inline-block u-mb-0"
-              :for="formData.agencyExtraEmailAddresses.id">
-                {{ Translator.trans('email.address.more') }}
-              <p class="weight--normal">
-                {{ Translator.trans('email.address.more.explanation') }}
-              </p>
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('email.address.more.explanation.help')"
-            />
-
-            <dp-email-list
-              data-cy="administrationEdit"
-              :init-emails="formData.agencyExtraEmailAddresses">
-            </dp-email-list>
-          </div>
-
-          <div class="u-mb">
-            <addon-wrapper
-              hook-name="administration.edit.extra.fields"
-              :addon-props="{
-                procedureId: procedureSettings.id
-              }">
-            </addon-wrapper>
-          </div>
-
-          <div
-            v-if="hasPermission('feature_use_data_input_orga')"
-            class="u-mb">
-            <label class="inline-block u-mb-0" for="r_dataInputOrga">
-              {{ Translator.trans('data.input.orga') }}
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('text.procedure.edit.data_input_orgas')"
-            />
-
-            <dp-multiselect
-              id="r_dataInputOrgaTest"
-              data-cy="internal:selectedDataInputOrgas"
-              v-model="selectedDataInputOrgas"
-              label="name"
-              multiple
-              :options="dataInputOrgas"
-              track-by="id">
-              <template v-slot:option="{ props }">
-                {{ props.option.name }}
-              </template>
-              <template v-slot:tag="{ props }">
-                <span class="multiselect__tag">
-                    {{ props.option.name }}
-                    <i
-                      aria-hidden="true"
-                      @click="props.remove(props.option)"
-                      tabindex="1"
-                      class="multiselect__tag-icon">
-                    </i>
-                    <input
-                      type="hidden"
-                      :value="props.option.id"
-                      name="r_dataInputOrga[]" />
-                </span>
-              </template>
-            </dp-multiselect>
-          </div>
-
-          <div
-            v-if="hasPermission('feature_procedure_user_restrict_access_edit') && hasProcedureUserRestrictedAccess"
-            class="u-mb">
-            <label
-              class="inline-block u-mb-0"
-              for="r_authorizedUsers">
-              {{ Translator.trans('authorized.users') }}
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('text.procedure.edit.authorized.users')"
-            />
-
-            <dp-multiselect
-              id="r_authorizedUsers"
-              v-model="selectedAuthUsers"
-              data-cy="internal:selectedAuthUsers"
-              label="name"
-              multiple
-              :options="authUsersOptions"
-              selection-controls
-              track-by="id"
-              @selectAll="selectAllAuthUsers"
-              @deselectAll="unselectAllAuthUsers">
-              <template v-slot:option="{ props }">
-                {{ props.option.name }}
-              </template>
-              <template v-slot:tag="{ props }">
-                <span class="multiselect__tag">
-                    {{ props.option.name }}
-                    <i
-                      aria-hidden="true"
-                      @click="props.remove(props.option)"
-                      tabindex="1" class="multiselect__tag-icon">
-                    </i>
-                    <input
-                      type="hidden"
-                      :value="props.option.id"
-                      name="r_authorizedUsers[]" />
-                </span>
-              </template>
-            </dp-multiselect>
-          </div>
-
-          <!-- The procedure type is set only once, when creating a procedure.
-          It can't nbe changed afterwards. Anyhow, the user is informed here which type
-          the procedure was created with. -->
-          <div class="u-mb">
-            <p class="weight--bold u-mb-0">
-              {{ Translator.trans('text.procedures.type') }}
-            </p>
-            <p
-              v-if="procedureSettings.procedureType"
-              class="u-mb-0">
-              {{ procedureSettings.procedureType.name }}<br>
-              {{ procedureSettings.procedureType.description }}
-            </p>
-            <p v-else>
-              {{ Translator.trans('procedure.type.not.set') }}
-            </p>
-          </div>
-
-          <div class="u-mb-0_5">
-            <label class="inline-block u-mb-0" for="r_desc">
-              {{ Translator.trans('internalnote') }}
-            </label>
-
-            <dp-contextual-help
-              class="mb-1"
-              :text="Translator.trans('text.procedure.edit.note')"
-            />
-
-            <!-- Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. -->
-            <dp-text-area
-              class="bg-surface"
-              data-cy="internal:internalNote"
-              grow-to-parent
-              id="r_desc"
-              name="r_desc"
-              reduced-height
-              :value="procedureSettings.desc ? procedureSettings.desc : Translator.trans('notspecified')"
-            />
-          </div>
+          <!-- There is a bunch of Html in here. In a future iteration, "next step" content could be shown
+                 based on features, whereas entity naming differences would be resolved using placeholders. -->
+          {{ Translator.trans('wizard.done.content') }}
         </div>
+      </div>
+    </fieldset>
 
-        <label class="o-wizard__mark u-mb-0">
-          <input
-            data-wizard-cb
-            data-cy="fieldInternCompletions"
-            name="fieldCompletions[]"
-            value="internalComplete"
-            type="checkbox"
-            v-model="procedureSettings.internalComplete"
-          />
-          {{ Translator.trans('wizard.mark_as_done') }}
-        </label>
+    <!-- wizard template -->
+    <div
+      class="o-wizard__additional-elements hidden float-left"
+      aria-hidden="true">
+      <h2 class="o-wizard__header">{{ Translator.trans('adjustments.general') }}</h2>
+      <div class="o-wizard__close">
+        <i class="fa fa-times" data-wizard-action="close"></i>
+      </div>
+      <div class="o-wizard__menu">
+        <ul class="o-wizard__menu-list"></ul>
       </div>
       <button
         type="button"
-        data-cy="wizardNext"
-        data-dp-validate-capture-click
-        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
-        {{ Translator.trans('wizard.next') }}
+        data-cy="wizardPrevious"
+        class="btn btn--secondary o-wizard__btn o-wizard__btn--prev">
+        {{ Translator.trans('wizard.previous') }}
       </button>
-    </fieldset>
+      <button
+        type="button"
+        data-cy="wizardDone"
+        class="btn btn--primary o-wizard__btn o-wizard__btn--done hidden">
+        {{ Translator.trans('wizard.done') }}
+      </button>
+    </div>
+    <div class="o-wizard__bg" data-wizard-action="close"></div>
 
+    <!-- form controls when not in wizard mode -->
+    <div class="text-right space-inline-s">
+      <!-- A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked -->
+      <input
+        type="submit"
+        class="hidden"
+        :value="Translator.trans('save')">
+      <button
+        class="btn btn--primary"
+        id="saveConfig"
+        name="saveConfig"
+        data-cy="saveConfig"
+        type="button"
+        @click="submit">
+        {{ Translator.trans('save') }}
+      </button>
+      <a
+        class="btn btn--secondary"
+        data-cy="abortConfig"
+        :href="Routing.generate('DemosPlan_procedure_administration_get')">
+        {{ Translator.trans('abort') }}
+      </a>
+    </div>
 
   </form>
 </template>
@@ -316,20 +125,26 @@ import {
   DpEditor,
   DpInlineNotification,
   DpInput,
+  DpLabel,
   DpMultiselect,
   dpValidateMixin,
-  sortAlphabetically,
+  sortAlphabetically
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 import ParticipationPhases from './ParticipationPhases'
+import ProcedureInfoSettings from './ProcedureInfoSettings.vue'
+import ProcedureGeneralSettings from './ProcedureGeneralSettings.vue'
 
 export default {
   name: 'DpBasicSettings',
 
   components: {
+    ProcedureGeneralSettings,
+    ProcedureInfoSettings,
+    DpLabel,
     AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
@@ -354,6 +169,12 @@ export default {
 
   props: {
     agencies: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
+    availableProcedureCategories: {
       type: Array,
       required: false,
       default: () => [],
@@ -488,25 +309,12 @@ export default {
         value: '',
       },
       isLoadingPlisData: false,
-      pictogramAltText: this.initPictogramAltText,
-      pictogramCopyright: this.initPictogramCopyright,
       procedureDescription: this.procedureExternalDesc,
       procedureName: this.initProcedureName,
-      selectedAgencies: this.initAgencies,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedDataInputOrgas: this.initDataInputOrgas,
       selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedProcedureCategories: this.initProcedureCategories,
       selectedPublicPhase: this.initProcedurePhasePublic,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
     }
-  },
-
-  computed: {
-    authUsersOptions () {
-      const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
-      return sortAlphabetically(users, 'name')
-    },
   },
 
   methods: {
@@ -563,10 +371,6 @@ export default {
         })
     },
 
-    selectAllAuthUsers () {
-      this.selectedAuthUsers = this.authorizedUsersOptions
-    },
-
     setSelectedInternalPhase (phase) {
       this.selectedInternalPhase = phase
     },
@@ -592,10 +396,6 @@ export default {
 
     submitConfigForm () {
       this.$refs.configForm.submit()
-    },
-
-    unselectAllAuthUsers () {
-      this.selectedAuthUsers = []
     },
 
     updateAddonPayload (payload) {

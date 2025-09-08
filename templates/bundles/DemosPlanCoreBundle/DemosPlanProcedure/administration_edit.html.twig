@@ -16,13 +16,18 @@
         } : null,
         externalDesc: proceduresettings.externalDesc,
         publicParticipationContact: proceduresettings.publicParticipationContact,
-        settings: proceduresettings.settings,
+        links: procedureSettings.settings.links|default,
         locationPostCode: proceduresettings.locationPostCode,
         locationName: proceduresettings.locationName,
         phase: proceduresettings.phase,
         phaseObject: proceduresettings.phaseObject,
         startDate: proceduresettings.startDate,
         endDate: proceduresettings.endDate,
+        pictogram: proceduresettings.settings.pictogram ? {
+            altText: proceduresettings.settings.pictogramAltText,
+            hash: proceduresettings.settings.pictogram|getFile('hash'),
+            name: proceduresettings.pictogram|getFile('name'),
+        } : null,
         publicParticipationPhaseObject: proceduresettings.publicParticipationPhaseObject,
         publicParticipationStartDate: proceduresettings.publicParticipationStartDate,
         publicParticipationEndDate: proceduresettings.publicParticipationEndDate,
@@ -171,6 +176,7 @@
         :agencies="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :form-data="JSON.parse('{{ formData|json_encode|e('js', 'utf-8') }}')"
         :data-input-orgas="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
+        :available-procedure-categories="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         :has-procedure-user-restricted-access="Boolean({{ hasProcedureUserRestrictedAccess }})"> <!--csrf_token('csrf')-->
         <form
             ref="configForm"
