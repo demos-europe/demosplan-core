@@ -670,6 +670,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipationPublicationEnabled',
                 'r_publicParticipationFeedbackEnabled',
                 'allowAnonymousStatements',
+                'expandProcedureDescription',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
