@@ -166,7 +166,8 @@ function runWebpack (mode) {
 }
 
 /**
- * Show error messages from webpack
+ * Handle webpacks error objects.
+ * Why are there two? I bet they don't even know
  *
  * @param {Object} err Webpack Error object
  * @param {Object} stats Webpack Stats object
@@ -174,19 +175,18 @@ function runWebpack (mode) {
 function showErrorMessage (err, stats) {
   const info = stats.toJson()
 
+  if (err || stats.hasErrors() || stats.hasWarnings()) {
+    log(chalk.red('Build failed'))
+  }
+
   if (err) {
-    log(chalk.red('Build encountered errors'))
+    log(chalk.red(err.stack || err))
 
-    // Handle webpacks error objects. Why are there two? I bet they don't even know
-    if (err) {
-      log(chalk.red(err.stack || err))
-
-      if (err.details) {
-        log(err.details)
-      }
-
-      return
+    if (err.details) {
+      log(err.details)
     }
+
+    return
   }
 
   if (stats.hasErrors()) {
