@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -84,7 +87,7 @@ class TagService
      *
      * @throws DuplicatedTagTitleException
      */
-    public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
+    public function createTag(string $title, TagTopicInterface $topic, bool $persistAndFlush = true): TagInterface
     {
         $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
@@ -112,7 +115,7 @@ class TagService
      * @throws DuplicatedTagTopicTitleException
      * @throws Exception
      */
-    public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
+    public function createTagTopic($title, ProcedureInterface $procedure, bool $persistAndFlush = true): TagTopic
     {
         $this->assertTitleNotDuplicated($title, $procedure);
         $toCreate = new TagTopic($title, $procedure);
@@ -129,7 +132,7 @@ class TagService
      *
      * @throws DuplicatedTagTopicTitleException
      */
-    public function assertTitleNotDuplicated($title, Procedure $procedure): void
+    public function assertTitleNotDuplicated($title, ProcedureInterface $procedure): void
     {
         $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
         if (0 !== $titleCount) {
@@ -255,7 +258,7 @@ class TagService
     /**
      * @return array<int,TagTopic>
      */
-    public function getTagTopicsByTitle(Procedure $procedure, string $tagTopicTitle): array
+    public function getTagTopicsByTitle(ProcedureInterface $procedure, string $tagTopicTitle): array
     {
         return $this->tagTopicRepository->findBy([
             'procedure' => $procedure->getId(),
