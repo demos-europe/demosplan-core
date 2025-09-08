@@ -42,7 +42,7 @@
           name="r_email"
           required
           type="email"
-          :value="statement.r_email"
+          :model-value="statement.r_email"
           @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})" /><!--
 
         if repeating of email input is enforced, display second email field
@@ -61,7 +61,7 @@
         name="r_email2"
         required
         type="email"
-        :value="statement.r_email2"
+        :model-value="statement.r_email2"
         @input="val => setStatementData({r_email2: val})" />
       </div>
     </div>

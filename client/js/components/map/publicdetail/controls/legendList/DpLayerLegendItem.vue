@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import { prefixClass } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
+import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpLayerLegendItem',

@@ -23,7 +23,7 @@
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
         @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
       <dp-map-modal
         ref="mapModal"
         :procedure-id="procedureId" />
@@ -84,7 +84,7 @@
 </template>
 
 <script>
-import { DpInlineNotification, DpTab, DpTabs, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, DpTab, DpTabs, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -252,11 +252,11 @@ export default {
     },
 
     hasNoPublicStatements () {
-      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
+      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0
     },
 
     hasPublicStatements () {
-      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0
     },
 
     menuItemCallback () {
@@ -272,11 +272,11 @@ export default {
     },
 
     publicStatements () {
-      return this.transformedStatements.filter(statement => !statement.authorOnly);
+      return this.transformedStatements.filter(statement => !statement.authorOnly)
     },
 
     privateStatements () {
-      return this.transformedStatements.filter(statement => statement.authorOnly);
+      return this.transformedStatements.filter(statement => statement.authorOnly)
     }
   },
 

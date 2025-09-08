@@ -63,7 +63,7 @@
       v-if="errors.length > 1"
       :label="Translator.trans('done.capital') + ':'"
       :percentage="completedPercent"
-      showPercentage
+      show-percentage
     />
 
     <a

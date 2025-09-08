@@ -49,8 +49,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import { mapActions, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpCreateItem',
@@ -145,11 +145,11 @@ export default {
   },
 
   emits: [
-    'get-items',
-    'organisation-reset',
-    'organisation-update',
-    'user-reset',
-    'user-update'
+    'items:get',
+    'organisation:reset',
+    'organisation:update',
+    'user:reset',
+    'user:update'
   ],
 
   data () {
@@ -169,15 +169,15 @@ export default {
             availableOrgaTypes: this.availableOrgaTypes
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation-reset',
-          updateEvent: 'organisation-update'
+          resetEvent: 'organisation:reset',
+          updateEvent: 'organisation:update'
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user-reset',
-          updateEvent: 'user-update'
+          resetEvent: 'user:reset',
+          updateEvent: 'user:update'
         }
       },
       isOpen: false,
@@ -268,41 +268,54 @@ export default {
 
     save () {
       if (this.entity === 'user') {
-        if (this.dpValidate.newUserForm) {
-          this.createUser(this.itemResource)
-            .then(response => {
-              const { type: userType, relationships = {} } = this.itemResource
-              const newUser = Object.values(response.data[userType])[0]
-              const payload = { ...newUser, relationships }
-              this.updateAdministratableUser({ ...payload, id: newUser.id })
-              this.reset()
-              dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
-            })
-            .catch(() => {
-              // Fail silently
-            })
-        }
-      } else if (this.entity === 'organisation') {
-        if (this.dpValidate.newOrganisationForm) {
-          // Add mandantory status<->type relation if the user didn't click the add-button
-          if (this.item.attributes.registrationStatuses.length === 0) {
-            this.$refs.formFields.saveNewRegistrationStatus()
-          }
-          // The Types for relationships should be sent as PascalCase
-          const payload = this.changeTypeToPascalCase(this.itemResource)
-          this.createOrganisation(payload)
-            .then(() => {
-              if (this.itemResource.attributes.registrationStatuses.find(el => el.status === 'pending')) {
-                this.$root.$emit('get-items')
-              }
-              this.reset()
-              // Confirm notification is done in BE
-            })
-            .catch(err => { console.error(err) })
-        } else {
-          dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
-        }
+        return this.saveUserForm()
       }
+      if (this.entity === 'organisation') {
+        return this.saveOrganisationForm()
+      }
+    },
+
+    saveOrganisationForm () {
+      if (!this.dpValidate.newOrganisationForm) {
+        return dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
+      }
+
+      // Add mandantory status<->type relation if the user didn't click the add-button
+      if (this.item.attributes.registrationStatuses.length === 0) {
+        this.$refs.formFields.saveNewRegistrationStatus()
+      }
+
+      // The Types for relationships should be sent as PascalCase
+      const payload = this.changeTypeToPascalCase(this.itemResource)
+      this.createOrganisation(payload)
+        .then(() => {
+          this.$root.$emit('items:get')
+        })
+        .catch(err => { console.error(err) })
+        .finally(() => {
+          // Confirm notification is done in BE
+          this.reset()
+        })
+    },
+
+    saveUserForm () {
+      if (!this.dpValidate.newUserForm) {
+        return
+      }
+
+      this.createUser(this.itemResource)
+        .then(response => {
+          const { type: userType, relationships = {} } = this.itemResource
+          const newUser = Object.values(response.data[userType])[0]
+          const payload = { ...newUser, relationships }
+
+          this.updateAdministratableUser({ ...payload, id: newUser.id })
+          dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
+        })
+        .catch(() => {
+          // Fail silently
+        })
+        .finally(() => this.reset())
     },
 
     toggleItem (open) {

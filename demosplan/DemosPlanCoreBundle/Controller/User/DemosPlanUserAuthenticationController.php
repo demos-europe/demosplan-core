@@ -358,11 +358,14 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $useIdp = true;
         }
 
+        $useAzureSso = $parameterBag->get('azure_sso_enabled');
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
                 'useIdp'          => $useIdp,
+                'useAzureSso'     => $useAzureSso,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
@@ -378,7 +381,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Logout via security system.
      */
-    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
+    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout', options: ['expose' => true])]
     public function logoutAction(): void
     {
         // special cases are handled by the LogoutSubscriber

@@ -581,7 +581,7 @@
                             <statement-voter
                                 id="dp-new-statement-voter"
                                 data-cy="newStatementVoter"
-                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
+                                class="o-box--dark u-ph u-pt-0_5 flow-root"
                                 readonly="{{ readonly|default('') }}"
                                 is-manual="true"
                             ></statement-voter>
@@ -609,7 +609,7 @@
             {% endif %}
 
 
-            <div class="text-right u-mv-0_5 space-inline-s">
+            <div class="text-right mt-3 mb-2 space-x-2">
                 <button
                     class="btn btn--primary"
                     @click.prevent="dpValidateAction('newStatementForm', submit)"

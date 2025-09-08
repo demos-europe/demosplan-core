@@ -12,9 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use Elastica\Aggregation\Missing;
@@ -29,7 +29,7 @@ use Exception;
 
 use function array_key_exists;
 
-class ElasticSearchService extends CoreService
+class ElasticSearchService
 {
     final public const EXISTING_FIELD_FILTER = '*';
     final public const KEINE_ZUORDNUNG = 'keinezuordnung';
@@ -40,8 +40,13 @@ class ElasticSearchService extends CoreService
      */
     protected int $aggregationsMinDocumentCount = 1;
 
-    public function __construct(private readonly EditorService $editorService, private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer, private readonly PermissionsInterface $permissions, private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly EditorService $editorService,
+        private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
+        private readonly PermissionsInterface $permissions,
+        private readonly UserService $userService,
+        private readonly ProfilerService $profilerService,
+    ) {
     }
 
     /**
@@ -431,9 +436,8 @@ class ElasticSearchService extends CoreService
         return [$boolMustFilter, $boolMustNotFilter];
     }
 
-    /**
-     * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
-     */
+    // Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
+
     private function hasFilterValue(array|string $filter): bool
     {
         if (is_array($filter)) {
@@ -492,11 +496,11 @@ class ElasticSearchService extends CoreService
             ];
         }
         $list = [];
-        $this->profilerStart('ConvertESHits');
+        $this->profilerService->profilerStart(ProfilerService::CONVERTESHITS_PROFILER);
         foreach ($elasticsearchResult->getHits()['hits'] as $hit) {
             $list[] = $this->convertElasticsearchHitToLegacy($hit);
         }
-        $this->profilerStop('ConvertESHits');
+        $this->profilerService->profilerStop(ProfilerService::CONVERTESHITS_PROFILER);
 
         $resultSet = new ElasticsearchResultSet();
         $resultSet->setResult($list);

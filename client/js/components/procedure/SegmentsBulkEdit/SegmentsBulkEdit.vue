@@ -152,10 +152,11 @@
           :label="customField.label">
           <dp-multiselect
             class="w-12"
-            :id="`customFieldSelect:${customField.id}`"
+            v-model="customField.selected"
             :disabled="!hasSegments"
-            :options="customField.options"
-            v-model="customField.selected" />
+            :id="`customFieldSelect:${customField.id}`"
+            :options="customField.optionLabels"
+          />
         </action-stepper-action>
       </div>
     </template>
@@ -514,12 +515,13 @@ export default {
     addCustomFieldsToActions () {
       Object.values(this.customFieldItems).forEach(customField => {
         this.actions.customFields.push({
-          selected: null,
           checked: false,
-          success: false,
-          options: customField.attributes.options,
+          id: customField.id,
           label: customField.attributes.name,
-          id: customField.id
+          optionLabels: customField.attributes.options.map((option) => option.label),
+          options: customField.attributes.options,
+          selected: null,
+          success: false
         })
       })
     },
@@ -542,10 +544,12 @@ export default {
       }
 
       if (this.customFieldsCheckedAndSelected.length > 0) {
-        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected }) => {
+        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected, options }) => {
+          const selectedOption = options.find(option => option.label === selected)
+
           return {
             id,
-            value: selected
+            value: selectedOption?.id
           }
         })
       }

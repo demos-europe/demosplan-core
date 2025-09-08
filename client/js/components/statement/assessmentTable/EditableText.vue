@@ -381,7 +381,7 @@ export default {
         }
       })
         .then(() => {
-          return callback
+          return callback()
         })
         .finally(() => {
           this.loading = false

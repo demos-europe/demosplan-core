@@ -75,28 +75,31 @@
 
       <dp-input
         v-else
+        id="r_name"
+        v-model="procedureName"
+        :label="{ text: Translator.trans('name') }"
+        :required="requireField"
         class="mb-4"
         data-cy="newProcedureTitle"
-        id="r_name"
-        :label="{ text: Translator.trans('name') }"
         maxlength="200"
         name="r_name"
-        :required="requireField"
-        type="text" />
+        type="text"
+      />
 
       <dp-select
         v-if="hasPermission('feature_procedure_templates')"
         id="blueprint"
-        class="mb-4"
         :label="{
           hint: procedureTemplateHint,
           text: Translator.trans('master')
         }"
-        name="r_copymaster"
-        data-cy="newProcedureForm:blueprintOptions"
         :options="blueprintOptions"
         :selected="masterBlueprintId"
-        @select="setBlueprintData" />
+        class="mb-4"
+        data-cy="newProcedureForm:blueprintOptions"
+        name="r_copymaster"
+        @select="setBlueprintData"
+      />
 
       <!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
       <template v-if="procedureTypes.length > 1">
@@ -305,7 +308,8 @@ export default {
         description: '',
         agencyMainEmailAddress: ''
       },
-      mainEmail: ''
+      mainEmail: '',
+      procedureName: ''
     }
   },
 

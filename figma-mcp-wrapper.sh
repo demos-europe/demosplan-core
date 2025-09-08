@@ -1,0 +1,1 @@
+/home/caro/Development/demos-mcp/figma-mcp-wrapper.sh

@@ -20,21 +20,22 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Pagination\PagePagination;
 use Exception;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ReportService extends CoreService
+class ReportService
 {
     /**
      * @var CurrentUserInterface
@@ -50,6 +51,8 @@ class ReportService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly ValidatorInterface $validator,
         private readonly EntityManagerInterface $entityManager,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
     }
 
@@ -102,7 +105,7 @@ class ReportService extends CoreService
      */
     public function statementViewLogged($procedureId, User $user, $statementId)
     {
-        $report = $this->getDoctrine()
+        $report = $this->doctrine
             ->getRepository(ReportEntry::class)
             ->findBy([
                 'category'       => 'view',
@@ -181,7 +184,7 @@ class ReportService extends CoreService
                     $isManualStatement
                 );
             } catch (Exception $e) {
-                $this->getLogger()->error('Error on anonymize user data of EeportEntry:'.$e);
+                $this->logger->error('Error on anonymize user data of EeportEntry:'.$e);
             }
         }
 
@@ -298,7 +301,7 @@ class ReportService extends CoreService
      */
     public function addReportsOnStatementAnonymization($event): StatementAnonymizeRpcEvent
     {
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $doctrineConnection = $this->doctrine->getConnection();
         $doctrineConnection->beginTransaction();
         try {
             if ($event->isAnonymizeStatementMeta()) {
