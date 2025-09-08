@@ -6,6 +6,49 @@
 
     {% set proceduresettings = templateVars.proceduresettings %}
 
+    {% set proceduresettingstest = {
+        ident: proceduresettings.ident,
+        publicParticipationPhase: proceduresettings.publicParticipationPhase,
+        desc: proceduresettings.desc,
+        procedureType: proceduresettings.procedureType ? {
+            name: proceduresettings.procedureType.name,
+            description: proceduresettings.procedureType.description,
+        } : null,
+        externalDesc: proceduresettings.externalDesc,
+        publicParticipationContact: proceduresettings.publicParticipationContact,
+        links: procedureSettings.settings.links|default,
+        locationPostCode: proceduresettings.locationPostCode,
+        locationName: proceduresettings.locationName,
+        phase: proceduresettings.phase,
+        phaseObject: proceduresettings.phaseObject,
+        startDate: proceduresettings.startDate,
+        endDate: proceduresettings.endDate,
+        pictogram: proceduresettings.settings.pictogram ? {
+            altText: proceduresettings.settings.pictogramAltText,
+            hash: proceduresettings.settings.pictogram|getFile('hash'),
+            name: proceduresettings.pictogram|getFile('name'),
+        } : null,
+        publicParticipationPhaseObject: proceduresettings.publicParticipationPhaseObject,
+        publicParticipationStartDate: proceduresettings.publicParticipationStartDate,
+        publicParticipationEndDate: proceduresettings.publicParticipationEndDate,
+        publicParticipationPublicationEnabled: proceduresettings.publicParticipationPublicationEnabled,
+        allowAnonymousStatements: proceduresettings.allowAnonymousStatements,
+        name: proceduresettings.name,
+        externalName: proceduresettings.externalName,
+        exportSettings: proceduresettings.exportSettings,
+        internalComplete: proceduresettings.internalComplete|default,
+        infoComplete: proceduresettings.infoComplete|default,
+        locationComplete: proceduresettings.locationComplete|default,
+        phaseInternalComplete: proceduresettings.phaseInternalComplete|default,
+        phaseExternalComplete: proceduresettings.phaseExternalComplete|default,
+        nameUrlComplete: proceduresettings.nameUrlComplete|default,
+        exportSettingsComplete: proceduresettings.exportSettingsComplete|default,
+        additionalComplete: proceduresettings.additionalComplete|default,
+        statementFieldDefinitions: proceduresettings.statementFieldDefinitions|default
+    } %}
+
+
+
     {% set fieldDefinitions = [] %}
     {% for definition in proceduresettings.statementFieldDefinitions %}
         {% set fieldDefinitions = fieldDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required: definition.required } }) %}
@@ -96,6 +139,22 @@
         {% endif %}
     {% endfor %}
 
+    {% set formData = {
+        agencyMainEmailAddress: {
+            id: form.agencyMainEmailAddress.vars.id,
+            fullAddress: form.agencyMainEmailAddress.vars.value.fullAddress|default(''),
+            errors: form.agencyMainEmailAddress.vars.errors|map(error => error.message)
+        },
+        agencyExtraEmailAddresses: form.agencyExtraEmailAddresses.children|map(child => {
+            mail: child.vars.value.fullAddress|default('')
+        }),
+        allowedSegmentAccessProcedureIds: {
+            value: form.allowedSegmentAccessProcedureIds.vars.value|default([]),
+            choices: form.allowedSegmentAccessProcedureIds.vars.choices|default([])
+        },
+        token: form._token.vars.value
+    } %}
+
     <dp-basic-settings
         inline-template
         plis-id="{{ proceduresettings.plisId|default }}"
@@ -111,7 +170,14 @@
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
         init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
         init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
-        procedure-id="{{ proceduresettings.id|default }}">
+        procedure-id="{{ proceduresettings.id|default }}"
+        procedure-ident="{{ proceduresettings.ident|default }}"
+        :procedure-settings="JSON.parse('{{ proceduresettingstest|json_encode|e('js', 'utf-8') }}')"
+        :agencies="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
+        :form-data="JSON.parse('{{ formData|json_encode|e('js', 'utf-8') }}')"
+        :data-input-orgas="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
+        :available-procedure-categories="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
+        :has-procedure-user-restricted-access="Boolean({{ hasProcedureUserRestrictedAccess }})"> <!--csrf_token('csrf')-->
         <form
             ref="configForm"
             name="configForm"
