@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+- Allow project specific CSS
 - allow sessions to be stored in redis
 
 -  Add checkbox in procedure settings to expand procedure description in public view on page load
