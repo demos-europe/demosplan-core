@@ -2386,6 +2386,12 @@ class DemosPlanProcedureController extends BaseController
             ) {
                 $this->getMessageBag()->add('warning', 'warning.select.entries');
             }
+
+            if (false === $requestPost->has('boilerplate_delete')
+                || false === $requestPost->has('boilerplateGroupIdsTo_delete')
+            ) {
+                $this->getMessageBag()->add('warning', 'warning.select.entries');
+            }
         }
 
         // delete single boilerplate
