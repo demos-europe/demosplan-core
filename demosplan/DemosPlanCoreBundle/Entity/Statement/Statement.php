@@ -4181,4 +4181,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
         return $this;
     }
+
+    public function getStatementsCreatedFromOriginal(): ArrayCollection|Collection
+    {
+        return $this->statementsCreatedFromOriginal;
+    }
 }

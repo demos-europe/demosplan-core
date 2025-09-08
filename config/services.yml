@@ -24,6 +24,8 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
