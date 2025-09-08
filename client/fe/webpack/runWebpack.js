@@ -202,7 +202,7 @@ function showErrorMessage (err, stats) {
  * Prints a list of log messages using the given color function
  *
  * @param {Array} messageList Array of webpack stats messages to print
- * @param {Function} colorFunction Chalk color function
+ * @param {chalk.Chalk} colorFunction Chalk color function
  */
 function printStatsMessageList(messageList, colorFunction) {
   messageList.forEach(message => {
