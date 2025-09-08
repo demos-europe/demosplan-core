@@ -497,10 +497,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
 
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
-
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
