@@ -40,6 +40,7 @@
       :procedure-settings="procedureSettings"
     />
 
+    <!-- wizard item: Informationen zum Verfahren -->
     <procedure-info-settings
       :available-procedure-categories="availableProcedureCategories"
       :init-pictogram-copyright="initPictogramCopyright"

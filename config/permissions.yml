@@ -1838,7 +1838,7 @@ feature_require_locality_confirmation:
     loginRequired: true
 feature_require_procedure_contact_person:
     description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
-    expose: false
+    expose: true
     lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
