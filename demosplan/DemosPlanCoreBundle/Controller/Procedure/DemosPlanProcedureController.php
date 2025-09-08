@@ -2452,7 +2452,7 @@ class DemosPlanProcedureController extends BaseController
     private function prepareBoilerplateTemplateVars(string $procedure, string $procedureId): array
     {
         return [
-            'list' => $this->procedureService->getBoilerplateList($procedure),
+            'list'              => $this->procedureService->getBoilerplateList($procedure),
             'boilerplateGroups' => $this->procedureService->getBoilerplateGroups($procedureId),
         ];
     }
