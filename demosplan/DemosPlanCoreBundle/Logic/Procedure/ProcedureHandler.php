@@ -870,7 +870,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
         /** @var Procedure $endedInternalProcedure */
@@ -896,7 +895,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
         /** @var Procedure $endedExternalProcedure */
@@ -905,7 +903,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
                 $data = [
                     'id'                       => $endedExternalProcedure->getId(),
-                    'publicParticipationPhase' => $internalPhaseKey,
+                    'publicParticipationPhase' => $externalPhaseKey,
                     'customer'                 => $endedExternalProcedure->getCustomer(),
                 ];
                 $updatedProcedure = $this->procedureService->updateProcedure($data);
