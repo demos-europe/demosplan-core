@@ -17,13 +17,11 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
     public function __construct(
-        private readonly SegmentRepository $segmentRepository
+        private readonly SegmentRepository $segmentRepository,
     ) {
     }
 

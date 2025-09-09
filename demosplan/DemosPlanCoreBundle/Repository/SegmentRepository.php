@@ -109,8 +109,7 @@ class SegmentRepository extends CoreRepository
 
         // Escape JSON-breaking characters to prevent injection
         $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
-        $searchPattern = '%"id":"' . $escapedCustomFieldId . '"%';
-
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
 
         return $qb
             ->select('segment')

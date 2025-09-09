@@ -140,6 +140,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
     {
         try {
             $this->getEntityManager()->remove($customFieldConfiguration);
+
             return true;
         } catch (Exception $e) {
             $this->logger->error('Delete CustomFieldConfiguration failed: ', [$e]);

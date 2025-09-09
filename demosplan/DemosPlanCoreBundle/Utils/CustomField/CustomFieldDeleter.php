@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 class CustomFieldDeleter
 {
@@ -55,6 +55,5 @@ class CustomFieldDeleter
                 $this->customFieldConfigurationRepository->deleteObject($customFieldConfiguration);
             }
         );
-
     }
 }
