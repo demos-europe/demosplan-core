@@ -19,7 +19,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
-
  * Stores Keycloak tokens in session and builds logout URLs with customer subdomains.
  */
 class OzgKeycloakLogoutManager
