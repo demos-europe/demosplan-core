@@ -1747,6 +1747,8 @@ filter.procedures.map.noResults: "Es befinden sich keine Verfahren im aktuell ge
 filter.phase.anotherparticipation: "Erneute Beteiligung"
 filter.phase.earlyparticipation: "Frühzeitige Beteiligung"
 filter.phase.participation: "Beteiligung"
+filter.phase.potentialanalysis: "Bestands- und Potentialanalyse"
+filter.phase.heatplanningdraft: "Entwurf Wärmeplan"
 filter.reset: "Filterauswahl zurücksetzen"
 filter.publicCheck.no: "Nicht gewünscht"
 filter.savedFilterSet.delete.confirm: "Möchten Sie diese Filterkombination wirklich löschen?"
