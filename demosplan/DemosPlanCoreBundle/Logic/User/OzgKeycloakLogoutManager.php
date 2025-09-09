@@ -114,9 +114,8 @@ class OzgKeycloakLogoutManager
         return $isValid;
     }
 
-    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, array $tokenValues): void
+    public function storeTokenAndExpirationInSession(SessionInterface $session, array $tokenValues): void
     {
-        // $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
         if (isset($tokenValues['id_token'])) {
             $session->set(self::KEYCLOAK_TOKEN, $tokenValues['id_token']);
             $this->logger->info('Adding keycloak id_token to session');
