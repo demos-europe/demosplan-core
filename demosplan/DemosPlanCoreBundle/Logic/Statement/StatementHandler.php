@@ -3095,6 +3095,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     ManualStatementCreatedEventInterface::class
                 );
                 $assessableStatement = $assessableStatementEvent->getStatement();
+                $newOriginalStatement->setStatementsCreatedFromOriginal(new ArrayCollection([$assessableStatement]));
 
                 $routeName = 'dm_plan_assessment_single_view';
                 $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statement' => $assessableStatement->getId()];
