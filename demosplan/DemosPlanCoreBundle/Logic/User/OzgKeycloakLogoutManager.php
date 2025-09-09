@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Store test tokens (in user session) only in dev/test environments when Keycloak is not configured.
+
  * Stores Keycloak tokens in session and builds logout URLs with customer subdomains.
  */
 class OzgKeycloakLogoutManager
@@ -56,23 +56,13 @@ class OzgKeycloakLogoutManager
             && !$this->isKeycloakConfigured();
     }
 
-    /**
-     * Determines if test token expiration should be injected in dev/test environments.
-     *
-     * @return bool True if injection should occur, false otherwise
-     */
-    public function shouldInjectTestExpiration(): bool
-    {
-        return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
-    }
-
     public function hasLogoutWarningPermission(): bool
     {
         return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**
-     * Stores test expiration timestamp into the user session.
+     * Stores expiration timestamp into the user session.
      */
     public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
     {
@@ -90,12 +80,12 @@ class OzgKeycloakLogoutManager
             // Set the custom expiration directly in session
             $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
 
-            $this->logger->debug('Expiration timestamp injected into session for testing', [
+            $this->logger->debug('Expiration timestamp injected into session', [
                 'user'       => $user->getUserIdentifier(),
                 'expiration' => $expirationTimestamp,
             ]);
         } catch (Exception $e) {
-            $this->logger->warning('Failed to inject expiration timestamp into session for testing', [
+            $this->logger->warning('Failed to inject expiration timestamp into session', [
                 'user'  => $user->getUserIdentifier(),
                 'error' => $e->getMessage(),
             ]);
