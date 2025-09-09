@@ -84,7 +84,7 @@ class OzgKeycloakLogoutManager
         try {
             $metadataBag = $session->getMetadataBag();
             $sessionCreated = $metadataBag->getCreated();
-            $sessionLifetime = $this->parameterBag->get('session_lifetime_seconds')?: self::DEFAULT_SESSION_LIFETIME_SECONDS;
+            $sessionLifetime = $this->parameterBag->get('session_lifetime_seconds') ?: self::DEFAULT_SESSION_LIFETIME_SECONDS;
             $expirationTimestamp = $sessionCreated + $sessionLifetime;
 
             // Set the custom expiration directly in session
@@ -127,7 +127,7 @@ class OzgKeycloakLogoutManager
 
     public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, array $tokenValues): void
     {
-        //$session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
+        // $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
         if (isset($tokenValues['id_token'])) {
             $session->set(self::KEYCLOAK_TOKEN, $tokenValues['id_token']);
             $this->logger->info('Adding keycloak id_token to session');
