@@ -28,7 +28,7 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
 {
     private ?User $testUser;
     private ?Session $session;
-    protected  $sut;
+    protected $sut;
 
     protected function setUp(): void
     {
@@ -36,8 +36,8 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
 
         // Create a parameter bag with the session_lifetime_seconds parameter
         $parameterBag = new ParameterBag([
-            'session_lifetime_seconds' => 7200,
-            'oauth_keycloak_logout_route' => ''
+            'session_lifetime_seconds'    => 7200,
+            'oauth_keycloak_logout_route' => '',
         ]);
 
         // Create the service manually with our parameter bag
@@ -109,8 +109,8 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
     public function testStoreTokenAndExpirationInSession(): void
     {
         $tokenValues = [
-            'id_token' => 'test_token_value',
-            'access_token' => 'access_token_value'
+            'id_token'     => 'test_token_value',
+            'access_token' => 'access_token_value',
         ];
 
         $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
@@ -122,7 +122,7 @@ class ExpirationTimestampInjectionTest extends FunctionalTestCase
     public function testStoreTokenAndExpirationInSessionWithoutIdToken(): void
     {
         $tokenValues = [
-            'access_token' => 'access_token_value'
+            'access_token' => 'access_token_value',
         ];
 
         $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
