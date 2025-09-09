@@ -277,11 +277,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
     }
 
-    public function deleteEntity(string $entityId): void
+    public function deleteEntity(string $entityIdentifier): void
     {
         $this->getTransactionService()->executeAndFlushInTransaction(
-            function () use ($entityId): void {
-                $this->customFieldDeleter->deleteCustomField($entityId);
+            function () use ($entityIdentifier): void {
+                $this->customFieldDeleter->deleteCustomField($entityIdentifier);
             }
         );
     }
