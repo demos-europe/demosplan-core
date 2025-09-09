@@ -206,7 +206,7 @@ function showErrorMessage (err, stats) {
  */
 function printStatsMessageList(messageList, colorFunction) {
   messageList.forEach(message => {
-    log(colorFunction(message))
+    log(colorFunction(message.message))
   })
 }
 
