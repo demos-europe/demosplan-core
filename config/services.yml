@@ -29,9 +29,6 @@ services:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\SegmentCustomFieldUsageRemovalStrategy:
-        tags:
-            - name: entity_custom_field_usage_removal_strategy
 
     DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
 
