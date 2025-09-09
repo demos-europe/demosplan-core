@@ -4,7 +4,8 @@
 
     <tags-create-form
       :is-master-procedure="isMasterProcedure"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -22,7 +23,8 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic">
+      @draggable:change="changeTopic"
+    >
       <template v-slot:header>
         <div class="flex">
           <div class="ml-4 flex-1">
@@ -49,7 +51,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
       <template v-slot:leaf="{ nodeElement }">
         <tag-list-edit-form
@@ -60,7 +63,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
     </dp-tree-list>
 
@@ -68,7 +72,8 @@
 
     <tags-import-form
       class="mb-1"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
   </div>
 </template>
 

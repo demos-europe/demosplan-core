@@ -11,7 +11,8 @@
   <dp-modal
     ref="mapModal"
     content-classes="u-1-of-2 u-pb"
-    @modal:toggled="(open) => {isModalOpen = open}">
+    @modal:toggled="(open) => {isModalOpen = open}"
+  >
     <dp-ol-map
       v-if="isModalOpen"
       ref="map"
@@ -23,10 +24,12 @@
         scaleSelect: false,
         procedureExtent: true
       }"
-      :procedure-id="procedureId">
+      :procedure-id="procedureId"
+    >
       <dp-ol-map-layer-vector
         zoom-to-drawing
-        :features="drawing" />
+        :features="drawing"
+      />
     </dp-ol-map>
   </dp-modal>
 </template>

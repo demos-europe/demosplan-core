@@ -21,7 +21,8 @@
   <button
     type="button"
     class="btn--blank u-ml-0_5 o-link--default weight--bold"
-    @click="setExtent">
+    @click="setExtent"
+  >
     {{ Translator.trans(translationKey) }}
   </button>
 </template>

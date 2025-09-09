@@ -12,11 +12,13 @@
     v-if="!isBroken"
     v-show="isVisible"
     class="h-auto"
-    :class="prefixClass('c-map__group-item c-map__layer')">
+    :class="prefixClass('c-map__group-item c-map__layer')"
+  >
     <img
       :src="legend.url"
       alt=""
-      @error="deleteImage">
+      @error="deleteImage"
+    >
   </li>
 </template>
 

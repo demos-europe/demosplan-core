@@ -14,7 +14,8 @@
     :id="fragment.id || 0"
     class="c-at-item o-animate--bg-color u-mb-0_5"
     :data-fragment-id="fragment.id || 0"
-    :data-fragment-vote-advice="fragment.voteAdvice === null ? '' : fragment.voteAdvice">
+    :data-fragment-vote-advice="fragment.voteAdvice === null ? '' : fragment.voteAdvice"
+  >
     <!-- header -->
     <div class="c-at-item__header can-animate flow-root">
       <!-- claim, id, date created -->
@@ -31,23 +32,27 @@
           :current-user-name="currentUserName"
           :is-loading="updatingClaimState"
           :last-claimed-user-id="fragment.lastClaimedUserId"
-          @click="updateClaim" />
+          @click="updateClaim"
+        />
 
         <v-popover
           class="inline-block u-mr"
           placement="top"
-          trigger="hover focus">
+          trigger="hover focus"
+        >
           <div>
             <span
               v-if="isArchive"
-              class="c-at-item__row-icon inline-block">
+              class="c-at-item__row-icon inline-block"
+            >
               <input
                 :id="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
                 type="checkbox"
                 name="item_check[]"
                 :value="fragment.id || 0"
                 data-selection-checkbox
-                aria-describedby="exportCheckboxDescription">
+                aria-describedby="exportCheckboxDescription"
+              >
             </span>
 
             <input
@@ -57,11 +62,13 @@
               name="item_check[]"
               :value="fragment.id || 0"
               data-selection-checkbox
-              aria-describedby="exportCheckboxDescription">
+              aria-describedby="exportCheckboxDescription"
+            >
 
             <label
               class="u-m-0 inline-block"
-              :for="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'">
+              :for="fragment.id ? fragment.id + ':item_check[]' : '0:item_check[]'"
+            >
               ID {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }} ({{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }})
             </label>
           </div>
@@ -85,7 +92,8 @@
         :fragment-id="fragment.id || 0"
         :badge="true"
         :tooltip="true"
-        class="inline-block u-mv-0_25 u-mh-0_5">
+        class="inline-block u-mv-0_25 u-mh-0_5"
+      >
         <template v-slot:title>
           {{ Translator.trans('fragment.voteAdvice.short') }}
         </template>
@@ -98,10 +106,12 @@
           :class="{'is-active-toggle': tab==='fragment'}"
           :href="`#fragment_${fragment.id || 0}`"
           rel="noopener"
-          @click="setActiveTab('fragment')">
+          @click="setActiveTab('fragment')"
+        >
           <i
             class="fa fa-sitemap"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('fragment') }}
         </a>
 
@@ -110,10 +120,12 @@
           :class="{'is-active-toggle': tab==='statement'}"
           :href="`#statement_${fragment.id || 0}`"
           rel="noopener"
-          @click="setActiveTab('statement')">
+          @click="setActiveTab('statement')"
+        >
           <i
             class="fa fa-file-o"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('statement') }}
         </a>
       </div>
@@ -123,10 +135,12 @@
     <dp-item-row
       icon="fa-folder"
       title="procedure"
-      class="bg-color--grey-light-2">
+      class="bg-color--grey-light-2"
+    >
       <a
         :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: fragment.procedureId })"
-        rel="noopener">
+        rel="noopener"
+      >
         {{ missKeyValue(fragment.procedureName) }}
       </a>
     </dp-item-row>
@@ -135,18 +149,21 @@
     <div
       v-if="tab==='fragment'"
       :id="`#fragment_${fragment.id || 0}`"
-      class="layout--flush bg-color--grey-light-2">
+      class="layout--flush bg-color--grey-light-2"
+    >
       <!-- tags -->
       <dp-item-row
         icon="fa-tag"
-        title="tags.assigned">
+        title="tags.assigned"
+      >
         <template v-if="fragment.tags.length">
           <ul class="o-list o-list--csv">
             <v-popover
               v-for="tag in fragment.tags"
               :key="tag.id"
               placement="top"
-              class="o-list__item">
+              class="o-list__item"
+            >
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
                 <div>
@@ -159,7 +176,8 @@
         </template>
         <p
           v-else
-          class="u-m-0">
+          class="u-m-0"
+        >
           {{ Translator.trans('tags.notassigned') }}
         </p>
       </dp-item-row>
@@ -168,7 +186,8 @@
       <dp-item-row
         v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea"
         icon="fa-map-marker"
-        title="location">
+        title="location"
+      >
         <dl v-if="fragment.counties.length || fragment.priorityAreas.length || fragment.municipalities.length">
           <template v-if="fragment.counties.length">
             <dt class="layout__item u-1-of-6 weight--bold">
@@ -180,7 +199,8 @@
                   v-for="(county, idx) in fragment.counties"
                   :key="idx"
                   class="o-list__item"
-                  v-text="county.name" />
+                  v-text="county.name"
+                />
               </ul>
             </dd>
           </template>
@@ -194,7 +214,8 @@
                   v-for="(priorityArea, idx) in fragment.priorityAreas"
                   :key="idx"
                   class="o-list__item"
-                  v-text="priorityArea.key" />
+                  v-text="priorityArea.key"
+                />
               </ul>
           </dd>
           </template>
@@ -208,14 +229,16 @@
                   v-for="(municipality, idx) in fragment.municipalities"
                   :key="idx"
                   class="o-list__item"
-                  v-text="municipality.name" />
+                  v-text="municipality.name"
+                />
               </ul>
             </dd>
           </template>
         </dl>
         <p
           v-else
-          class="u-m-0">
+          class="u-m-0"
+        >
           {{ Translator.trans('location.notassigned') }}
         </p>
       </dp-item-row>
@@ -223,7 +246,8 @@
       <!-- element -->
       <dp-item-row
         icon="fa-file-text"
-        title="element.assigned">
+        title="element.assigned"
+      >
         <dl v-if="fragment.elementTitle != null">
           <dt class="layout__item u-1-of-6 weight--bold">
             {{ Translator.trans('document') }}:
@@ -233,22 +257,26 @@
               v-if="fragment.elementCategory === 'paragraph'"
               :href="Routing.generate('DemosPlan_public_plandocument_paragraph', { procedure: fragment.procedureId, elementId: fragment.elementId || '' }) || '#'"
               :title="fragment.elementTitle || ''"
-              rel="noopener">
+              rel="noopener"
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </a>
             <p
               v-else-if="fragment.elementCategory === 'file'"
-              :title="fragment.elementTitle || ''">
+              :title="fragment.elementTitle || ''"
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
             <p
               v-else-if="fragment.elementCategory === 'map'"
-              :title="fragment.elementTitle || ''">
+              :title="fragment.elementTitle || ''"
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
             <p
               v-else-if="fragment.elementCategory === 'statement'"
-              :title="fragment.elementTitle || ''">
+              :title="fragment.elementTitle || ''"
+            >
               {{ Translator.trans(missKeyValue(fragment.elementTitle, 'document.notavailable')) }}
             </p>
           </dd>
@@ -272,7 +300,8 @@
 
         <p
           v-else
-          class="u-m-0">
+          class="u-m-0"
+        >
           {{ Translator.trans('element.notassigned') }}
         </p>
       </dp-item-row>
@@ -280,7 +309,8 @@
       <!-- fragment text -->
       <dp-item-row
         icon="fa-comment"
-        title="fragment.text">
+        title="fragment.text"
+      >
         <text-content-renderer :text="fragment.text" />
       </dp-item-row>
 
@@ -288,24 +318,28 @@
       <dp-item-row
         icon="fa-comment-o"
         title="fragment.consideration"
-        :border-bottom="false">
+        :border-bottom="false"
+      >
         <span v-cleanhtml="fragment.considerationAdvice ? fragment.considerationAdvice : `<p>${Translator.trans('notspecified')}</p>`" />
       </dp-item-row>
 
       <!-- fragment versions -->
       <dp-item-row
         class="u-pt-0"
-        :border-bottom="!isArchive">
+        :border-bottom="!isArchive"
+      >
         <dp-fragment-versions
           ref="history"
           :fragment-id="fragment.id"
-          :statement-id="fragment.statement.id" />
+          :statement-id="fragment.statement.id"
+        />
       </dp-item-row>
 
       <!-- edit fragment -->
       <div
         v-if="!isArchive"
-        :title="editable ? '' : Translator.trans('locked.title')">
+        :title="editable ? '' : Translator.trans('locked.title')"
+      >
         <!-- edit fragment: toggle -->
         <div class="layout--flush u-pv-0_25 u-ph-0_5 u-pl-0_25">
           <a
@@ -313,10 +347,12 @@
             :class="{ 'is-active-toggle': editing }"
             rel="noopener"
             :style="editable ? '' : 'opacity: .4 !important; pointer-events: none;'"
-            @click="toggleEditing">
+            @click="toggleEditing"
+          >
             <i
               class="o-toggle__icon o-toggle__icon--caret u-pl-0_25 u-pr-0_25"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('fragment.update') }}
           </a>
         </div>
@@ -325,7 +361,8 @@
         <dp-item-row
           v-if="editable && editing"
           title="fragment.consideration"
-          :border-bottom="false">
+          :border-bottom="false"
+        >
           <dp-fragment-edit
             ref="editor"
             :csrf-token="csrfToken"
@@ -336,7 +373,8 @@
             :advice-values="adviceValues"
             :element-id="fragment.elementId"
             :paragraph-id="fragment.paragraphId"
-            @closeEditMode="closeEditMode" />
+            @close-edit-mode="closeEditMode"
+          />
         </dp-item-row>
       </div>
     </div>
@@ -345,20 +383,24 @@
     <div
       v-if="tab==='statement'"
       :id="`#statement_${fragment.id || 0}`"
-      class="layout--flush bg-color--grey-light-2">
+      class="layout--flush bg-color--grey-light-2"
+    >
       <!-- tags -->
       <dp-item-row
         icon="fa-tag"
-        title="tags.assigned">
+        title="tags.assigned"
+      >
         <template v-if="fragment.statement.tags.length">
           <ul
             class="o-list o-list--csv inline-block u-pb-0_25"
-            style="max-width: 95%">
+            style="max-width: 95%"
+          >
             <v-popover
               v-for="(tag, idx) in fragment.statement.tags"
               :key="idx"
               placement="top"
-              class="o-list__item inline">
+              class="o-list__item inline"
+            >
               <li>{{ tag.title }}</li>
               <template v-slot:popover>
                 <div>
@@ -371,7 +413,8 @@
         </template>
         <p
           v-else
-          class="u-mb-0">
+          class="u-mb-0"
+        >
           {{ Translator.trans('tags.notassigned') }}
         </p>
       </dp-item-row>
@@ -380,7 +423,8 @@
       <dp-item-row
         v-if="hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || dplan.procedureStatementPriorityArea"
         icon="fa-map-marker"
-        title="location">
+        title="location"
+      >
         <dl v-if="fragment.statement.counties.length && fragment.statement.priorityAreas.length && fragment.statement.municipalities.length">
           <template v-if="fragment.statement.counties.length">
             <dt class="layout__item u-1-of-6 weight--bold">
@@ -389,7 +433,8 @@
          --><dd class="layout__item u-5-of-6">
               <span
                 v-for="(county, idx) in fragment.statement.counties"
-                :key="idx">
+                :key="idx"
+              >
                 {{ (idx >= fragment.statement.counties.length - 1) ? county.name : county.name + ',' }}
               </span>
             </dd>
@@ -401,7 +446,8 @@
          --><dd class="layout__item u-5-of-6">
               <span
                 v-for="(priorityArea, idx) in fragment.statement.priorityAreas"
-                :key="idx">
+                :key="idx"
+              >
                   {{ (idx >= fragment.statement.priorityAreas.length - 1) ? priorityArea.key : priorityArea.key + ',' }}
               </span>
             </dd>
@@ -413,7 +459,8 @@
          --><dd class="layout__item u-5-of-6">
               <span
                 v-for="(municipality, idx) in fragment.statement.municipalities"
-                :key="idx">
+                :key="idx"
+              >
                 {{ (idx >= fragment.statement.municipalities.length - 1) ? municipality.name : municipality.name + ',' }}
               </span>
             </dd>
@@ -421,7 +468,8 @@
         </dl>
         <p
           v-else
-          class="u-m-0">
+          class="u-m-0"
+        >
           {{ Translator.trans('location.notassigned') }}
         </p>
       </dp-item-row>
@@ -429,7 +477,8 @@
       <!-- element -->
       <dp-item-row
         icon="fa-file-text"
-        title="element.assigned">
+        title="element.assigned"
+      >
         <dl v-if="fragment.statement.elementTitle != null">
           <dt class="layout__item u-1-of-6 weight--bold">
             {{ Translator.trans('document') }}:
@@ -439,12 +488,14 @@
               v-if="fragment.statement.elementCategory === 'paragraph'"
               :href="Routing.generate('DemosPlan_public_plandocument_paragraph', { procedure: fragment.procedureId, elementId: fragment.statement.elementId }) || '#'"
               rel="noopener"
-              :title="fragment.statement.elementTitle || ''">
+              :title="fragment.statement.elementTitle || ''"
+            >
               {{ Translator.trans(missKeyValue(fragment.statement.elementTitle, 'document.notavailable')) }}
             </a>
             <p
               v-else-if="fragment.statement.elementCategory === 'file'"
-              :title="fragment.statement.elementTitle || ''">
+              :title="fragment.statement.elementTitle || ''"
+            >
               {{ Translator.trans(missKeyValue(fragment.statement.elementTitle, 'document.notavailable')) }}
             </p>
           </dd>
@@ -460,7 +511,8 @@
         </dl>
         <p
           v-else
-          class="u-m-0">
+          class="u-m-0"
+        >
           {{ Translator.trans('element.notassigned') }}
         </p>
       </dp-item-row>
@@ -469,14 +521,16 @@
       <dp-item-row
         v-if="fragment.statement && fragment.statement.files && fragment.statement.files.length"
         icon="fa-paperclip"
-        title="fragment.statement.files.uploaded">
+        title="fragment.statement.files.uploaded"
+      >
         <a
           v-for="file in statementFiles"
           :key="file.hash"
           class="o-hellip u-pr-0_5"
           :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: fragment.procedureId })"
           rel="noopener"
-          target="_blank">
+          target="_blank"
+        >
           {{ file.name }}
         </a>
       </dp-item-row>
@@ -485,14 +539,16 @@
       <dp-item-row
         icon="fa-comment"
         title="statement.text"
-        :border-bottom="false">
+        :border-bottom="false"
+      >
         <height-limit
           :short-text="fragment.statement.textShort"
           :full-text="fragment.statement.text"
           element="statement"
           class="u-mr"
           :is-shortened="fragment.statement.textShort.length < fragment.statement.text.length"
-          no-event />
+          no-event
+        />
       </dp-item-row>
     </div>
   </article>

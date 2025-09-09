@@ -55,13 +55,15 @@
     :class="{'color-highlight': currentlyActive}"
     type="button"
     :title="title"
-    @click="toggle">
+    @click="toggle"
+  >
     {{ label }}
     <i
       v-if="icon"
       class="fa"
       :class="iconClass"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
   </button>
 </template>
 

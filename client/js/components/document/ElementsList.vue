@@ -19,18 +19,21 @@
     <form
       v-else
       :action="formAction"
-      method="POST">
+      method="POST"
+    >
       <input
         name="_token"
         type="hidden"
-        :value="csrfToken">
+        :value="csrfToken"
+      >
 
       <dp-tree-list
         :branch-identifier="isBranch()"
         :draggable="false"
         :options="treeListOptions"
         :tree-data="recursiveElements"
-        @node-selection-change="nodeSelectionChange">
+        @node-selection-change="nodeSelectionChange"
+      >
         <template v-slot:header="">
           <span class="color--grey">Dokumente des Verfahrens</span>
         </template>
@@ -41,21 +44,25 @@
           <div
             v-if="nodeElement.attributes.text"
             v-cleanhtml="nodeElement.attributes.text"
-            class="whitespace-pre-line" />
+            class="whitespace-pre-line"
+          />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <file-info
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
         </template>
         <template v-slot:footer="">
           <button
             type="submit"
-            class="btn btn--primary">
+            class="btn btn--primary"
+          >
             <i
               class="fa fa-download u-mr-0_25"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ buttonLabel }}
           </button>
           <p class="lbl__hint u-mt-0_125">

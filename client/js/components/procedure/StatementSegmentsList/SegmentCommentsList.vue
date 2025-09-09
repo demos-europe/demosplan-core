@@ -10,13 +10,15 @@
 <template>
   <div
     style="height: calc(100vh - 68px) /* The 68px is the height for the x-close spacing */"
-    class="overflow-y-auto">
+    class="overflow-y-auto"
+  >
     <h2 class="u-mb-1_5">
       {{ heading }}
     </h2>
     <div
       v-if="hasPermission('feature_segment_comment_create')"
-      class="space-stack-s">
+      class="space-stack-s"
+    >
       <div>
         <dp-button
           v-if="segment"
@@ -24,17 +26,20 @@
           data-cy="addCommentToSegment"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"
           variant="outline"
-          @click="toggleForm" />
+          @click="toggleForm"
+        />
       </div>
       <create-comment-form
         v-show="showForm"
         ref="createForm"
         :current-user="currentUser"
-        :segment-id="commentsList.segmentId" />
+        :segment-id="commentsList.segmentId"
+      />
     </div>
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
     <template v-if="hasComments">
       <segment-comment
         v-for="(comment, idx) in comments"
@@ -44,13 +49,15 @@
         :segment-id="commentsList.segmentId"
         class="u-mt u-mb-0_5"
         :class="{'border--bottom' : idx < (comments.length -1) }"
-        data-cy="commentsListItem" />
+        data-cy="commentsListItem"
+      />
     </template>
     <dp-inline-notification
       v-else
       type="info"
       class="u-mt-1_5 mb-4"
-      :message="Translator.trans('explanation.noentries')" />
+      :message="Translator.trans('explanation.noentries')"
+    />
   </div>
 </template>
 

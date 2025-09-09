@@ -33,6 +33,8 @@ services:
         tags:
             - name: entity_custom_field_usage_removal_strategy
 
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
@@ -375,6 +377,14 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
 
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
+
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:
             $publicCSSClassPrefix: '%public_css_class_prefix%'
@@ -497,10 +507,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
-
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
