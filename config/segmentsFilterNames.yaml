@@ -1,0 +1,31 @@
+filterNames:
+    tags:
+        labelTranslationKey: tags
+        comparisonOperator: 'ARRAY_CONTAINS_VALUE'
+        rootPath: tags
+        grouping:
+            labelTranslationKey: topic
+            targetPath: tags.topic.label
+
+    assignee:
+        labelTranslationKey: assignee
+        comparisonOperator: '='
+        rootPath: assignee
+        grouping:
+            labelTranslationKey: department
+            targetPath: assignee.department.label
+
+    place:
+        labelTranslationKey: workflow.place
+        comparisonOperator: '='
+        rootPath: place
+
+#    Example for a new filter
+#
+#    topics:
+#        labelTranslationKey: topics
+#        comparisonOperator: 'ARRAY_CONTAINS_VALUE'
+#        rootPath: foo
+#        grouping:
+#            labelTranslationKey: bar
+#            targetPath: bar.baz

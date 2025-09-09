@@ -1,0 +1,29 @@
+{#
+    Pageheader with submenu for...
+
+    - administration_list.html
+    - administration_search_procedures.html
+#}
+
+{% set subnav = [
+    {
+        current: 'admin_procedures' == highlighted|default,
+        href: path('DemosPlan_procedure_administration_get'),
+        label: 'procedures.orga',
+        datacy: 'administrationListPageHeader:proceduresOrga',
+        feature: 'area_admin_procedures'
+    },
+    {
+        current: 'search_submitter_in_procedures' == highlighted|default,
+        href: path('DemosPlan_procedure_search_statements'),
+        label: 'search.submitter',
+        datacy: 'administrationListPageHeader:searchSubmitter',
+        feature: 'area_search_submitter_in_procedures'
+    }
+]|filter(item => item.feature is not defined or hasPermission(item.feature)) %}
+
+{# Render the page header #}
+{% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+    heading: heading|trans,
+    subnav: subnav|length > 1 ? subnav : null
+} %}

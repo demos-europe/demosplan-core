@@ -1,0 +1,19 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_publicagency_pageheader.html.twig' with {
+        heading: 'invitable_institution.administer'|trans,
+        highlighted: 'publicagency_registered'
+    } %}
+
+    <administration-member-list :procedure-id="'{{ procedure }}'">
+    </administration-member-list>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationMemberList.js') }}
+{% endblock javascripts %}

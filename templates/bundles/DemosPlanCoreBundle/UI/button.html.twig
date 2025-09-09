@@ -1,0 +1,90 @@
+{#
+   The Button Component.
+   Renders either a <button> or <a> element with specified color & variant.
+
+   color {String}:
+        The button color. Possible values include 'primary', 'secondary', 'success', 'warning'.
+        Defaults to 'primary'.
+
+   href {String}:
+        Renders the specified string as `href=""` attribute. Also sets the element to be an `<a>`.
+
+   text {String}:
+        The button text. Contains a string to be rendered as the actual button text. Defaults to:
+        - `abort` for links (assuming they point to the list view the user came from, which is
+           the currently most frequently used case),
+        - `reset` for reset buttons, because this is what they most probably do,
+        - `save` for everything else.
+
+   type {String}:
+        If the rendered element is a button, its type can be specified here. Possible values include 'submit', 'reset'.
+        Defaults to `false` for <a> elements and to `button` for button elements.
+
+   variant {String}:
+        The variants of the button. Possible values at the moment only include 'outline' ('text' to be implemented).
+        When not specified, the default variant (white on colored background) is applied.
+
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+
+
+{# Set variables based on params the component is called with. #}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+
+{% set tag = href|default != null ? 'a' : 'button' %}
+
+{% set color = color|default in ['primary', 'secondary', 'success', 'warning'] ? color : 'primary' %}
+
+{% set variant = variant|default in ['outline'] ? variant : false %}
+
+{% set disabled = disabled|default(false) %}
+
+{% set type = tag == 'a' ? false : type|default in ['submit', 'reset'] ? type : 'button' %}
+
+{% set text = text|default(type ? (type == 'reset' ? 'reset'|trans : 'save'|trans) : 'abort'|trans) %}
+
+
+{# Set classes based on type, color, variant and attributes. #}
+{% set baseClass = 'btn' %}
+
+{% set classes = classes|default([])|merge([
+    baseClass,
+    baseClass ~ '--' ~ color
+]) %}
+
+{% if variant %}
+    {% set classes = classes|merge([baseClass ~ '--' ~ variant]) %}
+{% endif %}
+
+{% if disabled %}
+    {% set classes = classes|merge(['is-disabled']) %}
+{% endif %}
+
+
+{# Render element. #}
+
+<{{ tag }}
+    class="{{ classes|join(' ')|prefixClass(omitPrefix) }}"
+
+    {% if type %}
+        type="{{ type }}"
+    {% endif %}
+
+    {% if href|default != null %}
+        href="{{ href }}"
+    {% endif %}
+
+    {# Only buttons can be disabled. #}
+    {% if disabled and type %}
+        disabled
+    {% endif %}
+
+{% if attributes is defined %}
+    {% for attr in attributes %}
+        {{ attr }}
+    {% endfor %}
+{% endif %}
+>
+    {{ text }}
+</{{ tag }}>

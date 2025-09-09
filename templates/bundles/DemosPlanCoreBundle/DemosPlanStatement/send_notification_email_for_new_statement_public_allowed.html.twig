@@ -1,0 +1,20 @@
+{% block body_plain %}
+
+Guten Tag,
+
+im Verfahren "{{ templateVars.procedure.name|default('') }}"
+wurde eine neue Stellungnahme von "{{ templateVars.statement.oName|default() }}"
+mit der ID {{ templateVars.statement.externId|default() }} eingereicht, die veröffentlicht werden soll.
+
+Überprüfen Sie bitte in der Detailansicht die Stellungnahme und geben Sie sie ggf. frei.
+Nachdem Sie sich im Gateway und in RO-BOB angemeldet haben, können Sie über diesen Link
+<a href="{{ url('dm_plan_assessment_single_view', { 'statement': templateVars.statement.id|default, 'procedureId': templateVars.procedure.id|default }) }}">direkt zur Detailansicht gelangen</a>
+
+
+Freundliche Grüße
+
+
+-------------
+Diese Nachricht wurde automatisch generiert.
+
+{% endblock %}

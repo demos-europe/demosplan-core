@@ -1,0 +1,5 @@
+# See the docs at https://github.com/geocoder-php/BazingaGeocoderBundle
+bazinga_geocoder:
+    providers:
+        dplan:
+            factory: Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory

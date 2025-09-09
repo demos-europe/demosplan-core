@@ -1,0 +1,230 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Utility classes: color-<keyword>, bg-color-<keyword>
+//
+// color: <color>
+// https://developer.mozilla.org/de/docs/Web/CSS/color
+
+.color {
+    // Brand
+    &-main {
+        color: $dp-color-main;
+    }
+
+    &-main-contrast {
+        color: $dp-color-main-contrast;
+    }
+
+    &-alt {
+        color: $dp-color-alt;
+    }
+
+    &-alt-contrast {
+        color: $dp-color-alt-contrast;
+    }
+
+    &-highlight {
+        color: $dp-color-highlight;
+        fill: $dp-color-highlight;
+    }
+
+    &-cta-dark {
+        color: $dp-token-color-brand-cta-dark !important;
+    }
+
+    // UI tokens
+
+    &-text-muted {
+        color: $dp-color-text-muted;
+    }
+
+    &-text-default {
+        color: $dp-color-text-default;
+    }
+
+    &-message-success {
+        &-text {
+            color: $dp-color-message-success-text;
+        }
+
+        &-fill {
+            color: $dp-color-message-success-fill;
+        }
+    }
+
+    &-message-info {
+        &-text {
+            color: $dp-color-message-info-text;
+        }
+
+        &-fill {
+            color: $dp-color-message-info-fill;
+        }
+    }
+
+    &-message-warning-text {
+        color: $dp-color-message-warning-text;
+    }
+
+    &-message-severe {
+        &-text {
+            color: $dp-color-message-severe-text;
+        }
+
+        &-fill {
+            color: $dp-color-message-severe-fill;
+        }
+    }
+
+    &-interactive {
+        color: $dp-color-interactive-default;
+    }
+
+    &-status-failed {
+        &-text {
+            color: $dp-color-status-failed-text;
+        }
+
+        &-fill {
+            color: $dp-color-status-failed-fill;
+        }
+    }
+
+    &-status-progress-text {
+        color: $dp-color-status-progress-text;
+    }
+
+    &-status-complete {
+        &-fill {
+            color: $dp-color-status-complete-fill;
+        }
+
+        &-text {
+            color: $dp-color-status-complete-text;
+        }
+    }
+
+
+    // Utility classes mapping directly to color palette values
+    // @deprecated use brand/ui color tokens instead
+
+    &--white {
+        color: $dp-color-white !important;
+    }
+
+    &--grey-light {
+        color: $dp-color-neutral-light-1;
+    }
+
+    //  Use for text that is slightly brighter than normal
+    //  Former selectors were `.dimmed` and `.empty`.
+    &--grey {
+        color: $dp-color-neutral-base !important;
+    }
+
+    &--grey-dark {
+        color: $dp-color-neutral-dark-1;
+    }
+
+    &--black {
+        color: $dp-color-black !important;
+    }
+}
+
+.bg-color {
+
+    // Brand tokens
+
+    &-main {
+        background-color: $dp-color-main;
+    }
+
+    &-main-contrast {
+        background-color: $dp-color-main-contrast;
+    }
+
+    &-alt {
+        background-color: $dp-color-alt;
+    }
+
+    &-alt-contrast {
+        background-color: $dp-color-alt-contrast;
+    }
+
+    &-highlight {
+        background-color: $dp-color-highlight;
+    }
+
+    // UI tokens
+
+    &-light {
+        background-color: $dp-color-background-light;
+    }
+
+    &-medium {
+        background-color: $dp-color-background-medium;
+    }
+
+    &-message-success {
+        background-color: $dp-color-message-success-bg;
+    }
+
+    &-message-info {
+        background-color: $dp-color-message-info-bg;
+    }
+
+    &-message-warning {
+        background-color: $dp-color-message-warning-bg;
+    }
+
+    &-message-severe {
+        background-color: $dp-color-message-severe-bg;
+    }
+
+    &-selection {
+        background-color: $dp-color-selection-bg;
+    }
+
+    &-text-inserted-muted {
+        background-color: $dp-color-text-inserted-bg-muted;
+    }
+
+    &-text-deleted-muted {
+        background-color: $dp-color-text-deleted-bg-muted;
+    }
+
+
+    // Utility classes mapping directly to color palette values
+    // @deprecated use brand/ui color tokens instead
+
+    &--grey {
+        background-color: $dp-color-neutral-base;
+    }
+
+    &--grey-light {
+        background-color: $dp-color-neutral-light-1;
+    }
+
+    &--grey-light-1 {
+        background-color: $dp-color-neutral-light-2;
+    }
+
+    &--grey-light-2 {
+        background-color: $dp-color-neutral-light-3;
+    }
+
+    &--white {
+        background-color: $dp-color-white !important;
+    }
+
+    &--blue-light-3 {
+        background-color: $dp-color-blue-light-3;
+    }
+}

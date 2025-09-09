@@ -1,0 +1,26 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        link: path('DemosPlan_procedure_public_detail', { 'procedure':procedure }),
+        link_caption: 'procedure.goto'|trans,
+        content_heading: 'statements.public.submit'|trans ~ ': ' ~ getProcedureName(proceduresettings),
+        content_subheading: 'explanation.submit.statement'|trans,
+        col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+        col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass,
+        full_width: true,
+        heading_style: heading_style|default,
+        hideMetaMenu: true
+    }%}
+
+        {% block content %}
+            {% include '@DemosPlanCore/DemosPlanStatement/includes/new_public_participation_statement_confirm_content.html.twig' %}
+        {% endblock content %}
+    {% endembed %}
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-newPublicParticipationStatementConfirm.js']) }}
+{% endblock javascripts %}

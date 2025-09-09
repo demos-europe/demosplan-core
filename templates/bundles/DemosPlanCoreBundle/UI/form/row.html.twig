@@ -1,0 +1,30 @@
+{# This is a ui component used via the Twig function call uiComponent('form.row')
+   Displays multiple form elements
+
+   Receives form.element uiComponents as elements
+
+   heading {String}:    Use to add a heading to the row
+
+   NOTE: this is a very specific use-case, maybe we should find a different solution?
+   required {Boolean}:  Set to true if you want to add an asterisk to the heading
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+<div class="{{ 'u-mb-0_75'|prefixClass(omitPrefix) }} {{ class|default }}">
+    {% if heading is defined %}
+    <p class="{{ 'weight--bold u-mb-0_25'|prefixClass(omitPrefix) }}">{{ heading|trans }}{% if required|default(false) %}*{% endif %}</p>
+    {% endif %}
+
+    {% if isFieldset is defined and isFieldset == true %}
+        <fieldset class="{{ 'u-p-0'|prefixClass(omitPrefix) }}" {% if required|default(false) %} required{% endif %}>
+    {% endif %}
+
+    {% for element in elements|default([]) %}
+        {%  set element = element|merge({ omitCssPrefix: omitPrefix }) %}
+        {{ uiComponent('form.element', element) }}
+    {% endfor %}
+
+    {% if isFieldset is defined and isFieldset == true %}
+        </fieldset>
+    {% endif %}
+</div>

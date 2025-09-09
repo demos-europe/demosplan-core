@@ -1,0 +1,15 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Guten Tag {{ templateVars.userName }},
+
+mit einem Klick auf den folgenden Link können Sie diese E-Mail Adresse bestätigen.
+Aus Sicherheitsgründen müssen Sie dabei angemeldet sein.
+
+<a href="{{ url('DemosPlan_user_doubleoptin_change_email', {'key': templateVars.token, 'uId': templateVars.uId }) }}">E-Mail Adresse bestätigen</a>
+
+Mit freundlichen Grüßen,
+
+Ihr {{ templateVars.projectName }} Team
+
+{% endblock %}

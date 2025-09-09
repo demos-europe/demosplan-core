@@ -1,0 +1,23 @@
+{% block body_plain %}
+
+{% set count = templateVars.statements|length %}
+
+Guten Tag,
+
+im Verfahren "{{ templateVars.procedure.name|default('') }}"
+{{- 'email.text.notification_for_released_statement.1'|trans({ count: count }) -}} eingereicht.
+
+{% for statement in templateVars.statements %}
+Eingereicht von: {{ statement.oName|default() }}
+{% if statement.publicAllowed is defined and statement.publicAllowed == true %}
+    {{ 'email.text.notification_for_new_statement'|trans }}
+{% endif %}
+{% endfor %}
+
+Freundliche Grüße
+
+
+-------------
+Sie erhalten diese E-Mail, weil Sie die E-Mail-Benachrichtigung unter "Daten der Organisation" aktiviert haben. Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

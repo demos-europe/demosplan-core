@@ -1,0 +1,33 @@
+{% block body_plain %}
+
+Liebe Moderation,
+
+{% if templateVars.isNew is defined and templateVars.isNew == true %}
+{% if templateVars.initialEntry is defined and templateVars.initialEntry == true %}
+im virtuellen Anwenderbeirat wurde eine neuer Beitrag veröffentlicht.
+{% else %}
+im virtuellen Anwenderbeirat wurde auf einen Beitrag geantwortet.
+{% endif %}
+{% else %}
+{%  if templateVars.initialEntry is defined and templateVars.initialEntry == true %}
+im virtuellen Anwenderbeirat wurde ein Beitrag aktualisiert.
+{% else %}
+im virtuellen Anwenderbeirat wurde eine Antwort zu einem Beitrag aktualisiert.
+{% endif %}
+{% endif %}
+
+Thema: {{ templateVars.relatedTopic.title|default('')|wysiwyg }}
+{%  if templateVars.initialEntry is defined and templateVars.initialEntry == true %}
+Beitrag: {{ templateVars.text|default('')|wysiwyg }}
+{% else %}
+Beitrag: {{ templateVars.firstEntryText|default('')|wysiwyg }}
+Antwort: {{ templateVars.text|default('')|wysiwyg }}
+{% endif %}
+
+Freundliche Grüße
+
+
+-------------
+Sie erhalten diese E-Mail, weil Sie die Rolle "Moderator" bei {{ templateVars.relatedForum.title|default('')|wysiwyg }} besitzen. Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

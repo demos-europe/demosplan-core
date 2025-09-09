@@ -1,0 +1,19 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationNewMemberList.js') }}
+{% endblock %}
+{% block component_part %}
+
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'invitable_institution.add'|trans
+    } %}
+
+    <p class="u-mb">{{ "text.invitable_institution.add"|trans }}</p>
+
+    <dp-add-organisation-list
+        class="u-mb"
+        procedure-id="{{ procedure }}"></dp-add-organisation-list>
+
+{% endblock %}
+

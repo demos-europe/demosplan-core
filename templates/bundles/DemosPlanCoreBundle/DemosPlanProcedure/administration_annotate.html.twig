@@ -1,0 +1,22 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'statements.uploaded.recheck'|trans
+    } %}
+
+    <p class="u-mb">
+        {{ 'statements.uploaded.recheck.hint'|trans }}
+    </p>
+
+    <dp-image-annotator
+        init-document-id="{{ templateVars.documentId }}"
+        procedure-id="{{ procedure }}"
+        :all-labels="{{ templateVars.aiPipelineLabels|json_encode }}">
+    </dp-image-annotator>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['ol.js', 'procedure-administrationAnnotate.js']) }}
+{% endblock javascripts %}

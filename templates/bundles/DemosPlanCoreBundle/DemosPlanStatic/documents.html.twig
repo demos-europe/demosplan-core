@@ -1,0 +1,62 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        content_heading: "static.documents"|trans
+    }%}
+
+        {% block content %}
+            <p>
+                Die hinterlegten Informationen stehen zum Download zur Verfügung.<br>
+                Sollten Sie darüber hinaus weitere Unterlagen benötigen, kontaktieren Sie uns.
+            </p>
+
+            {% if (currentUser.planner and currentUser.publicAgency) or currentUser.planner %}
+
+                <h2>
+                    Schulungsunterlage für Fachplaner
+                </h2>
+                <p>
+                    <a href="{{ asset('pdf/BOB-SH_Schulung_Fachplaner_01.pdf') }}" target="_blank" rel="noopener">BOB-SH_Schulung_Fachplaner.pdf</a>
+                </p>
+                <p>
+                    Die aus der Schulung für Fachplaner bekannte Präsentation steht Fachplanern zum Download bereit. Inhaltlich geht die Präsentation auf den Gesamtprozess sowie die Rollen und Rechte ein.
+                </p>
+
+                <h2>
+                    Vorlage eines Anschreibens an TöB für Kommunen
+                </h2>
+                <p>
+                    <a href="{{ asset('pdf/BOB-SH_AnschreibenToeB_Vorlage_19Juni2013.doc') }}" target="_blank" rel="noopener">BOB-SH_AnschreibenToeB_Vorlage_19Juni2013.doc</a>
+                </p>
+                <p>
+                    Um beteiligte TöB über die Arbeit mit BOB-SH zu informieren, können Kommunen auf das Anschreiben als Vorlage zurückgreifen.
+                </p>
+
+                <h2>
+                    Upload von Planzeichnungen in BOB-SH
+                </h2>
+                <p>
+                    <a href="https://www.bob-sh.de/pdf/extra/Upload_von_Rasterplaenen_in_BOB-SH.pdf" rel="noopener noreferrer" target="_blank">Upload_von_Rasterplaenen_in_BOB-SH.pdf</a>
+                </p>
+
+            {% endif %}
+
+            {% if (currentUser.planner and currentUser.publicAgency) or currentUser.publicAgency %}
+
+                <h2>
+                    Schulungsunterlage für TÖB (beteiligte Behörden und sonstige Träger öffentlicher Belange)
+                </h2>
+                <p>
+                    <a href="{{ asset('pdf/BOB-SH_Schulung_ToeB.pdf') }}" target="_blank" rel="noopener">BOB-SH_Schulung_ToeB.pdf</a>
+                </p>
+                <p>
+                    Die Schulungsunterlage für TÖB steht zum Download bereit. Gegenstand der Schulung sind die Funktionen von BOB-SH für die Rolle TöB.
+                </p>
+
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock %}

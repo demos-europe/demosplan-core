@@ -1,0 +1,12 @@
+{% block body_content %}
+Der Verfahrensteilnehmer der kreisangehörigen Gemeinde {{ templateVars.orga }} hat zu {{ templateVars.procedure.name }} Stellung genommen. Die Stellungnahme(n) wurde bereits bei der Landesplanungsbehörde eingereicht. Als Kreis erhalten Sie eine Kopie dieser Stellungnahme. Sie haben die Möglichkeit, sich bei ihrer eigenen Stellungnahme gegenüber der Landesplanungsbehörde auch mit denen der kreisangehörigen Städte und Gemeinden ihres Kreisgebietes auseinanderzusetzen.
+Die Stellungnahme(n) finden Sie im Anhang.
+{% if templateVars.files is not empty %}
+Den Stellungnahmen waren folgende Dateien angehaengt:
+{% endif %}
+{% for file in templateVars.files %}
+{{ file|getFile("name") }} {{ url("core_file", { "hash":file|getFile("hash")}) }}
+{% endfor %}
+Mit freundlichem Gruß
+{{ templateVars.procedure.orgaName }}
+{% endblock %}

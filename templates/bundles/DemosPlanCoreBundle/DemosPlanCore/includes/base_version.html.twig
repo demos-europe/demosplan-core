@@ -1,0 +1,12 @@
+{#
+This partial is used by projects which want to display the current verion numbers in the console.
+Since its not wanted by all projects its not in use in the core project.
+BUT Please don't delete unless You are sure no project required this file
+#}
+<script nonce="{{ csp_nonce('script') }}">
+    console.group('%c{{ 'console.info.application'|trans }}', 'color: #3375D4; font-weight: bold; font-size: 14px; text-decoration: underline;')
+    console.info('%c{{ 'console.info.versions'|trans }}', 'font-weight: bold; text-decoration: underline;')
+    console.info('demosplan-core: {{ projectCoreVersion|default('console.info.none'|trans) }}')
+    console.info('{{ name|default(projectName) }}: {{ projectVersion|default('console.info.none'|trans) }}')
+    console.groupEnd();
+</script>

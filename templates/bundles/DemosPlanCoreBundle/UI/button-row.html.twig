@@ -1,0 +1,35 @@
+{#
+   The Button Row Component.
+
+   Renders a button row with two buttons, typically with "save" and "cancel" actions.
+   This component is used once per form, to save the user input or either return to the
+   previous screen or reset the form.
+
+   omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+
+{% set omitPrefix  = omitCssPrefix ?? true %}
+{# If primary is passed as array, only allow first item #}
+{% if primary is iterable %}
+    {% set primary = primary[0] %}
+{% endif %}
+
+{% if secondary is defined %}
+    {# If secondary is passed as a string, wrap in array to be able to merge #}
+    {% if secondary is not iterable %}
+        {% set secondary = [secondary] %}
+    {% endif %}
+
+    {# Primary items are left positioned, secondary items appear to the right. #}
+    {% set items = [primary]|merge(secondary) %}
+{% else %}
+    {% set items = [primary] %}
+{% endif %}
+
+{{ uiComponent('layout.horizontal', {
+    align: 'right',
+    gutter: '0_5',
+    items: items,
+    omitCssPrefix: omitPrefix,
+    classes: 'u-pt-0_25'
+}) }}

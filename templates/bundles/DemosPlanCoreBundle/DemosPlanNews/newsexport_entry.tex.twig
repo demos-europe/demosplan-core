@@ -1,0 +1,10 @@
+\section*{{ '{' }}{% if news.title is defined %}{{ news.title|latex|raw }}{% endif %}{{ '}' }}
+{% if news.picture is defined and news.picture != "" %}
+\includegraphics{{news.picture|getFile('hash')|latexGetImageDimensions}}{{ '{' }}{{news.picture|getFile('hash')}}{{ '}' }}\\
+%fileName:{{ news.picture|getFile('name')|raw }}:{{ news.picture|getFile('hash') }}%
+{% endif %}
+{% if news.description is defined %}{{ '{' }}\bfseries {{ news.description|latex|raw }}{{ '}' }}{% endif %}\\
+{% if news.text is defined %}{{ news.text|latex|raw }}{% endif %}\\
+{{ '{{' }}\color{{ '{' }}DPlightgrey{{ '}' }}%
+		\hrule height 1.5pt
+{{ '}}' }}

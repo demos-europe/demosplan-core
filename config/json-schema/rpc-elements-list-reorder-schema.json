@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "planningCategoryList.reorder",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "planningCategoryList.reorder"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "elementId": {
+          "$id": "elementId",
+          "type": "string"
+        },
+        "newIndex": {
+          "$id": "newIndex",
+          "type": ["integer", "null"]
+        },
+        "parentId": {
+          "$id": "parentId",
+          "type": ["string", "null"]
+        }
+      },
+      "required": [
+        "elementId",
+        "newIndex",
+        "parentId"
+      ]
+    }
+  }
+}

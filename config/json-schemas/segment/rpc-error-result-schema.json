@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "segments-bulk-edit-error-response",
+  "oneOf": [
+    {
+      "description": "An individual request",
+      "$ref": "#/definitions/result"
+    },
+    {
+      "description": "An array of requests",
+      "type": "array",
+      "items": { "$ref": "#/definitions/result" }
+    }
+  ],
+  "definitions": {
+    "result": {
+      "type": "object",
+      "required": [ "jsonrpc", "error" ,"id" ],
+      "properties": {
+        "jsonrpc": { "enum": [ "2.0" ] },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "enum":  [
+                -32768,
+                -32603,
+                -32602,
+                -32600,
+                -32601,
+                -32700,
+                -32000
+              ]
+            },
+            "message": {
+              "enum": [
+                "Access denied",
+                "Internal error",
+                "Invalid params",
+                "Invalid Request",
+                "Method not found",
+                "Parse error",
+                "Server error"
+              ]
+            }
+          }
+        },
+        "id": {
+          "type": [ "string" ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+services:
+    Projects\core\app\Resources\DemosPlanCoreBundle\Logic\Permissions:
+        autowire: true
+        arguments:
+            $logger: '@monolog.logger.dplan'
+
+    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@Projects\core\app\Resources\DemosPlanCoreBundle\Logic\Permissions'

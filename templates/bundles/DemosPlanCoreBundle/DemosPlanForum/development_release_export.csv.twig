@@ -1,0 +1,12 @@
+{# Der Autoescaper soll nur die Tüddelchen ersetzen, den Rest nicht. #}
+{% autoescape 'csv' %}
+"Export vom {{ templateVars.exportDate|default() }}"
+"Release: {{ templateVars.release.title|default() }}"
+"{{ "period"|trans }}: {{ templateVars.release.startDate|default()|dplanDate }} - {{ templateVars.release.endDate|default()|dplanDate }}"
+"{{ "phase"|trans }}:  {{ templateVars.release.phaseName|default() }}"
+""
+"{{ "user.story"|trans }}";"{{ "date.created"|trans }}";"Online-Punkte";"Organisationen der Online-Punkte";"Offline-Punkte";"Gesamtpunktzahl";"{{ "description"|trans }}"
+{% for userStory in templateVars.userStories %}
+"{{ userStory.title|default('') }}";"{{ userStory.createDate|default('')|dplanDate }}";"{{ userStory.onlineVotes|default('') }}";"{% for vote in userStory.votes %}{{ vote.orgaName }}:{{ vote.numberOfVotes }}, {% endfor %}";"{{ userStory.offlineVotes|default('') }}";"{{ userStory.voteSum|default('') }}";"{{ userStory.description|default('')}}"
+{% endfor %}
+{% endautoescape %}

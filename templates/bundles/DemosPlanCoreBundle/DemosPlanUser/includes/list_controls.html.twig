@@ -1,0 +1,18 @@
+<div class="text-right layout__item space-inline-s">
+    <button type="submit" class="btn btn--primary" name="{{ controlName }}" value="saveAll">
+        Alle Änderungen speichern
+    </button>
+
+    {% if hasPermission('feature_department_delete') %}
+        <button
+            type="submit"
+            class="btn btn--warning"
+            data-cy="deleteSelectedItem"
+            name="{{ controlName }}"
+            data-form-actions-confirm-value="deleteSelected"
+            data-form-actions-confirm="{{ 'check.entries.marked.delete'|trans }}"
+        >
+            Markierte {{ entityName }} löschen
+        </button>
+    {% endif %}
+</div>

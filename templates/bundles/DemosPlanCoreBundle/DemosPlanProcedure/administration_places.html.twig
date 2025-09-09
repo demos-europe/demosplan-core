@@ -1,0 +1,19 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'places'|trans
+    } %}
+
+    <administration-places
+        current-user-id="{{ currentUser.ident|default }}"
+        :is-procedure-template="Boolean({{ procedureObject.master|default }})"
+        procedure-id="{{ procedureId }}">
+    </administration-places>
+
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationPlaces.js') }}
+{% endblock javascripts %}

@@ -1,0 +1,18 @@
+{#
+    This is a ui component used via the Twig function call uiComponent('form.group')
+    Displays multiple form elements that should be displayed together.
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+<div class="{{ 'o-form__group u-mb-0_75'|prefixClass(omitPrefix) }}">
+    {% for element in elements|default([]) %}
+        {% set element = element|merge({ omitCssPrefix: omitPrefix }) %}
+        {% set element = element|merge({ elementSize: 0 }) %}
+        {% set element = element|merge({ class: element.class|default ~ ' o-form__group-item' }) %}
+
+        {% if element.group|default != '' %}
+            {% set element = element|merge({ class: element.class|default ~ ' ' ~ element.group }) %}
+        {% endif %}
+
+        {{ uiComponent('form.element', element) }}
+    {% endfor %}
+</div>

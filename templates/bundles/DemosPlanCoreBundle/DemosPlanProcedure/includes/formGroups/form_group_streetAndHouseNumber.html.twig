@@ -1,0 +1,17 @@
+
+<div class="{{ 'layout'|prefixClass }}">
+    {{ uiComponent('form.element', {
+        label: { text: 'street'|trans },
+        control: { name: 'r_street', value: '' },
+        required: required,
+        type: 'text',
+        id: 'r_street',
+    }) }}
+    {{ uiComponent('form.element', {
+        label: { text: 'street.number.short'|trans },
+        control: { name: 'r_houseNumber', value: '' },
+        required: required,
+        type: 'text',
+        id: 'r_houseNumber',
+    }) }}
+</div>

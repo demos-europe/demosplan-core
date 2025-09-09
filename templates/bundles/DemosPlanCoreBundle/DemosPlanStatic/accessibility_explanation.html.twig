@@ -1,0 +1,24 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'accessibility.explanation'|trans,
+        'full_width': full_width|default(false)
+    }%}
+
+        {% block content %}
+            <div class="{{ 'c-styled-html'|prefixClass }}">
+                {{ templateVars.accessibilityExplanation|wysiwyg(['h2', 'h3', 'h4']) }}
+            </div>
+        {% endblock content %}
+    {% endembed %}
+
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['core-genericBundle.js']) }}
+{% endblock javascripts %}
+

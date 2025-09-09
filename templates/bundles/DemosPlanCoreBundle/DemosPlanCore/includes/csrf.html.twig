@@ -1,0 +1,6 @@
+{#
+Please include this hidden input in every html form to protect against CSRF attacks.
+Just use {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }} in your form.
+Token is checked in the CsrfSubscriber.
+#}
+<input name="_token" type="hidden" value="{{ csrf_token('csrf') }}">

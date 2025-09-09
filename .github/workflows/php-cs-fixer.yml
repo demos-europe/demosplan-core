@@ -1,0 +1,15 @@
+name: Format (PHP)
+
+on:
+    pull_request:
+        paths:
+            - '**.php'
+            - '.php-cs-fixer.php'
+            - '!lib/**'
+jobs:
+  call:
+    uses: demos-europe/demosplan-workflows/.github/workflows/php-cs-fixer.yml@main
+    with:
+        gpg_user_name: Demos-CI
+    secrets:
+        gpg_email: ${{ secrets.DEVOPS_GPG_EMAIL }}
