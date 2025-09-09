@@ -30,8 +30,8 @@ class OzgKeycloakLogoutManager
     private const POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri=https://';
     private const ID_TOKEN_HINT = 'id_token_hint=';
 
-    /** @var int Session expiration time for testing (120 minutes) */
-    private const TEST_SESSION_LIFETIME_SECONDS = 7200;
+    /** @var int Default session expiration time when not set in parameters (120 minutes) */
+    private const DEFAULT_SESSION_LIFETIME_SECONDS = 7200;
 
     public function __construct(
         private readonly KernelInterface $kernel,
@@ -84,7 +84,7 @@ class OzgKeycloakLogoutManager
         try {
             $metadataBag = $session->getMetadataBag();
             $sessionCreated = $metadataBag->getCreated();
-            $sessionLifetime = $metadataBag->getLifetime() ?: self::TEST_SESSION_LIFETIME_SECONDS;
+            $sessionLifetime = $this->parameterBag->get('session_lifetime_seconds')?: self::DEFAULT_SESSION_LIFETIME_SECONDS;
             $expirationTimestamp = $sessionCreated + $sessionLifetime;
 
             // Set the custom expiration directly in session
