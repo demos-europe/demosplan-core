@@ -1,0 +1,120 @@
+-
+    key: "G-D-BOP-Fachplaner-Admin"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "G-D-BOP-Fachplaner-Planungsbüro"
+    role: "RMOPPO"
+    roleGroup: "GLAUTH"
+-
+    key: "G-D-BOP-Fachplaner-Planungsbuero"
+    role: "RMOPPO"
+    roleGroup: "GLAUTH"
+-
+    key: "G-D-BOP-Fachplaner-Sachbearbeiter"
+    role: "RMOPSD"
+    roleGroup: "GLAUTH"
+-
+    key: "G-D-BOP-ToeB-Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "G-D-BOP-TöB-Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "G-D-BOP-TöB-Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "G-D-BOP-ToeB-Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "G-D-BOP-TöB-Verwalter"
+    role: "RPSUPP"
+    roleGroup: "GPSUPP"
+-
+    key: "G-D-BOP-ToeB-Verwalter"
+    role: "RPSUPP"
+    roleGroup: "GPSUPP"
+-
+    key: "G-D-BOP-Support"
+    role: "RTSUPP"
+    roleGroup: "GTSUPP"
+-
+    key: "G-D-BOP-Redakteur"
+    role: "RTEDIT"
+    roleGroup: "GTEDIT"
+-
+    key: "G-D-Buerger"
+    role: "RCITIZ"
+    roleGroup: "GCITIZ"
+-
+    key: "G-D-Bürger"
+    role: "RCITIZ"
+    roleGroup: "GCITIZ"
+-
+    key: "fachliche Leitstelle"
+    role: "RFALST"
+    roleGroup: "GFALST"
+-
+    key: "Moderation"
+    role: "RMODER"
+    roleGroup: "GMODER"
+-
+    key: "Fachplaner_Admin"
+    role: "RMOPSA"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner_Planungsbüro"
+    role: "RMOPPO"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner_Planungsbuero"
+    role: "RMOPPO"
+    roleGroup: "GLAUTH"
+-
+    key: "Fachplaner_Sachbearbeiter"
+    role: "RMOPSD"
+    roleGroup: "GLAUTH"
+-
+    key: "ToeB_Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "TöB_Koordinator"
+    role: "RPSOCO"
+    roleGroup: "GPSORG"
+-
+    key: "TöB_Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "ToeB_Sachbearbeiter"
+    role: "RPSODE"
+    roleGroup: "GPSORG"
+-
+    key: "TöB_Verwalter"
+    role: "RPSUPP"
+    roleGroup: "GPSUPP"
+-
+    key: "ToeB_Verwalter"
+    role: "RPSUPP"
+    roleGroup: "GPSUPP"
+-
+    key: "Support"
+    role: "RTSUPP"
+    roleGroup: "GTSUPP"
+-
+    key: "Redakteur"
+    role: "RTEDIT"
+    roleGroup: "GTEDIT"
+-
+    key: "Buerger"
+    role: "RCITIZ"
+    roleGroup: "GCITIZ"
+-
+    key: "Bürger"
+    role: "RCITIZ"
+    roleGroup: "GCITIZ"

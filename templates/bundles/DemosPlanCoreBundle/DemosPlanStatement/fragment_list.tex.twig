@@ -1,0 +1,8 @@
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+{% block demosplanbundlecontent %}
+    % Überschrift
+    \section*{{ '{' }}{{ templateVars.titleTransKey|default("fragments")|trans|latex|wysiwyg }}{{ '}' }}
+    {% for fragment in templateVars.fragments|default([]) %}
+        {% include '@DemosPlanCore/DemosPlanStatement/fragment_list_entry.tex.twig' %}
+    {% endfor %}
+{% endblock %}

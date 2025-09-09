@@ -1,0 +1,10 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+{{ "fragment.notify.email.reviewer"|trans({
+        organizationName: templateVars.organisation.name|default,
+        departmentName: templateVars.departmentName|default,
+        procedure: templateVars.title|default,
+        urlBase: url('DemosPlan_statement_fragment_list_fragment_reviewer'),
+        urlFragment: templateVars.fragmentId
+}) }}
+{% endblock body_plain %}

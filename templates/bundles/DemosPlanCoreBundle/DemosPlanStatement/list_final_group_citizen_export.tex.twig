@@ -1,0 +1,11 @@
+{% set scope = 'external' %}
+{% set count = templateVars.list.statementlist|length %}
+{% extends '@DemosPlanCore/DemosPlanCore/pdfexport.tex.twig' %}
+{% block demosplanbundlecontent %}
+    % Überschrift
+    \section*{{ '{' }}{%  if templateVars.list.statementlist|length > 1%}{{ "statements.yours"|trans|latex|raw }}{% else %}
+    {{ "statement.yours.submitted"|trans|latex|raw }}{% endif %}{{ '}' }}
+    {% for statement in templateVars.list.statementlist %}
+            {% include '@DemosPlanCore/DemosPlanStatement/list_export_entry_public_citizen.tex.twig' %}
+    {% endfor %}
+{% endblock %}

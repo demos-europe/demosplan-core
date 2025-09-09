@@ -1,0 +1,74 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@use 'sass:list';
+
+//  utility classes affecting text
+//
+//  .line-height--1_6
+//  .weight--[normal|bold]
+//  .line-clamp-3
+
+//  line height
+.line-height {
+    &--inherit {
+        line-height: inherit !important;
+    }
+
+    &--0 {
+        line-height: 0 !important;
+    }
+
+    &--1 {
+        line-height: 1 !important;
+    }
+
+    &--1_2 {
+        line-height: 1.2 !important;
+    }
+
+    &--1_4 {
+        line-height: 1.4 !important;
+    }
+
+    &--1_6 {
+        line-height: 1.6 !important;
+    }
+
+    &--2 {
+        line-height: 2 !important;
+    }
+}
+
+//  font-weight
+.weight,
+%weight {
+    &--normal {
+        font-weight: $normal-font-weight !important;
+        font-family: $normal-font-family !important;
+    }
+
+    &--bold {
+        font-weight: $bold-font-weight !important;
+        font-family: $bold-font-family !important;
+    }
+}
+
+.line-clamp-3 {
+    // Base line-height is derived from $inuit-base-spacing-unit,
+    // so this sets max-height to 3 lines of text.
+    max-height: calc(#{$inuit-base-spacing-unit} * 3);
+    overflow-y: hidden;
+
+    // Remove spacing of child elements to make max-height fit 3 lines of text.
+    & * {
+        margin: 0;
+        padding: 0;
+    }
+}

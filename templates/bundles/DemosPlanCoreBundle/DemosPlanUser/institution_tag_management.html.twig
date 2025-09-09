@@ -1,0 +1,13 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+
+    <institution-tag-management>
+    </institution-tag-management>
+
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['procedure-institutionTagManagement.js']) }}
+{% endblock javascripts %}

@@ -1,0 +1,19 @@
+<div class="{{ 'layout'|prefixClass }}">
+    {{ uiComponent('form.element', {
+        label: { text: 'email'|trans },
+        control: { name: 'r_email', value: '' },
+        required: required,
+        elementClass: 'layout__item u-1-of-2',
+        type: 'text',
+        id: 'r_email',
+    }) }}
+
+   {{ uiComponent('form.element', {
+        label: { text: 'phone'|trans },
+        control: { name: 'r_phone', value: '' },
+        required: required,
+       elementClass: 'layout__item u-1-of-2',
+       type: 'text',
+        id: 'r_phone',
+    }) }}
+</div>

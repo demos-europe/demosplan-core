@@ -1,0 +1,46 @@
+{# Kompakt format anonym #}
+{% macro statement_content_anonymous_condensed(key_header, value_header, key, value) %}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}13cm{{ '}' }}{{ '{' }}13cm{{ '}' }}
+    \ParallelLText{{ '{' }}\textbf{{ '{' }}{{ key_header }}{{ '}' }}{{ '}' }}
+    \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ value_header }}{{ '}' }}{{ '}' }}
+    \end{Parallel}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}13cm{{ '}' }}{{ '{' }}13cm{{ '}' }}
+    \ParallelLText{{ '{' }}{{ key }}{{ '}' }}
+    \ParallelRText{{ '{' }}{{ value }}{{ '}' }}
+    \end{Parallel}
+{% endmacro %}
+
+{% macro statement_map(statement, procedure) %}
+    {% import _self as statement_macros %}
+    {% if statement.mapFile is defined and statement.mapFile != "" %}
+        {% if statement.mapFile != "---" %}
+            \begin{figure}[ht]
+            \centering
+            \includegraphics{{statement.mapFile|getFile('hash')|latexGetImageDimensions}}{{ '{' }}{{ statement.mapFile|getFile('hash') }}{{ '}' }}
+            %fileName:{{ statement.mapFile|getFile('name')|raw }}:{{ statement.mapFile|getFile('hash') }}%
+            \caption{Kartenauschnitt}
+            \label{fig1}
+                {{ procedure.settings.copyright|replace({'{currentYear}': 'now'|date('Y')})|latex|raw }}
+            \end{figure}
+        {% endif %}
+    {% endif %}
+    {% if statement.mapFile is defined and statement.mapFile != "" %}
+        {% if statement.mapFile != "---" %}
+            \clearpage
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{# Quer und Hochformat anonym #}
+{% macro statement_content_anonymous(key_header, value_header, key, value, statement, procedure) %}
+    {% import _self as statement_macros %}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}\columnsep{{ '}' }}{{ '{' }}\columnsep{{ '}' }}
+    \ParallelLText{{ '{' }}\textbf{{ '{' }}{{ key_header }}{{ '}' }}{{ '}' }}
+    \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ value_header }}{{ '}' }}{{ '}' }}
+    \end{Parallel}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}\columnsep{{ '}' }}{{ '{' }}\columnsep{{ '}' }}
+    \ParallelLText{{ '{' }}{{ key }}{{ '}' }}
+    \ParallelRText{{ '{' }}{{ value }}{{ '}' }}
+    \end{Parallel}
+    {{ statement_macros.statement_map(statement, procedure) }}
+{% endmacro %}

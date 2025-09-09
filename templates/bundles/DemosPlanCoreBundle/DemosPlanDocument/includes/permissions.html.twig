@@ -1,0 +1,82 @@
+{#
+    Display to planners if institutions / public can send a statement in certain places
+
+    context:
+        paragraph_all: statement on an entire element whose category is 'paragraph'
+        paragraph_single: statement for a single paragraph
+        file: statement on a file of an element whose category is 'file'
+#}
+
+    {# display if only specific orgas see item #}
+    {% if context == 'element' and organisations|default([])|length > 0 and ownsProcedure(proceduresettings) %}
+        <p class="{{ 'flash flash-warning u-mt-0_25'|prefixClass }}">
+            {{ "explanation.statement.allowed.invitable_institution.visible"|trans({element_title: element_title|default('Dieses Dokument')})|wysiwyg }}
+            {% for organisation in organisations|default([]) %}
+                {{ organisation.name }}{{ loop.last ? '' : ', ' }}
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {# display which users are allowed to participate #}
+    {# preview if at least one phase has permissionset 'write' or 'read' #}
+    {% if
+        ('write' == getProcedurePermissionset('internal') or 'write' == getProcedurePermissionset('external')) and
+        context in ['paragraph_all', 'paragraph_single', 'file'] and
+        ownsProcedure(proceduresettings)
+    %}
+            {% if orga_count is defined and orga_count > 0 and 'write' == getProcedurePermissionset('internal') %}
+                <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                {{ "explanation.statement.allowed.invitable_institution"|trans({element_title: element_title|default})|wysiwyg }}
+                </p>
+            {% elseif 'write' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
+                <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                {{ "explanation.statement.invitable_institution.public"|trans }}
+                </p>
+            {% elseif 'read' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
+                <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                {{ "explanation.statement.publiconly"|trans }}
+                </p>
+            {% elseif 'write' == getProcedurePermissionset('internal') and 'read' == getProcedurePermissionset('external') %}
+                <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                {{ "explanation.statement.invitable_institution.only"|trans }}
+                </p>
+            {% endif %}
+
+        {# preview if one of the phases has permissionset 'hidden' and the other has permissionset 'write' or 'read' #}
+        {% if hasPermission('feature_procedure_preview') %}
+
+                {% if 'write' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external') %}
+                    <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                    {{ "explanation.statement.invitable_institution.only"|trans }}
+                    </p>
+                {% elseif 'hidden' == getProcedurePermissionset('internal') and 'write' == getProcedurePermissionset('external') %}
+                    <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                    {{ "explanation.statement.publiconly"|trans }}
+                    </p>
+                {% elseif 'hidden' == getProcedurePermissionset('internal') and 'read' == getProcedurePermissionset('external') %}
+                    <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                        {{'explanation.statement.allowed.invitable_institution.config'|trans({element_title: element_title|default})|wysiwyg }}
+                    </p>
+                {% elseif 'read' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external') %}
+                    <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                        {{ ""|trans }}
+                    </p>
+                {% elseif ('hidden' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external')) %}
+                    <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                        {{ 'explanation.statement.invitable_institution.public.config'|trans }}
+                    </p>
+                {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {# preview if both phases have permissionset 'hidden'  #}
+    {# when procedure is in configuration phase, display info where users would be able to participate #}
+    {% if hasPermission('feature_procedure_preview') %}
+        {% if context in ['paragraph_all', 'paragraph_single', 'file'] and ownsProcedure(proceduresettings) %}
+                    {% if ('hidden' == getProcedurePermissionset('internal') and 'hidden' == getProcedurePermissionset('external'))  %}
+                        <p class="{{ 'flash flash-info u-mt-0_25'|prefixClass }}">
+                         {{ 'explanation.statement.invitable_institution.public.config'|trans }}
+                        </p>
+                    {% endif %}
+        {% endif %}
+    {% endif %}

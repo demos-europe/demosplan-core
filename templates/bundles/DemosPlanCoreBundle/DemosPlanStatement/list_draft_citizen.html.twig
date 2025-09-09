@@ -1,0 +1,56 @@
+{% extends '@DemosPlanCore/DemosPlanStatement/list_draft.html.twig' %}
+
+
+{% block title_text %}
+
+    {#  pageheader - display procedure title + nav link #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with
+    {
+        link: path('DemosPlan_procedure_public_detail', { 'procedure':procedure }),
+        link_caption: 'procedure.goto'|trans,
+        width_css: {
+            col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+            col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass
+        },
+        content_heading: "statements.draft"|trans ~ ": " ~ getProcedureName(proceduresettings),
+        content_subheading: '<p class="' ~ 'u-mb-0'|prefixClass ~ '">' ~ "text.statements.citizen.draft"|trans ~ "</p>"
+    }
+    %}
+{% endblock %}
+
+
+{# setze eine andere Action/Route für den Bürger #}
+{% block releaseRoutePlain -%}
+    {{ path('DemosPlan_statement_public_submit',{'procedure':procedure})}}
+{%- endblock %}
+
+
+{# Umbenennung des Buttonlabels #}
+{% block statement_release %}
+    <button
+        class="{{ 'btn btn--primary'|prefixClass }}"
+        name="statement_release"
+        type="submit"
+        value="{{ "statements.public.marked.release"|trans }}"
+        aria-label="{{ "statements.public.marked.release"|trans }}"
+        data-cy="submitStatement">
+        {{ "statements.public.marked.release"|trans }}
+    </button>
+{% endblock %}
+
+
+{# Füge das Template für den Bürger ein #}
+{% block statementList %}
+    <dp-public-statement-list
+        class="layout__item"
+        :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
+        :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ templateVars.procedure|default('') }}"
+        show-author
+        show-checkbox
+        show-delete
+        show-edit
+        show-pdf-download
+        show-versions
+        target="draft"></dp-public-statement-list>
+{% endblock %}

@@ -1,0 +1,7 @@
+parameters:
+    alternative_login: true
+    alternative_login_testuser_defaultpass: 'pechstein'
+    alternative_login_use_testuser: true
+    alternative_login_use_testuser_osi: true
+    honeypot_disabled: true
+    avscan_enable: false

@@ -1,0 +1,7 @@
+{%  if user.roleListTranslations is defined %}
+    {%  for role in user.roleListTranslations %}
+        {{ role|trans }}<br>
+    {% endfor %}
+{%  else %}
+    {{ "unknown"|trans }}<br>
+{% endif %}

@@ -1,0 +1,25 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% set organisation = templateVars.orga|default %}
+{% set user = currentUser %}
+{% set isFP = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles  or "RTSUPP" in user.roles )? true : false %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': "organisation.edit"|trans,
+        'content_subheading': (projectType == 'gateway' ? "text.organisation.edit.self.gateway" : "text.organisation.edit.self.portal")|trans({ projectName:projectName })|wysiwyg,
+    }%}
+
+        {% block content %}
+
+            {% include '@DemosPlanCore/DemosPlanUser/orga_data_entry.html.twig' %}
+
+        {% endblock content %}
+
+    {% endembed %}
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-editOrga.js']) }}
+{% endblock javascripts %}

@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "$id": "#/properties/data",
+      "type": "object",
+      "title": "The Data Schema",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "$id": "#/properties/data/properties/id",
+          "type": "string",
+          "minLength": 36,
+          "maxLength": 36,
+          "title": "The Id Schema"
+        },
+        "type": {
+          "$id": "#/properties/data/properties/type",
+          "type": "string",
+          "title": "The Type Schema"
+        },
+        "attributes": {
+          "$id": "#/properties/data/properties/attributes",
+          "type": "object",
+          "title": "The Attributes Schema",
+          "required": [
+            "statementId",
+            "procedureId",
+            "textualReference",
+            "segments"
+          ],
+          "properties": {
+            "statementId": {
+              "$id": "#/properties/data/properties/attributes/properties/statementId",
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "title": "The Statementid Schema"
+            },
+            "procedureId": {
+              "$id": "#/properties/data/properties/attributes/properties/procedureId",
+              "type": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "title": "The Procedureid Schema"
+            },
+            "textualReference": {
+              "$id": "#/properties/data/properties/attributes/properties/textualReference",
+              "type": "string",
+              "title": "The Textualreference Schema",
+              "description": "Text the segments are based on. Segments will be defined based on this text, by means of the list of charStart and charEnd pairs."
+            },
+            "segments": {
+              "$id": "#/properties/data/properties/attributes/properties/segments",
+              "type": "array",
+              "title": "The Segments Schema",
+              "description": "Array with the Segments Drafts",
+              "items": {
+                "$id": "#/properties/data/properties/attributes/properties/segments/items",
+                "type": "object",
+                "title": "The Items Schema",
+                "description": "Segment Draft.",
+                "required": [
+                  "id",
+                  "charStart",
+                  "charEnd",
+                  "tags"
+                ],
+                "properties": {
+                  "id": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/id",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36,
+                    "title": "The Id Schema",
+                    "description": "An explanation about the purpose of this instance."
+                  },
+                  "charStart": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/charStart",
+                    "type": "integer",
+                    "title": "The Charstart Schema",
+                    "description": "Tells the position in textualReference where the segment starts"
+                  },
+                  "charEnd": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/charEnd",
+                    "type": "integer",
+                    "title": "The Charend Schema",
+                    "description": "Tells the position in textualReference where the segment ends"
+                  },
+                  "assigneeId": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/assignee",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36
+                  },
+                  "placeId": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/place",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36
+                  },
+                  "tags": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags",
+                    "type": "array",
+                    "title": "The Tags Schema",
+                    "items": {
+                      "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items",
+                      "type": "object",
+                      "title": "The Tag Items Schema",
+                      "required": [
+                        "tagName", "id"
+                      ],
+                      "properties": {
+                        "tagName": {
+                          "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/tagName",
+                          "type": "string",
+                          "title": "Tagname Schema",
+                          "description": "Tag name as stored by PI and dev backend"
+                        },
+                        "id": {
+                          "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/id",
+                          "type": "string",
+                          "minLength": 36,
+                          "maxLength": 36,
+                          "title": "The id Schema",
+                          "description": "Tag id as stored by PI and Dev backend."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

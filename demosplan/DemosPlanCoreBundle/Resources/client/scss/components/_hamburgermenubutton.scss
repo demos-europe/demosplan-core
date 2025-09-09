@@ -1,0 +1,44 @@
+// Hamburger and close btn
+
+.nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 15px;
+    width: 22px;
+
+    & .bar {
+        height: 1.8px;
+        width: 100%;
+        background-color: $dp-color-black;
+        transition: all 100ms ease-in-out;
+    }
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.menu-open {
+    & .nav-toggle {
+        & > .bar:nth-of-type(1) {
+            transition: all 100ms ease-in-out;
+            transform: rotate(45deg);
+            transform-origin: top left;
+            width: 19px;
+        }
+
+        & > .bar:nth-of-type(2) {
+            transition: all 100ms ease-in-out;
+            transform-origin: center;
+            width: 0;
+        }
+
+        & > .bar:nth-of-type(3) {
+            transition: all 100ms ease-in-out;
+            transform: rotate(-45deg);
+            transform-origin: bottom left;
+            width: 19px;
+        }
+    }
+}

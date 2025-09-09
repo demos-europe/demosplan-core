@@ -1,0 +1,76 @@
+.idea/
+*/vendor
+addonDev
+addonZip
+addonZips
+addons
+CLAUDE.md
+claude-mds
+node_modules
+yarn-error.log
+docker-compose.yml
+phpstan.neon
+.npm/
+.config/
+.z*
+.*
+!.gitignore
+!.gitkeep
+!.babelrc
+!.dpconfig.yml
+!.php_cs
+!.editorconfig
+!.env
+!.env.test
+!.yarnrc.yml
+.ssh/
+.lnav
+!.github
+logs
+/docker-compose.override.yml
+plans
+
+# Core project
+/projects/core/app/cache/*
+/projects/core/app/logs/*
+/projects/core/web/css/*
+/projects/core/web/fonts
+/projects/core/web/img
+/projects/core/web/js
+/projects/core/web/video
+/projects/core/web/files
+!/var/.gitkeep
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.cache
+/.php-cs-fixer-header.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

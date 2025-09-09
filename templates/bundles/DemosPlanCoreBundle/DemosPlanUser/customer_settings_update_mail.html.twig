@@ -1,0 +1,75 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+    {% set urlBase = 'https://' ~ app.request.host %}
+
+    <form
+        :action="Routing.generate('dplan_customer_mail_send_all_users')"
+        method="post"
+        data-dp-validate>
+        {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
+
+        <fieldset>
+            <legend>
+                <h1>
+                    {{ 'customer.settings.update.mail.title'|trans }}
+                </h1>
+            </legend>
+
+            <p>{{ 'customer.settings.update.mail.help'|trans }}</p>
+
+            <dp-input
+                :label="{ text: Translator.trans('subject') }"
+                id="r_email_subject"
+                data-cy="customerSettingsMail:emailSubject"
+                maxlength="78"
+                name="r_email_subject"
+                required
+                :value="Translator.trans('customer.settings.update.mail.default.subject')"
+            />
+
+            <div class="{{ 'u-mb-0_75'|prefixClass }}">
+                <dp-label
+                    for="r_email_body"
+                    text="{{ 'email.body'|trans }}">
+                </dp-label>
+                <dp-editor
+                    id="r_email_body"
+                    hidden-input="r_email_body"
+                    :toolbar-items="{
+                        headings: [1,2,3],
+                        linkButton: true
+                    }"
+                    required
+                    value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
+                </dp-editor>
+            </div>
+
+            {{ uiComponent('form.element', {
+                label: { text: 'customer.settings.update.mail.info'|trans({ count: templateVars.usersCount|default(0) }) },
+                control: { name: 'r_confirm', value: '1', checked: false },
+                id: 'r_confirm',
+                type: 'checkbox',
+                required: true,
+            }) }}
+
+            <div class="text-right space-inline-s">
+                <button
+                    class="btn btn--primary"
+                    type="submit"
+                    name="send"
+                >
+                    {{ 'email.send'|trans }}
+                </button>
+            </div>
+
+        </fieldset>
+    </form>
+
+{% endblock component_part %}
+
+{#  bundles generated via webpack/gulp build are included here  #}
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['user-customersettingsmail.js']) }}
+{% endblock javascripts %}

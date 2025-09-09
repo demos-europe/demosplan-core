@@ -1,0 +1,86 @@
+
+    <div class="{{ 'bg-color--grey-light-1 u-ph u-pl-palm u-pr-0_25-palm u-pv-0_25'|prefixClass }}" id="{{ statement.ident|default() }}">
+
+        <a name="{{ statement.ident|default() }}"></a>
+
+        {% if statement.number is defined %}
+
+            {% if checkbox_name is defined %}
+                <label
+                    data-cy="statementNumber"
+                    class="{{ 'lbl--text inline'|prefixClass }}">
+                    <input
+                        class="{{ 'o-form__control-input'|prefixClass }}"
+                        name="{{ checkbox_name|default( 'item_check[]' ) }}"
+                        value="{{ statement.ident|default() }}"
+                        type="checkbox"
+                        aria-label="{{ 'statement.mark'|trans({ id: statement.number }) }}"
+                        data-cy="selectStatementDraft">
+                    {{ statement.number|default() }}
+                </label>
+            {% else %}
+                {{ statement.number|default() }}
+            {% endif %}
+
+            {% block icon_show_all %}
+                {% if hasPermission('feature_statements_public') and show_visibility is defined %}
+                    <input type="hidden" name="itemsort[]" value="{{ statement.ident }}">
+                    {% if statement.showToAll is defined and statement.showToAll == true %}
+                        <i class="{{ 'fa fa-eye'|prefixClass }}" aria-hidden="true"></i>
+                    {% else %}
+                        <i class="{{ 'fa fa-eye-slash'|prefixClass }}" aria-hidden="true"></i>
+                    {% endif %}
+                {% endif %}
+            {% endblock %}
+
+        {% elseif statement.externId is defined and show_extern_id is defined %}
+            {% if checkbox_name is defined %}
+                <label class="{{ 'lbl--text inline'|prefixClass }}">
+                    <input
+                        name="{{ checkbox_name|default( 'item_check[]' ) }}"
+                        value="{{ statement.ident|default() }}"
+                        aria-label="{{ 'statement.mark'|trans({ id: statement.externId }) }}"
+                        type="checkbox">
+                    {{ statement.externId|default() }}
+                </label>
+            {% else %}
+                {{ statement.externId|default() }}
+            {% endif %}
+        {% endif %}
+
+        <span class="{{ 'font-size-smaller sm:float-right o-piped o-piped--small'|prefixClass }}">
+            {% apply spaceless %}
+
+	        {% if statement.createdDate is defined %}
+                <span class="{{ 'o-piped__item'|prefixClass }}">
+                    {{ "date.created"|trans }}: {{ statement.createdDate|dplanDate("d.m.Y H:i") }}
+                </span>
+            {% endif %}
+
+            {% if statement.submittedDate is defined and show_submit_date is defined %}
+                <span class="{{ 'o-piped__item'|prefixClass }}">
+                    {{ "date.submitted"|trans }}: {{ statement.submittedDate|dplanDate("d.m.Y H:i") }}
+                </span>
+            {% endif %}
+            {% if statement.phase is defined and statement.phase != '' and show_phase is defined %}
+                <span class="{{ 'o-piped__item'|prefixClass }}">
+                    {{- statement.phase -}}
+                </span>
+            {% endif %}
+
+            {% if statement.votesNum|default(0) > 0 and show_votes is defined %}
+                <span class="{{ 'o-piped__item'|prefixClass }}">
+                    {{- "voted.by.persons"|trans({ count: statement.votesNum }) -}}
+                </span>
+            {% endif %}
+
+            {% if hasPermission('feature_statements_like') and statement.likesNum is defined and show_likes is defined %}
+                <span class="{{ 'o-piped__item'|prefixClass }}">
+                    {{- "liked.by.persons"|trans({ count: statement.likesNum }) -}}
+                </span>
+            {% endif %}
+
+        {% endapply %}
+        </span>
+
+    </div>

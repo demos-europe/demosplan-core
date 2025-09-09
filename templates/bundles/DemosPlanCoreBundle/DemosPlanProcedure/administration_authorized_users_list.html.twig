@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+{% block component_part %}
+
+    {# Header #}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'authorized.users'|trans
+    } %}
+
+    <authorized-users-list procedure-id="{{ procedure }}">
+    </authorized-users-list>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationAuthorizedUsersList.js') }}
+{% endblock javascripts %}

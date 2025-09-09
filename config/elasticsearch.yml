@@ -1,0 +1,431 @@
+parameters:
+    elasticsearch_query:
+        procedure:
+            filter:
+                all:
+                    municipalCode:
+                        display: false
+                        aggregation:
+                            field: "municipalCode.raw"
+                            nullValue: null
+                    locationPostCode:
+                        display: false
+                        aggregation:
+                            field: "locationPostCode.raw"
+                            nullValue: null
+                    # Amtlicher Regionalschlüssel
+                    ars:
+                        display: false
+                        aggregation:
+                            field: "ars"
+                            nullValue: null
+                    locationName:
+                        display: false
+                        aggregation:
+                            field: "locationName.raw"
+                            nullValue: null
+                    planningArea:
+                        display: false
+                        aggregation:
+                            field: "planningArea.raw"
+                            nullValue: null
+                    procedureCategoryNames:
+                        titleKey: "categories"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                        permission: "feature_procedure_categories"
+                    participationGuestOnly:
+                        display: false
+                    subdomain:
+                        display: false
+
+                internal:
+                    phasePermissionset:
+                        titleKey: "procedure.filter.permissionset.label"
+                        permission: "feature_procedure_filter_internal_phase_permissionset"
+                    phase:
+                        contextHelpKey: "explanation.procedure.filter.phase"
+                        titleKey: "procedure.public.phase"
+                        aggregation:
+                            field: "phase"
+                            nullValue: null
+                        permission: "feature_procedure_filter_internal_phase"
+                    orgaName:
+                        titleKey: "procedure.agency"
+                        permission: "feature_procedure_filter_external_orga_name"
+                        field: "orgaName.raw"
+                        aggregation:
+                            field: "orgaName.raw"
+                            nullValue: null
+                external:
+                    publicParticipationPhasePermissionset:
+                        titleKey: "procedure.filter.permissionset.label"
+                        permission: "feature_procedure_filter_external_public_participation_phase_permissionset"
+                    publicParticipationPhase:
+                        contextHelpKey: "explanation.procedure.filter.phase"
+                        titleKey: "procedure.public.phase"
+                        permission: "feature_procedure_filter_external_public_participation_phase"
+                        aggregation:
+                            #  If field is not explicitly set, parent name is taken
+                            field: "publicParticipationPhase"
+                            nullValue: ""
+                    orgaName:
+                        titleKey: "procedure.agency"
+                        permission: "feature_procedure_filter_external_orga_name"
+                        field: "orgaName.raw"
+                        aggregation:
+                            field: "orgaName.raw"
+                            nullValue: null
+                planner:
+                    phasePermissionset:
+                        titleKey: "procedure.filter.permissionset.label.intern"
+                    phase:
+                        contextHelpKey: "explanation.procedure.filter.phase"
+                        titleKey: "procedure.public.phase.intern"
+                        permission: "feature_institution_participation"
+                        aggregation:
+                            field: "phase"
+                            nullValue: null
+                    publicParticipationPhasePermissionset:
+                        titleKey: "procedure.filter.permissionset.label.extern"
+                    publicParticipationPhase:
+                        contextHelpKey: "explanation.procedure.filter.phase"
+                        titleKey: "procedure.public.phase.extern"
+                        aggregation:
+                            # If field is not explicitly set, parent name is taken
+                            field: "publicParticipationPhase"
+                            nullValue: ""
+
+            sort:
+                all:
+                    locationName:
+                        titleKey: "sort.location"
+                        permission: "feature_procedure_sort_location"
+                        fields:
+                            locationName.raw: "asc"
+                    organisation:
+                        titleKey: "sort.organisation"
+                        permission: "feature_procedure_sort_orga_name"
+                        fields:
+                            orgaName.raw: "asc"
+
+                internal:
+                    name:
+                        titleKey: "sort.procedurename"
+                        fields:
+                            name.raw: "asc"
+                    phase:
+                        titleKey: "sort.phase"
+                        fields:
+                            phase: "asc"
+                    endDate:
+                        titleKey: "sort.enddate"
+                        fields:
+                            endDate: "asc"
+                    startDate:
+                        titleKey: "sort.startdate"
+                        fields:
+                            startDate: "desc"
+                external:
+                    externalName:
+                        titleKey: "sort.procedurename"
+                        fields:
+                            externalName.rawSort: "asc"
+                    publicParticipationPhase:
+                        titleKey: "sort.phase"
+                        fields:
+                            publicParticipationPhase: "asc"
+                    publicParticipationEndDate:
+                        titleKey: "sort.enddate"
+                        fields:
+                            publicParticipationEndDate: "asc"
+                    publicParticipationStartDate:
+                        titleKey: "sort.startdate"
+                        fields:
+                            publicParticipationStartDate: "desc"
+                planner:
+                    endDate:
+                        titleKey: "sort.enddate"
+                        fields:
+                            endDate: "asc"
+                    phase:
+                        titleKey: "sort.phase"
+                        fields:
+                            phase: "asc"
+            sort_default:
+                all:
+                    field: "name.rawSort"
+                    direction: "asc"
+                internal:
+                    field: "endDate"
+                    direction: "asc"
+                external:
+                    field: "%procedure_public_list_default_sort_key%"
+                    direction: "asc"
+                planner:
+                    field: "endDate"
+                    direction: "asc"
+            search:
+                all:
+                    locationName.text:
+                        titleKey: "location"
+                        boost: 0.5
+                    locationPostCode:
+                        titleKey: "postCode"
+                    orgaName.text:
+                        titleKey: "organisation"
+                    orgaName:
+                        titleKey: "organisation"
+                    municipalCode:
+                internal:
+                    name:
+                        titleKey: "procedure.name"
+                external:
+                    externalName:
+                        titleKey: "procedure.name"
+                    externalName.text:
+                planner:
+                    name:
+                        titleKey: "procedure.name"
+                    externalName:
+                        titleKey: "procedure.name"
+                    externalName.text:
+        statementFragment:
+            filter:
+                all: []
+                planner:
+                    procedureName:
+                        titleKey: "procedure"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                        hasNoAssignmentOption: false
+                        hasAllOption: false
+                    voteAdvice:
+                        titleKey: "fragment.voteAdvice.short"
+                        display: true
+                        aggregation:
+                            field: "voteAdvice"
+                            nullValue: null
+                    priorityAreaKeys:
+                        titleKey: "potential.areas"
+                        display: true
+                        aggregation:
+                            field: "priorityAreaKeys"
+                            nullValue: null
+                    municipalityNames.raw:
+                        titleKey: "municipalities"
+                        display: true
+                        aggregation:
+                            field: "municipalityNames.raw"
+                            nullValue: null
+                    countyNames.raw:
+                        titleKey: "county"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                    tagNames.raw:
+                        titleKey: "tag"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                    elementId:
+                        titleKey: "document"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                    paragraphId:
+                        titleKey: "paragraph"
+                        display: true
+                        aggregation:
+                            nullValue: null
+                    departmentId:
+                        titleKey: "department"
+                        display: false
+                        aggregation:
+                            nullValue: null
+            sort:
+                all:
+                    assignedToFbDate:
+                        titleKey: "sort.assignedToFbDate"
+                        fields:
+                            assignedToFbDate: "desc"
+                    created:
+                        titleKey: "created"
+                        fields:
+                            created: "desc"
+                    versionCreated:
+                        titleKey: "versionCreated"
+                        fields:
+                            versions.created: "desc"
+            sort_default:
+                all:
+                    field: "created"
+                    direction: "desc"
+                external: []
+                internal: []
+                planner: []
+            search: []
+        user:
+            filter:
+                all:
+                    orga.name:
+                        display: false
+                        field: "orga.name.raw"
+                        aggregation:
+                            field: "orga.name.raw"
+                    orga.id:
+                        display: false
+                    deleted:
+                        field: "deleted"
+                        display: false
+                    id:
+                        field: "id"
+                        display: false
+            sort:
+                all:
+                    orga.name:
+                        titleKey: "orga.name"
+                        fields:
+                            orga.name.raw: "asc"
+                    lastnameAsc:
+                        titleKey: "sort.lastnameAsc"
+                        fields:
+                            lastname: "asc"
+            sort_default:
+                external:
+                    field: "orga.name.raw"
+                    direction: "asc"
+            search:
+                all:
+                    orga.name:
+                    name:
+                    email:
+        statement:
+            filter:
+                all: []
+                planner:
+                    authorName:
+                        display: true
+                        field: "meta.authorName"
+                        aggregation: null
+                    procedure.id:
+                        display: true
+                        field: "procedureId"
+                        aggregation: null
+                    headStatement.id:
+                        display: true
+                        field: "headStatementId"
+                        aggregation: null
+                    deleted:
+                        display: true
+                        field: "deleted"
+                        aggregation: null
+                    original.id:
+                        display: true
+                        field: "originalId"
+                        aggregation: null
+            sort_default:
+                all: []
+            sort:
+                all: []
+            search:
+                all:
+                    text:
+                planner:
+                    text.text:
+                        boost: 0.5
+                    initialOrganisationName:
+                        field: "meta.orgaName"
+                        boost: 0.2
+                    initialOrganisationDepartmentName:
+                        field: "meta.orgaDepartmentName"
+                        boost: 0.2
+                    authorName:
+                        field: "meta.authorName"
+                        boost: 0.2
+                    internId:
+                    externId:
+                    memo:
+                    submitType:
+                        field: "submitTypeTranslated"
+                    initialOrganisationCity:
+                        field: "meta.orgaCity"
+                    initialOrganisationPostalCode:
+                        field: "meta.orgaPostalCode"
+        statementSegment:
+            filter:
+                all: []
+                planner:
+                    parentStatement.procedure.id:
+                        display: false
+                        field: "parentStatement.procedure.id"
+                        aggregation: null
+                    tags:
+                        display: true
+                        field: "tagIds"
+                        aggregation:
+                            field: "tagIds"
+                            nullValue: null
+                    assignee:
+                        display: true
+                        field: "assigneeId"
+                        aggregation:
+                            field: "assigneeId"
+                            nullValue: null
+                    place:
+                        display: true
+                        field: "placeId"
+                        aggregation:
+                            field: "placeId"
+                            nullValue: null
+            sort_default:
+                all: []
+            sort:
+                all: []
+            search:
+                all: []
+                planner:
+                    text.text:
+                        boost: 0.5
+                        titleKey: "segment.text"
+                    externId:
+                        titleKey: "segment.external_id"
+                    recommendation:
+                        titleKey: "segment.recommendation"
+                    "parentStatement.memo":
+                        field: "parentStatement.memo"
+                        titleKey: "memo"
+                        permission: "field_statement_memo"
+                    "parentStatement.externId":
+                        field: "parentStatement.externId"
+                        titleKey: "statement.external_id"
+                    "parentStatement.initialOrganisationName":
+                        field: "parentStatement.meta.orgaName"
+                        boost: 0.2
+                        titleKey: "organisation"
+                        permission: "feature_institution_participation"
+                    "parentStatement.initialOrganisationDepartmentName":
+                        field: "parentStatement.meta.orgaDepartmentName"
+                        boost: 0.2
+                        titleKey: "department.name"
+                        permission: "feature_statement_search_department"
+                    "parentStatement.submitterName":
+                        field: "parentStatement.meta.submitName"
+                        boost: 0.2
+                        titleKey: "submitter"
+                    "parentStatement.initialOrganisationCity":
+                        field: "parentStatement.meta.orgaCity"
+                        titleKey: "city"
+                        permission: "feature_statement_search_orga_city"
+                    "parentStatement.submitterPostalCode":
+                        field: "parentStatement.meta.orgaPostalCode"
+                        titleKey: "postalcode"
+                        permission: "feature_statement_search_orga_postal_code"
+                    "parentStatement.submitterStreet":
+                        field: "parentStatement.meta.orgaStreet"
+                        titleKey: "street"
+                    "parentStatement.internId":
+                        field: "parentStatement.internId"
+                        titleKey: "internId"

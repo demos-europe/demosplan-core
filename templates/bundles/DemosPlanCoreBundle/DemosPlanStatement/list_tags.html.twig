@@ -1,0 +1,14 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+
+
+{% block component_part %}
+    <tags-list
+        :is-master-procedure="Boolean({{ templateVars.procedureTemplate }})"
+        :procedure-id="{{ templateVars.procedure|json_encode }}">
+    </tags-list>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-listTags.js') }}
+{% endblock javascripts %}

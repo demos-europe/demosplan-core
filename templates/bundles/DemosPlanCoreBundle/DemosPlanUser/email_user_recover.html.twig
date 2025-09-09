@@ -1,0 +1,16 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+{%- set confirmationUrl = url('DemosPlan_user_doubleoptin_invite_confirmation', {'token': templateVars.token, 'uId': templateVars.uId }) %}
+
+Guten Tag {{ templateVars.userName }},
+
+mit einem Klick auf den folgenden Link <a href="{{ confirmationUrl }}">können Sie Ihr Passwort ändern.</a>
+
+Bitte beachten Sie, dass der Link nur einmalig verwendet werden kann.
+
+Mit freundlichen Grüßen,
+
+Ihr {{ projectName }} Team
+
+{% endblock %}

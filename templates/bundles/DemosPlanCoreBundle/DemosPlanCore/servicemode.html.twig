@@ -1,0 +1,19 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block meta_head %}
+    {{ parent() }}
+
+    <meta http-equiv="refresh" content="30; url={{ path('core_service_mode') }}"
+{% endblock meta_head %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block component_part %}
+    <h1>{{ "servicemode"|trans }}</h1>
+    <p>{{ "text.servicemode"|trans({ home_route: path('core_home') })|wysiwyg }}</p>
+{% endblock %}
+{% block base_footer %}
+    <footer></footer>
+{% endblock %}
+{% block base_aside %}{% endblock %}
+{% block base_backtotop %}{% endblock %}

@@ -1,0 +1,32 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+    'content_heading': "informations"|trans
+    } %}
+        {% block content %}
+            <h1>{{ "informations"|trans }}</h1>
+
+            <p>
+                DEMOS-Plan ermöglicht es allen Akteuren in der Bauleitplanung, den Beteiligungsprozess einfacher und effizienter zu gestalten.
+            </p>
+            <p>
+                Das spart Zeit und Kosten und bringt Vorteile für alle Beteiligten.
+            </p>
+            <p>
+                <a href="{{ path('DemosPlan_faq') }}" target="_top">Häufige Fragen</a>
+                <br>
+            </p>
+
+            <h2>DEMOS-Plan Video</h2>
+
+            <video class="{{ 'border'|prefixClass }}" id="demos_plan_video" controls width="504" height="304" data-poster="{{ asset('video/demos-plan-500-300.jpg') }}">
+                <source src="{{ asset('video/demosplan.mp4') }}" type='video/mp4' />
+                <p class="vjs-no-js">
+                    Für die Ansicht dieses Videos wird JavaScript benötigt. Bitte aktivieren Sie es in den Einstellungen Ihres Browsers.
+                </p>
+            </video>
+        {% endblock content %}
+    {% endembed %}
+{% endblock %}
+

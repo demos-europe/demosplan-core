@@ -1,0 +1,16 @@
+{% block body_plain %}
+
+Guten Tag {{ templateVars.starterEntryAuthor.ufirstname}} {{ templateVars.starterEntryAuthor.ulastname }},
+
+im virtuellen Anwenderbeirat wurde ein neuer Beitrag zu Ihrer Frage veröffentlicht.
+
+Ihre Frage: {{ templateVars.firstEntryText|default('')|wysiwyg }}
+Neuer Beitrag: {{ templateVars.text|default('')|wysiwyg }}
+
+Freundliche Grüße
+
+
+-------------
+Sie erhalten diese E-Mail, weil Sie bei {{ templateVars.relatedForum.title|default('')|wysiwyg }} unter "Meine Daten" - "Benachrichtigungen per Email" aktiviert haben. Die Nachricht wurde automatisch generiert.
+
+{% endblock %}

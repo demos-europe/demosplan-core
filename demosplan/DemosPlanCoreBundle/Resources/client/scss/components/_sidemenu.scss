@@ -1,0 +1,104 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//  Used to display the side menu
+@use 'sass:math';
+
+.c-sidemenu {
+    background-color: $dp-color-neutral-light-3;
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    & > li {
+        border-bottom: $dp-border-thickness solid $dp-color-border-default;
+
+        .o-accordion {
+            background-color: $dp-color-white;
+        }
+
+        button {
+            background-color: $dp-color-white;
+            padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small;
+        }
+    }
+
+    .current {
+        & > a {
+            color: $dp-color-highlight;
+        }
+    }
+
+    .menu_level_1 {
+        background-color: $dp-color-neutral-light-3;
+
+        & > li {
+            & > a {
+                display: block;
+                padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit $inuit-base-spacing-unit--small $inuit-base-spacing-unit;
+            }
+
+            &.current_ancestor,
+            &.current {
+                & > a {
+                    background-color: $dp-color-neutral-light-2;
+                }
+            }
+        }
+    }
+
+    .menu_level_2 {
+        margin: {
+            left: $inuit-base-spacing-unit;
+            top: $inuit-base-spacing-unit--small;
+            bottom: $inuit-base-spacing-unit--small;
+        }
+        padding: {
+            right: $inuit-base-spacing-unit;
+            left: $inuit-base-spacing-unit;
+        }
+
+        .knp-sub-heading {
+            font-size: $dp-font-size-small;
+            max-width: 95%;
+            color: $dp-color-neutral-base;
+            margin: {
+                top: $inuit-base-spacing-unit;
+            }
+
+            &.first {
+                margin: {
+                    top: $inuit-base-spacing-unit--small;
+                }
+            }
+        }
+
+        li {
+            margin: {
+                bottom: $inuit-base-spacing-unit--tiny;
+                top: math.div($inuit-base-spacing-unit--tiny, 2);
+            }
+
+            a {
+                font-size: $dp-font-size-medium;
+            }
+
+            &.o-toggle {
+                ul {
+                    padding: {
+                        right: 0 !important;
+                    }
+                }
+            }
+        }
+    }
+}

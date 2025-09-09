@@ -1,0 +1,64 @@
+{% set customers = [] %}
+{% for customer in organisation.customers|default([]) %}
+    {% set customers = customers|merge([{id: customer.id, name: customer.name}]) %}
+{% endfor %}
+
+{% set mayEditOrgaData = true %}
+
+{% set organisationData = {
+    id: organisation.ident|default,
+    name: organisation.nameLegal|default,
+    addressId: organisation.address_ident|default,
+    street: organisation.street|default,
+    addressExtension: organisation.addressExtension|default,
+    houseNumber: organisation.houseNumber|default,
+    postalcode: organisation.postalcode|default,
+    city: organisation.city|default,
+    phone: organisation.phone|default,
+    currentSlugName: organisation.currentSlug.name|default,
+    emailReviewerAdmin: organisation.emailReviewerAdmin|default,
+    emailNotificationNewStatement: organisation.notifications.emailNotificationNewStatement|default({}),
+    emailNotificationEndingPhase: organisation.notifications.emailNotificationEndingPhase|default({}),
+    email2: organisation.email2|default,
+    ccEmail2: organisation.ccEmail2|default,
+    paperCopy: organisation.paperCopy|default,
+    paperCopySpec: organisation.paperCopySpec|default,
+    competence: organisation.competence|default,
+    showlist: organisation.showlist|default,
+    showname: organisation.showname|default,
+    dataProtection: organisation.dataProtection|default,
+    imprint: organisation.imprint|default,
+    submissionType: organisation.submissionType|default
+} %}
+
+{% set submissionTypeDefault = templateVars.submissionTypeDefault %}
+{% set submissionTypeShort = templateVars.submissionTypeShort %}
+
+{% set userData = {
+    isPublicAgency: currentUser.isPublicAgency
+} %}
+
+{% set orgaTypes = templateVars.orgaTypes %}
+{% set willReceiveNewStatementNotification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
+{% set showDetailedInfo = true %}
+{% set hasNotificationSection =  true %}
+{% set hasTypes = false %}
+
+{% block content %}
+    <organisation-data-form
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
+        :is-orga-data-editable="Boolean({{ mayEditOrgaData }})"
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        :orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
+        :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
+        project-name="{{ projectName }}"
+        submission-type-default="{{ submissionTypeDefault }}"
+        submission-type-short="{{ submissionTypeShort }}"
+        :show-detailed-info="Boolean({{ showDetailedInfo }})"
+        :has-types="Boolean({{ hasTypes }})"
+        :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
+        :will-receive-new-statement-notification="Boolean({{ willReceiveNewStatementNotification }})"
+        :has-notification-section="Boolean({{ hasNotificationSection }})">
+    </organisation-data-form>
+{% endblock content %}

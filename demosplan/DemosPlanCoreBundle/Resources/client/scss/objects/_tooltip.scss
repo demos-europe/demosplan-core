@@ -1,0 +1,136 @@
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  (c) 2010-present DEMOS plan GmbH.
+//
+//  This file is part of the package demosplan,
+//  for more information see the license file.
+//
+//  All rights reserved
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////
+/// @group objects
+////
+
+/// @link https://yaits.demos-deutschland.de/w/demosplan/frontend-documentation/components/#tooltips Wiki: Tooltips
+///
+/// @name .tooltip
+///
+
+//  Variables
+$tooltip-width: 400px;
+
+//  Placeholder that styles the tooltip content
+%tooltip-content-styles {
+    @include inuit-font-size($dp-font-size-small);
+
+    position: relative;
+
+    padding: $inuit-base-spacing-unit--tiny $inuit-base-spacing-unit--small $inuit-base-spacing-unit--tiny * 1.5;
+
+    background-color: $dp-color-text-default;
+    color: $dp-color-text-on-dark;
+
+    font-family: $normal-font-family;
+    font-weight: $normal-font-weight;
+    text-align: left;
+    white-space: normal;
+
+
+    //  Default style of links in tooltip content
+    a {
+        color: $dp-color-white;
+
+        &:hover {
+            color: $dp-color-white;
+            text-decoration: underline;
+        }
+    }
+}
+
+//  Tooltip styles used by the Vue implementation
+//  Template: @demos-europe/demosplan-ui/src/components/DpTooltip/utils/tooltip.js
+.tooltip {
+    z-index: $dp-z-tooltip;
+
+    max-width: $tooltip-width;
+
+    cursor: help;
+
+    &--width-auto {
+        max-width: none;
+    }
+
+    &__inner,
+    &-inner {
+        @extend %tooltip-content-styles;
+    }
+
+    &__arrow,
+    &-arrow {
+        position: absolute;
+        z-index: -1;
+
+        height: $inuit-base-spacing-unit--small;
+        margin: - $inuit-base-spacing-unit--tiny 0;
+        width: $inuit-base-spacing-unit--small;
+
+        background: $dp-color-text-default;
+
+        transform: rotate(45deg);
+
+        [x-placement='top'] & {
+            top: 100%;
+        }
+
+        [x-placement='bottom'] & {
+            bottom: 100%;
+        }
+
+        [x-placement='right'] & {
+            right: 100%;
+        }
+
+        [x-placement='left'] & {
+            left: 100%;
+        }
+    }
+}
+
+//  Since the trigger classes applied to v-popover are not configurable,
+//  this hack is needed to make `o-hellip` also work with firefox and v-popover.
+.v-popover.o-hellip--nowrap {
+    & .trigger {
+        max-width: 100%;
+    }
+}
+
+//  Nojs fallback
+//  Template: DemosPlanCoreBundle/Resources/views/Extension/contextual_help.html.twig
+.o-tooltip {
+    .nojs & {
+        position: relative;
+    }
+
+    &__content {
+        display: none;
+
+        //  Simple nojs hiding / showing of content
+        .nojs & {
+            @extend %tooltip-content-styles;
+            width: $tooltip-width;
+        }
+
+        .nojs .o-tooltip:hover &,
+        .nojs .o-tooltip.is-open & {
+            bottom: 0;
+            position: absolute;
+            z-index: $dp-z-tooltip;
+
+            display: block;
+
+            transform: translateX(-50%) translateY(-$inuit-base-spacing-unit);
+        }
+    }
+
+    @include keyboard-focus;
+}

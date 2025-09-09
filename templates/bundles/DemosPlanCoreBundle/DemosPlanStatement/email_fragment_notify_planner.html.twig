@@ -1,0 +1,11 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+{{ "fragment.notify.email.planner"|trans({
+    procedure: templateVars.title,
+    organization: templateVars.organisation,
+    urlBase: url('dplan_assessmenttable_view_table',{ 'procedureId': templateVars.procedureId }),
+    urlFragment: templateVars.fragmentId
+}) }}
+{% endblock body_plain %}
+
+

@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    <div data-swagger-ui></div>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ webpackBundle('core-api_documentation.js') }}
+{% endblock javascripts %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ webpackBundle('core-api_documentation.css') }}
+{% endblock %}

@@ -1,0 +1,496 @@
+[
+    {
+        "entityId": "4fb9774b-d977-11e6-b3b5-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "3ced755d-d977-11e6-b3b5-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "b6c49dd4-f55d-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "d4f5c151-f55d-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "27635634-f55d-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "860f345d-f55d-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "bf7d13e3-f477-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "be5a30b8-f477-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "bd6e5ead-f477-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "c1981312-75ea-11e7-88bf-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "9ec6c233-a764-11e7-a86f-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "9e145baf-a764-11e7-a86f-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "9d6168f9-a764-11e7-a86f-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "db6043cb-e4e0-11e7-b763-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "32e23b91-e593-11e7-b763-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "c1159a2e-e649-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "304ec89f-f477-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "bc928ba0-f477-11e7-bf69-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "4e853fa5-4df2-11e8-ba0c-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Bauabteilung",
+            "name": "Selta Seewind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "0ef27177-2ea4-11e8-ba72-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "8dc4bd3f-7ddc-11e8-b989-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "41a4169d-51a1-11e7-8896-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "604f5196-57dc-11e7-91ed-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "e0d9ab1f-9e16-11e7-9407-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "ddce59e4-af47-11e7-9d32-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "7647f01e-1d40-11e8-ba72-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "46deb5d1-a0aa-11e8-8f11-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "b56f5bb8-3cac-11e7-afb8-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Test",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "ab3a0e4b-6160-11e7-91ed-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "f9774264-705e-11e7-88bf-005056ae0004",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Amt Nordwest des Raumes für ländliche Räume mit Schwerpunkt Wattenmeer",
+            "department": "Baustrategie",
+            "name": "Sven Nordwind",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "235137ca-1733-11e8-b954-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Muster",
+            "department": "",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "5d715789-a51d-11e8-8f11-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "institution",
+        "submitter": {
+            "organisation": "Meine neue Institution",
+            "department": "Abteilung Murks und Dallerei",
+            "name": "Bäm!",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "11cc09b6-397a-11e8-b9d0-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": " ",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "4c492dc3-1865-11e7-a6ce-005056ae0004",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "68a13c44-1862-11e7-a6ce-005056ae0004",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": "trrz",
+            "email": "",
+            "postalCode": "23423",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "eaa796af-ce0a-11e7-aa6d-005056ae0004",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "aa97a617-6160-11e7-91ed-005056ae0004",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": "trrz",
+            "email": "",
+            "postalCode": "23423",
+            "city": ""
+        }
+    },
+    {
+        "entityId": "dc62f650-44c7-11e8-b9d0-782bcb0d78b1",
+        "entityType": "statement",
+        "list": "citizen",
+        "submitter": {
+            "organisation": "Bürger",
+            "department": "anonym",
+            "name": "",
+            "email": "",
+            "postalCode": "",
+            "city": ""
+        }
+    }
+]

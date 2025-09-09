@@ -1,0 +1,5 @@
+migrations_paths:
+    Application\Migrations: "../Resources/DemosPlanCoreBundle/DoctrineMigrations"
+table_storage:
+    table_name: project_migration_versions
+organize_migrations: "year_and_month"

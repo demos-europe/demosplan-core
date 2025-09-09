@@ -1,0 +1,24 @@
+{% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
+    {% set statement = templateVars.statement %}
+
+{% block component_part %}
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        link: path('DemosPlan_procedure_public_detail', { 'procedure':procedure }),
+        link_caption: 'procedure.goto'|trans,
+        content_heading: "statement.public.vote"|trans,
+        content_subheading: "explanation.submit.vote"|trans,
+        col1: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-1-of-5'|prefixClass,
+        col2: currentUser.loggedIn == true ? 'u-1-of-1'|prefixClass : 'u-4-of-5'|prefixClass,
+        full_width: true,
+        hideMetaMenu: hideMetaMenu|default
+    }%}
+    {% block content %}
+        {{ include('@DemosPlanCore/DemosPlanStatement/includes/new_public_participation_statement_vote_content.html.twig') }}
+    {% endblock %}
+    {% endembed %}
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('statement-newPublicParticipationStatementVote.js') }}
+{% endblock javascripts %}

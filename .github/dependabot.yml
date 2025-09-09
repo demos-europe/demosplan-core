@@ -1,0 +1,87 @@
+version: 2
+updates:
+  # JS/CSS Dependencies of demosplan
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "02:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 20
+    ignore:
+      # D3 Upgrades are blocked because 8.x is not installing propperly
+      # my guess: soething with fsevents 2.0
+      - dependency-name: d3-sankey-diagram
+        versions:
+          - ">= 0.8.0"
+          - "< 99"
+
+      # Can't be used as CommonJs but only ESM which will break our FE build atm
+      - dependency-name: chalk
+        versions:
+          - ">= 5"
+
+      # These dependencies have to be updated according to the needs of @masterportal/masterportalapi
+      # on that note: we have to update the masterportalapi maually, because its hosted by bitbucket and not via npm
+      - dependency-name: ol
+      - dependency-name: ol-mapbox-style
+      - dependency-name: olcs
+      - dependency-name: cesium
+      - dependency-name: "@cesium/engine"
+    groups:
+      babel:
+        patterns:
+          - "@babel/*"
+        # @babel-plugin-* and @babel/eslint have different update cycles and with that
+        # different a versioning. therefore we can't group them with the other babel packages
+        exclude-patterns:
+          - "@babel/plugin-*"
+          - "@babel/eslint-*"
+      sentry:
+        patterns:
+          - "@sentry/*"
+    labels:
+      - dependencies:yarn
+
+  # PHP Dependencies of demosplan
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "02:01"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 20
+    labels:
+      - dependencies:composer
+    ignore:
+      - dependency-name: phpunit/phpunit
+        versions:
+          - ">= 9.a"
+          - "< 10"
+      - dependency-name: symfony/*
+        update-types: ["version-update:semver-major"]
+      - dependency-name: friendsofsymfony/jsrouting-bundle
+        update-types: [ "version-update:semver-major" ]
+    groups:
+      symfony:
+        patterns:
+          - "symfony/*"
+        exclude-patterns:
+          - "symfony/cache-contracts"
+          - "symfony/deprecation-contracts"
+          - "symfony/event-dispatcher-contracts"
+          - "symfony/flex"
+          - "symfony/http-client-contracts"
+          - "symfony/maker-bundle"
+          - "symfony/monolog-bundle"
+          - "symfony/phpunit-bridge"
+          - "symfony/polyfill*"
+          - "symfony/psr-http-message-bridge"
+          - "symfony/security-http"
+          - "symfony/service-contracts"
+          - "symfony/translation-contracts"
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"

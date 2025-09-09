@@ -1,0 +1,94 @@
+security:
+    enable_authenticator_manager: true
+    password_hashers:
+        # salt handling differed from symfony, therefore we need a custom sha512 implementation
+        customSha512:
+            id: demosplan\DemosPlanCoreBundle\Security\Encoder\CustomSha512Encoder
+        # Encoder may be used to easily reset passwords in database
+        saltlessMd5:
+            id: demosplan\DemosPlanCoreBundle\Security\Encoder\SaltlessMd5Encoder
+        demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser:
+            algorithm: auto
+            migrate_from:
+                - customSha512
+                - saltlessMd5
+        demosplan\DemosPlanCoreBundle\Entity\User\User:
+            algorithm: auto
+            migrate_from:
+                - customSha512
+                - saltlessMd5
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        users_in_memory: { memory: null }
+        in_memory:
+            memory: ~
+
+        dplan_default_user_provider:
+            id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SecurityUserProvider
+        # user provider for the AI (Planning Intelligence) API Integration
+        ai_provider:
+            id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\AiApiUserProvider
+        api_provider:
+            id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\ApiUserProvider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+            provider: in_memory
+        api_ai:
+            pattern: ^/api/ai
+            stateless: true
+            provider: ai_provider
+            jwt:
+                authenticator: demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator
+        api_ai_auth_jwt:
+            pattern: ^/api/ai/auth
+            stateless: true
+            provider: ai_provider
+            json_login:
+                check_path:      /api/ai/auth/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        api:
+            pattern: ^/api/\d.+
+            stateless: true
+            provider: api_provider
+            jwt:
+                authenticator: demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator
+        main:
+            provider: dplan_default_user_provider
+            lazy: true
+            custom_authenticators: '%demosplan_user_authenticator_service%'
+            entry_point: '%demosplan_user_authenticator_service_entry_point%'
+            logout:
+                path: DemosPlan_user_logout
+            # allow 5 login attempts per minute by default
+            login_throttling: null
+            two_factor:
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    access_control:
+        # This makes the logout route accessible during two-factor authentication. Allows the user to
+        # cancel two-factor authentication, if they need to.
+        - { path: ^/logout, role: PUBLIC_ACCESS }
+        # This ensures that the form can only be accessed when two-factor authentication is in progress.
+        - { path: ^/2fa, role: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

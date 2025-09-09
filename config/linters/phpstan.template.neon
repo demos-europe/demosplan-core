@@ -1,0 +1,5 @@
+includes:
+    - ./phpstan.dist.neon
+parameters:
+    symfony:
+        container_xml_path: {{ container_path }}

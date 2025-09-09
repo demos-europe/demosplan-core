@@ -1,0 +1,40 @@
+{#
+    This is a ui component used via the Twig function call uiComponent('form.date_range_picker')
+
+    omitCssPrefix {Boolean}: set to false will add a css prefix from parameters.yml (public_css_class_prefix), default true
+#}
+{% set omitPrefix  = omitCssPrefix ?? true %}
+<dp-date-range-picker
+    start-value="{{ startValue }}"
+    start-id="{{ startId|default }}"
+    start-name="{{ startName|default }}"
+    end-value="{{ endValue }}"
+    end-id="{{ endId|default }}"
+    end-name="{{ endName|default }}"
+    class="o-form__control-wrapper {{ class|default|prefixClass(omitPrefix) }}"
+    {% if maxDate is defined %}
+        max-date="{{ maxDate }}"
+    {% endif %}
+    {% if minDate is defined %}
+        min-date="{{ minDate }}"
+    {% endif %}
+    {% if calendarsAfter is defined %}
+        :calendars-after="{{ calendarsAfter }}"
+    {% endif %}
+    {% if calendarsBefore is defined %}
+        :calendars-before="{{ calendarsBefore }}"
+    {% endif %}
+    {% if required is defined %}
+        :required="true"
+    {% endif %}
+    {% if enforcePlausibleDates is defined %}
+        :enforce-plausible-dates="true"
+    {% endif %}
+    {% if customAttrs is defined %}
+        {% for attr in customAttrs %}
+            {{ attr }}
+        {% endfor %}
+    {% endif %}>
+    {# nojs fallback #}
+    {{ uiComponent('form.input.text', { props: _context }) }}
+</dp-date-range-picker>

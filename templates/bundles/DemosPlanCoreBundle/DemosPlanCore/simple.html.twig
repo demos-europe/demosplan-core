@@ -1,0 +1,17 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+{% if templateVars is defined %}
+	{% if templateVars.title is defined %}
+		{% set title = templateVars.title %}
+	{% else %}
+		{% set title = "" %}
+	{% endif %}
+
+{% endif %}
+
+{% block component_part %}
+
+{# <h1>{{ title }}</h1>#}
+    <p>{{ code_1|wysiwyg }}</p>
+
+
+{% endblock %}
