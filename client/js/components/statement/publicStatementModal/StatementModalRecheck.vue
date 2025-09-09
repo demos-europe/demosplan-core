@@ -151,8 +151,10 @@
       </button>
     </div>
 
+
+
     <div
-      v-if="statementFeedbackDefinitions.length > 0"
+      v-if="statementFeedbackDefinitions.length > 0 && publicParticipationFeedbackEnabled"
       :class="prefixClass('flow-root border--top u-pt-0_25')">
       <p
         v-if="hasPermission('feature_statements_feedback_postal')"
@@ -261,6 +263,12 @@ export default {
     },
 
     publicParticipationPublicationEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
       default: false
