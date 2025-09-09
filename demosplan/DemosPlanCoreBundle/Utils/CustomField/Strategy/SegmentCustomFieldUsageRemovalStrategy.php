@@ -23,8 +23,7 @@ use Exception;
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
     public function __construct(
-        private readonly SegmentRepository $segmentRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly SegmentRepository $segmentRepository
     ) {
     }
 
@@ -34,26 +33,10 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
      */
     public function removeUsages(string $customFieldId): void
     {
-        $this->entityManager->getConnection()->beginTransaction();
+        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
 
-        try {
-            $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-
-            foreach ($segments as $segment) {
-                $this->removeCustomFieldFromSegment($segment, $customFieldId);
-            }
-
-            $this->entityManager->flush();
-            $this->entityManager->getConnection()->commit();
-        } catch (Exception $e) {
-            // Rollback all changes on any error
-            $this->entityManager->getConnection()->rollBack();
-
-            // Clear entity manager to avoid stale state
-            $this->entityManager->clear();
-
-            // Re-throw with context
-            throw new PersistResourceException("Failed to remove custom field values in segments for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+        foreach ($segments as $segment) {
+            $this->removeCustomFieldFromSegment($segment, $customFieldId);
         }
     }
 
@@ -77,22 +60,10 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
     {
-        $this->entityManager->getConnection()->beginTransaction();
+        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
 
-        try {
-            $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-
-            foreach ($segments as $segment) {
-                $this->removeDeletedOptionsFromSegment($segment, $customFieldId, $deletedOptionIds);
-            }
-
-            $this->entityManager->flush();
-            $this->entityManager->getConnection()->commit();
-        } catch (Exception $e) {
-            $this->entityManager->getConnection()->rollBack();
-            $this->entityManager->clear();
-
-            throw new PersistResourceException("Failed to remove deleted option usages for custom field ID {$customFieldId}: ".$e->getMessage(), 0, $e);
+        foreach ($segments as $segment) {
+            $this->removeDeletedOptionsFromSegment($segment, $customFieldId, $deletedOptionIds);
         }
     }
 
