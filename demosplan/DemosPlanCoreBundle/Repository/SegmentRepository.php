@@ -107,12 +107,17 @@ class SegmentRepository extends CoreRepository
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
+        // Escape JSON-breaking characters to prevent injection
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"' . $escapedCustomFieldId . '"%';
+
+
         return $qb
             ->select('segment')
             ->from(Segment::class, 'segment')
             ->where('segment.customFields IS NOT NULL')
             ->andWhere('segment.customFields LIKE :customFieldSearch')
-            ->setParameter('customFieldSearch', '%"id":"'.$customFieldId.'"%')
+            ->setParameter('customFieldSearch', $searchPattern)
             ->getQuery()
             ->getResult();
     }
