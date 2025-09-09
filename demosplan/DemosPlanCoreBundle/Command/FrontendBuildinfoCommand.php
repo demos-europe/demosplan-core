@@ -84,7 +84,7 @@ CSS;
         if (!$projectCSSFiles->isEmpty()) {
             // Formatting here is adjusted to match the surrounding `fe` output formatting, hence this is printed bold
             fprintf(STDERR, "\033[1mProject \"%s\" adds CSS files:\033[0m\n\n", $project);
-            $projectCSSFiles->each(fn($file) => fprintf(STDERR, "\t- %s\n", $file));
+            $projectCSSFiles->each(fn ($file) => fprintf(STDERR, "\t- %s\n", $file));
         }
 
         $projectCSS .= "\n";
