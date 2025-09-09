@@ -1002,28 +1002,16 @@ export default {
       required: true,
     },
 
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
       default: false,
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
     },
 
     initRedirectPath: {
