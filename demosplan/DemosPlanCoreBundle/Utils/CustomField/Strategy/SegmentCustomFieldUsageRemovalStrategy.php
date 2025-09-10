@@ -45,6 +45,10 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     private function removeCustomFieldFromSegment(Segment $segment, string $customFieldId): void
     {
+        $originalCustomFields = $segment->getCustomFields();
+        if (null === $originalCustomFields) {
+            return;
+        }
         $customFields = clone $segment->getCustomFields();
         if ($customFields instanceof CustomFieldValuesList) {
             $customFieldValue = $customFields->findById($customFieldId);
