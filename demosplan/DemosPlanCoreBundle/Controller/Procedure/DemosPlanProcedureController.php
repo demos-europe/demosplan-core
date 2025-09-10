@@ -107,6 +107,7 @@ use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -128,6 +129,14 @@ class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
     private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+
+    private const PARAM_BOILERPLATE_DELETE_CHECKED = 'boilerplateDeleteChecked';
+    private const PARAM_BOILERPLATE_DELETE = 'boilerplate_delete';
+    private const PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE = 'boilerplateGroupIdsTo_delete';
+    private const PARAM_BOILERPLATE_DELETE_ITEM = 'boilerplateDeleteItem';
+    private const PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT = 'boilerplateGroupDeleteAllContent';
+    private const PARAM_CREATE_GROUP = 'r_createGroup';
+    private const PARAM_NEW_GROUP = 'r_newGroup';
 
     /**
      * @var MapService
@@ -670,6 +679,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipationPublicationEnabled',
                 'r_publicParticipationFeedbackEnabled',
                 'allowAnonymousStatements',
+                'expandProcedureDescription',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
@@ -1400,11 +1410,21 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
+                $evaluatingPhase = null;
                 foreach ($templateVars['internalPhases'] as $internalPhase) {
                     if ('evaluating' === $internalPhase['key']) {
                         $evaluatingPhase = $internalPhase['name'];
-
                         break;
+                    }
+                }
+
+                // Fallback to 'analysis' if 'evaluating' phase not found
+                if (null === $evaluatingPhase) {
+                    foreach ($templateVars['internalPhases'] as $internalPhase) {
+                        if ('analysis' === $internalPhase['key']) {
+                            $evaluatingPhase = $internalPhase['name'];
+                            break;
+                        }
                     }
                 }
             }
@@ -1802,7 +1822,7 @@ class DemosPlanProcedureController extends BaseController
         // Öffentliche Stellungnahmen
         $publicLimit = $request->get('r_limit', 10);
         $publicPage = $request->get('page', 1);
-        $statementService->setPaginatorLimits([10]);
+        $statementService->setPaginatorLimits([10, 25, 50]);
         $statements = $statementService->getStatementsByProcedureId(
             $procedureId,
             $filters,
@@ -2356,63 +2376,16 @@ class DemosPlanProcedureController extends BaseController
     ) {
         $procedureId = $procedure;
         $requestPost = $request->request;
-        $procedureService = $this->procedureService;
 
-        // Delete checked Boilerplates and or BoilerPlateGroups
-        if ($requestPost->has('boilerplateDeleteChecked')) {
-            // Delete checked Boilerplates
-            if ($requestPost->has('boilerplate_delete')) {
-                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all('boilerplate_delete'));
-            }
-
-            // Delete checked BoilerplateGroups
-            if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups($requestPost->all('boilerplateGroupIdsTo_delete'));
-            }
-
-            if (false ===
-                $requestPost->has('boilerplate_delete') || $requestPost->has('boilerplateGroupIdsTo_delete')
-            ) {
-                $this->getMessageBag()->add('warning', 'warning.select.entries');
-            }
-        }
-
-        // delete single boilerplate
-        if ($requestPost->has('boilerplateDeleteItem')) {
-            $this->handleDeleteBoilerplate($requestPost->get('boilerplateDeleteItem'));
-        }
-
-        // delete single boilerplateGroup
-        if ($requestPost->has('boilerplateGroupDeleteAllContent')) {
-            $this->handleDeleteBoilerplateGroup($requestPost->get('boilerplateGroupDeleteAllContent'));
-        }
-
-        if ($requestPost->has('r_createGroup') && $requestPost->has('r_newGroup')) {
-            try {
-                $createdGroup = $procedureService->createBoilerplateGroup($requestPost->get('r_newGroup'), $procedureId);
-                $this->getMessageBag()->add(
-                    'confirm',
-                    'confirm.boilerplate.group.created',
-                    ['title' => $createdGroup->getTitle()]
-                );
-            } catch (Exception) {
-                $this->getMessageBag()->add(
-                    'error',
-                    'error.boilerplate.group.not.created',
-                    ['title' => $requestPost['r_newGroup']]
-                );
-            }
-        }
-
-        $templateVars = [];
-        $templateVars['list'] = $procedureService->getBoilerplateList($procedure);
-        $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedureId);
+        $this->processBoilerplateActions($procedureHandler, $requestPost, $procedureId);
 
         if (!$request->isMethod('GET')) {
             // prevent sending the same post multiple times when browser reloads the same page (F5)
             // therefore redirect to self as a get call instead.
             return $this->redirectBack($request);
         }
+
+        $templateVars = $this->prepareBoilerplateTemplateVars($procedure, $procedureId);
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
@@ -2422,6 +2395,76 @@ class DemosPlanProcedureController extends BaseController
                 'procedure'    => $procedure,
             ]
         );
+    }
+
+    private function processBoilerplateActions(ProcedureHandler $procedureHandler, ParameterBag $requestPost, string $procedureId): void
+    {
+        $this->processDeleteCheckedBoilerplates($procedureHandler, $requestPost);
+        $this->processSingleBoilerplateDeletion($requestPost);
+        $this->processGroupCreation($requestPost, $procedureId);
+    }
+
+    private function processDeleteCheckedBoilerplates(ProcedureHandler $procedureHandler, ParameterBag $requestPost): void
+    {
+        if (!$requestPost->has(self::PARAM_BOILERPLATE_DELETE_CHECKED)) {
+            return;
+        }
+
+        $hasBoilerplateDelete = $requestPost->has(self::PARAM_BOILERPLATE_DELETE);
+        $hasGroupDelete = $requestPost->has(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE);
+
+        if ($hasBoilerplateDelete) {
+            $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all(self::PARAM_BOILERPLATE_DELETE));
+        }
+
+        if ($hasGroupDelete) {
+            $this->handleDeleteBoilerplateGroups($requestPost->all(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE));
+        }
+
+        if (!$hasBoilerplateDelete && !$hasGroupDelete) {
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
+        }
+    }
+
+    private function processSingleBoilerplateDeletion(ParameterBag $requestPost): void
+    {
+        if ($requestPost->has(self::PARAM_BOILERPLATE_DELETE_ITEM)) {
+            $this->handleDeleteBoilerplate($requestPost->get(self::PARAM_BOILERPLATE_DELETE_ITEM));
+        }
+
+        if ($requestPost->has(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT)) {
+            $this->handleDeleteBoilerplateGroup($requestPost->get(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT));
+        }
+    }
+
+    private function processGroupCreation(ParameterBag $requestPost, string $procedureId): void
+    {
+        if (!$requestPost->has(self::PARAM_CREATE_GROUP) || !$requestPost->has(self::PARAM_NEW_GROUP)) {
+            return;
+        }
+
+        try {
+            $createdGroup = $this->procedureService->createBoilerplateGroup($requestPost->get(self::PARAM_NEW_GROUP), $procedureId);
+            $this->getMessageBag()->add(
+                'confirm',
+                'confirm.boilerplate.group.created',
+                ['title' => $createdGroup->getTitle()]
+            );
+        } catch (Exception) {
+            $this->getMessageBag()->add(
+                'error',
+                'error.boilerplate.group.not.created',
+                ['title' => $requestPost[self::PARAM_NEW_GROUP]]
+            );
+        }
+    }
+
+    private function prepareBoilerplateTemplateVars(string $procedure, string $procedureId): array
+    {
+        return [
+            'list'              => $this->procedureService->getBoilerplateList($procedure),
+            'boilerplateGroups' => $this->procedureService->getBoilerplateGroups($procedureId),
+        ];
     }
 
     /**

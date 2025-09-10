@@ -117,6 +117,11 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     private bool $allowAnonymousStatements = true;
 
     /**
+     * @ORM\Column(name="expand_procedure_description", type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $expandProcedureDescription = false;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_ps_plan_text", type="text", length=65535, nullable=false)
@@ -920,6 +925,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedSwitchDate(?DateTime $designatedSwitchDate): self
     {
         $this->procedure->getPhaseObject()->setDesignatedSwitchDate($designatedSwitchDate);
+        $this->procedure->getPhaseObject()->setDesignatedSwitchDateTimestamp($designatedSwitchDate?->getTimestamp());
 
         return $this;
     }
@@ -938,6 +944,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedPublicSwitchDate(?DateTime $designatedPublicSwitchDate): self
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDate($designatedPublicSwitchDate);
+        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedSwitchDateTimestamp($designatedPublicSwitchDate?->getTimestamp());
 
         return $this;
     }
@@ -976,6 +983,18 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function setDesignatedPublicEndDate($designatedPublicEndDate)
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedEndDate($designatedPublicEndDate);
+
+        return $this;
+    }
+
+    public function getExpandProcedureDescription(): bool
+    {
+        return $this->expandProcedureDescription;
+    }
+
+    public function setExpandProcedureDescription(bool $expandProcedureDescription): ProcedureSettingsInterface
+    {
+        $this->expandProcedureDescription = $expandProcedureDescription;
 
         return $this;
     }

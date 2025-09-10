@@ -15,7 +15,7 @@ export default class StatisticsCharts {
       procedurePhasesPublicAgenciesChart: initBarChart('#procedurePhasesPublicAgencies', '#procedurePhasesPublicAgenciesLegend'),
       procedurePhasesPublicChart: initBarChart('#procedurePhasesPublic', '#procedurePhasesPublicLegend'),
       StatementsAmountChart: initBarChart('#statementsAmountChart', '#statementsAmountChartLegend'),
-      StatementsAverageChart: initBarChart('#statementsAverageChart', '#statementsAverageChartLegend')
+      StatementsAverageChart: initBarChart('#statementsAverageChart', '#statementsAverageChartLegend'),
     }
   }
 }

@@ -14,7 +14,8 @@
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institution.master.organisations.new')"
-          for="r_orga" />
+          for="r_orga"
+        />
 
         <dp-multiselect
           id="r_orga"
@@ -22,7 +23,8 @@
           :allow-empty="false"
           label="name"
           :options="organisations"
-          track-by="ident">
+          track-by="ident"
+        >
           <template v-slot:option="{ props }">
             <span class="weight--bold block">{{ props.option.name }}</span>
             <span class="font-size-small">{{ list(props.option.departmentNames) }}</span>
@@ -33,7 +35,8 @@
           <input
             type="hidden"
             :value="selectedOrganisation.ident"
-            name="r_orga">
+            name="r_orga"
+          >
           <dl class="description-list">
             <dt v-text="Translator.trans('name')" />
             <dd v-text="selectedOrganisation.name" />
@@ -51,7 +54,8 @@
         <dp-label
           class="u-mb-0_25"
           :text="Translator.trans('invitable_institutions.master.organisations.master_toeb_list')"
-          for="r_orga_mastertoeb" />
+          for="r_orga_mastertoeb"
+        />
 
         <dp-multiselect
           id="r_orga_mastertoeb"
@@ -59,7 +63,8 @@
           :allow-empty="false"
           label="orgaName"
           :options="organisationsMasterToeb"
-          track-by="ident">
+          track-by="ident"
+        >
           <template v-slot:option="{ props }">
             <span class="weight--bold block">{{ props.option.orgaName }}</span>
             <span class="font-size-small">{{ props.option.departmentName }}</span>
@@ -70,7 +75,8 @@
           <input
             type="hidden"
             :value="selectedOrganisationMasterToeb.ident"
-            name="r_orga_mastertoeb">
+            name="r_orga_mastertoeb"
+          >
           <dl class="description-list">
             <dt v-text="Translator.trans('name')" />
             <dd v-text="selectedOrganisationMasterToeb.orgaName" />
@@ -93,27 +99,27 @@ export default {
 
   components: {
     DpLabel,
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
     organisations: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     organisationsMasterToeb: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
     return {
       selectedOrganisation: null,
-      selectedOrganisationMasterToeb: null
+      selectedOrganisationMasterToeb: null,
     }
   },
 
@@ -124,7 +130,7 @@ export default {
       } else {
         return array[0] || '-'
       }
-    }
-  }
+    },
+  },
 }
 </script>

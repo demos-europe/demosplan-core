@@ -53,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -67,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
@@ -110,6 +110,7 @@ use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -120,7 +121,7 @@ use Throwable;
 use TypeError;
 use Webmozart\Assert\Assert;
 
-class ProcedureService extends CoreService implements ProcedureServiceInterface
+class ProcedureService implements ProcedureServiceInterface
 {
     /**
      * @var ObjectPersisterInterface
@@ -219,6 +220,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly AccessControlService $accessControlPermissionService,
         private readonly string $environment,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly LoggerInterface $logger,
+        private readonly ProfilerService $profilerService,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -928,10 +931,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
                 try {
                     $this->updateProcedure($data);
-                    $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
+                    $this->logger->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     ++$deletionCount;
                 } catch (Exception $e) {
-                    $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
+                    $this->logger->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
                 }
             }
@@ -939,7 +942,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception $e) {
-            $this->getLogger()->warning('Mark Procedure as deleted failed Message: ', [$e]);
+            $this->logger->warning('Mark Procedure as deleted failed Message: ', [$e]);
             throw $e;
         }
     }
@@ -1000,20 +1003,20 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 throw ProcedureNotFoundException::createFromId($procedureId);
             }
             $numberOfDeletedReports = $this->deleteReports($procedure);
-            $this->getLogger()->info($numberOfDeletedReports.' Reports were deleted.');
+            $this->logger->info($numberOfDeletedReports.' Reports were deleted.');
 
             // @improve: T12924
             $numberOfDeletedEntityContentChanges = $this->deleteEntityContentChanges($procedure);
-            $this->getLogger()->info($numberOfDeletedEntityContentChanges.' EntityContentChanges were deleted.');
+            $this->logger->info($numberOfDeletedEntityContentChanges.' EntityContentChanges were deleted.');
 
             $numberOfDeletedStatements = $this->deleteStatements($procedure);
-            $this->getLogger()->info($numberOfDeletedStatements.' Statements were deleted.');
+            $this->logger->info($numberOfDeletedStatements.' Statements were deleted.');
 
             $numberOfDeletedDraftStatements = $this->deleteDraftStatements($procedure);
-            $this->getLogger()->info($numberOfDeletedDraftStatements.' DraftStatements were deleted.');
+            $this->logger->info($numberOfDeletedDraftStatements.' DraftStatements were deleted.');
 
             $numberOfDeletedDraftStatementVersions = $this->deleteDraftStatementVersions($procedure);
-            $this->getLogger()->info($numberOfDeletedDraftStatementVersions.' DraftStatementVersions were deleted.');
+            $this->logger->info($numberOfDeletedDraftStatementVersions.' DraftStatementVersions were deleted.');
 
             $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
@@ -1071,23 +1074,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
-            $procedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $procedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
+
+            $procedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $procedure);
 
             if ($createReports) {
                 $destinationProcedure = $this->procedureRepository->get($data['ident']);
@@ -1109,11 +1097,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Update of a procedure-object.
      *
-     * @return array|Procedure
+     * @return array|ProcedureInterface
      *
      * @throws Exception
      */
-    public function updateProcedureObject(Procedure $procedureToUpdate)
+    public function updateProcedureObject(ProcedureInterface $procedureToUpdate)
     {
         try {
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:
@@ -1124,26 +1112,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
-
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
-
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $destinationProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($destinationProcedure);
-            $destinationProcedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $destinationProcedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
-                PostProcedureUpdatedEventInterface::class
-            );
+
+            $destinationProcedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $destinationProcedure);
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
@@ -1153,9 +1124,36 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             return $procedure;
         } catch (Exception $e) {
-            $this->getLogger()->warning('Update Procedure Object failed Message: ', [$e]);
+            $this->logger->warning('Update Procedure Object failed Message: ', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
+     */
+    private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
+    {
+        // Load phase permission sets and set phase name
+        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
+        $updatedProcedure->setPublicParticipationPhaseName(
+            $this->globalConfig->getPhaseNameWithPriorityExternal(
+                $updatedProcedure->getPublicParticipationPhase()
+            )
+        );
+
+        // Dispatch event
+        $this->eventDispatcher->dispatch(
+            new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
+            PostProcedureUpdatedEventInterface::class
+        );
+
+        // Update Elasticsearch
+        if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
+            $this->getEsProcedurePersister()->replaceOne($updatedProcedure);
+        }
+
+        return $updatedProcedure;
     }
 
     /**
@@ -1170,9 +1168,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function getPublicList($esQuery): array
     {
         try {
-            $this->profilerStart('ES');
+            $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
             $procedureList = $this->procedureElasticsearchRepository->searchProcedures($esQuery);
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
 
             return $procedureList;
         } catch (Exception $e) {
@@ -1693,7 +1691,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             return $this->procedureRepository->getProceduresForDataInputOrga($orgaId, $allowedPhases);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
+            $this->logger->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
             throw $e;
         }
     }
@@ -1811,7 +1809,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             foreach ($organisations as $organisation) {
                 if (!$organisation instanceof Orga) {
-                    $this->getLogger()->warning('Could not add Orga to Procedure Orga:'.DemosPlanTools::varExport($organisation, true));
+                    $this->logger->warning('Could not add Orga to Procedure Orga:'.DemosPlanTools::varExport($organisation, true));
                     continue;
                 }
                 $procedure->addOrganisation($organisation);
@@ -1819,7 +1817,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $this->procedureRepository->updateObject($procedure);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Add Orga to Procedure failed Reason: ', [$e]);
+            $this->logger->warning('Add Orga to Procedure failed Reason: ', [$e]);
 
             throw $e;
         }
@@ -1836,7 +1834,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $procedure->removeOrganisation($organisation);
             $this->procedureRepository->updateObject($procedure);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Remove Orga from Procedure failed Reason: ', [$e]);
+            $this->logger->warning('Remove Orga from Procedure failed Reason: ', [$e]);
 
             return false;
         }

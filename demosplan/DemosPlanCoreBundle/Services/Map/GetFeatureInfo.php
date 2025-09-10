@@ -173,7 +173,7 @@ class GetFeatureInfo
      */
     public function getUrl2VersionString()
     {
-        $versionString = '';
+        $versionString = '_2025';
         $globalConfig = $this->getGlobalConfig();
         $procedure = $this->getProcedureArray();
         $dataSheetVersion = $this->datasheetService->getDatasheetVersion($procedure['id']);

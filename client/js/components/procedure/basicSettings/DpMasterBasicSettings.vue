@@ -26,39 +26,39 @@ export default {
     DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    })
+    }),
   },
 
   props: {
     authUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initSelectedAuthUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     agencies: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initSelectedAgencies: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
     return {
       selectedAgencies: this.agencies.filter(agency => this.initSelectedAgencies.includes(agency.id)),
-      selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id))
+      selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id)),
     }
   },
 
@@ -74,7 +74,7 @@ export default {
 
     unselectAllAuthUsers () {
       this.selectedAuthUsers = []
-    }
-  }
+    },
+  },
 }
 </script>

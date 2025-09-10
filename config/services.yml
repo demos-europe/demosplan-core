@@ -16,11 +16,19 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
+
+    demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
+
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
@@ -61,6 +69,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\MessageBagInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\MessageBag
+
+    DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService
 
     DemosEurope\DemosplanAddon\Contracts\ExternalFileSaverInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\ExternalFileSaver
@@ -266,6 +277,10 @@ services:
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureAuthenticator: ~
+
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AzureUserBadgeCreator: ~
+
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
     demosplan\DemosPlanCoreBundle\EventListener\ApcuClearListener:
@@ -347,12 +362,19 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ContentService:
         autowire: true
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\CoreHandler:
         abstract: true
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
+
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
 
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:
@@ -360,27 +382,22 @@ services:
             $defaultLocale: '%kernel.default_locale%'
 
     demosplan\DemosPlanCoreBundle\Logic\EditorService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\EmailAddressService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeRollbackVersionService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
             - [ 'loadFieldMapping' ]
 
@@ -395,7 +412,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     OldSound\RabbitMqBundle\RabbitMq\RpcClient: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
@@ -403,7 +419,6 @@ services:
         arguments:
             $client: '@old_sound_rabbit_mq.demos_plan_import_rpc'
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService: ~
 
@@ -484,20 +499,14 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
 
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
-
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Router:
@@ -658,12 +667,9 @@ services:
             - { name: validator.constraint_validator, alias: demosplan\DemosPlanCoreBundle\Validator\UserWithMatchingDepartmentInOrgaConstraintValidator }
 
     demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
-
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler:
@@ -672,7 +678,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
 
@@ -725,14 +730,12 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Help\HelpService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Map\MapService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         calls:
             - [ 'setServiceDraftStatement', [ '@demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService' ] ]
             - [ 'setProcedureService', [ '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService' ] ]
@@ -779,7 +782,6 @@ services:
         class: 'demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService'
 
     demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler:
@@ -814,14 +816,11 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         arguments:
             $esProcedurePersister: '@fos_elastica.object_persister.procedures'
@@ -829,21 +828,17 @@ services:
             $environment: '%kernel.environment%'
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureToLegacyConverter: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalHandler:
@@ -875,13 +870,11 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Report\ReportService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\EventSubscriber\ReportSubscriber:
         tags:
@@ -894,11 +887,9 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler:
@@ -912,7 +903,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsDraftStatementIndex', [ '@fos_elastica.index.draftStatements' ]]
@@ -925,7 +915,6 @@ services:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
         calls:
             - [ 'setEsStatementType', [ '@fos_elastica.index.statements' ]]
@@ -946,7 +935,6 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
@@ -954,7 +942,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\SubmitterService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener:
         lazy: true
@@ -1000,19 +987,15 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\PresentableOriginalStatementFactory:
         lazy: true
@@ -1136,7 +1119,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService: ~
 
@@ -1145,18 +1127,15 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         public: true
 
     demosplan\DemosPlanCoreBundle\Logic\User\BrandingService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler:
         lazy: true
@@ -1195,8 +1174,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleService:
         lazy: true
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
-
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler:
         lazy: true
@@ -1223,7 +1200,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHH
 
     demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
 
     demosplan\DemosPlanCoreBundle\EventSubscriber\OrganisationUpdateSubscriber:

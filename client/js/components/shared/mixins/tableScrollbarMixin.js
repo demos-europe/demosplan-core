@@ -39,7 +39,7 @@ export default {
       } else {
         this.scrollbar.classList.add('hidden')
       }
-    }
+    },
   },
 
   created () {
@@ -78,5 +78,5 @@ export default {
         this.updateScrollbarStyles()
       })
     })
-  }
+  },
 }

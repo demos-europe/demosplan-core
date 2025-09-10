@@ -718,6 +718,12 @@ feature_assign_system_roles:
     label: 'Vergebe Systemrollen wie Support, Redakteur etc. an User'
     loginRequired: true
     parent: feature_assign_roles
+feature_auto_logout_warning:
+    description: |
+        A notification is enabled, reminding the user of the log out that is going to happen automatically in time.
+    expose: true
+    label: 'Remind the user of the upcoming automatic log out'
+    loginRequired: true
 feature_auto_switch_element_state:
     description: |
         The FP can pick a date and time on which the state of the element will be switched.
@@ -924,6 +930,11 @@ feature_gdpr_consent_revoke_by_token:
     description: 'When a statement is submitted the submitter may need to give his GDPR consent (depending feature_statement_gdpr_consent). When this permission is enabled a token is generated for statements submitted user with this permission enabled (if they have provided an email address). The token is send in the submission-confirm email address and can be used by anyone (if this permission is enabled) to open a site where they enters the token and their email address to revoke their GDPR consent which issues the anonymization of the statement. All statements copied from the original statement are affected too.'
     expose: false
     label: 'Allows sending and usage of tokens to revoke the GDPR consent given on statement submission.'
+    loginRequired: false
+feature_geocoder_address_search:
+    description: 'Enables the address search via external API call to Geocoder. Provides an auto-suggestion for addresses.'
+    expose: false
+    label: 'Enables Geocoder address search'
     loginRequired: false
 feature_has_logout_landing_page:
     label: 'Wird beim Logout auf eine Zwischenseite weitergeleitet die ausloggen im Gateway ermöglicht?'
@@ -1215,6 +1226,13 @@ feature_map_layer_legend_file:
     expose: true
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
+    parent: area_map_participation_area
+feature_map_layer_preview:
+    description: |-
+        Enable a preview for layer selection of external WMS services as an admin.
+    expose: true
+    label: 'Enables WMS layer preview during selection'
+    loginRequired: true
     parent: area_map_participation_area
 feature_map_max_extent:
     description: |-
@@ -2536,6 +2554,11 @@ field_data_protection_text_customized_edit_orga:
     label: 'Edit customized data protection text for orga'
     expose: true
     parent: feature_data_protection_text_customized_view
+field_expand_procedure_description:
+    description: 'Expand full procedure description on page load'
+    expose: true
+    label: 'Expand procedure description'
+    loginRequired: true
 field_fragment_status:
     description: 'Set and show the status of fragment (new, assigned, editing etc).'
     expose: true
@@ -2975,4 +2998,3 @@ feature_auto_delete_original_statement:
     expose: false
     loginRequired: true
     parent: feature_statement_delete
-

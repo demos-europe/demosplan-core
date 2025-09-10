@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
@@ -28,10 +27,11 @@ use demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ForumService extends CoreService
+class ForumService
 {
     /**
      * @var User
@@ -53,7 +53,8 @@ class ForumService extends CoreService
         private readonly ForumEntryFileRepository $forumEntryFileRepository,
         private readonly ForumEntryRepository $forumEntryRepository,
         private readonly ForumThreadRepository $forumThreadRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->currentUser = $currentUser->getUser();
     }
@@ -107,8 +108,6 @@ class ForumService extends CoreService
      *
      * @param string $threadId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getThreadEntryList($threadId)
@@ -142,8 +141,6 @@ class ForumService extends CoreService
      *
      * @param string $threadEntryId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getThreadEntry($threadEntryId)
@@ -170,8 +167,6 @@ class ForumService extends CoreService
      * Get all info of a thread by threadId.
      *
      * @param string $threadId
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -336,8 +331,6 @@ class ForumService extends CoreService
      *
      * @param string $releaseId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getRelease($releaseId)
@@ -388,8 +381,6 @@ class ForumService extends CoreService
      * @param string $releaseId
      * @param array  $data
      *
-     * @return mixed
-     *
      * @throws HttpException
      * @throws Exception
      */
@@ -415,8 +406,6 @@ class ForumService extends CoreService
      *
      * @param string $storyId
      * @param array  $data
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -463,8 +452,6 @@ class ForumService extends CoreService
      *
      * @param string $releaseId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getUserStories($releaseId)
@@ -496,8 +483,6 @@ class ForumService extends CoreService
      *
      * @param string $storyId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getUserStory($storyId)
@@ -528,8 +513,6 @@ class ForumService extends CoreService
      * @param string $releaseId
      * @param array  $votes
      *
-     * @return mixed
-     *
      * @throws HttpException
      * @throws Exception
      */
@@ -558,8 +541,6 @@ class ForumService extends CoreService
      * Get the votes of particular UserStory.
      *
      * @param string $storyId
-     *
-     * @return mixed
      *
      * @throws Exception
      */

@@ -11,8 +11,9 @@
   <button
     type="button"
     data-cy="map:zoomWindow"
+    :class="[active ? prefixClass('color-highlight') : '', prefixClass('btn--blank u-ml-0_5 o-link--default weight--bold')]"
     @click="toggle"
-    :class="[active ? prefixClass('color-highlight') : '', prefixClass('btn--blank u-ml-0_5 o-link--default weight--bold')]">
+  >
     {{ Translator.trans('zoomwindow') }}
   </button>
 </template>
@@ -30,20 +31,20 @@ export default {
   mixins: [prefixClassMixin],
 
   emits: [
-    'tool:activated'
+    'tool:activated',
   ],
 
   data () {
     return {
       active: false,
-      name: 'dragzoom'
+      name: 'dragzoom',
     }
   },
 
   computed: {
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -61,11 +62,11 @@ export default {
 
     toggle () {
       this.active ? this.deactivateTool() : this.activateTool()
-    }
+    },
   },
 
   mounted () {
     this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
-  }
+  },
 }
 </script>

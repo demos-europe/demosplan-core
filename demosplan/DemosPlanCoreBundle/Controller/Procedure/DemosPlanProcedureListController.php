@@ -467,6 +467,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         Request $request,
         CurrentProcedureService $currentProcedureService,
         LocationService $locationService,
+        CurrentUserInterface $currentUser,
     ) {
         $this->profilerStart('Proj4ProfilerInit');
         $proj4 = new Proj4php();
@@ -490,12 +491,10 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $this->profilerStart('searchCity');
-            $locationResponse = $locationService->searchCity($requestGet['query'], $limit, $maxExtent);
+            $result = $locationService->searchLocation($requestGet['query'], $limit, $maxExtent);
             $this->profilerStop('searchCity');
 
-            $result = $locationResponse['body'];
-
-            $maxSuggestions = $requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0);
+            $maxSuggestions = (int) ($requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0));
             // Es gibt Ergebnisse, aber weniger als maxResults
             if ((is_countable($result) ? count($result) : 0) < $maxSuggestions) {
                 $maxSuggestions = is_countable($result) ? count($result) : 0;
@@ -521,16 +520,10 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['x'] < $maxExtent[2]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] > $maxExtent[1]
                         && $entry[MapService::PSEUDO_MERCATOR_PROJECTION_LABEL]['y'] < $maxExtent[3]) {
-                        $filteredSuggestions[] = [
-                            'value' => $entry['postcode'].' '.$entry['name'],
-                            'data'  => $entry,
-                        ];
+                        $filteredSuggestions[] = $locationService->getFormattedSuggestion($entry);
                     }
                 } else {
-                    $filteredSuggestions[] = [
-                        'value' => $entry['postcode'].' '.$entry['name'],
-                        'data'  => $entry,
-                    ];
+                    $filteredSuggestions[] = $locationService->getFormattedSuggestion($entry);
                 }
             }
 
