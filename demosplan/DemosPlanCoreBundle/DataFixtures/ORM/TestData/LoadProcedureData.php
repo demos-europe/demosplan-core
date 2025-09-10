@@ -161,7 +161,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $procedure2->setProcedureType($this->getReference(LoadProcedureTypeData::BPLAN));
 
         $now = Carbon::now();
-        $tomorrow = $now->addDays(7); // here
+        $tomorrow = $now->addDays(7);
         $procedure2->setEndDate($tomorrow->toDateTime());
 
         $manager->persist($procedure2);
