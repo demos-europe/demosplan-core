@@ -67,7 +67,11 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     private function removeDeletedOptionsFromSegment(Segment $segment, string $customFieldId, array $deletedOptionIds): void
     {
-        $customFields = clone $segment->getCustomFields();
+        $originalCustomFields = $segment->getCustomFields();
+        if (null === $originalCustomFields) {
+            return;
+        }
+        $customFields = clone $originalCustomFields;
         if ($customFields instanceof CustomFieldValuesList) {
             $customFieldValue = $customFields->findById($customFieldId);
             if ($customFieldValue instanceof CustomFieldValue
