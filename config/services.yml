@@ -142,6 +142,10 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\UserResourceType
         public: true
