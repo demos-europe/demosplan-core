@@ -12,65 +12,121 @@ declare(strict_types=1);
 
 namespace Tests\Core\User;
 
-use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Tests\Base\FunctionalTestCase;
 
 class ExpirationTimestampInjectionTest extends FunctionalTestCase
 {
-    /**
-     * @var User
-     */
-    private $testUser;
-
-    private $kernelMock;
+    private ?User $testUser;
+    private ?Session $session;
+    protected $sut;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->kernelMock = $this->createMock(KernelInterface::class);
+        // Create a parameter bag with the session_lifetime_seconds parameter
+        $parameterBag = new ParameterBag([
+            'session_lifetime_seconds'    => 7200,
+            'oauth_keycloak_logout_route' => '',
+        ]);
 
+        // Create the service manually with our parameter bag
         $this->sut = new OzgKeycloakLogoutManager(
-            $this->kernelMock,
+            self::getContainer()->get(KernelInterface::class),
             self::getContainer()->get(LoggerInterface::class),
             self::getContainer()->get(CurrentUserService::class),
             self::getContainer()->get(CustomerService::class),
-            self::getContainer()->get(ParameterBagInterface::class),
+            $parameterBag
         );
+
+        $this->session = new Session(new MockArraySessionStorage());
 
         $this->testUser = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->logIn($this->testUser);
         $this->enablePermissions(['feature_auto_logout_warning']);
     }
 
-    /**
-     * @return array<string, array{string, bool}>
-     */
-    public static function environmentProvider(): array
+    public function testInjectTokenExpirationIntoSession(): void
     {
-        return [
-            'dev environment should inject'      => [DemosPlanKernel::ENVIRONMENT_DEV, true],
-            'test environment should inject'     => [DemosPlanKernel::ENVIRONMENT_TEST, true],
-            'prod environment should not inject' => [DemosPlanKernel::ENVIRONMENT_PROD, false],
-        ];
+        $this->assertFalse($this->session->has(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
+
+        $this->sut->injectTokenExpirationIntoSession($this->session, $this->testUser);
+
+        $this->assertTrue($this->session->has(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
+        $expirationTimestamp = $this->session->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP);
+
+        $this->assertIsInt($expirationTimestamp);
+        $this->assertGreaterThan(time(), $expirationTimestamp);
     }
 
-    #[DataProvider('environmentProvider')]
-    public function testShouldInjectTestExpirationBasedOnEnvironment(string $environment, bool $expectedResult): void
+    public function testInjectTokenExpirationSkipsWhenAlreadyPresent(): void
     {
-        $this->kernelMock->method('getEnvironment')->willReturn($environment);
+        $originalTimestamp = time() + 3600;
+        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $originalTimestamp);
 
-        $result = $this->sut->shouldInjectTestExpiration();
+        $this->sut->injectTokenExpirationIntoSession($this->session, $this->testUser);
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals($originalTimestamp, $this->session->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP));
+    }
+
+    public function testHasValidTokenWithValidToken(): void
+    {
+        $futureTimestamp = time() + 3600; // 1 hour from now
+        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $futureTimestamp);
+
+        $result = $this->sut->hasValidToken($this->session);
+
+        $this->assertTrue($result);
+    }
+
+    public function testHasValidTokenWithExpiredToken(): void
+    {
+        $pastTimestamp = time() - 3600; // 1 hour ago
+        $this->session->set(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP, $pastTimestamp);
+
+        $result = $this->sut->hasValidToken($this->session);
+
+        $this->assertFalse($result);
+    }
+
+    public function testHasValidTokenReturnsFalseWhenNoExpirationFound(): void
+    {
+        $result = $this->sut->hasValidToken($this->session);
+
+        $this->assertFalse($result);
+    }
+
+    public function testStoreTokenAndExpirationInSession(): void
+    {
+        $tokenValues = [
+            'id_token'     => 'test_token_value',
+            'access_token' => 'access_token_value',
+        ];
+
+        $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
+
+        $this->assertTrue($this->session->has(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
+        $this->assertEquals('test_token_value', $this->session->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
+    }
+
+    public function testStoreTokenAndExpirationInSessionWithoutIdToken(): void
+    {
+        $tokenValues = [
+            'access_token' => 'access_token_value',
+        ];
+
+        $this->sut->storeTokenAndExpirationInSession($this->session, $tokenValues);
+
+        $this->assertFalse($this->session->has(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN));
     }
 }

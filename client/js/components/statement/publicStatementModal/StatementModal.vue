@@ -1014,18 +1014,6 @@ export default {
       default: false,
     },
 
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
     initRedirectPath: {
       type: String,
       required: false,

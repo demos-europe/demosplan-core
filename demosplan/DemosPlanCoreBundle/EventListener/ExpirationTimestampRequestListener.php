@@ -72,10 +72,7 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
             return;
         }
 
-        // Check if in test or dev environment
-        if ($this->ozgKeycloakLogoutManager->shouldInjectTestExpiration()) {
-            $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
-        }
+        $this->ozgKeycloakLogoutManager->injectTokenExpirationIntoSession($session, $user);
 
         if ($this->ozgKeycloakLogoutManager->hasValidToken($session)) {
             return;
