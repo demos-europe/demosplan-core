@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -48,6 +49,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
         private readonly FormOptionsResolver $formOptionsResolver,
@@ -66,7 +68,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $translator,
             $logger,
             $requestStack,
-            $statementHandler
+            $statementHandler,
+            $writerSelector
         );
         $this->serviceImport = $serviceImport;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
