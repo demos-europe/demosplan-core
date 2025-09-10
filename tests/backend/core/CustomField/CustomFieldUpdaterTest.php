@@ -255,11 +255,10 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $remainingOptions = $customFieldAfterDeletion->getConfiguration()->getOptions();
         self::assertCount(2, $remainingOptions, 'Should have exactly 2 options remaining after deletion');
 
-        $remainingOptionIds = array_map(fn($option) => $option->getId(), $remainingOptions);
+        $remainingOptionIds = array_map(fn ($option) => $option->getId(), $remainingOptions);
         self::assertContains($option2->getId(), $remainingOptionIds, 'Option2 should still exist in configuration');
         self::assertContains($option4->getId(), $remainingOptionIds, 'Option4 should still exist in configuration');
         self::assertNotContains($option1->getId(), $remainingOptionIds, 'Option1 should be deleted from configuration');
         self::assertNotContains($option3->getId(), $remainingOptionIds, 'Option3 should be deleted from configuration');
-
     }
 }
