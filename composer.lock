@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "924123ad5fd34180e6d19107302eb47f",
+    "content-hash": "baa3d217667548b982eaba566a601125",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -12250,16 +12250,16 @@
         },
         {
             "name": "sentry/sentry-symfony",
-            "version": "5.4.0",
+            "version": "5.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-symfony.git",
-                "reference": "5c1bc4897204ed1e89a984864371e4db3acf7fa3"
+                "reference": "5a52fb16fb8743e1f84aa1072075bdabeb56e2de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/5c1bc4897204ed1e89a984864371e4db3acf7fa3",
-                "reference": "5c1bc4897204ed1e89a984864371e4db3acf7fa3",
+                "url": "https://api.github.com/repos/getsentry/sentry-symfony/zipball/5a52fb16fb8743e1f84aa1072075bdabeb56e2de",
+                "reference": "5a52fb16fb8743e1f84aa1072075bdabeb56e2de",
                 "shasum": ""
             },
             "require": {
@@ -12336,7 +12336,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-symfony/issues",
-                "source": "https://github.com/getsentry/sentry-symfony/tree/5.4.0"
+                "source": "https://github.com/getsentry/sentry-symfony/tree/5.4.1"
             },
             "funding": [
                 {
@@ -12348,7 +12348,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-09-08T09:20:33+00:00"
+            "time": "2025-09-09T12:12:59+00:00"
         },
         {
             "name": "spomky-labs/otphp",
@@ -24459,9 +24459,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
