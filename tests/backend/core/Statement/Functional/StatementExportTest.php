@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadStatementData;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -88,6 +89,7 @@ class StatementExportTest extends FunctionalTestCase
             $assessmentHandler,
             $assessmentTableServiceOutput,
             $this->getContainer()->get(CurrentProcedureService::class),
+            $this->getContainer()->get(DocumentWriterSelector::class),
             $this->editorService,
             $twig,
             $formOptionsResolver,
@@ -103,6 +105,7 @@ class StatementExportTest extends FunctionalTestCase
             $assessmentHandler,
             $assessmentTableServiceOutput,
             $currentProcedureService,
+            $this->getContainer()->get(DocumentWriterSelector::class),
             $loggerInterface,
             $requestStack,
             $statementHandler,

@@ -2,14 +2,16 @@
   <fieldset data-dp-validate="statementLocationAndDocumentReference">
     <legend
       id="locationAndDocuments"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans( hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference') }}
     </legend>
 
     <!-- Location reference -->
     <div
       v-if="hasPermission('field_statement_polygon')"
-      class="font-semibold mb-0.5">
+      class="font-semibold mb-0.5"
+    >
       {{ Translator.trans('location') }}
     </div>
 
@@ -21,10 +23,12 @@
             data-cy="statementMeta:toggleLocationReference"
             :text="Translator.trans('map.view')"
             variant="outline"
-            @click="toggleLocationModal" />
+            @click="toggleLocationModal"
+          />
           <dp-map-modal
             ref="locationReferenceModal"
-            :procedure-id="procedureId" />
+            :procedure-id="procedureId"
+          />
         </template>
         <template v-else>
           <p class="color-text-muted">
@@ -36,7 +40,8 @@
       <!-- Document reference -->
       <div
         v-if="editable"
-        class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
+        class="grid grid-cols-1 gap-x-4 md:grid-cols-2"
+      >
         <dp-select
           v-model="selectedElementId"
           data-cy="statement:elementSelect"
@@ -44,32 +49,36 @@
             text: Translator.trans('plandocument')
           }"
           :options="elementsOptions"
-          @select="handleSelect" />
+          @select="handleSelect"
+        />
 
         <dp-select
           v-if="paragraphOptions.length > 0"
+          v-model="selectedParagraphId"
           data-cy="statement:paragraphSelect"
           :label="{
             text: Translator.trans('paragraph')
           }"
           :options="paragraphOptions"
           required
-          v-model="selectedParagraphId" />
+        />
 
         <dp-select
           v-if="documentOptions.length > 0"
+          v-model="selectedDocumentId"
           data-cy="statement:documentSelect"
           :label="{
             text: Translator.trans('file')
           }"
           :options="documentOptions"
           required
-          v-model="selectedDocumentId" />
+        />
       </div>
 
       <dl
         v-else
-        class="grid grid-cols-1 gap-x-4 md:grid-cols-2 mb-0">
+        class="grid grid-cols-1 gap-x-4 md:grid-cols-2 mb-0"
+      >
         <div>
           <dt class="font-semibold">
             {{ Translator.trans('plandocument') }}
@@ -104,7 +113,8 @@
         primary
         secondary
         @primary-action="dpValidateAction('statementLocationAndDocumentReference', save, false)"
-        @secondary-action="reset" />
+        @secondary-action="reset"
+      />
     </div>
   </fieldset>
 </template>
@@ -114,7 +124,7 @@ import {
   DpButton,
   DpButtonRow,
   DpSelect,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
@@ -125,7 +135,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -134,40 +144,40 @@ export default {
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     initiallySelectedDocumentId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initiallySelectedElementId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initiallySelectedParagraphId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statement: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
@@ -175,34 +185,34 @@ export default {
       localStatement: null,
       selectedDocumentId: this.initiallySelectedDocumentId,
       selectedElementId: this.initiallySelectedElementId,
-      selectedParagraphId: this.initiallySelectedParagraphId
+      selectedParagraphId: this.initiallySelectedParagraphId,
     }
   },
 
   computed: {
     ...mapState('ElementsDetails', {
-      elements: 'items'
+      elements: 'items',
     }),
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     documentOptions () {
       const documents = this.getDocuments()
 
-      return documents.length > 0
-        ? documents.map(document => ({
+      return documents.length > 0 ?
+        documents.map(document => ({
           label: document.attributes.title,
-          value: document.id
-        }))
-        : []
+          value: document.id,
+        })) :
+        []
     },
 
     elementsOptions () {
       return Object.values(this.elements).map(element => ({
         label: element.attributes.title,
-        value: element.id
-      })
+        value: element.id,
+      }),
       )
     },
 
@@ -227,50 +237,50 @@ export default {
     paragraphOptions () {
       const paragraphs = this.getParagraphs()
 
-      return paragraphs.length > 0
-        ? paragraphs.map(paragraph => ({
+      return paragraphs.length > 0 ?
+        paragraphs.map(paragraph => ({
           label: paragraph.attributes.title,
-          value: paragraph.id
-        }))
-        : []
+          value: paragraph.id,
+        })) :
+        []
     },
 
     selectedDocumentTitle () {
       const documents = this.getDocuments()
 
-      return documents.length > 0
-        ? documents.find(document => document.id === this.selectedDocumentId)?.attributes?.title || '-'
-        : '-'
+      return documents.length > 0 ?
+        documents.find(document => document.id === this.selectedDocumentId)?.attributes?.title || '-' :
+        '-'
     },
 
     selectedParagraphTitle () {
       const paragraphs = this.getParagraphs()
 
-      return paragraphs.length > 0
-        ? paragraphs.find(paragraph => paragraph.id === this.selectedParagraphId)?.attributes?.title || '-'
-        : '-'
-    }
+      return paragraphs.length > 0 ?
+        paragraphs.find(paragraph => paragraph.id === this.selectedParagraphId)?.attributes?.title || '-' :
+        '-'
+    },
   },
 
   methods: {
     ...mapActions('ElementsDetails', {
-      getElementsDetailsAction: 'list'
+      getElementsDetailsAction: 'list',
     }),
 
     getDocuments () {
       const selectedElement = this.elements[this.selectedElementId]
 
-      return selectedElement?.relationships?.documents?.data.length > 0
-        ? Object.values(selectedElement?.relationships?.documents.list())
-        : []
+      return selectedElement?.relationships?.documents?.data.length > 0 ?
+        Object.values(selectedElement?.relationships?.documents.list()) :
+        []
     },
 
     getParagraphs () {
       const selectedElement = this.elements[this.selectedElementId]
 
-      return selectedElement?.relationships?.paragraphs?.data.length > 0
-        ? Object.values(selectedElement?.relationships?.paragraphs.list())
-        : []
+      return selectedElement?.relationships?.paragraphs?.data.length > 0 ?
+        Object.values(selectedElement?.relationships?.paragraphs.list()) :
+        []
     },
 
     handleSelect () {
@@ -288,8 +298,8 @@ export default {
         this.localStatement.relationships.elements = {
           data: {
             id: this.selectedElementId,
-            type: 'ElementsDetails'
-          }
+            type: 'ElementsDetails',
+          },
         }
       }
 
@@ -304,14 +314,14 @@ export default {
       if (this.selectedDocumentId !== this.initiallySelectedDocumentId) {
         if (this.selectedDocumentId === '') {
           this.localStatement.relationships.document = {
-            data: null
+            data: null,
           }
         } else {
           this.localStatement.relationships.document = {
             data: {
               id: this.selectedDocumentId,
-              type: 'SingleDocument'
-            }
+              type: 'SingleDocument',
+            },
           }
         }
       }
@@ -323,13 +333,13 @@ export default {
         ...currentStatement,
         attributes: {
           ...currentStatement.attributes,
-          paragraphParentId: this.localStatement.attributes.paragraphParentId
+          paragraphParentId: this.localStatement.attributes.paragraphParentId,
         },
         relationships: {
           ...currentStatement.relationships,
           elements: this.localStatement.relationships.elements,
-          document: this.localStatement.relationships.document
-        }
+          document: this.localStatement.relationships.document,
+        },
       }
 
       this.$emit('save', updatedStatement)
@@ -361,7 +371,7 @@ export default {
 
     unsetSelectedParagraphId () {
       this.selectedParagraphId = ''
-    }
+    },
   },
 
   created () {
@@ -374,28 +384,28 @@ export default {
         ElementsDetails: [
           'documents',
           'paragraphs',
-          'title'
+          'title',
         ].join(),
         Paragraph: [
-          'title'
+          'title',
         ].join(),
         SingleDocument: [
-          'title'
-        ].join()
+          'title',
+        ].join(),
       },
       include: [
         'documents',
-        'paragraphs'
+        'paragraphs',
       ].join(),
       filter: {
         procedureId: {
           condition: {
             path: 'procedure.id',
-            value: this.procedureId
-          }
-        }
-      }
+            value: this.procedureId,
+          },
+        },
+      },
     })
-  }
+  },
 }
 </script>

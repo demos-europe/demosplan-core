@@ -22,14 +22,14 @@ describe('DpOlMap/utils', () => {
         const number = query.match(/\d+/)[0]
         if (number <= a) {
           return {
-            matches: true
+            matches: true,
           }
         } else if (number > a) {
           return {
-            matches: false
+            matches: false,
           }
         }
-      })
+      }),
     })
   })
 
@@ -54,7 +54,7 @@ describe('DpOlMap/utils', () => {
       0.5291677250021167,
       0.26458386250105836,
       0.13229193125052918,
-      0.06614596562526459
+      0.06614596562526459,
     ]
     const scalesAndResolutions = getScalesAndResolutions(resolutions, 'm', 96)
     expect(typeof scalesAndResolutions).toBe('object')

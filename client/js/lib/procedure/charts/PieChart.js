@@ -23,7 +23,7 @@ export default class PieChart {
       radius: 100,
       innerRadius: 0, // If not 0 Pie goes Donut
       colors: ['#bbb', '#999', '#666'],
-      target: 'body'
+      target: 'body',
     }
 
     Object.assign(this, { ...defaults, ...options })

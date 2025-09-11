@@ -13,25 +13,30 @@
     :id="id"
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer flex items-center space-x-1')]"
-    @click="toggleFromSelf(false)">
+    @click="toggleFromSelf(false)"
+  >
     <span
       :class="prefixClass('c-map__group-item-controls')"
       @mouseover="toggleOpacityControl(true)"
-      @mouseout="toggleOpacityControl(false)">
+      @mouseout="toggleOpacityControl(false)"
+    >
       <button
         :class="prefixClass('btn--blank btn--focus w-3 text-left flex')"
         :aria-label="layer.attributes.name + ' ' + statusAriaText"
         :data-cy="dataCy"
         @focus="toggleOpacityControl(true)"
         @click.prevent.stop="toggleFromSelf(true)"
-        @keydown.tab.shift.exact="toggleOpacityControl(false)">
+        @keydown.tab.shift.exact="toggleOpacityControl(false)"
+      >
         <i
           :class="prefixedStatusIcon"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </button>
       <span
+        v-show="showOpacityControl && isVisible"
         :class="prefixClass('c-map__opacity-control u-ml-0_5')"
-        v-show="showOpacityControl && isVisible">
+      >
         <input
           type="range"
           min="0"
@@ -46,18 +51,21 @@
           @change="setOpacity"
           @focus="toggleOpacityControl(true)"
           @blur="toggleOpacityControl(false)"
-          @click.stop="">
+          @click.stop=""
+        >
       </span>
     </span>
     <span
+      v-show="!showOpacityControl"
       :class="prefixClass('c-map__group-item-name o-hellip--nowrap')"
-      v-show="!showOpacityControl">
+    >
       {{ layer.attributes.name }}
     </span>
     <dp-contextual-help
       v-if="contextualHelpText"
       class="c-map__layerhelp u-mt-0_125"
-      :text="contextualHelpText" />
+      :text="contextualHelpText"
+    />
   </li>
 </template>
 
@@ -74,19 +82,19 @@ export default {
     dataCy: {
       type: String,
       required: false,
-      default: 'publicLayerListLayer'
+      default: 'publicLayerListLayer',
     },
 
     layer: {
       type: Object,
-      required: true
+      required: true,
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
@@ -96,25 +104,25 @@ export default {
     'layer:toggle',
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
-    'layer:toggleVisibiltyGroup'
+    'layer:toggleVisibiltyGroup',
   ],
 
   data () {
     return {
       showOpacityControl: false,
-      tooltipExpanded: false
+      tooltipExpanded: false,
     }
   },
 
   computed: {
     ...mapState('Layers', [
-      'layerStates'
+      'layerStates',
     ]),
 
     ...mapGetters('Layers', [
       'element',
       'isLayerVisible',
-      'isVisibilityGroupVisible'
+      'isVisibilityGroupVisible',
     ]),
 
     contextualHelpText () {
@@ -166,17 +174,17 @@ export default {
       }
 
       return Translator.trans(text)
-    }
+    },
   },
 
   methods: {
     ...mapActions('Layers', [
-      'updateLayerVisibility'
+      'updateLayerVisibility',
     ]),
 
     ...mapMutations('Layers', [
       'setLayerState',
-      'updateState'
+      'updateState',
     ]),
 
     setStatusIcon () {
@@ -200,7 +208,7 @@ export default {
         id: this.layer.id,
         isVisible: (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false),
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
-        exclusively: this.layer.attributes.layerType === 'base'
+        exclusively: this.layer.attributes.layerType === 'base',
       })
     },
 
@@ -236,7 +244,7 @@ export default {
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

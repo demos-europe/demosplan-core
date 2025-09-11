@@ -14,18 +14,18 @@ const propsData = {
   group: {
     id: 'group-id',
     attributes: {
-      parentId: 'xxx-parentID'
+      parentId: 'xxx-parentID',
     },
     relationships: {
       categories: {
-        data: []
+        data: [],
       },
       gisLayers: {
-        data: []
-      }
-    }
+        data: [],
+      },
+    },
   },
-  layerGroupsAlternateVisibility: true
+  layerGroupsAlternateVisibility: true,
 }
 
 describe('DpPublicLayerListCategory', () => {
@@ -42,8 +42,8 @@ describe('DpPublicLayerListCategory', () => {
       propsData,
       computed: {
         elementListForLayerSidebar: () => [],
-        layers: () => []
-      }
+        layers: () => [],
+      },
     })
 
     expect(wrapper.props().layerGroupsAlternateVisibility).toBe(true)
@@ -58,34 +58,34 @@ describe('DpPublicLayerListCategory', () => {
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }, {
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }])
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
-        elementListForLayerSidebar: () => layerfromStoreMock
+        elementListForLayerSidebar: () => layerfromStoreMock,
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     expect(wrapper.vm.elementListForLayerSidebar()).toEqual([{
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }, {
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }])
 
     expect(wrapper.vm.contextualHelpId).toMatch('contextualHelpgroup-id')
@@ -98,23 +98,23 @@ describe('DpPublicLayerListCategory', () => {
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }, {
       layers: [],
       unfolded: false,
       layerType: 'overlay',
-      layerGroupsAlternateVisibility: true
+      layerGroupsAlternateVisibility: true,
     }])
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
         elementListForLayerSidebar: () => jest.fn().mockReturnValue([]),
-        rootId: () => 'xxx-rootID'
+        rootId: () => 'xxx-rootID',
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     expect(wrapper.vm.isTopLevelCategory).toBe(false)
@@ -125,8 +125,8 @@ describe('DpPublicLayerListCategory', () => {
       propsData,
       computed: {
         elementListForLayerSidebar: () => [],
-        layers: () => []
-      }
+        layers: () => [],
+      },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -141,17 +141,17 @@ describe('DpPublicLayerListCategory', () => {
           layers: [],
           unfolded: false,
           layerType: 'overlay',
-          layerGroupsAlternateVisibility: true
+          layerGroupsAlternateVisibility: true,
         }, {
           layers: [],
           unfolded: false,
           layerType: 'overlay',
-          layerGroupsAlternateVisibility: true
-        }]
+          layerGroupsAlternateVisibility: true,
+        }],
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     expect(wrapper.html()).toMatchSnapshot()
@@ -162,15 +162,15 @@ describe('DpPublicLayerListCategory', () => {
       propsData,
       computed: {
         elementListForLayerSidebar: () => [],
-        layers: () => []
+        layers: () => [],
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     wrapper.setData({
-      isVisible: true
+      isVisible: true,
     })
 
     expect(wrapper.vm.isVisible).toBe(true)
@@ -184,15 +184,15 @@ describe('DpPublicLayerListCategory', () => {
       propsData,
       computed: {
         elementListForLayerSidebar: () => [],
-        layers: () => []
+        layers: () => [],
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     wrapper.setData({
-      isVisible: true
+      isVisible: true,
     })
 
     expect(wrapper.vm.isVisible).toBe(true)
@@ -206,11 +206,11 @@ describe('DpPublicLayerListCategory', () => {
       propsData,
       computed: {
         elementListForLayerSidebar: () => [],
-        layers: () => []
+        layers: () => [],
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     wrapper.vm.toggleFromParent([], false)
@@ -223,18 +223,18 @@ describe('DpPublicLayerListCategory', () => {
       { id: 'bbb', type: 'GisLayerCategory' },
       { id: 'ccc', type: 'GisLayerCategory' },
       { id: 'ddd', type: 'GisLayerCategory' },
-      { id: 'eee', type: 'GisLayer' }
+      { id: 'eee', type: 'GisLayer' },
     ]
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
         elementListForLayerSidebar: () => { return () => [] },
-        layers: () => []
+        layers: () => [],
       },
       stubs: {
-        'dp-public-layer-list': true
-      }
+        'dp-public-layer-list': true,
+      },
     })
 
     const component = wrapper.vm

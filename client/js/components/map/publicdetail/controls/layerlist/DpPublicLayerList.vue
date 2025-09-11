@@ -9,27 +9,30 @@
 
 <template>
   <ul
-    :class="prefixClass('c-map__group')"
     v-if="layers.length"
-    v-show="unfolded">
+    v-show="unfolded"
+    :class="prefixClass('c-map__group')"
+  >
     <template v-for="(layer, idx) in attributedLayers">
       <dp-public-layer-list-layer
         v-if="layer.type === 'GisLayer' && (layerType === 'overlay' || showBaseLayers)"
-        :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :key="layer.id"
+        :data-cy="`publicLayerListLayer:${layerType}:${idx}`"
         :layer="layer"
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
         :parent-is-visible="parentIsVisible"
-        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)" />
+        :visible="layer.attributes.layerType === 'overlay' ? layer.attributes.hasDefaultVisibility : (layer.id === firstActiveBaseLayerId)"
+      />
       <dp-public-layer-list-category
         v-else
-        :group="layer"
         :key="`category:${layer.id}`"
+        :group="layer"
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
         :layer-type="layerType"
         :parent-is-visible="parentIsVisible"
-        :visible="true" />
+        :visible="true"
+      />
     </template>
   </ul>
 </template>
@@ -45,44 +48,44 @@ export default {
 
   components: {
     DpPublicLayerListCategory,
-    DpPublicLayerListLayer
+    DpPublicLayerListLayer,
   },
 
   props: {
     layers: {
       type: Array,
       required: true,
-      default: () => []
+      default: () => [],
     },
 
     unfolded: {
       type: Boolean,
       required: true,
-      default: false
+      default: false,
     },
 
     layerType: {
       type: String,
       required: false,
-      default: 'overlay'
+      default: 'overlay',
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     parentIsVisible: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
 
   data () {
     return {
-      isLoading: true
+      isLoading: true,
     }
   },
 
@@ -117,7 +120,7 @@ export default {
     },
 
     ...mapState('Layers', ['isMapLoaded']),
-    ...mapGetters('Layers', ['element'])
+    ...mapGetters('Layers', ['element']),
   },
 
   watch: {
@@ -136,8 +139,8 @@ export default {
           this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, setToVisible: true })
         })
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -171,11 +174,11 @@ export default {
      */
     prefixClass (classList) {
       return prefixClass(classList)
-    }
+    },
   },
 
   beforeCreate () {
     this.$options.components.dpPublicLayerListCategory = DpPublicLayerListCategory
-  }
+  },
 }
 </script>

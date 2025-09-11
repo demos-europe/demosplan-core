@@ -12,37 +12,46 @@ All rights reserved
     <h4
       v-if="title"
       class="u-mb-0_75 font-semibold font-size-large break-words"
-      v-text="title" />
+      v-text="title"
+    />
     <a
       v-if="phoneNumber"
       class="u-mt-0_25 inline-block font-semibold font-size-large color--black break-words"
-      :href="`tel:${phoneNumber}`">
+      :href="`tel:${phoneNumber}`"
+    >
       <dp-icon
         class="inline-block"
-        icon="phone" />
+        icon="phone"
+      />
       {{ phoneNumber }}
     </a>
     <p
-      class="break-words"
       v-if="email"
-      v-text="email" />
+      class="break-words"
+      v-text="email"
+    />
     <template v-if="reachability.officeHours">
       <div
-        v-if="reachability.service">
+        v-if="reachability.service"
+      >
         <h4
           class="u-mt-0_75 font-semibold break-words"
-          v-text="reachability.service" />
+          v-text="reachability.service"
+        />
         <div
+          v-cleanhtml="reachability.officeHours"
           class="c-styled-html"
-          v-cleanhtml="reachability.officeHours" />
+        />
         <span
           class="color--grey-light font-size-smaller break-words"
-          v-text="reachability.exception" />
+          v-text="reachability.exception"
+        />
       </div>
       <div
         v-else
         v-cleanhtml="reachability.officeHours"
-        class="u-mt-0_75 lg:mt-2 break-words c-styled-html" />
+        class="u-mt-0_75 lg:mt-2 break-words c-styled-html"
+      />
     </template>
   </section>
 </template>
@@ -54,37 +63,37 @@ export default {
   name: 'DpSupportCard',
 
   components: {
-    DpIcon
+    DpIcon,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     email: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     phoneNumber: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     reachability: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     title: {
       required: false,
       type: String,
-      default: ''
-    }
-  }
+      default: '',
+    },
+  },
 }
 </script>

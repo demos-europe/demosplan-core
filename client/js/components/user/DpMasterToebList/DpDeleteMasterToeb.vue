@@ -10,11 +10,13 @@
 <template>
   <div>
     <button
+      class="btn-icns u-m-0 u-pl-0"
       @click.prevent="deleteOrga"
-      class="btn-icns u-m-0 u-pl-0">
+    >
       <i
         class="fa fa-trash"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </button>
   </div>
 </template>
@@ -28,21 +30,21 @@ export default {
   props: {
     orgaId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'orga-deleted'
+    'orga:deleted',
   ],
 
   methods: {
     deleteOrga () {
       if (confirm(Translator.trans('check.mastertoeb.delete'))) {
         makeFormPost({ oId: this.orgaId }, Routing.generate('DemosPlan_user_mastertoeblist_delete_ajax'))
-          .then(() => this.$emit('orga-deleted', this.orgaId))
+          .then(() => this.$emit('orga:deleted', this.orgaId))
       }
-    }
-  }
+    },
+  },
 }
 </script>

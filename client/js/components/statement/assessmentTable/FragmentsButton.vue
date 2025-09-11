@@ -17,15 +17,18 @@
       'is-active-toggle': active
     }"
     :href="'#' + statementId + '_fragments'"
-    @click="loadFragments(statementId)">
+    @click="loadFragments(statementId)"
+  >
     <i
       class="fa fa-sitemap"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
       class="font-size-smaller text-center block"
-      style="margin-top: -4px;">
+      style="margin-top: -4px;"
+    >
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>
   </a>
@@ -41,36 +44,36 @@ export default {
   props: {
     active: {
       required: true,
-      type: Boolean
+      type: Boolean,
     },
 
     statementId: {
       required: true,
-      type: String
+      type: String,
     },
 
     statementFragmentsTotal: {
       required: false,
       type: String,
-      default: '0'
+      default: '0',
     },
 
     statementFragmentsLength: {
       required: false,
       default: '0',
-      type: String
+      type: String,
     },
 
     title: {
       required: false,
       default: 'fragments',
-      type: String
-    }
+      type: String,
+    },
   },
 
   emits: [
     'fragments:show',
-    'fragments:load'
+    'fragments:load',
   ],
 
   computed: {
@@ -93,7 +96,7 @@ export default {
       } else {
         return 0
       }
-    }
+    },
   },
 
   methods: {
@@ -109,7 +112,7 @@ export default {
       }
 
       this.$emit('fragments:show', statementId)
-    }
-  }
+    },
+  },
 }
 </script>

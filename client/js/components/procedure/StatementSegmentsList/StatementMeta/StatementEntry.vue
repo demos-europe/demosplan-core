@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementEntryData">
     <legend
       id="entry"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('entry') }}
     </legend>
 
@@ -26,22 +27,26 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.authored')
         }"
-        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'" />
+        :model-value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
+      />
 
       <!-- authoredDate: if not manual statement -->
       <div
         v-else
-        class="mb-2">
+        class="mb-2"
+      >
         <dp-label
           :text="Translator.trans('statement.date.authored')"
-          for="authoredDateDatepicker" />
+          for="authoredDateDatepicker"
+        />
         <dp-datepicker
           id="authoredDateDatepicker"
           class="o-form__control-wrapper"
           data-cy="statementEntry:authoredDate"
           :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
           :value="localStatement.attributes.authoredDate"
-          @input="val => setDate(val, 'authoredDate')" />
+          @input="val => setDate(val, 'authoredDate')"
+        />
       </div>
 
       <!-- submitDate: if manual statement -->
@@ -54,13 +59,15 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.date.submitted')
         }"
-        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'" />
+        :model-value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+      />
 
       <!-- submitDate: if not manual statement -->
       <div v-else>
         <dp-label
           :text="Translator.trans('statement.date.submitted')"
-          for="submitDateDatepicker" />
+          for="submitDateDatepicker"
+        />
         <dp-datepicker
           id="submitDateDatepicker"
           class="o-form__control-wrapper"
@@ -68,7 +75,8 @@ All rights reserved
           :max-date="currentDate"
           :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
           :value="getFormattedDate(localStatement.attributes.submitDate)"
-          @input="val => setDate(val, 'submitDate')" />
+          @input="val => setDate(val, 'submitDate')"
+        />
       </div>
 
       <dp-select
@@ -80,13 +88,14 @@ All rights reserved
         :label="{
           text: Translator.trans('submit.type')
         }"
-        :options="submitTypeOptions" />
+        :options="submitTypeOptions"
+      />
 
       <dp-input
         v-if="editable"
         id="statementInternId"
-        class="mb-2"
         v-model="localStatement.attributes.internId"
+        class="mb-2"
         data-cy="statementEntry:internId"
         :disabled="!editable"
         :label="{
@@ -116,7 +125,8 @@ All rights reserved
           :label="{
             text: Translator.trans('procedure.public.phase')
           }"
-          :options="availableProcedurePhases" />
+          :options="availableProcedurePhases"
+        />
       </template>
     </div>
     <dp-text-area
@@ -127,7 +137,8 @@ All rights reserved
       :disabled="!editable"
       :label="Translator.trans('memo')"
       name="r_memo"
-      reduced-height />
+      reduced-height
+    />
 
     <dp-button-row
       v-if="editable"
@@ -135,7 +146,8 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementEntryData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
   </fieldset>
 </template>
 
@@ -147,7 +159,7 @@ import {
   DpLabel,
   DpSelect,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
 export default {
@@ -159,7 +171,7 @@ export default {
     DpInput,
     DpLabel,
     DpSelect,
-    DpTextArea
+    DpTextArea,
   },
 
   mixins: [dpValidateMixin],
@@ -168,34 +180,34 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      localStatement: null
+      localStatement: null,
     }
   },
 
   computed: {
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     availableProcedurePhases () {
@@ -203,7 +215,7 @@ export default {
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key
+        value: phase.key,
       }))
     },
 
@@ -219,7 +231,7 @@ export default {
 
     isStatementManual () {
       return this.localStatement.attributes.isManual
-    }
+    },
   },
 
   methods: {
@@ -227,9 +239,9 @@ export default {
       if (!date) {
         return ''
       }
-      return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
-        ? date
-        : this.formatDate(date)
+      return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/) ?
+        date :
+        this.formatDate(date)
     },
 
     formatDate (dateString) {
@@ -262,8 +274,8 @@ export default {
           procedurePhase: this.localStatement.attributes.procedurePhase,
           memo: this.localStatement.attributes.memo,
           authorName: this.localStatement.attributes.authorName,
-          submitName: this.localStatement.attributes.submitName
-        }
+          submitName: this.localStatement.attributes.submitName,
+        },
       }
 
       this.$emit('save', updatedStatement)
@@ -281,11 +293,11 @@ export default {
 
     syncAuthorAndSubmitter () {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
-    }
+    },
   },
 
   created () {
     this.setInitValues()
-  }
+  },
 }
 </script>

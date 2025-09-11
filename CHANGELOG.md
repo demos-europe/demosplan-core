@@ -6,6 +6,12 @@
 
 ## UNRELEASED
 
+## v4.12.0 (2025-09-10)
+- Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+- Update demosplan-addon from v0.59 to v0.60
+
 ## v4.11.0 (2025-08-27)
 - Allow to edit custom field type singleSelect
 - Mark outdated map layers in the map settings
