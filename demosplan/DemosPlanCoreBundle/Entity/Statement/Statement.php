@@ -4130,7 +4130,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->similarStatementSubmitters;
     }
 
-    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    public function addSimilarStatementSubmitter(ProcedurePersonInterface $similarStatementSubmitter): void
     {
         if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
             $this->similarStatementSubmitters->add($similarStatementSubmitter);
