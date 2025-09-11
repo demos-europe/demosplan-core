@@ -36,6 +36,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\SegmentFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
@@ -138,6 +140,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
@@ -1367,3 +1373,5 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
