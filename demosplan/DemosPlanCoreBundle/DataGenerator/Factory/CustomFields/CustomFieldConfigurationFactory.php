@@ -81,4 +81,11 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
             'sourceEntityId'    => $procedure->getId(),
         ]);
     }
+
+    public function withRelatedTargetEntity(string $entityClass): self
+    {
+        return $this->with([
+            'targetEntityClass' => $entityClass,
+        ]);
+    }
 }
