@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.13.0 (2025-09-11)
 
 ## v4.12.0 (2025-09-10)
 - Add ODT export functionality for assessment tables
