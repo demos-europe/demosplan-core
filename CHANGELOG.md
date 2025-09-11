@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add html paragraph import from odt files
 
 ## v4.12.0 (2025-09-10)
 - Add ODT export functionality for assessment tables
