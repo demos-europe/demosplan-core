@@ -594,7 +594,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function loadTestProcedureParagraphVersion(
         Procedure $procedure,
-        Elements $testSingleDocumentElement
+        Elements $testSingleDocumentElement,
     ) {
         $paragraphVersion1 = new ParagraphVersion();
         $paragraphVersion1->setElement($testSingleDocumentElement);
@@ -742,7 +742,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function loadTestProcedureDraftStatementVersion(
         Procedure $procedure,
-        DraftStatement $draftStatement
+        DraftStatement $draftStatement,
     ): void {
         $draftStatementVersion = new DraftStatementVersion();
         $draftStatementVersion->setTitle('Draft Statement');
@@ -930,7 +930,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     protected function loadMasterBluePrintFileElements(
         ObjectManager $manager,
-        Procedure $masterBlueprint
+        Procedure $masterBlueprint,
     ): void {
         $elementsToCreate = [
             ElementsInterface::ELEMENT_TITLES['fnp_aenderung'],
@@ -967,7 +967,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     protected function loadMasterBluePrintParagraphElements(
         ObjectManager $manager,
-        Procedure $masterBlueprint
+        Procedure $masterBlueprint,
     ): void {
         $elementsToCreate = [
             ElementsInterface::ELEMENT_TITLES['verordnung'],
