@@ -76,7 +76,7 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         return $this->transactionService->executeAndFlushInTransaction(
-            fn (): array => $this->prepareAction($procedure->getId(), $rpcRequests)
+            fn (): array => $this->prepareAction($procedure, $rpcRequests)
         );
     }
 
@@ -161,8 +161,10 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
     /**
      * @param array<mixed>|object $rpcRequests
      */
-    private function prepareAction(string $procedureId, $rpcRequests): array
+    private function prepareAction(?ProcedureInterface $procedure, $rpcRequests): array
     {
+        $procedureId = $procedure->getId() ?? 'No Procedure provided for RPC route: '.self::SEGMENTS_BULK_DELETE_METHOD;
+
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
             : $rpcRequests;
