@@ -102,13 +102,10 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
         try {
             if (!$this->currentUser->hasPermission('area_statement_segmentation')) {
                 $this->logger->warning('User attempted bulk delete of segments without permission', [
-                    'userId' => $this->currentUser->getUser()?->getId(),
+                    'userId'             => $this->currentUser->getUser()?->getId(),
                     'requiredPermission' => 'area_statement_segmentation',
                 ]);
-                throw AccessDeniedException::missingPermission(
-                    'area_statement_segmentation',
-                    $this->currentUser->getUser()
-                );
+                throw AccessDeniedException::missingPermission('area_statement_segmentation', $this->currentUser->getUser());
             }
 
             return true;
@@ -174,7 +171,7 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
         } catch (AccessDeniedException $e) {
             $this->logger->warning('Access denied for segment bulk delete', [
                 'procedureId' => $procedureId,
-                'exception' => $e->getMessage(),
+                'exception'   => $e->getMessage(),
             ]);
 
             return array_map($this->errorGenerator->accessDenied(...), $rpcRequests);
@@ -188,7 +185,7 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
                 if (false === $this->handleSegmentAction($segmentIds)) {
                     $this->logger->error('Failed to handle segment action during bulk delete', [
                         'procedureId' => $procedureId,
-                        'segmentIds' => $segmentIds,
+                        'segmentIds'  => $segmentIds,
                     ]);
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
 
@@ -199,14 +196,14 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
             } catch (InvalidSchemaException|JsonException $e) {
                 $this->logger->warning('Invalid RPC request parameters for segment bulk delete', [
                     'procedureId' => $procedureId,
-                    'exception' => $e->getMessage(),
+                    'exception'   => $e->getMessage(),
                 ]);
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
             } catch (Exception $e) {
                 $this->logger->error('Unexpected exception during segment bulk delete', [
                     'procedureId' => $procedureId,
-                    'exception' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
+                    'exception'   => $e->getMessage(),
+                    'trace'       => $e->getTraceAsString(),
                 ]);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }

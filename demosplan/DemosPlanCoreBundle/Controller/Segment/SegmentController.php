@@ -262,7 +262,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $segmentId,
         SegmentHandler $segmentHandler,
-        MessageBagInterface $messageBag
+        MessageBagInterface $messageBag,
     ): Response {
         $success = $segmentHandler->delete($segmentId);
 
