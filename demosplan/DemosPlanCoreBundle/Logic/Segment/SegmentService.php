@@ -307,4 +307,16 @@ class SegmentService extends CoreService implements SegmentServiceInterface
             $segments
         );
     }
+
+    /**
+     * Delete a segment from the database.
+     * All segment relevant child relations like SegmentComment are handled via cascade delete.
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegment(Segment $segment): void
+    {
+        $this->segmentRepository->deleteSegmentObject($segment);
+    }
 }
