@@ -439,6 +439,9 @@ parameters:
    # uses the BKG address search for autosuggestions
     geodatenzentrum_address_search_url: ''
 
+    # session lifetime in seconds used for automatic Keycloak logout
+    session_lifetime_seconds: ''
+
     #### project specific settings
 
 
@@ -489,7 +492,7 @@ parameters:
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    file.formats.doc: [doc, docx]
+    file.formats.doc: [doc, docx, odt]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
     file.formats.zip: [zip]
