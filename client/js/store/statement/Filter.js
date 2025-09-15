@@ -288,10 +288,10 @@ const Filter = {
           let filtersToUpdateInStore
           // Update only options for one filter
           if (data.filterId) {
-            filtersToUpdateInStore = response.data.filter(filter => filter.id === data.filterId)
+            filtersToUpdateInStore = response.data.data.filter(filter => filter.id === data.filterId)
           } else {
             // Update options for all selected filters
-            filtersToUpdateInStore = response.data
+            filtersToUpdateInStore = response.data.data
           }
 
           commit('loadAvailableFilterListOptions', filtersToUpdateInStore)

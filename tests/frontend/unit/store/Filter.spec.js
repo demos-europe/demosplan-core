@@ -9,8 +9,8 @@
 
 import { createStore } from 'vuex'
 import Filter from '@DpJs/store/statement/Filter'
-import { filterList } from '../__mocks__/Filter.mock'
-import { UserFilterSetResource } from '../__mocks__/UserFilterSetResource.mock'
+import filterList from '../fixtures/Filter.json'
+import UserFilterSetResource from '../fixtures/UserFilterSetResource.json'
 
 describe('FilterStore', () => {
   let store

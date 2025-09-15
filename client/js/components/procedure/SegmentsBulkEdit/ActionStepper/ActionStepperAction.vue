@@ -18,14 +18,14 @@
   <div class="u-pv space-stack-s">
     <dp-checkbox
       :id="id"
-      :checked="checked"
+      :checked="modelValue"
       :label="{
-        bold: checked,
+        bold: modelValue,
         text: label
       }"
-      @change="isChecked => $emit('change', isChecked)" />
+      @change="isChecked => $emit('update:modelValue', isChecked)" />
     <div
-      v-if="checked"
+      v-if="modelValue"
       class="u-ml">
       <slot />
     </div>
@@ -42,13 +42,12 @@ export default {
     DpCheckbox
   },
 
-  model: {
-    prop: 'checked',
-    event: 'change'
+  compatConfig: {
+    COMPONENT_V_MODEL: false
   },
 
   props: {
-    checked: {
+    modelValue: {
       type: Boolean,
       required: false,
       default: false
@@ -66,7 +65,7 @@ export default {
   },
 
   emits: [
-    'change'
+    'update:modelValue'
   ]
 }
 </script>

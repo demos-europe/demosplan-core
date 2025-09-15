@@ -13,19 +13,20 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class AddressBookEntryService extends CoreService
+class AddressBookEntryService
 {
     public function __construct(
         private readonly AddressBookEntryRepository $addressBookEntryRepository,
-        private readonly MessageBagInterface $messageBag
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -52,7 +53,7 @@ class AddressBookEntryService extends CoreService
     /**
      * Add a single AddressBookEntry to the AddressBook of the given Organisation.
      *
-     * @return addressBookEntry|false - true in case of successfully deleted, otherwise false
+     * @return AddressBookEntry|false - true in case of successfully deleted, otherwise false
      *
      * @throws ORMException
      * @throws OptimisticLockException
@@ -102,7 +103,7 @@ class AddressBookEntryService extends CoreService
                 return $this->addressBookEntryRepository->deleteObject($toDelete);
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Error on removeAddressBookEntry(): ', [$e]);
+            $this->logger->error('Error on removeAddressBookEntry(): ', [$e]);
             $this->messageBag->add('error', 'error.delete.addressBookEntry');
         }
 

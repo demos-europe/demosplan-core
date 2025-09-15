@@ -33,8 +33,9 @@
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
           :raw-items="institutionList"
+          :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
-          @reset="handleFilterReset" />
+          @reset="resetSearch" />
       </div>
 
       <div class="flex justify-end mt-4">
@@ -274,6 +275,10 @@ export default {
         .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
+    isSearchApplied () {
+      return this.searchTerm !== ''
+    },
+
     selectableColumns () {
       return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
     },
@@ -477,23 +482,22 @@ export default {
         .map(el => el.name)
     },
 
-    resetSearch() {
-      this.$refs.searchField.handleReset()
-    },
-
     handleReset () {
       this.searchTerm = ''
       this.getInstitutionsByPage(1)
     },
 
     handleSearch (searchTerm) {
-      this.isLoading = true
       this.searchTerm = searchTerm
 
       this.getInstitutionsByPage(1)
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    resetSearch () {
+      this.$refs.searchField.handleReset()
     },
 
     separateByCommas (institutionTags) {

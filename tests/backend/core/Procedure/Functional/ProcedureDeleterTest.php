@@ -10,7 +10,6 @@
 
 namespace backend\core\Procedure\Functional;
 
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
@@ -103,31 +102,16 @@ class ProcedureDeleterTest extends FunctionalTestCase
         $customFieldsCount = 0;
 
         foreach ($this->testProcedures as $procedure) {
-            $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
-            $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+            CustomFieldConfigurationFactory::new()
+                ->withRelatedProcedure($procedure->_real())
+                ->asRadioButton('Color1')->create();
+            CustomFieldConfigurationFactory::new()
+                ->withRelatedProcedure($procedure->_real())
+                ->asRadioButton('Color2')->create();
             $customFieldsCount += 2;
         }
 
         return $customFieldsCount;
-    }
-
-    /**
-     * Creates a custom field for a procedure.
-     */
-    private function createCustomField($procedure, string $sourceEntityClass, string $name, string $description, array $options): CustomFieldConfiguration
-    {
-        $radioButton = new RadioButtonField();
-        $radioButton->setName($name);
-        $radioButton->setDescription($description);
-        $radioButton->setFieldType('singleSelect');
-        $radioButton->setOptions($options);
-
-        return CustomFieldConfigurationFactory::createOne([
-            'sourceEntityClass' => $sourceEntityClass,
-            'sourceEntityId'    => $procedure->getId(),
-            'targetEntityClass' => 'SEGMENT',
-            'configuration'     => $radioButton,
-        ])->_real();
     }
 
     /**

@@ -154,6 +154,20 @@ const LayersStore = {
     },
 
     /**
+     * Sets the initial state of a layer based on API data
+     *
+     * @param state
+     * @param data
+     *
+     * returns {void}
+     */
+    setInitialLayerState (state) {
+      state.apiData.included.forEach(elem => {
+        state.layerStates[elem.id] = { isVisible: elem.attributes.hasDefaultVisibility, opacity: elem.attributes.opacity }
+      })
+    },
+
+    /**
      * Adds a legend object to the legends array
      *
      * @param {Object} data - Legend object with layerId, treeOrder, mapOrder, defaultVisibility, url
@@ -174,11 +188,11 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    setAttributeForLayer (state, data) {
-      const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+    setAttributeForLayer (state, { id, attribute, value }) {
+      const index = state.apiData.included.findIndex(elem => elem.id === id)
 
       if (index >= 0) {
-        state.apiData.included[index].attributes[data.attribute] = data.value
+        state.apiData.included[index].attributes[attribute] = value
       }
     },
 
@@ -315,6 +329,10 @@ const LayersStore = {
      * @returns {void}
      */
     setVisibilityGroups (state) {
+      if (!state.apiData.included) {
+        return
+      }
+
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
         return !!elem.attributes.visibilityGroupId
       })
@@ -510,7 +528,7 @@ const LayersStore = {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: resource.type, resourceId: resource.id }), {}, payload)
         .then(() => {
-          dispatch('get', state.procedureId)
+          dispatch('get', { procedureId: state.procedureId })
             .then(() => {
               commit('setActiveLayerId', '')
             })
@@ -617,15 +635,18 @@ const LayersStore = {
     /**
      * Toggles base layer visibility (only one base layer can be visible at a time)
      *
-     * @param {Object} payload - Payload object
-     * @param {string} payload.id - Base layer ID
-     * @param {boolean} payload.value - Visibility value
+     * @param {string} id - Base layer ID
+     * @param {boolean} setToVisible - Visibility value
      *
      * @returns {void}
      */
-    toggleBaselayer ({ dispatch, state, commit }, { id, value }) {
-      // You can't toggle a base layer if it is already visible
-      if (!value) {
+    toggleBaselayer ({ dispatch, state, commit }, { id, setToVisible }) {
+      // You can't toggle a base layer "off" if it is visible because we don't know which layer to show instead.
+      const currentBaseLayerIsVisible = state.layerStates[id]?.isVisible
+        ? true
+        : state.apiData.included.find(layer => layer.id === id).attributes.isVisible
+
+      if (!(currentBaseLayerIsVisible && setToVisible)) {
         state.apiData.included.forEach(potentialBaseLayer => {
           if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
             commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
@@ -646,7 +667,7 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    async toggleCategoryAlternately ({ dispatch, state, commit }, layer) {
+    async toggleCategoryAlternatively ({ dispatch, state, commit }, layer) {
       const toggledCatId = await dispatch('findMostParentCategory', layer)
         .catch(() => {
           console.error('Error finding most parent category for layer:', layer.id)
@@ -698,12 +719,12 @@ const LayersStore = {
 
       // If it's a base layer, we toggle it exclusively
       if (exclusively) {
-        await dispatch('toggleBaselayer', { id, value: isVisible })
+        await dispatch('toggleBaselayer', { id, setToVisible: isVisible })
       } else if (layer.attributes.visibilityGroupId) {
         // If the Layer has a visibilityGroupId, we toggle the whole group
         await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
       } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
-        dispatch('toggleCategoryAlternately', layer)
+        dispatch('toggleCategoryAlternatively', layer)
       } else {
         commit('setLayerState', { id, key: 'isVisible', value: isVisible })
 

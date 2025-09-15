@@ -17,12 +17,17 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class BounceChecker extends CoreService
+class BounceChecker
 {
-    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly MailRepository $mailRepository, private readonly MailService $mailService)
-    {
+    public function __construct(
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MailRepository $mailRepository,
+        private readonly MailService $mailService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
