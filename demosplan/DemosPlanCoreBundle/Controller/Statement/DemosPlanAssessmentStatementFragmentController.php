@@ -737,6 +737,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
                 'fragments'         => $allFragments,
                 'filteredFragments' => $filteredFragments,
                 'statement'         => $allFragments[0]['statement'] ?? [],
+                'statementId'       => $statementId,
             ];
 
             return $this->renderJson($data);
