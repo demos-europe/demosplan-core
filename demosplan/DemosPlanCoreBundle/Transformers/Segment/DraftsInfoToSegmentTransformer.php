@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -21,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentTransformerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -97,7 +97,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
         // The segments are received potentially unsorted. Hence sort them by their position
         // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn(array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
