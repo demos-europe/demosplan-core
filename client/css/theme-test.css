@@ -137,11 +137,14 @@
     line-height: 1.4;
 }
 
+.cv-header-row {
+    padding: 25px 0;
+}
+
 .cv-statement-segment-container .cv-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 25px 0;
     flex-wrap: wrap;
     gap: 16px;
 }
@@ -205,8 +208,9 @@
   gap: 32px !important;
 }
 
-/* Export Button - same colors as primary button */
+/* Export Button - back to original: white normal, blue hover */
 .cv-export-btn {
+  background-color: transparent !important;
   border: 1px solid var(--dp-primary-blue) !important;
   color: var(--dp-primary-blue) !important;
 }
@@ -290,6 +294,10 @@
 
 .bx--batch-summary {
     background-color: var(--dp-primary-blue) !important;
+}
+
+o-breadcrumb ol {
+    display: flex;
 }
 
 /* Breadcrumb: Change CSS triangle icons to slash separators */
@@ -480,6 +488,15 @@ a[aria-current="page"]::after {
     display:none;
 }
 
+/* Hide sort icon for actions column in boilerplates table */
+#cv-boilerplates-table th:last-child .bx--table-sort {
+  pointer-events: none !important;
+}
+
+#cv-boilerplates-table th:last-child .bx--table-sort svg {
+  display: none !important;
+}
+
 /* Filter search styling */
 .cv-filter-search {
   padding: 8px 12px !important;
@@ -495,7 +512,50 @@ a[aria-current="page"]::after {
   background-color: var(--dp-white) !important;
 }
 
-/* Modal Button Styling Disabled - User will try themselves */
+/* Export Modal Styles */
+.cv-export-modal-content {
+  padding: 16px 0;
+}
+
+.cv-export-description {
+  font-family: 'BundesSans Web', sans-serif;
+  font-size: 14px;
+  line-height: 1.29;
+  letter-spacing: 0.16px;
+  color: var(--dp-gray-100);
+  margin: 0 0 24px 0;
+}
+
+.cv-export-format-selection {
+  margin-top: 16px;
+}
+
+.cv-export-format-title {
+  font-family: 'BundesSans Web', sans-serif;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: 0.16px;
+  color: var(--dp-gray-100);
+  margin: 0 0 16px 0;
+  font-weight: 400;
+}
+
+.cv-export-format-option {
+  margin-bottom: 16px;
+}
+
+.bx--radio-button-wrapper .bx--radio-button__label {
+    justify-content: start !important;
+}
+
+.cv-export-cancel-button, .cv-export-confirm-button, #cv-export-icon {
+    margin-left:32px !important;
+}
+
+
+
+
+
 
 
 
