@@ -12,6 +12,8 @@
 - Use external Geocoder API as service for address auto-suggestions
 
 - Turn projects into yarn workspaces
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
 
 ## v4.12.0 (2025-09-10)
 - Add ODT export functionality for assessment tables
