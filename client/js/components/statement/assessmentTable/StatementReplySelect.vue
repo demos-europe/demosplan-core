@@ -21,7 +21,8 @@
       :label="{
         text: Translator.trans('statement.in.compass.was.answered')
       }"
-      name="r_replied" />
+      name="r_replied"
+    />
   </div>
 </template>
 

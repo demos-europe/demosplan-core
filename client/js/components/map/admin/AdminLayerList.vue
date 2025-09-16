@@ -36,12 +36,14 @@
             :class="{'has-dropdown': hasPermission('feature_map_category')}"
             class="btn btn--primary"
             data-cy="createNewGisLayer"
-            :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })">
+            :href="Routing.generate('DemosPlan_map_administration_gislayer_new',{ procedure: procedureId })"
+          >
             {{ Translator.trans('gislayer.create') }}
           </a>
           <template
             v-if="hasPermission('feature_map_category')"
-            v-slot:dropdown>
+            v-slot:dropdown
+          >
             <a :href="Routing.generate('DemosPlan_map_administration_gislayer_category_new',{ procedureId: procedureId })">
               {{ Translator.trans('maplayer.category.new') }}
             </a>
@@ -52,26 +54,31 @@
 
     <div
       class="relative"
-      :class="{'pointer-events-none': false === isEditable}">
+      :class="{'pointer-events-none': false === isEditable}"
+    >
       <div class="mt-4 flex">
         <h3
           v-if="hasPermission('feature_map_baselayer')"
-          class="flex-1 w-1/3">
+          class="flex-1 w-1/3"
+        >
           {{ Translator.trans('map.overlays') }}
         </h3>
         <div
           v-if="canHaveCategories"
-          class="flex-1 w-2/3 text-right">
+          class="flex-1 w-2/3 text-right"
+        >
           <button
             class="btn--blank o-link--default"
             :class="{'o-link--active':currentTab === 'treeOrder'}"
-            @click.prevent="setActiveTab('treeOrder')">
+            @click.prevent="setActiveTab('treeOrder')"
+          >
             {{ Translator.trans('map.set.order.tree') }}
           </button>
           <button
             class="btn--blank o-link--default ml-4"
             :class="{'o-link--active':currentTab === 'mapOrder'}"
-            @click.prevent="setActiveTab('mapOrder')">
+            @click.prevent="setActiveTab('mapOrder')"
+          >
             {{ Translator.trans('map.set.order.map') }}
           </button>
         </div>
@@ -88,17 +95,21 @@
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
-            class="w-1/12 text-right">
+            class="w-1/12 text-right"
+          >
             <i
               v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }"
-              class="fa fa-link mr-2" />
+              class="fa fa-link mr-2"
+            />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
-            class="w-1/12 text-right">
+            class="w-1/12 text-right"
+          >
             <i
               v-tooltip="Translator.trans('explanation.gislayer.visibility')"
-              class="fa fa-eye mr-2" />
+              class="fa fa-eye mr-2"
+            />
           </div>
 
           <div class="w-2/12 text-right">
@@ -112,7 +123,8 @@
         :class="{ 'color--grey': false === isEditable }"
         :content-data="currentList"
         :opts="draggableOptions"
-        @end="updateChildren">
+        @end="updateChildren"
+      >
         <admin-layer-list-item
           v-for="(item, idx) in currentList"
           :key="item.id"
@@ -122,16 +134,19 @@
           :is-loading="(false === isEditable)"
           layer-type="overlay"
           :parent-order-position="1"
-          :sorting-type="currentTab" />
+          :sorting-type="currentTab"
+        />
       </dp-draggable>
 
       <dp-loading
         v-if="isLoading"
-        class="list__item py-2 border--top" />
+        class="list__item py-2 border--top"
+      />
 
       <div
         v-if="(0 === currentList.length ) && false === isLoading"
-        class="list__item py-2 border--top color--grey">
+        class="list__item py-2 border--top color--grey"
+      >
         {{ Translator.trans('no.data') }}
       </div>
 
@@ -150,10 +165,12 @@
             </div>
             <div
               v-if="hasPermission('feature_map_layer_visibility')"
-              class="w-1/12 text-right">
+              class="w-1/12 text-right"
+            >
               <i
                 v-tooltip="Translator.trans('explanation.gislayer.visibility')"
-                class="fa fa-eye mr-2" />
+                class="fa fa-eye mr-2"
+              />
             </div>
             <div class="w-1/12 text-right">
               {{ Translator.trans('edit') }}
@@ -165,7 +182,8 @@
           :opts="draggableOptionsForBaseLayer"
           :content-data="currentBaseList"
           :class="{'color--grey': false === isEditable}"
-          @end="updateChildren">
+          @end="updateChildren"
+        >
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             :key="item.id"
@@ -174,7 +192,8 @@
             :index="idx"
             :is-loading="(false === isEditable)"
             layer-type="base"
-            :sorting-type="currentTab" />
+            :sorting-type="currentTab"
+          />
         </dp-draggable>
         <div class="my-4">
           <h3>
@@ -187,14 +206,16 @@
             <select
               v-model="currentMinimapLayer"
               class="o-form__control-select w-1/2"
-              data-cy="adminLayerList:currentMinimapLayer">
+              data-cy="adminLayerList:currentMinimapLayer"
+            >
               <option :value="{id: '', attributes: { name: 'default' }}">
                 {{ Translator.trans('selection.no') }}
               </option>
               <option
                 v-for="item in mapBaseList"
                 :key="item.id"
-                :value="item">
+                :value="item"
+              >
                 {{ item.attributes.name }}
               </option>
             </select>
@@ -203,7 +224,8 @@
       </template>
       <div
         v-if="!isLoading"
-        class="text-right mt-5 space-x-2">
+        class="text-right mt-5 space-x-2"
+      >
         <dp-button
           :busy="!isEditable"
           :text="Translator.trans('save')"

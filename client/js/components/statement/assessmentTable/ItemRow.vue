@@ -15,15 +15,18 @@
       'border--right': borderRight,
       'fullscreen': isFullscreen,
       'fullscreen-row': isFullscreenRow
-    }">
+    }"
+  >
     <div
       v-if="icon"
       class="layout__item u-pl-0 c-at-item__row-icon color--grey"
-      :title="Translator.trans(title)">
+      :title="Translator.trans(title)"
+    >
       <i
         aria-hidden="true"
         class="fa"
-        :class="icon" />
+        :class="icon"
+      />
     </div>
     <button
       v-if="isFullscreenRow"
@@ -31,11 +34,13 @@
       :aria-label="Translator.trans('fullscreen')"
       class="btn--blank absolute right-1 top-1 z-above-zero"
       data-cy="rowFullscreen"
-      @click.stop.prevent="toggleFullscreen">
+      @click.stop.prevent="toggleFullscreen"
+    >
       <dp-icon
         aria-hidden="true"
         class="inline-block"
-        :icon="isFullscreen ? 'compress' : 'expand'" />
+        :icon="isFullscreen ? 'compress' : 'expand'"
+      />
     </button>
     <div class="layout--flush layout__item c-at-item__row relative">
       <slot />

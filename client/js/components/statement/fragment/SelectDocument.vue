@@ -12,7 +12,8 @@
     <slot name="beforeElement">
       <label
         class="u-mb-0_25"
-        :for="elementsInputName">
+        :for="elementsInputName"
+      >
         {{ Translator.trans('document') }}
       </label>
     </slot>
@@ -21,14 +22,16 @@
         :id="elementsInputName"
         v-model="currentElementId"
         class="o-form__control-select"
-        :name="elementsInputName">
+        :name="elementsInputName"
+      >
         <option value="">
           -
         </option>
         <option
           v-for="elem in elements"
           :key="elem.id"
-          :value="elem.id">
+          :value="elem.id"
+        >
           {{ elem.title }}
         </option>
       </select>
@@ -37,7 +40,8 @@
       <slot name="beforeParagraph">
         <label
           class="u-mb-0_25"
-          :for="paragraphsInputName">
+          :for="paragraphsInputName"
+        >
           {{ Translator.trans('paragraph') }}
         </label>
       </slot>
@@ -46,14 +50,16 @@
           :id="paragraphsInputName"
           v-model="currentParagraphId"
           class="o-form__control-select"
-          :name="paragraphsInputName">
+          :name="paragraphsInputName"
+        >
           <option value="">
             -
           </option>
           <option
             v-for="paragraph in selectedElementParagraph"
             :key="paragraph.id"
-            :value="paragraph.id">
+            :value="paragraph.id"
+          >
             {{ paragraph.title }}
           </option>
         </select>
@@ -63,7 +69,8 @@
       <slot name="beforeParagraph">
         <label
           class="u-mb-0_25"
-          :for="fileInputName">
+          :for="fileInputName"
+        >
           {{ Translator.trans('file') }}
         </label>
       </slot>
@@ -72,14 +79,16 @@
           :id="fileInputName"
           v-model="currentFileId"
           class="layout__item"
-          :name="fileInputName">
+          :name="fileInputName"
+        >
           <option value="">
             -
           </option>
           <option
             v-for="document in selectedElementFile"
             :key="document.id"
-            :value="document.id">
+            :value="document.id"
+          >
             {{ document.title }}
           </option>
         </select>

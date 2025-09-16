@@ -17,6 +17,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
@@ -53,6 +54,7 @@ abstract class SegmentsExporter
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
+        private readonly DocumentWriterSelector $writerSelector,
         int $smallColumnWidth = 1550,
         int $wideColumnWidth = 6950,
     ) {
@@ -88,7 +90,7 @@ abstract class SegmentsExporter
         $this->addContent($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
-        return IOFactory::createWriter($phpWord);
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
@@ -330,7 +332,7 @@ abstract class SegmentsExporter
         $noEntriesMessage = $this->translator->trans('statements.filtered.none');
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
 
-        return IOFactory::createWriter($phpWord);
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     public function exportStatement(
@@ -375,7 +377,7 @@ abstract class SegmentsExporter
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
-        return IOFactory::createWriter($phpWord);
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     /**

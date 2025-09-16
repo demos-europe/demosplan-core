@@ -17,11 +17,13 @@ All rights reserved
     :close-on-select="false"
     :searchable="false"
     multiple
-    @input="(val) => updateTags(val)">
+    @input="(val) => updateTags(val)"
+  >
     <template v-slot:option="{ props }">
       <input
         type="checkbox"
-        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)">
+        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)"
+      >
       <label>
         {{ props.option.attributes.title }}
       </label>

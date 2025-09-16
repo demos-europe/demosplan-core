@@ -10,7 +10,8 @@
 <template>
   <dp-modal
     ref="boilerPlateModal"
-    content-classes="u-1-of-2">
+    content-classes="u-1-of-2"
+  >
     <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
     <dp-boiler-plate
       ref="boilerplateDropdown"
@@ -19,11 +20,13 @@
       group-values="boilerplates"
       group-label="groupName"
       :group-select="false"
-      @boilerplate-text:added="addBoilerplateText" />
+      @boilerplate-text:added="addBoilerplateText"
+    />
     <div class="flex items-center u-mt">
       <a
         class="weight--bold font-size-small"
-        :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })">
+        :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
+      >
         {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
       </a>
       <dp-button-row
@@ -33,7 +36,8 @@
         :primary-text="Translator.trans('insert')"
         secondary
         @primary-action="insertBoilerPlate"
-        @secondary-action="resetAndClose" />
+        @secondary-action="resetAndClose"
+      />
     </div>
   </dp-modal>
 </template>

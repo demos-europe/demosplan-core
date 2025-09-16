@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "v4.11.0",
+  "version": "v4.15.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
@@ -58,13 +58,13 @@
     "@masterportal/masterportalapi": "2.50.0",
     "@sentry/browser": "^9.24.0",
     "@sentry/tracing": "^7.120.3",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/leaflet": "^1.9.20",
     "@uppy/core": "^4.5.2",
     "@uppy/drag-drop": "^4.2.2",
     "@uppy/progress-bar": "^4.3.2",
-    "@vue/compat": "3.5.20",
-    "@vue/compiler-sfc": "3.5.20",
+    "@vue/compat": "3.5.21",
+    "@vue/compiler-sfc": "3.5.21",
     "a11y-datepicker": " ^0.9.0",
     "cesium": "^1.126.0",
     "core-js": "^3.45.1",
@@ -127,7 +127,7 @@
     "babel-loader": "^10.0.0",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
-    "caniuse-lite": "^1.0.30001739",
+    "caniuse-lite": "^1.0.30001741",
     "chalk": "4.1.2",
     "cli-progress": "^3.12.0",
     "commander": "^14.0.0",
@@ -154,14 +154,14 @@
     "node-notifier": "^10.0.1",
     "postcss": "^8.5.6",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "postcss-loader": "^8.1.1",
+    "postcss-loader": "^8.2.0",
     "postcss-prefix-selector": "^2.1.1",
     "postcss-preset-env": "^9.6.0",
     "purgecss-webpack-plugin": "^7.0.2",
     "sass-embedded": "^1.91.0",
     "sass-loader": "^16.0.4",
     "source-map-loader": "^5.0.0",
-    "stylelint": "^16.19.1",
+    "stylelint": "^16.24.0",
     "stylelint-config-standard-scss": "^14.0.0",
     "tailwindcss": "^4.1.12",
     "terser-webpack-plugin": "^5.3.10",
@@ -189,5 +189,8 @@
   "resolutions": {
     "globals": "15.13.0"
   },
+  "workspaces": [
+    "projects/*"
+  ],
   "packageManager": "yarn@4.2.2"
 }

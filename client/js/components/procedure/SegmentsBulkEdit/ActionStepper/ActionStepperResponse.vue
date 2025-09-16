@@ -11,7 +11,8 @@
   <dp-inline-notification
     class="mt-3 mb-2"
     :message="success ? descriptionSuccess : descriptionError"
-    :type="success ? 'confirm' : 'error'">
+    :type="success ? 'confirm' : 'error'"
+  >
     <slot />
   </dp-inline-notification>
 </template>

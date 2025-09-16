@@ -14,7 +14,8 @@
       :key="`subGroup:${subgroup.title}`"
       :csrf-token="csrfToken"
       :count="1"
-      :group="subgroup" />
+      :group="subgroup"
+    />
   </ul>
 </template>
 

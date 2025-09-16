@@ -870,18 +870,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($internalPhaseKey === $internalPhaseName) { // not found?
             $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
         /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
-                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
-                $endedInternalProcedure->setPhaseName($internalPhaseName);
-                $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
+                $data = [
+                    'id'       => $endedInternalProcedure->getId(),
+                    'phase'    => $internalPhaseKey,
+                    'customer' => $endedInternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
@@ -895,18 +895,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // T17248: necessary because of different phasekeys per project:
         if ($externalPhaseKey === $externalPhaseName) { // not found?
             $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
         /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
-                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
-                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
-                $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
-
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
+                $data = [
+                    'id'                       => $endedExternalProcedure->getId(),
+                    'publicParticipationPhase' => $externalPhaseKey,
+                    'customer'                 => $endedExternalProcedure->getCustomer(),
+                ];
+                $updatedProcedure = $this->procedureService->updateProcedure($data);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -915,7 +915,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique('id');
     }
 
     /**

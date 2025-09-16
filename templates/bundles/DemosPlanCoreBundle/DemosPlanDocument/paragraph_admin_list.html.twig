@@ -54,7 +54,7 @@
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             <fieldset class="u-pb-0 u-mb-0_75">
-                <legend class="u-mb-0_5">{{ "plandocument.import.docx"|trans }}</legend>
+                <legend class="u-mb-0_5">{{ "plandocument.import.docx.odt"|trans }}</legend>
                 <p class="lbl__hint">
                     {{ 'plandocument.import.hint'|trans }}
                     <a
@@ -66,11 +66,18 @@
                     </a>
                 </p>
 
+                {% set docxOdtTypes = [
+                    '.docx',
+                    '.odt', 
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/vnd.oasis.opendocument.text',
+                    'application/zip'
+                ] %}
                 {{  fileupload(
-                        "r_upload",
-                        "hide",
-                        "import",
-                        "form.button.upload.docx"
+                        field_name="r_upload",
+                        field_label="hide",
+                        type=docxOdtTypes,
+                        label="form.button.upload.docx.odt"
                     )
                 }}
             </fieldset>

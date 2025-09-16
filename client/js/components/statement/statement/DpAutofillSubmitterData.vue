@@ -23,13 +23,15 @@
     <div
       v-if="hasPermission('feature_institution_participation') && (formDefinitions.citizenXorOrgaAndOrgaName.enabled === true || participationGuestOnly === false)"
       class="layout__item u-mb-wide"
-      :class="{'u-4-of-11 u-1-of-1-desk-down': currentRoleHasSelect, 'u-1-of-1': !currentRoleHasSelect}">
+      :class="{'u-4-of-11 u-1-of-1-desk-down': currentRoleHasSelect, 'u-1-of-1': !currentRoleHasSelect}"
+    >
       <p class="lbl u-mb-0_5">
         {{ Translator.trans('submitted.author') }}
       </p>
       <template
         v-for="role in roles"
-        :key="role.value">
+        :key="role.value"
+      >
         <input
           :id="`r_role_${role.value}`"
           v-model="currentRole"
@@ -37,10 +39,12 @@
           type="radio"
           :data-cy="`roleInput:${role.dataCy}`"
           :value="role.value"
-          @change="() => $emit('role:changed', currentRole)"><!--
+          @change="() => $emit('role:changed', currentRole)"
+        ><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
-          :for="`r_role_${role.value}`">
+          :for="`r_role_${role.value}`"
+        >
           {{ Translator.trans(role.label) }}
         </label>
       </template>
@@ -50,20 +54,24 @@
       v-else
       type="hidden"
       name="r_role"
-    value="0"><!--
+    value="0"
+    ><!--
 
     Display the autofill interface element
  --><div
       v-if="currentRoleHasSelect"
-      class="layout__item u-7-of-11 u-1-of-1-desk-down u-mb">
+      class="layout__item u-7-of-11 u-1-of-1-desk-down u-mb"
+    >
 <!-- Label & contextual help -->
       <label
         class="u-mb-0_25 flow-root"
-        for="submitterSelect">
+        for="submitterSelect"
+      >
         {{ Translator.trans('statement.form.autofill.label') }} ({{ Translator.trans(currentRoleKeyword) }})
         <dp-contextual-help
           class="float-right"
-          :text="autoFillLabel" />
+          :text="autoFillLabel"
+        />
       </label>
 
        <!--Multiselect component-->
@@ -78,7 +86,8 @@
         :placeholder="Translator.trans('choose.search')"
         :sub-slots="['option', 'singleLabel']"
         track-by="entityId"
-        @input="emitSubmitterData">
+        @input="emitSubmitterData"
+      >
         <!-- Template for select options -->
           <template v-slot:option="{ props }">
             <span v-cleanhtml="customOption(props.option, true)" />
@@ -95,7 +104,8 @@
     <!-- @improve T18818 -->
     <div
       v-if="isBobHH"
-      class="layout__item u-1-of-1">
+      class="layout__item u-1-of-1"
+    >
       <p>
         <u>{{ Translator.trans('statement.invitable_institution.hint') }}</u>:
         {{ Translator.trans('statement.invitable_institution.assessment.table.print') }}
@@ -108,7 +118,8 @@
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
     <template
-      v-if="hasPermission('feature_institution_participation') && currentRole === '1' && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name')) && participationGuestOnly === false">
+      v-if="hasPermission('feature_institution_participation') && currentRole === '1' && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name')) && participationGuestOnly === false"
+    >
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_name')"
         id="r_orga_name"
@@ -120,7 +131,8 @@
         }"
         name="r_orga_name"
         :readonly="isBobHH"
-        :required="true" /><!--
+        :required="true"
+      /><!--
    --><dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name')"
         id="r_orga_department_name"
@@ -131,20 +143,23 @@
           text: translateFieldLabel({ field: 'department', label: 'department' })
         }"
         name="r_orga_department_name"
-        :readonly="isBobHH" />
+        :readonly="isBobHH"
+      />
     </template>
 
     <!-- General user fields: name, email, phoneNumber, street, postalcode, city. Email address (input.noSync) shall not be auto
         filled, see comment in data.inputFields.general -->
     <div
       v-for="(row, idx) in inputFields.general"
-      :key="idx">
+      :key="idx"
+    >
       <dp-input
         v-for="(element, index) in generalElements(idx)"
         v-bind="element"
         :key="`${element.id}_${index}`"
         v-model="submitterData[element.field]"
-        class="layout__item u-1-of-2 u-mb-0_75" />
+        class="layout__item u-1-of-2 u-mb-0_75"
+      />
     </div>
   </div>
 </template>

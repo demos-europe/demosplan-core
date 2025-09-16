@@ -804,6 +804,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
                 $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
             }
+            if (array_key_exists('expandProcedureDescription', $data['settings'])) {
+                $procedureSettings->setExpandProcedureDescription($data['settings']['expandProcedureDescription']);
+            }
             if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
                 $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
             }
@@ -815,6 +818,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
+            }
+
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
             }
 
             $this->transferDesignatedExternalSwitch($procedureSettings, $data);
