@@ -3032,7 +3032,7 @@ class PermissionsTest extends FunctionalTestCase
         if (__CLASS__ !== static::class) {
             foreach ($roles as $role) {
                 if (!in_array($role, self::$rolesAllowed, true)) {
-                    $this->addWarning('Project does not support role '.$role.'. Testcase may be deleted');
+                    self::fail('Project does not support role ' . $role . '. Testcase may be deleted');
                 }
                 self::$testedRoles[] = $role;
             }
