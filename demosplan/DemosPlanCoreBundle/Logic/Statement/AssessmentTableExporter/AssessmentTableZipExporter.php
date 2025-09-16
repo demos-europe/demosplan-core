@@ -51,7 +51,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         private readonly AssessmentTablePdfExporter $pdfExporter,
         private readonly AssessmentTableXlsExporter $xlsExporter,
         private readonly StatementService $statementService,
-        private readonly FileService $fileService
+        private readonly FileService $fileService,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,

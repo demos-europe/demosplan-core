@@ -38,7 +38,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
     }
 

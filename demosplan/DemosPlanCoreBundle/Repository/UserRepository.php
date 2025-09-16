@@ -56,7 +56,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         Reindexer $reindexer,
-        string $entityClass
+        string $entityClass,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }

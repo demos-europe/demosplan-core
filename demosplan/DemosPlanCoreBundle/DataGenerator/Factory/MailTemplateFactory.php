@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
@@ -52,15 +60,14 @@ final class MailTemplateFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
         return [
-            'content' => self::faker()->text(65535),
-            'label' => self::faker()->text(50),
+            'content'  => self::faker()->text(65535),
+            'label'    => self::faker()->text(50),
             'language' => self::faker()->text(6),
-            'title' => self::faker()->text(255),
+            'title'    => self::faker()->text(255),
         ];
     }
 

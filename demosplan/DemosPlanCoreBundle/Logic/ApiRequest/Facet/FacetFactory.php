@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterGroup;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterItem;
 use demosplan\DemosPlanCoreBundle\ValueObject\Filters\AggregationFilterType;
 use Enqueue\Util\UUID;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Illuminate\Support\Collection;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 use function collect;
@@ -28,7 +28,7 @@ class FacetFactory
 {
     public function __construct(
         private readonly PrefilledResourceTypeProvider $resourceTypeProvider,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

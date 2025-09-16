@@ -33,7 +33,7 @@ class Helpers
 
     public function __construct(
         private readonly CustomerRepository $customerRepository,
-        private readonly RoleRepository $roleRepository
+        private readonly RoleRepository $roleRepository,
     ) {
         $this->helper = new QuestionHelper();
     }

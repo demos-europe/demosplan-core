@@ -21,8 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;

@@ -12,13 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Throwable;
-use Illuminate\Support\Collection;
 
 class TransformMessageBagService
 {
@@ -29,7 +29,7 @@ class TransformMessageBagService
         KernelInterface $kernel,
         private readonly MessageBagInterface $messageBag,
         RequestStack $requestStack,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
         $this->env = $kernel->getEnvironment();
         try {

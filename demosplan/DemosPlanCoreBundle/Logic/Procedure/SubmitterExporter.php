@@ -16,9 +16,9 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Export\XlsxExporter;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Illuminate\Support\Collection;
 
 class SubmitterExporter extends XlsxExporter
 {

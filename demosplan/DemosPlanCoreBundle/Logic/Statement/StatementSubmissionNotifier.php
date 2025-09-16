@@ -267,7 +267,7 @@ class StatementSubmissionNotifier
         Statement $statement,
         Procedure $procedure,
         array $recipients,
-        $ccs = []
+        $ccs = [],
     ): void {
         $emailText = $this->twig->load(
             '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
@@ -369,7 +369,7 @@ class StatementSubmissionNotifier
         $recipient,
         ?Statement $submittedStatement = null,
         $number = null,
-        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null
+        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null,
     ): void {
         $mailTemplateVars = [];
         $vars = [];

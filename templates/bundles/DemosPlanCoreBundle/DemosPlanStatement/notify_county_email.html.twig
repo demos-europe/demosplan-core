@@ -5,8 +5,10 @@ Die Stellungnahme(n) finden Sie im Anhang.
 Den Stellungnahmen waren folgende Dateien angehaengt:
 {% endif %}
 {% for file in templateVars.files %}
-{{ file|getFile("name") }} {{ url("core_file", { "hash":file|getFile("hash")}) }}
+{{ file|getFile("name") }} {{ url("core_file_procedure", { 'procedureId': templateVars.procedure.id, "hash":file|getFile("hash")}) }}
 {% endfor %}
 Mit freundlichem Gruß
 {{ templateVars.procedure.orgaName }}
 {% endblock %}
+
+
