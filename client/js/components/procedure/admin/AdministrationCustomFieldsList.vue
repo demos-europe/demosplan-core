@@ -440,6 +440,9 @@ export default {
 
             // Show success notification
             dplan.notify.confirm(Translator.trans('confirm.deleted'))
+
+            // rebuild custom fields list from store to rerender the current list
+            this.reduceCustomFields()
           } catch (error) {
             // Re-add field to store, if anything goes wrong
             this.addCustomField(currentField)
