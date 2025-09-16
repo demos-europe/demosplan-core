@@ -13,6 +13,10 @@
 
 - Turn projects into yarn workspaces
 
+## v4.15.0 (2025-09-15)
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
+
 ## v4.12.0 (2025-09-10)
 - Add ODT export functionality for assessment tables
 - Add checkbox in procedure settings to expand procedure description in public view on page load

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
@@ -99,6 +100,29 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Find all segments that have a custom field with the given ID.
+     *
+     * @return array<Segment>
+     */
+    public function findSegmentsWithCustomField(string $customFieldId): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        // Escape JSON-breaking characters to prevent injection
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+
+        return $qb
+            ->select('segment')
+            ->from(Segment::class, 'segment')
+            ->where('segment.customFields IS NOT NULL')
+            ->andWhere('segment.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
      *
      * @param array<int, string> $segmentIds
@@ -140,5 +164,16 @@ class SegmentRepository extends CoreRepository
             }
             $this->getEntityManager()->refresh($segment);
         }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegmentObject(Segment $segment): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($segment);
+        $em->flush();
     }
 }
