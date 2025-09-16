@@ -176,7 +176,8 @@
             data-cy="customFields:deleteField"
             :aria-label="Translator.trans('item.edit')"
             :title="Translator.trans('edit')"
-            @click="handleDeleteCustomField(rowData)">
+            @click="handleDeleteCustomField(rowData)"
+          >
             <dp-icon
               aria-hidden="true"
               icon="delete"
@@ -274,7 +275,7 @@ import {
   DpLoading,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState, mapMutations } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
@@ -462,7 +463,7 @@ export default {
             // Show success notification
             dplan.notify.confirm(Translator.trans('confirm.deleted'))
 
-            // rebuild custom fields list from store to rerender the current list
+            // Rebuild custom fields list from store to rerender the current list
             this.reduceCustomFields()
           } catch (error) {
             // Re-add field to store, if anything goes wrong
