@@ -14,7 +14,7 @@
 - Turn projects into yarn workspaces
 
 ### Features
-- Implementation of the possibility to delete custom fields and their options
+- Add possibility to delete custom fields and their options
 
 ## v4.15.0 (2025-09-15)
 ## v4.14.0 (2025-09-15)
