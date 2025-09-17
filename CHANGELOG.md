@@ -13,6 +13,9 @@
 
 - Turn projects into yarn workspaces
 
+### Features
+- Add possibility to delete custom fields and their options
+
 ## v4.15.0 (2025-09-15)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files
