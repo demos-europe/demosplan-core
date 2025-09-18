@@ -4071,7 +4071,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/core@npm:^4.4.4, @uppy/core@npm:^4.5.2":
+"@uppy/core@npm:^4.4.4":
   version: 4.5.3
   resolution: "@uppy/core@npm:4.5.3"
   dependencies:
@@ -4084,6 +4084,22 @@ __metadata:
     nanoid: "npm:^5.0.9"
     preact: "npm:^10.5.13"
   checksum: 10c0/f66d5cc22a5553fc7e0dafd74e8e951b18d014b3a47b0db8d9d2bff3c6cbd84d34c7630620cdcd086e1bdccd11501d8eafb9e2814a88f8769a8aebdbde554de2
+  languageName: node
+  linkType: hard
+
+"@uppy/core@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@uppy/core@npm:5.0.2"
+  dependencies:
+    "@transloadit/prettier-bytes": "npm:^0.3.4"
+    "@uppy/store-default": "npm:^5.0.0"
+    "@uppy/utils": "npm:^7.0.2"
+    lodash: "npm:^4.17.21"
+    mime-match: "npm:^1.0.2"
+    namespace-emitter: "npm:^2.0.1"
+    nanoid: "npm:^5.0.9"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/8186e0a9e003f83a020f168ff83b326ace47ad22624c09ed4a456242373b87da7296dd26e46475a29b35465d1e117ad42d22f43defef6c7c46f50854351c67ee
   languageName: node
   linkType: hard
 
@@ -4118,6 +4134,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/store-default@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@uppy/store-default@npm:5.0.0"
+  checksum: 10c0/dd1ae6ca2b92193ddcb54dffdd0e64484b8eb37efd27bd10fe54cdb361f35d1556021a0c7ed10e6675d5c3332e9bd6f2649b752de429b530397e629be2e5e494
+  languageName: node
+  linkType: hard
+
 "@uppy/tus@npm:^4.2.2":
   version: 4.3.2
   resolution: "@uppy/tus@npm:4.3.2"
@@ -4138,6 +4161,16 @@ __metadata:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
   checksum: 10c0/a63026d8a8a4cecbd7d2c89cb0ba0c5b8d6bf852d81792a003a90de06017b2e63e26aa3fef2993d3745dd6f06bb5d973e284bb9f7c02e15921c57a6be6fe5550
+  languageName: node
+  linkType: hard
+
+"@uppy/utils@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@uppy/utils@npm:7.0.2"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/f0d3eef68720dd8c20b450ef90a888dc7b586c98c03d16be01235bc307e983f864212eb04aae5ca48f10c50247a85ddc01d6307ead79fa5ced5d3453633fb8b6
   languageName: node
   linkType: hard
 
@@ -6723,7 +6756,7 @@ __metadata:
     "@sentry/tracing": "npm:^7.120.3"
     "@tailwindcss/postcss": "npm:^4.1.13"
     "@types/leaflet": "npm:^1.9.20"
-    "@uppy/core": "npm:^4.5.2"
+    "@uppy/core": "npm:^5.0.2"
     "@uppy/drag-drop": "npm:^4.2.2"
     "@uppy/progress-bar": "npm:^4.3.2"
     "@vue/compat": "npm:3.5.21"
