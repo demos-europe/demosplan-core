@@ -26,6 +26,13 @@
       profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
+
+    <!-- Copyright notice positioned at bottom right -->
+    <div
+      v-if="copyright"
+      :class="prefixClass('left-[10px] bottom-[10px] !absolute z-above-zero bg-white bg-opacity-80 px-2 py-1 text-xs text-gray-600 rounded shadow-sm max-w-xs')"
+      v-html="copyright"
+    />
   </div>
 </template>
 
@@ -36,10 +43,16 @@ import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 
-const { activeStatement, initDrawing, initialExtent, loginPath, styleNonce } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxExtent, styleNonce } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
+  },
+
+  copyright: {
+    type: String,
+    required: false,
+    default: '',
   },
 
   initDrawing: {
@@ -60,6 +73,12 @@ const { activeStatement, initDrawing, initialExtent, loginPath, styleNonce } = d
   loginPath: {
     type: String,
     required: true,
+  },
+
+  maxExtent: {
+    type: Array,
+    required: false,
+    default: () => [],
   },
 
   styleNonce: {
