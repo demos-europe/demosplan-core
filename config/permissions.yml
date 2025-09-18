@@ -1495,6 +1495,7 @@ feature_procedure_categories:
     parent: area_main_procedures
 feature_procedure_categories_edit:
     description: 'Allows editing of procedure categories.'
+    expose: true
     label: 'May edit procedure categories'
     loginRequired: true
     parent: area_main_procedures_categories
@@ -1780,6 +1781,7 @@ feature_procedure_user_restrict_access_edit:
     label: 'May edit restricted access (if user is authorized)'
     description: |
         Config Variable hasProcedureUserRestrictedAccess needs to be true to use this feature at all
+    expose: true
     loginRequired: true
 feature_procedures_count_released_drafts:
     description: 'Show how many statements the institution has already submitted for each procedure.'
@@ -1846,7 +1848,7 @@ feature_require_locality_confirmation:
     loginRequired: true
 feature_require_procedure_contact_person:
     description: 'When a procedure be created, in diplanbeteiligung should contact person be required, therefore field should be empty otherwise be k.A'
-    expose: false
+    expose: true
     lable: 'Allows to set contact person without use default value'
     loginRequired: true
 feature_screenshot_map_nonpublic_printlayers:
@@ -2499,6 +2501,7 @@ feature_toggle_public_participation_publication:
     loginRequired: false
 feature_use_data_input_orga:
     description: 'Enable possibility to input statements for helping orgas'
+    expose: true
     label: 'Are helping data input orgas enabled in this project?'
     loginRequired: false
 feature_use_plis:
@@ -2667,17 +2670,20 @@ field_procedure_adjustments_planning_agency:
     label: 'Planungsbüro einem Verfahren zuordnen'
     loginRequired: true
     parent: field_procedure
+    expose: true
 field_procedure_administration:
     label: 'Anzeige der Behörde im Header der Detailansicht eines Verfahrens'
     loginRequired: false
     parent: field_procedure
 field_procedure_contact_person:
     description: 'Set the contact person for procedure in settings (procedure/blueprint) and display it in public detail in procedure info.'
+    expose: true
     label: 'Field for contact person for procedure'
     loginRequired: false
     parent: field_procedure
 field_procedure_description:
     description: 'Enables a short publicly visible information text about the procedure'
+    expose: true
     label: 'Öffentliche Verfahrensbeschreibung'
     loginRequired: false
     parent: field_procedure
@@ -2693,6 +2699,7 @@ field_procedure_elements:
     parent: field_procedure
 field_procedure_linkbox:
     description: 'Set links for procedure in settings (procedure/blueprint) and display them in public detail in procedure info.'
+    expose: true
     label: 'Field for links in procedure'
     loginRequired: false
     parent: field_procedure
@@ -2717,6 +2724,7 @@ field_procedure_phase_filter:
     loginRequired: false
     parent: field_procedure
 field_procedure_pictogram:
+    expose: true
     label: Verfahrenspiktogramm
     loginRequired: false
     parent: field_procedure
