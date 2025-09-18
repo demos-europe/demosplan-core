@@ -397,6 +397,8 @@
                             style-nonce="{{ csp_nonce('style') }}"
                             :active-statement="activeStatement"
                             :init-drawing="statement.r_location_geometry"
+                            :initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureInitialExtent|json_encode|e('js', 'utf-8') }}')"
+                            :max-extent="JSON.parse('{{ templateVars.mapOptions.procedureMaxExtent|json_encode|e('js', 'utf-8') }}')"
                             @location-drawing="handleLocationDrawing"
                         />
                     {% else %}

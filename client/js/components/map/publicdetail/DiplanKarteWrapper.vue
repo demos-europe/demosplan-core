@@ -20,6 +20,7 @@
     <diplan-karte
       v-if="isStoreAvailable"
       :geojson="drawing"
+      :fitToExtent.prop="transformedInitialExtent"
       enable-searchbar
       enable-toolbar
       profile="beteiligung"
@@ -35,7 +36,7 @@ import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 
-const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
+const { activeStatement, initDrawing, initialExtent, loginPath, styleNonce } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
@@ -48,6 +49,12 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
       type: 'FeatureCollection',
       features: [],
     }),
+  },
+
+  initialExtent: {
+    type: Array,
+    required: false,
+    default: () => [],
   },
 
   loginPath: {
@@ -66,6 +73,52 @@ const drawing = computed(() => {
     transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
     ''
 })
+
+// Transform initialExtent from EPSG:3857 to EPSG:4326 for diplan-karte
+const transformedInitialExtent = computed(() => {
+  if (!initialExtent || initialExtent.length !== 4) {
+    return []
+  }
+
+  // Create a temporary FeatureCollection with a bounding box polygon
+  const [minX, minY, maxX, maxY] = initialExtent
+  const tempFeatureCollection = {
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [minX, minY],
+          [maxX, minY],
+          [maxX, maxY],
+          [minX, maxY],
+          [minX, minY]
+        ]]
+      }
+    }]
+  }
+
+  // Transform the FeatureCollection
+  const transformed = transformFeatureCollection(tempFeatureCollection, 'EPSG:3857', 'EPSG:4326')
+
+  if (!transformed.features || transformed.features.length === 0) {
+    return []
+  }
+
+  // Extract bounds from transformed coordinates
+  const coords = transformed.features[0].geometry.coordinates[0]
+  const lons = coords.map(coord => coord[0])
+  const lats = coords.map(coord => coord[1])
+
+  return [
+    Math.min(...lons), // minX (longitude)
+    Math.min(...lats), // minY (latitude)
+    Math.max(...lons), // maxX (longitude)
+    Math.max(...lats)  // maxY (latitude)
+  ]
+})
+
 const emit = defineEmits(['locationDrawing'])
 
 const instance = getCurrentInstance()
