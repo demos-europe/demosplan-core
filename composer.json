@@ -141,7 +141,7 @@
     "thenetworg/oauth2-azure": "^2.2",
     "wgirhad/geophp": "^3.0",
     "willdurand/geocoder-bundle": "^5.16",
-    "willdurand/js-translation-bundle": "~6.0",
+    "willdurand/js-translation-bundle": "~7.0",
     "wrep/daemonizable-command": "^4.0"
   },
   "require-dev": {
