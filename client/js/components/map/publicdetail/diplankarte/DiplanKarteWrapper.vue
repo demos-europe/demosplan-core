@@ -23,6 +23,8 @@
       :portalConfig.prop="portalConfig"
       enable-layer-switcher
       :fitToExtent.prop="transformedInitialExtent"
+      :geltungsbereich.prop="translatedTerritoryCoordinates"
+      fit-priority="geojson"
       enable-searchbar
       enable-toolbar
       profile="beteiligung"
@@ -47,7 +49,7 @@ import { useStore } from 'vuex'
 import portalConfig from './config/portalConfig.json'
 import layerConfig from './config/layerConfig.json'
 
-const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxExtent, styleNonce } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxExtent, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
@@ -88,6 +90,15 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxEx
   styleNonce: {
     type: String,
     required: true,
+  },
+
+  territory: {
+    type: Object,
+    required: false,
+    default: () => ({
+      type: 'FeatureCollection',
+      features: [],
+    }),
   },
 })
 
@@ -140,6 +151,18 @@ const transformedInitialExtent = computed(() => {
     Math.max(...lons), // maxX (longitude)
     Math.max(...lats)  // maxY (latitude)
   ]
+})
+
+// Translate territory coordinates from EPSG:3857 to EPSG:4326 for diplan-karte
+const translatedTerritoryCoordinates = computed(() => {
+  if (!territory || !territory.features || territory.features.length === 0) {
+    return {
+      type: 'FeatureCollection',
+      features: [],
+    }
+  }
+
+  return transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
 })
 
 const emit = defineEmits(['locationDrawing'])
