@@ -222,15 +222,14 @@ const transformInitialExtent = () => {
 
 const transformTerritoryCoordinates = () => {
   if (!territory || !territory.features || territory.features.length === 0) {
-    Object.assign(transformedTerritory, {
-      type: 'FeatureCollection',
-      features: [],
-    })
+    transformedTerritory.type = 'FeatureCollection'
+    transformedTerritory.features = []
     return
   }
 
   const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
-  Object.assign(transformedTerritory, transformed)
+  transformedTerritory.type = transformed.type
+  transformedTerritory.features = transformed.features
 }
 
 onMounted(() => {
