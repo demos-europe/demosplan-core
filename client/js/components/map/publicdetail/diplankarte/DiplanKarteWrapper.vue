@@ -45,8 +45,8 @@ import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosp
 import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
-import portalConfig from './config/portalConfig.json'
 import layerConfig from './config/layerConfig.json'
+import portalConfig from './config/portalConfig.json'
 
 const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
   activeStatement: {
@@ -194,7 +194,7 @@ const transformInitialExtent = () => {
           [maxX, minY],
           [maxX, maxY],
           [minX, maxY],
-          [minX, minY]
+          [minX, minY],
         ]]
       }
     }]
