@@ -19,15 +19,15 @@
 
     <diplan-karte
       v-if="isStoreAvailable"
+      :fitToExtent.prop="transformedInitialExtent"
+      :geltungsbereich.prop="transformedTerritory"
+      :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
+      profile="beteiligung"
       enable-layer-switcher
-      :fitToExtent.prop="transformedInitialExtent"
-      :geltungsbereich.prop="translatedTerritoryCoordinates"
-      fit-priority="geojson"
       enable-searchbar
       enable-toolbar
-      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
 
@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
@@ -48,7 +48,7 @@ import { useStore } from 'vuex'
 import portalConfig from './config/portalConfig.json'
 import layerConfig from './config/layerConfig.json'
 
-const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxExtent, styleNonce, territory } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
@@ -80,12 +80,6 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxEx
     required: true,
   },
 
-  maxExtent: {
-    type: Array,
-    required: false,
-    default: () => [],
-  },
-
   styleNonce: {
     type: String,
     required: true,
@@ -101,16 +95,23 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxEx
   },
 })
 
+const transformedInitialExtent = ref([])
+
+const transformedTerritory = reactive({
+  type: 'FeatureCollection',
+  features: [],
+})
+
 const drawing = computed(() => {
   return initDrawing ?
     transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
     ''
 })
 
-// Transform initialExtent from EPSG:3857 to EPSG:4326 for diplan-karte
-const transformedInitialExtent = computed(() => {
+const transformInitialExtent = () => {
   if (!initialExtent || initialExtent.length !== 4) {
-    return []
+    transformedInitialExtent.value = []
+    return
   }
 
   // Create a temporary FeatureCollection with a bounding box polygon
@@ -132,37 +133,38 @@ const transformedInitialExtent = computed(() => {
     }]
   }
 
-  // Transform the FeatureCollection
   const transformed = transformFeatureCollection(tempFeatureCollection, 'EPSG:3857', 'EPSG:4326')
 
   if (!transformed.features || transformed.features.length === 0) {
-    return []
+    transformedInitialExtent.value = []
+    return
   }
 
   // Extract bounds from transformed coordinates
   const coords = transformed.features[0].geometry.coordinates[0]
-  const lons = coords.map(coord => coord[0])
-  const lats = coords.map(coord => coord[1])
+  const longitudes = coords.map(coordinate => coordinate[0])
+  const latitudes = coords.map(coordinate => coordinate[1])
 
-  return [
-    Math.min(...lons), // minX (longitude)
-    Math.min(...lats), // minY (latitude)
-    Math.max(...lons), // maxX (longitude)
-    Math.max(...lats)  // maxY (latitude)
+  transformedInitialExtent.value = [
+    Math.min(...longitudes),
+    Math.min(...latitudes),
+    Math.max(...longitudes),
+    Math.max(...latitudes),
   ]
-})
+}
 
-// Translate territory coordinates from EPSG:3857 to EPSG:4326 for diplan-karte
-const translatedTerritoryCoordinates = computed(() => {
+const transformTerritoryCoordinates = () => {
   if (!territory || !territory.features || territory.features.length === 0) {
-    return {
+    Object.assign(transformedTerritory, {
       type: 'FeatureCollection',
       features: [],
-    }
+    })
+    return
   }
 
-  return transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
-})
+  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
+  Object.assign(transformedTerritory, transformed)
+}
 
 const emit = defineEmits(['locationDrawing'])
 
@@ -235,9 +237,11 @@ onMounted(() => {
   registerWebComponent({
     nonce: styleNonce,
   })
-})
 
-onMounted(() => {
+  // Transform data once on mount
+  transformInitialExtent()
+  transformTerritoryCoordinates()
+
   store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 })
 
