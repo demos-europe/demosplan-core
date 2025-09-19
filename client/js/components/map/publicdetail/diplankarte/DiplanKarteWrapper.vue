@@ -31,10 +31,9 @@
       @diplan-karte:geojson-update="handleDrawing"
     />
 
-    <!-- Copyright notice positioned at bottom right -->
     <div
       v-if="copyright"
-      :class="prefixClass('left-[10px] bottom-[10px] !absolute z-above-zero bg-white bg-opacity-80 px-2 py-1 text-xs text-gray-600 rounded shadow-sm max-w-xs')"
+      :class="prefixClass('left-0 bottom-[10px] !absolute z-above-zero bg-white/80 px-1 py-0.5 text-xs text-gray-600 rounded max-w-xs')"
       v-html="copyright"
     />
   </div>
