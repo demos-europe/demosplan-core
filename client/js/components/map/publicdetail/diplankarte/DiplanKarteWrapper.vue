@@ -19,7 +19,9 @@
 
     <diplan-karte
       v-if="isStoreAvailable"
-      :geojson="drawing"
+      :layerConfig.prop="layerConfig"
+      :portalConfig.prop="portalConfig"
+      enable-layer-switcher
       :fitToExtent.prop="transformedInitialExtent"
       enable-searchbar
       enable-toolbar
@@ -42,6 +44,8 @@ import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosp
 import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
+import portalConfig from './config/portalConfig.json'
+import layerConfig from './config/layerConfig.json'
 
 const { activeStatement, copyright, initDrawing, initialExtent, loginPath, maxExtent, styleNonce } = defineProps({
   activeStatement: {
