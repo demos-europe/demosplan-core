@@ -47,14 +47,20 @@ RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,u
         composer install -o --prefer-dist --no-progress; \
     else \
         composer install -o --prefer-dist --no-dev --no-progress; \
-    fi && \
-    yarn install --immutable && \
-    yarn cache clean && \
-    rm -rf /srv/www/.cache/*
+    fi
 
 USER root
 COPY . /srv/www
 
+USER www-data
+# Now do the yarn workspace focus after files are copied
+RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
+    yarn workspaces list && \
+    yarn workspaces focus demosplan-core "$PROJECT_NAME" && \
+    yarn cache clean && \
+    rm -rf /srv/www/.cache/*
+
+USER root
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
         rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
