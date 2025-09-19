@@ -19,26 +19,45 @@
 
     <diplan-karte
       v-if="isStoreAvailable"
+      :fitToExtent.prop="transformedInitialExtent"
+      :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
+      :layerConfig.prop="layerConfig"
+      :portalConfig.prop="portalConfig"
+      profile="beteiligung"
+      enable-layer-switcher
       enable-searchbar
       enable-toolbar
-      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
+    />
+
+    <div
+      v-if="copyright"
+      :class="prefixClass('left-0 bottom-[10px] !absolute z-above-zero bg-white/80 px-1 py-0.5 text-xs text-gray-600 rounded max-w-xs')"
+      v-html="copyright"
     />
   </div>
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { registerWebComponent } from '@init/diplan-karten'
 import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
+import layerConfig from './config/layerConfig.json'
+import portalConfig from './config/portalConfig.json'
 
-const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
+  },
+
+  copyright: {
+    type: String,
+    required: false,
+    default: '',
   },
 
   initDrawing: {
@@ -50,6 +69,12 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
     }),
   },
 
+  initialExtent: {
+    type: Array,
+    required: false,
+    default: () => [],
+  },
+
   loginPath: {
     type: String,
     required: true,
@@ -59,6 +84,22 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
     type: String,
     required: true,
   },
+
+  territory: {
+    type: Object,
+    required: false,
+    default: () => ({
+      type: 'FeatureCollection',
+      features: [],
+    }),
+  },
+})
+
+const transformedInitialExtent = ref([])
+
+const transformedTerritory = reactive({
+  type: 'FeatureCollection',
+  features: [],
 })
 
 const drawing = computed(() => {
@@ -66,6 +107,7 @@ const drawing = computed(() => {
     transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
     ''
 })
+
 const emit = defineEmits(['locationDrawing'])
 
 const instance = getCurrentInstance()
@@ -133,13 +175,72 @@ const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
 
+const transformInitialExtent = () => {
+  if (!initialExtent || initialExtent.length !== 4) {
+    transformedInitialExtent.value = []
+    return
+  }
+
+  // Create a temporary FeatureCollection with a bounding box polygon
+  const [minX, minY, maxX, maxY] = initialExtent
+  const tempFeatureCollection = {
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[
+          [minX, minY],
+          [maxX, minY],
+          [maxX, maxY],
+          [minX, maxY],
+          [minX, minY],
+        ]]
+      }
+    }]
+  }
+
+  const transformed = transformFeatureCollection(tempFeatureCollection, 'EPSG:3857', 'EPSG:4326')
+
+  if (!transformed.features || transformed.features.length === 0) {
+    transformedInitialExtent.value = []
+    return
+  }
+
+  // Extract bounds from transformed coordinates
+  const coords = transformed.features[0].geometry.coordinates[0]
+  const longitudes = coords.map(coordinate => coordinate[0])
+  const latitudes = coords.map(coordinate => coordinate[1])
+
+  transformedInitialExtent.value = [
+    Math.min(...longitudes),
+    Math.min(...latitudes),
+    Math.max(...longitudes),
+    Math.max(...latitudes),
+  ]
+}
+
+const transformTerritoryCoordinates = () => {
+  if (!territory || !territory.features || territory.features.length === 0) {
+    transformedTerritory.type = 'FeatureCollection'
+    transformedTerritory.features = []
+    return
+  }
+
+  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
+  transformedTerritory.type = transformed.type
+  transformedTerritory.features = transformed.features
+}
+
 onMounted(() => {
   registerWebComponent({
     nonce: styleNonce,
   })
-})
 
-onMounted(() => {
+  // Transform data once on mount
+  transformInitialExtent()
+  transformTerritoryCoordinates()
+
   store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 })
 
