@@ -10,19 +10,23 @@
 <template>
   <div>
     <dp-inline-notification
+      class="mt-3 mb-2"
       :message="Translator.trans('excel.import.error', { count: errors.length, entities: Translator.trans(context) })"
-      type="error" />
+      type="error"
+    />
 
     <p
       v-if="errors.length > 1"
-      class="u-mt">
+      class="u-mt"
+    >
       {{ Translator.trans('excel.import.errors.checklist.hint', { entities: Translator.trans(context) }) }}
     </p>
 
     <div
       v-for="(worksheet, i) in worksheets"
       :key="`worksheet:${i}`"
-      class="u-mt-1_5">
+      class="u-mt-1_5"
+    >
       <h3 class="font-size-medium">
         {{ Translator.trans('worksheet') }}: {{ worksheet }}
       </h3>
@@ -31,8 +35,9 @@
           v-for="error in errorsByWorksheet(worksheet)"
           :key="`error:${error.id}`"
           class="u-p-0_5 u-mv-0_5 cursor-pointer"
+          :class="itemClasses(error.id, worksheet)"
           @click="toggle(error.id)"
-          :class="itemClasses(error.id, worksheet)">
+        >
           <div v-if="errors.length > 1">
             <dp-checkbox
               :id="`error:${error.id}`"
@@ -41,7 +46,8 @@
               :label="{
                 bold: true,
                 text: lineTransKey(error.lineNumber)
-              }" />
+              }"
+            />
             <span>
               {{ error.message }}
             </span>
@@ -61,14 +67,18 @@
     <dp-progress-bar
       v-if="errors.length > 1"
       :label="Translator.trans('done.capital') + ':'"
-      :percentage="completedPercent" />
+      :percentage="completedPercent"
+      show-percentage
+    />
 
     <a
       :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId })"
-      class="btn btn--primary u-mv">
+      class="btn btn--primary u-mv"
+    >
       <i
         class="fa fa-angle-left u-pr-0_25"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
       {{ Translator.trans('upload.again') }}
     </a>
   </div>
@@ -83,31 +93,31 @@ export default {
   components: {
     DpCheckbox,
     DpInlineNotification,
-    DpProgressBar
+    DpProgressBar,
   },
 
   props: {
     // Possible values: 'statements' or 'segments'
     context: {
       type: String,
-      required: true
+      required: true,
     },
 
     errors: {
       type: Array,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       checkedItems: [],
-      worksheets: []
+      worksheets: [],
     }
   },
 
@@ -124,17 +134,17 @@ export default {
     itemClasses () {
       return (errorId, worksheetName) =>
         [
-          this.checkedItems[errorId] === true
-            ? 'color--grey-light'
-            : '',
-          this.errorsByWorksheet(worksheetName).findIndex(err => err.id === errorId) !== this.errorsByWorksheet(worksheetName).length - 1
-            ? 'u-mb-0_5 border--bottom'
-            : '',
-          this.checkedItems.findIndex(item => item.id === errorId) !== 0
-            ? 'u-mt-0_5'
-            : ''
+          this.checkedItems[errorId] === true ?
+            'color--grey-light' :
+            '',
+          this.errorsByWorksheet(worksheetName).findIndex(err => err.id === errorId) !== this.errorsByWorksheet(worksheetName).length - 1 ?
+            'u-mb-0_5 border--bottom' :
+            '',
+          this.checkedItems.findIndex(item => item.id === errorId) !== 0 ?
+            'u-mt-0_5' :
+            '',
         ]
-    }
+    },
   },
 
   methods: {
@@ -143,17 +153,18 @@ export default {
     },
 
     toggle (id) {
-      this.$set(this.checkedItems, id, !this.checkedItems[id])
-    }
+      this.checkedItems[id] = !this.checkedItems[id]
+    },
   },
 
   mounted () {
     this.errors.forEach(error => {
-      this.$set(this.checkedItems, error.id, false)
+      this.checkedItems[error.id] = false
+
       if (!this.worksheets.includes(error.currentWorksheet)) {
         this.worksheets.push(error.currentWorksheet)
       }
     })
-  }
+  },
 }
 </script>

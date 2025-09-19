@@ -9,6 +9,7 @@
 
 <script>
 import { DpContextualHelp, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 
 export default {
@@ -18,46 +19,46 @@ export default {
     DpContextualHelp,
     DpEmailList,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpUploadFiles: async () => {
+    }),
+    DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    }
+    }),
   },
 
   props: {
     authUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initSelectedAuthUsers: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     agencies: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     initSelectedAgencies: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
     return {
       selectedAgencies: this.agencies.filter(agency => this.initSelectedAgencies.includes(agency.id)),
-      selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id))
+      selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id)),
     }
   },
 
@@ -73,7 +74,7 @@ export default {
 
     unselectAllAuthUsers () {
       this.selectedAuthUsers = []
-    }
-  }
+    },
+  },
 }
 </script>

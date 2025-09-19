@@ -32,7 +32,7 @@
 
 {% block component_part %}
 
-    <h1>{{ (actionName == 'faqedit' ? 'edit.entity' : 'add.entity')|trans({ entity: 'faq'|trans }) }}</h1>
+    <h1>{{ (actionName == 'faqedit' ? 'edit.entity' : 'entity.create')|trans({ entity: 'faq'|trans }) }}</h1>
 
     <form class="flow-root u-pb" name="xsubmititem" action="{{ actionPath }}" method="post" enctype="multipart/form-data" data-dp-validate>
 		<input name="action" type="hidden" value="{{ actionName }}">

@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CountyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailAddressResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailResourceType;
@@ -35,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\GenericStatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsCategoryResourceType;
@@ -42,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionLocationContactResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
@@ -55,6 +58,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphVersionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryDetailsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PriorityAreaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
@@ -74,7 +78,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\SignLanguageOverviewVideoResourc
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SlugResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementAttachmentResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SourceStatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFormDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFragmentResourceType;
@@ -83,8 +87,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementMetaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserFilterSetResourceType;
@@ -143,6 +146,8 @@ class ResourceTypeStore
 
     protected GeneralReportEntryResourceType $generalReportEntryResourceType;
 
+    protected GenericStatementAttachmentResourceType $genericStatementAttachmentResourceType;
+
     protected GisLayerCategoryResourceType $gisLayerCategoryResourceType;
 
     protected GisLayerResourceType $gisLayerResourceType;
@@ -157,6 +162,7 @@ class ResourceTypeStore
 
     protected InstitutionLocationContactResourceType $institutionLocationContactResourceType;
 
+    protected InstitutionTagCategoryResourceType $institutionTagCategoryResourceType;
     protected InstitutionTagResourceType $institutionTagResourceType;
 
     protected InvitableInstitutionResourceType $invitableInstitutionResourceType;
@@ -184,6 +190,8 @@ class ResourceTypeStore
     protected PlaceResourceType $placeResourceType;
 
     protected PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType;
+
+    protected PlanningDocumentCategoryDetailsResourceType $planningDocumentCategoryDetailsResourceType;
 
     protected PriorityAreaResourceType $priorityAreaResourceType;
 
@@ -221,7 +229,7 @@ class ResourceTypeStore
 
     protected SlugResourceType $slugResourceType;
 
-    protected StatementAttachmentResourceType $statementAttachmentResourceType;
+    protected SourceStatementAttachmentResourceType $sourceStatementAttachmentResourceType;
 
     protected StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType;
 
@@ -239,9 +247,7 @@ class ResourceTypeStore
 
     protected StatementSegmentResourceType $statementSegmentResourceType;
 
-    protected SurveyResourceType $surveyResourceType;
-
-    protected SurveyVoteResourceType $surveyVoteResourceType;
+    protected StatementVoteResourceType $statementVoteResourceType;
 
     protected TagResourceType $tagResourceType;
 
@@ -252,6 +258,8 @@ class ResourceTypeStore
     protected UserResourceType $userResourceType;
 
     protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType;
+
+    protected CustomFieldResourceType $customFieldResourceType;
 
     public function __construct(
         AdminProcedureResourceType $adminProcedureResourceType,
@@ -277,6 +285,7 @@ class ResourceTypeStore
         FileResourceType $fileResourceType,
         FinalMailReportEntryResourceType $finalMailReportEntryResourceType,
         GeneralReportEntryResourceType $generalReportEntryResourceType,
+        GenericStatementAttachmentResourceType $genericStatementAttachmentResourceType,
         GisLayerCategoryResourceType $gisLayerCategoryResourceType,
         GisLayerResourceType $gisLayerResourceType,
         GlobalNewsCategoryResourceType $globalNewsCategoryResourceType,
@@ -284,6 +293,7 @@ class ResourceTypeStore
         HashedQueryResourceType $hashedQueryResourceType,
         HeadStatementResourceType $headStatementResourceType,
         InstitutionLocationContactResourceType $institutionLocationContactResourceType,
+        InstitutionTagCategoryResourceType $institutionTagCategoryResourceType,
         InstitutionTagResourceType $institutionTagResourceType,
         InvitableInstitutionResourceType $invitableInstitutionResourceType,
         InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
@@ -298,6 +308,7 @@ class ResourceTypeStore
         ParagraphVersionResourceType $paragraphVersionResourceType,
         PlaceResourceType $placeResourceType,
         PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType,
+        PlanningDocumentCategoryDetailsResourceType $planningDocumentCategoryDetailsResourceType,
         PriorityAreaResourceType $priorityAreaResourceType,
         ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType,
         ProcedureMapSettingResourceType $procedureMapSettingResourceType,
@@ -316,7 +327,7 @@ class ResourceTypeStore
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         SingleDocumentResourceType $singleDocumentResourceType,
         SlugResourceType $slugResourceType,
-        StatementAttachmentResourceType $statementAttachmentResourceType,
+        SourceStatementAttachmentResourceType $sourceStatementAttachmentResourceType,
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
         StatementFormDefinitionResourceType $statementFormDefinitionResourceType,
         StatementFragmentResourceType $statementFragmentResourceType,
@@ -325,13 +336,13 @@ class ResourceTypeStore
         StatementReportEntryResourceType $statementReportEntryResourceType,
         StatementResourceType $statementResourceType,
         StatementSegmentResourceType $statementSegmentResourceType,
-        SurveyResourceType $surveyResourceType,
-        SurveyVoteResourceType $surveyVoteResourceType,
+        StatementVoteResourceType $statementVoteResourceType,
         TagResourceType $tagResourceType,
         TagTopicResourceType $tagTopicResourceType,
         UserFilterSetResourceType $userFilterSetResourceType,
         UserResourceType $userResourceType,
         UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
+        CustomFieldResourceType $customFieldResourceType,
     ) {
         $this->adminProcedureResourceType = $adminProcedureResourceType;
         $this->administratableUserResourceType = $administratableUserResourceType;
@@ -356,6 +367,7 @@ class ResourceTypeStore
         $this->fileResourceType = $fileResourceType;
         $this->finalMailReportEntryResourceType = $finalMailReportEntryResourceType;
         $this->generalReportEntryResourceType = $generalReportEntryResourceType;
+        $this->genericStatementAttachmentResourceType = $genericStatementAttachmentResourceType;
         $this->gisLayerCategoryResourceType = $gisLayerCategoryResourceType;
         $this->gisLayerResourceType = $gisLayerResourceType;
         $this->globalNewsCategoryResourceType = $globalNewsCategoryResourceType;
@@ -363,6 +375,7 @@ class ResourceTypeStore
         $this->hashedQueryResourceType = $hashedQueryResourceType;
         $this->headStatementResourceType = $headStatementResourceType;
         $this->institutionLocationContactResourceType = $institutionLocationContactResourceType;
+        $this->institutionTagCategoryResourceType = $institutionTagCategoryResourceType;
         $this->institutionTagResourceType = $institutionTagResourceType;
         $this->invitableInstitutionResourceType = $invitableInstitutionResourceType;
         $this->invitablePublicAgencyResourceType = $invitablePublicAgencyResourceType;
@@ -377,6 +390,7 @@ class ResourceTypeStore
         $this->paragraphVersionResourceType = $paragraphVersionResourceType;
         $this->placeResourceType = $placeResourceType;
         $this->planningDocumentCategoryResourceType = $planningDocumentCategoryResourceType;
+        $this->planningDocumentCategoryDetailsResourceType = $planningDocumentCategoryDetailsResourceType;
         $this->priorityAreaResourceType = $priorityAreaResourceType;
         $this->procedureBehaviorDefinitionResourceType = $procedureBehaviorDefinitionResourceType;
         $this->procedureMapSettingResourceType = $procedureMapSettingResourceType;
@@ -395,7 +409,7 @@ class ResourceTypeStore
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
         $this->singleDocumentResourceType = $singleDocumentResourceType;
         $this->slugResourceType = $slugResourceType;
-        $this->statementAttachmentResourceType = $statementAttachmentResourceType;
+        $this->sourceStatementAttachmentResourceType = $sourceStatementAttachmentResourceType;
         $this->statementFieldDefinitionResourceType = $statementFieldDefinitionResourceType;
         $this->statementFormDefinitionResourceType = $statementFormDefinitionResourceType;
         $this->statementFragmentResourceType = $statementFragmentResourceType;
@@ -404,13 +418,13 @@ class ResourceTypeStore
         $this->statementReportEntryResourceType = $statementReportEntryResourceType;
         $this->statementResourceType = $statementResourceType;
         $this->statementSegmentResourceType = $statementSegmentResourceType;
-        $this->surveyResourceType = $surveyResourceType;
-        $this->surveyVoteResourceType = $surveyVoteResourceType;
+        $this->statementVoteResourceType = $statementVoteResourceType;
         $this->tagResourceType = $tagResourceType;
         $this->tagTopicResourceType = $tagTopicResourceType;
         $this->userFilterSetResourceType = $userFilterSetResourceType;
         $this->userResourceType = $userResourceType;
         $this->userRoleInCustomerResourceType = $userRoleInCustomerResourceType;
+        $this->customFieldResourceType = $customFieldResourceType;
     }
 
     public function getAdminProcedureResourceType(): AdminProcedureResourceType
@@ -528,6 +542,11 @@ class ResourceTypeStore
         return $this->generalReportEntryResourceType;
     }
 
+    public function getGenericStatementAttachmentResourceType(): GenericStatementAttachmentResourceType
+    {
+        return $this->genericStatementAttachmentResourceType;
+    }
+
     public function getGisLayerCategoryResourceType(): GisLayerCategoryResourceType
     {
         return $this->gisLayerCategoryResourceType;
@@ -561,6 +580,11 @@ class ResourceTypeStore
     public function getInstitutionLocationContactResourceType(): InstitutionLocationContactResourceType
     {
         return $this->institutionLocationContactResourceType;
+    }
+
+    public function getInstitutionTagCategoryResourceType(): InstitutionTagCategoryResourceType
+    {
+        return $this->institutionTagCategoryResourceType;
     }
 
     public function getInstitutionTagResourceType(): InstitutionTagResourceType
@@ -631,6 +655,11 @@ class ResourceTypeStore
     public function getPlanningDocumentCategoryResourceType(): PlanningDocumentCategoryResourceType
     {
         return $this->planningDocumentCategoryResourceType;
+    }
+
+    public function getPlanningDocumentCategoryDetailsResourceType(): PlanningDocumentCategoryDetailsResourceType
+    {
+        return $this->planningDocumentCategoryDetailsResourceType;
     }
 
     public function getPriorityAreaResourceType(): PriorityAreaResourceType
@@ -723,9 +752,9 @@ class ResourceTypeStore
         return $this->slugResourceType;
     }
 
-    public function getStatementAttachmentResourceType(): StatementAttachmentResourceType
+    public function getSourceStatementAttachmentResourceType(): SourceStatementAttachmentResourceType
     {
-        return $this->statementAttachmentResourceType;
+        return $this->sourceStatementAttachmentResourceType;
     }
 
     public function getStatementFieldDefinitionResourceType(): StatementFieldDefinitionResourceType
@@ -768,14 +797,9 @@ class ResourceTypeStore
         return $this->statementSegmentResourceType;
     }
 
-    public function getSurveyResourceType(): SurveyResourceType
+    public function getStatementVoteResourceType(): StatementVoteResourceType
     {
-        return $this->surveyResourceType;
-    }
-
-    public function getSurveyVoteResourceType(): SurveyVoteResourceType
-    {
-        return $this->surveyVoteResourceType;
+        return $this->statementVoteResourceType;
     }
 
     public function getTagResourceType(): TagResourceType
@@ -801,5 +825,10 @@ class ResourceTypeStore
     public function getUserRoleInCustomerResourceType(): UserRoleInCustomerResourceType
     {
         return $this->userRoleInCustomerResourceType;
+    }
+
+    public function getCustomFieldResourceType(): CustomFieldResourceType
+    {
+        return $this->customFieldResourceType;
     }
 }

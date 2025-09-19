@@ -10,47 +10,54 @@
 <template>
   <div
     style="height: calc(100vh - 68px) /* The 68px is the height for the x-close spacing */"
-    class="overflow-y-auto">
+    class="overflow-y-auto"
+  >
     <h2 class="u-mb-1_5">
       {{ heading }}
     </h2>
     <div
+      v-if="hasPermission('feature_segment_comment_create')"
       class="space-stack-s"
-      v-if="hasPermission('feature_segment_comment_create')">
+    >
       <div>
         <dp-button
           v-if="segment"
           class="w-full u-mt u-mb"
           data-cy="addCommentToSegment"
-          @click="toggleForm"
           :text="Translator.trans('comment.add.to_segment', { segmentExternId: segment.attributes.externId })"
-          variant="outline" />
+          variant="outline"
+          @click="toggleForm"
+        />
       </div>
       <create-comment-form
         v-show="showForm"
         ref="createForm"
         :current-user="currentUser"
-        :segment-id="commentsList.segmentId" />
+        :segment-id="commentsList.segmentId"
+      />
     </div>
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
     <template v-if="hasComments">
       <segment-comment
-        :current-user="currentUser"
         v-for="(comment, idx) in comments"
         :key="idx"
+        :current-user="currentUser"
         :comment="comment"
         :segment-id="commentsList.segmentId"
         class="u-mt u-mb-0_5"
         :class="{'border--bottom' : idx < (comments.length -1) }"
-        data-cy="commentsListItem" />
+        data-cy="commentsListItem"
+      />
     </template>
     <dp-inline-notification
       v-else
       type="info"
-      class="u-mt-1_5 u-mb"
-      :message="Translator.trans('explanation.noentries')" />
+      class="u-mt-1_5 mb-4"
+      :message="Translator.trans('explanation.noentries')"
+    />
   </div>
 </template>
 
@@ -58,6 +65,7 @@
 import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CreateCommentForm from './CreateCommentForm'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'SegmentCommentsList',
@@ -65,43 +73,49 @@ export default {
   components: {
     CreateCommentForm,
     DpButton,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLoading,
-    SegmentComment: () => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')
+    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')),
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('SegmentSlidebar', [
-      'isLoading'
+      'isLoading',
     ]),
 
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
-      'statementId'
+      'statementId',
     ]),
 
     comments () {
-      return this.segment?.hasRelationship('comments')
-        ? Object.values(this.segment.rel('comments'))
-          .filter(comment => typeof comment !== 'undefined')
-          .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
-        : []
+      const commentsData = this.segment?.relationships?.comments?.data
+
+      if (!commentsData || commentsData.length === 0) {
+        return []
+      }
+
+      const comments = this.segment.rel('comments') || {}
+
+      return Object.values(comments)
+        .filter(comment => typeof comment !== 'undefined')
+        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
     },
 
     hasComments () {
@@ -114,25 +128,25 @@ export default {
 
     segment () {
       return this.segments[this.commentsList.segmentId] || null
-    }
+    },
   },
 
   methods: {
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('SegmentComment', {
-      listComments: 'list'
+      listComments: 'list',
     }),
 
     ...mapMutations('SegmentSlidebar', [
-      'setContent'
+      'setContent',
     ]),
 
     toggleForm () {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, showForm: !this.showForm } })
-    }
-  }
+    },
+  },
 }
 </script>

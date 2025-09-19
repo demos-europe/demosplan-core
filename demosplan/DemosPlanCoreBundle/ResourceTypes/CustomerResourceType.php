@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -55,7 +56,7 @@ final class CustomerResourceType extends DplanResourceType
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
         protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -218,7 +219,7 @@ final class CustomerResourceType extends DplanResourceType
                 function (Customer $object, string $baseLayerLayers): array {
                     // the previously set value may be invalid, hence this validation can only be executed when the
                     // value is changed, not on any update
-                    $violations = $this->validator->validate($baseLayerLayers, [new Length(null, 5, 4096)]);
+                    $violations = $this->validator->validate($baseLayerLayers, [new Length(null, 1, 4096)]);
                     if (0 === $violations->count()) {
                         $object->setBaseLayerLayers($baseLayerLayers);
                     } else {
@@ -266,7 +267,7 @@ final class CustomerResourceType extends DplanResourceType
 
     public function getUpdateValidationGroups(): array
     {
-        return [Customer::GROUP_UPDATE];
+        return [CustomerInterface::GROUP_UPDATE];
     }
 
     public function isUpdateAllowed(): bool

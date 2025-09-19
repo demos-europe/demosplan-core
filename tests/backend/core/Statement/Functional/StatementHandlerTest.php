@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -36,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Illuminate\Support\Collection;
@@ -82,7 +84,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $requestStack->push($request);
 
         /* @var StatementHandler sut */
-        $this->sut = self::$container->get(StatementHandler::class);
+        $this->sut = self::getContainer()->get(StatementHandler::class);
 
         // generiere ein Stub vom GlobalConfig
         /** @var GlobalConfigInterface $stub */
@@ -413,22 +415,16 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->sut->savePublicStatement('someId');
     }
 
-    public function testImportTags()
+    public function testImportTags(): void
     {
-        self::markSkippedForCIIntervention();
-
-        $this->setMocks();
-
         $statementService = $this->getMockBuilder(
             StatementService::class
         )
             ->disableOriginalConstructor()
             ->getMock();
 
-        $statementService->expects($this->any())
-            ->method('attachBoilerplateToTag')
-            ->willReturn(true);
-
+        $tagsBefore = $this->countEntries(Tag::class);
+        $tagTopicsBefore = $this->countEntries(TagTopic::class);
         $this->sut->setRequestValues([
             'r_import'    => '',
             'r_importCsv' => 'asdfasdfasdf',
@@ -436,7 +432,11 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /* @var StatementService $statementService */
         $this->sut->setStatementService($statementService);
-        $this->sut->importTags('foo', 'datei:hash:mime');
+        $this->sut->importTags($this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(), fopen($this->getFileInfoTagImport()->getAbsolutePath(), 'rb'));
+        $tagsAfter = $this->countEntries(Tag::class);
+        $tagTopicsAfter = $this->countEntries(TagTopic::class);
+        self::assertEquals($tagsBefore + 101, $tagsAfter);
+        self::assertEquals($tagTopicsBefore + 16, $tagTopicsAfter);
     }
 
     /**
@@ -1265,7 +1265,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $createdStatement = $this->sut->newStatement($data);
         static::assertInstanceOf(Statement::class, $createdStatement);
 
-        $repository = self::$container->get(StatementRepository::class);
+        $repository = self::getContainer()->get(StatementRepository::class);
         $copiedStatements = $repository->findBy([
             'original' => $createdStatement->getId(),
         ]);
@@ -2151,7 +2151,7 @@ class StatementHandlerTest extends FunctionalTestCase
             ->willReturn(true);
         $mock->expects($this->any())
             ->method('submitHandler')
-            ->willReturn(true);
+            ->willReturn([]);
 
         return $mock;
     }
@@ -2161,14 +2161,17 @@ class StatementHandlerTest extends FunctionalTestCase
      */
     protected function getFileServiceMock()
     {
+        $fileInfo = $this->getFileInfoTagImport();
         $mock = $this->getMockBuilder(FileService::class)
             ->disableOriginalConstructor()
             ->getMock();
         $mock->expects($this->any())
             ->method('getFileInfo')
-            ->willReturn(['absolutePath' => __DIR__.'/res/final.csv']);
+            ->willReturn($fileInfo);
 
-        return $mock;
+        return $mock->expects($this->any())
+            ->method('getFileContentStream')
+            ->willReturn(fopen($fileInfo->getAbsolutePath(), 'rb'));
     }
 
     /**
@@ -2932,7 +2935,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testCopyStatementWithFileToProcedure()
     {
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
         // add file first
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
@@ -2942,7 +2945,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatementWithFile');
-        $statementService = self::$container->get(StatementService::class);
+        $statementService = self::getContainer()->get(StatementService::class);
         $sourceProcedure = $testStatement->getProcedure();
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
@@ -2965,7 +2968,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testCopyStatementWithMapFileToProcedure()
     {
-        $fileService = self::$container->get(FileService::class);
+        $fileService = self::getContainer()->get(FileService::class);
         // add file first
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fs = new Filesystem();
@@ -2975,7 +2978,7 @@ class StatementHandlerTest extends FunctionalTestCase
 
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatementWithFile');
-        $statementService = self::$container->get(StatementService::class);
+        $statementService = self::getContainer()->get(StatementService::class);
         $sourceProcedure = $testStatement->getProcedure();
         /** @var Procedure $targetProcedure */
         $targetProcedure = $this->fixtures->getReference('testProcedure2');
@@ -2996,5 +2999,18 @@ class StatementHandlerTest extends FunctionalTestCase
         // new map file has reference to target procedure
         $newFile = $fileService->getFileFromFileString($copiedStatement->getMapFile());
         static::assertEquals($targetProcedure->getId(), $newFile->getProcedure()->getId());
+    }
+
+    private function getFileInfoTagImport(): FileInfo
+    {
+        return new FileInfo(
+            hash: 'someHash',
+            fileName: 'tagTopics.csv',
+            fileSize: 12345,
+            contentType: 'any/thing',
+            path: __DIR__.'/res/tagTopics.csv',
+            absolutePath: __DIR__.'/res/tagTopics.csv',
+            procedure: null
+        );
     }
 }

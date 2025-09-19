@@ -20,4 +20,18 @@
     dt {
         font-weight: $bold-font-weight;
     }
+
+    fieldset:not(:last-child, fieldset fieldset) {
+        border-bottom: 1px solid $dp-color-neutral-light-2 !important;
+        margin-bottom: 32px !important;
+    }
+
+    fieldset {
+        padding-bottom: 32px;
+        margin-left: 0 !important;
+
+        div.layout__item {
+            padding-left: 0 !important;
+        }
+    }
 }

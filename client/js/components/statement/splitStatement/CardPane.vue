@@ -10,20 +10,24 @@
 <template>
   <div
     class="card-pane"
-    :style="{ 'min-height': containerMinHeight }">
+    :style="{ 'min-height': containerMinHeight }"
+  >
     <card-pane-card
       v-for="segment in filteredSortedSegments"
       :key="'card' + segment.id + Math.random()"
+      ref="card"
       :segment="segment"
       :data-range="segment.id"
       :offset="offset"
-      ref="card"
+      @card:check-overlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
-      @edit-segment="$emit('edit-segment', segment.id)"
-      @delete-segment="$emit('delete-segment', segment.id)"
-      @mouseenter.native="handleMouseEnter(segment.id)"
-      @mouseleave.native="handleMouseLeave(segment.id)"
-      @check-card-overlap="positionCards" />
+      @segment:edit="$emit('segment:edit', segment.id)"
+      @segment:delete="$emit('segment:delete', segment.id)"
+      @focusin="handleMouseEnter(segment.id)"
+      @focusout="handleMouseLeave(segment.id)"
+      @mouseenter="handleMouseEnter(segment.id)"
+      @mouseleave="handleMouseLeave(segment.id)"
+    />
   </div>
 </template>
 
@@ -35,7 +39,7 @@ export default {
   name: 'CardPane',
 
   components: {
-    CardPaneCard
+    CardPaneCard,
   },
 
   props: {
@@ -45,35 +49,41 @@ export default {
      */
     offset: {
       type: Number,
-      required: true
+      required: true,
     },
 
     maxRange: {
       required: true,
-      type: Number
-    }
+      type: Number,
+    },
   },
+
+  emits: [
+    'segment:delete',
+    'segment:edit',
+    'segment:confirm',
+  ],
 
   data () {
     return {
-      containerMinHeight: ''
+      containerMinHeight: '',
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
-      'sortedSegments'
+      'sortedSegments',
     ]),
 
     filteredSortedSegments () {
       return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-    }
+    },
   },
 
   methods: {
     ...mapMutations('SplitStatement', [
-      'setProperty'
+      'setProperty',
     ]),
 
     handleCardHighlighting (segmentId, highlight) {
@@ -161,9 +171,9 @@ export default {
       return {
         bottom: -offset + this.containerSize.top + this.containerSize.height,
         height: this.containerSize.height,
-        top: -offset + this.containerSize.top
+        top: -offset + this.containerSize.top,
       }
-    }
+    },
   },
 
   mounted () {
@@ -175,6 +185,6 @@ export default {
 
   unmounted () {
     document.removeEventListener('resize', this.positionCards)
-  }
+  },
 }
 </script>

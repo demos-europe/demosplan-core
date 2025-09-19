@@ -54,7 +54,7 @@
                     <a
                         target="_blank"
                         rel="noopener"
-                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
+                        href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': file|getFile('hash') }) }}" title="{{ file|getFile('name') }}">
                         {{ file|getFile('name') }}
                     </a>
                     {% if not loop.last %}<span>,</span>{% endif %}

@@ -94,6 +94,8 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
      * Needs to be limited further, conditions need to be determined with the frontend.
      * Especially orga specific settings (possibly feature_admin_element_authorisations)
      * and visibility for citizens and public agencies need to be considered.
+     *
+     * @throws PathException
      */
     protected function getAccessConditions(): array
     {
@@ -111,10 +113,13 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         // These "elements" are needed for technical reasons but are no actual categories.
         // If you need to fetch them via the API use a separate resource type covering
         // their actual meaning.
+        /** @see PlanningDocumentCategoryDetailsResourceType */
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
-            $adminConditions[] = $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
+            $adminConditions[] = [] === $elementsToHide
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasNotAnyOfValues($elementsToHide, $this->title);
         }
 
         $ownsProcedure = $this->procedureAccessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure);

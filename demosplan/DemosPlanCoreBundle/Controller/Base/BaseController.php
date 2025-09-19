@@ -279,7 +279,7 @@ abstract class BaseController extends AbstractController
      *
      * @throws Exception
      */
-    public function renderTemplate($view, array $parameters = [], Response $response = null): Response
+    public function renderTemplate($view, array $parameters = [], ?Response $response = null): Response
     {
         $this->viewRenderer->processRequestStatus();
         $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);

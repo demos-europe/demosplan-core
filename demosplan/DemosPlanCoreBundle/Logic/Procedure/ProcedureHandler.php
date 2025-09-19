@@ -92,6 +92,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
+        private readonly ProcedureDeleter $procedureDeleter,
         private readonly ProcedureService $procedureService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
@@ -655,7 +656,9 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         foreach ($this->procedureService->getDeletedProcedures($limit) as $deletedProcedure) {
             $procedureId = $deletedProcedure->getId();
             try {
-                $this->procedureService->purgeProcedure($procedureId);
+                $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
+                $this->procedureDeleter->deleteProcedures([$procedureId], false);
+                $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
                 ++$proceduresPurged;
             } catch (Exception $e) {
                 $this->logger->warning("Delete Procedure '$procedureId' failed", [$e]);

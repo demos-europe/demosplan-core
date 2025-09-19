@@ -10,13 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 
-class ProcedureCategoryService extends CoreService
+class ProcedureCategoryService
 {
     public function __construct(private readonly ProcedureCategoryRepository $procedureCategoryRepository)
     {

@@ -25,33 +25,36 @@
     <tr class="color--grey">
       <td
         class="u-pb-0_5 u-pl-0_5"
-        style="width: 15%;">
+        style="width: 15%;"
+      >
         {{ Translator.trans('time') }}
       </td>
       <td
         class="u-pb-0_5 u-pl-0_5"
-        style="width: 40%;">
+        style="width: 40%;"
+      >
         {{ Translator.trans('user') }}
       </td>
       <td
         class="u-pb-0_5"
-        style="width: 40%;">
+        style="width: 40%;"
+      >
         {{ Translator.trans('fields') }}
       </td>
       <td
         class="u-pb-0_5"
-        style="width: 5%" />
+        style="width: 5%"
+      />
     </tr>
 
-    <template>
-      <dp-version-history-item
-        v-for="(time, idx) in filteredItems"
-        :key="idx"
-        :procedure-id="procedureId"
-        :day="day"
-        :time="time.attributes"
-        :entity="entity" />
-    </template>
+    <dp-version-history-item
+      v-for="(time, idx) in filteredItems"
+      :key="idx"
+      :procedure-id="procedureId"
+      :day="day"
+      :time="time.attributes"
+      :entity="entity"
+    />
   </tbody>
 </template>
 
@@ -63,42 +66,42 @@ export default {
   name: 'DpVersionHistoryDay',
 
   components: {
-    DpVersionHistoryItem
+    DpVersionHistoryItem,
   },
 
   props: {
     allTimes: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     date: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     day: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      formattedDate: formatDate(this.date)
+      formattedDate: formatDate(this.date),
     }
   },
 
@@ -114,7 +117,7 @@ export default {
         })
       })
       return filteredTimes
-    }
-  }
+    },
+  },
 }
 </script>

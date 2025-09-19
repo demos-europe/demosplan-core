@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -77,6 +78,7 @@ class AssessmentHandler extends CoreHandler
         StatementService $statementService,
         TranslatorInterface $translator,
         UserFilterSetService $userFilterSetService,
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
@@ -154,7 +156,7 @@ class AssessmentHandler extends CoreHandler
 
         return new DocxExportResult(
             'Originalstellungnahmen_'.$procedureName.'.pdf',
-            IOFactory::createWriter($phpWord, 'Word2007')
+            IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType())
         );
     }
 
@@ -326,7 +328,7 @@ class AssessmentHandler extends CoreHandler
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {
             // Ersetze die Phase, in der die SN eingegangen ist
-            $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+            $statement['phase'] = $this->statementService->getProcedurePhaseNameFromArray($statement);
         }
 
         return StatementHandlingResult::createCopyWithDifferentStatements($outputResult, $statements);

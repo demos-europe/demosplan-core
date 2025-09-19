@@ -19,12 +19,12 @@ import {
   DpSelect,
   DpUploadFiles,
   dpValidateMixin,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
@@ -40,10 +40,10 @@ export default {
     DpMultiselect,
     DpSelect,
     DpSelectStatementCluster,
-    DpStatementPublish,
+    StatementPublish,
     DpEditor,
     DpUploadFiles,
-    StatementVoter
+    StatementVoter,
   },
 
   mixins: [dpValidateMixin],
@@ -51,17 +51,17 @@ export default {
   props: {
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     currentExternalPhase: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentInternalPhase: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -71,13 +71,13 @@ export default {
     defaultPhase: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     defaultSubmitType: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     /**
@@ -86,7 +86,7 @@ export default {
     externalPhases: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     /**
@@ -95,38 +95,44 @@ export default {
     internalPhases: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     requestText: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     requestHeadStatement: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     requestCounties: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     requestMunicipalities: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     requestPriorityAreas: {
       required: false,
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
+
+    usedInternIdsPattern: {
+      required: false,
+      type: Array,
+      default: () => [],
+    },
   },
 
   data () {
@@ -134,26 +140,27 @@ export default {
       countiesPromptAdded: false,
       municipalitiesPromptAdded: false,
       values: {
+        authoredDate: '',
+        counties: this.requestCounties,
+        document: '',
+        element: '',
+        headStatement: this.requestHeadStatement,
+        internId: '',
+        municipalities: this.requestMunicipalities,
+        paragraph: '',
+        phase: {},
+        priorityAreas: this.requestPriorityAreas,
+        submittedDate: '',
         submitter: {},
         submitType: this.defaultSubmitType,
-        phase: {},
-        headStatement: this.requestHeadStatement,
-        element: '',
-        paragraph: '',
-        document: '',
-        counties: this.requestCounties,
-        municipalities: this.requestMunicipalities,
-        priorityAreas: this.requestPriorityAreas,
         tags: [],
         text: this.requestText,
-        submittedDate: '',
-        authoredDate: ''
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
       internalPhaseOptions: this.internalPhases,
       externalPhaseOptions: this.externalPhases,
-      institutionSelected: false
+      institutionSelected: false,
     }
   },
 
@@ -166,51 +173,63 @@ export default {
       'elements',
       'paragraph',
       'documents',
-      'procedurePhases'
+      'procedurePhases',
     ]),
 
     phases () {
-      if (this.institutionSelected && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (this.institutionSelected) {
         return this.procedurePhases({
           internal: true,
-          external: false
+          external: false,
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name,
+          }
         })
       } else {
         return this.procedurePhases({
           internal: false,
-          external: true
+          external: true,
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name,
+          }
         })
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addLocationPrompt (data) {
-      if (data.counties.length > 0) {
+      if (data?.counties?.length > 0) {
         this.values.counties = data.counties.map(id => this.counties.find(county => county.id === id))
         this.sortSelected('counties')
         this.countiesPromptAdded = true
-      } else if (data.counties.length === 0) {
+      } else {
         this.values.counties = []
         this.countiesPromptAdded = false
       }
-      if (data.municipalities.length > 0) {
+      if (data?.municipalities?.length > 0) {
         this.values.municipalities = data.municipalities.map(id => this.municipalities.find(municipality => municipality.id === id))
         this.sortSelected('municipalities')
         this.municipalitiesPromptAdded = true
-      } else if (data.municipalities.length === 0) {
+      } else {
         this.values.municipalities = []
         this.municipalitiesPromptAdded = false
       }
     },
 
-    checkForParagraphsAndFiles () {
+    checkForParagraphsAndFiles (selectedElement) {
       this.values.paragraph = { id: '', title: '-' }
       this.values.document = { id: '', title: '-' }
-      this.elementHasParagraphs = hasOwnProp(this.paragraph, this.values.element.id)
-      this.elementHasFiles = hasOwnProp(this.documents, this.values.element.id)
+      this.elementHasParagraphs = hasOwnProp(this.paragraph, selectedElement.id)
+      this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
     handlePhaseSelect () {
@@ -222,7 +241,7 @@ export default {
      * internal phase applies to institutions.
      */
     setDefaultPhase (isInstitution) {
-      if (isInstitution && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (isInstitution) {
         this.values.phase = Object.values(this.internalPhases).find(el => el.key === this.currentInternalPhase) || Object.values(this.internalPhases)[0]
       } else {
         this.values.phase = Object.values(this.externalPhases).find(el => el.key === this.currentExternalPhase) || Object.values(this.externalPhases)[0]
@@ -231,7 +250,7 @@ export default {
 
     setPhaseValue (value) {
       if (value) {
-        this.values.phase = value
+        this.values.phase = this.phases.find(el => el.value === value)
       }
     },
 
@@ -250,8 +269,6 @@ export default {
     submit () {
       if (this.dpValidate.newStatementForm) {
         document.querySelector('[data-dp-validate="newStatementForm"]').submit()
-      } else {
-        dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
     },
 
@@ -259,7 +276,7 @@ export default {
       const isInstitution = newValue === '1'
       this.setDefaultPhase(isInstitution)
       this.institutionSelected = isInstitution
-    }
+    },
   },
 
   mounted () {
@@ -268,6 +285,6 @@ export default {
     // Set initial options for phase select
     const initialRole = this.$refs.submitter.currentRole
     this.handleRoleChange(initialRole)
-  }
+  },
 }
 </script>

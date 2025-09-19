@@ -20,43 +20,53 @@
       v-show="selectedElements.length > 0"
       class="layout__item u-12-of-12 u-mv-0_5"
       :selected-items-text="Translator.trans('elements.selected', { count: selectedElements.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <template v-slot:default>
         <button
           v-if="hasPermission('feature_auto_switch_element_state')"
           type="button"
           class="btn--blank o-link--default u-mr-0_5"
-          @click="bulkEdit">
+          @click="bulkEdit"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-pencil u-mr-0_125" />
+            class="fa fa-pencil u-mr-0_125"
+          />
           {{ Translator.trans('change.state.at.date') }}
         </button>
         <button
           v-if="hasPermission('feature_admin_element_bulk_delete')"
           type="button"
-          @click="bulkDelete"
           class="btn--blank o-link--default u-mr-0_5"
-          :title="Translator.trans('plandocuments.delete')">
+          :title="Translator.trans('plandocuments.delete')"
+          @click="bulkDelete"
+        >
           <i
             aria-hidden="true"
-            class="fa fa-trash u-mr-0_125" />
+            class="fa fa-trash u-mr-0_125"
+          />
           {{ Translator.trans('delete') }}
         </button>
       </template>
     </dp-bulk-edit-header>
     <dp-loading v-if="isLoading" />
+    <p
+      v-else-if="treeData.length < 1"
+      v-text="Translator.trans('plandocuments.no_elements')"
+    />
     <dp-tree-list
       v-else
+      ref="treeList"
       :branch-identifier="isBranch"
       :draggable="canDrag"
       :on-move="onMove"
       :options="treeListOptions"
       :tree-data="treeData"
-      ref="treeList"
-      @draggable:change="saveNewSort"
+      @end="(event, item, parentId) => saveNewSort(event, parentId)"
       @node-selection-change="nodeSelectionChange"
-      @tree:change="updateTreeData">
+      @tree:change="updateTreeData"
+    >
       <template v-slot:header="">
         <span class="color--grey">
           {{ Translator.trans('procedure.documents') }}
@@ -71,11 +81,13 @@
             class="u-mr-auto"
             :hash="nodeElement.attributes.fileInfo.hash"
             :name="nodeElement.attributes.fileInfo.name"
-            :size="nodeElement.attributes.fileInfo.size" />
+            :size="nodeElement.attributes.fileInfo.size"
+          />
           <icon-published :published="nodeElement.attributes.visible" />
           <icon-statement-enabled
             v-if="hasPermission('feature_single_document_statement')"
-            :enabled="nodeElement.attributes.statementEnabled" />
+            :enabled="nodeElement.attributes.statementEnabled"
+          />
         </div>
       </template>
     </dp-tree-list>
@@ -89,9 +101,10 @@ import {
   dpRpc,
   DpTreeList,
   hasAnyPermissions,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import ElementsAdminItem from './ElementsAdminItem'
 import lscache from 'lscache'
 
@@ -103,9 +116,9 @@ export default {
     DpBulkEditHeader,
     DpLoading,
     DpTreeList,
-    FileInfo: () => import(/* webpackChunkName: "elements-list-file" */ '@DpJs/components/document/ElementsList/FileInfo'),
-    IconPublished: () => import(/* webpackChunkName: "elements-list-icon-published" */ '@DpJs/components/document/ElementsList/IconPublished'),
-    IconStatementEnabled: () => import(/* webpackChunkName: "elements-list-icon-statement-enabled" */ '@DpJs/components/document/ElementsList/IconStatementEnabled')
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
+    IconPublished: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconPublished')),
+    IconStatementEnabled: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/IconStatementEnabled')),
   },
 
   data () {
@@ -115,13 +128,13 @@ export default {
       isLoading: true,
       treeData: [],
       selectedElements: [],
-      selectedFiles: []
+      selectedFiles: [],
     }
   },
 
   computed: {
     ...mapState('Elements', {
-      elements: 'items'
+      elements: 'items',
     }),
 
     treeListOptions () {
@@ -134,28 +147,28 @@ export default {
         rootDraggable: true,
         checkboxIdentifier: {
           branch: 'elementSelected',
-          leaf: 'documentSelected'
+          leaf: 'documentSelected',
         },
         selectOn: {
           childSelect: false,
-          parentSelect: true
+          parentSelect: true,
         },
         deselectOn: {
           childDeselect: false,
-          parentDeselect: true
-        }
+          parentDeselect: true,
+        },
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('Elements', {
       elementList: 'list',
-      deleteElement: 'delete'
+      deleteElement: 'delete',
     }),
 
     ...mapMutations('Elements', {
-      setElement: 'set'
+      setElement: 'set',
     }),
 
     /**
@@ -168,6 +181,7 @@ export default {
     buildTree (sortField = 'index') {
       const elementsCopy = JSON.parse(JSON.stringify(Object.values(this.elements)))
       const tree = this.listToTree(elementsCopy)
+
       this.treeData = this.sortRecursive(tree, sortField)
     },
 
@@ -176,18 +190,30 @@ export default {
      */
     bulkDelete () {
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
-        this.selectedElements.forEach(el => {
-          this.deleteElement(el)
-            .then(() => {
-              this.buildTree()
-              this.resetSelection()
+        // Parent deletion cascades to children, so only delete parents if both selected
+        const elementsToDelete = this.filterTopLevelParents(this.selectedElements)
+        const deletePromises = elementsToDelete.map(el => this.deleteElement(el))
 
-              // Clear cache from previously selected items.
-              lscache.remove(`${dplan.procedureId}:selectedElements`)
+        Promise.all(deletePromises)
+          .then(() => {
+            this.buildTree()
+            this.resetSelection()
 
-              dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
-            })
-        })
+            // Clear cache from previously selected items.
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+          })
+          .catch(error => {
+            console.error('Error during bulk deletion:', error)
+
+            // Still perform cleanup even if some deletions failed
+            this.buildTree()
+            this.resetSelection()
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('error', Translator.trans('error.entries.marked.deleted'))
+          })
       }
     },
 
@@ -209,8 +235,29 @@ export default {
         if (hasOwnProp(node, 'children')) {
           return this.findNodeById(node.children, nodeId)
         }
+
         return null
       }, null)
+    },
+
+    /**
+     * Filter out child elements when their parents are also selected
+     * to avoid faulty API calls when deleting (parent deletion cascades to children)
+     * @param selectedIds
+     */
+    filterTopLevelParents (selectedIds) {
+      // Use Set for O(1) lookup performance
+      const selectedSet = new Set(selectedIds)
+
+      return selectedIds.filter(elementId => {
+        const element = this.elements[elementId]
+
+        if (!element?.attributes?.parentId) {
+          return true
+        }
+
+        return !selectedSet.has(element.attributes.parentId)
+      })
     },
 
     /**
@@ -274,6 +321,21 @@ export default {
     },
 
     /**
+     * Move an element in treeData from one index to another
+     * @param {Object} data
+     * @param {Number} data.indexToMoveFrom old index of the element
+     * @param {Number} data.indexToMoveTo new index of the element
+     */
+    moveElementInList (data) {
+      const { indexToMoveFrom, indexToMoveTo } = data
+
+      // Remove element from oldIndex in treeData
+      const removedItem = this.treeData.splice(indexToMoveFrom, 1)[0]
+      // Add element again at newIndex
+      this.treeData.splice(indexToMoveTo, 0, removedItem)
+    },
+
+    /**
      * Set the selection state for the different items.
      *
      * @param selected{Array<Object>}
@@ -282,6 +344,7 @@ export default {
       this.selectedFiles = selected
         .filter(node => node.nodeType === 'leaf')
         .map(el => el.nodeId)
+
       this.selectedElements = selected
         .filter(node => node.nodeType === 'branch')
         .map(el => el.nodeId)
@@ -289,11 +352,14 @@ export default {
 
     /**
      * Callback that is executed whenever an item is dragged over a new target.
-     * Here it is used to cancel the drag action when dragging over singleDocument
+     * Here it is used to cancel the drag action when dragging over singleDocument (=!isBranch)
      * elements, hereby keeping folders above files.
+     * @param _event
+     * @param {Boolean} isAllowedTarget Is the item allowed to be dragged into the target list?
+     * @return {Boolean} isAllowedTarget
      */
-    onMove ({ relatedContext }) {
-      return relatedContext.element.type !== 'SingleDocument'
+    onMove (_event, isAllowedTarget) {
+      return isAllowedTarget
     },
 
     resetSelection () {
@@ -305,24 +371,33 @@ export default {
      * Persist new sort order.
      * The parentId is used to save sort across branches.
      *
-     * @param action {Object<elementId, newIndex, parentId>}
+     * @param {Object< newIndex, oldIndex, item >} event
+     * @param {String} parentId
      */
-    saveNewSort ({ elementId, newIndex, parentId }) {
-      // Find the node the element has being moved into
-      const parentNode = this.findNodeById(this.treeData, parentId)
-      // On the root level, treeData represents the children
-      const children = parentId ? parentNode.children : this.treeData
+    saveNewSort ({ newIndex, oldIndex, item }, parentId) {
+      const { id } = item
+
+      // If item is not moved, do nothing
+      if (newIndex === oldIndex) {
+        return
+      }
+
+      // Do an optimistic FE update, so there is no lag until item is displayed in new position
+      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex })
+
       // Find the element that is directly following the moved element (only folders, no files)
-      const nextChild = children.filter(node => node.type === 'Elements')[newIndex + 1]
-      // Either send the index of the element that is being "pushed down" or undefined (if the moved element is the last item)
-      const index = nextChild ? nextChild.attributes.index : null
+      const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
+      // Either send the index of the element that is being "pushed down" or null (if the moved element is the last item)
+      const index = nextSibling ? nextSibling.attributes.index : null
+
       this.canDrag = false
+
       dpRpc('planningCategoryList.reorder', {
-        elementId: elementId,
-        newIndex: index,
-        parentId: parentId
+        elementId: id,
+        newIndex: newIndex === 0 ? newIndex : index,
+        parentId,
       })
-        .then((response) => {
+        .then(response => {
           /*
            * The response of the rpc should be an object with the elementIds as key
            * and the updated { index, parentId } as value. The store is then updated
@@ -332,22 +407,28 @@ export default {
           for (const id in elementsMap) {
             const storeElement = this.elements[id]
             const mapElement = elementsMap[id]
+
             if (typeof storeElement !== 'undefined') {
               this.setElement({
                 ...storeElement,
                 attributes: {
                   ...storeElement.attributes,
                   index: mapElement.index,
-                  parentId: mapElement.parentId
-                }
+                  parentId: mapElement.parentId,
+                },
               })
             }
           }
+
           this.buildTree()
           this.canDrag = true
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
-        .catch(() => {
+        .catch(error => {
+          // Undo optimistic FE update
+          this.moveElementInList({ indexToMoveFrom: newIndex, indexToMoveTo: oldIndex })
+
+          console.error(error)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
     },
@@ -378,14 +459,14 @@ export default {
     },
 
     /**
-     * Updates the tree structure that respresents the draggable ui.
+     * Updates the tree structure that represents the draggable ui.
      * @param updatedSort {Object<newOrder,nodeId>}
      */
     updateTreeData (updatedSort) {
       if (hasOwnProp(updatedSort, 'newOrder')) {
         updatedSort.newOrder
           // Filter out items not represented in this.elements (files)
-          .filter((el) => typeof this.elements[el.id] !== 'undefined')
+          .filter(el => typeof this.elements[el.id] !== 'undefined')
           /*
            * Iterate over items that are present in updated order, set new index and parentId
            * in order to rebuild the tree structure to apply the new state to draggable inside DpTreeList.
@@ -399,15 +480,15 @@ export default {
               ...this.elements[el.id],
               attributes: {
                 ...this.elements[el.id].attributes,
-                idx: idx,
-                parentId: updatedSort.nodeId
-              }
+                idx,
+                parentId: updatedSort.nodeId,
+              },
             })
           })
 
         this.buildTree('idx')
       }
-    }
+    },
   },
 
   mounted () {
@@ -418,9 +499,9 @@ export default {
         sameProcedure: {
           condition: {
             path: 'procedure.id',
-            value: dplan.procedureId
-          }
-        }
+            value: dplan.procedureId,
+          },
+        },
       },
       fields: {
         Elements: [
@@ -433,16 +514,16 @@ export default {
           'filePathWithHash',
           'index',
           'parentId',
-          'title'
+          'title',
         ].join(),
         SingleDocument: [
           'fileInfo',
           'index',
           'statementEnabled',
           'title',
-          'visible'
-        ].join()
-      }
+          'visible',
+        ].join(),
+      },
     })
       .then(() => {
         this.buildTree()
@@ -454,6 +535,6 @@ export default {
         // Finally, kickoff rendering
         this.isLoading = false
       })
-  }
+  },
 }
 </script>

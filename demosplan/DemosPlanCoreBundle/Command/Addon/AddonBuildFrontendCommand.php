@@ -62,7 +62,7 @@ class AddonBuildFrontendCommand extends CoreCommand
 
         $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
         $consoleReturn = Batch::create($this->getApplication(), $output)
-            ->addShell(['yarn', 'install', '--frozen-lockfile'], $addonPath)
+            ->addShell(['yarn', 'install', '--immutable'], $addonPath)
             ->addShell(['yarn', $env], $addonPath)
             ->run();
 

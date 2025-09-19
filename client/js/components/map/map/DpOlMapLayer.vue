@@ -23,53 +23,60 @@ export default {
     attributions: {
       required: false,
       type: String,
-      default: ''
+      default: '',
+    },
+
+    layerType: {
+      required: false,
+      type: String,
+      default: 'base',
     },
 
     layers: {
       required: true,
-      type: String
+      type: String,
     },
 
     name: {
       required: false,
       type: String,
-      default: 'baselayer_global'
+      default: 'baselayer_global',
     },
 
     opacity: {
       required: false,
       type: Number,
-      default: 100
+      default: 100,
     },
 
     order: {
       required: false,
       type: Number,
-      default: 0
+      default: 0,
     },
 
     projection: {
       required: false,
       type: String,
-      default: window.dplan.defaultProjectionLabel
+      default: window.dplan.defaultProjectionLabel,
     },
 
     title: {
       required: false,
       type: String,
-      default: 'Global Baselayer'
+      default: 'Global Baselayer',
     },
 
     url: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
     return {
-      source: null
+      layer: null,
+      source: null,
     }
   },
 
@@ -81,23 +88,26 @@ export default {
      */
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
-      return this.attributions
-        ? this.attributions.replaceAll('{currentYear}', currentYear)
-        : Translator.trans('map.attribution.default', {
+      return this.attributions ?
+        this.attributions.replaceAll('{currentYear}', currentYear) :
+        Translator.trans('map.attribution.default', {
           linkImprint: Routing.generate('DemosPlan_misccontent_static_imprint'),
-          currentYear
+          currentYear,
         })
     },
 
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   watch: {
-    defaultAttributions () {
-      this.source.setAttributions(this.defaultAttributions)
-    }
+    defaultAttributions: {
+      handler (newVal) {
+        this.source.setAttributions(newVal)
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -110,8 +120,10 @@ export default {
       let url = splittedUrl[0]
 
       if (splittedUrl[1]) {
-        // We have to ensure that the Service is not within the params,
-        // since the `createSourceTileWMS` function from OL already adds it
+        /*
+         * We have to ensure that the Service is not within the params,
+         * since the `createSourceTileWMS` function from OL already adds it
+         */
         const params = splittedUrl[1].split('&').reduce((acc, curr) => {
           return (!curr.toUpperCase().includes('SERVICE=')) ? acc + curr : acc
         }, '?')
@@ -120,18 +132,24 @@ export default {
       }
 
       this.source = createSourceTileWMS(url, this.layers, this.projection, this.defaultAttributions, this.map)
-      const layer = createTileLayer(this.title, this.name, this.source, this.opacity)
+      this.layer = createTileLayer(this.title, this.name, this.source, this.opacity, this.layerType)
 
       //  Insert layer at pos 0, making it the background layer
-      this.map.getLayers().insertAt(this.order, layer)
-    }
+      this.map.getLayers().insertAt(this.order, this.layer)
+    },
   },
 
   mounted () {
     this.addLayer()
   },
 
-  render: () => null
+  beforeUnmount () {
+    if (this.layer && this.map) {
+      this.map.removeLayer(this.layer)
+    }
+  },
+
+  render: () => null,
 }
 
 /**
@@ -150,18 +168,18 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
   const resolutions = map.getView().getResolutions()
 
   return new TileWMS({
-    url: url,
+    url,
     params: {
       LAYERS: layers || '',
-      FORMAT: 'image/png'
+      FORMAT: 'image/png',
     },
-    projection: projection,
+    projection,
     tileGrid: new TileGrid({
-      origin: origin,
-      resolutions: resolutions,
-      matrixIds: getMatrixIds(resolutions)
+      origin,
+      resolutions,
+      matrixIds: getMatrixIds(resolutions),
     }),
-    attributions: attributions
+    attributions,
   })
 }
 
@@ -173,15 +191,15 @@ const createSourceTileWMS = (url, layers, projection, attributions, map) => {
  * @return {object} ol/layer/Tile instance
  * @see https://openlayers.org/en/latest/apidoc/module-ol_layer_Tile-TileLayer.html
  */
-const createTileLayer = (title, name, source, opacity) => {
+const createTileLayer = (title, name, source, opacity, layerType = 'base') => {
   return new TileLayer({
-    title: title,
-    name: name,
+    title,
+    name,
     preload: 10,
     opacity: opacity / 100,
-    type: 'base',
+    type: layerType,
     visible: true,
-    source: source
+    source,
   })
 }
 

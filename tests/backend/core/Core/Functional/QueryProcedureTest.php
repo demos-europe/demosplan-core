@@ -45,9 +45,9 @@ class QueryProcedureTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(QueryProcedure::class);
-        $this->currentUser = self::$container->get(CurrentUserService::class);
-        $this->translator = self::$container->get('translator');
+        $this->sut = self::getContainer()->get(QueryProcedure::class);
+        $this->currentUser = self::getContainer()->get(CurrentUserService::class);
+        $this->translator = self::getContainer()->get('translator');
 
         $this->loginTestUser();
     }

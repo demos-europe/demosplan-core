@@ -53,7 +53,6 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
         $this->parameterBag->method('get')->with('dplan_addons')->willReturn($addons);
         $this->registry->method('getEnabledAddons')->willReturn([]);
 
-        $this->cacheClearCommand->expects($this->exactly(2))->method('run')->willReturn(Command::SUCCESS);
         $this->addonInstallCommand->expects($this->exactly(2))->method('run')->willReturn(Command::SUCCESS);
 
         $this->executeCommand();
@@ -95,7 +94,6 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
         $this->parameterBag->method('get')->with('dplan_addons')->willReturn($addons);
         $this->registry->method('getEnabledAddons')->willReturn($enabledAddons);
 
-        $this->cacheClearCommand->expects($this->once())->method('run')->willReturn(Command::SUCCESS);
         $this->addonUninstallCommand->expects($this->once())->method('run')->willReturn(Command::SUCCESS);
         $this->addonInstallCommand->expects($this->once())->method('run')->willReturn(Command::SUCCESS);
 

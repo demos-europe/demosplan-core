@@ -11,13 +11,14 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator;
 
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocxResponseGenerator extends FileResponseGeneratorAbstract
 {
-    public function __construct(array $supportedTypes, NameGenerator $nameGenerator)
+    public function __construct(array $supportedTypes, NameGenerator $nameGenerator, private readonly DocumentWriterSelector $writerSelector)
     {
         parent::__construct($nameGenerator);
         $this->supportedTypes = $supportedTypes;
@@ -44,7 +45,7 @@ class DocxResponseGenerator extends FileResponseGeneratorAbstract
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
             'Content-Type',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
+            $this->writerSelector->getContentType().'; charset=utf-8'
         );
         $response->headers->set(
             'Content-Disposition',

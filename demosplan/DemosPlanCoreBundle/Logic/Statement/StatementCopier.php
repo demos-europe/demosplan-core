@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -32,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -45,11 +45,13 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
-class StatementCopier extends CoreService
+class StatementCopier
 {
     use RefreshElasticsearchIndexTrait;
 
@@ -74,6 +76,8 @@ class StatementCopier extends CoreService
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly NCNameGenerator $nameGenerator,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
     ) {
         $this->elasticsearchIndexManager = $elasticsearchIndexManager;
         $this->reportService = $reportService;
@@ -109,7 +113,7 @@ class StatementCopier extends CoreService
      */
     public function copyStatementToProcedure(Statement $sourceStatement, Procedure $targetProcedure)
     {
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $doctrineConnection = $this->doctrine->getConnection();
         $doctrineConnection->beginTransaction();
 
         // 1. Copy related Original Statement
@@ -241,7 +245,7 @@ class StatementCopier extends CoreService
         if (!$addedStatement instanceof Statement) {
             $doctrineConnection->rollback();
             $this->messageBag->add('error', 'error.statement.copy.to.procedure');
-            $this->getLogger()->error('Cant copy Statement to another procedure: '.$copiedStatement->getId().'.');
+            $this->logger->error('Cant copy Statement to another procedure: '.$copiedStatement->getId().'.');
 
             return false;
         }
@@ -356,22 +360,23 @@ class StatementCopier extends CoreService
         // create a physical copy of files as the increased complexity of having
         // multiple references to one file does count more than hdd space
         foreach ($statementToCopy->getFiles() as $fileString) {
-            // filestring is written into $fileService on copy
             try {
-                $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                $file = $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                if ($file instanceof File) {
+                    $this->fileService->addStatementFileContainer(
+                        $copiedStatement->getId(),
+                        $file->getHash(),
+                        $file->getFileString()
+                    );
+                }
             } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
                     'error.copy.files',
                     ['externId' => $statementToCopy->getExternId()]
                 );
-                $this->getLogger()->error('Fail to copy Files of Statement', [$statementToCopy->getId()]);
+                $this->logger->error('Fail to copy Files of Statement', [$statementToCopy->getId()]);
             }
-            $this->fileService->addStatementFileContainer(
-                $copiedStatement->getId(),
-                $this->fileService->getInfoFromFileString($this->fileService->getFileString(), 'hash'),
-                $this->fileService->getFileString()
-            );
         }
 
         // copy
@@ -385,7 +390,7 @@ class StatementCopier extends CoreService
                     'error.copy.mapfile',
                     ['externId' => $statementToCopy->getExternId()]
                 );
-                $this->getLogger()->error('Fail to copy Mapfile of Statement', [$statementToCopy->getId()]);
+                $this->logger->error('Fail to copy Mapfile of Statement', [$statementToCopy->getId()]);
             }
             $copiedStatement->setMapFile($this->fileService->getFileString());
             $this->statementService->updateStatementFromObject($copiedStatement, true);
@@ -436,7 +441,7 @@ class StatementCopier extends CoreService
 
         if ($targetProcedure->getId() === $statement->getProcedureId()) {
             $this->messageBag->add('warning', 'warning.deny.copy.statement.to.same.procedure');
-            $this->getLogger()->warning('Statement is already in Procedure '.$targetProcedure->getName().'.');
+            $this->logger->warning('Statement is already in Procedure '.$targetProcedure->getName().'.');
 
             return false;
         }
@@ -454,7 +459,7 @@ class StatementCopier extends CoreService
                 ))) {
                 // error because should already be handled
                 $this->messageBag->add('warning', 'warning.deny.copy.statement.to.foreign.procedure');
-                $this->getLogger()->warning(
+                $this->logger->warning(
                     'Cant copy Statement: '.$statement->getExternId(
                     ).' because target procedure is not owned by your organisation.'
                 );
@@ -465,7 +470,7 @@ class StatementCopier extends CoreService
 
         $copyStatementAllowed = $this->isCopyStatementAllowed($statement, true, $ignoreReviewer);
         if (false === $copyStatementAllowed) {
-            $this->getLogger()->warning(
+            $this->logger->warning(
                 'Deny copy Statement: '.$statement->getId(
                 ).' because copy of Statement is not allowed. (isCopyStatementAllowed())'
             );
@@ -481,7 +486,7 @@ class StatementCopier extends CoreService
             );
             if (null !== $foundStatement) {
                 $this->messageBag->add('warning', 'warning.deny.copy.statement.taken.internId');
-                $this->getLogger()->warning(
+                $this->logger->warning(
                     'Cant copy Statement: '.$statement->getExternId(
                     ).' because internId of Statement is already used in target procedure.'
                 );
@@ -518,8 +523,16 @@ class StatementCopier extends CoreService
             throw new CopyException('error on copying original statement');
         }
         // persist to get an ID for the FileContainer copying below
-        $this->getDoctrine()->getManager()->persist($newStatement);
-        $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+        $this->doctrine->getManager()->persist($newStatement);
+        if ([] !== $statement->getFiles()) {
+            $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+
+            return $newStatement;
+        }
+
+        // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
+        // the new copied statement is already flushed while copying FileContainers in the previous method 'addFilesToCopiedStatement'.
+        $this->doctrine->getManager()->flush();
 
         return $newStatement;
     }
@@ -543,7 +556,7 @@ class StatementCopier extends CoreService
         bool $persistAndFlush = true,
     ): Statement|false {
         try {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
 
             // ClusterStatementCopyNotImplementedException is thrown here too
             if (false === $this->isCopyStatementAllowed($statement, $copyOnCreateStatement)) {
@@ -618,7 +631,7 @@ class StatementCopier extends CoreService
                         ['identifier' => $entry->getIdentifier()]
                     );
                 } catch (Exception $e) {
-                    $this->getLogger()->warning('Add Report in copyStatementAction() failed Message: ', [$e]);
+                    $this->logger->warning('Add Report in copyStatementAction() failed Message: ', [$e]);
                 }
             }
 
@@ -628,7 +641,7 @@ class StatementCopier extends CoreService
         } catch (ClusterStatementCopyNotImplementedException) {
             return false;
         } catch (Exception $e) {
-            $this->getLogger()->error('Could not copy statement ', [$e]);
+            $this->logger->error('Could not copy statement ', [$e]);
 
             return false;
         }

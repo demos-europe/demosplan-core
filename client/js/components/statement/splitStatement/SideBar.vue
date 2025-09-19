@@ -11,20 +11,22 @@
   <div
     ref="sideBar"
     :style="`max-height: calc(100vh - ${offset}px - 8px);`"
-    class="side-bar flex flex-col">
-
+    class="side-bar flex flex-col"
+  >
     <!-- Selected Tags Section -->
     <div class="relative px-2 py-2">
       <dp-label
         :text="Translator.trans('tags')"
         for="searchSelect"
-        class="mb-1" />
+        class="mb-1"
+      />
       <assigned-tags
         :available-tags="availableTags"
         :current-segment="currentSegment"
         :initial-segments="initialSegments"
-        :segment="this.editingSegment"
-        @remove="updateCurrentTags" />
+        :segment="editingSegment"
+        @remove="updateCurrentTags"
+      />
       <floating-context-button
         class="right-[-24px] bottom-[-30px]"
         section="tags"
@@ -32,7 +34,8 @@
         :is-content-collapsed="isCollapsed.tags"
         @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.tags = true"
-        @hide="showFloatingContextButton.tags = false" />
+        @hide="showFloatingContextButton.tags = false"
+      />
     </div>
 
     <!-- Tags Section -->
@@ -40,52 +43,60 @@
       aria-labelledby="floatingContextButton_tags"
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
-      @mouseleave="showFloatingContextButton.tags = false">
-
+      @mouseleave="showFloatingContextButton.tags = false"
+    >
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
+        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5"
         @click="toggleVisibility('tags')"
-        class="relative btn--blank o-link--default font-semibold w-full text-left pr-2 pt-0.5">
+      >
         {{ Translator.trans('tags.select') }}
       </button>
 
       <div
         v-else
-        class="flex flex-col w-full">
+        class="flex flex-col w-full"
+      >
         <div>
           <!-- search available tags -->
           <search-select
             v-if="showCreateForm === false"
-            @open-create-form="showCreateForm = true"
             :selected="selectedTags"
             :place-holder="Translator.trans('tag.search')"
-            :options="searchableTags" />
+            :options="searchableTags"
+            @open-create-form="showCreateForm = true"
+          />
 
           <!-- create tags + topics -->
           <dp-create-tag
             v-else
-            @close-create-form="showCreateForm = false" />
+            @close-create-form="showCreateForm = false"
+          />
         </div>
 
         <div
           v-if="tagTopics.length"
           :class="['flex-1', 'mt-2', 'pr-1', { 'overflow-y-scroll': tagTopics.length > 8 }]"
-          data-cy="tagTopicsContainer">
+          data-cy="tagTopicsContainer"
+        >
           <!-- categorized tags -->
           <tag-select
             v-for="(topic, idx) in tagTopics"
+            :key="`category_${idx}`"
             :class="{'mb-1': idx < tagTopics.length + 1}"
+            :dropdown-direction="idx < 6 ? 'bottom' : ''"
             :entity="topic"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
-            :key="`category_${idx}`" />
+          />
           <!-- uncategorized tags -->
           <tag-select
             v-if="tags.length > 0"
+            key="category_none"
             class="u-mb-0_5"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') || (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic'))) === false)"
             :entity="{ id: 'category.none', attributes: { title: Translator.trans('category.none') } }"
-            key="category_none" />
+          />
         </div>
       </div>
     </div>
@@ -95,8 +106,8 @@
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
-      @mouseleave="showFloatingContextButton.placesAndAssignee = false">
-
+      @mouseleave="showFloatingContextButton.placesAndAssignee = false"
+    >
       <FloatingContextButton
         class="right-0 top-0"
         section="placesAndAssignee"
@@ -104,20 +115,23 @@
         :is-content-collapsed="isCollapsed.placesAndAssignee"
         @toggle-content-visibility="toggleVisibility"
         @show="showFloatingContextButton.placesAndAssignee = true"
-        @hide="showFloatingContextButton.placesAndAssignee = false" />
+        @hide="showFloatingContextButton.placesAndAssignee = false"
+      />
 
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
-        class="relative btn--blank o-link--default font-semibold text-left w-full">
+      >
         {{ Translator.trans('workflow.place') }}
       </button>
 
       <div v-else>
         <label
           class="inline-block m-0"
-          for="setPlace">
+          for="setPlace"
+        >
           {{ Translator.trans('workflow.place') }}
         </label>
         <dp-multiselect
@@ -129,18 +143,21 @@
           :allow-empty="false"
           :options="availablePlaces"
           :show-placeholder="false"
-          track-by="id">
+          track-by="id"
+        >
           <template v-slot:option="{ props }">
             {{ props.option.name }}
             <dp-contextual-help
               v-if="props.option.description"
               class="float-right"
-              :text="props.option.description" />
+              :text="props.option.description"
+            />
           </template>
         </dp-multiselect>
         <label
           class="inline-block mb-0"
-          for="assignUser">
+          for="assignUser"
+        >
           {{ Translator.trans('assignee') }}
         </label>
         <dp-multiselect
@@ -152,7 +169,8 @@
           :allow-empty="false"
           :options="assignableUsers"
           :show-placeholder="false"
-          track-by="id" />
+          track-by="id"
+        />
       </div>
     </div>
 
@@ -164,7 +182,8 @@
       primary
       variant="outline"
       @primary-action="save"
-      @secondary-action="$emit('abort')" />
+      @secondary-action="$emit('abort')"
+    />
   </div>
 </template>
 
@@ -172,17 +191,15 @@
 import {
   DpButtonRow,
   DpContextualHelp,
-  DpIcon,
   DpLabel,
   DpMultiselect,
-  DpSelect,
   hasOwnProp,
-  Tooltip
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import AssignedTags from './AssignedTags.vue'
+import AssignedTags from './AssignedTags'
 import DpCreateTag from './DpCreateTag'
-import FloatingContextButton from './FloatingContextButton.vue'
+import FloatingContextButton from './FloatingContextButton'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 
@@ -194,39 +211,43 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
-    DpIcon,
     DpLabel,
     DpMultiselect,
-    DpSelect,
     FloatingContextButton,
     SearchSelect,
-    TagSelect
+    TagSelect,
   },
 
   directives: {
-    tooltip: Tooltip
+    tooltip: Tooltip,
   },
 
   props: {
     offset: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'abort',
+    'save',
+    'saveAndFinish',
+  ],
 
   data () {
     return {
       isCollapsed: {
         tags: true,
-        placesAndAssignee: false
+        placesAndAssignee: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
       showCreateForm: false,
       showFloatingContextButton: {
         tags: false,
-        placesAndAssignee: false
-      }
+        placesAndAssignee: false,
+      },
     }
   },
 
@@ -242,7 +263,7 @@ export default {
       procedureId: 'procedureId',
       segment: 'segmentById',
       tagTopics: 'tagTopics',
-      tags: 'uncategorizedTags'
+      tags: 'uncategorizedTags',
     }),
 
     assigneeNeedsUpdate () {
@@ -294,16 +315,16 @@ export default {
 
     selectedTags () {
       return this.editingSegment ? this.editingSegment.tags.map(el => this.availableTags.find(tag => tag.id === el.id || tag.attributes.title === el.tagName)) : []
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
     ...mapMutations('SplitStatement', [
       'locallyUpdateSegments',
-      'setProperty'
+      'setProperty',
     ]),
 
     toggleVisibility (section) {
@@ -318,11 +339,6 @@ export default {
       return this.availablePlaces.find(place => place.id === this.currentSegment.placeId)
     },
 
-    handleClick () {
-      this.setProperty({ prop: 'isBusy', val: true })
-      this.$emit('save-and-finish')
-    },
-
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
     },
@@ -332,7 +348,26 @@ export default {
       this.$emit('abort')
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton () {
+      if (window._paq) {
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tags.select')])
+      }
+    },
+
     save () {
+      if (this.availablePlaces.length < 1) {
+        dplan.notify.notify(
+          'error',
+          Translator.trans('error.split_statement.no_place'),
+          Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }),
+          Translator.trans('places.addPlace'))
+
+        return
+      }
+
+      this.clickTrackerSaveButton()
+
       if (this.needsUpdate) {
         this.updateSegment()
       }
@@ -358,7 +393,7 @@ export default {
 
       if (this.placeNeedsUpdate) {
         // Place can't be empty
-        if (this.selectedPlace.id !== '') {
+        if (this.selectedPlace?.id) {
           segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
@@ -367,11 +402,11 @@ export default {
 
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.locallyUpdateSegments([this.editingSegment])
-    }
+    },
   },
 
   mounted () {
     this.setInitialValues()
-  }
+  },
 }
 </script>

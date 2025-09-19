@@ -17,12 +17,17 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class BounceChecker extends CoreService
+class BounceChecker
 {
-    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly MailRepository $mailRepository, private readonly MailService $mailService)
-    {
+    public function __construct(
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MailRepository $mailRepository,
+        private readonly MailService $mailService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -50,6 +55,7 @@ class BounceChecker extends CoreService
         }
         $this->logger->info('Neues Bouncemailfile gefunden. Path '.DemosPlanTools::varExport($bounceFile, true));
 
+        // uses local file, no need for flysystem
         $content = file_get_contents($bounceFile);
         $this->logger->debug(
             'Bouncefilecontent '.print_r($content, true)
@@ -135,6 +141,7 @@ class BounceChecker extends CoreService
         }
 
         // Delete Bouncefile after processing
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         try {
             $fs->remove($bounceFile);

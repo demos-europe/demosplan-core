@@ -58,6 +58,7 @@ class TranslationsDumpCommand extends CoreCommand
             ->in($translationsPath)
             ->notName('config.json');
 
+        // uses local file, no need for flysystem
         $config = Json::decodeToArray(file_get_contents($translationsPath.'config.json'));
 
         // put all languages into one translations array
@@ -66,6 +67,7 @@ class TranslationsDumpCommand extends CoreCommand
                 static function (SplFileInfo $file) use ($translationsPath) {
                     $languageFile = $translationsPath.$file->getRelativePathname();
 
+                    // uses local file, no need for flysystem
                     return Json::decodeToArray(file_get_contents($languageFile));
                 }
             )
@@ -81,6 +83,7 @@ class TranslationsDumpCommand extends CoreCommand
         }
 
         $translationsJsonPath = DemosPlanPath::getRootPath('client/js/generated/translations.json');
+        // local file is valid, no need for flysystem
         file_put_contents(
             $translationsJsonPath,
             Json::encode(
@@ -89,11 +92,12 @@ class TranslationsDumpCommand extends CoreCommand
             )
         );
 
+        // uses local file, no need for flysystem
         if (file_exists($translationsJsonPath) && $output->isVerbose()) {
             $output->writeln('Succesfully wrote translations to core client bundle');
         }
 
-        DemosPlanPath::recursiveRemovePath($tempDir);
+        DemosPlanPath::recursiveRemoveLocalPath($tempDir);
 
         return Command::SUCCESS;
     }

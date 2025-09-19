@@ -1,0 +1,35 @@
+@import "@demos-europe/demosplan-ui/styles/theme.css" layer(theme);
+
+/*
+    This looks weird. This is weird. But this is how Tailwind 4 works. See:
+    - https://github.com/tailwindlabs/tailwindcss/discussions/17135#discussioncomment-12467509
+    - https://tailwindcss.com/docs/detecting-classes-in-source-files#disabling-automatic-detection
+*/
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "@demos-europe/demosplan-ui/styles/utilities.css";
+
+/* Import cookie consent CSS */
+@import "@demos-europe/dp-consent/src/css/style.css";
+
+/* Addons may contain Tailwind classes, too, so we need to include them here */
+@source "../../addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}";
+
+@source "../../client/js/**/*.{js,vue}";
+@source not "../../client/js/generated";
+@source not "../../client/js/legacy";
+@source not "../../client/js/store";
+@source "../../demosplan/plugins/**/*.twig";
+@source "../../node_modules/@demos-europe/demosplan-ui";
+@source "../../templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+
+/*
+    to tell Tailwind where to look for classes without exposing project information, we generate this file on build
+ */
+@import "./generated/project.css";
+
+/*
+    This is an example of how to whitelist classes in Tailwind 4.
+    See https://tailwindcss.com/docs/detecting-classes-in-source-files#safelisting-specific-utilities
+    In this case, we are safe-listing classes used in the segment status charts.
+*/
+@source inline('text-status-{progress,changed,complete}-icon');

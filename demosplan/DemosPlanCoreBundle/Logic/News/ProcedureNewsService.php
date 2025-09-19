@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -25,10 +24,12 @@ use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
 use Doctrine\Common\Collections\Criteria;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class ProcedureNewsService extends CoreService implements ProcedureNewsServiceInterface
+class ProcedureNewsService implements ProcedureNewsServiceInterface
 {
     /**
      * @var FileService
@@ -42,7 +43,8 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
         FileService $fileService,
         private readonly ManualListSorter $manualListSorter,
         private readonly NewsRepository $newsRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
     }
@@ -58,6 +60,8 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
      * @param array       $roles           Rollenbezeichnung
      *
      * @return array
+     *
+     * @throws PathException
      */
     public function getNewsList($procedureId, $user, $manualSortScope = null, $limit = null, $roles = [])
     {
@@ -69,7 +73,9 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
 
         $roles = $this->determineRoles($roles, $user);
         if (isset($roles) && 0 < count($roles)) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
+            $conditions[] = [] === $roles
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($roles, ['roles', 'code']);
         }
 
         $sortMethod = $this->sortMethodFactory->propertyDescending(['createDate']);
@@ -162,6 +168,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
     {
         try {
             $singleNews = $this->newsRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleNews);
         } catch (Exception $e) {

@@ -18,7 +18,7 @@ const components = {
   DpInput,
   DpRadio,
   DpTextArea,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components).then(() => {

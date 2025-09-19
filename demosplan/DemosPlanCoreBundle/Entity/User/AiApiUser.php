@@ -19,11 +19,8 @@ class AiApiUser extends FunctionalUser
 
     public function __construct()
     {
-
         $this->id = self::AI_API_USER_ID;
         $this->login = self::AI_API_USER_LOGIN;
-
-        $this->setDefaultOrgaDepartment();
 
         $role = new Role();
         $role->setCode(RoleInterface::API_AI_COMMUNICATOR);
@@ -33,6 +30,4 @@ class AiApiUser extends FunctionalUser
 
         parent::__construct();
     }
-
-
 }

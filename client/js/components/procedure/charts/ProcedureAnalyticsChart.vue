@@ -10,13 +10,16 @@
 <template>
   <dp-card
     :heading="Translator.trans('analytics.visitorMetrics')"
-    :heading-tooltip="Translator.trans('analytics.visitorMetrics.contextualHelp')">
+    :heading-tooltip="Translator.trans('analytics.visitorMetrics.contextualHelp')"
+  >
     <dp-loading
       v-if="isLoading"
-      class="u-mt-0_5" />
+      class="u-mt-0_5"
+    />
     <div
       v-else
-      class="u-mt-0_5">
+      class="u-mt-0_5"
+    >
       <div v-if="analyticsData.length">
         <template v-if="totalViews > 0">
           <div
@@ -29,7 +32,8 @@
               'no-data-fallback' : Translator.trans('analytics.visitorMetrics.none'),
               'data-names' : Translator.trans('analytics.visitorMetrics'),
               'data-name' : Translator.trans('analytics.metric')
-            })" />
+            })"
+          />
           <div id="procedureAnalyticsChartLegend" />
         </template>
         <p v-else>
@@ -52,35 +56,35 @@ export default {
 
   components: {
     DpCard,
-    DpLoading
+    DpLoading,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isLoading: true,
-      statistics: {}
+      statistics: {},
     }
   },
 
   computed: {
     analyticsData () {
-      return Object.values(this.statistics).length
-        ? Object.entries(this.statistics).map(([date, stats]) => {
+      return Object.values(this.statistics).length ?
+        Object.entries(this.statistics).map(([date, stats]) => {
           const index = Object.keys(this.statistics).findIndex(stat => stat === date)
           return {
-            index: index,
+            index,
             x: date,
-            y: stats.views
+            y: stats.views,
           }
-        })
-        : []
+        }) :
+        []
     },
 
     totalViews () {
@@ -88,7 +92,7 @@ export default {
         .reduce((acc, curr) => {
           return acc + curr.views
         }, 0)
-    }
+    },
   },
 
   methods: {
@@ -103,11 +107,11 @@ export default {
           console.error(err)
           this.isLoading = false
         })
-    }
+    },
   },
 
   mounted () {
     this.fetchProcedureAnalyticsData()
-  }
+  },
 }
 </script>

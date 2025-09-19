@@ -9,7 +9,7 @@
 export default {
   data () {
     return {
-      isFullscreen: false
+      isFullscreen: false,
     }
   },
 
@@ -22,6 +22,6 @@ export default {
       } else {
         document.querySelector('html').removeAttribute('style')
       }
-    }
-  }
+    },
+  },
 }

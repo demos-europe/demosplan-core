@@ -10,32 +10,35 @@
 <template>
   <dp-modal
     ref="boilerPlateModal"
-    content-classes="u-1-of-2">
-    <template>
-      <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
-      <dp-boiler-plate
-        :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
-        :boiler-plates="displayedBoilerplates"
-        ref="boilerplateDropdown"
-        group-values="boilerplates"
-        group-label="groupName"
-        :group-select="false"
-        @boilerplate-text-added="addBoilerplateText" />
-      <div class="flex items-center u-mt">
-        <a
-          class="weight--bold font-size-small"
-          :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })">
-          {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
-        </a>
-        <dp-button-row
-          class="ml-auto"
-          primary
-          :primary-text="Translator.trans('insert')"
-          secondary
-          @primary-action="insertBoilerPlate"
-          @secondary-action="resetAndClose" />
-      </div>
-    </template>
+    content-classes="u-1-of-2"
+  >
+    <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
+    <dp-boiler-plate
+      ref="boilerplateDropdown"
+      :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
+      :boiler-plates="displayedBoilerplates"
+      group-values="boilerplates"
+      group-label="groupName"
+      :group-select="false"
+      @boilerplate-text:added="addBoilerplateText"
+    />
+    <div class="flex items-center u-mt">
+      <a
+        class="weight--bold font-size-small"
+        :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"
+      >
+        {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
+      </a>
+      <dp-button-row
+        class="ml-auto"
+        :disabled="{ primary: textToBeAdded === '' }"
+        primary
+        :primary-text="Translator.trans('insert')"
+        secondary
+        @primary-action="insertBoilerPlate"
+        @secondary-action="resetAndClose"
+      />
+    </div>
   </dp-modal>
 </template>
 
@@ -50,14 +53,14 @@ export default {
   components: {
     DpBoilerPlate,
     DpButtonRow,
-    DpModal
+    DpModal,
   },
 
   props: {
     // Needed to get boilerplates from BE via store
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     /**
@@ -66,22 +69,26 @@ export default {
     boilerPlateType: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     editorId: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'insert',
+  ],
 
   data () {
     return {
       // Needed to make sure boilerplates are loaded from the BE before <dp-boiler-plate> component is mounted
       boilerPlatesLoaded: false,
       // The boilerplate text emitted from dp-boiler-plate, then emitted to TipTapTextEditor.vue on click of 'insert' button
-      textToBeAdded: ''
+      textToBeAdded: '',
     }
   },
 
@@ -112,7 +119,7 @@ export default {
         boilerplateString = this.boilerPlateType.map(bp => Translator.trans(bp)).join(', ')
       }
       return boilerplateString
-    }
+    },
   },
 
   methods: {
@@ -129,6 +136,7 @@ export default {
 
     resetAndClose () {
       this.$refs.boilerplateDropdown.resetBoilerPlateMultiSelect()
+      this.textToBeAdded = ''
       this.toggleModal()
     },
 
@@ -136,13 +144,13 @@ export default {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggle()
       }
-    }
+    },
   },
 
   created () {
     if (this.getBoilerplatesRequestFired === false) {
       this.getBoilerPlates(this.procedureId)
     }
-  }
+  },
 }
 </script>

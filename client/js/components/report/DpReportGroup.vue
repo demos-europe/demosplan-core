@@ -15,16 +15,19 @@
       <dp-data-table
         :header-fields="fields"
         :items="Object.values(items)"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:date="rowData">
           <span
+            v-tooltip="createdDateTimeItem(rowData)"
             v-text="createdDateItem(rowData)"
-            v-tooltip="createdDateTimeItem(rowData)" />
+          />
         </template>
         <template v-slot:content="rowData">
           <div
+            v-cleanhtml="rowData.attributes.message"
             class="break-words"
-            v-cleanhtml="rowData.attributes.message" />
+          />
         </template>
         <template v-slot:user="rowData">
           {{ rowData.attributes.createdByDataInputOrga ? rowData.attributes.orgaName : rowData.attributes.userName }}
@@ -32,18 +35,23 @@
       </dp-data-table>
 
       <div class="layout u-mv-0_5">
-        <div class="layout__item u-1-of-2">
+        <div
+          v-if="totalPages > 1"
+          class="layout__item u-1-of-2"
+        >
           <dp-sliding-pagination
             :current="currentPage"
             :total="totalPages"
             :non-sliding-size="10"
             :aria-label="paginationLabel"
-            @page-change="handlePageChange" />
+            @page-change="handlePageChange"
+          />
         </div><!--
      --><div class="layout__item u-1-of-2">
-        <dp-loading
-          v-if="isLoading"
-          class="u-mt-0_5 float-right" />
+          <dp-loading
+            v-if="isLoading"
+            class="u-mt-0_5 float-right"
+          />
         </div>
       </div>
     </template>
@@ -63,49 +71,53 @@ export default {
   components: {
     DpDataTable,
     DpLoading,
-    DpSlidingPagination
+    DpSlidingPagination,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     contentLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     groupLabel: {
       type: String,
-      required: true
+      required: true,
     },
 
     group: {
       type: String,
-      required: true
+      required: true,
     },
 
     items: {
       type: Object,
-      required: true
+      required: true,
     },
 
     currentPage: {
       type: Number,
-      required: true
+      required: true,
     },
 
     totalPages: {
       type: Number,
-      required: true
+      required: true,
     },
 
     isLoading: {
       required: true,
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
+
+  emits: [
+    'pageChange',
+  ],
 
   data () {
     return {
@@ -113,19 +125,19 @@ export default {
         {
           colClass: 'u-1-of-5',
           field: 'date',
-          label: Translator.trans('date')
+          label: Translator.trans('date'),
         },
         {
           colClass: 'u-3-of-5',
           field: 'content',
-          label: Translator.trans(this.contentLabel)
+          label: Translator.trans(this.contentLabel),
         },
         {
           colClass: 'u-1-of-5',
           field: 'user',
-          label: Translator.trans('user')
-        }
-      ]
+          label: Translator.trans('user'),
+        },
+      ],
     }
   },
 
@@ -136,7 +148,7 @@ export default {
 
     paginationLabel () {
       return 'Seitennavigation für die Protokoll-Gruppe "' + this.groupLabel + '"'
-    }
+    },
   },
 
   methods: {
@@ -149,8 +161,8 @@ export default {
     },
 
     handlePageChange (requestedPage) {
-      this.$emit('page-change', requestedPage)
-    }
-  }
+      this.$emit('pageChange', requestedPage)
+    },
+  },
 }
 </script>

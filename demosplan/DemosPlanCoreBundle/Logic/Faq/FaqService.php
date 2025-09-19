@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository;
@@ -34,10 +33,11 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Contracts\PathException;
 use Exception;
 use UnexpectedValueException;
 
-class FaqService extends CoreService
+class FaqService
 {
     public function __construct(
         private readonly CustomerHandler $customerHandler,
@@ -46,7 +46,7 @@ class FaqService extends CoreService
         private readonly FaqRepository $faqRepository,
         private readonly ManualListSorter $manualListSorter,
         private readonly PlatformFaqRepository $platformFaqRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
     ) {
     }
 
@@ -125,6 +125,8 @@ class FaqService extends CoreService
      * takes the User-roles into account.
      *
      * @return array<int, FaqInterface>
+     *
+     * @throws PathException
      */
     public function getEnabledFaqList(FaqCategoryInterface $faqCategory, User $user): array
     {
@@ -141,7 +143,9 @@ class FaqService extends CoreService
         $conditions = [
             $this->conditionFactory->propertyHasValue(1, $pathStart->enabled),
             $this->conditionFactory->propertyHasValue($faqCategory->getId(), $categoryPath),
-            $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
+            [] === $roles
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($roles, $pathStart->roles->code),
         ];
         $sortMethod = $this->sortMethodFactory->propertyAscending($pathStart->title);
 

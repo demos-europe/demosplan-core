@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -193,6 +194,12 @@ class OzgKeycloakUserDataMapper
          */
         if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
             $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
+
+            $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
+            $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
+            $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
+            $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
@@ -219,7 +226,7 @@ class OzgKeycloakUserDataMapper
             }
         }
         $this->entityManager->persist($existingOrga);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Organisation updated',
@@ -363,7 +370,7 @@ class OzgKeycloakUserDataMapper
     {
         $orgaTypesNeeded = [];
         foreach ($requestedRoles as $requestedRole) {
-            foreach (OrgaType::ORGATYPE_ROLE as $orgaType => $type) {
+            foreach (OrgaTypeInterface::ORGATYPE_ROLE as $orgaType => $type) {
                 if (in_array($requestedRole->getCode(), $type, true)
                     && !in_array($orgaType, $orgaTypesNeeded, true)
                 ) {
@@ -408,6 +415,7 @@ class OzgKeycloakUserDataMapper
         if (0 !== count($unIdentifiedRoles)) {
             $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
+        $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
         if (0 === count($requestedRoles)) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
@@ -531,8 +539,11 @@ class OzgKeycloakUserDataMapper
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
+        // user is provided by the identity provider
+        $dplanUser->setProvidedByIdentityProvider(true);
+
         $this->entityManager->persist($dplanUser);
-        $this->entityManager->flush();
+        // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
             'Existing user was updated.',

@@ -43,7 +43,7 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
    * This replaces the old range with a new range. It also removes any ranges which might now be covered by the new range.
    */
   tr = removeRange(state, range.from, range.to, tr)
-  tr = replaceRange(state, from, to, { rangeId: rangeId, isActive: true, isConfirmed: true }, tr)
+  tr = replaceRange(state, from, to, { rangeId, isActive: true, isConfirmed: true }, tr)
   tr = disableRangeEdit(view, editStateTrackerKey, tr)
 
   dispatch(tr)
@@ -240,7 +240,7 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
 
   return DecorationSet.create(state.doc, [
     start,
-    end
+    end,
   ])
 }
 
@@ -341,5 +341,5 @@ export {
   replaceMarkInRange,
   removeMarkByName,
   replaceRange,
-  toggleRangeEdit
+  toggleRangeEdit,
 }

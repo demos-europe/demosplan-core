@@ -14,14 +14,14 @@ export default {
   props: {
     url: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
     sendBeacon () {
       navigator.sendBeacon(this.url)
-    }
+    },
   },
 
   mounted () {
@@ -29,7 +29,7 @@ export default {
   },
 
   render () {
-    return this
-  }
+    return null
+  },
 }
 </script>

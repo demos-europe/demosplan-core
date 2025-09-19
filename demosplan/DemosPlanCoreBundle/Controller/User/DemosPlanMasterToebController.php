@@ -259,7 +259,7 @@ class DemosPlanMasterToebController extends BaseController
         CurrentUserService $currentUser,
         ContentService $contentService,
         PermissionsInterface $permissions,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $templateVars = [];
         $templateVars['displayChangesSinceLastVisit'] = false;
@@ -301,10 +301,10 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             $categoryLabels = [
-              'update' => $translator->trans('update', [], 'master-toeb-list'),
-              'delete' => $translator->trans('delete', [], 'master-toeb-list'),
-              'add'    => $translator->trans('add', [], 'master-toeb-list'),
-              'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
+                'update' => $translator->trans('update', [], 'master-toeb-list'),
+                'delete' => $translator->trans('delete', [], 'master-toeb-list'),
+                'add'    => $translator->trans('add', [], 'master-toeb-list'),
+                'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
             ];
 
             $reportEntries = $results;
@@ -401,9 +401,8 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Exportiere die MasterTöbListe.
      *
-     * Basiert auf PHPOffice/PhpSpreadsheet, Symfonybridge von yectep/phpspreadsheet-bundle
+     * Basiert auf PHPOffice/PhpSpreadsheet
      * https://github.com/PHPOffice/PhpSpreadsheet, MIT
-     * https://github.com/yectep/phpspreadsheet-bundle, MIT
      *
      * @DplanPermissions("area_use_mastertoeblist")
      *

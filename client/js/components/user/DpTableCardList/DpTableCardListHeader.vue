@@ -5,8 +5,9 @@
       v-if="searchable"
       class="layout__item u-1-of-2 u-mb-0_5"
       :placeholder="searchPlaceholder"
-      @reset="$emit('reset-search')"
-      @search="val => $emit('search', val)" /><!--
+      @reset="$emit('resetSearch')"
+      @search="val => $emit('search', val)"
+    /><!--
  --><slot name="header-buttons" />
     <!-- header with checkbox and labels-->
     <div class="layout__item border--bottom">
@@ -14,12 +15,14 @@
         v-if="selectable"
         id="selectAll"
         class="inline-block w-[20px] u-pv-0_25"
-        @change="val => $emit('select-all', val)" /><!--
+        @change="val => $emit('selectAll', val)"
+      /><!--
     --><div
+        v-for="(item, idx) in items"
+        :key="idx"
         class="layout__item weight--bold u-pv-0_5"
         :class="[item.classes ? item.classes : '', item.width ? item.width : '']"
-        v-for="(item, idx) in items"
-        :key="idx">
+      >
         {{ item.label }}
       </div>
     </div>
@@ -35,7 +38,7 @@ export default {
   components: {
     DpCheckbox,
     DpSearchField,
-    DpStickyElement
+    DpStickyElement,
   },
 
   props: {
@@ -45,7 +48,7 @@ export default {
      */
     items: {
       type: Array,
-      required: true
+      required: true,
     },
 
     /**
@@ -53,12 +56,12 @@ export default {
      */
     searchable: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     searchPlaceholder: {
       type: String,
-      default: ''
+      default: '',
     },
 
     /**
@@ -66,8 +69,14 @@ export default {
      */
     selectable: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
+
+  emits: [
+    'search',
+    'selectAll',
+    'resetSearch',
+  ],
 }
 </script>

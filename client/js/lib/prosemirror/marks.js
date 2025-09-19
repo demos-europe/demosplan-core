@@ -16,7 +16,7 @@ const rangeMark = {
     isActive: { default: false },
     isMoving: { default: false },
     isConfirmed: { default: false },
-    pmId: { default: null }
+    pmId: { default: null },
   },
   inclusive: true,
   parseDOM: [{
@@ -27,9 +27,9 @@ const rangeMark = {
         isActive: dom.getAttribute('data-range-active'),
         isMoving: dom.getAttribute('data-range-moving'),
         isConfirmed: dom.getAttribute('data-range-confirmed'),
-        pmId: dom.getAttribute('data-pm-id')
+        pmId: dom.getAttribute('data-pm-id'),
       }
-    }
+    },
   }],
   toDOM (node) {
     const { rangeId, isActive, isConfirmed, isMoving, pmId } = node.attrs
@@ -38,9 +38,9 @@ const rangeMark = {
       'data-range-active': isActive,
       'data-range-moving': isMoving,
       'data-range-confirmed': isConfirmed,
-      'data-pm-id': pmId
+      'data-pm-id': pmId,
     }, 0]
-  }
+  },
 }
 
 /**
@@ -50,19 +50,19 @@ const rangeSelectionMark = {
   attrs: {
     active: { default: null },
     pmId: { default: null },
-    rangeType: { default: 'selection' }
+    rangeType: { default: 'selection' },
   },
   inclusive: true,
   parseDOM: [{
     tag: 'span[data-range-selected]',
     getAttrs (dom) {
       return { active: dom.getAttribute('data-range-selected'), pmId: dom.getAttribute('data-pm-id'), rangeType: dom.getAttribute('data-range-type') }
-    }
+    },
   }],
   toDOM (node) {
     const { active, pmId } = node.attrs
     return ['span', { 'data-range-selected': active, 'data-pm-id': pmId, 'data-range-type': 'selection' }, 0]
-  }
+  },
 }
 
 export { rangeMark, rangeSelectionMark }

@@ -15,16 +15,21 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ElementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitationReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanDrawChangeReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PublicPhaseReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Webmozart\Assert\Assert;
 
@@ -43,14 +48,25 @@ class DemosPlanReportAPIController extends APIController
      *
      * @param string $group
      */
-    #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]
+    #[Route(
+        path: '/api/1.0/reports/{procedureId}/{group}',
+        methods: ['GET'],
+        name: 'dplan_api_report_procedure_list',
+        defaults: ['group' => null],
+        options: ['expose' => true]
+    )]
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
-        $group = null
+        Request $request,
+        $group = null,
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
+            'drawings'            => PlanDrawChangeReportEntryResourceType::getName(),
+            'elements'            => ElementReportEntryResourceType::getName(),
+            'paragraphs'          => ParagraphReportEntryResourceType::getName(),
+            'singleDocuments'     => SingleDocumentReportEntryResourceType::getName(),
             'statements'          => StatementReportEntryResourceType::getName(),
             'publicPhase'         => PublicPhaseReportEntryResourceType::getName(),
             'invitations'         => InvitationReportEntryResourceType::getName(),
@@ -63,7 +79,7 @@ class DemosPlanReportAPIController extends APIController
         Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $pagination = $paginationParser->parseApiPaginationProfile(
-            $this->request->query->get('page', []),
+            $this->request->query->all('page'),
             $this->request->query->get('sort', '')
         );
 
@@ -71,7 +87,7 @@ class DemosPlanReportAPIController extends APIController
             $paginator = $resourceType->getEntityPaginator($pagination, []);
             $transformer = $resourceType->getTransformer();
             $collection = new Collection($paginator, $transformer, ReportEntryResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
 
             return $this->renderResource($collection);

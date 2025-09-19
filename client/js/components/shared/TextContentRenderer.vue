@@ -1,21 +1,25 @@
 <script>
+import { h, resolveComponent } from 'vue'
+import DomPurify from 'dompurify'
 import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'TextContentRenderer',
 
-  functional: true,
+  components: {
+    DpLoading,
+  },
 
   props: {
     text: {
       type: String,
-      default: ''
+      default: '',
     },
 
-    data: {
+    dataText: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   /**
    * Rendering dynamic elements is done by tricking the renderer into
@@ -40,17 +44,21 @@ export default {
    * @param context
    * @return {*}
    */
-  render (h, context) {
+  render () {
+    const sanitizedText = DomPurify.sanitize(this.text, { ADD_TAGS: ['dp-obscure'] })
+
     const immediateComponent = {
-      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${context.props.text}</div>`,
+      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
       data () {
-        return context.props.data
-      }
+        return this.dataText || {}
+      },
     }
 
-    return (context.props.text)
-      ? h(immediateComponent)
-      : h(DpLoading, { props: { isLoading: true } })
-  }
+    const DpLoading = resolveComponent('dp-loading')
+
+    return (this.text) ?
+      h(immediateComponent) :
+      h(DpLoading, { props: { isLoading: true } })
+  },
 }
 </script>

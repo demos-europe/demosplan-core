@@ -25,7 +25,7 @@ const _DPI = 25.4 / 0.28
  */
 const _INCHES_PER_UNIT = {
   m: 39.37,
-  dd: 4374754
+  dd: 4374754,
 }
 
 /**
@@ -53,8 +53,8 @@ export function getResolutionsFromScales (scales, units) {
 export function getScalesAndResolutions (resolutions, units) {
   return resolutions.map((resolution) => {
     return {
-      resolution: resolution,
-      scale: getScaleFromResolution(resolution, units)
+      resolution,
+      scale: getScaleFromResolution(resolution, units),
     }
   }).sort((a, b) => b.resolution - a.resolution)
 }

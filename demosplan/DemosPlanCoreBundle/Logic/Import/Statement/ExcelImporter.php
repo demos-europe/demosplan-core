@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -26,6 +28,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -34,8 +38,10 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\WorkflowPlaceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\HtmlSanitizerService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -48,8 +54,10 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -109,7 +117,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly TagValidator $tagValidator,
         TranslatorInterface $translator,
         ValidatorInterface $validator,
-        StatementCopier $statementCopier
+        StatementCopier $statementCopier,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly HtmlSanitizerService $htmlSanitizerService
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -176,6 +186,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
+     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -191,6 +202,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segments = $this->getGroupedSegmentsFromWorksheet($segmentsWorksheet, $result);
 
         unset($segmentsWorksheet);
+
+        // option for addons to process additional information of import file
+        $event = $this->dispatcher->dispatch(
+            new ExcelImporterHandleSegmentsEvent($segments),
+            ExcelImporterHandleSegmentsEventInterface::class
+        );
+
+        $segments = $event->getSegments();
 
         $miscTopic = $this->findOrCreateMiscTagTopic();
 
@@ -230,7 +249,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 continue;
             }
 
-            $statement[self::STATEMENT_TEXT] = implode(' ', array_column($correspondingSegments, 'Einwand'));
+            $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
+
+            $statement[self::STATEMENT_TEXT] = $text;
 
             $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
             $generatedStatement = $this->createCopy($generatedOriginalStatement);
@@ -264,6 +285,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             unset($segments[$statementId]);
         }
+
+        // option for addons to gather the persisted ids and core relations of imported segments
+        $this->dispatcher->dispatch(
+            new ExcelImporterPrePersistTagsEvent(segments: $result->getSegments()),
+            ExcelImporterPrePersistTagsEventInterface::class
+        );
 
         return $result;
     }
@@ -374,10 +401,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
-     * @throws AccessDeniedException
-     * @throws PathException
-     * @throws UserNotFoundException
      * @throws DuplicatedTagTitleException
+     * @throws PathException
+     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,
@@ -385,7 +411,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $counter,
         int $line,
         string $worksheetTitle,
-        TagTopic $miscTopic
+        TagTopic $miscTopic,
     ): Segment {
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
@@ -401,7 +427,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
-        $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
+
+        $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
+        if (null === $place) {
+            throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedure->getId());
+        }
+
+        $segment->setPlace($place);
         $segment->setCreated(new DateTime());
         $segment->setOrderInProcedure($counter);
 
@@ -415,11 +447,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitles = explode(',', (string) $tagTitlesString);
 
             foreach ($tagTitles as $tagTitle) {
+                $tagTitle = new UnicodeString($tagTitle);
+                $tagTitle = $tagTitle->trim()->toString();
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
 
                 $createNewTag = null === $matchingTag;
                 if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag(trim($tagTitle), $miscTopic, false);
+                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
                 }
 
                 // Check if valid tag
@@ -498,7 +532,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $this->addImportViolations($violations, $line, $currentWorksheetTitle);
         }
 
-        $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT], $line, $currentWorksheetTitle);
+        $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT] ?? '', $line, $currentWorksheetTitle);
         $newOriginalStatement->setText($statementText);
         $newOriginalStatement->setProcedure($currentProcedure);
         $newStatementMeta->setAuthorName($statementData['Name'] ?? '');
@@ -619,8 +653,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
-            $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
+            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         );
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
@@ -634,7 +668,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     protected function getValidatedStatementText(
         string $statementText,
         int $line,
-        string $currentWorksheetTitle
+        string $currentWorksheetTitle,
     ): string {
         $violations = $this->validator->validate($statementText, $this->getStatementTextConstraint());
         if (0 !== $violations->count()) {

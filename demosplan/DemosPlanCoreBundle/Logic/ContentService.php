@@ -28,10 +28,11 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ContentService extends CoreService
+class ContentService
 {
     /**
      * Used as one of the keys in {@link Setting}.
@@ -46,6 +47,7 @@ class ContentService extends CoreService
         private readonly ManualListSorter $manualListSorter,
         private readonly SettingRepository $settingRepository,
         private readonly CustomerService $customerService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -127,10 +129,12 @@ class ContentService extends CoreService
     {
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
+
             if (!$singleGlobalContent instanceof GlobalContent) {
                 $message = 'No Content could be fetched for id: '.$ident;
                 throw new InvalidArgumentException($message);
             }
+
             if ($this->customerService->getCurrentCustomer()->getId() !== $singleGlobalContent->getCustomer()->getId()) {
                 throw new CustomerNotFoundException('Content does not belong to current customer');
             }
@@ -602,9 +606,9 @@ class ContentService extends CoreService
             $successful = $this->settingRepository->delete($settingsId);
 
             if ($successful) {
-                $this->getLogger()->info('Successfully deleted setting.');
+                $this->logger->info('Successfully deleted setting.');
             } else {
-                $this->getLogger()->error('Setting could not be deleted.');
+                $this->logger->error('Setting could not be deleted.');
             }
 
             return $successful;
@@ -720,7 +724,7 @@ class ContentService extends CoreService
      *
      * @param string $userId identifies the User, whose settings will be returned
      *
-     * @return Entity\Setting[]
+     * @return Setting[]
      */
     public function getSettingsOfUser($userId)
     {

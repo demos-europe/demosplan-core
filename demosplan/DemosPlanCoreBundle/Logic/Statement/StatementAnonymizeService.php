@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -27,12 +26,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class StatementAnonymizeService extends CoreService
+class StatementAnonymizeService
 {
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
 
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator)
+    public function __construct(
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly FileService $fileService,
+        private PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly StatementService $statementService,
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly TranslatorInterface $translator,
+        private readonly DraftStatementFileHandler $draftStatementFileHandler)
     {
     }
 
@@ -70,7 +77,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         bool $forceOriginal,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): Statement {
         $statement = $this->forceAnonymizationOfOriginal($forceOriginal, $statement);
         if (null === $statement->getGdprConsent()) {
@@ -174,7 +181,12 @@ class StatementAnonymizeService extends CoreService
         foreach ($statement->getFiles() as $fileString) {
             $fileStringParts = explode(':', $fileString);
             $this->fileService->deleteFileContainer($fileStringParts[1], $statement->getId());
-            $this->fileService->deleteFileFromFileString($fileString);
+
+            // Do not delete the file if it belongs to a draft statement (private user)
+            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
+            if (0 === count($draftStatements)) {
+                $this->fileService->deleteFileFromFileString($fileString);
+            }
         }
         $statement->setFile('');
         $statement->setFiles([]);
@@ -185,6 +197,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeText(string $anonymizedTextWithTags): string
     {
         $blackSharpie = '<span class="anonymized">***</span>';
+
         /*
          * (.+?) means:
          * - a group: ()
@@ -410,7 +423,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         Statement $statement,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): void {
         if ($recursively) {
             /** @var Statement[] $children */

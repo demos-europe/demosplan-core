@@ -452,8 +452,10 @@ class StatementFilterHandler extends CoreHandler
             // Datei - documentParentId - documentParentId
             [
                 'key'           => 'documentParentId',
-                'hasPermission' => $this->permissions->hasPermission(
-                    'area_admin_assessmenttable'
+                'hasPermission' => $this->permissions->hasPermissions([
+                    'area_admin_assessmenttable',
+                    'feature_statement_file_filter_set',
+                ]
                 ),
                 'type'          => 'statement',
             ],

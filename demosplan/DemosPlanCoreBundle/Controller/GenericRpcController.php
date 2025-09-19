@@ -29,7 +29,7 @@ class GenericRpcController extends BaseController
     /**
      * @DplanPermissions("feature_json_rpc_post")
      */
-    #[Route(path: '/rpc/2.0/', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
+    #[Route(path: '/rpc/2.0', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
     public function postAction(
         CurrentProcedureService $currentProcedureService,
         Request $request,

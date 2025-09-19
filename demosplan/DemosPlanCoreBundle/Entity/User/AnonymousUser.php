@@ -15,15 +15,11 @@ use RuntimeException;
 
 class AnonymousUser extends FunctionalUser
 {
-    /**
-     * {@inheritdoc}
-     */
     public function __construct()
     {
         $this->id = self::ANONYMOUS_USER_ID;
         $this->login = self::ANONYMOUS_USER_LOGIN;
         $this->lastname = self::ANONYMOUS_USER_NAME;
-        $this->setDefaultOrgaDepartment();
 
         $role = new Role();
         $role->setCode(RoleInterface::GUEST);
@@ -34,9 +30,6 @@ class AnonymousUser extends FunctionalUser
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDraftStatementSubmissionReminderEnabled(): bool
     {
         return false;
@@ -44,7 +37,7 @@ class AnonymousUser extends FunctionalUser
 
     public function setDplanroles(
         array $roles,
-        $customer = null
+        $customer = null,
     ): void {
         if (null === $this->dplanRoles || 0 === $this->dplanRoles->count()) {
             parent::setDplanroles($roles, $customer);

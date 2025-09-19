@@ -17,13 +17,15 @@
     :step="step"
     @apply="apply"
     @confirm="confirm"
-    @edit="step = 1">
+    @edit="step = 1"
+  >
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div
-        data-dp-validate="autoSwitchForm"
         v-if="hasPermission('feature_auto_switch_element_state')"
-        class="border--bottom u-pt u-pb-0_5">
+        data-dp-validate="autoSwitchForm"
+        class="border--bottom u-pt u-pb-0_5"
+      >
         <dp-checkbox
           id="autoSwitchAction"
           v-model="actions.setEnabled.checked"
@@ -32,23 +34,27 @@
           :label="{
             bold: actions.setEnabled.checked,
             text: Translator.trans('change.state.at.date')
-          }" />
+          }"
+        />
         <div
           v-if="actions.setEnabled.checked"
-          class="u-mv-0_5 flex space-inline-m">
+          class="u-mv-0_5 flex space-inline-m"
+        >
           <dp-datetime-picker
             id="autoSwitchActionEnabledDatetime"
+            v-model="actions.setEnabled.datetime"
             :label="Translator.trans('phase.autoswitch.datetime')"
             :min-date="now"
             required
-            v-model="actions.setEnabled.datetime" />
+          />
           <dp-select
             v-model="actions.setEnabled.state"
             :label="{
               text: Translator.trans('status.new')
             }"
             :options="stateOptions"
-            required />
+            required
+          />
         </div>
       </div>
     </template>
@@ -57,11 +63,14 @@
     <template v-slot:step-2>
       <div
         v-if="hasPermission('feature_auto_switch_element_state')"
-        class="border--bottom u-mt u-pb-0_5">
+        class="border--bottom u-mt u-pb-0_5"
+      >
         <p v-html="confirmStateChangeMessage" />
         <dp-inline-notification
+          class="mt-3 mb-2"
           :message="Translator.trans('elements.bulk.edit.change.state.hint')"
-          type="warning" />
+          type="warning"
+        />
       </div>
     </template>
 
@@ -71,14 +80,14 @@
         v-if="hasPermission('feature_auto_switch_element_state')"
         :success="actions.setEnabled.success"
         :description-error="Translator.trans('elements.bulk.edit.change.state.error')"
-        :description-success="Translator.trans('elements.bulk.edit.change.state.success', { changed: actions.setEnabled.elementsCount, total: elements.length })" />
+        :description-success="Translator.trans('elements.bulk.edit.change.state.success', { changed: actions.setEnabled.elementsCount, total: elements.length })"
+      />
     </template>
   </action-stepper>
 </template>
 
 <script>
 import {
-  checkResponse,
   DpCheckbox,
   DpDatetimePicker,
   DpInlineNotification,
@@ -86,7 +95,6 @@ import {
   DpSelect,
   dpValidateMixin,
   formatDate,
-  hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
@@ -101,7 +109,7 @@ export default {
     DpCheckbox,
     DpDatetimePicker,
     DpInlineNotification,
-    DpSelect
+    DpSelect,
   },
 
   mixins: [dpValidateMixin],
@@ -129,12 +137,12 @@ export default {
           state: '',
 
           // Whether or not this action failed or not - used in step 3.
-          success: false
-        }
+          success: false,
+        },
       },
       busy: false,
       step: 1,
-      elements: []
+      elements: [],
     }
   },
 
@@ -142,7 +150,7 @@ export default {
     confirmStateChangeMessage () {
       return Translator.trans('elements.bulk.edit.change.state.confirmation', {
         datetime: formatDate(this.actions.setEnabled.datetime, 'long'),
-        state: Translator.trans(this.currentStateOption.label)
+        state: Translator.trans(this.currentStateOption.label),
       })
     },
 
@@ -156,7 +164,7 @@ export default {
 
     now () {
       return formatDate()
-    }
+    },
   },
 
   methods: {
@@ -169,14 +177,15 @@ export default {
       const params = {
         state: Boolean(parseInt(this.actions.setEnabled.state)),
         datetime: this.actions.setEnabled.datetime,
-        elementIds: this.elements
+        elementIds: this.elements,
       }
 
       dpRpc('planning.document.category.bulk.edit', params)
-        .then(checkResponse)
-        .then((response) => {
-          this.actions.setEnabled.success = (hasOwnProp(response, 0) && hasOwnProp(response[0], 'result'))
-          this.actions.setEnabled.elementsCount = (hasOwnProp(response, 0) && response[0]?.result)
+        .then(response => {
+          const result = response.data?.[0]?.result
+
+          this.actions.setEnabled.success = !!result
+          this.actions.setEnabled.elementsCount = result
         })
         .catch(() => {
           this.actions.setEnabled.success = false
@@ -193,7 +202,7 @@ export default {
       this.dpValidateAction('autoSwitchForm', () => {
         this.step = 2
       }, false)
-    }
+    },
   },
 
   created () {
@@ -207,13 +216,13 @@ export default {
     this.stateOptions = [
       {
         value: '1',
-        label: Translator.trans('published')
+        label: Translator.trans('published'),
       },
       {
         value: '0',
-        label: Translator.trans('unpublished')
-      }
+        label: Translator.trans('unpublished'),
+      },
     ]
-  }
+  },
 }
 </script>

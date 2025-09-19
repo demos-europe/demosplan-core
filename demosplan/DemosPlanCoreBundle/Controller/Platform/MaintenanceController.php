@@ -100,7 +100,7 @@ class MaintenanceController extends BaseController
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         Request $request,
-        $key
+        $key,
     ): JsonResponse {
         // @improve T17071
 
@@ -179,7 +179,6 @@ class MaintenanceController extends BaseController
 
                 if ($globalConfig->doDeleteRemovedFiles()) {
                     try {
-                        // @improve T14122
                         $logger->info('Maintenance: remove soft deleted Files');
                         $filesDeleted = $this->fileService->deleteSoftDeletedFiles();
                         $logger->info('Maintenance: Soft deleted files deleted: ', [$filesDeleted]);

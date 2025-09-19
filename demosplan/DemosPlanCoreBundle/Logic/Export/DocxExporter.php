@@ -33,11 +33,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
@@ -49,6 +50,7 @@ use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -86,6 +88,11 @@ class DocxExporter
     protected $cellHCentered = ['valign' => 'center', 'spaceAfter' => 0];
 
     /**
+     * @var PhpWord Current PhpWord document instance for ODT processing
+     */
+    protected $currentPhpWord;
+
+    /**
      * @var StatementService
      */
     protected $statementService;
@@ -96,21 +103,11 @@ class DocxExporter
     protected $fileService;
 
     /**
-     * @var ServiceImporter
-     */
-    protected $serviceImport;
-
-    /**
      * @var Environment
      */
     protected $twig;
 
     protected $logger;
-
-    /**
-     * @var ProcedureHandler
-     */
-    protected $procedureHandler;
 
     /** @var MessageBag */
     protected $messageBag;
@@ -134,14 +131,18 @@ class DocxExporter
         private readonly EditorService $editorService,
         private readonly FieldDecider $exportFieldDecider,
         FileService $fileService,
+        protected readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
+        private readonly OdtHtmlProcessor $odtHtmlProcessor,
         PermissionsInterface $permissions,
+        protected readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentService $statementFragmentService,
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         TranslatorInterface $translator,
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
         $this->config = $config;
         $this->fileService = $fileService;
@@ -172,9 +173,10 @@ class DocxExporter
          * documents.
          */
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+        $this->currentPhpWord = $phpWord;
 
         $incomingStatements = $outputResult->getStatements();
-        $procedure = $this->getProcedureHandler()->getProcedureWithCertainty($outputResult->getProcedure()['id']);
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($outputResult->getProcedure()['id']);
         if ('condensed' === $templateName) {
             switch ($sortType) {
                 case self::EXPORT_SORT_BY_PARAGRAPH:
@@ -409,6 +411,11 @@ class DocxExporter
 
             $phpWord->addTableStyle('assessmentTable', $this->tableStyle, $this->firstRowStyle);
 
+            // Register ODT font styles early in document creation
+            if ($this->writerSelector->isOdtFormat()) {
+                $this->odtHtmlProcessor->registerStyles($phpWord);
+            }
+
             $statements = array_column($incomingStatements, 'id', 'id');
             $statementEntities = $this->statementService->getStatementsByIds(array_keys($statements));
 
@@ -464,22 +471,6 @@ class DocxExporter
     }
 
     /**
-     * @param ProcedureHandler $procedureHandler
-     */
-    public function setProcedureHandler($procedureHandler)
-    {
-        $this->procedureHandler = $procedureHandler;
-    }
-
-    /**
-     * @return ProcedureHandler
-     */
-    protected function getProcedureHandler()
-    {
-        return $this->procedureHandler;
-    }
-
-    /**
      * @param array<int,array<string,mixed>> $statements
      *
      * @return array<int, string>
@@ -531,10 +522,11 @@ class DocxExporter
     protected function getDefaultDocxTableStyle(): \PhpOffice\PhpWord\Style\Table
     {
         $tableStyle = new \PhpOffice\PhpWord\Style\Table();
-        $tableStyle->setLayout(\PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED)
-            ->setBorderColor($this->tableStyle['borderColor'])
-            ->setBorderSize($this->tableStyle['borderSize'])
-            ->setCellMargin($this->tableStyle['cellMargin']);
+
+        $tableStyle->setLayout(\PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED);
+        $tableStyle->setBorderColor($this->tableStyle['borderColor']);
+        $tableStyle->setBorderSize($this->tableStyle['borderSize']);
+        $tableStyle->setCellMargin($this->tableStyle['cellMargin']);
 
         return $tableStyle;
     }
@@ -542,11 +534,12 @@ class DocxExporter
     public function addCondensedTableHeaders(array $styles, Table $table, string $typeHeader): void
     {
         $table->addRow(null, ['tblHeader' => true]);
-        $table->addCell($styles['cellWidthTotal'] * 0.12, $styles['cellHeading'])
+        $headerCellStyle = $styles['cellHeading'];
+        $table->addCell($styles['cellWidthTotal'] * 0.12, $headerCellStyle)
             ->addText($this->translator->trans('submitter.data'), $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
-        $table->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+        $table->addCell($styles['cellWidthTotal'] * 0.44, $headerCellStyle)
             ->addText($typeHeader, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
-        $table->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+        $table->addCell($styles['cellWidthTotal'] * 0.44, $headerCellStyle)
             ->addText($this->translator->trans('response'), $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
     }
 
@@ -681,13 +674,14 @@ class DocxExporter
                     $numberStatements,
                     $statementNumber
                 );
-                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
+                $cellStyle = $styles['cellTop'];
+                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
                 if (isset($item['text'])) {
                     $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
                     $this->addHtml($cell2, $item['text'], $styles);
                 }
 
-                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
+                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
                 if (isset($item['recommendation'])) {
                     $this->addHtml($cell3, $item['recommendation'], $styles);
                 }
@@ -707,10 +701,11 @@ class DocxExporter
             $movedStatementText =
                 $this->translator->trans('statement.moved', ['name' => $item['movedToProcedureName']]);
 
-            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+            $cellStyle = $styles['cellHeading'];
+            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle)
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
-            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading']);
+            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
         }
     }
 
@@ -725,7 +720,8 @@ class DocxExporter
     ): void {
         $translator = $this->translator;
 
-        $metaInfoCell = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.12, $styles['cellTop']);
+        $cellStyle = $styles['cellTop'];
+        $metaInfoCell = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.12, $cellStyle);
 
         $isCluster = false;
         if (isset($item['cluster'])) {
@@ -943,14 +939,15 @@ class DocxExporter
                 $this->addSubmitterData($anonymous, $assessmentTable, $item, $styles, true);
             }
 
-            $cell2 = $assessmentTable->addCell($textCellWidth, $styles['cellTop']);
+            $cellStyle = $styles['cellTop'];
+            $cell2 = $assessmentTable->addCell($textCellWidth, $cellStyle);
             if (isset($fragment['text'])) {
                 // T6679:
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
             }
 
-            $cell3 = $assessmentTable->addCell($recommendationCellWidth, $styles['cellTop']);
+            $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
             if (isset($fragment['recommendation'])) {
                 $fragment['recommendation'] = $this->editorService->handleObscureTags($fragment['recommendation'], $anonymous);
                 $this->addHtml($cell3, $fragment['recommendation'], $styles);
@@ -978,7 +975,12 @@ class DocxExporter
             // remove STX (start of text) EOT (end of text) special chars
             $text = str_replace([chr(2), chr(3)], '', $text);
 
-            Html::addHtml($cell, $text, false);
+            // ODT format has simplified HTML processing
+            if ($this->writerSelector->isOdtFormat()) {
+                $this->odtHtmlProcessor->processHtmlForCell($cell, $text);
+            } else {
+                Html::addHtml($cell, $text, false);
+            }
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
@@ -1283,7 +1285,10 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
                 // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
-                $phaseName = $this->statementService->getInternalOrExternalPhaseNameFromObject($statement);
+                $phaseName = $this->statementService->getProcedurePhaseName(
+                    $statement->getPhase(),
+                    $statement->isSubmittedByCitizen()
+                );
                 $cell2AddText('procedure.public.phase', $phaseName);
             }
 
@@ -1724,9 +1729,15 @@ class DocxExporter
                 null,
                 $cellHCentered
             );
-            if (file_exists($fileAbsolutePath)) {
+
+            if ($this->defaultStorage->fileExists($fileAbsolutePath)) {
+                $fs = new Filesystem();
+                $tmpFilePath = DemosPlanPath::getTemporaryPath(random_int(10, 9999999).'.png');
+                $fs->dumpFile($tmpFilePath, $this->defaultStorage->read($fileAbsolutePath));
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
-                Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
+                Html::addHtml($cell2, $this->getDocxImageTag($tmpFilePath));
+                // unfortunately it is not possible to clean up the temporary file
+                // as the file is still in use by the Word document which is returned as a streamed response
             }
             $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
@@ -1734,6 +1745,7 @@ class DocxExporter
 
     /**
      * Generate Html imagetag to be used in PhpWord Html::addHtml().
+     * File needs to be locally accessible.
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel
@@ -1746,6 +1758,7 @@ class DocxExporter
         $width = 300;
         $height = 300;
         $margin = 10;
+        // phpword needs a local file, no need for flysystem
         if (!file_exists($imageFile)) {
             return $imgTag;
         }
@@ -1926,7 +1939,7 @@ class DocxExporter
             );
         }
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     /**
@@ -1950,6 +1963,14 @@ class DocxExporter
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $styles = $this->getDefaultDocxPageStyles($orientation);
+
+        // Register table style
+        $phpWord->addTableStyle('assessmentTable', $this->tableStyle, $this->firstRowStyle);
+
+        // Register ODT font styles early in document creation
+        if ($this->writerSelector->isOdtFormat()) {
+            $this->odtHtmlProcessor->registerStyles($phpWord);
+        }
 
         $this->createFrontPage($phpWord, $procedure, $orientation);
         $items = $this->convertStatementsForExport($statements, $exportType, $requestPost);
@@ -1986,7 +2007,7 @@ class DocxExporter
         $footer = $tableSection->addFooter();
         $footer->addPreserveText('{PAGE}/{NUMPAGES}');
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     /**
@@ -2036,7 +2057,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $footer->addPreserveText('{PAGE}/{NUMPAGES}');
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     /**
@@ -2076,7 +2097,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $footer->addPreserveText('{PAGE}/{NUMPAGES}');
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
 
     /**

@@ -46,7 +46,7 @@ const setConfirmForBounds = function (data) {
 function getXplanboxBounds (procedureName) {
   return dpApi({
     method: 'GET',
-    url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName: procedureName })
+    url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName }),
   })
     .then(data => {
       if (data.data.code === 100 && data.data.success === true) {
@@ -85,7 +85,7 @@ export default function CreateProcedure () {
     if (selectedOption.value !== '') {
       dpApi({
         url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value }),
-        method: 'GET'
+        method: 'GET',
       })
         .then(data => {
           const dataResponse = JSON.parse(data.data)
