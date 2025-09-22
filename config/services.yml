@@ -29,6 +29,12 @@ services:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 
+    # Addon Integration Testing Framework
+    demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestRegistry:
+        public: true  # Make public for test access
+        arguments:
+            $addonTests: !tagged_iterator addon_integration_test
+
 
     DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
 
