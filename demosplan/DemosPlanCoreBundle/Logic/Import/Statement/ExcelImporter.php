@@ -192,10 +192,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     {
         $result = new SegmentExcelImportResult();
 
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
-
         [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
 
         $segmentWorksheetTitle = $this->getTitle($segmentsWorksheet);
@@ -405,7 +401,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws PathException
      * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
-    public function generateSegment(
+    private function generateSegment(
         Statement $statement,
         array $segmentData,
         int $counter,
@@ -413,10 +409,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         string $worksheetTitle,
         TagTopic $miscTopic,
     ): Segment {
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
-
         $procedure = $statement->getProcedure();
 
         $segment = new Segment();
