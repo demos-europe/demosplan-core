@@ -50,10 +50,8 @@ RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,u
         composer install -o --prefer-dist --no-dev --no-progress; \
     fi
 
-USER root
 COPY . /srv/www
 
-USER www-data
 # Now do the yarn workspace focus after files are copied
 RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
     yarn workspaces list && \
@@ -86,7 +84,6 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
 COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
-USER www-data
 # mount .env.local as a secret to ensure that addons can be installed while keeping the layer clean.
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
@@ -103,7 +100,6 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     rm -rf /srv/www/addonZips && \
     rm -rf /srv/www/.cache
 
-USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
 COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
 
