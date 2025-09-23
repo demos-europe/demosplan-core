@@ -88,13 +88,8 @@ cp -r "$FOLDER"/* $CONTEXT_DIR
 cp -r "$FOLDER"/.dockerignore $CONTEXT_DIR
 
 docker_build "$IMAGE_NAME" fpm --secret id=envlocal,src=../.env.local
-
-if [[ $PROJECT_NAME == *"diplan"* ]]
-then
-    docker_build "$IMAGE_NAME/nginx" nginx
-else
-    docker_build "$IMAGE_NAME-nginx" nginx
-fi
+docker_build "$IMAGE_NAME/nginx" nginx
+docker_build "$IMAGE_NAME-nginx" nginx
 
 rm -rf $CONTEXT_DIR
 
