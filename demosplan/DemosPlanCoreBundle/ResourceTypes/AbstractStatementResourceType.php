@@ -119,8 +119,6 @@ use EDT\PathBuilding\End;
  */
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
-    private const TEXT_PREVIEW_LENGTH = 500;
-
     public function __construct(
         private readonly HTMLSanitizer $htmlSanitizer,
         private readonly StatementService $statementService,
