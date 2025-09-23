@@ -215,9 +215,9 @@ class SegmentController extends BaseController
                     ['%fileName%' => $fileName]);
             } catch (Exception $e) {
                 $this->logger->error('Unexpected error during document import', [
-                    'fileName' => $fileName,
+                    'fileName'  => $fileName,
                     'exception' => $e,
-                    'trace' => $e->getTraceAsString()
+                    'trace'     => $e->getTraceAsString(),
                 ]);
 
                 $this->getMessageBag()->add(
