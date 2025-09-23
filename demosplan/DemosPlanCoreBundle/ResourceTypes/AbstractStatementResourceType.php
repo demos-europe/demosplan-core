@@ -118,6 +118,8 @@ use EDT\PathBuilding\End;
  */
 abstract class AbstractStatementResourceType extends DplanResourceType
 {
+    private const TEXT_PREVIEW_LENGTH = 500;
+
     public function __construct(
         private readonly HTMLSanitizer $htmlSanitizer,
         private readonly StatementService $statementService,
@@ -223,7 +225,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true, static fn (Statement $statement): int => $statement->getVotesNum());
         $configBuilder->voteStk->readable(true);
         $configBuilder->textPreview
-            ->readable(true, fn (Statement $statement): string => $this->htmlSanitizer->purify(mb_substr($statement->getText(), 0, 500)));
+            ->readable(true, fn (Statement $statement): string => $this->htmlSanitizer->purify(mb_substr($statement->getText(), 0, self::TEXT_PREVIEW_LENGTH)));
         $configBuilder->fullText
             // add the large full text field only if it was requested
             ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
