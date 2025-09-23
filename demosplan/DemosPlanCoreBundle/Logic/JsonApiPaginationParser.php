@@ -25,14 +25,14 @@ class JsonApiPaginationParser
     final public const MAX_PAGE_SIZE = 1000;
 
     public function __construct(
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     public function parseApiPaginationProfile(
         array $profile,
         string $sortString,
-        int $defaultSize = self::DEFAULT_PAGE_SIZE
+        int $defaultSize = self::DEFAULT_PAGE_SIZE,
     ): APIPagination {
         if (0 >= $defaultSize) {
             $defaultSize = self::DEFAULT_PAGE_SIZE;
@@ -58,10 +58,12 @@ class JsonApiPaginationParser
                 if ('size' === $key && $intValue > self::MAX_PAGE_SIZE) {
                     $this->logger->warning('JsonAPI: Large page size requested ({requested}), limited to {max}', [
                         'requested' => $intValue,
-                        'max' => self::MAX_PAGE_SIZE
+                        'max'       => self::MAX_PAGE_SIZE,
                     ]);
+
                     return self::MAX_PAGE_SIZE;
                 }
+
                 return $intValue;
             }
         }
