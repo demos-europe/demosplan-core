@@ -56,7 +56,6 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -119,7 +118,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly HtmlSanitizerService $htmlSanitizerService
+        private readonly HtmlSanitizerService $htmlSanitizerService,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -191,10 +190,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
         $result = new SegmentExcelImportResult();
-
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
 
         [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
 
@@ -405,7 +400,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws PathException
      * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
-    public function generateSegment(
+    private function generateSegment(
         Statement $statement,
         array $segmentData,
         int $counter,
@@ -413,10 +408,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         string $worksheetTitle,
         TagTopic $miscTopic,
     ): Segment {
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
-
         $procedure = $statement->getProcedure();
 
         $segment = new Segment();
