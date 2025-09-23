@@ -38,7 +38,6 @@ RUN mkdir -p /opt/uploads && \
 # asset build only needs the parameters.yml without content
     echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
-USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
@@ -59,7 +58,6 @@ RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
 
-USER root
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
         rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
@@ -143,6 +141,7 @@ RUN rm -rf /srv/www/var/cache/* && \
     # ensure tmp directory exists and is writable for Symfony XML schema validation \
     mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /srv/www/tmp && \
+    chown -R www-data:www-data /srv/www/var && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \
