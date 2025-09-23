@@ -46,16 +46,16 @@
       <!--Segments, if there are any-->
       <div v-else>
         <div
-          v-if="pagination.currentPage"
+          v-if="pagination && pagination.currentPage"
           class="flex justify-between items-center mb-4">
           <dp-pager
             :class="{ 'invisible': isLoading }"
             :current-page="pagination.currentPage"
-            :key="`segmentsPager_${pagination.currentPage}_${pagination.count}`"
-            :limits="pagination.limits"
-            :per-page="pagination.perPage"
-            :total-pages="pagination.totalPages"
-            :total-items="pagination.total"
+            :key="`segmentsPager_${pagination.currentPage}_${pagination.count || 0}`"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
             @page-change="handlePageChange"
             @size-change="handleSizeChange" />
         </div>
