@@ -45,6 +45,21 @@
       </div>
       <!--Segments, if there are any-->
       <div v-else>
+        <div
+          v-if="pagination.currentPage"
+          class="flex justify-between items-center mb-4">
+          <dp-pager
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :key="`segmentsPager_${pagination.currentPage}_${pagination.count}`"
+            :limits="pagination.limits"
+            :per-page="pagination.perPage"
+            :total-pages="pagination.totalPages"
+            :total-items="pagination.total"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange" />
+        </div>
+
         <statement-segment
           v-for="segment in segments"
           :key="'segment_' + segment.id"
@@ -61,9 +76,10 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementSegment from './StatementSegment'
 
 export default {
@@ -74,8 +90,11 @@ export default {
   components: {
     DpButton,
     DpLoading,
+    DpPager,
     StatementSegment
   },
+
+  mixins: [paginationMixin],
 
   props: {
     currentUser: {
@@ -92,7 +111,14 @@ export default {
   data () {
     return {
       isAllCollapsed: true,
-      isLoading: false
+      isLoading: false,
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 20, 50],
+        perPage: 20
+      },
+      pagination: {},
+      storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`
     }
   },
 
@@ -196,7 +222,7 @@ export default {
         })
     },
 
-    async fetchSegments () {
+    async fetchSegments (page = 1) {
       const statementSegmentFields = [
         'tags',
         'text',
@@ -239,7 +265,7 @@ export default {
         sort: 'lastname'
       })
 
-      await this.listSegments({
+      const response = await this.listSegments({
         include: [
           'assignee',
           'comments',
@@ -257,6 +283,10 @@ export default {
             'place'
           ].join()
         },
+        page: {
+          number: page,
+          size: this.pagination.perPage || this.defaultPagination.perPage
+        },
         sort: 'orderInProcedure',
         filter: {
           parentStatementOfSegment: {
@@ -273,6 +303,12 @@ export default {
           }
         }
       })
+
+      // Update pagination with response metadata
+      if (response && response.meta && response.meta.pagination) {
+        this.setLocalStorage(response.meta.pagination)
+        this.updatePagination(response.meta.pagination)
+      }
 
       this.isLoading = false
 
@@ -303,12 +339,24 @@ export default {
           segment.isCollapsed = this.isAllCollapsed
         }
       })
+    },
+
+    handlePageChange (page) {
+      this.fetchSegments(page)
+    },
+
+    handleSizeChange (newSize) {
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.fetchSegments(page)
     }
   },
 
   mounted () {
+    this.initPagination()
     if (Object.keys(this.segments).length === 0) {
-      this.fetchSegments()
+      this.fetchSegments(this.pagination.currentPage)
     }
   }
 }
