@@ -487,7 +487,7 @@ export default {
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
-          const segmentsCount = statement.relationships.segments.data.length
+          const segmentsCount = statement.attributes.segmentsCount
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
           return {
             ...statement.attributes,
@@ -718,10 +718,10 @@ export default {
         'submitterEmailAddress',
         'text',
         'textIsTruncated',
+        'segmentsCount',
         // Relationships:
         'assignee',
-        'sourceAttachment',
-        'segments'
+        'sourceAttachment'
       ]
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
@@ -749,7 +749,6 @@ export default {
         },
         sort: this.selectedSort,
         include: [
-          'segments',
           'assignee',
           'sourceAttachment',
           'sourceAttachment.file'
@@ -757,7 +756,14 @@ export default {
         fields: {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
+            'attachmentType',
             'file'
+          ].join(),
+          File: [
+            'hash',
+            'filename',
+            'mimetype',
+            'size'
           ].join()
         }
       }).then((data) => {

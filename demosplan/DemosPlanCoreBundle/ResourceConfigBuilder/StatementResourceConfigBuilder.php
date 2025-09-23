@@ -34,6 +34,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $filteredFragmentsCount @deprecated Neither attribute nor relationship. Belongs into API meta response.
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $formerExternId @deprecated Use relationship to a PlaceholderStatement resource type instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fragmentsCount @deprecated Create a {@link StatementFragment} relationship instead
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentsCount
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $likesNum @deprecated Use relationship to {@link StatementLike} instead
@@ -61,6 +62,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userPosition @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userState @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $votesNum @deprecated Use relationship to {@link StatementVote} instead
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textPreview
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fullText
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isSubmittedByCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isManual

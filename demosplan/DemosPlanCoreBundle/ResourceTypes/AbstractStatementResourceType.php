@@ -87,6 +87,7 @@ use EDT\PathBuilding\End;
  * @property-read End $recommendationIsTruncated
  * @property-read End $status
  * @property-read End $text @deprecated Rename into truncated_text or something similar
+ * @property-read End $textPreview
  * @property-read End $textIsTruncated
  * @property-read End $userGroup @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read End $userOrganisation @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
@@ -148,6 +149,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->placeholderStatement->externId);
         $configBuilder->fragmentsCount
             ->readable(true, static fn (Statement $statement): int => $statement->getFragments()->count());
+        $configBuilder->segmentsCount
+            ->readable(true, static fn (Statement $statement): int => $statement->getSegmentsOfStatement()->count());
         $configBuilder->internId
             ->readable(true)->filterable()->aliasedPath(Paths::statement()->original->internId);
         $configBuilder->isCitizen
@@ -219,6 +222,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->votesNum
             ->readable(true, static fn (Statement $statement): int => $statement->getVotesNum());
         $configBuilder->voteStk->readable(true);
+        $configBuilder->textPreview
+            ->readable(true, fn (Statement $statement): string => $this->htmlSanitizer->purify(mb_substr($statement->getText(), 0, 500)));
         $configBuilder->fullText
             // add the large full text field only if it was requested
             ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
