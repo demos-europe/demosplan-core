@@ -11,6 +11,22 @@
   <div class="u-pb-0_5">
     <dp-loading v-if="isLoading" />
     <div v-else>
+      <!-- Pagination above table header -->
+      <div
+        v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+        class="flex justify-between items-center mb-4">
+        <dp-pager
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :key="`segmentsPagerTop_${pagination.currentPage}_${pagination.count || 0}`"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange" />
+      </div>
+
       <div class="segment-list-row">
         <div class="segment-list-col--m" />
         <div class="segment-list-col--l weight--bold">
@@ -45,21 +61,6 @@
       </div>
       <!--Segments, if there are any-->
       <div v-else>
-        <div
-          v-if="pagination && pagination.currentPage"
-          class="flex justify-between items-center mb-4">
-          <dp-pager
-            :class="{ 'invisible': isLoading }"
-            :current-page="pagination.currentPage"
-            :key="`segmentsPager_${pagination.currentPage}_${pagination.count || 0}`"
-            :limits="pagination.limits || defaultPagination.limits"
-            :per-page="pagination.perPage || defaultPagination.perPage"
-            :total-pages="pagination.totalPages || 1"
-            :total-items="pagination.total || 0"
-            @page-change="handlePageChange"
-            @size-change="handleSizeChange" />
-        </div>
-
         <statement-segment
           v-for="segment in segments"
           :key="'segment_' + segment.id"
@@ -70,6 +71,22 @@
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
           :current-user-orga="currentUser.orgaName" />
+
+        <!-- Pagination below segments list -->
+        <div
+          v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+          class="flex justify-between items-center mt-4">
+          <dp-pager
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :key="`segmentsPagerBottom_${pagination.currentPage}_${pagination.count || 0}`"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange" />
+        </div>
       </div>
     </div>
   </div>
@@ -79,8 +96,8 @@
 import { checkResponse, dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementSegment from './StatementSegment'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'SegmentsRecommendations',
