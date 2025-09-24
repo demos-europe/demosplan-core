@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Integration;
 
+use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestInterface;
 use Exception;
+use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Tests\Base\FunctionalTestCase;
 
@@ -147,16 +149,14 @@ class AddonIntegrationTestCase extends FunctionalTestCase
      */
     private function loadAddonIntegrationTest(string $classFile): ?AddonIntegrationTestInterface
     {
-        $fileName = basename($classFile, '.php');
-        echo "🔍 Loading integration test: {$fileName}\n";
-        echo "📁 Class file path: {$classFile}\n";
+
+        echo "🔍 Loading integration test: {$classFile}\n";
 
         if (!file_exists($classFile)) {
             echo "❌ Class file does not exist\n";
             return null;
         }
 
-        echo "✅ Class file exists, requiring it\n";
         require_once $classFile;
 
         // Extract namespace and class name from file
@@ -175,7 +175,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
         echo "✅ Class is available: {$className}\n";
 
         // Check if class is abstract before attempting instantiation
-        $reflection = new \ReflectionClass($className);
+        $reflection = new ReflectionClass($className);
         if ($reflection->isAbstract()) {
             echo "⏭️ Skipping abstract class: {$className}\n";
             return null;
@@ -183,16 +183,15 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
         try {
             $service = new $className();
-            echo "✅ Service instantiated: " . get_class($service) . "\n";
 
             if ($service instanceof AddonIntegrationTestInterface) {
                 echo "✅ Service implements AddonIntegrationTestInterface\n";
                 return $service;
-            } else {
-                echo "❌ Service does not implement AddonIntegrationTestInterface\n";
-                return null;
             }
-        } catch (\Exception $e) {
+            echo "❌ Service does not implement AddonIntegrationTestInterface\n";
+            return null;
+
+        } catch (Exception $e) {
             echo "❌ Could not instantiate service: " . $e->getMessage() . "\n";
             return null;
         }
