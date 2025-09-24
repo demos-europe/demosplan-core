@@ -35,7 +35,7 @@ class PlanningDocumentCategoryDetailsResourceType extends DplanResourceType
         $planningDocumentCategoryTitleConfig->paragraphs->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
             ->setReadableByPath();
         $planningDocumentCategoryTitleConfig->documents->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
-            ->setReadableByPath();
+            ->readable(true, null, true); // Mark documents as default include
 
         return $planningDocumentCategoryTitleConfig;
     }
