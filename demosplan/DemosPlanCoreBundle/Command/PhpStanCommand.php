@@ -91,13 +91,13 @@ class PhpStanCommand extends CoreCommand
 
         // Handle host path format
         if (str_starts_with($containerPath, $rootPath)) {
-            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+            $containerPath = substr($containerPath, strlen($rootPath));
         }
 
         // Ensure the container path exists and is accessible
-        if (file_exists($rootPath . '/' . $containerPath)) {
+        if (file_exists($rootPath.'/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s', $containerPath));
-        } elseif (file_exists('/srv/www/' . $containerPath)) {
+        } elseif (file_exists('/srv/www/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s (in container)', $containerPath));
         } else {
             $output->writeln(sprintf('<warning>Warning: Container file not found. Using best guess: %s</warning>', $containerPath));
@@ -136,11 +136,6 @@ class PhpStanCommand extends CoreCommand
         if (0 < $level) {
             $cmd[] = '-l';
             $cmd[] = $level;
-        }
-
-        if ($isCi) {
-            $cmd[] = '--error-format';
-            $cmd[] = 'raw';
         }
 
         $output->writeln(implode(' ', $cmd));
