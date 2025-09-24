@@ -7,6 +7,10 @@ namespace Tests\Core\Integration;
 use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestInterface;
 use Exception;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\NodeFinder;
+use PhpParser\ParserFactory;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Tests\Base\FunctionalTestCase;
@@ -209,27 +213,43 @@ class AddonIntegrationTestCase extends FunctionalTestCase
      */
     private function extractClassNameFromFile(string $filePath): ?string
     {
-        $content = file_get_contents($filePath);
-        if (!$content) {
+        try {
+            $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+            $nodeFinder = new NodeFinder();
+
+            $code = file_get_contents($filePath);
+            $ast = $parser->parse($code);
+
+            $namespaces = $nodeFinder->findInstanceOf($ast, Namespace_::class);
+            $classes = $nodeFinder->findInstanceOf($ast, Class_::class);
+
+            if (count($namespaces) !== 1 || count($classes) === 0) {
+                return null;
+            }
+
+            $namespace = $namespaces[0]->name->toString();
+
+            // Find first non-abstract class with null safety
+            foreach ($classes as $class) {
+                // Add null check before calling toString()
+                if (!$class->isAbstract() && $class->name !== null) {
+                    $className = $class->name->toString();
+                    if ($className) {  // Extra safety check
+                        return $namespace . '\\' . $className;
+                    }
+                }
+            }
+
+            return null;
+
+        } catch (\Exception $e) {
+            // Add debug info to see what's failing
+            echo "❌ PhpParser error in {$filePath}: " . $e->getMessage() . "\n";
             return null;
         }
-
-        // Extract namespace
-        if (preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches)) {
-            $namespace = trim($namespaceMatches[1]);
-        } else {
-            return null;
-        }
-
-        // Extract class name
-        if (preg_match('/class\s+(\w+)/', $content, $classMatches)) {
-            $className = trim($classMatches[1]);
-        } else {
-            return null;
-        }
-
-        return $namespace . '\\' . $className;
     }
+
+
 
     private function debugSuccessTestResult($result){
         echo "✅ SUCCESS: {$result->getMessage()}\n";
