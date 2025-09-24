@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Integration;
 
-use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestInterface;
 use Exception;
 use PhpParser\Node\Stmt\Class_;
@@ -57,7 +56,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
                 } else {
                     $testsFailed++;
                     echo "❌ FAILED: {$result->getMessage()}\n";
-                    $this->fail($result->getMessage());
+                    static::fail($result->getMessage());
                 }
             } catch (Exception $e) {
                 $testsFailed++;
@@ -77,8 +76,8 @@ class AddonIntegrationTestCase extends FunctionalTestCase
         $this->debugTestSummary($testsRun, $testsPassed, $testsFailed);
 
         // Final assertion
-        $this->assertEquals(0, $testsFailed, "Some addon integration tests failed");
-        $this->assertGreaterThan(0, $testsRun, "No addon integration tests were discovered");
+        static::assertEquals(0, $testsFailed, "Some addon integration tests failed");
+        static::assertGreaterThan(0, $testsRun, "No addon integration tests were discovered");
     }
 
     /**
@@ -107,7 +106,6 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
 
             echo "🔍 Scanning addon path: {$addonBasePath}\n";
-            $addonDirs = glob($addonBasePath . '/demosplan-addon-*');
             $finder = new Finder();
             $addonDirs = [];
             foreach ($finder->directories()->depth(0)->name('demosplan-addon-*')->in($addonBasePath) as $dir) {
