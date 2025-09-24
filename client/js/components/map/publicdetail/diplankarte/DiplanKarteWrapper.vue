@@ -33,7 +33,7 @@
 
     <div
       v-if="copyright"
-      :class="prefixClass('left-0 bottom-[10px] !absolute z-above-zero bg-white/80 px-1 py-0.5 text-xs text-gray-600 rounded max-w-xs')"
+      :class="prefixClass('left-0 bottom-[10px] !absolute z-above-zero bg-white/80 px-1 py-0.5 text-xs text-gray-600 rounded max-w-2/3')"
       v-html="copyright"
     />
   </div>
