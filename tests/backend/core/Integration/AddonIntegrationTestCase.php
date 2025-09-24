@@ -6,6 +6,7 @@ namespace Tests\Core\Integration;
 
 use demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestInterface;
 use Exception;
+use Symfony\Component\Finder\Finder;
 use Tests\Base\FunctionalTestCase;
 
 class AddonIntegrationTestCase extends FunctionalTestCase
@@ -85,6 +86,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
         try {
             $container = self::getContainer();
 
+
             // The test needs to find addon directories (addonDev/ and addons/)
             // but doesn't know the absolute project path at runtime.
             // This line gets the canonical project root from Symfony's kernel.
@@ -100,12 +102,27 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
             echo "🔍 Scanning addon path: {$addonBasePath}\n";
             $addonDirs = glob($addonBasePath . '/demosplan-addon-*');
+            $finder = new Finder();
+            $addonDirs = [];
+            foreach ($finder->directories()->depth(0)->name('demosplan-addon-*')->in($addonBasePath) as $dir) {
+                $addonDirs[] = $dir->getRealPath();
+            }
+
+
 
             foreach ($addonDirs as $addonDir) {
                 $addonName = basename($addonDir);
                 echo "🔍 Found addon: {$addonName} at {$addonDir}\n";
 
-                $integrationTestFiles = glob($addonDir . '/tests/Integration/*IntegrationTestService.php');
+                $testFinder = new Finder();
+                $integrationTestFiles = [];
+                $testPath = $addonDir . '/tests/Integration';
+                if (is_dir($testPath)) {
+                    foreach ($testFinder->files()->name('*IntegrationTestService.php')->in($testPath) as $file) {
+                        $integrationTestFiles[] = $file->getRealPath();
+                    }
+                }
+
                 echo "   Found " . count($integrationTestFiles) . " integration test files\n";
 
                 foreach ($integrationTestFiles as $testFile) {
