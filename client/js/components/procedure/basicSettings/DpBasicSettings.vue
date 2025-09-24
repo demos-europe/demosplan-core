@@ -7,6 +7,115 @@
   All rights reserved
 </license>
 
+<template>
+  <form
+    ref="configForm"
+    name="configForm"
+    enctype="multipart/form-data"
+    data-dp-validate="configForm"
+    :data-procedure="procedureIdent"
+    method="post"
+    :action="Routing.generate('DemosPlan_procedure_edit', {'procedure': procedureIdent })">
+
+    <input type="hidden" name="_token" :value="formData.token" />
+    <input type="hidden" value="edit" name="action">
+    <input type="hidden" :value="procedureIdent" name="r_ident">
+
+    <input
+      v-if="hasPermission('feature_institution_participation')"
+      type="hidden"
+      name="r_currentPublicParticipationPhase"
+      :value="initProcedurePhasePublic"
+    >
+
+    <procedure-general-settings
+      :agencies="agencies"
+      :authorized-users-options="authorizedUsersOptions"
+      :data-input-orgas="dataInputOrgas"
+      :form-data="formData"
+      :init-agencies="initAgencies"
+      :init-auth-users="initAuthUsers"
+      :init-data-input-orgas="initDataInputOrgas"
+      :has-procedure-user-restricted-access="hasProcedureUserRestrictedAccess"
+      :procedure-settings="procedureSettings"
+    />
+
+    <!-- wizard item: Informationen zum Verfahren -->
+    <procedure-info-settings
+      :available-procedure-categories="availableProcedureCategories"
+      :init-pictogram-copyright="initPictogramCopyright"
+      :init-procedure-categories="initProcedureCategories"
+      :init-pictogram-alt-text="initPictogramAltText"
+      :procedure-settings="procedureSettings"
+      :procedure-id="procedureId"
+    />
+
+    <!-- wizard item: Done -->
+    <fieldset
+      :data-wizard-topic="Translator.trans('wizard.topic.done')"
+      class="o-wizard">
+      <div class="o-wizard__content">
+        <div class="o-wizard__main">
+          <!-- There is a bunch of Html in here. In a future iteration, "next step" content could be shown
+                 based on features, whereas entity naming differences would be resolved using placeholders. -->
+          {{ Translator.trans('wizard.done.content') }}
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- wizard template -->
+    <div
+      class="o-wizard__additional-elements hidden float-left"
+      aria-hidden="true">
+      <h2 class="o-wizard__header">{{ Translator.trans('adjustments.general') }}</h2>
+      <div class="o-wizard__close">
+        <i class="fa fa-times" data-wizard-action="close"></i>
+      </div>
+      <div class="o-wizard__menu">
+        <ul class="o-wizard__menu-list"></ul>
+      </div>
+      <button
+        type="button"
+        data-cy="wizardPrevious"
+        class="btn btn--secondary o-wizard__btn o-wizard__btn--prev">
+        {{ Translator.trans('wizard.previous') }}
+      </button>
+      <button
+        type="button"
+        data-cy="wizardDone"
+        class="btn btn--primary o-wizard__btn o-wizard__btn--done hidden">
+        {{ Translator.trans('wizard.done') }}
+      </button>
+    </div>
+    <div class="o-wizard__bg" data-wizard-action="close"></div>
+
+    <!-- form controls when not in wizard mode -->
+    <div class="text-right space-inline-s">
+      <!-- A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked -->
+      <input
+        type="submit"
+        class="hidden"
+        :value="Translator.trans('save')">
+      <button
+        class="btn btn--primary"
+        id="saveConfig"
+        name="saveConfig"
+        data-cy="saveConfig"
+        type="button"
+        @click="submit">
+        {{ Translator.trans('save') }}
+      </button>
+      <a
+        class="btn btn--secondary"
+        data-cy="abortConfig"
+        :href="Routing.generate('DemosPlan_procedure_administration_get')">
+        {{ Translator.trans('abort') }}
+      </a>
+    </div>
+
+  </form>
+</template>
+
 <script>
 import {
   dpApi,
@@ -17,20 +126,26 @@ import {
   DpEditor,
   DpInlineNotification,
   DpInput,
+  DpLabel,
   DpMultiselect,
   dpValidateMixin,
-  sortAlphabetically,
+  sortAlphabetically
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 import ParticipationPhases from './ParticipationPhases'
+import ProcedureInfoSettings from './ProcedureInfoSettings.vue'
+import ProcedureGeneralSettings from './ProcedureGeneralSettings.vue'
 
 export default {
   name: 'DpBasicSettings',
 
   components: {
+    ProcedureGeneralSettings,
+    ProcedureInfoSettings,
+    DpLabel,
     AddonWrapper,
     AutoSwitchProcedurePhaseForm: () => import(/* webpackChunkName: "auto-switch-procedure-phase-form" */ '@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
     DpButton,
@@ -54,7 +169,25 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    agencies: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
+    availableProcedureCategories: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
     authorizedUsersOptions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+
+    dataInputOrgas: {
       type: Array,
       required: false,
       default: () => [],
@@ -120,6 +253,12 @@ export default {
       default: () => [],
     },
 
+    hasProcedureUserRestrictedAccess: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     participationPhases: {
       required: false,
       type: Array,
@@ -142,6 +281,22 @@ export default {
       required: true,
       type: String,
     },
+
+    procedureIdent: {
+      required: true,
+      type: String,
+    },
+
+    procedureSettings: {
+      required: true,
+      type: Object,
+    },
+
+    formData: {
+      type: Object,
+      required: true,
+      default: () => ({})
+    },
   },
 
   data () {
@@ -155,25 +310,12 @@ export default {
         value: '',
       },
       isLoadingPlisData: false,
-      pictogramAltText: this.initPictogramAltText,
-      pictogramCopyright: this.initPictogramCopyright,
       procedureDescription: this.procedureExternalDesc,
       procedureName: this.initProcedureName,
-      selectedAgencies: this.initAgencies,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedDataInputOrgas: this.initDataInputOrgas,
       selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedProcedureCategories: this.initProcedureCategories,
       selectedPublicPhase: this.initProcedurePhasePublic,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
     }
-  },
-
-  computed: {
-    authUsersOptions () {
-      const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
-      return sortAlphabetically(users, 'name')
-    },
   },
 
   methods: {
@@ -230,10 +372,6 @@ export default {
         })
     },
 
-    selectAllAuthUsers () {
-      this.selectedAuthUsers = this.authorizedUsersOptions
-    },
-
     setSelectedInternalPhase (phase) {
       this.selectedInternalPhase = phase
     },
@@ -259,10 +397,6 @@ export default {
 
     submitConfigForm () {
       this.$refs.configForm.submit()
-    },
-
-    unselectAllAuthUsers () {
-      this.selectedAuthUsers = []
     },
 
     updateAddonPayload (payload) {
