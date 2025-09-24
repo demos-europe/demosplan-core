@@ -146,6 +146,9 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
     /**
      * Load and instantiate an addon integration test service from a file
+     *
+     * Takes a PHP file path, loads the file, extracts the class name, and creates an instance of the test service.
+     * Returns the service object if it implements AddonIntegrationTestInterface, otherwise returns null.
      */
     private function loadAddonIntegrationTest(string $classFile): ?AddonIntegrationTestInterface
     {
@@ -157,6 +160,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
             return null;
         }
 
+        // Loads the integration test PHP file into memory so PHP can access the test service classes defined inside it.
         require_once $classFile;
 
         // Extract namespace and class name from file
@@ -182,7 +186,10 @@ class AddonIntegrationTestCase extends FunctionalTestCase
         }
 
         try {
-            $service = new $className();
+            //Creates an instance of the integration test service class and returns it only
+            // if it properly implements the required AddonIntegrationTestInterface, otherwise return snull.
+
+  $service = new $className();
 
             if ($service instanceof AddonIntegrationTestInterface) {
                 echo "✅ Service implements AddonIntegrationTestInterface\n";
