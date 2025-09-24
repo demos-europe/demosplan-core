@@ -210,6 +210,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
     /**
      * Extract the fully qualified class name from a PHP file
+     * We use PhpParser to parse the PHP code into nodes, anc consequently detect class name
      */
     private function extractClassNameFromFile(string $filePath): ?string
     {
@@ -223,10 +224,11 @@ class AddonIntegrationTestCase extends FunctionalTestCase
             $namespaces = $nodeFinder->findInstanceOf($ast, Namespace_::class);
             $classes = $nodeFinder->findInstanceOf($ast, Class_::class);
 
-            if (count($namespaces) !== 1 || count($classes) === 0) {
+            if (count($classes) === 0) {
                 return null;
             }
 
+            //We use [0] to get the first (and usually only) namespace found.
             $namespace = $namespaces[0]->name->toString();
 
             // Find first non-abstract class with null safety
@@ -242,7 +244,7 @@ class AddonIntegrationTestCase extends FunctionalTestCase
 
             return null;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Add debug info to see what's failing
             echo "❌ PhpParser error in {$filePath}: " . $e->getMessage() . "\n";
             return null;
