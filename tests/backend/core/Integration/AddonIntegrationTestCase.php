@@ -82,48 +82,42 @@ class AddonIntegrationTestCase extends FunctionalTestCase
     {
         $addonTests = [];
 
-        echo "🔍 Discovering addon integration tests using project structure\n";
-
         try {
             $container = self::getContainer();
 
-            // Use Symfony's kernel to get project directory (committed pattern)
+            // The test needs to find addon directories (addonDev/ and addons/)
+            // but doesn't know the absolute project path at runtime.
+            // This line gets the canonical project root from Symfony's kernel.
             $projectDir = $container->getParameter('kernel.project_dir');
 
-            echo "📁 Project directory: {$projectDir}\n";
+            // Look for addon directory
+            $addonBasePath = $projectDir . '/addons/vendor/demos-europe';
 
-            // Look for addon directories using committed patterns
-            $addonBasePaths = [
-                $projectDir . '/addonDev',  // Development addons
-                $projectDir . '/addons',    // Production addons
-            ];
+            if (!is_dir($addonBasePath)) {
+                return [];
+            }
 
-            foreach ($addonBasePaths as $addonBasePath) {
-                if (!is_dir($addonBasePath)) {
-                    echo "⏭️ Skipping non-existent path: {$addonBasePath}\n";
-                    continue;
-                }
 
-                echo "🔍 Scanning addon path: {$addonBasePath}\n";
-                $addonDirs = glob($addonBasePath . '/demosplan-addon-*');
+            echo "🔍 Scanning addon path: {$addonBasePath}\n";
+            $addonDirs = glob($addonBasePath . '/demosplan-addon-*');
 
-                foreach ($addonDirs as $addonDir) {
-                    $addonName = basename($addonDir);
-                    echo "🔍 Found addon: {$addonName} at {$addonDir}\n";
+            foreach ($addonDirs as $addonDir) {
+                $addonName = basename($addonDir);
+                echo "🔍 Found addon: {$addonName} at {$addonDir}\n";
 
-                    $integrationTestFiles = glob($addonDir . '/tests/Integration/*IntegrationTestService.php');
-                    echo "   Found " . count($integrationTestFiles) . " integration test files\n";
+                $integrationTestFiles = glob($addonDir . '/tests/Integration/*IntegrationTestService.php');
+                echo "   Found " . count($integrationTestFiles) . " integration test files\n";
 
-                    foreach ($integrationTestFiles as $testFile) {
-                        $testService = $this->loadAddonIntegrationTest($testFile);
-                        if ($testService) {
-                            $addonTests[] = $testService;
-                        }
+                foreach ($integrationTestFiles as $testFile) {
+                    $testService = $this->loadAddonIntegrationTest($testFile);
+                    if ($testService) {
+                        $addonTests[] = $testService;
                     }
                 }
             }
 
-        } catch (\Exception $e) {
+
+        } catch (Exception $e) {
             echo "❌ Error discovering addons: " . $e->getMessage() . "\n";
         }
 
