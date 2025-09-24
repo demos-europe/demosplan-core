@@ -1,3 +1,5 @@
+/* Import cookie consent CSS */
+@import "@demos-europe/dp-consent/src/css/style.css";
 /* stylelint-disable */
 @config '../../tailwind.config.js';
 @tailwind base;
