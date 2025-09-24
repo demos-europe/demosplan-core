@@ -1,0 +1,10 @@
+services:
+    # Addon Integration Testing Framework - Test Environment Configuration
+    demosplan\DemosPlanCoreBundle\Tests\Integration\AddonIntegrationTestRegistry:
+        public: true  # Make public for test access
+        arguments:
+            $addonTests: !tagged_iterator addon_integration_test
+
+    # Make AddonRegistry public for test access
+    demosplan\DemosPlanCoreBundle\Addon\AddonRegistry:
+        public: true
