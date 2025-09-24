@@ -113,6 +113,7 @@ const emit = defineEmits(['locationDrawing'])
 const instance = getCurrentInstance()
 
 const store = useStore()
+
 instance.appContext.app.mixin(prefixClassMixin)
 
 const isStoreAvailable = computed(() => {
