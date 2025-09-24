@@ -49,4 +49,23 @@ function transformGeometry (geometry, sourceProjection, targetProjection = 'EPSG
   }
 }
 
-export { transformFeatureCollection, transformGeometry }
+function transformExtent (extent, sourceProjection, targetProjection = 'EPSG:3857') {
+  if (!extent || extent.length !== 4) {
+    return []
+  }
+
+  const transformer = proj4(sourceProjection, targetProjection)
+  const [minX, minY, maxX, maxY] = extent
+
+  const [minTransformedX, minTransformedY] = transformer.forward([minX, minY])
+  const [maxTransformedX, maxTransformedY] = transformer.forward([maxX, maxY])
+
+  return [
+    Math.min(minTransformedX, maxTransformedX),
+    Math.min(minTransformedY, maxTransformedY),
+    Math.max(minTransformedX, maxTransformedX),
+    Math.max(minTransformedY, maxTransformedY)
+  ]
+}
+
+export { transformFeatureCollection, transformGeometry, transformExtent }

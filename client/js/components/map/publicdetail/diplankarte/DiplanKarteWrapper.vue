@@ -43,7 +43,7 @@
 import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { registerWebComponent } from '@init/diplan-karten'
-import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
+import { transformFeatureCollection, transformExtent } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 import layerConfig from './config/layerConfig.json'
 import portalConfig from './config/portalConfig.json'
@@ -111,8 +111,8 @@ const drawing = computed(() => {
 const emit = defineEmits(['locationDrawing'])
 
 const instance = getCurrentInstance()
-const store = useStore()
 
+const store = useStore()
 instance.appContext.app.mixin(prefixClassMixin)
 
 const isStoreAvailable = computed(() => {
@@ -176,48 +176,7 @@ const toggleStatementModal = (updateStatementPayload) => {
 }
 
 const transformInitialExtent = () => {
-  if (!initialExtent || initialExtent.length !== 4) {
-    transformedInitialExtent.value = []
-    return
-  }
-
-  // Create a temporary FeatureCollection with a bounding box polygon
-  const [minX, minY, maxX, maxY] = initialExtent
-  const tempFeatureCollection = {
-    type: 'FeatureCollection',
-    features: [{
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [[
-          [minX, minY],
-          [maxX, minY],
-          [maxX, maxY],
-          [minX, maxY],
-          [minX, minY],
-        ]]
-      }
-    }]
-  }
-
-  const transformed = transformFeatureCollection(tempFeatureCollection, 'EPSG:3857', 'EPSG:4326')
-
-  if (!transformed.features || transformed.features.length === 0) {
-    transformedInitialExtent.value = []
-    return
-  }
-
-  // Extract bounds from transformed coordinates
-  const coords = transformed.features[0].geometry.coordinates[0]
-  const longitudes = coords.map(coordinate => coordinate[0])
-  const latitudes = coords.map(coordinate => coordinate[1])
-
-  transformedInitialExtent.value = [
-    Math.min(...longitudes),
-    Math.min(...latitudes),
-    Math.max(...longitudes),
-    Math.max(...latitudes),
-  ]
+  transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
 }
 
 const transformTerritoryCoordinates = () => {
