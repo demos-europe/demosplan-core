@@ -14,6 +14,6 @@
 
 <script>
 export default {
-  name: 'TagsListHeader'
+  name: 'TagsListHeader',
 }
 </script>

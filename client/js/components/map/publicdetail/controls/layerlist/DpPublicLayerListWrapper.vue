@@ -12,8 +12,9 @@
     <div :class="prefixClass('c-map__group u-mt-0_5')">
       <button
         data-cy="publicLayerListWrapper:mapLayerShowHide"
+        :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]"
         @click="toggle"
-        :class="[dimmed ? prefixClass('color--grey'): '', unfolded ? prefixClass('is-active'): '', prefixClass('btn--blank o-link--default u-pv-0_25 c-map__group-header c-map__group-item u-m-0')]">
+      >
         {{ Translator.trans('maplayer.show/hide') }}
       </button>
     </div>
@@ -21,11 +22,13 @@
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="overlayLayers"
       :unfolded="unfolded"
-      layer-type="overlay" />
+      layer-type="overlay"
+    />
 
     <div
       v-if="baseLayers.length > 0 && unfolded && showBaseLayers"
-      :class="prefixClass('c-map__group')">
+      :class="prefixClass('c-map__group')"
+    >
       <div :class="prefixClass('c-map__layer pointer-events-none bg-color--grey-light-1')">
         {{ Translator.trans('map.bases') }}
       </div>
@@ -33,7 +36,8 @@
     <dp-public-layer-list
       :layers="baseLayers"
       :unfolded="unfolded"
-      layer-type="base" />
+      layer-type="base"
+    />
   </div>
 </template>
 
@@ -45,24 +49,24 @@ export default {
   name: 'DpPublicLayerListWrapper',
 
   components: {
-    DpPublicLayerList
+    DpPublicLayerList,
   },
 
   props: {
     layerGroupsAlternateVisibility: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'layer-list:unfolded'
+    'layerList:unfolded',
   ],
 
   data () {
     return {
-      unfolded: false
+      unfolded: false,
     }
   },
 
@@ -81,7 +85,7 @@ export default {
 
     dimmed () {
       return (this.overlayLayers.length + this.baseLayers.length) <= 0
-    }
+    },
   },
 
   methods: {
@@ -93,13 +97,13 @@ export default {
       const unfolded = this.unfolded = !this.unfolded
 
       if (unfolded) {
-        this.$emit('layer-list:unfolded')
+        this.$emit('layerList:unfolded')
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
-    }
-  }
+    },
+  },
 }
 </script>

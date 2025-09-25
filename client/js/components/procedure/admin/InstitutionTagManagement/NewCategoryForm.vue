@@ -11,13 +11,15 @@ All rights reserved
   <form data-dp-validate="addNewCategoryForm">
     <dp-loading
       v-if="isLoading"
-      overlay />
-    <div class="border rounded space-stack-m space-inset-m">
+      overlay
+    />
+    <div class="border rounded-sm space-stack-m space-inset-m">
       <div class="relative u-pb-0_5 font-size-large">
         {{ Translator.trans('tag.category.new.create') }}
         <button
           class="btn--blank o-link--default float-right"
-          @click="resetNewCategoryForm">
+          @click="resetNewCategoryForm"
+        >
           <dp-icon icon="close" />
         </button>
       </div>
@@ -28,14 +30,16 @@ All rights reserved
         :label="{
           text: Translator.trans('name')
         }"
-        required />
+        required
+      />
       <dp-button-row
         alignment="left"
         :busy="isLoading"
         primary
         secondary
         @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
-        @secondary-action="resetNewCategoryForm" />
+        @secondary-action="resetNewCategoryForm"
+      />
     </div>
   </form>
 </template>
@@ -46,7 +50,7 @@ import {
   DpIcon,
   DpInput,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
 
@@ -57,7 +61,7 @@ export default {
     DpButtonRow,
     DpIcon,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -65,25 +69,25 @@ export default {
   props: {
     tagCategories: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
     'newCategoryForm:close',
-    'newCategory:created'
+    'newCategory:created',
   ],
 
   data () {
     return {
       isLoading: false,
-      newCategory: {}
+      newCategory: {},
     }
   },
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      createInstitutionTagCategory: 'create'
+      createInstitutionTagCategory: 'create',
     }),
 
     isCategoryNameUnique (name) {
@@ -108,8 +112,8 @@ export default {
       const payload = {
         type: 'InstitutionTagCategory',
         attributes: {
-          name: this.newCategory.name
-        }
+          name: this.newCategory.name,
+        },
       }
 
       this.createInstitutionTagCategory(payload)
@@ -124,7 +128,7 @@ export default {
           this.isLoading = false
           this.resetNewCategoryForm()
         })
-    }
-  }
+    },
+  },
 }
 </script>

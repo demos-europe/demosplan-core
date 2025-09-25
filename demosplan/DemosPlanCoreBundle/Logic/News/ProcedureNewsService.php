@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NoDesignatedStateException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -28,8 +27,9 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class ProcedureNewsService extends CoreService implements ProcedureNewsServiceInterface
+class ProcedureNewsService implements ProcedureNewsServiceInterface
 {
     /**
      * @var FileService
@@ -44,6 +44,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
         private readonly ManualListSorter $manualListSorter,
         private readonly NewsRepository $newsRepository,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
     }

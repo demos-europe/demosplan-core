@@ -13,24 +13,28 @@ All rights reserved
       <a
         class="btn btn--primary"
         :href="pathForNewsCreation"
-        data-cy="newNews">
+        data-cy="newNews"
+      >
         {{ Translator.trans('news.new') }}
       </a>
     </div>
     <dp-bulk-edit-header
-      class="layout__item u-12-of-12"
       v-if="selectedItems.length > 0"
+      class="layout__item u-12-of-12"
       :selected-items-text="Translator.trans('news.notes.selected', { count: selectedItems.length })"
-      @reset-selection="resetSelection">
+      @reset-selection="resetSelection"
+    >
       <button
         class="btn-icns u-m-0"
         name="newsdelete"
         data-cy="deleteSelectedNews"
+        type="button"
         @click.prevent="deleteEntries"
-        type="button">
+      >
         <i
           aria-hidden="true"
-          class="fa fa-times u-mr-0_125" />
+          class="fa fa-times u-mr-0_125"
+        />
         {{ Translator.trans('delete') }}
       </button>
     </dp-bulk-edit-header>
@@ -42,13 +46,15 @@ All rights reserved
       is-selectable
       :should-be-selected-items="shouldBeSelected"
       @changed-order="changeManualsort"
-      @items-selected="setShouldBeSelected">
+      @items-selected="setShouldBeSelected"
+    >
       <template v-slot:title="{ id, pId, title }">
         <div class="o-hellip__wrapper">
           <a
             class="o-hellip block"
             data-cy="newsTitleLink"
-            :href="generateEditPath(id, pId)">
+            :href="generateEditPath(id, pId)"
+          >
             {{ title }}
           </a>
         </div>
@@ -60,20 +66,22 @@ All rights reserved
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
           :determined-to-switch="rowData.determinedToSwitch || false"
-          @status-changed="setItemStatus($event, rowData.id)" />
+          @status-changed="setItemStatus($event, rowData.id)"
+        />
       </template>
       <template v-slot:picture="{ picture }">
         <i
           v-if="picture !== ''"
           class="fa fa-check"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
       </template>
     </dp-data-table>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
+import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
 import DpNewsItemStatus from './DpNewsItemStatus'
 
 export default {
@@ -82,19 +90,19 @@ export default {
   components: {
     DpBulkEditHeader,
     DpNewsItemStatus,
-    DpDataTable
+    DpDataTable,
   },
 
   props: {
     initList: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     procedureId: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
 
   data () {
@@ -103,35 +111,35 @@ export default {
       headerFields: [
         { field: 'title', label: 'Überschrift' },
         { field: 'enabled', label: 'Status' },
-        { field: 'picture', label: 'Bild' }
+        { field: 'picture', label: 'Bild' },
       ],
-      selectedItems: []
+      selectedItems: [],
     }
   },
 
   computed: {
     pathForNewsCreation () {
-      return this.procedureId !== ''
-        ? Routing.generate('DemosPlan_news_administration_news_new_get', { procedure: this.procedureId })
-        : Routing.generate('DemosPlan_globalnews_administration_news_new_get')
+      return this.procedureId !== '' ?
+        Routing.generate('DemosPlan_news_administration_news_new_get', { procedure: this.procedureId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news_new_get')
     },
 
     shouldBeSelected () {
-      return !this.selectedItems
-        ? {}
-        : this.selectedItems.reduce((acc, el) => {
+      return !this.selectedItems ?
+        {} :
+        this.selectedItems.reduce((acc, el) => {
           return {
             ...acc,
-            [el]: true
+            [el]: true,
           }
         }, {})
     },
 
     updateRoute () {
-      return (this.procedureId !== '')
-        ? Routing.generate('DemosPlan_news_administration_news', { procedure: this.procedureId })
-        : Routing.generate('DemosPlan_globalnews_administration_news')
-    }
+      return (this.procedureId !== '') ?
+        Routing.generate('DemosPlan_news_administration_news', { procedure: this.procedureId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news')
+    },
   },
 
   methods: {
@@ -173,9 +181,9 @@ export default {
     },
 
     generateEditPath (id, pId) {
-      return this.procedureId !== ''
-        ? Routing.generate('DemosPlan_news_administration_news_edit_get', { newsID: id, procedure: pId })
-        : Routing.generate('DemosPlan_globalnews_administration_news_edit_get', { newsID: id })
+      return this.procedureId !== '' ?
+        Routing.generate('DemosPlan_news_administration_news_edit_get', { newsID: id, procedure: pId }) :
+        Routing.generate('DemosPlan_globalnews_administration_news_edit_get', { newsID: id })
     },
 
     setItemStatus (value, id) {
@@ -187,7 +195,6 @@ export default {
       })
 
       this.updateList()
-        .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         })
@@ -208,7 +215,7 @@ export default {
     updateList () {
       const payload = {
         manualsort: this.list.map(el => el.ident).toString(', '),
-        r_enable: this.list.filter(el => el.enabled).map(el => el.ident)
+        r_enable: this.list.filter(el => el.enabled).map(el => el.ident),
       }
 
       return makeFormPost(payload, this.updateRoute)
@@ -220,7 +227,7 @@ export default {
 
     setShouldBeSelected (items) {
       this.selectedItems = items
-    }
-  }
+    },
+  },
 }
 </script>

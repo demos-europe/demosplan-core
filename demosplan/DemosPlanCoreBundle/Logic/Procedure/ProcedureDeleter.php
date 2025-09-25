@@ -107,9 +107,6 @@ class ProcedureDeleter
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
 
-        // delete surveys and their votes
-        $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
-
         // delete procedure-category relations
         $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
 
@@ -147,7 +144,11 @@ class ProcedureDeleter
         $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
 
         // procedure_slug
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'procedure_slug', 'p_id', $procedureIds), 's_id');
+
         $this->deleteProcedureSlug($procedureIds, $isDryRun);
+
+        $this->deleteSlugs($slugsIds, $isDryRun);
 
         // procedure_user
         $this->deleteProcedureUser($procedureIds, $isDryRun);
@@ -402,6 +403,14 @@ class ProcedureDeleter
     private function deleteProcedureSlug(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteSlugs(array $slugsIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('slug', 'id', $slugsIds, $isDryRun);
     }
 
     /**
@@ -690,35 +699,6 @@ class ProcedureDeleter
     private function deleteHashedQueries(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $procedureIds, $isDryRun);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function deleteSurveysAndVotes(array $procedureIds, bool $isDryRun): void
-    {
-        $surveyIds = array_column(
-            $this->queriesService->fetchFromTableByParameter(
-                ['id'],
-                'survey',
-                'p_id',
-                $procedureIds
-            ),
-            'id'
-        );
-
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey_vote',
-            'survey_id',
-            $surveyIds,
-            $isDryRun
-        );
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey',
-            'p_id',
-            $procedureIds,
-            $isDryRun
-        );
     }
 
     /**

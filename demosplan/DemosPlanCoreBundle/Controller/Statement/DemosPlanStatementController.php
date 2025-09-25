@@ -861,7 +861,7 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
-            $limiter = $anonymousStatementLimiter->create($request->getClientIp());
+            $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
 
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
@@ -1266,7 +1266,10 @@ class DemosPlanStatementController extends BaseController
                 'draftStatementVersions' => $this->draftStatementService->getVersionList($draftStatementId),
             ];
         } catch (UserNotFoundException) {
-            $this->logger->addError(UserNotFoundException::createFromId($this->currentUser->getUser()->getId()));
+            $this->logger->error(
+                UserNotFoundException::createFromId($this->currentUser->getUser()->getId())
+                    ->getMessage()
+            );
         }
         $templateVars['procedureLayer'] = 'participation';
 

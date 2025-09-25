@@ -16,7 +16,6 @@ import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
@@ -29,7 +28,7 @@ import StatementForm from '@DpJs/lib/statement/StatementForm'
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {
   layers,
-  publicStatement
+  publicStatement,
 }
 
 //  (Unmounted) vue parent components
@@ -40,11 +39,10 @@ const components = {
   'dp-map-tools': MapTools,
   DpPublicDetail,
   DpPublicLayerListWrapper,
-  DpPublicSurvey,
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components, stores).then(() => {

@@ -18,10 +18,11 @@
         </div>
         <div class="segment-list-col--s">
           <button
+            v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')"
             class="segment-list-toggle-button btn--blank u-mh-auto"
             :class="{'reverse': isAllCollapsed === false}"
             @click="toggleAll"
-            v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')">
+          >
             <i class="fa fa-arrow-up" />
             <i class="fa fa-arrow-down" />
           </button>
@@ -40,7 +41,8 @@
         <div class="text-right u-mb-2">
           <dp-button
             :text="Translator.trans('split.now')"
-            @click="claimAndRedirect" />
+            @click="claimAndRedirect"
+          />
         </div>
       </div>
       <!--Segments, if there are any-->
@@ -54,14 +56,15 @@
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
-          :current-user-orga="currentUser.orgaName" />
+          :current-user-orga="currentUser.orgaName"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
@@ -74,31 +77,31 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    StatementSegment
+    StatementSegment,
   },
 
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       isAllCollapsed: true,
-      isLoading: false
+      isLoading: false,
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     hasSegments () {
@@ -107,20 +110,28 @@ export default {
 
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
-    }
+    },
   },
 
   methods: {
-    ...mapMutations('Statement', {
-      setStatement: 'setItem'
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list',
+    }),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
     }),
 
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      listSegments: 'list',
+    }),
+
+    ...mapMutations('Statement', {
+      setStatement: 'setItem',
     }),
 
     /**
@@ -169,18 +180,29 @@ export default {
             assignee: {
               data: {
                 type: 'Claim',
-                id: this.currentUser.id
-              }
-            }
-          }
-        }
+                id: this.currentUser.id,
+              },
+            },
+          },
+        },
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }), {}, payload)
-        .then(response => { checkResponse(response) })
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-        })
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm',
+            },
+            204: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm',
+            },
+          },
+        },
+      )
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)
@@ -188,9 +210,7 @@ export default {
         })
     },
 
-    fetchSegments () {
-      this.isLoading = true
-
+    async fetchSegments () {
       const statementSegmentFields = [
         'tags',
         'text',
@@ -201,19 +221,46 @@ export default {
         'internId',
         'orderInProcedure',
         'polygon',
-        'recommendation'
+        'recommendation',
       ]
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
-      this.listSegments({
+
+      this.isLoading = true
+
+      await this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(),
+        },
+        sort: 'sortIndex',
+      })
+
+      await this.fetchAssignableUsers({
+        fields: {
+          AssignableUser: [
+            'firstname',
+            'lastname',
+          ].join(),
+        },
+        include: 'department',
+        sort: 'lastname',
+      })
+
+      await this.listSegments({
         include: [
           'assignee',
           'comments',
           'comments.place',
           'comments.submitter',
           'place',
-          'tags'
+          'tags',
         ].join(),
         fields: {
           StatementSegment: statementSegmentFields.join(),
@@ -221,40 +268,41 @@ export default {
             'creationDate',
             'text',
             'submitter',
-            'place'
-          ].join()
+            'place',
+          ].join(),
         },
         sort: 'orderInProcedure',
         filter: {
           parentStatementOfSegment: {
             condition: {
               path: 'parentStatement.id',
-              value: this.statementId
-            }
+              value: this.statementId,
+            },
           },
           sameProcedure: {
             condition: {
               path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
+              value: this.procedureId,
+            },
+          },
+        },
+      })
+
+      this.isLoading = false
+
+      this.$nextTick(() => {
+        const queryParams = new URLSearchParams(window.location.search)
+        const segmentId = queryParams.get('segment') || ''
+
+        if (segmentId) {
+          scrollTo('#segment_' + segmentId, { offset: -110 })
+          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+          if (segmentComponent) {
+            segmentComponent.isCollapsed = false
           }
         }
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            const queryParams = new URLSearchParams(window.location.search)
-            const segmentId = queryParams.get('segment') || ''
-            if (segmentId) {
-              scrollTo('#segment_' + segmentId, { offset: -110 })
-              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
-
-              if (segmentComponent) {
-                segmentComponent.isCollapsed = false
-              }
-            }
-          })
-        })
     },
 
     goToSplitStatementView () {
@@ -269,13 +317,13 @@ export default {
           segment.isCollapsed = this.isAllCollapsed
         }
       })
-    }
+    },
   },
 
   mounted () {
     if (Object.keys(this.segments).length === 0) {
       this.fetchSegments()
     }
-  }
+  },
 }
 </script>

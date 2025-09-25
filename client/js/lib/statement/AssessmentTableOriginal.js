@@ -13,7 +13,7 @@
  * their functionality to other components.
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { scrollTo } from 'vue-scrollto'
 
 export default function AssessmentTableOriginal () {
@@ -35,11 +35,9 @@ export default function AssessmentTableOriginal () {
     return dpApi({
       method: 'POST',
       url: Routing.generate('dplan_api_procedure_update_original_filter_hash', { procedureId }),
-      data: inputFields
-    }).then(checkResponse)
-      .then(function (data) {
-        return data.data.attributes.hash
-      })
+      data: inputFields,
+    })
+      .then(({ data }) => data.data.attributes.hash)
   }
 
   window.submitForm = function (event, task) {
@@ -61,7 +59,7 @@ export default function AssessmentTableOriginal () {
       .then((filterHash) => {
         document.bpform.action = Routing.generate('dplan_assessmenttable_view_original_table', {
           procedureId,
-          filterHash
+          filterHash,
         })
 
         switch (task) {

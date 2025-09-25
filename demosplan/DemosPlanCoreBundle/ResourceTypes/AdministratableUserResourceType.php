@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -306,6 +307,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             }
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
+            $user->setEmail($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
             $this->userHandler->inviteUser($user);
 

@@ -11,7 +11,8 @@ All rights reserved
   <fieldset data-dp-validate="statementSubmitterData">
     <legend
       id="submitter"
-      class="mb-3 color-text-muted font-normal">
+      class="mb-3 color-text-muted font-normal"
+    >
       {{ Translator.trans('submitted.author') }}
     </legend>
 
@@ -19,132 +20,144 @@ All rights reserved
     <div
       v-if="hasPermission('field_statement_meta_orga_name')"
       aria-labelledby="submitter"
-      class="mb-2">
+      class="mb-2"
+    >
       {{ submitterRole }}
     </div>
 
+    <!--  In the following section, v-model is replaced with :value && @input to enable custom display of input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
-        v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
         id="statementDepartmentName"
-        v-model="localStatement.attributes.initialOrganisationDepartmentName"
-        data-cy="statementSubmitter:departmentName"
-        class="mb-2"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('department')
-        }" />
+        }"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
+        class="mb-2"
+        data-cy="statementSubmitter:departmentName"
+        @input="value => localStatement.attributes.initialOrganisationDepartmentName = value"
+      />
 
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
-        v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+        v-if="!localStatement.attributes.isSubmittedByCitizen"
         id="statementOrgaName"
-        v-model="localStatement.attributes.initialOrganisationName"
-        class="mb-2"
-        data-cy="statementSubmitter:orgaName"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('organisation')
-        }" />
+        }"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
+        class="mb-2"
+        data-cy="statementSubmitter:orgaName"
+        @input="value => localStatement.attributes.initialOrganisationName = value"
+      />
 
       <dp-contextual-help
         v-if="isSubmitterAnonymized()"
+        :text="submitterHelpText"
         class="float-right mt-0.5"
-        :text="submitterHelpText" />
+      />
       <dp-input
-        v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+        v-if="hasPermission('field_statement_meta_submit_name') && statementFormDefinitions.name.enabled"
         id="statementSubmitterName"
-        v-model="statementSubmitterValue"
-        class="mb-2"
-        data-cy="statementSubmitter:submitterName"
         :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
         :label="{
           text: Translator.trans('name')
-        }" />
+        }"
+        :model-value="getSubmitterNameValue()"
+        class="mb-2"
+        data-cy="statementSubmitter:submitterName"
+        @input="value => localStatement.attributes[statementSubmitterField] = value"
+      />
 
       <dp-input
         v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
         id="statementEmailAddress"
-        v-model="localStatement.attributes.submitterEmailAddress"
-        class="mb-2"
-        data-cy="statementSubmitter:emailAddress"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('email')
         }"
-        type="email" />
+        :model-value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
+        class="mb-2"
+        data-cy="statementSubmitter:emailAddress"
+        type="email"
+        @input="value => localStatement.attributes.submitterEmailAddress = value"
+      />
 
       <dp-input
         v-if="localStatement.attributes.represents"
         id="statementRepresentation"
-        data-cy="statementSubmitter:representation"
-        disabled
         :label="{
           text: Translator.trans('statement.representation.assessment')
         }"
-        :value="localStatement.attributes.represents" />
+        :model-value="localStatement.attributes.represents"
+        data-cy="statementSubmitter:representation"
+        disabled
+      />
       <dp-checkbox
         v-if="localStatement.attributes.represents"
         id="representationCheck"
         v-model="localStatement.attributes.representationChecked"
-        data-cy="statementSubmitter:representationCheck"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('statement.representation.checked')
-        }" />
+        }"
+        data-cy="statementSubmitter:representationCheck"
+      />
 
       <div class="o-form__group mb-2">
         <dp-input
           id="statementStreet"
-          v-model="localStatement.attributes.initialOrganisationStreet"
-          class="o-form__group-item"
-          data-cy="statementSubmitter:street"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street')
-          }" />
+          }"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
+          class="o-form__group-item"
+          data-cy="statementSubmitter:street"
+          @input="value => localStatement.attributes.initialOrganisationStreet = value"
+        />
         <dp-input
           id="statementHouseNumber"
-          v-model="localStatement.attributes.initialOrganisationHouseNumber"
-          class="o-form__group-item shrink"
-          data-cy="statementSubmitter:houseNumber"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street.number.short')
           }"
-          :size="3" />
+          :size="3"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
+          class="o-form__group-item !w-1/5 shrink"
+          data-cy="statementSubmitter:houseNumber"
+          @input="value => localStatement.attributes.initialOrganisationHouseNumber = value"
+        />
       </div>
       <div class="o-form__group mb-2">
         <dp-input
           id="statementPostalCode"
-          v-model="localStatement.attributes.initialOrganisationPostalCode"
-          class="o-form__group-item shrink"
-          data-cy="statementSubmitter:postalCode"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('postalcode')
           }"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
+          class="o-form__group-item !w-1/4 shrink"
+          data-cy="statementSubmitter:postalCode"
           pattern="^[0-9]{4,5}$"
-          :size="5" />
+          @input="value => localStatement.attributes.initialOrganisationPostalCode = value"
+        />
         <dp-input
           id="statementCity"
-          v-model="localStatement.attributes.initialOrganisationCity"
-          class="o-form__group-item"
-          data-cy="statementSubmitter:city"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('city')
-          }" />
+          }"
+          :model-value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
+          class="o-form__group-item"
+          data-cy="statementSubmitter:city"
+          @input="value => localStatement.attributes.initialOrganisationCity = value"
+        />
       </div>
     </div>
-
-    <similar-statement-submitters
-      v-if="hasPermission('feature_similar_statement_submitter')"
-      class="mb-4"
-      :editable="editable"
-      :procedure-id="procedure.id"
-      :similar-statement-submitters="similarStatementSubmitters"
-      :statement-id="statement.id" />
 
     <dp-button-row
       v-if="editable && isStatementManual"
@@ -152,7 +165,16 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementSubmitterData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
+
+    <similar-statement-submitters
+      v-if="hasPermission('feature_similar_statement_submitter')"
+      :editable="editable"
+      :procedure-id="procedure.id"
+      :similar-statement-submitters="similarStatementSubmitters"
+      :statement-id="statement.id"
+    />
   </fieldset>
 </template>
 
@@ -161,9 +183,11 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpInput,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import { mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+
 export default {
   name: 'StatementSubmitter',
 
@@ -171,7 +195,7 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpInput,
-    SimilarStatementSubmitters
+    SimilarStatementSubmitters,
   },
 
   mixins: [dpValidateMixin],
@@ -180,36 +204,40 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedure: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
-    }
+      type: Object,
+    },
   },
 
   emits: [
-    'save'
+    'save',
   ],
 
   data () {
     return {
-      localStatement: null
+      localStatement: null,
     }
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items',
+    }),
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
@@ -230,16 +258,6 @@ export default {
       }
 
       return submitterField
-    },
-
-    statementSubmitterValue: {
-      get () {
-        return this.isSubmitterAnonymized() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
-      },
-
-      set (value) {
-        this.localStatement.attributes[this.statementSubmitterField] = value
-      }
     },
 
     submitterHelpText () {
@@ -268,10 +286,26 @@ export default {
         this.localStatement.attributes.submitterRole !== 'publicagency'
 
       return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
-    }
+    },
   },
 
   methods: {
+    getDisplayValue (value) {
+      const isDisabled = !this.editable || !this.isStatementManual
+
+      return (isDisabled && (!value || value.trim() === '')) ? '-' : value
+    },
+
+    getSubmitterNameValue () {
+      if (this.isSubmitterAnonymized()) {
+        return Translator.trans('anonymized')
+      }
+
+      const value = this.localStatement.attributes[this.statementSubmitterField]
+
+      return this.getDisplayValue(value)
+    },
+
     isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
 
@@ -283,16 +317,36 @@ export default {
     },
 
     save () {
-      this.$emit('save', this.localStatement)
+      // Get current statement from store (includes any relationship changes from SimilarStatementSubmitter)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          initialOrganisationDepartmentName: this.localStatement.attributes.initialOrganisationDepartmentName,
+          initialOrganisationName: this.localStatement.attributes.initialOrganisationName,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName,
+          submitterEmailAddress: this.localStatement.attributes.submitterEmailAddress,
+          representationChecked: this.localStatement.attributes.representationChecked,
+          initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
+          initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity,
+        },
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    }
+    },
   },
 
   created () {
     this.setInitValues()
-  }
+  },
 }
 </script>

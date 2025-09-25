@@ -5,15 +5,10 @@ fos_elastica:
             # Updated for Elasticsearch 8 compatibility
             hosts: '%elasticsearch_urls%'
             connection_strategy: RoundRobin
-            username: 'username'
-            password: 'password'
+            username: '%env(default:elasticsearch_user:ELASTICSEARCH_USERNAME)%'
+            password: '%env(default:elasticsearch_pass:ELASTICSEARCH_PASSWORD)%'
             # Add SSL configuration if needed
-            client_config:
-                # Add any necessary SSL/security configuration here
-                # Example:
-                # ssl:
-                #    verify: false
-                #    certificate: /path/to/cert
+            client_config: '%elasticsearch_client_config%'
             # Add other client options if needed
             # client_options:
             #    timeout: 30
@@ -37,10 +32,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -140,10 +131,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 3
@@ -162,10 +149,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
             properties:
                 name:
                     type: text
@@ -248,10 +231,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -318,10 +297,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -689,10 +664,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -715,10 +686,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
                         file_name:
                             type: custom
                             char_filter: remove_filename_extension

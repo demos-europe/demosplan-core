@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use PhpOffice\PhpWord\Element\Section;
@@ -25,7 +24,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\String\u;
 
-class ExportReportService extends CoreService
+class ExportReportService
 {
     /** @var array */
     private $styles;

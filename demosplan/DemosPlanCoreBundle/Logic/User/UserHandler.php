@@ -836,6 +836,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         '%numberOfOpenProcedures' => $numberOfOpenProcedures,
                     ]
                 );
+
+                return $userId; // Return the failed user ID to indicate failure
             } else {
                 $result = $this->wipeUserData($userId);
 
@@ -1208,8 +1210,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     protected function handleWipeSelectedOrgas(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $orgaIdsToDelete = $requestData->get('elementsToAdminister');
+        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $orgaIdsToDelete = $requestData->all('elementsToAdminister');
 
             foreach ($orgaIdsToDelete as $orgaId) {
                 $result = $this->wipeOrganisationData($orgaId);
@@ -1375,8 +1377,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
      */
     protected function handleWipeSelectedDepartments(ParameterBag $requestData)
     {
-        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
-            $itemIdsToDelete = $requestData->get('elementsToAdminister');
+        if ($requestData->has('elementsToAdminister') && 0 < (is_countable($requestData->all('elementsToAdminister')) ? count($requestData->all('elementsToAdminister')) : 0)) {
+            $itemIdsToDelete = $requestData->all('elementsToAdminister');
             foreach ($itemIdsToDelete as $departmentId) {
                 try {
                     $result = $this->wipeDepartmentDataById($departmentId);

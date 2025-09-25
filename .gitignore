@@ -5,6 +5,7 @@ addonZip
 addonZips
 addons
 CLAUDE.md
+claude-mds
 node_modules
 yarn-error.log
 docker-compose.yml

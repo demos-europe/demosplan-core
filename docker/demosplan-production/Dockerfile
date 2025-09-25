@@ -16,12 +16,12 @@ COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
-RUN npm install --ignore-scripts -g corepack && \
-    corepack enable && yarn set version 4.2.2 && \
-    npm i --ignore-scripts -g n && \
+RUN npm install --ignore-scripts -g n && \
     rm -rf /root/.npm && \
-# Install specific node version
-    n 20.18.1
+# Install specific node version first
+    n 20.18.1 && \
+    npm install --ignore-scripts -g corepack && \
+    corepack enable && yarn set version 4.2.2
 
 WORKDIR /srv/www
 
@@ -29,6 +29,7 @@ RUN mkdir -p /opt/uploads && \
     mkdir /opt/config && \
     mkdir /srv/www/vendor && \
     mkdir -p /srv/www/client/js/generated && \
+    mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /opt/uploads && \
     chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
@@ -68,10 +69,12 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
+    mkdir -p /srv/www/client/css/generated && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
+    chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
@@ -100,6 +103,8 @@ COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/paramet
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
+    touch /opt/config/.env.local && \
+    ln -s /opt/config/.env.local /srv/www/.env.local && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
     chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
     mkdir -p /opt/uploads && \
@@ -133,16 +138,21 @@ COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
     rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    # ensure tmp directory exists and is writable for Symfony XML schema validation \
+    mkdir -p /srv/www/tmp && \
+    chown -R www-data:www-data /srv/www/tmp && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \
-    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
+    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt&& \
+    # avoid conflict with the default www.conf
+    rm /etc/php/8.2/fpm/pool.d/www.conf
 
 # run as rootless container
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
