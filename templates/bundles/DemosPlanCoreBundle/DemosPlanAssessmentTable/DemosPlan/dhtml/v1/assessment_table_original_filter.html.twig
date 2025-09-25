@@ -16,11 +16,11 @@
 
         <div class="layout__item u-1-of-6 u-pl-0">
             <label for="active-filters" class="u-mv-0_25">{{ "filter.active"|trans }}:</label>
-        </div><!--
-
-     --><div
+        </div>
+        <div
+            id="active-filters"
             class="layout__item u-5-of-6 u-mt-0_25"
-            @click.prevent="$refs.filterModal.toggleModal"
+            @click.prevent="$refs.filterModal.openModal()"
             aria-label="{{ "aria.maximize_filters"|trans }}"
            >
             {{ filtersSet|default([])|join(", ") }}
