@@ -42,11 +42,11 @@
 <script setup>
 import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { registerWebComponent } from '@init/diplan-karten'
-import { transformFeatureCollection, transformExtent } from '@DpJs/lib/map/transformFeature'
-import { useStore } from 'vuex'
+import { transformExtent, transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import layerConfig from './config/layerConfig.json'
 import portalConfig from './config/portalConfig.json'
+import { registerWebComponent } from '@init/diplan-karten'
+import { useStore } from 'vuex'
 
 const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
   activeStatement: {
