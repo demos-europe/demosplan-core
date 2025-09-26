@@ -425,19 +425,4 @@ class StatementDeleterTest extends FunctionalTestCase
         self::assertNull($this->find(Statement::class, $testOriginalStatementId));
     }
 
-    private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
-    {
-        $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real(),
-            'orderInProcedure'         => 1,
-        ]);
-
-        $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
-            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
-        });
-        $segment->_save();
-
-        return $segment->_real();
-    }
 }

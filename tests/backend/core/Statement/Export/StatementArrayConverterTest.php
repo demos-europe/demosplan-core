@@ -262,21 +262,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertIsString($result['phase']);
     }
 
-    private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
-    {
-        $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real(),
-            'orderInProcedure'         => 1,
-        ]);
-
-        $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
-            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
-        });
-        $segment->_save();
-
-        return $segment->_real();
-    }
 
     /**
      * Test that fileNames field is correctly set when segmentOrStatement is Statement instance.
