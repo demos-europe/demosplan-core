@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -48,10 +49,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = new UserAccessControlService(
-            $this->getEntityManager()->getRepository(UserAccessControl::class),
-            $this->getEntityManager()
-        );
+        $this->sut = $this->getContainer()->get(UserAccessControlService::class);
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
 
         $roles = $this->roleHandler->getUserRolesByCodes([
@@ -70,18 +68,20 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Set organizations manually (bidirectional relationship)
         $this->testUser->_real()->setOrga($this->testOrga->_real());
+        $this->testUser->_save();
         $this->testUser2->_real()->setOrga($this->testOrga->_real());
+        $this->testUser2->_save();
         $this->testOrga->_real()->addUser($this->testUser->_real());
+        $this->testOrga->_save();
         $this->testOrga->_real()->addUser($this->testUser2->_real());
+        $this->testOrga->_save();
 
         // Set roles manually
         $this->testUser->_real()->addDplanRole($this->testRole);
         $this->testUser2->_real()->addDplanRole($this->testRole);
+        $this->testUser->_save();
+        $this->testUser2->_save();
 
-        // Persist the user changes
-        $this->getEntityManager()->persist($this->testUser->_real());
-        $this->getEntityManager()->persist($this->testUser2->_real());
-        $this->getEntityManager()->flush();
 
         // Create a simple OrgaType and establish customer relationship
         $orgaType = new OrgaType();
