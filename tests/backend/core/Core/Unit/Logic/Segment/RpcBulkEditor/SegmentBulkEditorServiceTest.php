@@ -101,7 +101,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         // Get custom field values as arrays for easier assertion
         $segment1Values = [];
-        $segment1->_withoutAutoRefresh(function($seg) use (&$segment1Values) {
+        $segment1->_withoutAutoRefresh(function ($seg) use (&$segment1Values) {
             $segment1Values = array_map(
                 static fn ($value) => $value->getValue(),
                 $seg->getCustomFields()->getCustomFieldsValues()
@@ -109,7 +109,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         });
 
         $segment2Values = [];
-        $segment2->_withoutAutoRefresh(function($seg) use (&$segment2Values) {
+        $segment2->_withoutAutoRefresh(function ($seg) use (&$segment2Values) {
             $segment2Values = array_map(
                 static fn ($value) => $value->getValue(),
                 $seg->getCustomFields()->getCustomFieldsValues()
