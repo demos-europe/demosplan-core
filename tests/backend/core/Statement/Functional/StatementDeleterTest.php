@@ -433,7 +433,7 @@ class StatementDeleterTest extends FunctionalTestCase
         ]);
 
         $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_withoutAutoRefresh(function($seg) use ($submitterNameSuffix) {
+        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
             $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
         });
         $segment->_save();
