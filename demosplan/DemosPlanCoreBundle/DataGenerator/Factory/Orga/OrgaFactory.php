@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Orga>
@@ -28,7 +28,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Orga|Proxy                     last(string $sortedField = 'id')
  * @method static Orga|Proxy                     random(array $attributes = [])
  * @method static Orga|Proxy                     randomOrCreate(array $attributes = [])
- * @method static OrgaRepository|RepositoryProxy repository()
+ * @method static OrgaRepository|ProxyRepositoryDecorator repository()
  * @method static Orga[]|Proxy[]                 all()
  * @method static Orga[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static Orga[]|Proxy[]                 createSequence(iterable|callable $sequence)

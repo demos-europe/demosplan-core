@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Tag>
@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Tag|Proxy                     last(string $sortedField = 'id')
  * @method static Tag|Proxy                     random(array $attributes = [])
  * @method static Tag|Proxy                     randomOrCreate(array $attributes = [])
- * @method static TagRepository|RepositoryProxy repository()
+ * @method static TagRepository|ProxyRepositoryDecorator repository()
  * @method static Tag[]|Proxy[]                 all()
  * @method static Tag[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static Tag[]|Proxy[]                 createSequence(iterable|callable $sequence)

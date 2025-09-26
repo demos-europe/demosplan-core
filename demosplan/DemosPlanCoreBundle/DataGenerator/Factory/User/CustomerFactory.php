@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Customer>
@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Customer|Proxy                     last(string $sortedField = 'id')
  * @method static Customer|Proxy                     random(array $attributes = [])
  * @method static Customer|Proxy                     randomOrCreate(array $attributes = [])
- * @method static CustomerRepository|RepositoryProxy repository()
+ * @method static CustomerRepository|ProxyRepositoryDecorator repository()
  * @method static Customer[]|Proxy[]                 all()
  * @method static Customer[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static Customer[]|Proxy[]                 createSequence(iterable|callable $sequence)

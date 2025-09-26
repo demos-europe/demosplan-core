@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<OrgaType>
@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static OrgaType|Proxy                     last(string $sortedField = 'id')
  * @method static OrgaType|Proxy                     random(array $attributes = [])
  * @method static OrgaType|Proxy                     randomOrCreate(array $attributes = [])
- * @method static OrgaTypeRepository|RepositoryProxy repository()
+ * @method static OrgaTypeRepository|ProxyRepositoryDecorator repository()
  * @method static OrgaType[]|Proxy[]                 all()
  * @method static OrgaType[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static OrgaType[]|Proxy[]                 createSequence(iterable|callable $sequence)
@@ -43,7 +43,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @phpstan-method static Proxy<OrgaType> last(string $sortedField = 'id')
  * @phpstan-method static Proxy<OrgaType> random(array $attributes = [])
  * @phpstan-method static Proxy<OrgaType> randomOrCreate(array $attributes = [])
- * @phpstan-method static RepositoryProxy<OrgaType> repository()
+ * @phpstan-method static ProxyRepositoryDecorator<OrgaType> repository()
  * @phpstan-method static list<Proxy<OrgaType>> all()
  * @phpstan-method static list<Proxy<OrgaType>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<Proxy<OrgaType>> createSequence(iterable|callable $sequence)

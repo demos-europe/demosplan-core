@@ -15,8 +15,8 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<OrgaStatusInCustomer>
@@ -29,7 +29,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static OrgaStatusInCustomer|Proxy                     last(string $sortedField = 'id')
  * @method static OrgaStatusInCustomer|Proxy                     random(array $attributes = [])
  * @method static OrgaStatusInCustomer|Proxy                     randomOrCreate(array $attributes = [])
- * @method static OrgaStatusInCustomerRepository|RepositoryProxy repository()
+ * @method static OrgaStatusInCustomerRepository|ProxyRepositoryDecorator repository()
  * @method static OrgaStatusInCustomer[]|Proxy[]                 all()
  * @method static OrgaStatusInCustomer[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
  * @method static OrgaStatusInCustomer[]|Proxy[]                 createSequence(iterable|callable $sequence)
@@ -45,7 +45,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @phpstan-method static Proxy<OrgaStatusInCustomer> last(string $sortedField = 'id')
  * @phpstan-method static Proxy<OrgaStatusInCustomer> random(array $attributes = [])
  * @phpstan-method static Proxy<OrgaStatusInCustomer> randomOrCreate(array $attributes = [])
- * @phpstan-method static RepositoryProxy<OrgaStatusInCustomer> repository()
+ * @phpstan-method static ProxyRepositoryDecorator<OrgaStatusInCustomer> repository()
  * @phpstan-method static list<Proxy<OrgaStatusInCustomer>> all()
  * @phpstan-method static list<Proxy<OrgaStatusInCustomer>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<Proxy<OrgaStatusInCustomer>> createSequence(iterable|callable $sequence)
