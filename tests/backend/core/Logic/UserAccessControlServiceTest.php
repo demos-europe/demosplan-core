@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
-use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -81,7 +80,6 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         $this->testUser2->_real()->addDplanRole($this->testRole);
         $this->testUser->_save();
         $this->testUser2->_save();
-
 
         // Create a simple OrgaType and establish customer relationship
         $orgaType = new OrgaType();
