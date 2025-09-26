@@ -34,6 +34,7 @@ export default {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }),
+    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
     StatementModal,
   },
 
@@ -132,6 +133,10 @@ export default {
         this.lastFocusedElement.focus()
         document.querySelector('html').removeAttribute('style')
       }
+    },
+
+    handleLocationDrawing (payload) {
+      this.$refs.statementModal.setLocation(payload, false)
     },
 
     isElementVisible (el) {

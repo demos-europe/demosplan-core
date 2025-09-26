@@ -63,6 +63,7 @@
 - Update Elasticsearch to version 8
 - Export Original Statements as csv in the Statement List
 
+## v4.2.0 (2025-05-22)
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
 - Update to symfony 6.4

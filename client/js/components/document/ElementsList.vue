@@ -114,11 +114,13 @@ export default {
 
     buttonLabel () {
       let buttonLabel
+
       if (this.selectedFiles.length > 0 && this.selectedFiles.length !== this.allFiles.length) {
         buttonLabel = `Ausgewählte Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.selectedFiles)})`
       } else {
         buttonLabel = `Alle Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.allFiles)})`
       }
+
       return buttonLabel
     },
 
@@ -163,8 +165,7 @@ export default {
     },
 
     nodeSelectionChange (selectedNodes) {
-      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
-      this.selectedFiles = selectedSingleDocuments
+      this.selectedFiles = selectedNodes.filter(el => el.nodeType === 'leaf')
     },
 
     /*
@@ -202,7 +203,7 @@ export default {
         const isTopLevel = node.attributes.parentId === null
 
         // Attach visible documents directly as children of the current node (if any exist)
-        if (node.hasRelationship('visibleDocuments')) {
+        if (node.hasRelationship('visibleDocuments') && node.relationships.visibleDocuments.data.length > 0) {
           node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
 

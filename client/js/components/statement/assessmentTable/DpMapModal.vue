@@ -28,6 +28,7 @@
     >
       <dp-ol-map-layer-vector
         zoom-to-drawing
+        name="drawing"
         :features="drawing"
       />
     </dp-ol-map>

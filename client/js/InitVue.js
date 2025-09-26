@@ -24,6 +24,7 @@ import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
 import { initStore } from '@DpJs/store/core/initStore'
@@ -85,6 +86,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     app.use(store)
 
+    // The diplankarte needs a pinia instance
+    if (hasPermission('feature_diplan_karte')) {
+      app.use(createPinia())
+    }
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
 

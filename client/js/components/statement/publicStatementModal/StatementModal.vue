@@ -1647,6 +1647,19 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
+    setLocation (data = {}, toggle = true) {
+      this.setStatementData(data)
+
+      if (toggle) {
+        this.toggleModal(false)
+        // We need this to reset the animation so it can be fired again.
+        this.updateHighlighted({ key: 'location', val: true })
+        setTimeout(() => {
+          this.updateHighlighted({ key: 'location', val: false })
+        }, 2000)
+      }
+    },
+
     toggleModal (resetOnClose = true, data = null) {
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
@@ -1741,16 +1754,8 @@ export default {
     }
 
     // Set data from map
-    this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
-      this.setStatementData(data)
-      if (toggle) {
-        this.toggleModal(false)
-        // We need this to reset the animation so it can be fired again.
-        this.updateHighlighted({ key: 'location', val: true })
-        setTimeout(() => {
-          this.updateHighlighted({ key: 'location', val: false })
-        }, 2000)
-      }
+    this.$root.$on('updateStatementFormMapData', (data, toggle) => {
+      this.setLocation(data, toggle)
     })
 
     this.$root.$on('statementModal:goToTab', tabname => {
