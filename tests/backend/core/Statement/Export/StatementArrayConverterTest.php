@@ -83,12 +83,14 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         // Create parent statement first
         $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'a');
-        $parentStatement->setMemo('Parent memo');
-        $parentStatement->getMeta()->setOrgaCity('Test City');
-        $parentStatement->getMeta()->setOrgaStreet('Test Street');
-        $parentStatement->getMeta()->setOrgaPostalCode('12345');
-        $parentStatement->getMeta()->setOrgaEmail('test@example.com');
-        $parentStatement->getMeta()->setHouseNumber('42');
+        $parentStatement->_withoutAutoRefresh(function($stmt) {
+            $stmt->setMemo('Parent memo');
+            $stmt->getMeta()->setOrgaCity('Test City');
+            $stmt->getMeta()->setOrgaStreet('Test Street');
+            $stmt->getMeta()->setOrgaPostalCode('12345');
+            $stmt->getMeta()->setOrgaEmail('test@example.com');
+            $stmt->getMeta()->setHouseNumber('42');
+        });
         $parentStatement->_save();
 
         $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
@@ -268,9 +270,9 @@ class StatementArrayConverterTest extends FunctionalTestCase
         ]);
 
         $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_save();
-
-        $segment->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
+        $segment->_withoutAutoRefresh(function($seg) use ($submitterNameSuffix) {
+            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
+        });
         $segment->_save();
 
         return $segment->_real();
