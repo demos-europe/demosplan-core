@@ -59,9 +59,16 @@ rsync --exclude-from=rsyncExcludeProject.txt -az "../projects/$PROJECT_NAME" $CO
 cp -r "$FOLDER"/* $CONTEXT_DIR
 cp -r "$FOLDER"/.dockerignore $CONTEXT_DIR
 
-docker_build "$IMAGE_NAME" fpm --secret id=envlocal,src=../.env.local
-docker_build "$IMAGE_NAME/nginx" nginx
-docker_build "$IMAGE_NAME-nginx" nginx
+# Source .env.local to load environment variables including ADO_NPM_AUTH_IDENT
+if [ -f ../.env.local ]; then
+    set -a
+    source ../.env.local
+    set +a
+fi
+
+docker_build "$IMAGE_NAME" fpm --secret id=envlocal,src=../.env.local --secret id=ado,env=ADO_NPM_AUTH_IDENT
+docker_build "$IMAGE_NAME/nginx" nginx --secret id=envlocal,src=../.env.local --secret id=ado,env=ADO_NPM_AUTH_IDENT
+docker_build "$IMAGE_NAME-nginx" nginx --secret id=envlocal,src=../.env.local --secret id=ado,env=ADO_NPM_AUTH_IDENT
 
 rm -rf $CONTEXT_DIR
 
