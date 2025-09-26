@@ -17,15 +17,12 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\CountyFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\MunicipalityFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\PriorityAreaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementAttributeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -34,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementDeleterTest extends FunctionalTestCase
 {
@@ -424,5 +420,4 @@ class StatementDeleterTest extends FunctionalTestCase
         self::assertNull($this->find(Statement::class, $testStatementId));
         self::assertNull($this->find(Statement::class, $testOriginalStatementId));
     }
-
 }

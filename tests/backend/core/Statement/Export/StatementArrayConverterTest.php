@@ -14,9 +14,7 @@ namespace Tests\Core\Statement\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementAttachmentFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
@@ -261,7 +259,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertTrue(is_array($result['countyNames']) || is_string($result['countyNames']));
         self::assertIsString($result['phase']);
     }
-
 
     /**
      * Test that fileNames field is correctly set when segmentOrStatement is Statement instance.
