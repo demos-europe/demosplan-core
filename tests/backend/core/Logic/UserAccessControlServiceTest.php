@@ -69,18 +69,18 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         $this->testUser2 = UserFactory::createOne();
 
         // Set organizations manually (bidirectional relationship)
-        $this->testUser->object()->setOrga($this->testOrga->object());
-        $this->testUser2->object()->setOrga($this->testOrga->object());
-        $this->testOrga->object()->addUser($this->testUser->object());
-        $this->testOrga->object()->addUser($this->testUser2->object());
+        $this->testUser->_real()->setOrga($this->testOrga->_real());
+        $this->testUser2->_real()->setOrga($this->testOrga->_real());
+        $this->testOrga->_real()->addUser($this->testUser->_real());
+        $this->testOrga->_real()->addUser($this->testUser2->_real());
 
         // Set roles manually
-        $this->testUser->object()->addDplanRole($this->testRole);
-        $this->testUser2->object()->addDplanRole($this->testRole);
+        $this->testUser->_real()->addDplanRole($this->testRole);
+        $this->testUser2->_real()->addDplanRole($this->testRole);
 
         // Persist the user changes
-        $this->getEntityManager()->persist($this->testUser->object());
-        $this->getEntityManager()->persist($this->testUser2->object());
+        $this->getEntityManager()->persist($this->testUser->_real());
+        $this->getEntityManager()->persist($this->testUser2->_real());
         $this->getEntityManager()->flush();
 
         // Create a simple OrgaType and establish customer relationship
@@ -91,12 +91,12 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // Use the addCustomerAndOrgaType method to establish the relationship properly
-        $this->testOrga->object()->addCustomerAndOrgaType($this->testCustomer->object(), $orgaType);
-        $this->differentOrga->object()->addCustomerAndOrgaType($this->testCustomer->object(), $orgaType);
+        $this->testOrga->_real()->addCustomerAndOrgaType($this->testCustomer->_real(), $orgaType);
+        $this->differentOrga->_real()->addCustomerAndOrgaType($this->testCustomer->_real(), $orgaType);
 
         // Persist orga changes as well
-        $this->getEntityManager()->persist($this->testOrga->object());
-        $this->getEntityManager()->persist($this->differentOrga->object());
+        $this->getEntityManager()->persist($this->testOrga->_real());
+        $this->getEntityManager()->persist($this->differentOrga->_real());
         $this->getEntityManager()->flush();
     }
 
@@ -107,7 +107,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Act
         $userAccessControl = $this->sut->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -115,7 +115,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Assert
         self::assertInstanceOf(UserAccessControl::class, $userAccessControl);
         self::assertSame($permission, $userAccessControl->getPermission());
-        self::assertSame($this->testUser->object(), $userAccessControl->getUser());
+        self::assertSame($this->testUser->_real(), $userAccessControl->getUser());
         self::assertSame($this->testRole, $userAccessControl->getRole());
         self::assertNotNull($userAccessControl->getId());
     }
@@ -127,14 +127,14 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Act
         $userAccessControl = $this->sut->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission
         );
 
         // Assert
         self::assertInstanceOf(UserAccessControl::class, $userAccessControl);
         self::assertSame($permission, $userAccessControl->getPermission());
-        self::assertSame($this->testUser->object(), $userAccessControl->getUser());
+        self::assertSame($this->testUser->_real(), $userAccessControl->getUser());
         self::assertNotNull($userAccessControl->getRole());
         self::assertNotNull($userAccessControl->getId());
     }
@@ -146,7 +146,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Act & Assert - Service should validate relationships (this will be implemented in service)
         $result = $this->sut->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -161,14 +161,14 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         $permission = 'feature_statement_bulk_edit';
 
         $this->sut->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
 
         // Act
         $result = $this->sut->removeUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -178,7 +178,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Verify permission is actually removed
         $exists = $this->sut->userPermissionExists(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -192,7 +192,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Act
         $result = $this->sut->removeUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -207,14 +207,14 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         $permission1 = 'feature_statement_bulk_edit';
         $permission2 = 'feature_procedure_planning_area_match';
 
-        $this->sut->createUserPermission($this->testUser->object(), $permission1, $this->testRole);
-        $this->sut->createUserPermission($this->testUser->object(), $permission2, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission1, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission2, $this->testRole);
 
         // Create permission for different user
-        $this->sut->createUserPermission($this->testUser2->object(), $permission1, $this->testRole);
+        $this->sut->createUserPermission($this->testUser2->_real(), $permission1, $this->testRole);
 
         // Act
-        $userPermissions = $this->sut->getUserPermissions($this->testUser->object());
+        $userPermissions = $this->sut->getUserPermissions($this->testUser->_real());
 
         // Assert
         self::assertCount(2, $userPermissions);
@@ -226,7 +226,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Verify all permissions belong to testUser
         foreach ($userPermissions as $permission) {
-            self::assertSame($this->testUser->object(), $permission->getUser());
+            self::assertSame($this->testUser->_real(), $permission->getUser());
         }
     }
 
@@ -237,18 +237,18 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
         // Act & Assert - Before creating permission
         $existsBefore = $this->sut->userPermissionExists(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
         self::assertFalse($existsBefore);
 
         // Create permission
-        $this->sut->createUserPermission($this->testUser->object(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
 
         // Act & Assert - After creating permission
         $existsAfter = $this->sut->userPermissionExists(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->testRole
         );
@@ -260,11 +260,11 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Arrange
         $permission = 'feature_statement_bulk_edit';
 
-        $this->sut->createUserPermission($this->testUser->object(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
 
         // Act
         $exists = $this->sut->userPermissionExists(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->differentRole
         );
@@ -286,7 +286,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // First we need to ensure the user doesn't have the role
         // For this test, we'll assume the service validates this
         $this->sut->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser->_real(),
             $permission,
             $this->differentRole // Role the user doesn't have
         );
@@ -297,16 +297,16 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Arrange
         $permission = 'feature_statement_bulk_edit';
 
-        $this->sut->createUserPermission($this->testUser->object(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
 
         // Act - Try to create the same permission again
-        $result = $this->sut->createUserPermission($this->testUser->object(), $permission, $this->testRole);
+        $result = $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
 
         // Assert - Service should handle duplicates gracefully
         self::assertInstanceOf(UserAccessControl::class, $result);
 
         // Verify only one permission exists
-        $userPermissions = $this->sut->getUserPermissions($this->testUser->object());
+        $userPermissions = $this->sut->getUserPermissions($this->testUser->_real());
         $duplicatePermissions = array_filter(
             $userPermissions,
             fn ($p) => $p->getPermission() === $permission
@@ -319,15 +319,15 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Arrange
         $permission = 'feature_statement_bulk_edit';
 
-        $this->sut->createUserPermission($this->testUser->object(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
 
         // Act - Get permissions with different organization context
-        $permissions = $this->sut->getUserPermissions($this->testUser->object());
+        $permissions = $this->sut->getUserPermissions($this->testUser->_real());
 
         // Assert - Should respect organization boundaries
         self::assertNotEmpty($permissions);
         foreach ($permissions as $userPermission) {
-            self::assertSame($this->testUser->object(), $userPermission->getUser());
+            self::assertSame($this->testUser->_real(), $userPermission->getUser());
         }
     }
 }
