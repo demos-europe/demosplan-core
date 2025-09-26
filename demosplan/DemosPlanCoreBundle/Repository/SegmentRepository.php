@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
@@ -163,5 +164,16 @@ class SegmentRepository extends CoreRepository
             }
             $this->getEntityManager()->refresh($segment);
         }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegmentObject(Segment $segment): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($segment);
+        $em->flush();
     }
 }
