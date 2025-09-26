@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use Zenstruck\Foundry\ModelFactory;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<TagTopic>
+ * @extends PersistentProxyObjectFactory<TagTopic>
  *
  * @method        TagTopic|Proxy                     create(array|callable $attributes = [])
  * @method static TagTopic|Proxy                     createOne(array $attributes = [])
@@ -36,14 +36,14 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static TagTopic[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static TagTopic[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class TagTopicFactory extends ModelFactory
+final class TagTopicFactory extends PersistentProxyObjectFactory
 {
     public function __construct()
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
         return [
             'procedure' => ProcedureFactory::new(),
@@ -51,12 +51,12 @@ final class TagTopicFactory extends ModelFactory
         ];
     }
 
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return TagTopic::class;
     }

@@ -42,10 +42,10 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
         $this->client = $this->makeClient();
 
         // Create a user that was provided by identity provider (Azure)
-        $this->azureUser = UserFactory::createOne(['providedByIdentityProvider' => true])->object();
+        $this->azureUser = UserFactory::createOne(['providedByIdentityProvider' => true])->_real();
 
         // Create a regular user (not provided by identity provider)
-        $this->regularUser = UserFactory::createOne(['providedByIdentityProvider' => false])->object();
+        $this->regularUser = UserFactory::createOne(['providedByIdentityProvider' => false])->_real();
     }
 
     public function testAzureUserLogoutRedirectsToAzureWhenConfigured(): void

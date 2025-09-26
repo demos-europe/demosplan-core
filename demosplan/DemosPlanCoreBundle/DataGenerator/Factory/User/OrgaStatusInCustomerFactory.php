@@ -14,12 +14,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository;
-use Zenstruck\Foundry\ModelFactory;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<OrgaStatusInCustomer>
+ * @extends PersistentProxyObjectFactory<OrgaStatusInCustomer>
  *
  * @method        OrgaStatusInCustomer|Proxy                     create(array|callable $attributes = [])
  * @method static OrgaStatusInCustomer|Proxy                     createOne(array $attributes = [])
@@ -53,7 +53,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @phpstan-method static list<Proxy<OrgaStatusInCustomer>> randomRange(int $min, int $max, array $attributes = [])
  * @phpstan-method static list<Proxy<OrgaStatusInCustomer>> randomSet(int $number, array $attributes = [])
  */
-final class OrgaStatusInCustomerFactory extends ModelFactory
+final class OrgaStatusInCustomerFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -66,7 +66,7 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
      */
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
         return [
             'customer' => CustomerFactory::new(),
@@ -79,12 +79,12 @@ final class OrgaStatusInCustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return OrgaStatusInCustomer::class;
     }

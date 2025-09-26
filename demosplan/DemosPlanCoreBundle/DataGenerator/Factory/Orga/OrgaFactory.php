@@ -13,12 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
-use Zenstruck\Foundry\ModelFactory;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<Orga>
+ * @extends PersistentProxyObjectFactory<Orga>
  *
  * @method        Orga|Proxy                     create(array|callable $attributes = [])
  * @method static Orga|Proxy                     createOne(array $attributes = [])
@@ -36,16 +36,16 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Orga[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Orga[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class OrgaFactory extends ModelFactory
+final class OrgaFactory extends PersistentProxyObjectFactory
 {
     public function __construct()
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
-        $slug = SlugFactory::createOne()->object();
+        $slug = SlugFactory::createOne()->_real();
 
         return [
             'createdDate'    => self::faker()->dateTime(),
@@ -63,12 +63,12 @@ final class OrgaFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return Orga::class;
     }

@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use Zenstruck\Foundry\ModelFactory;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<Tag>
+ * @extends PersistentProxyObjectFactory<Tag>
  *
  * @method        Tag|Proxy                     create(array|callable $attributes = [])
  * @method static Tag|Proxy                     createOne(array $attributes = [])
@@ -35,14 +35,14 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Tag[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Tag[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class TagFactory extends ModelFactory
+final class TagFactory extends PersistentProxyObjectFactory
 {
     public function __construct()
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
         return [
             'title' => self::faker()->word(),
@@ -50,12 +50,12 @@ final class TagFactory extends ModelFactory
         ];
     }
 
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return Tag::class;
     }
