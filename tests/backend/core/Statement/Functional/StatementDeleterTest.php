@@ -375,7 +375,7 @@ class StatementDeleterTest extends FunctionalTestCase
     {
         $ooo = StatementFactory::createOne();
         $testStatement = StatementFactory::createOne(['original' => $ooo]);
-        $ooo->setChildren([$testStatement->object()]);
+        $ooo->setChildren([$testStatement->_real()]);
 
         $testSegment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
         $testSegment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
@@ -395,7 +395,7 @@ class StatementDeleterTest extends FunctionalTestCase
 
         // Expect exactly one children, to keep this testcase simple.
         self::assertCount(1, $testStatement->getOriginal()->getChildren());
-        $successful = $this->sut->deleteStatementObject($testStatement->object());
+        $successful = $this->sut->deleteStatementObject($testStatement->_real());
         self::assertTrue($successful);
 
         // Use find() to search for IDs directly in DB to avoid doctrine cache

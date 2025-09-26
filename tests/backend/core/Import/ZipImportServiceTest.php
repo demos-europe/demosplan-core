@@ -43,9 +43,9 @@ class ZipImportServiceTest extends FunctionalTestCase
     {
         // local file usage is ok here
         $splFileInfo = new SplFileInfo(
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getAbsolutePath(),
             '',
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getHash()
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getHash()
         );
 
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
@@ -73,9 +73,9 @@ class ZipImportServiceTest extends FunctionalTestCase
         $this->expectException(DemosException::class);
 
         $splFileInfo = new SplFileInfo(
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Error_Testfile.zip', 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Error_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getAbsolutePath(),
             '',
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Error_Testfile.zip', 'application/zip', $this->testProcedure->object())->getHash()
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Error_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getHash()
         );
 
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
@@ -88,7 +88,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getHash()
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getHash()
         );
         $resultArray = $this->sut->createFileMapFromZip($splFileInfo, $this->testProcedure->getId());
     }
@@ -96,9 +96,9 @@ class ZipImportServiceTest extends FunctionalTestCase
     public function testExtractZipToTempFolder(): void
     {
         $splFileInfo = new SplFileInfo(
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getAbsolutePath(),
             '',
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getHash()
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -117,7 +117,7 @@ class ZipImportServiceTest extends FunctionalTestCase
         $splFileInfo = new SplFileInfo(
             '../../../../../../../..',
             '',
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getHash()
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getHash()
         );
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
@@ -129,7 +129,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
         $result = $this->sut->getStatementAttachmentImportDir(
             $this->testProcedure->getId(),
-            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getFileName(),
+            $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->_real())->getFileName(),
             $user
         );
 
