@@ -83,7 +83,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         // Create parent statement first
         $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'a');
-        $parentStatement->_withoutAutoRefresh(function($stmt) {
+        $parentStatement->_withoutAutoRefresh(function ($stmt) {
             $stmt->setMemo('Parent memo');
             $stmt->getMeta()->setOrgaCity('Test City');
             $stmt->getMeta()->setOrgaStreet('Test Street');
@@ -270,7 +270,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         ]);
 
         $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_withoutAutoRefresh(function($seg) use ($submitterNameSuffix) {
+        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
             $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
         });
         $segment->_save();
