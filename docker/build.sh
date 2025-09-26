@@ -82,7 +82,6 @@ fi
 mkdir -p $CONTEXT_DIR/{bin,projects}
 
 rsync --files-from=rsyncInclude.txt -arz .. $CONTEXT_DIR
-rsync -az "../bin/$PROJECT_NAME" "$CONTEXT_DIR/bin/$PROJECT_NAME"
 rsync --exclude-from=rsyncExcludeProject.txt -az "../projects/$PROJECT_NAME" $CONTEXT_DIR/projects
 cp -r "$FOLDER"/* $CONTEXT_DIR
 cp -r "$FOLDER"/.dockerignore $CONTEXT_DIR
