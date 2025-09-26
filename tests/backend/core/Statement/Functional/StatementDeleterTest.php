@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\CountyFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\MunicipalityFactory;
@@ -19,10 +20,12 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\PriorityAreaFa
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementAttributeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
@@ -31,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Tests\Base\FunctionalTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementDeleterTest extends FunctionalTestCase
 {
@@ -373,14 +377,32 @@ class StatementDeleterTest extends FunctionalTestCase
      */
     public function testCascadeDeleteOriginalStatementWithSegments(): void
     {
-        $ooo = StatementFactory::createOne();
-        $testStatement = StatementFactory::createOne(['original' => $ooo]);
-        $ooo->setChildren([$testStatement->_real()]);
+        // Bypass foundry factories and create entities directly to avoid cascade persist issues
+        $em = $this->getEntityManager();
 
-        $testSegment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
-        $testSegment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $testStatement]);
+        // Use existing test statement
+        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
 
-        //        $testStatement = $this->getStatementReference('statementTestTagsBulkEdit1');
+        // Create original statement using existing approach
+        $ooo = $this->createMinimalTestStatement('original', 'originalId', 'originalAuthor');
+
+        // Set relationships without triggering foundry cascade issues
+        $testStatement->setOriginal($ooo->_real());
+        $ooo->_real()->setChildren([$testStatement]);
+
+        // Force persist using entity manager
+        $em->persist($ooo->_real());
+        $em->flush();
+        $em->persist($testStatement);
+        $em->flush();
+
+        // Get existing segments and reassign them
+        $testSegment1 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_1);
+        $testSegment2 = $this->getSegmentReference(LoadSegmentData::SEGMENT_BULK_EDIT_2);
+
+        $testSegment1->setParentStatementOfSegment($testStatement);
+        $testSegment2->setParentStatementOfSegment($testStatement);
+        $em->flush();
         $testOriginalStatement = $testStatement->getOriginal();
         self::assertFalse($testStatement->isOriginal());
         self::assertNotNull($testOriginalStatement);
@@ -395,11 +417,27 @@ class StatementDeleterTest extends FunctionalTestCase
 
         // Expect exactly one children, to keep this testcase simple.
         self::assertCount(1, $testStatement->getOriginal()->getChildren());
-        $successful = $this->sut->deleteStatementObject($testStatement->_real());
+        $successful = $this->sut->deleteStatementObject($testStatement);
         self::assertTrue($successful);
 
         // Use find() to search for IDs directly in DB to avoid doctrine cache
         self::assertNull($this->find(Statement::class, $testStatementId));
         self::assertNull($this->find(Statement::class, $testOriginalStatementId));
+    }
+
+    private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
+    {
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real(),
+            'orderInProcedure'         => 1,
+        ]);
+
+        $segment->setPlace(PlaceFactory::createOne([])->_real());
+        $segment->_withoutAutoRefresh(function($seg) use ($submitterNameSuffix) {
+            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
+        });
+        $segment->_save();
+
+        return $segment->_real();
     }
 }
