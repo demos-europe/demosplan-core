@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.17.0 (2025-09-26)
 - Allow project specific CSS
 - allow sessions to be stored in redis
 
