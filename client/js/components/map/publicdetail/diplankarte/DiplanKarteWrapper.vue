@@ -19,26 +19,46 @@
 
     <diplan-karte
       v-if="isStoreAvailable"
+      :fitToExtent.prop="transformedInitialExtent"
+      :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
+      :layerConfig.prop="layerConfig"
+      :portalConfig.prop="portalConfig"
+      profile="beteiligung"
+      enable-layer-switcher
       enable-searchbar
       enable-toolbar
-      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
+
+    <div
+      v-if="copyright"
+      :class="prefixClass('left-0 bottom-[10px] !absolute z-above-zero bg-white/80 px-1 py-0.5 text-xs text-gray-600 rounded max-w-2/3')"
+    >
+      {{ copyright }}
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
 import { DpButton, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { transformExtent, transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
+import layerConfig from './config/layerConfig.json'
+import portalConfig from './config/portalConfig.json'
 import { registerWebComponent } from '@init/diplan-karten'
-import { transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import { useStore } from 'vuex'
 
-const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
+  },
+
+  copyright: {
+    type: String,
+    required: false,
+    default: '',
   },
 
   initDrawing: {
@@ -50,6 +70,12 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
     }),
   },
 
+  initialExtent: {
+    type: Array,
+    required: false,
+    default: () => [],
+  },
+
   loginPath: {
     type: String,
     required: true,
@@ -59,6 +85,22 @@ const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
     type: String,
     required: true,
   },
+
+  territory: {
+    type: Object,
+    required: false,
+    default: () => ({
+      type: 'FeatureCollection',
+      features: [],
+    }),
+  },
+})
+
+const transformedInitialExtent = ref([])
+
+const transformedTerritory = reactive({
+  type: 'FeatureCollection',
+  features: [],
 })
 
 const drawing = computed(() => {
@@ -66,9 +108,11 @@ const drawing = computed(() => {
     transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
     ''
 })
+
 const emit = defineEmits(['locationDrawing'])
 
 const instance = getCurrentInstance()
+
 const store = useStore()
 
 instance.appContext.app.mixin(prefixClassMixin)
@@ -133,13 +177,31 @@ const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
 
+const transformInitialExtent = () => {
+  transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
+}
+
+const transformTerritoryCoordinates = () => {
+  if (!territory || !territory.features || territory.features.length === 0) {
+    transformedTerritory.type = 'FeatureCollection'
+    transformedTerritory.features = []
+    return
+  }
+
+  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
+  transformedTerritory.type = transformed.type
+  transformedTerritory.features = transformed.features
+}
+
 onMounted(() => {
   registerWebComponent({
     nonce: styleNonce,
   })
-})
 
-onMounted(() => {
+  // Transform data once on mount
+  transformInitialExtent()
+  transformTerritoryCoordinates()
+
   store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 })
 

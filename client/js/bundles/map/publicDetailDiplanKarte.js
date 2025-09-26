@@ -12,7 +12,7 @@
  * See core-publicdetail.js for the entrypoint loaded when there is no Map
  */
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
-import DiplanKarteWrapper from '@DpJs/components/map/publicdetail/DiplanKarteWrapper'
+import DiplanKarteWrapper from '@DpJs/components/map/publicdetail/diplankarte/DiplanKarteWrapper'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
