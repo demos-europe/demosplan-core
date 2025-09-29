@@ -47,6 +47,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,6 +61,7 @@ use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\VarExporter\VarExporter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
@@ -111,6 +113,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly SegmentValidator $segmentValidator,
         StatementService $statementService,
         private readonly StatementValidator $statementValidator,
+        private readonly TagRepository $tagRepository,
         private readonly TagResourceType $tagResourceType,
         private readonly TagService $tagService,
         private readonly TagValidator $tagValidator,
@@ -430,35 +433,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Handle Tags
         if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
-            $procedureId = $statement->getProcedure()->getId();
-            $tagTitlesString = $segmentData['Schlagworte'];
-            if (is_numeric($tagTitlesString)) {
-                $tagTitlesString = (string) $tagTitlesString;
-            }
-            $tagTitles = explode(',', (string) $tagTitlesString);
-
-            foreach ($tagTitles as $tagTitle) {
-                $tagTitle = new UnicodeString($tagTitle);
-                $tagTitle = $tagTitle->trim()->toString();
-                $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
-
-                $createNewTag = null === $matchingTag;
-                if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
-                }
-
-                // Check if valid tag
-                $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
-
-                if (0 === $violations->count()) {
-                    $segment->addTag($matchingTag);
-                    if ($createNewTag) {
-                        $this->generatedTags[] = $matchingTag;
-                    }
-                } else {
-                    $this->addImportViolations($violations, $line, $worksheetTitle);
-                }
-            }
+            $this->processSegmentTags($statement, $segmentData['Schlagworte'], $miscTopic, $segment, $line, $worksheetTitle);
         }
 
         return $segment;
@@ -634,6 +609,50 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
+     * @param Statement $statement
+     * @param $tagTitles
+     * @param TagTopic $miscTopic
+     * @param Segment $segment
+     * @param int $line
+     * @param string $worksheetTitle
+     * @return void
+     * @throws DuplicatedTagTitleException
+     * @throws PathException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function processSegmentTags(Statement $statement, $tagTitles, TagTopic $miscTopic, Segment $segment, int $line, string $worksheetTitle): void
+    {
+        $procedureId = $statement->getProcedure()->getId();
+        if (is_numeric($tagTitles)) {
+            $tagTitles = (string)$tagTitles;
+        }
+
+        $tagTitleList = explode(',', (string)$tagTitles);
+
+        foreach ($tagTitleList as $tagTitle) {
+            $tagTitle = new UnicodeString($tagTitle);
+            $tagTitle = $tagTitle->trim()->toString();
+
+            $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
+
+            if (null === $matchingTag) {
+                $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
+                $this->generatedTags[] = $matchingTag;
+            }
+
+            // Check if valid tag
+            $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
+
+            if (0 === $violations->count()) {
+                $segment->addTag($matchingTag);
+            } else {
+                $this->addImportViolations($violations, $line, $worksheetTitle);
+                array_pop($this->generatedTags);
+            }
+        }
+    }
+
+    /**
      * Get the first {@link Tag} entity with a title and procedure matching the given one.
      *
      * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
@@ -643,17 +662,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
-        $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
-            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
-        );
-
-        $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
-        if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
-        }
-
-        return $matchingTags[0] ?? null;
+        return $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
     }
 
     protected function getValidatedStatementText(
