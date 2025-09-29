@@ -102,6 +102,47 @@ const transformedTerritory = reactive({
   type: 'FeatureCollection',
   features: [],
 })
+const createLayerObject = (baseConfig, specificConfig = {}) => {
+  if (!baseConfig || Object.keys(baseConfig).length < 4) {
+    return {}
+  }
+
+  const { id, name, type, url } = baseConfig
+  const baseLayer = {
+    id,
+    name,
+    typ: type,
+    url,
+  }
+
+  const layerTypeDefaults = {
+    // Add more defaults for other types here if needed
+    wms: {
+      layers: [],
+      format: "image/png",
+      version: "1.3.0",
+      singleTile: false,
+      transparent: true,
+      transparency: 0,
+      gutter: 0,
+      minScale: "0",
+      maxScale: "2500000",
+      tilesize: 512,
+      visibleOnLoad: false,
+    },
+  }
+
+  if (!layerTypeDefaults[type.toLowerCase()]) {
+    return {}
+  }
+
+  const mergedConfig = { ...layerTypeDefaults[type.toLowerCase()], ...specificConfig }
+
+  return {
+    ...baseLayer,
+    ...mergedConfig
+  }
+}
 
 const drawing = computed(() => {
   return initDrawing ?
