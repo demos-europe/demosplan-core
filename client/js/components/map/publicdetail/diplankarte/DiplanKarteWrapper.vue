@@ -99,12 +99,41 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   },
 })
 
-const transformedInitialExtent = ref([])
+const buildLayerConfigsList = () => {
+  const layersFromDB = store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
+
+  return layersFromDB
+    .map((layer) => {
+      const layerType = layer.attributes.serviceType?.toLowerCase()
+      const configBuilder = layerConfigBuilders[layerType]
+
+      if (!configBuilder) {
+        console.warn(`No config builder found for layer type: ${layerType}`)
+        return null
+      }
+
+      return {
+        baseConfig: {
+          id: layer.id,
+          name: layer.attributes.name,
+          type: layerType,
+          url: layer.attributes.url,
+        },
+        specificConfig: configBuilder(layer)
+      }
+    })
+    .filter(Boolean) // Entfernt null-Werte für unbekannte Layer-Typen
+}
 
 const transformedTerritory = reactive({
   type: 'FeatureCollection',
   features: [],
 })
+const buildLayerList = (layerConfigs) => {
+  return layerConfigs.map(config => {
+    return createLayerObject(config.baseConfig, config.specificConfig)
+  })
+}
 const createLayerObject = (baseConfig, specificConfig = {}) => {
   if (!baseConfig || Object.keys(baseConfig).length < 4) {
     return {}
@@ -207,6 +236,13 @@ const handleDrawing = (event) => {
   emit('locationDrawing', payload)
 }
 
+const layerConfigBuilders = {
+  wms: (layer) => ({
+    layers: layer.attributes.layers || null,
+    version: layer.attributes.layerVersion || "1.3.0",
+  }),
+  // Add other type specific values that could come from BE here
+}
 const openStatementModalOrLoginPage = (event) => {
   if (!hasPermission('feature_new_statement')) {
     window.location.href = loginPath
@@ -243,7 +279,26 @@ const transformTerritoryCoordinates = () => {
   transformedTerritory.features = transformed.features
 }
 
+const updateCustomLayerData = () => {
+  if (isStoreAvailable.value) {
+    const layerConfigs = buildLayerConfigsList()
+    const layerList = buildLayerList(layerConfigs)
+
+    customLayerList.value = layerList
+    customLayerConfigurationList.value = layerList.map(layer => ({
+      Titel: layer.name,
+      Layer: [{ id: layer.id }]
+    }))
+
+    layersLoaded.value = true
+  }
+}
 onMounted(() => {
+  store.dispatch('Layers/get', { procedureId: store.state.PublicStatement.procedureId })
+    .then(() => {
+      updateCustomLayerData()
+    })
+
   registerWebComponent({
     nonce: styleNonce,
   })
