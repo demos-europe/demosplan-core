@@ -487,7 +487,7 @@ export default {
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
-          const segmentsCount = statement.attributes.segmentsCount
+          const { segmentsCount = 0 } = statement.attributes
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
           return {
             ...statement.attributes,
@@ -712,13 +712,13 @@ export default {
         'memo',
         'originalId',
         'status',
+        'segmentsCount',
         'submitDate',
         'submitName',
         'submitType',
         'submitterEmailAddress',
         'text',
         'textIsTruncated',
-        'segmentsCount',
         // Relationships:
         'assignee',
         'sourceAttachment'
@@ -760,10 +760,7 @@ export default {
             'file'
           ].join(),
           File: [
-            'hash',
-            'filename',
-            'mimetype',
-            'size'
+            'hash'
           ].join()
         }
       }).then((data) => {
