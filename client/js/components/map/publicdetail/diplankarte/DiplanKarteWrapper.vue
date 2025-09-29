@@ -125,15 +125,16 @@ const buildLayerConfigsList = () => {
     .filter(Boolean) // Entfernt null-Werte für unbekannte Layer-Typen
 }
 
-const transformedTerritory = reactive({
-  type: 'FeatureCollection',
-  features: [],
-})
 const buildLayerList = (layerConfigs) => {
   return layerConfigs.map(config => {
     return createLayerObject(config.baseConfig, config.specificConfig)
   })
 }
+
+const closeLocationInfo = () => {
+  isLocationInfoClosed.value = true
+}
+
 const createLayerObject = (baseConfig, specificConfig = {}) => {
   if (!baseConfig || Object.keys(baseConfig).length < 4) {
     return {}
@@ -190,26 +191,6 @@ const drawing = computed(() => {
 
 const emit = defineEmits(['locationDrawing'])
 
-const instance = getCurrentInstance()
-
-const store = useStore()
-
-instance.appContext.app.mixin(prefixClassMixin)
-
-const isStoreAvailable = computed(() => {
-  return store.state.PublicStatement.storeInitialised
-})
-
-const isLocationInfoClosed = ref(false)
-
-const isLocationToolSelected = computed(() => {
-  return store.state.PublicStatement.activeActionBoxTab === 'draw'
-})
-
-const closeLocationInfo = () => {
-  isLocationInfoClosed.value = true
-}
-
 const handleDrawing = (event) => {
   let payload
   const geometry = transformFeatureCollection(event.detail[0], 'EPSG:4326', 'EPSG:3857')
@@ -235,6 +216,18 @@ const handleDrawing = (event) => {
 
   emit('locationDrawing', payload)
 }
+
+const instance = getCurrentInstance()
+
+const isLocationInfoClosed = ref(false)
+
+const isLocationToolSelected = computed(() => {
+  return store.state.PublicStatement.activeActionBoxTab === 'draw'
+})
+
+const isStoreAvailable = computed(() => {
+  return store.state.PublicStatement.storeInitialised
+})
 
 const layerConfigBuilders = {
   wms: (layer) => ({
@@ -262,12 +255,25 @@ const openStatementModalOrLoginPage = (event) => {
   toggleStatementModal({})
 }
 
+const store = useStore()
+
 const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
 
+const transformedInitialExtent = ref([])
+
+const transformedTerritory = reactive({
+  type: 'FeatureCollection',
+  features: [],
+})
+
 const transformInitialExtent = () => {
-  transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
+  if (!initialExtent || initialExtent.length === 0) {
+    transformedInitialExtent.value = undefined
+  } else {
+    transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
+  }
 }
 
 const transformTerritoryCoordinates = () => {
