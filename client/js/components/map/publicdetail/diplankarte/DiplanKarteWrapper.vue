@@ -18,7 +18,7 @@
     />
 
     <diplan-karte
-      v-if="isStoreAvailable"
+      v-if="isStoreAvailable && layersLoaded"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
@@ -293,6 +293,9 @@ const updateCustomLayerData = () => {
     layersLoaded.value = true
   }
 }
+
+instance.appContext.app.mixin(prefixClassMixin)
+
 onMounted(() => {
   store.dispatch('Layers/get', { procedureId: store.state.PublicStatement.procedureId })
     .then(() => {
