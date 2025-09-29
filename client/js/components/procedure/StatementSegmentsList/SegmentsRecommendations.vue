@@ -302,7 +302,7 @@ export default {
         },
         page: {
           number: page,
-          size: this.pagination.perPage || this.defaultPagination.perPage
+          size: this.pagination?.perPage || this.defaultPagination.perPage
         },
         sort: 'orderInProcedure',
         filter: {
@@ -363,8 +363,12 @@ export default {
     },
 
     handleSizeChange (newSize) {
+      if (newSize <= 0) {
+        // Prevent division by zero or negative page size
+        return
+      }
       // Compute new page with current page for changed number of items per page
-      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     }
@@ -372,9 +376,7 @@ export default {
 
   mounted () {
     this.initPagination()
-    if (Object.keys(this.segments).length === 0) {
-      this.fetchSegments(this.pagination.currentPage)
-    }
+    this.fetchSegments(this.pagination?.currentPage || 1)
   }
 }
 </script>
