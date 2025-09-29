@@ -54,6 +54,10 @@
 - Allow filtering of institution tags in DpAddOrganizationList
 
 ## v4.4.0 (2025-06-13)
+
+## v4.3.1-ewm (2025-09-25)
+- allow sessions to be stored in redis
+
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8
