@@ -24,6 +24,9 @@
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
+      :customLayerList.prop="customLayerList"
+      :customLayerConfigurationList.prop="customLayerConfigurationList"
+      :customLayerGroupName.prop="customLayerGroupName"
       profile="beteiligung"
       enable-layer-switcher
       enable-searchbar
@@ -143,6 +146,12 @@ const createLayerObject = (baseConfig, specificConfig = {}) => {
     ...mergedConfig
   }
 }
+
+const customLayerConfigurationList = ref([])
+
+const customLayerGroupName = Translator.trans('gislayer')
+
+const customLayerList = ref([])
 
 const drawing = computed(() => {
   return initDrawing ?
