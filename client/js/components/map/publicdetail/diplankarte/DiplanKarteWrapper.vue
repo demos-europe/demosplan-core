@@ -243,6 +243,9 @@ const layerConfigBuilders = {
   }),
   // Add other type specific values that could come from BE here
 }
+
+const layersLoaded = ref(false)
+
 const openStatementModalOrLoginPage = (event) => {
   if (!hasPermission('feature_new_statement')) {
     window.location.href = loginPath
