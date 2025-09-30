@@ -61,7 +61,6 @@ use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\VarExporter\VarExporter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
@@ -614,13 +613,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
-     * @param Statement $statement
-     * @param $tagTitles
-     * @param TagTopic $miscTopic
-     * @param Segment $segment
-     * @param int $line
-     * @param string $worksheetTitle
-     * @return void
      * @throws DuplicatedTagTitleException
      * @throws PathException
      * @throws \Doctrine\ORM\NonUniqueResultException
@@ -629,10 +621,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     {
         $procedureId = $statement->getProcedure()->getId();
         if (is_numeric($tagTitles)) {
-            $tagTitles = (string)$tagTitles;
+            $tagTitles = (string) $tagTitles;
         }
 
-        $tagTitleList = explode(',', (string)$tagTitles);
+        $tagTitleList = explode(',', (string) $tagTitles);
 
         foreach ($tagTitleList as $tagTitle) {
             $tagTitle = new UnicodeString($tagTitle);
