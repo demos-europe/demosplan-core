@@ -190,7 +190,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws UserNotFoundException
      * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
-    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
+    public function processSegments(SplFileInfo $fileInfo, bool $flushAndPersist = false): SegmentExcelImportResult
     {
         $result = new SegmentExcelImportResult();
 
@@ -223,7 +223,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
 
             $statement = \array_combine($columnNamesMeta, $statement);
-            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
+            if (isset($statement['typ']) && null !== $statement['typ']) {
+                $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ']);
+            } else {
+                $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement(self::PUBLIC);
+            }
 
             $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
             if (0 !== $idConstraints->count()) {
@@ -264,7 +268,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             // create all corresponding segments
             $counter = 1;
             foreach ($correspondingSegments as $segmentData) {
-                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic);
+                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic, $flushAndPersist);
 
                 // validate segment
                 $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
@@ -410,6 +414,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $line,
         string $worksheetTitle,
         TagTopic $miscTopic,
+        bool $flushAndPersist
     ): Segment {
         $procedure = $statement->getProcedure();
 
@@ -433,7 +438,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Handle Tags
         if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
-            $this->processSegmentTags($statement, $segmentData['Schlagworte'], $miscTopic, $segment, $line, $worksheetTitle);
+            $this->processSegmentTags($statement, $segmentData['Schlagworte'], $miscTopic, $segment, $line, $worksheetTitle, $flushAndPersist);
         }
 
         return $segment;
@@ -620,7 +625,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws PathException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function processSegmentTags(Statement $statement, $tagTitles, TagTopic $miscTopic, Segment $segment, int $line, string $worksheetTitle): void
+    public function processSegmentTags(Statement $statement, $tagTitles, TagTopic $miscTopic, Segment $segment, int $line, string $worksheetTitle, bool $flushAndPersist): void
     {
         $procedureId = $statement->getProcedure()->getId();
         if (is_numeric($tagTitles)) {
@@ -636,7 +641,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
 
             if (null === $matchingTag) {
-                $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
+                $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, $flushAndPersist);
                 $this->generatedTags[] = $matchingTag;
             }
 
