@@ -413,7 +413,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $line,
         string $worksheetTitle,
         TagTopic $miscTopic,
-        bool $flushAndPersist
+        bool $flushAndPersist,
     ): Segment {
         $procedure = $statement->getProcedure();
 
