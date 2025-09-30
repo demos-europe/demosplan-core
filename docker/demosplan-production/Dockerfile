@@ -82,6 +82,7 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
 COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
+USER www-data
 # mount .env.local as a secret to ensure that addons can be installed while keeping the layer clean.
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
@@ -92,8 +93,11 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
         ./fe build $PROJECT_NAME; \
     else \
         ./fe build $PROJECT_NAME --prod; \
-    fi && \
-    rm -rf /srv/www/node_modules && \
+    fi
+
+USER root
+
+RUN rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
     rm -rf /srv/www/.cache
