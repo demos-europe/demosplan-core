@@ -45,11 +45,11 @@
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
-      @select="setServiceInUrl"
+      @select="serviceType !== 'xtrasse' && setServiceInUrl"
     />
 
     <input
-      v-model="serviceType"
+      :value="serviceType"
       name="r_serviceType"
       type="hidden"
     >
@@ -68,12 +68,14 @@
     />
 
     <dp-label
+      v-if="serviceType!=='xtrasse'"
       :text="Translator.trans('layers')"
       for="r_layers"
       required
     />
 
     <dp-multiselect
+      v-if="serviceType!=='xtrasse'"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
@@ -114,7 +116,7 @@
     >
 
     <dp-ol-map
-      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType!=='xtrasse'"
       :layers="previewLayers"
       :procedure-id="procedureId"
       small
@@ -335,6 +337,9 @@ export default {
       if (hasPermission('feature_map_wmts')) {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
+      if (hasPermission('feature_diplan_karte')) {
+        serviceTypeOptions.push({ value: 'xtrasse', label: 'Xtrasse' })
+      }
       return serviceTypeOptions
     },
   },
@@ -476,6 +481,10 @@ export default {
     },
 
     getLayerCapabilities: debounce(function () {
+      if (this.serviceType === 'xtrasse') {
+        return
+      }
+
       this.clearSelections()
       this.isLoading = true
       // Don't fetch anything if there is no url
@@ -578,7 +587,8 @@ export default {
       // Find existing Key
       const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
 
-      if (this.url.match(serviceParam).length > 0) {
+      const match = this.url.match(serviceParam)
+      if (match && match.length > 0) {
         this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
       } else {
         const separator = this.url.includes('?') ? '&' : '?'
