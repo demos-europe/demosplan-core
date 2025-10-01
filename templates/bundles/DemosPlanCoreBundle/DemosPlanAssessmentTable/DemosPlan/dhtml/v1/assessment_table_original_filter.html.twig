@@ -20,6 +20,7 @@
         <button
             class="btn--blank o-link--default inline-block u-mt-0_25"
             @click.prevent="$refs.filterModal.openModal()"
+            type="button"
             aria-label="{{ "aria.maximize_filters"|trans }}"
            >
             {{ filtersSet|default([])|join(", ") }}
