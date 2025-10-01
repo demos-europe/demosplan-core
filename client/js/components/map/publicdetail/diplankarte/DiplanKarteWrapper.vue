@@ -119,7 +119,7 @@ const buildLayerConfigsList = () => {
           type: layerType,
           url: layer.attributes.url,
         },
-        specificConfig: configBuilder(layer)
+        specificConfig: configBuilder(layer),
       }
     })
     .filter(Boolean) // Deletes null-Values for unknown Layer-Types
@@ -173,7 +173,7 @@ const createLayerObject = (baseConfig, specificConfig = {}) => {
 
   return {
     ...baseLayer,
-    ...mergedConfig
+    ...mergedConfig,
   }
 }
 
@@ -232,7 +232,7 @@ const isStoreAvailable = computed(() => {
 const layerConfigBuilders = {
   wms: (layer) => ({
     layers: layer.attributes.layers || null,
-    version: layer.attributes.layerVersion || "1.3.0",
+    version: layer.attributes.layerVersion || '1.3.0',
   }),
   // Add other type specific values that could come from BE here
 }
@@ -296,7 +296,7 @@ const updateCustomLayerData = () => {
     customLayerList.value = layerList
     customLayerConfigurationList.value = layerList.map(layer => ({
       Titel: layer.name,
-      Layer: [{ id: layer.id }]
+      Layer: [{ id: layer.id }],
     }))
 
     layersLoaded.value = true
