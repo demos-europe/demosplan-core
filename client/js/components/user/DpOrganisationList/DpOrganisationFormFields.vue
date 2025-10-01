@@ -1102,7 +1102,7 @@ export default {
 
     registrationTypeLabel (type) {
       const orgaType = this.availableOrgaTypes.find(el => el.value === type)
-      return Translator.trans(orgaType.label)
+      return orgaType ? Translator.trans(orgaType.label) : type
     },
 
     saveNewRegistrationStatus () {
