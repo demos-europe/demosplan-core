@@ -41,6 +41,7 @@ RUN mkdir -p /opt/uploads && \
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
+USER www-data
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
     if [ "$BUILD_MODE" = "dev" ]; then \
@@ -58,6 +59,7 @@ RUN --mount=type=cache,target=/var/www,uid=33,gid=33 \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
 
+USER root
 # Remove app_dev.php in production mode
 RUN if [ "$BUILD_MODE" = "prod" ]; then \
         rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
