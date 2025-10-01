@@ -122,7 +122,7 @@ const buildLayerConfigsList = () => {
         specificConfig: configBuilder(layer)
       }
     })
-    .filter(Boolean) // Entfernt null-Werte für unbekannte Layer-Typen
+    .filter(Boolean) // Deletes null-Values for unknown Layer-Types
 }
 
 const buildLayerList = (layerConfigs) => {
@@ -151,15 +151,15 @@ const createLayerObject = (baseConfig, specificConfig = {}) => {
   const layerTypeDefaults = {
     // Add more defaults for other types here if needed
     wms: {
-      layers: [],
-      format: "image/png",
-      version: "1.3.0",
+      layers: '',
+      format: 'image/png',
+      version: '1.3.0',
       singleTile: false,
       transparent: true,
       transparency: 0,
       gutter: 0,
-      minScale: "0",
-      maxScale: "2500000",
+      minScale: '0',
+      maxScale: '2500000',
       tilesize: 512,
       visibleOnLoad: false,
     },
