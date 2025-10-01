@@ -423,8 +423,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setExternId($statement->getExternId().'-'.$counter);
         $segment->setPhase('participation');
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
-        $segment->setText($segmentData['Einwand'] ?? '');
-        $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
+        $segmentText = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']);
+        $segment->setText($segmentText ?? '');
+        $segmentReply = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']);
+        $segment->setRecommendation($segmentReply ?? '');
 
         $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
         if (null === $place) {
@@ -627,6 +629,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $tagTitleList = explode(',', (string) $tagTitles);
 
         foreach ($tagTitleList as $tagTitle) {
+            // Strip HTML tags and trim whitespace
+            $tagTitle = strip_tags($tagTitle);
             $tagTitle = new UnicodeString($tagTitle);
             $tagTitle = $tagTitle->trim()->toString();
 
