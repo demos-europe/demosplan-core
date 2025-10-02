@@ -416,12 +416,30 @@
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
-                                                :toolbar-items="{ listButtons: false }"
+                                                :toolbar-items="{ linkButton: true, listButtons: false }"
                                                 :maxlength="10000"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
                                             </dp-editor>
                                         </div>
                                     {% endblock oeb_desc %}
+                                {% endif %}
+
+                                {% if hasPermission('field_expand_procedure_description') %}
+                                    <dp-checkbox
+                                        id="expandProcedureDescription"
+                                        :checked="{{ proceduresettings.expandProcedureDescription ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.description.expand') }"
+                                        class="mb-4"
+                                        data-cy="procedure:descriptionExpanded"
+                                        name="expandProcedureDescription">
+                                    </dp-checkbox>
+                                {% else %}
+                                    <dp-input
+                                        id="expandProcedureDescription"
+                                        :value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
+                                        name="expandProcedureDescription"
+                                        type="hidden">
+                                    </dp-input>
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_contact_person') %}
@@ -446,7 +464,7 @@
                                             hidden-input="r_publicParticipationContact"
                                             data-cy="procedureInfo:publicParticipationContact"
                                             data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
-                                            :toolbar-items="{ listButtons: false }"
+                                            :toolbar-items="{ linkButton: true, listButtons: false }"
                                             :maxlength="2000"
                                             value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
                                             {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
@@ -991,16 +1009,15 @@
                                         :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
                                         class="mb-4"
                                         data-cy="procedure:publicParticipationPublicationEnabled"
-                                        name="allowAnonymousStatements"
-                                    >
+                                        name="allowAnonymousStatements">
                                     </dp-checkbox>
                                 {% else %}
                                     {# Allow anonymous statements by default #}
                                     <dp-input
+                                        id="allowAnonymousStatements"
                                         :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
-                                        type="hidden"
-                                    >
+                                        type="hidden">
                                     </dp-input>
                                 {% endif %}
                             </div>

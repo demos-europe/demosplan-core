@@ -234,19 +234,38 @@ class ServiceStorageTest extends FunctionalTestCase
         ];
     }
 
-    public function testAllowAnonymousStatementsWithPermission(): void
+    #[DataProvider('settingDataProvider')]
+    public function testProcedureSettingWithPermission(string $permission, string $attribute, string $method, bool $defaultValue): void
     {
-        $this->enablePermissions(['field_submit_anonymous_statements']);
-        $allowAnonymousStatements = $this->testProcedure->getSettings()->getAllowAnonymousStatements();
-        static::assertTrue($allowAnonymousStatements);
+        $this->enablePermissions([$permission]);
+        $setting = $this->testProcedure->getSettings()->$method();
+        static::assertSame($defaultValue, $setting);
 
-        // Test with allowAnonymousStatements set to false (checkbox unchecked)
-        $dataWithAnonymousFalse = $this->getBaseEditData();
-        $this->testAnonymousStatementsSetting($dataWithAnonymousFalse, false);
+        // Test with setting set to false (checkbox unchecked)
+        $dataWithFalse = $this->getBaseEditData();
+        $this->testProcedureSetting($dataWithFalse, false, $method);
 
-        // Test with allowAnonymousStatements set to true
-        $dataWithAnonymousTrue = $this->getBaseEditData(['allowAnonymousStatements' => '1']);
-        $this->testAnonymousStatementsSetting($dataWithAnonymousTrue, true);
+        // Test with setting set to true
+        $dataWithTrue = $this->getBaseEditData([$attribute => '1']);
+        $this->testProcedureSetting($dataWithTrue, true, $method);
+    }
+
+    public function settingDataProvider(): array
+    {
+        return [
+            'allowAnonymousStatementsWithPermission' => [
+                'permission'   => 'field_submit_anonymous_statements',
+                'attribute'    => 'allowAnonymousStatements',
+                'method'       => 'getAllowAnonymousStatements',
+                'defaultValue' => true,
+            ],
+            'allowExpandedProcedureDescriptionWithPermission' => [
+                'permission'   => 'field_expand_procedure_description',
+                'attribute'    => 'expandProcedureDescription',
+                'method'       => 'getExpandProcedureDescription',
+                'defaultValue' => false,
+            ],
+        ];
     }
 
     public function testAllowAnonymousStatementsWithoutPermission(): void
@@ -280,14 +299,14 @@ class ServiceStorageTest extends FunctionalTestCase
         ], $additionalData);
     }
 
-    private function testAnonymousStatementsSetting(array $data, bool $expectedValue): void
+    private function testProcedureSetting(array $data, bool $expectedValue, string $method): void
     {
         $result = $this->sut->administrationEditHandler($data);
         static::assertIsArray($result);
 
         /** @var Procedure $updatedProcedure */
         $updatedProcedure = $this->find(Procedure::class, $result['id']);
-        static::assertEquals($expectedValue, $updatedProcedure->getSettings()->getAllowAnonymousStatements());
+        static::assertEquals($expectedValue, $updatedProcedure->getSettings()->$method());
     }
 
     public function testAllowAnonymousStatementsDefaultValue(): void

@@ -223,14 +223,14 @@ export default {
       // If the user want to 'steal' the entity from another user, ask if it's by purpose
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
-        switch (this.entityType) {
-          case 'Statement':
+        switch (this.entityType.toLowerCase()) {
+          case 'statement':
             transkey = 'warning.statement.needLock.generic'
             break
-          case 'Fragment':
+          case 'fragment':
             transkey = 'warning.fragment.needLock.generic'
             break
-          case 'Segment':
+          case 'segment':
             transkey = 'warning.segment.needLock.generic'
             break
         }
