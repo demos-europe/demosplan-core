@@ -421,6 +421,15 @@ const SplitStatementStore = {
       dispatch('saveSegmentsDrafts')
     },
 
+    removeAllTags ({ state, commit }) {
+      const newEditingSegment = structuredClone(state.editingSegment)
+
+      newEditingSegment.tags = []
+
+      commit('locallyUpdateSegments', [newEditingSegment])
+      commit('setProperty', { prop: 'editingSegment', val: newEditingSegment })
+    },
+
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
       dataToSend.attributes.segments = state.segments
