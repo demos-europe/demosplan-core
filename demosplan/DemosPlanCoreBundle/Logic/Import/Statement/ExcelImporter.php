@@ -222,7 +222,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
 
             $statement = \array_combine($columnNamesMeta, $statement);
-            if (isset($statement['typ']) && null !== $statement['typ']) {
+            if (isset($statement['Typ']) && null !== $statement['Typ']) {
                 $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ']);
             } else {
                 $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement(self::PUBLIC);
@@ -494,14 +494,32 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newOriginalStatement->setInternId($statementData['Eingangsnummer']);
         $newOriginalStatement->setMemo($statementData['Memo'] ?? '');
 
-        // necessary to check incoming date-string:
-        // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
-        //        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
-        $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
-        if (0 === $violations->count()) {
-            $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());
+        // Handle Einreichungsdatum - can be Excel serial date or string
+        $submitDateValue = $statementData['Einreichungsdatum'];
+
+        if (null === $submitDateValue || $submitDateValue === '') {
+            // Leave submit date empty if no value provided
         } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+            // Handle both Excel serial dates and string dates
+            if (is_numeric($submitDateValue) && $submitDateValue > 1) {
+                // It's an Excel serial date number - convert to DateTime
+                try {
+                    $submitDateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($submitDateValue);
+                    $newOriginalStatement->setSubmit($submitDateObject);
+                } catch (\Exception $e) {
+                    $violations = $this->validator->validate($submitDateValue, [new DateStringConstraint()]);
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            } else {
+                // It's a string date - validate and parse
+                $violations = $this->validator->validate($submitDateValue, [new DateStringConstraint()]);
+                if (0 === $violations->count()) {
+                    $submitDateObject = Carbon::parse($submitDateValue)->toDate();
+                    $newOriginalStatement->setSubmit($submitDateObject);
+                } else {
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            }
         }
 
         $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT] ?? '', $line, $currentWorksheetTitle);
@@ -515,13 +533,31 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta->setOrgaStreet($statementData['Straße'] ?? '');
         $newStatementMeta->setHouseNumber((string) ($statementData['Hausnummer'] ?? ''));
 
-        $violations = $this->validator->validate($statementData['Verfassungsdatum'], new DateStringConstraint());
-        if (0 === $violations->count()) {
-            $dateString = $statementData['Verfassungsdatum'];
-            $dateString = null == $dateString ? null : Carbon::parse($dateString)->toDate();
-            $newStatementMeta->setAuthoredDate($dateString);
+        $dateValue = $statementData['Verfassungsdatum'];
+
+        if (null === $dateValue || $dateValue === '') {
+            $newStatementMeta->setAuthoredDate(null);
         } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+            // Handle both Excel serial dates and string dates
+            if (is_numeric($dateValue) && $dateValue > 1) {
+                // It's an Excel serial date number - convert to DateTime
+                try {
+                    $dateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue);
+                    $newStatementMeta->setAuthoredDate($dateObject);
+                } catch (\Exception $e) {
+                    $violations = $this->validator->validate($dateValue, new DateStringConstraint());
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            } else {
+                // It's a string date - validate and parse
+                $violations = $this->validator->validate($dateValue, new DateStringConstraint());
+                if (0 === $violations->count()) {
+                    $dateObject = Carbon::parse($dateValue)->toDate();
+                    $newStatementMeta->setAuthoredDate($dateObject);
+                } else {
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            }
         }
 
         $newStatementMeta->setSubmitOrgaId($this->currentUser->getUser()->getOrganisationId());
