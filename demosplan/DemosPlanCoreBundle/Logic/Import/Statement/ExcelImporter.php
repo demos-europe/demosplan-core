@@ -53,6 +53,7 @@ use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use Exception;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -497,7 +498,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // Handle Einreichungsdatum - can be Excel serial date or string
         $submitDateValue = $statementData['Einreichungsdatum'];
 
-        if (null === $submitDateValue || $submitDateValue === '') {
+        if (null === $submitDateValue || '' === $submitDateValue) {
             // Leave submit date empty if no value provided
         } else {
             // Handle both Excel serial dates and string dates
@@ -506,7 +507,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 try {
                     $submitDateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($submitDateValue);
                     $newOriginalStatement->setSubmit($submitDateObject);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $violations = $this->validator->validate($submitDateValue, [new DateStringConstraint()]);
                     $this->addImportViolations($violations, $line, $currentWorksheetTitle);
                 }
@@ -535,7 +536,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $dateValue = $statementData['Verfassungsdatum'];
 
-        if (null === $dateValue || $dateValue === '') {
+        if (null === $dateValue || '' === $dateValue) {
             $newStatementMeta->setAuthoredDate(null);
         } else {
             // Handle both Excel serial dates and string dates
@@ -544,7 +545,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 try {
                     $dateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue);
                     $newStatementMeta->setAuthoredDate($dateObject);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $violations = $this->validator->validate($dateValue, new DateStringConstraint());
                     $this->addImportViolations($violations, $line, $currentWorksheetTitle);
                 }
