@@ -330,6 +330,11 @@
         "website": "https://github.com/sebastianbergmann/phpunit"
     },
     {
+        "license": "MIT",
+        "package": "predis/predis",
+        "website": "https://github.com/predis/predis"
+    },
+    {
         "license": "LGPL-2.1",
         "package": "proj4php/proj4php",
         "website": "https://github.com/proj4php/proj4php"
@@ -628,6 +633,11 @@
         "license": "MIT",
         "package": "symfony/yaml",
         "website": "https://github.com/symfony/yaml"
+    },
+    {
+        "license": "MIT",
+        "package": "thenetworg/oauth2-azure",
+        "website": "https://github.com/TheNetworg/oauth2-azure"
     },
     {
         "license": "MIT",
