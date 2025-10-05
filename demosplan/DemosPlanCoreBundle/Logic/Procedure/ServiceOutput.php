@@ -181,13 +181,11 @@ class ServiceOutput
     /**
      * Verarbeitet alle Anfragen aus der Listenansicht.
      *
-     * @param mixed $search
      *
      * @return array
-     *
      * @throws Exception
      */
-    public function procedureTemplateAdminListHandler(array $filter, $search)
+    public function procedureTemplateAdminListHandler(array $filter, mixed $search)
     {
         if (0 === count($filter)) {
             throw new InvalidArgumentException('provide at least one filter');

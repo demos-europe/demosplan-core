@@ -33,11 +33,10 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
     /**
      * @param string $name
-     * @param mixed  $value
      *
      * @return $this
      */
-    public function setProperty($name, $value): self
+    public function setProperty($name, mixed $value): self
     {
         $this->verifySettability($name);
 

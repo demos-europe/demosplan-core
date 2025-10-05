@@ -63,10 +63,10 @@ class AddonInstallFromZipCommand extends CoreCommand
     private string $zipCachePath;
     private string $addonsDirectory;
     private string $addonsCacheDirectory;
-    private ?string $folder;
-    private ?string $branch;
-    private ?string $tag;
-    private ?string $name;
+    private ?string $folder = null;
+    private ?string $branch = null;
+    private ?string $tag = null;
+    private ?string $name = null;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -522,12 +522,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function askItem(string $existingContent, InputInterface $input, SymfonyStyle $output): mixed
     {
         $items = collect(Json::decodeToArray($existingContent))->filter(
-            function ($item) {
-                return !str_contains($item['name'], 'rc');
-            }
-        )->map(function ($item) {
-            return $item['name'];
-        })
+            fn($item) => !str_contains((string) $item['name'], 'rc')
+        )->map(fn($item) => $item['name'])
             ->reverse()
             ->values()
             ->toArray();
@@ -578,7 +574,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         $path = $questionHelper->ask($input, $output, $question);
 
         // create symlink from cache to addonsDev
-        $addonFolder = explode('/', $path)[count(explode('/', $path)) - 1];
+        $addonFolder = explode('/', (string) $path)[count(explode('/', (string) $path)) - 1];
         $fs->symlink($path, $this->addonsCacheDirectory.'/'.$addonFolder);
 
         return $path;
@@ -602,16 +598,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $ghReposUrl
         );
         $availableAddons = collect($availableRepositories)->filter(
-            function ($repo) {
-                return str_contains($repo['name'], 'demosplan-addon-');
-            }
+            fn($repo) => str_contains((string) $repo['name'], 'demosplan-addon-')
         )
-            ->map(function ($repo) {
-                return $repo['name'];
-            })
-            ->sortBy(function ($repo) {
-                return $repo;
-            })
+            ->map(fn($repo) => $repo['name'])
+            ->sortBy(fn($repo) => $repo)
             ->values()
             ->toArray();
         $question = new ChoiceQuestion(

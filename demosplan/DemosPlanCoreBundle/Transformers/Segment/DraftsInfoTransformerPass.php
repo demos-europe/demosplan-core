@@ -28,11 +28,9 @@ class DraftsInfoTransformerPass
     }
 
     /**
-     * @param mixed $data
-     *
      * @return mixed
      */
-    public function transform($data, string $format)
+    public function transform(mixed $data, string $format)
     {
         /** @var DraftsInfoTransformerInterface $transformer */
         foreach ($this->transformers as $transformer) {

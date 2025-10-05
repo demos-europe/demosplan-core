@@ -147,7 +147,7 @@ class SegmentController extends BaseController
         }
 
         // recreate uploaded array
-        $uploads = explode(',', $requestPost['uploadedFiles']);
+        $uploads = explode(',', (string) $requestPost['uploadedFiles']);
 
         foreach ($uploads as $uploadHash) {
             $file = $fileService->getFileInfo($uploadHash);

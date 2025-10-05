@@ -48,7 +48,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
         int $date = null
     ): ReportEntry {
         $data = $this->createMessageData($singleDocument);
-        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $data['date'] = $date ?? Carbon::now()->getTimestamp();
         $reportEntry = $this->createReportEntry();
         $reportEntry->setUser($this->getCurrentUser());
         $reportEntry->setGroup(ReportEntry::GROUP_SINGLE_DOCUMENT);

@@ -163,13 +163,11 @@ class PolygonIntoMapLayerMerger
      * wkt2px()
      * Umrechnen einer Koordinate in Pixel.
      *
-     * @param mixed    $x
-     * @param mixed    $y
      * @param stdClass $viewport
      * @param int      $width
      * @param int      $height
      */
-    private function wkt2px(&$x, &$y, $viewport, $width, $height)
+    private function wkt2px(mixed &$x, mixed &$y, $viewport, $width, $height)
     {
         $dx = $viewport->right - $viewport->left;
         $dy = $viewport->top - $viewport->bottom;
@@ -182,11 +180,10 @@ class PolygonIntoMapLayerMerger
      * html2rgb()
      * Transformiert eine CSS-Farbangabe nach RGB.
      *
-     * @param mixed $color
      *
      * @return array|false
      */
-    private function html2rgb($color)
+    private function html2rgb(mixed $color)
     {
         if ('#' == $color[0]) {
             $color = substr((string) $color, 1);

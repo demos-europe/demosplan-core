@@ -18,14 +18,8 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class OrgaAdminEditedEvent extends DPlanEvent
 {
-    protected OrgaInterface $orga;
-
-    protected ?bool $canCreateProcedures;
-
-    public function __construct(Orga $updatedOrga, ?bool $canCreateProcedures)
+    public function __construct(protected OrgaInterface $orga, protected ?bool $canCreateProcedures)
     {
-        $this->orga = $updatedOrga;
-        $this->canCreateProcedures = $canCreateProcedures;
     }
 
     public function getOrganisation(): OrgaInterface

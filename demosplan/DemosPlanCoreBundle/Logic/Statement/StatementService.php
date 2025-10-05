@@ -3340,11 +3340,9 @@ class StatementService implements StatementServiceInterface
         if (0 === count($segments)) {
             return self::STATEMENT_STATUS_NEW;
         }
-        $filterSegment = $segments->filter(static function ($segment) {
+        $filterSegment = $segments->filter(static fn($segment) =>
             /* @var Segment $segment */
-
-            return $segment->getPlace()->getSolved();
-        });
+            $segment->getPlace()->getSolved());
         if (count($filterSegment) === count($segments)) {
             return self::STATEMENT_STATUS_COMPLETED;
         }

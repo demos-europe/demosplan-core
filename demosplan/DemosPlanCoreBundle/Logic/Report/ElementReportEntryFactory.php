@@ -45,7 +45,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
     public function createElementEntry(Elements $element, string $reportCategory, int $date = null): ReportEntry
     {
         $data = $this->createMessageData($element);
-        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $data['date'] = $date ?? Carbon::now()->getTimestamp();
         $reportEntry = $this->createReportEntry();
         $reportEntry->setUser($this->getCurrentUser());
         $reportEntry->setGroup(ReportEntry::GROUP_ELEMENT);

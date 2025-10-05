@@ -226,7 +226,7 @@ class HTMLFragmentSlicer
                     $characterDifference = $this->currentSize - $this->sliceIndex - 1;
 
                     $limitInNode = $nodeSize - $characterDifference;
-                    $actualOffset = $this->strpos(wordwrap(trim($node->nodeValue), $limitInNode, "\n", false), "\n");
+                    $actualOffset = $this->strpos(wordwrap(trim((string) $node->nodeValue), $limitInNode, "\n", false), "\n");
 
                     $node->splitText($actualOffset);
                     $this->remainingList->push($node->nextSibling);

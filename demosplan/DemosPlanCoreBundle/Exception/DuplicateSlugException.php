@@ -22,10 +22,7 @@ class DuplicateSlugException extends InvalidArgumentException
         return $this->duplicatedSlug;
     }
 
-    /**
-     * @param mixed $duplicatedSlug
-     */
-    public function setDuplicatedSlug($duplicatedSlug)
+    public function setDuplicatedSlug(mixed $duplicatedSlug)
     {
         $this->duplicatedSlug = $duplicatedSlug;
     }

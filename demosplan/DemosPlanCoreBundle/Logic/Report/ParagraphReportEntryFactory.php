@@ -46,7 +46,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         int $date = null
     ): ReportEntry {
         $data = $this->createMessageData($paragraph);
-        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $data['date'] = $date ?? Carbon::now()->getTimestamp();
         $reportEntry = $this->createReportEntry();
         $reportEntry->setUser($this->getCurrentUser());
         $reportEntry->setGroup(ReportEntry::GROUP_PARAGRAPH);

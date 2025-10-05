@@ -131,10 +131,7 @@ final class AdminProcedureResourceType extends DplanResourceType
 
             if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
                 $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
-                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
-
-                    });
+                    ->readable(true, fn(Procedure $procedure): ?ArrayCollection => $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT'));
             }
         }
 

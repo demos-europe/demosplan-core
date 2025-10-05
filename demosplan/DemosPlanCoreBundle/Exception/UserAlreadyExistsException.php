@@ -24,10 +24,7 @@ class UserAlreadyExistsException extends RuntimeException
         return $this->value;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function setValue($value)
+    public function setValue(mixed $value)
     {
         $this->value = $value;
     }

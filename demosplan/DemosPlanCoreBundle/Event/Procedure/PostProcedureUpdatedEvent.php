@@ -85,7 +85,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
             try {
                 $oldValue = $property->getValue($oldObject);
                 $newValue = $property->getValue($newObject);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 // The property can not be accessed or does not exist within newObject
                 // store it and continue with other properties
                 $this->fieldsNotPresentInNewProcedure[$propertyName] = ['old' => $oldObject, 'new' => $newObject];
