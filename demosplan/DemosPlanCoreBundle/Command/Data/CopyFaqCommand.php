@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
@@ -28,11 +29,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:copy-faq', description: 'Copies the FAQ from one customer to another.')]
 class CopyFaqCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:copy-faq';
-    protected static $defaultDescription = 'Copies the FAQ from one customer to another.';
-
     protected QuestionHelper $helper;
 
     public function __construct(

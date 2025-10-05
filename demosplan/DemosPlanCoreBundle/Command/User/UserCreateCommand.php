@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\User;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -29,10 +30,9 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:user:create', description: 'Creates a new user with customer, orga, department and roles')]
 class UserCreateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:user:create';
-    protected static $defaultDescription = 'Creates a new user with customer, orga, department and roles';
     /**
      * @var mixed|QuestionHelper
      */

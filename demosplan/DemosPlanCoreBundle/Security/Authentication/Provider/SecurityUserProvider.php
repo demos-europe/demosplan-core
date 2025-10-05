@@ -31,7 +31,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
     ) {
     }
 
-    public function refreshUser(UserInterface $user): ?UserInterface
+    public function refreshUser(UserInterface $user): \Symfony\Component\Security\Core\User\UserInterface
     {
         if (!$user instanceof SecurityUser) {
             throw new UnsupportedUserException(sprintf('Invalid user class %s', $user::class));

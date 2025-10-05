@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -28,11 +29,9 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Illuminate\Support\Collection;
 
+#[AsCommand(name: 'documentation:generate:permission-list', description: 'Update the permissions information in dplandocs')]
 class PermissionListCommand extends CoreCommand
 {
-    protected static $defaultName = 'documentation:generate:permission-list';
-    protected static $defaultDescription = 'Update the permissions information in dplandocs';
-
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $loaderOutput = new NullOutput();

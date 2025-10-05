@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,12 +19,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:phpstan', description: 'Run PHPStan')]
 class PhpStanCommand extends CoreCommand
 {
     private const PHPSTAN_CONFIG_PATH = 'config/linters/phpstan.template.neon';
-
-    protected static $defaultName = 'dplan:phpstan';
-    protected static $defaultDescription = 'Run PHPStan';
 
     public function configure(): void
     {

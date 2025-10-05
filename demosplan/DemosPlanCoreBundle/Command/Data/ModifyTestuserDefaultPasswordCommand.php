@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -24,10 +25,9 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Throwable;
 
+#[AsCommand(name: 'dplan:data:modify-testuser-default-password', description: 'Update default password for test users')]
 class ModifyTestuserDefaultPasswordCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:modify-testuser-default-password';
-    protected static $defaultDescription = 'Update default password for test users';
     /**
      * @var QuestionHelper
      */

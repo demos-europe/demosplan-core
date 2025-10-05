@@ -10,17 +10,16 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'dplan:migrations:cache', description: 'Clears the Doctrine cache')]
 class MigrationsCacheCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:migrations:cache';
-    protected static $defaultDescription = 'Clears the Doctrine cache';
-
     /**
      * @throws Exception
      */

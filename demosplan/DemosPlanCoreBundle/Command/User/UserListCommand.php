@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\User;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -27,11 +28,9 @@ use Illuminate\Support\Collection;
  *
  * List users with their roles
  */
+#[AsCommand(name: 'dplan:user:list', description: 'List users with roles')]
 class UserListCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:user:list';
-    protected static $defaultDescription = 'List users with roles';
-
     public function __construct(ParameterBagInterface $parameterBag, private readonly UserService $userService, string $name = null)
     {
         parent::__construct($parameterBag, $name);

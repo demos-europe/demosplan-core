@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\CustomerConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -33,12 +34,10 @@ use Symfony\Component\Yaml\Yaml;
 
 use function is_string;
 
+#[AsCommand(name: 'dplan:container:init', description: 'Perform startup tasks that may be used e.g. as an init container in kubernetes setup')]
 class ContainerInitCommand extends CoreCommand
 {
     private const OPTION_CUSTOMER_CONFIG = 'customerConfig';
-
-    protected static $defaultName = 'dplan:container:init';
-    protected static $defaultDescription = 'Perform startup tasks that may be used e.g. as an init container in kubernetes setup';
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,

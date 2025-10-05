@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -22,11 +23,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[AsCommand(name: 'dplan:translations:dump', description: 'Dump translations into a ES6 importable JS module')]
 class TranslationsDumpCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:translations:dump';
-    protected static $defaultDescription = 'Dump translations into a ES6 importable JS module';
-
     protected function configure(): void
     {
         $this->addOption('target', 't', InputOption::VALUE_REQUIRED);

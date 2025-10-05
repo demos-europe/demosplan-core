@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -36,11 +37,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(name: 'dplan:addon:uninstall', description: 'Uninstall installed addons')]
 class AddonUninstallCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:uninstall';
-    protected static $defaultDescription = 'Uninstall installed addons';
-
     public function __construct(
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
@@ -55,6 +56,7 @@ use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
  *
  * Class MaintenanceCommand
  */
+#[AsCommand(name: 'dplan:maintenance', aliases: ['demos:maintenance'])]
 class MaintenanceCommand extends EndlessContainerAwareCommand
 {
     protected static $defaultDescription = 'DemosPlan Maintenance daemon';
@@ -151,8 +153,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     {
         // Since this command has an alias this command **cannot** be lazyfied at the moment!
         // Add an alias until we have reconfigured the dev services
-        $this->setName('dplan:maintenance')
-            ->setAliases(['demos:maintenance'])
+        $this
             ->setTimeout(5); // Set the timeout in seconds between two calls to the "execute" method
         parent::configure();
     }

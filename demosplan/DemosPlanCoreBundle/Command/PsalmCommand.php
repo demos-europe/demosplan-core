@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,12 +21,10 @@ use Symfony\Component\Process\Process;
  * Runs psalm checks https://psalm.dev
  * Class PsalmCommand.
  */
+#[AsCommand(name: 'dplan:psalm', description: 'Run psalm code analysis')]
 class PsalmCommand extends CoreCommand
 {
     private const PSALM_CONFIG_PATH = 'config/linters/psalm.template.xml';
-
-    protected static $defaultName = 'dplan:psalm';
-    protected static $defaultDescription = 'Run psalm code analysis';
 
     public function configure(): void
     {

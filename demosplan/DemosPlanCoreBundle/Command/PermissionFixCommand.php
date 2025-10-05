@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Command\Command;
@@ -23,11 +24,9 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Tries to autofix file permission issues
  */
+#[AsCommand(name: 'dplan:permission:fix', description: 'Tries to autofix file permission issues')]
 class PermissionFixCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:permission:fix';
-    protected static $defaultDescription = 'Tries to autofix file permission issues';
-
     public function configure(): void
     {
         $this

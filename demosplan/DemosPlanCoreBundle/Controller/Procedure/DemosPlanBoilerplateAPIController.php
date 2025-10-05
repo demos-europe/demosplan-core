@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateGroupResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\BoilerplateResourceType;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanBoilerplateAPIController extends APIController
 {

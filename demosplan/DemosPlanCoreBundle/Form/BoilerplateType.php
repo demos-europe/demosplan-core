@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
+use Traversable;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
@@ -22,7 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BoilerplateType extends AbstractType implements DataMapperInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(
@@ -77,7 +78,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
             ->setDataLocked(true);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(['data_class' => BoilerplateVO::class]);
     }
@@ -85,7 +86,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     /**
      * @param BoilerplateVO $data
      */
-    public function mapDataToForms($data, iterable $forms)
+    public function mapDataToForms($data, Traversable $forms)
     {
         $forms = \iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -99,7 +100,7 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
     /**
      * @param BoilerplateVO $boilerplateVO
      */
-    public function mapFormsToData(iterable $forms, &$boilerplateVO)
+    public function mapFormsToData(Traversable $forms, &$boilerplateVO)
     {
         $forms = \iterator_to_array($forms);
         /** @var FormInterface[] $forms */

@@ -10,6 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
@@ -42,14 +46,12 @@ use function str_replace;
  * This command fetches all required data and runs necessary sub commands to feed
  * the frontend toolchain with required information.
  */
+#[AsCommand(name: 'dplan:frontend:integrator', description: 'This command outputs a bunch of data needed by the FE tooling')]
 class FrontendIntegratorCommand extends CoreCommand
 {
     private const OPEN_API_JSON_FILE = 'client/js/generated/openApi.json';
 
     private const RESOURCE_TYPES_FILE = 'client/js/generated/ResourceTypes.js';
-
-    protected static $defaultName = 'dplan:frontend:integrator';
-    protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
@@ -152,13 +154,13 @@ class FrontendIntegratorCommand extends CoreCommand
         $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
 
         $schemaGenerator->setGetActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\GetActionConfig($this->router, $this->translator)
+            new GetActionConfig($this->router, $this->translator)
         );
         $schemaGenerator->setListActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\ListActionConfig($this->router, $this->translator)
+            new ListActionConfig($this->router, $this->translator)
         );
 
-        $openApiSpec = $schemaGenerator->buildDocument(new \EDT\JsonApi\ApiDocumentation\OpenApiWording($this->translator));
+        $openApiSpec = $schemaGenerator->buildDocument(new OpenApiWording($this->translator));
 
         // just to be safe, reset permissions after getting everything we want
         $this->currentUser->getPermissions()->initPermissions($user);

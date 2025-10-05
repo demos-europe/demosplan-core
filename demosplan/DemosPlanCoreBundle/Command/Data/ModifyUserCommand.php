@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -23,12 +24,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 /**
  * dplan:data:modify-user.
  */
+#[AsCommand(name: 'dplan:data:modify-user', description: 'Reset passwords of users for each allowed role to allow login.')]
 class ModifyUserCommand extends CoreCommand
 {
-    // lazy load command
-    protected static $defaultName = 'dplan:data:modify-user';
-    protected static $defaultDescription = 'Reset passwords of users for each allowed role to allow login.';
-
     /** @var UserService */
     protected $userService;
 

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -25,6 +26,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'dplan:vendorlist:update', description: 'Update the list of external dependencies')]
 class VendorlistUpdateCommand extends CoreCommand
 {
     /**
@@ -42,9 +44,6 @@ class VendorlistUpdateCommand extends CoreCommand
      * @const string[] Elements should be given as `vendor/package`
      */
     private const PHP_PACKAGE_DENYLIST = [];
-
-    protected static $defaultName = 'dplan:vendorlist:update';
-    protected static $defaultDescription = 'Update the list of external dependencies';
 
     final public const JS_PATH_JSON = 'demosplan/DemosPlanCoreBundle/Resources/static/js_licenses.json';
     final public const JS_PATH_TEXT = 'licenses/js_licenses.txt';

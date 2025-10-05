@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -54,12 +55,9 @@ use function strlen;
 /**
  * dplan:data:remove-user-data.
  */
+#[AsCommand(name: 'dplan:data:remove-user-data', description: 'Deletes sensitive/personal data from DB.')]
 class RemoveUserDataCommand extends CoreCommand
 {
-    // lazy load command
-    protected static $defaultName = 'dplan:data:remove-user-data';
-    protected static $defaultDescription = 'Deletes sensitive/personal data from DB.';
-
     /** @var UserService */
     protected $userService;
 

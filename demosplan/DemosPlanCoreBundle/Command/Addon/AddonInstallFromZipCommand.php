@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
@@ -54,11 +55,9 @@ use ZipArchive;
  *
  * It does **NOT** handle addon activation!
  */
+#[AsCommand(name: 'dplan:addon:install', description: 'Installs an addon based on a given zip-file')]
 class AddonInstallFromZipCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:install';
-    protected static $defaultDescription = 'Installs an addon based on a given zip-file';
-
     private string $zipSourcePath;
     private string $zipCachePath;
     private string $addonsDirectory;

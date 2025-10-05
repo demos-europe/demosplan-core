@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -29,11 +30,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'dplan:documentation:generate:event-list', description: '')]
 class EventFinder extends CoreCommand
 {
-    protected static $defaultName = 'dplan:documentation:generate:event-list';
-    protected static $defaultDescription = '';
-
     private const OPTION_START_PATHS = 'startPaths';
     private const OPTION_PARENTS = 'parents';
 

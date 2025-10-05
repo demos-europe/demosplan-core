@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Permission;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
@@ -22,11 +23,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 /**
  * This Command is used to disable a specific permission for a given customer, organization, and role.
  */
+#[AsCommand(name: 'dplan:permission:disable:customer-orga-role', description: 'Disables a specific permission for a given customer, organization, and role')]
 class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOrgaRoleCommand
 {
-    protected static $defaultName = 'dplan:permission:disable:customer-orga-role';
-    protected static $defaultDescription = 'Disables a specific permission for a given customer, organization, and role';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         CustomerService $customerService,

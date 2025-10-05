@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\ClassGenerator;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
@@ -53,12 +54,10 @@ use Webmozart\Assert\Assert;
  * * easy access to resource: {@link ResourceTypeStore}
  * * resource property schema config classes: e.g. {@link BaseStatementResourceConfigBuilder}, needs to be moved into `demosplan-addon` after generation
  */
+#[AsCommand(name: 'dplan:generator:entity:companion', description: 'Generate companion classes for entities.')]
 class EntityCompanionGeneratorCommand extends CoreCommand
 {
     use EntityClassGeneratorTrait;
-
-    protected static $defaultName = 'dplan:generator:entity:companion';
-    protected static $defaultDescription = 'Generate companion classes for entities.';
 
     private readonly ClassOrInterfaceType $sortingClass;
     private readonly ClassOrInterfaceType $conditionClass;

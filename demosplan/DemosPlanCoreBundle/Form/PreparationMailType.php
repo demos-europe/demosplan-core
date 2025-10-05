@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Form;
 
+use Traversable;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
@@ -22,7 +23,7 @@ use Symfony\Component\Form\FormInterface;
 
 class PreparationMailType extends AbstractType implements DataMapperInterface
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(
@@ -53,7 +54,7 @@ class PreparationMailType extends AbstractType implements DataMapperInterface
             ->setDataMapper($this);
     }
 
-    public function mapDataToForms($data, iterable $forms)
+    public function mapDataToForms($data, Traversable $forms)
     {
         $forms = iterator_to_array($forms);
         /* @var FormInterface[] $forms */
@@ -62,7 +63,7 @@ class PreparationMailType extends AbstractType implements DataMapperInterface
         $forms['r_email_address']->setData($data ? $data->getSendMail() : true);
     }
 
-    public function mapFormsToData(iterable $forms, &$data)
+    public function mapFormsToData(Traversable $forms, &$data)
     {
         $forms = iterator_to_array($forms);
         /** @var FormInterface[] $forms */

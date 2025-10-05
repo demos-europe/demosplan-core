@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -28,11 +29,9 @@ use Illuminate\Support\Collection;
  *
  * @see https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/cookbook/speed-up-populate-command.md
  */
+#[AsCommand(name: 'dplan:elasticsearch:populate', description: 'Run elasticsearch populate with many workers')]
 class ElasticsearchPopulateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:elasticsearch:populate';
-    protected static $defaultDescription = 'Run elasticsearch populate with many workers';
-
     protected $elasticsearchIndexingPoolSize;
 
     /**

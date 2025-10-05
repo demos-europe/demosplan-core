@@ -88,7 +88,7 @@ EOT;
                 ->html(nl2br($testMailbody).$message->getHtmlBody());
 
             foreach ($message->getAttachments() as $attachment) {
-                $testMessage->attachPart($attachment);
+                $testMessage->addPart($attachment);
             }
             // overwrite Original Object with Testmail
             $message = $testMessage;

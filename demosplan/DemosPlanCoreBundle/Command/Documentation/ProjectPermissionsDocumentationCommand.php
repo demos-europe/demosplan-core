@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
@@ -29,11 +30,9 @@ use function array_flip;
 use function array_map;
 use function collect;
 
+#[AsCommand(name: 'dplan:documentation:project-permissions', description: 'Extend the permissions documentation with project information')]
 class ProjectPermissionsDocumentationCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:documentation:project-permissions';
-    protected static $defaultDescription = 'Extend the permissions documentation with project information';
-
     public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, string $name = null)
     {
         parent::__construct($parameterBag, $name);

@@ -14,22 +14,24 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\Doctrine\Set\DoctrineSetList;
+use Rector\Set\ValueObject\LevelSetList;
+use Rector\Set\ValueObject\SetList;
+use Rector\Symfony\Set\SensiolabsSetList;
 use Rector\Symfony\Set\SymfonySetList;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withSets([
         // Define what rule sets will be applied
-        // SetList::CODE_QUALITY,
-        // SymfonyLevelSetList::UP_TO_SYMFONY_44,
+        SetList::CODE_QUALITY,
+        SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
-        // LevelSetList::UP_TO_PHP_53,
-        // LevelSetList::UP_TO_PHP_74,
         // LevelSetList::UP_TO_PHP_81,
         // TwigLevelSetList::UP_TO_TWIG_240,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
+        // DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // PHPUnitLevelSetList::UP_TO_PHPUNIT_90,
         // DoctrineSetList::DOCTRINE_DBAL_40,
     ])
@@ -42,7 +44,7 @@ return RectorConfig::configure()
     ->withPaths([__DIR__ . '/../../demosplan'])
     ->withPhpVersion(PhpVersion::PHP_81)
     ->withSymfonyContainerXml(
-        '/tmp/diplanbau/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
+        '/srv/www/var/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
     )
     ->withAutoloadPaths([__DIR__ . '/../../vendor/autoload.php'])
     ->withImportNames()

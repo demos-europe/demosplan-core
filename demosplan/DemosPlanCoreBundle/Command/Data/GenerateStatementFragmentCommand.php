@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -26,11 +27,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:statement-fragment', description: 'Generate Fragments on a Statement')]
 class GenerateStatementFragmentCommand extends DataProviderCommand
 {
-    public static $defaultName = 'dplan:data:generate:statement-fragment';
-    protected static $defaultDescription = 'Generate Fragments on a Statement';
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         ParameterBagInterface $parameterBag,

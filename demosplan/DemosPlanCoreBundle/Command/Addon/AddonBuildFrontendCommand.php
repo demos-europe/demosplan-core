@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -22,11 +23,9 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:addon:build-frontend', description: 'Build frontend assets for an addon')]
 class AddonBuildFrontendCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:build-frontend';
-    protected static $defaultDescription = 'Build frontend assets for an addon';
-
     public function __construct(private readonly AddonRegistry $registry, ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -28,12 +29,10 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * Update current project
  */
+#[AsCommand(name: 'dplan:cache:clear', description: 'Clear apcu and op caches')]
 class CacheClearCommand extends CoreCommand
 {
     final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
-
-    protected static $defaultName = 'dplan:cache:clear';
-    protected static $defaultDescription = 'Clear apcu and op caches';
 
     public function configure(): void
     {

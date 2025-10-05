@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use DomainException;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -24,12 +25,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
+#[AsCommand(name: 'dplan:db:init', description: 'Initialize a db for the project')]
 class InitDbCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:db:init';
-
-    protected static $defaultDescription = 'Initialize a db for the project';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly SessionHandlerInterface $sessionHandler,

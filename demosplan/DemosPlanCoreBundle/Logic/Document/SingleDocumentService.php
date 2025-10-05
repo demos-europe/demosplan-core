@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -290,7 +291,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
-     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
+     * @throws JsonException
      */
     public function updateSingleDocument($data): array
     {

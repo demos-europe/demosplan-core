@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -24,11 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * This command fetches all required data and runs necessary sub commands to feed
  * the frontend toolchain with required information.
  */
+#[AsCommand(name: 'dplan:frontend:buildinfo', description: 'This command outputs a bunch of data needed by the FE build tooling')]
 class FrontendBuildinfoCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:frontend:buildinfo';
-    protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE build tooling';
-
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $data = $this->getParameters();

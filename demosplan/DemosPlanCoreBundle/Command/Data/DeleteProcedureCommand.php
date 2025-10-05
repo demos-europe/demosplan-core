@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
@@ -25,11 +26,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:procedure:delete', description: 'Deletes a procedure including all related content like statements, tags, News, etc.')]
 class DeleteProcedureCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:procedure:delete';
-    protected static $defaultDescription = 'Deletes a procedure including all related content like statements, tags, News, etc.';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly ProcedureDeleter $procedureDeleter,
@@ -69,7 +68,7 @@ class DeleteProcedureCommand extends CoreCommand
         $isDryRun = (bool) $input->getOption('dry-run');
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
         $procedureIds = $input->getArgument('procedureIds');
-        $procedureIds = explode(',', $procedureIds);
+        $procedureIds = explode(',', (string) $procedureIds);
         try {
             $retrievedProceduresIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(['_p_id'], '_procedure', '_p_id', $procedureIds),

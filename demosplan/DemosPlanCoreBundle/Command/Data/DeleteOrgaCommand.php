@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
@@ -23,11 +24,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.')]
 class DeleteOrgaCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:organisation:delete';
-    protected static $defaultDescription = 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly OrgaDeleter $orgaDeleter,
@@ -67,7 +66,7 @@ class DeleteOrgaCommand extends CoreCommand
         $isDryRun = (bool) $input->getOption('dry-run');
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
         $orgaIds = $input->getArgument('orgaIds');
-        $orgaIds = explode(',', $orgaIds);
+        $orgaIds = explode(',', (string) $orgaIds);
         try {
             $retrievedOrgaIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(['_o_id'], '_orga', '_o_id', $orgaIds),

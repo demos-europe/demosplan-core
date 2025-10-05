@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
@@ -20,10 +21,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:statement', description: 'Generate a (number of) statement(s) by a user')]
 class GenerateStatementCommand extends DataProviderCommand
 {
-    public static $defaultName = 'dplan:data:generate:statement';
-    protected static $defaultDescription = 'Generate a (number of) statement(s) by a user';
     /**
      * @var LoggerInterface
      */

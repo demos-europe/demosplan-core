@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -31,10 +32,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:organisation', description: 'Generate a (number of) Organisation(s)')]
 class GenerateOrganisationCommand extends DataProviderCommand
 {
-    protected static $defaultName = 'dplan:data:generate:organisation';
-    protected static $defaultDescription = 'Generate a (number of) Organisation(s)';
     /**
      * @var ManagerRegistry
      */

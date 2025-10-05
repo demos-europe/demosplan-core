@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Debug;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
@@ -24,14 +25,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:debug:procedure-type-fields', description: 'Shows info regarding the fields for the different ProcedureTypes')]
 class DplanProcedureTypeFieldsCommand extends CoreCommand
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'dplan:debug:procedure-type-fields';
-    protected static $defaultDescription = 'Shows info regarding the fields for the different ProcedureTypes';
-
     public function __construct(
         private readonly ProcedureTypeService $procedureTypeService,
         ParameterBagInterface $parameterBag,

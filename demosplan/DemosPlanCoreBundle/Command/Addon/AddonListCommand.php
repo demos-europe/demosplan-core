@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollectionWrapper;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use Symfony\Component\Console\Helper\Table;
@@ -17,11 +18,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:addon:list', description: 'List installed addons')]
 class AddonListCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:list';
-    protected static $defaultDescription = 'List installed addons';
-
     public function __construct(
         private readonly AddonManifestCollectionWrapper $addonManifestCollectionWrapper,
         ParameterBagInterface $parameterBag,

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\FakeDataGeneratorFactory;
@@ -35,10 +36,9 @@ use function is_dir;
 use function strrpos;
 use function substr;
 
+#[AsCommand(name: 'dplan:data:replace-files')]
 class ReplaceFilesCommand extends CoreCommand
 {
-    public static $defaultName = 'dplan:data:replace-files';
-
     public function __construct(
         private readonly FakeDataGeneratorFactory $generatorFactory,
         private readonly FileRepository $fileRepository,

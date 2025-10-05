@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -30,10 +31,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:register-user-for-customer', description: 'Registers an existing user to an existing customer')]
 class RegisterUserForCustomerCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:register-user-for-customer';
-    protected static $defaultDescription = 'Registers an existing user to an existing customer';
     /**
      * @var QuestionHelper
      */
