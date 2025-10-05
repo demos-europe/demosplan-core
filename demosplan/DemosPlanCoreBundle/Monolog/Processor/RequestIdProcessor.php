@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Monolog\Processor;
 
+use Symfony\Component\HttpFoundation\Request;
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -37,7 +38,7 @@ class RequestIdProcessor implements ProcessorInterface
         }
 
         $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
+        if (!$request instanceof Request) {
             // If not in a request context (e.g., console), generate a shorter one-time ID
             $this->requestId = 'c'.base_convert(random_int(0, 1679615), 10, 36).base_convert(time(), 10, 36);
             $record->extra['rid'] = $this->requestId;

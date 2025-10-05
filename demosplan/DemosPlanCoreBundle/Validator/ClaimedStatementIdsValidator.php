@@ -47,7 +47,7 @@ class ClaimedStatementIdsValidator extends ConstraintValidator
             $valid = $valid && $this->validateSingleValue($value);
         }
 
-        if (true !== $valid) {
+        if (!$valid) {
             $this->context->buildViolation($constraint->getMessage())
                 ->addViolation();
         }
@@ -96,7 +96,7 @@ class ClaimedStatementIdsValidator extends ConstraintValidator
     protected function isStatementIdClaimed($statementId): bool
     {
         $statement = $this->statementService->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return false;
         }
 

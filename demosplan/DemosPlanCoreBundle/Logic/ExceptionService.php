@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use Symfony\Component\HttpFoundation\Request;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
@@ -41,51 +42,44 @@ class ExceptionService
         $logger = $this->logger;
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request) {
+        if (!$request instanceof Request) {
             $logger->warning('Exception occured without request');
             $logger->info($e);
 
             return $this->redirectToRoute('core_home');
         }
-
         // Fehlertemplate ausgeben
-        switch (true) {
-            case $e instanceof SessionUnavailableException:
-                $logger->info($e);
-
-                return $this->redirectWithCurrentRouteState('sessionExpired');
-
-            case $e instanceof AccessDeniedGuestException:
-                $logger->info($e);
-
-                return $this->redirectWithCurrentRouteState('accessdenied');
-
-            case $e instanceof AccessDeniedException:
-                $logger->warning($e);
-                // do not set redirect LoggedIn Route Cookie as it may lead to
-                // infinite redirects
-                return $this->redirectWithCurrentRouteState('accessdenied', false);
-
-            case $e instanceof EntityNotFoundException:
-                $logger->error($e);
-                $procedureId = $request->attributes->get('procedureId');
-
-                return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
-            default:
-                $logger->error($e);
-                // Login fehlgeschlagen
-                if (1004 === $e->getCode()) {
-                    try {
-                        $this->messageBag->add('warning', 'warning.login.failed');
-                    } catch (MessageBagException) {
-                        $this->logger->warning('Could not add Message to message bag');
-                    }
-
-                    return $this->redirectToRoute('core_home');
-                }
-
-                return $this->redirectToRoute('core_500');
+        if ($e instanceof SessionUnavailableException) {
+            $logger->info($e);
+            return $this->redirectWithCurrentRouteState('sessionExpired');
         }
+        if ($e instanceof AccessDeniedGuestException) {
+            $logger->info($e);
+            return $this->redirectWithCurrentRouteState('accessdenied');
+        }
+        if ($e instanceof AccessDeniedException) {
+            $logger->warning($e);
+            // do not set redirect LoggedIn Route Cookie as it may lead to
+            // infinite redirects
+            return $this->redirectWithCurrentRouteState('accessdenied', false);
+        }
+        if ($e instanceof EntityNotFoundException) {
+            $logger->error($e);
+            $procedureId = $request->attributes->get('procedureId');
+            return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
+        }
+        $logger->error($e);
+        // Login fehlgeschlagen
+        if (1004 === $e->getCode()) {
+            try {
+                $this->messageBag->add('warning', 'warning.login.failed');
+            } catch (MessageBagException) {
+                $this->logger->warning('Could not add Message to message bag');
+            }
+
+            return $this->redirectToRoute('core_home');
+        }
+        return $this->redirectToRoute('core_500');
     }
 
     /**

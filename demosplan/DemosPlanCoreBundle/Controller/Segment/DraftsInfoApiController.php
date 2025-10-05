@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -193,7 +194,7 @@ class DraftsInfoApiController extends APIController
             $procedureId,
             $user
         );
-        $nextStatementId = null === $nextStatement ? '' : $nextStatement->getId();
+        $nextStatementId = $nextStatement instanceof Statement ? $nextStatement->getId() : '';
         $jsonResponse = new JsonResponse();
         $responseData['data'] = ['nextStatementId' => $nextStatementId];
         $jsonResponse->setData($responseData);

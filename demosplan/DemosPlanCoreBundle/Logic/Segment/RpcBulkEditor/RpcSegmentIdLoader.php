@@ -63,11 +63,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
                 $params = $rpcRequest->params;
 
                 $conditions = $this->getConditions($params, $expectedProcedureId);
-                if (isset($params->sort)) {
-                    $sortMethods = $this->sortingParser->createFromQueryParamValue($params->sort);
-                } else {
-                    $sortMethods = [];
-                }
+                $sortMethods = isset($params->sort) ? $this->sortingParser->createFromQueryParamValue($params->sort) : [];
                 $segmentIdentifiers = $this->segmentResourceType->listEntityIdentifiers($conditions, $sortMethods);
                 $searchParams = SearchParams::createOptional(isset($params->search) ? $this->toArray($params->search) : []);
                 if ($searchParams instanceof SearchParams) {

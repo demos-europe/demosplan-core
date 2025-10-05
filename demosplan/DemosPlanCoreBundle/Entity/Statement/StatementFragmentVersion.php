@@ -116,14 +116,14 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(name="sfv_department_name", type="text", nullable=true)
      */
-    protected $departmentName;
+    protected $departmentName = null;
 
     /**
      * @var string
      *
      * @ORM\Column(name="sfv_orga_name", type="text", nullable=true)
      */
-    protected $orgaName;
+    protected $orgaName = null;
 
     /**
      * @var string
@@ -257,9 +257,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
         $this->setMunicipalityNames($fragmentToCreateVersionFrom->getMunicipalityNames());
         $this->setPriorityAreaKeys($fragmentToCreateVersionFrom->getPriorityAreaKeys());
         $this->tagAndTopicNames = $fragmentToCreateVersionFrom->getTagsAndTopicsAsString();
-
-        $this->departmentName = null;
-        $this->orgaName = null;
         if (!is_null($fragmentToCreateVersionFrom->getDepartment())) {
             $this->departmentName = $fragmentToCreateVersionFrom->getDepartment()->getName();
             $this->orgaName = $fragmentToCreateVersionFrom->getDepartment()->getOrgaName();

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use DemosEurope\DemosplanAddon\Contracts\DraftsInfoTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -64,7 +65,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
                     'segments'         => [],
                 ],
             ];
-            if (!($result = Json::encode($draftsInfo))) {
+            if (($result = Json::encode($draftsInfo)) === '' || ($result = Json::encode($draftsInfo)) === '0') {
                 throw new InvalidArgumentException('Error when json_encoding drafts info');
             }
         }
@@ -92,7 +93,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
     {
         foreach ($segment->tags as $piTag) {
             $existingTag = $this->tagService->findUniqueByTitle($piTag->tagName, $procedureId);
-            if (null !== $existingTag) {
+            if ($existingTag instanceof Tag) {
                 $piTag->id = $existingTag->getId();
             }
         }

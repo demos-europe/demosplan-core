@@ -80,12 +80,12 @@ class DeleteOrgaCommand extends CoreCommand
         }
 
         $missedIdsArray = array_diff($orgaIds, $retrievedOrgaIds);
-        if (0 !== count($missedIdsArray)) {
+        if ([] !== $missedIdsArray) {
             $missedIdsString = implode(' ', $missedIdsArray);
             $output->warning("Matching organisation(s) not found for id(s) $missedIdsString");
         }
 
-        if (0 === count($retrievedOrgaIds)) {
+        if ([] === $retrievedOrgaIds) {
             $output->info('no organisation(s) found to delete');
 
             return Command::FAILURE;

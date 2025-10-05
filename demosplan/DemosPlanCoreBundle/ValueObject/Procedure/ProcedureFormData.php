@@ -49,7 +49,7 @@ class ProcedureFormData extends ValueObject
 
     public function __construct(Procedure $procedure = null)
     {
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             $this->agencyMainEmailAddress = new EmailAddressVO('');
             $this->agencyExtraEmailAddresses = new ArrayCollection();
             $this->allowedSegmentAccessProcedureIds = [];

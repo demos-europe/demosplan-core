@@ -208,13 +208,7 @@ class ForumHandler extends CoreHandler
         $data = [];
         $data['anonymise'] = true;
 
-        if (true == $threadEntry['editableByUser']) {
-            // falls Autor, dann gebe Platzhaltertext für Autor aus
-            $data['text'] = 'Verfasser';
-        } else {
-            // ansonsten  Platzhaltertext für Moderation
-            $data['text'] = 'Moderator';
-        }
+        $data['text'] = true == $threadEntry['editableByUser'] ? 'Verfasser' : 'Moderator';
 
         // die Beiträge  werden mit leeren Variablen überschrieben um einen Platzhalter zu generieren
         return $this->forumService->updateThreadEntry($threadEntry['ident'], $data);
@@ -278,7 +272,7 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             return [
                 'mandatoryfieldwarning' => $mandatoryErrors,
             ];
@@ -294,15 +288,11 @@ class ForumHandler extends CoreHandler
         if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $release['description'] = $data['r_description'];
         }
-        if (array_key_exists('r_startdate', $data)) {
-            if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime((string) $data['r_startdate']);
-            }
+        if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
+            $release['startDate'] = strtotime((string) $data['r_startdate']);
         }
-        if (array_key_exists('r_enddate', $data)) {
-            if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime((string) $data['r_enddate']);
-            }
+        if (array_key_exists('r_enddate', $data) && '' != $data['r_enddate']) {
+            $release['endDate'] = strtotime((string) $data['r_enddate']);
         }
 
         return $this->forumService->newRelease($release);
@@ -337,7 +327,7 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             return [
                 'mandatoryfieldwarning' => $mandatoryErrors,
             ];
@@ -353,15 +343,11 @@ class ForumHandler extends CoreHandler
         if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
             $release['description'] = $data['r_description'];
         }
-        if (array_key_exists('r_startdate', $data)) {
-            if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime((string) $data['r_startdate']);
-            }
+        if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
+            $release['startDate'] = strtotime((string) $data['r_startdate']);
         }
-        if (array_key_exists('r_enddate', $data)) {
-            if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime((string) $data['r_enddate']);
-            }
+        if (array_key_exists('r_enddate', $data) && '' != $data['r_enddate']) {
+            $release['endDate'] = strtotime((string) $data['r_enddate']);
         }
 
         return $this->forumService->updateRelease($releaseId, $release);
@@ -430,7 +416,7 @@ class ForumHandler extends CoreHandler
                 ];
                 $this->logger->warning(sprintf('Fehler beim Speichern der offlineVotes für eine Usertory. EntryId: %s Exceptionmessage: %s', $key, $e->getMessage()));
             }
-            if (0 < count($errorMessages)) {
+            if ([] !== $errorMessages) {
                 return [
                     'errorMessages' => $errorMessages,
                 ];

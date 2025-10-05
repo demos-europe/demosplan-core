@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
@@ -140,14 +141,14 @@ class RpcProcedureCoupleTokenUsageChecker implements RpcMethodSolverInterface
 
     private function procedureToArray(?Procedure $procedure): ?array
     {
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return null;
         }
 
         // Very old procedures may have no orga set. We simply use an empty string in such case
         // because it is very unlikely and avoids exceptions.
         $orga = $procedure->getOrga();
-        $orgaName = null === $orga ? '' : $orga->getName();
+        $orgaName = $orga instanceof Orga ? $orga->getName() : '';
 
         return [
             'name'     => $procedure->getName(),

@@ -206,7 +206,7 @@ class DefaultTwigVariablesService
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');
-        if (\is_null($languageKey) || 0 === strlen((string) $languageKey)) {
+        if (\is_null($languageKey) || (string) $languageKey === '') {
             $languageKey = $this->defaultLocale;
         }
 

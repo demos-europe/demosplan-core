@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
@@ -87,7 +88,7 @@ class AccessControlService
 
             $role = $this->roleHandler->getRoleByCode($roleName);
 
-            if (null === $role) {
+            if (!$role instanceof RoleInterface) {
                 continue;
             }
 
@@ -107,15 +108,15 @@ class AccessControlService
 
         $criteria = [];
 
-        if (null !== $role) {
+        if ($role instanceof RoleInterface) {
             $criteria['role'] = [$role];
         }
 
-        if (null !== $orga) {
+        if ($orga instanceof OrgaInterface) {
             $criteria['organisation'] = [$orga];
         }
 
-        if (null !== $customer) {
+        if ($customer instanceof CustomerInterface) {
             $criteria['customer'] = [$customer];
         }
 
@@ -189,14 +190,14 @@ class AccessControlService
             $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
 
-        return !empty($permissions);
+        return $permissions !== [];
     }
 
     public function addPermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -207,7 +208,7 @@ class AccessControlService
     {
         $role = $this->roleHandler->getRoleByCode($roleName);
 
-        if (null === $role) {
+        if (!$role instanceof RoleInterface) {
             return;
         }
 
@@ -222,7 +223,7 @@ class AccessControlService
 
         foreach ($organizationsToProcess as $orgaToProcess) {
             // If permission is already stored, skip it
-            if (true === $this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
+            if ($this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
                 continue;
             }
 
@@ -233,7 +234,7 @@ class AccessControlService
 
             $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaToProcess, $customer, $dryRun);
 
-            if (null !== $updatedOrga) {
+            if ($updatedOrga instanceof OrgaInterface) {
                 $updatedOrgas[] = $updatedOrga;
             }
         }
@@ -346,7 +347,7 @@ class AccessControlService
     {
         $specificOrga = $this->orgaService->getOrga($orgaId);
 
-        if (null === $specificOrga) {
+        if (!$specificOrga instanceof Orga) {
             throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
         }
 

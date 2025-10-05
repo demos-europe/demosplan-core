@@ -67,7 +67,7 @@ class RpcController extends BaseController
     private function getActions(array $requestData, array $requiredFields): array
     {
         if (array_key_exists('actions', $requiredFields) && array_key_exists('actions', $requestData) &&
-            0 < count($requestData['actions']) && 0 < count($requiredFields['actions'])
+            [] !== $requestData['actions'] && [] !== $requiredFields['actions']
         ) {
             $providedActions = $requestData['actions'];
             $allowedActions = $requiredFields['actions'];
@@ -127,8 +127,8 @@ class RpcController extends BaseController
         $output = [];
         $isFilledRequest = array_key_exists('data', $requiredFields)
             && array_key_exists('data', $requestData)
-            && 0 < count($requestData['data'])
-            && 0 < count($requiredFields['data']);
+            && [] !== $requestData['data']
+            && [] !== $requiredFields['data'];
 
         if (!$isFilledRequest) {
             return $output;

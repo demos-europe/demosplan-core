@@ -147,7 +147,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
         if ($publicAgencyUser instanceof User) {
             $this->logger->info('User has multiple users');
 
-            if (false === $publicAgencyUser->isProfileCompleted() || true === $publicAgencyUser->isNewUser()) {
+            if (false === $publicAgencyUser->isProfileCompleted() || $publicAgencyUser->isNewUser()) {
                 // Set user with incomplete profile first to be filled out
                 $user = $publicAgencyUser;
             }
@@ -171,7 +171,7 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
 
     private function userNeedsProfileCompletion(User $user): bool
     {
-        return false === $user->isProfileCompleted() || true === $user->isNewUser();
+        return false === $user->isProfileCompleted() || $user->isNewUser();
     }
 
     protected function getPassport(Credentials $credentials): Passport

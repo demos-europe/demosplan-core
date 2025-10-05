@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use League\Fractal\ParamBag;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\Querying\Contracts\PathsBasedInterface;
@@ -67,7 +68,7 @@ class AllAttributesTransformer extends DynamicTransformer
     protected function getEffectiveAttributeReadabilities(Scope $scope): array
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
-        if (null === $fieldsetBag) {
+        if (!$fieldsetBag instanceof ParamBag) {
             // If no fieldset was requested, return ALL attribute fields
             // Get attributes from the ResourceReadability which is accessible in this class
             return $this->readability->getAttributes();

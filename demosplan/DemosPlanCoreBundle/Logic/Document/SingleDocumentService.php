@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -84,11 +85,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -141,11 +138,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (is_null($search)) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = is_null($search) ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -181,11 +174,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -290,7 +279,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
-     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
+     * @throws JsonException
      */
     public function updateSingleDocument($data): array
     {
@@ -353,7 +342,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
         ];
 
         unset($result['result']['search'], $singleDocument['search']);
-        $result['total'] = sizeof($singleDocument);
+        $result['total'] = count($singleDocument);
 
         return $result;
     }

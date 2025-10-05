@@ -40,7 +40,7 @@ class BoilerplateGroupVO extends ValueObject
      */
     public function __construct(BoilerplateGroup $group = null)
     {
-        if (null !== $group) {
+        if ($group instanceof BoilerplateGroup) {
             $this->generateFromBoilerplateGroup($group);
         }
     }

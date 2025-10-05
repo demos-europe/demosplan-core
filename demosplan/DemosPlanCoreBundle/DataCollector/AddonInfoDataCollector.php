@@ -36,7 +36,7 @@ class AddonInfoDataCollector extends DataCollector
             ];
         }
 
-        $this->data = compact('addons');
+        $this->data = ['addons' => $addons];
     }
 
     public function getName(): string

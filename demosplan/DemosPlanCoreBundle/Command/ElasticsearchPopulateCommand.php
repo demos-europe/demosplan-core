@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -161,7 +162,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     private function getCurrentProjectConsole(): string
     {
-        if (null === $this->getApplication()) {
+        if (!$this->getApplication() instanceof ConsoleApplication) {
             throw new RuntimeException('Cannot run this command without an application');
         }
         /** @var DemosPlanKernel $kernel */

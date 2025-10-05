@@ -51,7 +51,7 @@ class BoilerplateVO extends ValueObject
     public function __construct(Boilerplate $boilerplate = null)
     {
         $this->categories = new ArrayCollection();
-        if (null !== $boilerplate) {
+        if ($boilerplate instanceof Boilerplate) {
             $this->setId($boilerplate->getId());
             $this->setTitle($boilerplate->getTitle());
             $this->setText($boilerplate->getText());

@@ -51,7 +51,7 @@ class UserInfoDataCollector extends DataCollector
             $roles = [];
         }
 
-        $this->data = compact('roles', 'permissions', 'permissionStats');
+        $this->data = ['roles' => $roles, 'permissions' => $permissions, 'permissionStats' => $permissionStats];
     }
 
     public function getName(): string

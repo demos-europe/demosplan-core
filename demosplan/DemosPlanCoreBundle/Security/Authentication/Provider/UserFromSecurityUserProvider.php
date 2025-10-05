@@ -31,7 +31,7 @@ final class UserFromSecurityUserProvider
 
     public function get(): ?User
     {
-        if (null === $this->user) {
+        if (!$this->user instanceof User) {
             $this->user = $this->fromToken($this->tokenStorage->getToken());
         }
 

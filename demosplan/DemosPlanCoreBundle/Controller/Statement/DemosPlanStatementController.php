@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use BadMethodCallException;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -532,7 +533,7 @@ class DemosPlanStatementController extends BaseController
             }
 
             $manualSortScope = 'orga:'.$this->currentUser->getUser()->getOrganisationId();
-        } elseif (true === $released) {
+        } elseif ($released) {
             if ('group' === $scope) {
                 $this->permissions->checkPermission('area_statements_released_group');
             } else {
@@ -887,12 +888,12 @@ class DemosPlanStatementController extends BaseController
             $immediateSubmit = false;
             if ($this->permissions->hasPermission('feature_draft_statement_citizen_immediate_submit')) {
                 $immediateSubmit = $request->query->has('immediate_submit')
-                    && true === (bool) $request->query->get('immediate_submit');
+                    && (bool) $request->query->get('immediate_submit');
             }
 
             // Abgabe der Stellungnahme als angemeldeter Nutzer via Beteiligungsebene
             // ggf. trotzdem als Bürger
-            if (true === $this->currentUser->getUser()->isLoggedIn()
+            if ($this->currentUser->getUser()->isLoggedIn()
                 && !$this->permissions->hasPermission('feature_statements_participation_area_always_citizen')
             ) {
                 $this->permissions->checkPermission('feature_new_statement');
@@ -1446,7 +1447,7 @@ class DemosPlanStatementController extends BaseController
     {
         $session = $request->getSession();
 
-        if (null === $session) {
+        if (!$session instanceof SessionInterface) {
             throw new BadMethodCallException('Can not save draftListFilters, because the session is null');
         }
 
@@ -1520,7 +1521,7 @@ class DemosPlanStatementController extends BaseController
     {
         $session = $request->getSession();
 
-        if (null === $session) {
+        if (!$session instanceof SessionInterface) {
             throw new BadMethodCallException('Can not get draftListFilters, because the session is null');
         }
 
@@ -1752,7 +1753,7 @@ class DemosPlanStatementController extends BaseController
     protected function deleteStatement(TranslatorInterface $translator, $_route, $procedure, bool $released, string $draftStatementId): RedirectResponse
     {
         try {
-            if (true === $released) {
+            if ($released) {
                 $this->permissions->checkPermission(
                     'feature_statements_released_group_delete'
                 );
@@ -1806,7 +1807,7 @@ class DemosPlanStatementController extends BaseController
         $redirectRoute = 'DemosPlan_statement_list_draft';
 
         // Storage Formulardaten uebergeben
-        if (0 < count($statementIds)) {
+        if ([] !== $statementIds) {
             $storageResult = $this->draftStatementHandler->releaseHandler(
                 $statementIds,
                 $this->currentUser->getUser(),
@@ -2170,7 +2171,7 @@ class DemosPlanStatementController extends BaseController
         // trim whitespaces
         $to = \array_map('\trim', $emailAddresses);
         $to = \array_filter($to);
-        if (0 === count($to)) {
+        if ([] === $to) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.missing.emailAddress')
@@ -2178,7 +2179,7 @@ class DemosPlanStatementController extends BaseController
             throw new InvalidArgumentException('missing email address');
         }
         $to = \array_filter($to, fn ($emailTo) => filter_var($emailTo, FILTER_VALIDATE_EMAIL));
-        if (0 === count($to)) {
+        if ([] === $to) {
             $this->getMessageBag()->add(
                 'error',
                 $translator->trans('error.email.invalid')
@@ -2228,7 +2229,7 @@ class DemosPlanStatementController extends BaseController
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->all('item_check');
 
-        if (\is_array($itemsToExport) && 0 < count($itemsToExport)) {
+        if (\is_array($itemsToExport) && [] !== $itemsToExport) {
             $itemsToExport = \implode(',', $itemsToExport);
         } else {
             $exportIds = [];
@@ -2332,7 +2333,7 @@ class DemosPlanStatementController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -2398,7 +2399,7 @@ class DemosPlanStatementController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 

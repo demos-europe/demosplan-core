@@ -29,7 +29,7 @@ abstract class ServiceTagFactoryPass implements CompilerPassInterface
 
         $factoryServices = [];
 
-        foreach ($container->findTaggedServiceIds($this->getTagName()) as $key => $value) {
+        foreach (array_keys($container->findTaggedServiceIds($this->getTagName())) as $key) {
             $factoryServices[] = new Reference($key);
         }
 

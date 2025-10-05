@@ -108,7 +108,7 @@ class KeycloakUserDataMapper
     {
         // in this context the given Id is the GatewayName of the organisation
         $orgas = $this->orgaService->getOrgaByFields(['gwId' => $keycloakUserData->getOrganisationId()]);
-        if (null === $orgas || (is_array($orgas) && empty($orgas))) {
+        if (null === $orgas || ($orgas === [])) {
             $this->logger->info('Create new User and Orga from Keycloak');
 
             return $this->createNewUserAndOrgaFromOrga($keycloakUserData);

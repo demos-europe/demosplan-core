@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
+use League\Fractal\Resource\Item;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\SearchCapableListRequest;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DeletableResourceTypeInterface;
@@ -149,9 +150,9 @@ class GenericApiController extends APIController
         $item = $updateRequest->updateResource($type, $resourceId);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item);
+        return $item instanceof Item
+            ? $this->renderResource($item)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -194,9 +195,9 @@ class GenericApiController extends APIController
         $item = $creationRequest->createResource($type);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item, Response::HTTP_CREATED);
+        return $item instanceof Item
+            ? $this->renderResource($item, Response::HTTP_CREATED)
+            : $this->createEmptyResponse();
     }
 
     /**

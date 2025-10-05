@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
+use Exception;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -102,7 +103,7 @@ class AddonAutoinstallCommand extends CoreCommand
                 ];
                 try {
                     $this->runCommand($this->addonInstallCommand, $arguments, $output);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $output->error("Failed to install addon {$name} in Version {$addonConfig['version']}. {$e->getMessage()}");
                 }
             }

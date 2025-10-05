@@ -254,7 +254,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [
@@ -300,7 +300,7 @@ class NewsHandler extends CoreHandler
 
         $errors = $this->validateNews($data);
 
-        if (0 < count($errors)) {
+        if ([] !== $errors) {
             $this->flashMessageHandler->setFlashMessages($errors);
 
             return [

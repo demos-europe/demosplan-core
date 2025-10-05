@@ -234,7 +234,7 @@ class StatementSubmissionNotifier
             $this->logger->warning('Could not create PDF for Email ', [$e]);
         }
 
-        if (0 < count($draftStatements)) {
+        if ([] !== $draftStatements) {
             try {
                 $procedureOrga = $draftStatements[0]->getProcedure()->getOrga();
             } catch (Exception $e) {
@@ -380,7 +380,7 @@ class StatementSubmissionNotifier
         $mailTemplateVars['statement'] = $statementText;
         $consultationToken = null;
 
-        if (null !== $gdprConsentRevokeToken) {
+        if ($gdprConsentRevokeToken instanceof GdprConsentRevokeToken) {
             $mailTemplateVars['token'] = $gdprConsentRevokeToken->getToken();
         }
         if (null !== $number) {
@@ -389,7 +389,7 @@ class StatementSubmissionNotifier
         if ($submittedStatement instanceof Statement) {
             $consultationToken = $this->consultationTokenService->getTokenForStatement($submittedStatement);
             // some phases does not generate Tokens
-            if (null !== $consultationToken) {
+            if ($consultationToken instanceof ConsultationToken) {
                 $mailTemplateVars['consultationTokenString'] = $consultationToken->getToken();
             }
         }

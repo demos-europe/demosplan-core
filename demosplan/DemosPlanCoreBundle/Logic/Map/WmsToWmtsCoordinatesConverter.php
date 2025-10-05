@@ -37,7 +37,7 @@ class WmsToWmtsCoordinatesConverter
      */
     public function convert(array $layers): array
     {
-        if (empty($layers)) {
+        if ($layers === []) {
             throw new Exception('No Layers received');
         }
 
@@ -52,7 +52,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function adaptWmsLayerCoordinates(MapLayer $bgLayer, array $layers): array
     {
-        if (empty($layers)) {
+        if ($layers === []) {
             return [$bgLayer];
         }
 
@@ -184,7 +184,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function splitSuccessiveWMSLayers(array $layers): array
     {
-        if (empty($layers)) {
+        if ($layers === []) {
             return [];
         }
         $successiveWmsLayers = [];

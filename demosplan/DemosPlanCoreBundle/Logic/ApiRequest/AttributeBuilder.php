@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use League\Fractal\ParamBag;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use League\Fractal\Scope;
 
@@ -57,7 +58,7 @@ class AttributeBuilder
     {
         $attributes = $this->attributes;
         $fieldsetBag = $this->scope->getManager()->getFieldset($this->type);
-        if (null !== $fieldsetBag) {
+        if ($fieldsetBag instanceof ParamBag) {
             $fieldset = is_array($fieldsetBag) ? $fieldsetBag : iterator_to_array($fieldsetBag);
             foreach ($this->optionals as $optionalFieldName => $getter) {
                 if (in_array($optionalFieldName, $fieldset, true)) {

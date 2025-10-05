@@ -579,7 +579,7 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function anonymizeStatementMiscData(?array $miscData): ?string
     {
-        if (0 === count((array) $miscData)) {
+        if ([] === (array) $miscData) {
             return null;
         }
 
@@ -1106,7 +1106,7 @@ class RemoveUserDataCommand extends CoreCommand
         $roundedLength = (int) round($length, -2);
 
         if (!array_key_exists($roundedLength, $this->mockTexts)) {
-            $this->mockTexts[$roundedLength] = $this->faker->text($length < 10 ? 10 : $length);
+            $this->mockTexts[$roundedLength] = $this->faker->text(max(10, $length));
         }
 
         return $this->mockTexts[$roundedLength];
@@ -1165,7 +1165,7 @@ class RemoveUserDataCommand extends CoreCommand
             $message = $this->anonymizeArray($keysToOverwrite, $message);
 
             foreach ($message as $subArray) {
-                if (is_array($subArray) && !empty($subArray)) {
+                if (is_array($subArray) && $subArray !== []) {
                     $message = $this->anonymizeArray($keysToOverwrite, $subArray);
                 }
             }

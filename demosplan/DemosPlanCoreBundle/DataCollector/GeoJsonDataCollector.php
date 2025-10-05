@@ -50,7 +50,7 @@ class GeoJsonDataCollector extends DataCollector
                 }
             }
 
-            if (!empty($geoJsonInfo)) {
+            if ($geoJsonInfo !== []) {
                 $this->data['geo_json_info'] = $geoJsonInfo;
             }
         }

@@ -41,7 +41,7 @@ class MatchingFieldValueInSegments extends Constraint
     /**
      * @var string
      */
-    public $statementIdIdentifier;
+    public $statementIdIdentifier = ExcelImporter::STATEMENT_ID;
 
     /**
      * @param array<string, array<int, array<string, mixed>>> $segments
@@ -57,7 +57,6 @@ class MatchingFieldValueInSegments extends Constraint
         parent::__construct($options, $groups, $payload);
         $this->statementWorksheetTitle = $statementWorksheetTitle;
         $this->segmentWorksheetTitle = $segmentWorksheetTitle;
-        $this->statementIdIdentifier = ExcelImporter::STATEMENT_ID;
         $this->segments = $segments;
     }
 

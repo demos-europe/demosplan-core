@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -74,10 +75,10 @@ class FieldDecider
             return null !== $statement->getMovedToProcedureName();
         }
         if (self::FIELD_PROCEDURE_NAME === $field) {
-            return null !== $statement->getProcedure() && $exportConfig->isProcedureNameExportable();
+            return $statement->getProcedure() instanceof Procedure && $exportConfig->isProcedureNameExportable();
         }
         if (self::FIELD_PROCEDURE_PHASE === $field) {
-            return null !== $statement->getProcedure() && $exportConfig->isProcedurePhaseExportable();
+            return $statement->getProcedure() instanceof Procedure && $exportConfig->isProcedurePhaseExportable();
         }
         if (self::FIELD_VOTES_NUM === $field) {
             return $statement->getVotesNum() > 0 && $exportConfig->isVotesNumExportable();
@@ -142,13 +143,13 @@ class FieldDecider
             return null !== $statement->getParagraph() && $exportConfig->isParagraphExportable();
         }
         if (self::FIELD_FILES === $field) {
-            return !empty($statement->getFiles()) && $exportConfig->isFilesExportable();
+            return $statement->getFiles() !== [] && $exportConfig->isFilesExportable();
         }
         if (self::FIELD_ATTACHMENTS === $field) {
             return $exportConfig->isAttachmentsExportable();
         }
         if (self::FIELD_PRIORITY === $field) {
-            return !empty($statement->getPriority()) && $exportConfig->isPriorityExportable();
+            return !in_array($statement->getPriority(), ['', '0'], true) && $exportConfig->isPriorityExportable();
         }
 
         return false;

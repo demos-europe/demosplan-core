@@ -421,7 +421,7 @@ class DocumentHandler extends CoreHandler
         $result = $this->getParagraphService()->getParaDocumentList($procedure, $elementId);
 
         // check whether User may
-        if (0 < count($result)) {
+        if ([] !== $result) {
             $firstParagraph = $result[0];
             if (array_key_exists('element', $firstParagraph)) {
                 $element = $firstParagraph['element'];

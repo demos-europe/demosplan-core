@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -152,7 +155,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
             $statementData = $worksheet->toArray();
             $columnNames = array_shift($statementData);
-            if (0 === count($statementData)) {
+            if ([] === $statementData) {
                 throw new MissingDataException('No data in rows found.');
             }
             foreach ($statementData as $line => $statement) {
@@ -186,7 +189,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -392,18 +395,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     public function isEmpty(array $input): bool
     {
-        return empty(
-            array_filter(
-                $input,
-                static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
-            )
-        );
+        return array_filter(
+            $input,
+            static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
+        ) === [];
     }
 
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,
@@ -429,7 +430,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
 
         $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
-        if (null === $place) {
+        if (!$place instanceof Place) {
             throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedure->getId());
         }
 
@@ -451,7 +452,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $tagTitle = $tagTitle->trim()->toString();
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
 
-                $createNewTag = null === $matchingTag;
+                $createNewTag = !$matchingTag instanceof Tag;
                 if ($createNewTag) {
                     $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
                 }
@@ -497,7 +498,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta = new StatementMeta();
         $currentProcedure = $this->currentProcedureService->getProcedure();
 
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new MissingPostParameterException('Current procedure is missing.');
         }
 
@@ -612,7 +613,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // Check if Sonstiges-Topic exists, otherwise create it
         $miscTopic = $this->tagService->findOneTopicByTitle(TagTopic::TAG_TOPIC_MISC, $procedure->getId());
 
-        if (null === $miscTopic) {
+        if (!$miscTopic instanceof TagTopic) {
             // create new Topic
             $miscTopic = $this->tagService->createTagTopic(
                 TagTopic::TAG_TOPIC_MISC,

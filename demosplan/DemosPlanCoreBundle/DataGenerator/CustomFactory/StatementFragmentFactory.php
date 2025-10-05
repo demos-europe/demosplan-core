@@ -96,7 +96,7 @@ class StatementFragmentFactory extends FactoryBase
 
         $statementFragment = $this->statementFragmentService->createStatementFragment($fragmentData);
 
-        if (null === $statementFragment) {
+        if (!$statementFragment instanceof StatementFragment) {
             throw new DataProviderException('Failed generating a statement fragment');
         }
 

@@ -139,7 +139,7 @@ class DemosPlanDocumentController extends BaseController
             if ($storageResult) {
                 $this->getMessageBag()->add('confirm', 'confirm.paragraph.marked.deleted');
 
-                return $this->redirectToRoute($route, compact('procedure', 'elementId'));
+                return $this->redirectToRoute($route, ['procedure' => $procedure, 'elementId' => $elementId]);
             }
         }
 
@@ -151,7 +151,7 @@ class DemosPlanDocumentController extends BaseController
             if (false !== $storageResult && !array_key_exists('fault', $storageResult)) {
                 $this->getMessageBag()->add('confirm', 'confirm.file.updated');
 
-                return $this->redirectToRoute($route, compact('procedure', 'elementId'));
+                return $this->redirectToRoute($route, ['procedure' => $procedure, 'elementId' => $elementId]);
             }
         }
 
@@ -491,7 +491,7 @@ class DemosPlanDocumentController extends BaseController
 
                     return $this->redirectToRoute(
                         'DemosPlan_elements_administration_edit',
-                        compact('procedure', 'elementId')
+                        ['procedure' => $procedure, 'elementId' => $elementId]
                     );
                 }
             }
@@ -690,7 +690,7 @@ class DemosPlanDocumentController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
-            compact('templateVars', 'title', 'procedureSettings')
+            ['templateVars' => $templateVars, 'title' => $title, 'procedureSettings' => $procedureSettings]
         );
     }
 
@@ -832,7 +832,7 @@ class DemosPlanDocumentController extends BaseController
                 }
 
                 // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
-                if ('' == $filename) {
+                if ('' === $filename) {
                     $filename = md5(random_int(0, 9999));
                     $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: '.DemosPlanTools::varExport($filename, true));
                 } else {
@@ -845,7 +845,7 @@ class DemosPlanDocumentController extends BaseController
                 $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
             }
 
-            if ($indexInZipFile != $successFiles + $folderCount) {
+            if ($indexInZipFile !== $successFiles + $folderCount) {
                 $this->getMessageBag()->add('warning', 'error.elementimport.unpacking_failed');
             }
 
@@ -1067,7 +1067,7 @@ class DemosPlanDocumentController extends BaseController
 
         if (!empty($requestPost['r_action']) && 'singledocumentdelete' === $requestPost['r_action'] && array_key_exists('document_delete', $requestPost)) {
             $storageResult = $singleDocumentService->deleteSingleDocument($requestPost['document_delete']);
-            if (true === $storageResult) {
+            if ($storageResult) {
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
             }
         }
@@ -1090,7 +1090,7 @@ class DemosPlanDocumentController extends BaseController
                     if (!$this->permissions->hasPermission('feature_admin_element_edit')) {
                         $this->getMessageBag()->add('error', 'error.without.authorization');
 
-                        return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
+                        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
                     }
 
                     $storageResult = $elementHandler->administrationElementDeleteHandler($inData['r_ident']);
@@ -1098,7 +1098,7 @@ class DemosPlanDocumentController extends BaseController
                         $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
                     }
 
-                    return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
+                    return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
                 } else {
                     $storageResult = $elementHandler->administrationElementEditHandler($procedure, $inData);
                     if (array_key_exists('ident', $storageResult) && !array_key_exists('mandatoryfieldwarning', $storageResult)) {
@@ -1127,7 +1127,7 @@ class DemosPlanDocumentController extends BaseController
         if ('file' === $templateVars['element']['category']) {
             $templateVars['documentEnable'] = true;
             $templateVars['deleteEnable'] = true;
-            if (is_array($templateVars['element']['documents']) && 0 < count($templateVars['element']['documents'])) {
+            if (is_array($templateVars['element']['documents']) && [] !== $templateVars['element']['documents']) {
                 $templateVars['documents'] = $templateVars['element']['documents'];
             }
         }
@@ -1207,7 +1207,7 @@ class DemosPlanDocumentController extends BaseController
     ) {
         $title = 'element.admin.category.new';
         $inData = $this->prepareIncomingData($request, 'elementnew');
-        if (is_array($inData) && 0 < count($inData)) {
+        if (is_array($inData) && [] !== $inData) {
             if (array_key_exists('r_title', $inData) && '' === trim((string) $inData['r_title'])) {
                 $this->getMessageBag()->add('warning', 'error.mandatoryfields');
 
@@ -1565,7 +1565,7 @@ class DemosPlanDocumentController extends BaseController
                     PREG_PATTERN_ORDER
                 );
                 // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-                if (0 === count($matches[1])) {
+                if ([] === $matches[1]) {
                     continue;
                 }
                 // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
@@ -1703,7 +1703,7 @@ class DemosPlanDocumentController extends BaseController
         $fileService = $this->fileService;
         $elementHandler = $this->elementHandler;
         $filesRequestInfo = $this->getFilesRequestInfo($request);
-        $filesToZip = empty($filesRequestInfo)
+        $filesToZip = $filesRequestInfo === []
                         ? $this->getAllProcedureFilesInfo($procedureId)
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
@@ -1751,14 +1751,14 @@ class DemosPlanDocumentController extends BaseController
             $filesInfo
         );
         $otherProcedureFileIds = $singleDocumentService->getSingleDocumentsNotInProcedure($filesToZipIds, $procedureId);
-        if (!empty($otherProcedureFileIds)) {
+        if ($otherProcedureFileIds !== []) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($otherProcedureFileIds)).' are not in procedure '.$procedureId.' and can\'t be downloaded');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
 
         // Validate that none of the files to be zipped are set as not visible
         $invisibleFileIds = $singleDocumentService->getNotVisibleSingleDocuments($filesToZipIds, $procedureId);
-        if (!empty($invisibleFileIds)) {
+        if ($invisibleFileIds !== []) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($invisibleFileIds)).' are disabled and can\'t be downloaded.');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
@@ -1772,12 +1772,12 @@ class DemosPlanDocumentController extends BaseController
         );
         $elementsToZip = array_unique(array_merge([], ...$elementsToZip));
         $disabledElementsToZip = array_diff($elementsToZip, $enabledElementIds);
-        if (!empty($disabledElementsToZip)) {
+        if ($disabledElementsToZip !== []) {
             // remove files from zip that have disabled element (parents)
             $filesInfo = collect($filesInfo)->reject(static function ($file) use ($disabledElementsToZip) {
                 $disabledElementsInPath = array_intersect($file['path'], $disabledElementsToZip);
 
-                return 0 < count($disabledElementsInPath);
+                return [] !== $disabledElementsInPath;
             })->toArray();
         }
 

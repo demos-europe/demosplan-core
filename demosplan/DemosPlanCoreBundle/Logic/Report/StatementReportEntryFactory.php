@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -350,7 +351,7 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             'submitName'         => null,
         ];
 
-        if (null !== $meta) {
+        if ($meta instanceof StatementMeta) {
             $metaArray = [
                 'orgaName'           => $meta->getOrgaName(),
                 'orgaDepartmentName' => $meta->getOrgaDepartmentName(),

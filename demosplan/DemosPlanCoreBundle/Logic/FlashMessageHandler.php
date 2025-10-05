@@ -29,7 +29,7 @@ class FlashMessageHandler
      */
     public function setFlashMessages($messages): void
     {
-        if (!is_array($messages) || 0 === count($messages)) {
+        if (!is_array($messages) || [] === $messages) {
             return;
         }
 

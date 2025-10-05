@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use Symfony\Component\HttpFoundation\Response;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
@@ -59,7 +60,7 @@ class LogoutSubscriber implements EventSubscriberInterface
         // get the current response, if it is already set by another listener
         $response = $event->getResponse();
 
-        if (null === $response) {
+        if (!$response instanceof Response) {
             $response = $this->redirectToRoute('core_home');
         }
 

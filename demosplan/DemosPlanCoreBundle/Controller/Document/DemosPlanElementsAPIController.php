@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
@@ -34,7 +35,7 @@ class DemosPlanElementsAPIController extends APIController
     {
         $elementsToUpdate = $elementsService->getElementObject($elementsId);
 
-        if (null === $elementsToUpdate) {
+        if (!$elementsToUpdate instanceof Elements) {
             return $this->renderError(Response::HTTP_NOT_FOUND);
         }
 

@@ -180,11 +180,10 @@ class StatementMeta extends CoreEntity implements UuidEntityInterface, Statement
      *
      * @ORM\Column(name="_stm_misc_data", type="array", nullable=true)
      */
-    protected $miscData;
+    protected $miscData = [];
 
     public function __construct()
     {
-        $this->miscData = [];
     }
 
     /**

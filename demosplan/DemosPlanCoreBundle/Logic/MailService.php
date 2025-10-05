@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -121,7 +122,7 @@ class MailService
         $emailBcc = $this->checkEMailField($bcc);
 
         $emailTemplate = $this->mailRepository->getTemplate($template);
-        if (null === $emailTemplate) {
+        if (!$emailTemplate instanceof MailTemplate) {
             throw new InvalidArgumentException("No template entity found for the given template label: '$template'");
         }
         $emailTitle = $this->mailRepository->replacePlaceholder($emailTemplate->getTitle(), $vars);

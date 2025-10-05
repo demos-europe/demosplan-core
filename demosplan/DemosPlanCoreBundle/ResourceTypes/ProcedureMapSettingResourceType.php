@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
@@ -129,7 +130,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                         ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
                         $procedureSetting
                     );
-                    if (null === $setting) {
+                    if (!$setting instanceof Setting) {
                         $setting = $this->contentService->createEmptySetting(
                             $procedureSetting->getProcedure(),
                             ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
@@ -146,7 +147,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                         $procedureSetting
                     );
 
-                    return null === $setting ? false : $setting->getContentBool();
+                    return $setting instanceof Setting ? $setting->getContentBool() : false;
                 });
         }
 
@@ -250,7 +251,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
 
         $expectedKeys = ['latitude', 'longitude'];
-        foreach ($coordinates as $key => $value) {
+        foreach (array_keys($coordinates) as $key) {
             Assert::oneOf($key, $expectedKeys, 'Unexpected key in coordinates array');
         }
 
@@ -333,7 +334,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return null !== $this->currentProcedureService->getProcedure()
+        return $this->currentProcedureService->getProcedure() instanceof Procedure
             && $this->currentUser->hasAnyPermissions('area_admin_map');
     }
 
@@ -355,7 +356,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 

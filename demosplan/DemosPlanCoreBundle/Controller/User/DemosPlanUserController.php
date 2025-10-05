@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -475,7 +476,7 @@ class DemosPlanUserController extends BaseController
             $this->logger->warning('Registration failed, email address in use', ['emailAddress' => $emailAddress]);
         } catch (ViolationsException $e) {
             $violations = $e->getViolations();
-            if (null !== $violations) {
+            if ($violations instanceof ConstraintViolationListInterface) {
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($violations as $violation) {
                     $this->getMessageBag()->add('error', $violation->getMessage());
@@ -801,7 +802,7 @@ class DemosPlanUserController extends BaseController
      * @param string $assertedOrganisationId
      * @param string $redirectRoute
      *
-     * @return RedirectResponse|void
+     * @return RedirectResponse|null
      */
     protected function checkUserOrganisation($assertedOrganisationId, $redirectRoute)
     {
@@ -809,5 +810,6 @@ class DemosPlanUserController extends BaseController
         if (($currentUser instanceof User) && $currentUser->getOrganisationId() !== $assertedOrganisationId) {
             return $this->redirectToRoute($redirectRoute, ['organisationId' => $currentUser->getOrganisationId()]);
         }
+        return null;
     }
 }

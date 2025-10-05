@@ -67,7 +67,7 @@ class HttpCall
 
         $options = [];
 
-        if (is_array($data) && 0 < count($data) && 'GET' === strtoupper($method)) {
+        if (is_array($data) && [] !== $data && 'GET' === strtoupper($method)) {
             $options['query'] = $data;
         }
 
@@ -82,7 +82,7 @@ class HttpCall
         }
 
         // set proxy
-        if (true === $this->isProxyEnabled()) {
+        if ($this->isProxyEnabled()) {
             $proxy = trim($this->proxyHost).':'.trim($this->proxyPort);
             $options['proxy'] = $proxy;
             $this->logger->info('Use Proxy', [$proxy]);

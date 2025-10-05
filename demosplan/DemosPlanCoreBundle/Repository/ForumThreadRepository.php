@@ -91,10 +91,8 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
         try {
             $result = $query->getResult();
             $recentActivity = null;
-            if (1 === (is_countable($result) ? count($result) : 0)) {
-                if (array_key_exists('modifyDate', $result[0])) {
-                    $recentActivity = $result[0]['modifyDate']->getTimestamp();
-                }
+            if (1 === (is_countable($result) ? count($result) : 0) && array_key_exists('modifyDate', $result[0])) {
+                $recentActivity = $result[0]['modifyDate']->getTimestamp();
             }
 
             return $recentActivity;

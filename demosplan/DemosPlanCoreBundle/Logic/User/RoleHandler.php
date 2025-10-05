@@ -78,7 +78,7 @@ class RoleHandler extends CoreHandler
     {
         $roles = $this->getUserRolesByCodes([$roleCode]);
 
-        if (empty($roles)) {
+        if ($roles === []) {
             return null;
         }
 

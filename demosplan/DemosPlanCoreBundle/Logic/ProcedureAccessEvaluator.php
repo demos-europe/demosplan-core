@@ -179,7 +179,7 @@ class ProcedureAccessEvaluator
      */
     public function isAllowedAsDataInputOrga(User $user, ?Procedure $procedure): bool
     {
-        return null !== $procedure
+        return $procedure instanceof Procedure
             && $user->hasRole(Role::PROCEDURE_DATA_INPUT)
             && in_array(
                 $user->getOrganisationId(),

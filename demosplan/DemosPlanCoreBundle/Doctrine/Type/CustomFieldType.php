@@ -40,10 +40,8 @@ class CustomFieldType extends JsonType
                     // explicitly switch the classes to get IDE-findable class uses
                     $query = null;
 
-                    switch ($queryClass) {
-                        case RadioButtonField::class:
-                            $query = new RadioButtonField();
-                            break;
+                    if ($queryClass === RadioButtonField::class) {
+                        $query = new RadioButtonField();
                     }
 
                     return $query;

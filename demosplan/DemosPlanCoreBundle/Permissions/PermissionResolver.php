@@ -144,7 +144,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         // If there is no target (e.g. no procedure because the request has no procedure context)
         // then we only evaluate to `true` if there are no conditions a procedure would need to
         // fulfill.
-        if (null === $evaluationTarget) {
+        if (!$evaluationTarget instanceof UuidEntityInterface) {
             return [] === $conditions;
         }
 
@@ -218,7 +218,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private function adjustCondition(array $conditionWrapper, ?UuidEntityInterface $entity): array
     {
         $condition = $conditionWrapper[self::PARAMETER_CONDITION];
-        if (null === $entity) {
+        if (!$entity instanceof UuidEntityInterface) {
             $condition[DrupalFilterParser::OPERATOR] = PermissionDrupalConditionFactory::FALSE;
         } else {
             $condition[DrupalFilterParser::VALUE] = $entity->getId();

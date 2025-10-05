@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
@@ -100,7 +101,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -124,12 +125,12 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         // just in case a user has access to places in different procedures,
         // we add a limitation for the current one only
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        $placeCondition = null === $currentProcedure
-            ? $this->conditionFactory->false()
-            : $this->conditionFactory->propertyHasValue(
+        $placeCondition = $currentProcedure instanceof Procedure
+            ? $this->conditionFactory->propertyHasValue(
                 $currentProcedure->getId(),
                 $this->placeResourceType->procedure->id
-            );
+            )
+            : $this->conditionFactory->false();
         $placeSortMethod = $this->sortMethodFactory->propertyAscending(
             $this->placeResourceType->sortIndex
         );

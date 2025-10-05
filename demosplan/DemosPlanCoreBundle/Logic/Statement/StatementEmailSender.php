@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -50,7 +51,7 @@ class StatementEmailSender
     {
         try {
             $statement = $this->statementService->getStatement($statementId);
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->messageBag->add('error', 'error.statement.final.send');
 
                 return false;
@@ -95,7 +96,7 @@ class StatementEmailSender
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement, $user);
-                if (!empty($recipientEmailAddress)) {
+                if ($recipientEmailAddress !== []) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendFinalStatementEmail(
                         $statement,
@@ -113,7 +114,7 @@ class StatementEmailSender
 
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user);
 
-                if (!empty($recipientEmailAddress)) {
+                if ($recipientEmailAddress !== '' && $recipientEmailAddress !== '0') {
                     $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                     $this->sendFinalStatementEmail(
                         $statement,
@@ -309,7 +310,7 @@ class StatementEmailSender
         }
 
         // if email addresses are incorrect, generate an error message
-        if (0 < count($syntaxEmailErrors)) {
+        if ([] !== $syntaxEmailErrors) {
             throw new InvalidDataException('Invalid Emails provided in CC field.');
         }
 
@@ -349,7 +350,7 @@ class StatementEmailSender
     public function createSendableAttachment(string $fileString): array
     {
         $file = $this->fileService->getFileFromFileString($fileString);
-        if (null === $file) {
+        if (!$file instanceof File) {
             throw new InvalidArgumentException("File not found for ID: $fileString");
         }
 

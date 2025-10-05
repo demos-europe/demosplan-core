@@ -380,7 +380,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga);
 
-            if (array_key_exists('canCreateProcedures', $orgaDataArray) && empty($availableOrgaRoles)) {
+            if (array_key_exists('canCreateProcedures', $orgaDataArray) && $availableOrgaRoles === []) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
                 $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
                     'orgaId' => $newOrga->getId(),
@@ -390,7 +390,7 @@ class DemosPlanOrganisationAPIController extends APIController
             // Add new permission in case it is present in the request
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
-                && array_key_exists('canCreateProcedures', $orgaDataArray) && !empty($availableOrgaRoles)) {
+                && array_key_exists('canCreateProcedures', $orgaDataArray) && $availableOrgaRoles !== []) {
                 try {
                     if (true === $orgaDataArray['canCreateProcedures']) {
                         $canCreateProcedures = true;
@@ -465,7 +465,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $availableOrgaRoles = $this->getAvailableOrgaRoles($preUpdateOrga);
 
-            if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && empty($availableOrgaRoles)) {
+            if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && $availableOrgaRoles === []) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
                 $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
                     'orgaId' => $orgaId,
@@ -474,7 +474,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
-                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && !empty($availableOrgaRoles)) {
+                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && $availableOrgaRoles !== []) {
                 try {
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);

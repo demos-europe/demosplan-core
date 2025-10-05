@@ -101,7 +101,7 @@ class FaqController extends BaseController
         $faqList = $faqHandler->getEnabledFaqList($faqCategory, $user);
 
         $templateCategories = [];
-        if (0 !== count($faqList)) {
+        if ([] !== $faqList) {
             $templateCategories[$categoryTypeName] = [
                 'faqlist' => $faqList,
                 'label'   => $faqList[0]->getCategory()->getTitle(),
@@ -142,7 +142,7 @@ class FaqController extends BaseController
             try {
                 $faqId = $requestPost['faq_delete'];
                 $faqToDelete = $faqHandler->getFaq($faqId);
-                if (null === $faqToDelete) {
+                if (!$faqToDelete instanceof Faq) {
                     throw FaqNotFoundException::createFromId($faqId);
                 }
                 $faqHandler->deleteFaq($faqToDelete);
@@ -391,7 +391,7 @@ class FaqController extends BaseController
         $administrateFaq = 'DemosPlan_faq_administration_faq';
         $templateVars = ['category' => new FaqCategory()];
         $inData = $this->prepareIncomingData($request, $action);
-        $dataGiven = (false === empty($inData));
+        $dataGiven = ($inData !== []);
         $isIdGiven = ('' != $categoryId);
 
         if ($dataGiven) {

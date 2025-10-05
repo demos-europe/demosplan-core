@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\Security\Core\User\UserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -68,7 +69,7 @@ class ExpirationTimestampRequestListener implements EventSubscriberInterface
 
         // Skip if user is not authenticated
         $user = $this->security->getUser();
-        if (null === $user) {
+        if (!$user instanceof UserInterface) {
             return;
         }
 

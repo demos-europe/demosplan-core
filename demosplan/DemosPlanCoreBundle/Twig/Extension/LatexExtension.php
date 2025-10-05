@@ -314,11 +314,7 @@ class LatexExtension extends ExtensionBase
             $firstrow = $countCellsArray[0][0];
             $numberofcells = substr_count((string) $firstrow, '<td>');
 
-            if ($numberofcells > 0) {
-                $cellwidth = round(14 / $numberofcells, 2);
-            } else {
-                $cellwidth = 14;
-            }
+            $cellwidth = $numberofcells > 0 ? round(14 / $numberofcells, 2) : 14;
 
             // Oben gefundene Multicolmn-Tags durch den entsprechenden LaTex-Code ersetzen
             for ($tci = 1; $tci < 11; ++$tci) {
@@ -423,7 +419,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ($imageMatches[1] !== []) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -497,7 +493,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ($imageMatches[1] !== []) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -533,7 +529,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if (count($imageMatches[1]) > 0) {
+        if ($imageMatches[1] !== []) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
@@ -606,16 +602,12 @@ class LatexExtension extends ExtensionBase
             $wFactor = $widthCm / $maxWidthCm;
             $hFactor = $heightCm / $maxHeightCm;
 
-            if ($wFactor > $hFactor) {
-                $factor = $wFactor;
-            } else {
-                $factor = $hFactor;
-            }
+            $factor = $wFactor > $hFactor ? $wFactor : $hFactor;
 
             // resize Image
             if (0 != $factor) {
-                $widthCm = $widthCm / $factor;
-                $heightCm = $heightCm / $factor;
+                $widthCm /= $factor;
+                $heightCm /= $factor;
             }
             $this->logger->info('Image resize to width: '.$widthCm.' and height: '.$heightCm);
         }

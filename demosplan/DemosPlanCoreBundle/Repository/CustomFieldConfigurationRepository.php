@@ -116,7 +116,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
     {
         $customFieldConfigurations = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
-        if (empty($customFieldConfigurations)) {
+        if ($customFieldConfigurations === null || $customFieldConfigurations === []) {
             return new ArrayCollection();
         }
 

@@ -70,7 +70,7 @@ class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidato
         ?string $tokenId,
         string $constraintMessage,
     ): void {
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return;
         }
 

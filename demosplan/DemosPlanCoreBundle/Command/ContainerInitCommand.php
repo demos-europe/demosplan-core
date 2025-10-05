@@ -169,7 +169,7 @@ EOT
                     }
 
                     $user = $this->userRepository->getFirstUserByCaseInsensitiveLogin($userLogin);
-                    if (null === $user) {
+                    if (!$user instanceof User) {
                         $user = $this->userService->createMasterUserForCustomer(
                             $userLogin,
                             $customer

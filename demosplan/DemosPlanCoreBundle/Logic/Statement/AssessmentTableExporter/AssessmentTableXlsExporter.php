@@ -412,7 +412,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     if (!array_key_exists($attributeKey, $statement)) {
                         continue;
                     }
-                    $isNotEmptyArray = is_array($statement[$attributeKey]) && 0 < count($statement[$attributeKey]);
+                    $isNotEmptyArray = is_array($statement[$attributeKey]) && [] !== $statement[$attributeKey];
                     $isCausingNewLine = $attributeKeysWhichCauseNewLine->contains($attributeKey);
                     $isSortable = $isNotEmptyArray && $isCausingNewLine;
                 }

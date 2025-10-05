@@ -36,7 +36,7 @@ class ElasticsearchFilterArrayTransformer
     public function generateFilterArrayFromEsBucket($bucket, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
         $filter = [];
-        if ((!is_array($bucket) || 0 === \count($bucket)) && 0 === \count($labelMap)) {
+        if ((!is_array($bucket) || [] === $bucket) && 0 === \count($labelMap)) {
             return $filter;
         }
 

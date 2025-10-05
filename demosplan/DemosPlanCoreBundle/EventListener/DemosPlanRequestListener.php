@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\HttpFoundation\Response;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
@@ -71,7 +72,7 @@ class DemosPlanRequestListener
         if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
             $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
-            if (null !== $response) {
+            if ($response instanceof Response) {
                 $event->setResponse($response);
             }
         }

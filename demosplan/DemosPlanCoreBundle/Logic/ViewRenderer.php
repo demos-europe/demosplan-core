@@ -134,30 +134,25 @@ class ViewRenderer
     {
         $logger = $this->logger;
         $request = $this->getRequest();
-
         // Fehlertemplate ausgeben
-        switch (true) {
-            case $e instanceof SessionUnavailableException:
-                $logger->info($e);
-
-                return $this->redirectWithCurrentRouteState('sessionExpired');
-
-            case $e instanceof AccessDeniedGuestException:
-                $logger->info($e);
-
-                return $this->redirectWithCurrentRouteState('accessdenied');
-
-            case $e instanceof AccessDeniedException:
-                $logger->warning($e);
-                // do not set redirect LoggedIn Route Cookie as it may lead to
-                // infinite redirects
-                return $this->redirectWithCurrentRouteState('accessdenied', false);
-
-            case $e instanceof EntityNotFoundException:
-                $logger->error($e);
-                $procedureId = $request->attributes->get('procedureId');
-
-                return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
+        if ($e instanceof SessionUnavailableException) {
+            $logger->info($e);
+            return $this->redirectWithCurrentRouteState('sessionExpired');
+        }
+        if ($e instanceof AccessDeniedGuestException) {
+            $logger->info($e);
+            return $this->redirectWithCurrentRouteState('accessdenied');
+        }
+        if ($e instanceof AccessDeniedException) {
+            $logger->warning($e);
+            // do not set redirect LoggedIn Route Cookie as it may lead to
+            // infinite redirects
+            return $this->redirectWithCurrentRouteState('accessdenied', false);
+        }
+        if ($e instanceof EntityNotFoundException) {
+            $logger->error($e);
+            $procedureId = $request->attributes->get('procedureId');
+            return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
         }
 
         return null;
@@ -210,7 +205,7 @@ class ViewRenderer
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request) {
+        if (!$request instanceof Request) {
             throw new RuntimeException('Tried to render without a request');
         }
 

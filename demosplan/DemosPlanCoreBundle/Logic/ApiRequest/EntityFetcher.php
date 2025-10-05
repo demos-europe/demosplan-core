@@ -127,7 +127,7 @@ class EntityFetcher
 
         $matches = $this->listPrefilteredEntitiesUnrestricted([$object], $conditions);
 
-        return 0 !== count($matches);
+        return [] !== $matches;
     }
 
     /**

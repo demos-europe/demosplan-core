@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -312,7 +313,7 @@ class DemosPlanProcedureAPIController extends APIController
     ) {
         // @improve T14122
         $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
-        if (null === $filterSet) {
+        if (!$filterSet instanceof HashedQuery) {
             $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, $filterHash, $original);
         }
 

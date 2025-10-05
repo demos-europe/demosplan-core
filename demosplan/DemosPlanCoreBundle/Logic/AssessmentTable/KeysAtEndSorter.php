@@ -35,7 +35,7 @@ class KeysAtEndSorter implements ArraySorterInterface
      */
     public function __construct(array $keys)
     {
-        if (0 === count($keys)) {
+        if ([] === $keys) {
             throw new InvalidArgumentException('given array of keys is empty');
         }
         $this->keys = $keys;
@@ -43,7 +43,7 @@ class KeysAtEndSorter implements ArraySorterInterface
 
     public function sortArray(array $array): array
     {
-        if (0 === count($array)) {
+        if ([] === $array) {
             return $array;
         }
         foreach ($this->keys as $key) {

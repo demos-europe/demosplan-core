@@ -73,7 +73,7 @@ class ReorderEntityListByInteger
     private function getEntitiesBetweenIndices(int $newIndex, int $oldIndex, Collection $entities): Collection
     {
         $lowIndex = $newIndex < $oldIndex ? $newIndex : $oldIndex;
-        $highIndex = $newIndex < $oldIndex ? $oldIndex : $newIndex;
+        $highIndex = max($oldIndex, $newIndex);
 
         return $entities->filter(
             static function (SortableInterface $entity) use ($lowIndex, $highIndex): bool {
