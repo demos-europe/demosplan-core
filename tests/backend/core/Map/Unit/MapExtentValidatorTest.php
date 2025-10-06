@@ -18,7 +18,6 @@ use Tests\Base\UnitTestCase;
 
 class MapExtentValidatorTest extends UnitTestCase
 {
-
     /** @var MapExtentValidator */
     private $validator;
 
@@ -43,11 +42,11 @@ class MapExtentValidatorTest extends UnitTestCase
     {
         $mapExtent = [
             'start' => ['latitude' => 1000000, 'longitude' => 6000000],
-            'end' => ['latitude' => 1500000, 'longitude' => 6500000],
+            'end'   => ['latitude' => 1500000, 'longitude' => 6500000],
         ];
         $boundingBox = [
             'start' => ['latitude' => 1100000, 'longitude' => 6100000],
-            'end' => ['latitude' => 1400000, 'longitude' => 6400000],
+            'end'   => ['latitude' => 1400000, 'longitude' => 6400000],
         ];
 
         $this->validator->validateExtentContainsBoundingBox($mapExtent, $boundingBox);
