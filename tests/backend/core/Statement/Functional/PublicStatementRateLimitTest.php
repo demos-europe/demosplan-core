@@ -51,7 +51,7 @@ class PublicStatementRateLimitTest extends FunctionalTestCase
     {
         $container = self::getContainer();
 
-        // Get parameters directly from container (FrozenParameterBag doesn't implement has() properly)
+        // Use getParameter() directly instead of ParameterBag for frozen containers
         $limitValue = $container->getParameter('ratelimit_jwt_token_limit');
         $this->assertIsInt($limitValue, 'Parameter ratelimit_jwt_token_limit should be integer');
         $this->assertGreaterThan(0, $limitValue, 'JWT token limit should be greater than 0');
@@ -70,7 +70,7 @@ class PublicStatementRateLimitTest extends FunctionalTestCase
     {
         $container = self::getContainer();
 
-        // Get parameters directly from container (FrozenParameterBag doesn't implement has() properly)
+        // Use getParameter() for cleaner parameter access
         $limitValue = $container->getParameter('ratelimit_anonymous_statement_limit');
         $this->assertIsInt($limitValue, 'Parameter ratelimit_anonymous_statement_limit should be integer');
         $this->assertGreaterThan(0, $limitValue, 'Anonymous statement limit should be greater than 0');

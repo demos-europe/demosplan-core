@@ -51,7 +51,12 @@ class RatelimitRequestSubscriberTest extends TestCase
                 private readonly HeaderSanitizerService $headerSanitizer,
                 private readonly ParameterBag $parameterBag
             ) {
-                // We don't call parent constructor as we can't mock RateLimiterFactory
+                // We intentionally do NOT call the parent constructor here because RateLimiterFactory is a final class
+                // and cannot be mocked in this test context. This means that any logic in the parent constructor will
+                // NOT be executed, and any dependencies expected by RatelimitRequestSubscriber will NOT be initialized.
+                // This stub is only suitable for tests that do not require the full initialization of the parent class.
+                // The actual rate limiting logic is tested separately, and this stub focuses on testing the parameter
+                // checking and header sanitization logic in isolation.
             }
 
             public function setShouldThrowException(bool $shouldThrow): void
