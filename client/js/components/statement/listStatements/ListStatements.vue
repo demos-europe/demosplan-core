@@ -487,7 +487,7 @@ export default {
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
-          const segmentsCount = statement.relationships.segments.data.length
+          const { segmentsCount = 0 } = statement.attributes
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
           return {
             ...statement.attributes,
@@ -712,6 +712,7 @@ export default {
         'memo',
         'originalId',
         'status',
+        'segmentsCount',
         'submitDate',
         'submitName',
         'submitType',
@@ -720,8 +721,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'sourceAttachment',
-        'segments'
+        'sourceAttachment'
       ]
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
@@ -749,7 +749,6 @@ export default {
         },
         sort: this.selectedSort,
         include: [
-          'segments',
           'assignee',
           'sourceAttachment',
           'sourceAttachment.file'
@@ -758,6 +757,9 @@ export default {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
             'file'
+          ].join(),
+          File: [
+            'hash'
           ].join()
         }
       }).then((data) => {
