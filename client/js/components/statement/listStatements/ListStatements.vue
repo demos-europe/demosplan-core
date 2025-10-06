@@ -756,7 +756,6 @@ export default {
         fields: {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
-            'attachmentType',
             'file'
           ].join(),
           File: [
