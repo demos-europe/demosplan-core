@@ -13,6 +13,22 @@
 
     <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
+      <!-- Pagination above segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mb-4">
+        <dp-pager
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange" />
+      </div>
+
       <div
         v-for="segment in segments"
         class="u-ph-0_25"
@@ -65,6 +81,22 @@
           </dp-edit-field>
         </div>
       </div>
+
+      <!-- Pagination below segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mt-4">
+        <dp-pager
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange" />
+      </div>
     </template>
 
     <!-- if statement has no segments, display statement -->
@@ -110,6 +142,7 @@ import {
   DpButtonRow,
   DpInlineNotification,
   DpLoading,
+  DpPager,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -118,6 +151,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -127,6 +161,7 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
+    DpPager,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
@@ -139,7 +174,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [dpValidateMixin],
+  mixins: [dpValidateMixin, paginationMixin],
 
   props: {
     currentUser: {
@@ -176,7 +211,14 @@ export default {
       editingSegmentIds: [],
       hoveredSegment: null,
       isLoading: false,
-      obscuredText: ''
+      obscuredText: '',
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 20, 50],
+        perPage: 20
+      },
+      pagination: {},
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`
     }
   },
 
@@ -413,11 +455,9 @@ export default {
 
     transformObscureTag (val) {
       this.obscuredText = val
-    }
-  },
+    },
 
-  mounted () {
-    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
+    async fetchSegments (page = 1) {
       this.isLoading = true
 
       const statementSegmentFields = [
@@ -437,7 +477,7 @@ export default {
         statementSegmentFields.push('customFields')
       }
 
-      this.listSegments({
+      const response = await this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
@@ -446,6 +486,10 @@ export default {
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
+        },
+        page: {
+          number: page,
+          size: this.pagination?.perPage || this.defaultPagination.perPage
         },
         filter: {
           parentStatementOfSegment: {
@@ -456,15 +500,40 @@ export default {
           }
         }
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            this.scrollToSegment()
-          })
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+
+      // Update pagination with response metadata
+      if (response && response.meta && response.meta.pagination) {
+        this.setLocalStorage(response.meta.pagination)
+        this.updatePagination(response.meta.pagination)
+      }
+
+      this.isLoading = false
+
+      await this.$nextTick(() => {
+        this.scrollToSegment()
+      })
+    },
+
+    handlePageChange (page) {
+      this.fetchSegments(page)
+    },
+
+    handleSizeChange (newSize) {
+      if (newSize <= 0) {
+        // Prevent division by zero or negative page size
+        return
+      }
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.fetchSegments(page)
+    }
+  },
+
+  mounted () {
+    if (hasPermission('area_statement_segmentation')) {
+      this.initPagination()
+      this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },
 
