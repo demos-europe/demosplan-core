@@ -153,6 +153,11 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # Rate limiting for API access
+    ratelimit_api_enable: true
+    # Rate limiting for public statements
+    ratelimit_public_statement_enable: true
+
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
     # addon repository is used to install addons. A token needs to be acquired
