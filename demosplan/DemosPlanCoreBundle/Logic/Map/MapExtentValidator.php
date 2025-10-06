@@ -61,7 +61,7 @@ class MapExtentValidator
             || $boxMaxX > $extentMaxX
             || $boxMaxY > $extentMaxY
         ) {
-            $this->messageBag->add('error', 'Der Startkartenausschnitt muss vollständig innerhalb der Kartenbegrenzung liegen.');
+            $this->messageBag->add('error', 'error.map.viewport.outside_extent');
 
             $this->logger->error('The starting map section (bounding box) must be completely within the map extent. MapExtent: ['.implode(', ', $flatMapExtent).'], BoundingBox: ['.implode(', ', $flatBoundingBox).']');
 
