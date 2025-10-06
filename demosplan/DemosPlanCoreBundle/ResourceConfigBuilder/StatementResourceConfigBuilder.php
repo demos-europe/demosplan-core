@@ -62,7 +62,6 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userPosition @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userState @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $votesNum @deprecated Use relationship to {@link StatementVote} instead
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textPreview
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fullText
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isSubmittedByCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isManual

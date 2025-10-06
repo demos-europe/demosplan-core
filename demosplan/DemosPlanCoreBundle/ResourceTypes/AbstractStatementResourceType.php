@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -88,7 +87,6 @@ use EDT\PathBuilding\End;
  * @property-read End $recommendationIsTruncated
  * @property-read End $status
  * @property-read End $text @deprecated Rename into truncated_text or something similar
- * @property-read End $textPreview
  * @property-read End $textIsTruncated
  * @property-read End $userGroup @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
  * @property-read End $userOrganisation @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)
@@ -223,8 +221,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->votesNum
             ->readable(true, static fn (Statement $statement): int => $statement->getVotesNum());
         $configBuilder->voteStk->readable(true);
-        $configBuilder->textPreview
-            ->readable(true, fn (Statement $statement): string => HTMLFragmentSlicer::getShortened($statement->getText()));
         $configBuilder->fullText
             // add the large full text field only if it was requested
             ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
