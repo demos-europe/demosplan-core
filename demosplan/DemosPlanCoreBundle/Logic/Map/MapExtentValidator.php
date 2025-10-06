@@ -12,13 +12,22 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Validates map extent boundaries to ensure they contain the initial viewport.
  */
 class MapExtentValidator
 {
+    public function __construct(
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger
+    )
+    {
+    }
+
     /**
      * Validates that the map extent (boundaries) fully contains the initial viewport (bounding box).
      *
@@ -52,6 +61,10 @@ class MapExtentValidator
             || $boxMaxX > $extentMaxX
             || $boxMaxY > $extentMaxY
         ) {
+            $this->messageBag->add('error', 'Der Startkartenausschnitt muss vollständig innerhalb der Kartenbegrenzung liegen.');
+
+            $this->logger->error('The starting map section (bounding box) must be completely within the map extent. MapExtent: ['.implode(', ', $flatMapExtent).'], BoundingBox: ['.implode(', ', $flatBoundingBox).']');
+
             throw new InvalidArgumentException('Der Startkartenausschnitt (boundingBox) muss vollständig innerhalb der Kartenbegrenzung (mapExtent) liegen. MapExtent: ['.implode(', ', $flatMapExtent).'], BoundingBox: ['.implode(', ', $flatBoundingBox).']');
         }
     }
