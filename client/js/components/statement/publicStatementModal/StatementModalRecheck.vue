@@ -314,6 +314,12 @@ export default {
       default: false
     },
 
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     statement: {
       type: Object,
       required: true,
