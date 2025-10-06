@@ -20,7 +20,7 @@ class HtmlSanitizerService
 
         // Convert the $allowed_tags string to an array of original HTML tags
         $allowedTagsArray = explode('><', trim($allowedTags, '<>'));
-        $allowedTagsArray = array_map(fn($tag) => '<'.$tag.'>', $allowedTagsArray);
+        $allowedTagsArray = array_map(fn ($tag) => '<'.$tag.'>', $allowedTagsArray);
 
         // Create a map of encoded tags to decoded tags
         $encodedToDecodedMap = [];
@@ -41,7 +41,7 @@ class HtmlSanitizerService
 
             // Replace using a callback to conditionally replace the entities
             $decodedString = preg_replace_callback($pattern,
-                static fn($matches) => '<'.$matches[1].'>', (string) $decodedString
+                static fn ($matches) => '<'.$matches[1].'>', (string) $decodedString
             );
         }
 

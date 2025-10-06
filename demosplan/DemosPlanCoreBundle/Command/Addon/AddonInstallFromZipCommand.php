@@ -522,8 +522,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function askItem(string $existingContent, InputInterface $input, SymfonyStyle $output): mixed
     {
         $items = collect(Json::decodeToArray($existingContent))->filter(
-            fn($item) => !str_contains((string) $item['name'], 'rc')
-        )->map(fn($item) => $item['name'])
+            fn ($item) => !str_contains((string) $item['name'], 'rc')
+        )->map(fn ($item) => $item['name'])
             ->reverse()
             ->values()
             ->toArray();
@@ -598,10 +598,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             $ghReposUrl
         );
         $availableAddons = collect($availableRepositories)->filter(
-            fn($repo) => str_contains((string) $repo['name'], 'demosplan-addon-')
+            fn ($repo) => str_contains((string) $repo['name'], 'demosplan-addon-')
         )
-            ->map(fn($repo) => $repo['name'])
-            ->sortBy(fn($repo) => $repo)
+            ->map(fn ($repo) => $repo['name'])
+            ->sortBy(fn ($repo) => $repo)
             ->values()
             ->toArray();
         $question = new ChoiceQuestion(

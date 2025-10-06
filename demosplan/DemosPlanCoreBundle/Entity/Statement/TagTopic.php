@@ -72,12 +72,12 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     public function __construct(/**
      * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
      */
-    protected string $title, /**
+        protected string $title, /**
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
      *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
-    protected ProcedureInterface $procedure)
+        protected ProcedureInterface $procedure)
     {
         $this->tags = new ArrayCollection();
     }

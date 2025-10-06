@@ -102,7 +102,7 @@ class LatexExtension extends ExtensionBase
     {
         return [
             new TwigFilter(
-                'latex', fn($string, $listwidth = 7) => $this->latexFilter($string, $listwidth)
+                'latex', fn ($string, $listwidth = 7) => $this->latexFilter($string, $listwidth)
             ),
             new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
             new TwigFilter('latexPrepareImage', $this->prepareImage(...)),

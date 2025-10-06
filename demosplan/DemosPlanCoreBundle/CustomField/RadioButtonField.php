@@ -47,7 +47,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function toJson(): array
     {
-        $options = array_map(static fn($customField) => $customField->toJson(), $this->options);
+        $options = array_map(static fn ($customField) => $customField->toJson(), $this->options);
 
         return [
             'fieldType'     => $this->fieldType,
@@ -108,7 +108,7 @@ class RadioButtonField extends AbstractCustomField
             return true;
         }
 
-        return collect($this->options)->contains(fn($option) => $option->getId() === $value);
+        return collect($this->options)->contains(fn ($option) => $option->getId() === $value);
     }
 
     public function setId($id): void

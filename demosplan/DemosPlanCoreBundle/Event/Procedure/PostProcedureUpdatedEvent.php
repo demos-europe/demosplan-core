@@ -22,8 +22,8 @@ use ReflectionClass;
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
     public function __construct(
-        readonly protected Procedure $procedureBeforeUpdate,
-        readonly protected Procedure $procedureAfterUpdate,
+        protected readonly Procedure $procedureBeforeUpdate,
+        protected readonly Procedure $procedureAfterUpdate,
         private array $fieldsNotPresentInNewProcedure = [],
     ) {
     }

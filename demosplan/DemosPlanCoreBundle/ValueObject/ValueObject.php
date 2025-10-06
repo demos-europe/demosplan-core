@@ -45,9 +45,6 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     protected function getProperty(?string $name)
     {
         $this->checkIfLocked();
@@ -139,7 +136,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
             return collect($reflection->getProperties(ReflectionProperty::IS_PROTECTED))
                 ->flatMap(
-                    fn(ReflectionProperty $property) => [$property->getName() => $this->{$property->getName()}]
+                    fn (ReflectionProperty $property) => [$property->getName() => $this->{$property->getName()}]
                 )
                 ->toArray();
         } catch (ReflectionException) {

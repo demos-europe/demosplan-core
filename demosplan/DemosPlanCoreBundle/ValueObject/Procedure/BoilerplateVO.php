@@ -48,7 +48,7 @@ class BoilerplateVO extends ValueObject
     /** @var Procedure */
     protected $procedure;
 
-    public function __construct(Boilerplate $boilerplate = null)
+    public function __construct(?Boilerplate $boilerplate = null)
     {
         $this->categories = new ArrayCollection();
         if (null !== $boilerplate) {
@@ -78,9 +78,6 @@ class BoilerplateVO extends ValueObject
         $this->categories->remove($category);
     }
 
-    /**
-     * @return mixed
-     */
     public function getTitle()
     {
         return $this->title;
@@ -107,9 +104,6 @@ class BoilerplateVO extends ValueObject
         $this->categories = $categories;
     }
 
-    /**
-     * @return mixed
-     */
     public function getText()
     {
         return $this->text;

@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -120,7 +120,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly HtmlSanitizerService $htmlSanitizerService
+        private readonly HtmlSanitizerService $htmlSanitizerService,
     ) {
         parent::__construct(
             $currentProcedureService,

@@ -24,9 +24,6 @@ class Filter implements FilterInterface
         return $this->field;
     }
 
-    /**
-     * @return mixed
-     */
     public function getValue()
     {
         return $this->value;

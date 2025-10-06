@@ -19,8 +19,7 @@ class DemosPlanTools
     /**
      * Wrapper for varExport to avoid memory errors.
      *
-     * @param bool  $return
-     * @return mixed
+     * @param bool $return
      */
     public static function varExport(mixed $expression, $return = false)
     {

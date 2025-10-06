@@ -558,7 +558,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     public function getOrganisationNames($asString): array|string
     {
         $organisations = collect($this->getOrganisations())->map(
-            fn($item) => $item->getName())->sort();
+            fn ($item) => $item->getName())->sort();
 
         if ($asString) {
             return $organisations->implode(', ');
@@ -652,7 +652,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         return new FileInfo(
             $fileStringParts[1] ?? '',
             $fileStringParts[0] ?? '',
-            (int)($fileStringParts[2] ?? ''),
+            (int) ($fileStringParts[2] ?? ''),
             $fileStringParts[3] ?? '',
             'missing',
             'missing',

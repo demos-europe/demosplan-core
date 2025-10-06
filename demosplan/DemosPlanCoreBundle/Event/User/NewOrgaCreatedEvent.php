@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class NewOrgaCreatedEvent extends DPlanEvent

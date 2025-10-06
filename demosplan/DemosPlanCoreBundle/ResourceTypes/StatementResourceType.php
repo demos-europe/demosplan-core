@@ -358,7 +358,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->user
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
-
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -375,7 +374,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
-            $configBuilder->status->readable(true, fn(Statement $statement) => $this->statementService->getProcessingStatus($statement))->filterable();
+            $configBuilder->status->readable(true, fn (Statement $statement) => $this->statementService->getProcessingStatus($statement))->filterable();
         }
 
         if ($this->currentUser->hasPermission('field_statement_priority')) {
@@ -492,7 +491,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
             $configBuilder->publicVerified
-                ->readable(true, fn(Statement $statement) => $statement->getPublicVerified())
+                ->readable(true, fn (Statement $statement) => $statement->getPublicVerified())
                 ->updatable(
                     [$simpleStatementCondition],
                     static function (Statement $statement, string $publicVerified): array {
@@ -560,7 +559,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availableProcedurePhases
-                ->readable(false, fn(Statement $statement): ?array => $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen()));
+                ->readable(false, fn (Statement $statement): ?array => $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen()));
         }
 
         if ($this->getTypes()->getStatementVoteResourceType()->isAvailable()) {

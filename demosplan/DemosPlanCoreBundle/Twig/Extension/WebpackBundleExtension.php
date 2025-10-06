@@ -77,7 +77,7 @@ class WebpackBundleExtension extends ExtensionBase
         // Atm the styles manifest contains several js entries which would replace
         // the $dplanManifest equivalents which leads to resolve errors in the frontend.
         $cssIdentifier = '.css';
-        $trimmedStylesManifest = array_filter($stylesManifest, fn($key, $value) => str_contains($key, $cssIdentifier) && str_contains($value, $cssIdentifier), ARRAY_FILTER_USE_BOTH);
+        $trimmedStylesManifest = array_filter($stylesManifest, fn ($key, $value) => str_contains($key, $cssIdentifier) && str_contains($value, $cssIdentifier), ARRAY_FILTER_USE_BOTH);
 
         $this->dplanManifest = array_merge($dplanManifest, $trimmedStylesManifest);
 
@@ -263,9 +263,9 @@ ERR);
     {
         // style nonces are not yet supported
         if ('style' === $type) {
-
             return '';
         }
+
         return sprintf('nonce="%s"', $this->cspListener->getNonce($type));
     }
 }

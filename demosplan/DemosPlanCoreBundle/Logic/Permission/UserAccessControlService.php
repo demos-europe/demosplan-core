@@ -99,10 +99,10 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
 
         $conditions = [
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'permission'   => $permission,
         ];
         if ($role instanceof RoleInterface) {
             $conditions['role'] = $role;

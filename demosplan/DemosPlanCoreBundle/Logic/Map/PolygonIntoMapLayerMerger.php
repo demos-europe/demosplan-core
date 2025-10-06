@@ -14,9 +14,9 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use GdImage;
+use Illuminate\Support\Collection;
 use Point;
 use stdClass;
-use Illuminate\Support\Collection;
 
 class PolygonIntoMapLayerMerger
 {
@@ -179,7 +179,6 @@ class PolygonIntoMapLayerMerger
     /**
      * html2rgb()
      * Transformiert eine CSS-Farbangabe nach RGB.
-     *
      *
      * @return array|false
      */

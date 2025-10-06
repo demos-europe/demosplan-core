@@ -1106,7 +1106,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
         $roleInCustomer = $this->getRoleInCustomers()->filter(
-            fn(UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId()
+            fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId()
         )->first();
 
         $this->roleInCustomers->removeElement($roleInCustomer);

@@ -14,9 +14,6 @@ class DuplicateSlugException extends InvalidArgumentException
 {
     private $duplicatedSlug;
 
-    /**
-     * @return mixed
-     */
     public function getDuplicatedSlug()
     {
         return $this->duplicatedSlug;
