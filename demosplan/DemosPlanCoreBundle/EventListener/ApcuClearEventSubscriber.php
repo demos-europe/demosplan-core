@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Check whether apcu cache needs to be cleared.
@@ -60,6 +60,7 @@ class ApcuClearEventSubscriber implements EventSubscriberInterface
             $fs->remove($cacheScheduleFile);
         }
     }
+
     /**
      * @return array<string, mixed>
      */

@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -23,6 +22,7 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class GenericRpcController extends BaseController
@@ -35,7 +35,7 @@ class GenericRpcController extends BaseController
         CurrentProcedureService $currentProcedureService,
         Request $request,
         RpcErrorGenerator $errorGenerator,
-        RpcMethodSolverStrategy $rpcMethodSolverStrategy
+        RpcMethodSolverStrategy $rpcMethodSolverStrategy,
     ): JsonResponse {
         try {
             $procedure = $currentProcedureService->getProcedure();
@@ -53,7 +53,7 @@ class GenericRpcController extends BaseController
 
     private function handleException(
         RpcErrorGenerator $errorGenerator,
-        Exception $e
+        Exception $e,
     ): JsonResponse {
         $this->logger->error('RPC Route Exception', [$e]);
 

@@ -36,7 +36,7 @@ class DemosPlanHelpController extends BaseController
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
     public function list(
         Request $request,
-        HelpHandler $helpHandler
+        HelpHandler $helpHandler,
     ): Response {
         $templateVars = [];
         $requestPost = $request->request->all();
@@ -75,13 +75,13 @@ class DemosPlanHelpController extends BaseController
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
     public function new(
         Breadcrumb $breadcrumb,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $breadcrumb->addItem(
             [
-                 'title' => $translator->trans('contextual.help'),
-                 'url'   => $this->generateUrl('dplan_contextual_help_list'),
-             ]
+                'title' => $translator->trans('contextual.help'),
+                'url'   => $this->generateUrl('dplan_contextual_help_list'),
+            ]
         );
 
         return $this->renderTemplate(
@@ -105,7 +105,7 @@ class DemosPlanHelpController extends BaseController
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
     public function create(
         HelpHandler $helpHandler,
-        Request $request
+        Request $request,
     ): Response {
         try {
             $helpHandler->createContextualHelp($request->request->all());
@@ -133,7 +133,7 @@ class DemosPlanHelpController extends BaseController
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
         TranslatorInterface $translator,
-        $contextualHelpId = null
+        $contextualHelpId = null,
     ): Response {
         try {
             $breadcrumb->addItem([
@@ -171,7 +171,7 @@ class DemosPlanHelpController extends BaseController
     public function update(
         Request $request,
         HelpHandler $helpHandler,
-        string $contextualHelpId
+        string $contextualHelpId,
     ): Response {
         try {
             $helpHandler->updateContextualHelp($request->request->all());

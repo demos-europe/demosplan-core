@@ -65,7 +65,7 @@ class DemosPlanElementsAPIController extends APIController
     public function getAction(
         ApiResourceService $apiResourceService,
         ElementHandler $elementHandler,
-        string $elementId
+        string $elementId,
     ): JsonResponse {
         try {
             $element = $elementHandler->getElement($elementId);

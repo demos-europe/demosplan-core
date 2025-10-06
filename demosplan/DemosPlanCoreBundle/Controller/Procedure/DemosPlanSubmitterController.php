@@ -54,7 +54,7 @@ class DemosPlanSubmitterController extends BaseController
         TranslatorInterface $translator,
         CurrentUserInterface $currentUser,
         StatementService $statementService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         try {
             $statements = $statementService->getStatementsForSubmitterExport($procedureId);

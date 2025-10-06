@@ -41,7 +41,7 @@ class DemosPlanMailController extends BaseController
         Request $request,
         SubmitterService $submitterService,
         TranslatorInterface $translator,
-        $procedureId
+        $procedureId,
     ): ?Response {
         // @improve T14122
         $userId = $currentUser->getUser()->getId();
@@ -195,7 +195,7 @@ class DemosPlanMailController extends BaseController
         CurrentUserService $currentUser,
         Request $request,
         SubmitterService $submitterService,
-        $procedureId
+        $procedureId,
     ): RedirectResponse {
         // @improve T14122
         /** @var SubmitterService $submitterService */

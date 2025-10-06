@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
 use Exception;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiControllerEventSubscriber implements EventSubscriberInterface
 {
@@ -48,6 +48,7 @@ class ApiControllerEventSubscriber implements EventSubscriberInterface
             }
         }
     }
+
     /**
      * @return array<string, mixed>
      */

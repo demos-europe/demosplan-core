@@ -10,10 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Custom Eventlistener
@@ -36,6 +36,7 @@ class SubdomainEventSubscriber implements EventSubscriberInterface
     {
         $this->subdomainHandler->setSubdomainParameter($event->getRequest());
     }
+
     /**
      * @return array<string, mixed>
      */

@@ -170,8 +170,6 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      *
      * @param string $releaseId
      * @param string $token
-     *
-     * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_release_delete', path: '/development/delete/{releaseId}/{token}')]
     public function deleteRelease($releaseId, $token): RedirectResponse
@@ -291,8 +289,6 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @DplanPermissions("area_development")
      *
      * @param string $releaseId
-     *
-     * @return RedirectResponse
      *
      * @throws MessageBagException
      */
@@ -470,8 +466,6 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @param string $releaseId
      * @param string $storyId
      * @param string $token
-     *
-     * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_delete', path: '/development/{releaseId}/story/delete/{storyId}/{token}')]
     public function deleteUserStory($releaseId, $storyId, $token): RedirectResponse
@@ -743,8 +737,6 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @param string $storyId
      * @param string $threadEntryId
      * @param string $token
-     *
-     * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_delete', path: '/development/{storyId}/entry/{threadEntryId}/delete/{token}')]
     public function deleteThreadEntryOfUserStory(CurrentUserInterface $currentUser, PermissionsInterface $permissions, $storyId, $threadEntryId, $token): RedirectResponse

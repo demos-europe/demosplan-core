@@ -784,8 +784,6 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @param string $tag
      *
-     * @return JsonResponse
-     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_boilerplates_ajax', path: '/boilerplatetext/{procedure}/{tag}', options: ['expose' => true])]
@@ -832,8 +830,6 @@ class DemosPlanAssessmentTableController extends BaseController
      *
      * @param string $statementId
      *
-     * @return JsonResponse
-     *
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_statement_ajax', path: '/_ajax/statement/{statementId}', options: ['expose' => true])]
@@ -869,8 +865,6 @@ class DemosPlanAssessmentTableController extends BaseController
      * @DplanPermissions({"area_admin_assessmenttable", "field_statement_recommendation"})
      *
      * @param string $statementId
-     *
-     * @return JsonResponse
      *
      * @throws Exception
      */
@@ -978,8 +972,6 @@ class DemosPlanAssessmentTableController extends BaseController
 
     /**
      * @DplanPermissions({"area_admin_assessmenttable", "feature_statement_bulk_edit"})
-     *
-     * @return Response
      *
      * @throws Exception
      */

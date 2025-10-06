@@ -476,8 +476,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      *  @DplanPermissions({"area_admin_assessmenttable","area_statements_fragment"})
      *
      * @param string $statementId
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_statement_fragment_considerations_get_ajax', path: '/_ajax/procedure/{procedure}/statement/{statementId}/fragmentconsiderations', options: ['expose' => true])]
     public function getFragmentConsiderationsAjax($statementId): JsonResponse
@@ -752,8 +750,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * @DplanPermissions("area_statements_fragment")
      *
      * @param Request $request ;
-     *
-     * @return Response
      *
      * @throws MessageBagException
      */

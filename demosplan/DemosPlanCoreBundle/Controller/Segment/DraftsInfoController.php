@@ -45,7 +45,7 @@ class DraftsInfoController extends BaseController
         CurrentUserService $currentUser,
         StatementService $statementService,
         string $statementId,
-        string $procedureId
+        string $procedureId,
     ): RedirectResponse {
         $statement = $statementService->getStatement($statementId);
         if (null === $statement) {
@@ -76,7 +76,7 @@ class DraftsInfoController extends BaseController
         string $procedureId,
         string $statementId,
         SegmentableStatementValidator $segmentableStatementValidator,
-        StatementHandler $statementHandler
+        StatementHandler $statementHandler,
     ): Response {
         try {
             $segmentableStatementValidator->validate($statementId);

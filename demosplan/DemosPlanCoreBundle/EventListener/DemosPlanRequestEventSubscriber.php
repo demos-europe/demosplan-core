@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -38,7 +38,7 @@ class DemosPlanRequestEventSubscriber implements EventSubscriberInterface
         GlobalConfigInterface $globalConfig,
         private readonly JsonApiRequestValidator $jsonApiRequestValidator,
         RouterInterface $router,
-        SubdomainHandlerInterface $subdomainHandler
+        SubdomainHandlerInterface $subdomainHandler,
     ) {
         $this->subdomainHandler = $subdomainHandler;
         $this->globalConfig = $globalConfig;
@@ -70,14 +70,15 @@ class DemosPlanRequestEventSubscriber implements EventSubscriberInterface
         }
 
         // API-Requests are always master requests
-        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
-            $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
+        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType())
+            && $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
             if (null !== $response) {
                 $event->setResponse($response);
             }
         }
     }
+
     /**
      * @return array<string, mixed>
      */

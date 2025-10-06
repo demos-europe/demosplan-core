@@ -115,8 +115,6 @@ class DemosPlanOrganisationAPIController extends APIController
      * List organizations, depending on permissions.
      *
      * @DplanPermissions("feature_organisation_user_list")
-     *
-     * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function list(
@@ -345,8 +343,6 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @DplanPermissions("area_manage_orgas")
      *
-     * @return APIResponse
-     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
@@ -423,8 +419,6 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * @DplanPermissions("feature_orga_edit")
-     *
-     * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrga(

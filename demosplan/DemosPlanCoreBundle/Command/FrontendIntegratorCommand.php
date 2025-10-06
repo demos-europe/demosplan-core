@@ -10,9 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use EDT\JsonApi\ApiDocumentation\GetActionConfig;
-use EDT\JsonApi\ApiDocumentation\ListActionConfig;
-use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
@@ -25,6 +22,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation\JsApiResourceDefinitionBuilder;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use EDT\JsonApi\Manager;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;

@@ -31,7 +31,7 @@ class ProcedureStatisticsRpcController extends APIController
     public function segmentationsGet(
         StatementService $statementService,
         ProcedureService $procedureService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         try {
             $procedure = $procedureService->getProcedure($procedureId);

@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
@@ -25,9 +23,11 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
@@ -45,7 +45,7 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
         private readonly PermissionsInterface $permissions,
         private readonly Reader $reader,
         private readonly RequestStack $requestStack,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -137,6 +137,7 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
             throw new SessionUnavailableException('Session Initialization not successful: '.$e);
         }
     }
+
     /**
      * @return array<string, mixed>
      */

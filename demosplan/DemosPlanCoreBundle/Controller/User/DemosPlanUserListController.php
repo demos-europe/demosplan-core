@@ -66,6 +66,7 @@ class DemosPlanUserListController extends DemosPlanUserController
     public function listUsers()
     {
         $title = 'user.admin.user';
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/list_user.html.twig',
             ['title' => $title]

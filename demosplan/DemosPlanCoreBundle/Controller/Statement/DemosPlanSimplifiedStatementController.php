@@ -40,7 +40,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
         $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);

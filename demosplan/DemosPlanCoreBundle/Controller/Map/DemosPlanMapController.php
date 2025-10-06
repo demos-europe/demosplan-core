@@ -659,8 +659,6 @@ class DemosPlanMapController extends BaseController
      * Via Controller, weil per JavaScript nicht auf andere Domains zugegriffen werden darf.
      *
      * @DplanPermissions("area_map_participation_area")
-     *
-     * @return Response
      */
     #[Route(name: 'DemosPlan_map_get_feature_info', path: '/getFeatureInfo/{procedure}', options: ['expose' => true])]
     public function getFeatureInfoAjax(GetFeatureInfo $getFeatureInfo, Request $request): Response
@@ -708,8 +706,6 @@ class DemosPlanMapController extends BaseController
      * @DplanPermissions("feature_procedure_planning_area_match")
      *
      * @param string $procedure
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_map_get_planning_area', path: '/getPlanningArea/{procedure}', options: ['expose' => true])]
     public function getPlanningAreaAjax(GetFeatureInfo $getFeatureInfo, ProcedureHandler $procedureHandler, Request $request, TranslatorInterface $translator, $procedure): JsonResponse

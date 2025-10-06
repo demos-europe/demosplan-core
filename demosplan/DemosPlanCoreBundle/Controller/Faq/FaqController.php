@@ -50,7 +50,7 @@ class FaqController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         FaqHandler $faqHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
         $templateVars = [
@@ -91,7 +91,7 @@ class FaqController extends BaseController
     public function faqPublicList(
         CurrentUserService $currentUserService,
         FaqHandler $faqHandler,
-        $type
+        $type,
     ) {
         $templateVars = [];
         $user = $currentUserService->getUser();
@@ -134,7 +134,7 @@ class FaqController extends BaseController
         Request $request,
         FaqHandler $faqHandler,
         GlobalConfig $globalConfig,
-        string $procedure = null
+        ?string $procedure = null,
     ) {
         $requestPost = $request->request->all();
 
@@ -190,7 +190,7 @@ class FaqController extends BaseController
         Request $request,
         string $faqID,
         TranslatorInterface $translator,
-        FaqHandler $faqHandler
+        FaqHandler $faqHandler,
     ) {
         $faq = $faqHandler->getFaq($faqID);
         if (!$faq instanceof Faq) {
@@ -260,7 +260,7 @@ class FaqController extends BaseController
         GlobalConfig $globalConfig,
         Request $request,
         TranslatorInterface $translator,
-        string $procedure = null
+        ?string $procedure = null,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -269,8 +269,8 @@ class FaqController extends BaseController
         if (!empty($requestPost['action']) && 'faqnew' === $requestPost['action']) {
             $inData = $this->prepareIncomingData($request, 'faq_new');
             // Wenn Gast ausgewählt wurde, sollen es auch gleichzeitig Bürger sehen
-            if (isset($inData['r_group_code']) &&
-                in_array(Role::GGUEST, $inData['r_group_code'], true)
+            if (isset($inData['r_group_code'])
+                && in_array(Role::GGUEST, $inData['r_group_code'], true)
             ) {
                 $inData['r_group_code'][] = Role::GCITIZ;
             }
@@ -386,7 +386,7 @@ class FaqController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $categoryId = '',
-        $action = 'show'
+        $action = 'show',
     ) {
         $administrateFaq = 'DemosPlan_faq_administration_faq';
         $templateVars = ['category' => new FaqCategory()];

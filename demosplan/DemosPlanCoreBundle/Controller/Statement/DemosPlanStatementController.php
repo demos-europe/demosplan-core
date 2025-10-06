@@ -1348,8 +1348,6 @@ class DemosPlanStatementController extends BaseController
      * @param string $procedure
      * @param string $statementID
      *
-     * @return RedirectResponse
-     *
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_statement_unpublish', path: '/verfahren/{procedure}/stellungnahme/{statementID}/unpublish', options: ['expose' => true])]
@@ -1421,8 +1419,6 @@ class DemosPlanStatementController extends BaseController
 
     /**
      * @DplanPermissions("area_statements")
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_statement_get_count_internal', path: '/rest/statement/count/{procedure}')]
     public function getStatementCountInternal(StatementHandler $statementHandler, string $procedure): JsonResponse

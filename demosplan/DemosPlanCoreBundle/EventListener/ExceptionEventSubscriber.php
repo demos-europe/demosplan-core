@@ -10,14 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
 
 use function is_array;
@@ -35,7 +35,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
     public function __construct(
         LoggerInterface $logger,
         private readonly ExceptionService $exceptionService,
-        private readonly bool $debug = false
+        private readonly bool $debug = false,
     ) {
         $this->logger = $logger;
     }
@@ -76,6 +76,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
 
         $event->setResponse($this->exceptionService->handleError($exception));
     }
+
     /**
      * @return array<string, mixed>
      */

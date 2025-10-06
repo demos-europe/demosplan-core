@@ -35,7 +35,7 @@ class ConsultationController extends BaseController
         ConsultationTokenService $consultationTokenService,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): RedirectResponse {
         $response = $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedure' => $procedureId]);
 

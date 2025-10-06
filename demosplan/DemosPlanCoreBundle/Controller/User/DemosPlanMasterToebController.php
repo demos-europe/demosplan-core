@@ -74,8 +74,6 @@ class DemosPlanMasterToebController extends BaseController
      * Update einer Orga via ajax.
      *
      * @DplanPermissions("area_manage_mastertoeblist")
-     *
-     * @return Response
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_update_ajax', path: '/mastertoeblist/organisation/update', options: ['expose' => true])]
     public function updateMasterToebListAjax(Request $request): Response
@@ -226,8 +224,6 @@ class DemosPlanMasterToebController extends BaseController
      * Löschen einer Orga via ajax.
      *
      * @DplanPermissions("area_manage_mastertoeblist")
-     *
-     * @return Response
      */
     #[Route(name: 'DemosPlan_user_mastertoeblist_delete_ajax', path: '/mastertoeblist/organisation/delete', options: ['expose' => true])]
     public function deleteMasterToebAjax(Request $request): Response

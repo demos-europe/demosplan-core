@@ -10,13 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PopulateElasticaEventSubscriber implements EventSubscriberInterface
 {
@@ -66,6 +66,7 @@ class PopulateElasticaEventSubscriber implements EventSubscriberInterface
 
         $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 500');
     }
+
     /**
      * @return array<string, mixed>
      */

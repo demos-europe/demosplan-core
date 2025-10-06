@@ -173,11 +173,8 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_demosplan")
      *
-     * @param Request                            $request      Unused
      * @param GlobalConfigInterface|GlobalConfig $globalConfig
      * @param string                             $procedure
-     *
-     * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_procedure_entrypoint', path: '/verfahren/{procedure}/entrypoint')]
     public function procedureEntrypoint(GlobalConfigInterface $globalConfig, $procedure): RedirectResponse
@@ -1492,8 +1489,6 @@ class DemosPlanProcedureController extends BaseController
      * @DplanPermissions({"area_main_procedures","area_admin_preferences"})
      *
      * @param string $procedure
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_procedure_edit_ajax', path: '/verfahren/{procedure}/einstellungen/update', options: ['expose' => true])]
     public function administrationEditAjax(

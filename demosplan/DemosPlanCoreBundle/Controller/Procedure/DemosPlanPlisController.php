@@ -65,8 +65,6 @@ class DemosPlanPlisController extends BaseController
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
     public function getLgvPlisProcedureNameJson(Plis $plis, $uuid): JsonResponse
