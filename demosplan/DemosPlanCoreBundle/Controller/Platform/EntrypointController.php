@@ -138,7 +138,7 @@ class EntrypointController extends BaseController
     public function indexAction(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         if ($this->currentUserService->hasPermission('area_public_participation')) {
             return $this->renderPublicIndexList(
@@ -202,7 +202,7 @@ class EntrypointController extends BaseController
     protected function renderPublicIndexList(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         $templateVars = $procedureLister->getPublicIndexProcedureList($request);
         $templateVars = $procedureLister->reformatPhases(

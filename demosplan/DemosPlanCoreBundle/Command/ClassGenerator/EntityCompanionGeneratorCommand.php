@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\ClassGenerator;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
@@ -34,6 +33,7 @@ use EDT\Parsing\Utilities\Types\NonClassOrInterfaceType;
 use EDT\PathBuilding\DocblockPropertyByTraitEvaluator;
 use Exception;
 use ReflectionClass;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

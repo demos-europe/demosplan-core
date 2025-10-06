@@ -12,12 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -27,7 +28,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Collection;
 
 #[AsCommand(name: 'documentation:generate:permission-list', description: 'Update the permissions information in dplandocs')]
 class PermissionListCommand extends CoreCommand
@@ -137,12 +137,10 @@ class PermissionListCommand extends CoreCommand
 
     /**
      * @param string[] $roleCombination
-     *
-     * @return string
      */
     protected function loadEnabledPermissionsForProject(
         string $projectName,
-        array $roleCombination
+        array $roleCombination,
     ): ?string {
         $cmd = [
             '/usr/bin/env php',

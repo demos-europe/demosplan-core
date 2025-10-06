@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -26,6 +25,7 @@ use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
 use SplFileInfo;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

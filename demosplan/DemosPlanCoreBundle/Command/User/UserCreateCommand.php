@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\User;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Command\Helpers\Helpers;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -22,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +43,7 @@ class UserCreateCommand extends CoreCommand
         private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         private readonly UserRepository $userRepository,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();

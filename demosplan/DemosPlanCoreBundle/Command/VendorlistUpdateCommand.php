@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -18,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;

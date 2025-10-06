@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,7 +31,7 @@ class DeleteOrgaCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly OrgaDeleter $orgaDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

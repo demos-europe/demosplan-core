@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Debug;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,7 +31,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
     public function __construct(
         private readonly ProcedureTypeService $procedureTypeService,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -84,7 +84,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
     private function printProcedureTypesInfo(
         InputInterface $input,
         OutputInterface $output,
-        array $procedureTypes
+        array $procedureTypes,
     ): void {
         foreach ($procedureTypes as $procedureType) {
             $this->printProcedureTypeInfo($input, $output, $procedureType);
@@ -94,7 +94,7 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
     private function printProcedureTypeInfo(
         InputInterface $input,
         OutputInterface $output,
-        ProcedureType $procedureType
+        ProcedureType $procedureType,
     ) {
         if (false === $input->getOption('all')) {
             $this->printEnabledFields($output, $procedureType);
@@ -114,10 +114,10 @@ class DplanProcedureTypeFieldsCommand extends CoreCommand
         foreach ($fields as $field) {
             $table->addRow(
                 [
-                   $field->getOrderNumber(),
-                   $field->getName(),
-                   $field->isRequired(),
-                   $field->isEnabled(),
+                    $field->getOrderNumber(),
+                    $field->getName(),
+                    $field->isRequired(),
+                    $field->isEnabled(),
                 ]
             );
         }

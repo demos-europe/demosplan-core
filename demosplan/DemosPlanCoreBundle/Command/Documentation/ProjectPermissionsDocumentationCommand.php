@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Documentation;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
@@ -19,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionClass;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,7 +33,7 @@ use function collect;
 #[AsCommand(name: 'dplan:documentation:project-permissions', description: 'Extend the permissions documentation with project information')]
 class ProjectPermissionsDocumentationCommand extends CoreCommand
 {
-    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly PermissionsInterface $permissions, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }

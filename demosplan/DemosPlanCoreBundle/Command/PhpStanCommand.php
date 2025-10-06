@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -94,9 +94,9 @@ class PhpStanCommand extends CoreCommand
         }
 
         // Ensure the container path exists and is accessible
-        if (file_exists($rootPath . '/' . $containerPath)) {
+        if (file_exists($rootPath.'/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s', $containerPath));
-        } elseif (file_exists('/srv/www/' . $containerPath)) {
+        } elseif (file_exists('/srv/www/'.$containerPath)) {
             $output->writeln(sprintf('Using container path: %s (in container)', $containerPath));
         } else {
             $output->writeln(sprintf('<warning>Warning: Container file not found. Using best guess: %s</warning>', $containerPath));

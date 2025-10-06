@@ -37,7 +37,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
     public function getEntityContentChangeAction(
         EntityContentChangeService $contentChangeService,
-        string $entityContentChangeId
+        string $entityContentChangeId,
     ): APIResponse {
         // any entity content change object with the correct create time
         $contentChange = $contentChangeService->findByIdWithCertainty($entityContentChangeId);
@@ -84,7 +84,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
     public function getSegmentContentChangeAction(
         EntityContentChangeService $contentChangeService,
-        string $entityContentChangeId
+        string $entityContentChangeId,
     ): APIResponse {
         // any entity content change object with the correct create time
         $contentChange = $contentChangeService->findByIdWithCertainty($entityContentChangeId);

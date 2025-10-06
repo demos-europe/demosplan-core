@@ -37,7 +37,7 @@ class StatementAnonymizeRpcController extends RpcController
         StatementAnonymizeHandler $statementAnonymizeHandler,
         StatementHandler $statementHandler,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost
+        EventDispatcherPostInterface $eventDispatcherPost,
     ): Response {
         try {
             $requestData = $this->getIncomingRpcData($request, StatementAnonymizeHandler::FIELDS);

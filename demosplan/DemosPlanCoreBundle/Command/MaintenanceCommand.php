@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use Bazinga\GeocoderBundle\ProviderFactory\NominatimFactory;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
@@ -39,6 +38,7 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -96,7 +96,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
 
     /** @var Proj */
     protected $targetProjection;
-
 
     /** @var ProcedureRepository */
     protected $procedureRepository;

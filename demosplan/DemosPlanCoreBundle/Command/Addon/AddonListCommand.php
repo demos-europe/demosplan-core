@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollectionWrapper;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,7 +24,7 @@ class AddonListCommand extends CoreCommand
     public function __construct(
         private readonly AddonManifestCollectionWrapper $addonManifestCollectionWrapper,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

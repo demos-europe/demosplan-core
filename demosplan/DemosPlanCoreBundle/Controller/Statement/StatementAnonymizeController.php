@@ -36,7 +36,7 @@ class StatementAnonymizeController extends BaseController
         AssessmentHandler $assessmentHandler,
         StatementHandler $statementHandler,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatement($statementId);
 

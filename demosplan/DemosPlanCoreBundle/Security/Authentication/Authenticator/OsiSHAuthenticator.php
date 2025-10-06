@@ -12,11 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use Symfony\Component\Security\Http\SecurityRequestAttributes;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewaySH;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\SecurityRequestAttributes;
 
 final class OsiSHAuthenticator extends OsiAuthenticator
 {

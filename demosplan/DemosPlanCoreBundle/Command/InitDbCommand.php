@@ -10,12 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use DomainException;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use PDOException;
 use SessionHandlerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,7 +31,7 @@ class InitDbCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly SessionHandlerInterface $sessionHandler,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

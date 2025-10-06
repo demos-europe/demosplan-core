@@ -49,7 +49,7 @@ class TestMailer implements MailerInterface
         $this->emailTestTo = $config->getEmailTestTo();
     }
 
-    public function send(RawMessage $message, Envelope $envelope = null): void
+    public function send(RawMessage $message, ?Envelope $envelope = null): void
     {
         $message = $this->adjustForTestingEnvironment($message);
         $this->mailer->send($message);
@@ -102,6 +102,6 @@ EOT;
      */
     private function getStringFromAddresses(array $address): string
     {
-        return implode(',', collect($address)->transform(static fn(Address $address) => $address->toString())->toArray());
+        return implode(',', collect($address)->transform(static fn (Address $address) => $address->toString())->toArray());
     }
 }

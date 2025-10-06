@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Logic\LocationUpdateService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -34,7 +34,7 @@ class LocationUpdateCommand extends CoreCommand
         );
     }
 
-    public function __construct(private readonly LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(private readonly LocationUpdateService $locationUpdate, ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }

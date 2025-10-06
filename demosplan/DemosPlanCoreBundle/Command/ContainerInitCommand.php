@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\CustomerConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -25,6 +24,7 @@ use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -46,7 +46,7 @@ class ContainerInitCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly UserService $userService,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

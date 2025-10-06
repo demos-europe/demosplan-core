@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerDeleter;
@@ -18,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,7 +40,7 @@ class DeleteCustomerCommand extends CoreCommand
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerDeleter $customerDeleter,
         private readonly QuestionHelper $helper = new QuestionHelper(),
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

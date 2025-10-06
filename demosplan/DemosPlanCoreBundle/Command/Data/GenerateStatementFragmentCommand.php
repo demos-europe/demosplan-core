@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -20,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use Exception;
 use ReflectionException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +35,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
         ParameterBagInterface $parameterBag,
         private readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentFactory $statementFragmentFactory,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

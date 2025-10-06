@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,7 +36,7 @@ class ModifyTestuserDefaultPasswordCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly UserService $userService,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();

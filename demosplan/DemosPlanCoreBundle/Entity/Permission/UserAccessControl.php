@@ -45,8 +45,6 @@ class UserAccessControl extends CoreEntity implements UuidEntityInterface, UserA
     protected string $id;
 
     /**
-     *
-     *
      * @ORM\Column(name="permission", type="string", length=255, nullable=false)
      */
     #[Assert\NotBlank]
