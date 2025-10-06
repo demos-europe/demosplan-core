@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Constraint\ConsistentOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

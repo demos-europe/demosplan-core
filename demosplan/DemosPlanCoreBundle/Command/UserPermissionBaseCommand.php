@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -156,7 +156,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     {
         // Find the specific role
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
-        if ($roles === []) {
+        if ([] === $roles) {
             $io->error(sprintf(self::ERROR_ROLE_NOT_FOUND, $roleCode));
 
             return null;

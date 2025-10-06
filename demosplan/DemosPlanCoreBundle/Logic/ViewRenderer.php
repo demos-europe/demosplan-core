@@ -44,7 +44,7 @@ class ViewRenderer
     public function processRequestParameters(
         string $view,
         array $parameters = [],
-        Response $response = null
+        ?Response $response = null,
     ): array {
         $request = $this->getRequest();
 
@@ -137,14 +137,17 @@ class ViewRenderer
         // Fehlertemplate ausgeben
         if ($e instanceof SessionUnavailableException) {
             $logger->info($e);
+
             return $this->redirectWithCurrentRouteState('sessionExpired');
         }
         if ($e instanceof AccessDeniedGuestException) {
             $logger->info($e);
+
             return $this->redirectWithCurrentRouteState('accessdenied');
         }
         if ($e instanceof AccessDeniedException) {
             $logger->warning($e);
+
             // do not set redirect LoggedIn Route Cookie as it may lead to
             // infinite redirects
             return $this->redirectWithCurrentRouteState('accessdenied', false);
@@ -152,6 +155,7 @@ class ViewRenderer
         if ($e instanceof EntityNotFoundException) {
             $logger->error($e);
             $procedureId = $request->attributes->get('procedureId');
+
             return $this->redirectToRoute('dplan_assessmenttable_view_table', ['procedureId' => $procedureId]);
         }
 

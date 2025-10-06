@@ -702,7 +702,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getOrgaId()
     {
         $return = null;
-        if ($this->orga !== null) {
+        if (null !== $this->orga) {
             $this->orgaId = $this->orga->getId();
             $return = $this->orga->getId();
         }

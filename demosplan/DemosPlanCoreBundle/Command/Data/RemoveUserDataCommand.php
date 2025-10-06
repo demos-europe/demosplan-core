@@ -1165,7 +1165,7 @@ class RemoveUserDataCommand extends CoreCommand
             $message = $this->anonymizeArray($keysToOverwrite, $message);
 
             foreach ($message as $subArray) {
-                if (is_array($subArray) && $subArray !== []) {
+                if (is_array($subArray) && [] !== $subArray) {
                     $message = $this->anonymizeArray($keysToOverwrite, $subArray);
                 }
             }

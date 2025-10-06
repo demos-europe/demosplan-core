@@ -419,7 +419,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if ($imageMatches[1] !== []) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -493,7 +493,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if ($imageMatches[1] !== []) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 // und ersetze den Platzhalter durch das Imagetag mit dem korrkten Hash
@@ -529,7 +529,7 @@ class LatexExtension extends ExtensionBase
             PREG_PATTERN_ORDER
         );
         // Wenn du kein Bild gefunden hast, durchsuche den nächsten Absatz
-        if ($imageMatches[1] !== []) {
+        if ([] !== $imageMatches[1]) {
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);

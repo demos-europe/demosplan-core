@@ -584,7 +584,7 @@ class OzgKeycloakUserDataMapper
                 return true;
             }
 
-            return array_diff($keycloakUserAttribute, $dplanUserAttribute) !== [];
+            return [] !== array_diff($keycloakUserAttribute, $dplanUserAttribute);
         }
 
         return $dplanUserAttribute !== $keycloakUserAttribute;

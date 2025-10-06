@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -33,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -2214,6 +2214,7 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
         return null;
     }
 
@@ -2269,6 +2270,7 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
         return null;
     }
 
@@ -2408,6 +2410,7 @@ class ProcedureService implements ProcedureServiceInterface
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
         $authorizedUserIds = $authorizedUsers->transform(static fn (User $user) => $user->getId());
+
         return $authorizedUserIds->contains($user->getId());
     }
 

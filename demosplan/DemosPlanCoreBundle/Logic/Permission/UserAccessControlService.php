@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface;
@@ -101,10 +101,10 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
 
         $conditions = [
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'permission'   => $permission,
         ];
         if ($role instanceof RoleInterface) {
             $conditions['role'] = $role;

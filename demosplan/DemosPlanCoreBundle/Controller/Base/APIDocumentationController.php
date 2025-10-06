@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
-use EDT\JsonApi\ApiDocumentation\GetActionConfig;
-use EDT\JsonApi\ApiDocumentation\ListActionConfig;
-use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\Writer;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use EDT\JsonApi\Manager;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

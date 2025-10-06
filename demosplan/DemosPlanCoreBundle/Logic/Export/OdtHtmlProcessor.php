@@ -162,7 +162,7 @@ class OdtHtmlProcessor
      */
     private function handleSpecialTags(string $tag, array &$segments): void
     {
-        if ('p' === $tag && $segments !== []) {
+        if ('p' === $tag && [] !== $segments) {
             $segments[] = $this->createLineBreakSegment();
         }
 

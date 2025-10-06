@@ -39,7 +39,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         protected readonly JsonApiSortingParser $sortingParser,
         protected readonly JsonApiEsService $jsonApiEsService,
         protected readonly LoggerInterface $logger,
-        protected RpcErrorGenerator $errorGenerator
+        protected RpcErrorGenerator $errorGenerator,
     ) {
     }
 

@@ -43,7 +43,7 @@ class CheckPermissionListener
         private readonly PermissionsInterface $permissions,
         private readonly Reader $reader,
         private readonly RequestStack $requestStack,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
     }
 

@@ -463,7 +463,7 @@ class OdtElementProcessor
     private function getListType(string $styleName, string $listType): bool
     {
         // First check if we have parsed style information from styles.xml
-        if ($styleName !== '' && $styleName !== '0') {
+        if ('' !== $styleName && '0' !== $styleName) {
             $isOrdered = $this->listStyleMap[$styleName] ?? null;
             if (null !== $isOrdered) {
                 return $isOrdered;
@@ -479,7 +479,7 @@ class OdtElementProcessor
      */
     private function getListStartValue(string $listId, string $continuesList): int
     {
-        if ($continuesList !== '' && $continuesList !== '0') {
+        if ('' !== $continuesList && '0' !== $continuesList) {
             // This list continues from another list
             $this->listContinuation[$listId] = $continuesList;
 

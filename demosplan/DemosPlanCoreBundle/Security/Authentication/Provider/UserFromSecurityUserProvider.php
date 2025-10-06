@@ -25,7 +25,7 @@ final class UserFromSecurityUserProvider
 
     public function __construct(
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
     }
 

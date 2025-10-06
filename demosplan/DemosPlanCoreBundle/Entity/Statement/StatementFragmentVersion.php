@@ -116,14 +116,14 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
      *
      * @ORM\Column(name="sfv_department_name", type="text", nullable=true)
      */
-    protected $departmentName = null;
+    protected $departmentName;
 
     /**
      * @var string
      *
      * @ORM\Column(name="sfv_orga_name", type="text", nullable=true)
      */
-    protected $orgaName = null;
+    protected $orgaName;
 
     /**
      * @var string

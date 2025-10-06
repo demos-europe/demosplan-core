@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Psr\Container\ContainerInterface;

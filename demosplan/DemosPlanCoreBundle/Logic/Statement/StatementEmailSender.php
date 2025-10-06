@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Entity\File;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -96,7 +96,7 @@ class StatementEmailSender
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement, $user);
-                if ($recipientEmailAddress !== []) {
+                if ([] !== $recipientEmailAddress) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendFinalStatementEmail(
                         $statement,
@@ -114,7 +114,7 @@ class StatementEmailSender
 
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user);
 
-                if ($recipientEmailAddress !== '' && $recipientEmailAddress !== '0') {
+                if ('' !== $recipientEmailAddress && '0' !== $recipientEmailAddress) {
                     $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                     $this->sendFinalStatementEmail(
                         $statement,

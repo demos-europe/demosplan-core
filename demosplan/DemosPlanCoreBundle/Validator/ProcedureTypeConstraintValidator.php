@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

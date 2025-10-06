@@ -170,6 +170,7 @@ class SqlQueriesService
         }
 
         $tableColumns = $this->dbConnection->createSchemaManager()->listTableColumns($tableName);
+
         return in_array($columnName, $tableColumns);
     }
 

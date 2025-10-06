@@ -32,7 +32,7 @@ class ProcedureAccessEvaluator
         private readonly CustomerService $currentCustomerProvider,
         private readonly EntityFetcher $entityFetcher,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

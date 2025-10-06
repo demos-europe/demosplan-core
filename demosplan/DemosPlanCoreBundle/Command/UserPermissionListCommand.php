@@ -116,7 +116,7 @@ class UserPermissionListCommand extends CoreCommand
     {
         $io->title(sprintf('User-Specific Permissions for "%s"', $user->getLogin()));
 
-        if ($userPermissions === []) {
+        if ([] === $userPermissions) {
             $io->note('No user-specific permissions found for this user.');
 
             return;

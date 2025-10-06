@@ -189,7 +189,7 @@ class ElementHandler extends CoreHandler
             }
         }
         // wenn das Eingabefeld leer, dann lösche alle bisherigen Orgas
-        if ((!array_key_exists('r_orga', $data)) && $orgasForElement !== []) {
+        if ((!array_key_exists('r_orga', $data)) && [] !== $orgasForElement) {
             $this->elementService->deleteAuthorisationOfOrga($elementId, $orgasForElement);
         }
         // wenn das Eingabefeld nicht leer, dann

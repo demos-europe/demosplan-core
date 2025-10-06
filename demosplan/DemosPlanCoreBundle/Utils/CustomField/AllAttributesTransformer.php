@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use League\Fractal\ParamBag;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use InvalidArgumentException;
+use League\Fractal\ParamBag;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
 

@@ -157,7 +157,7 @@ class Router implements RouterInterface, WarmableInterface
         $this->procedureIdCache[$procedureId] = $procedureId;
         $slug = $procedureId;
         $shortUrl = $this->procedureRepository->findShortUrlById($procedureId);
-        if ($shortUrl !== '' && $shortUrl !== '0') {
+        if ('' !== $shortUrl && '0' !== $shortUrl) {
             $this->procedureIdCache[$procedureId] = $shortUrl;
             $slug = $shortUrl;
         }

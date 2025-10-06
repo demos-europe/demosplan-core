@@ -505,6 +505,7 @@ class AssessmentTableServiceOutput
         $ownerOfProcedure = array_key_exists('orgaId', $serviceProcedureResult) ? $serviceProcedureResult['orgaId'] === $orgaId : false;
         $planningOfficerOfProcedure = in_array($orgaId, $planningOfficeIds);
         $dataInputOrgaOfProcedure = in_array($orgaId, $dataInputOrganisationIds);
+
         return $ownerOfProcedure || $planningOfficerOfProcedure || $dataInputOrgaOfProcedure;
     }
 

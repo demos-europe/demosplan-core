@@ -42,7 +42,7 @@ class HttpCall
     public function __construct(
         GlobalConfigInterface $globalConfig,
         private readonly HttpClientInterface $client,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->logger = $logger;
         $this->proxyEnabled = $globalConfig->isProxyEnabled();

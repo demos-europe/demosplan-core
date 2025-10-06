@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
@@ -58,9 +58,9 @@ class FieldDecider
     public function isExportable(
         string $field,
         ExportFieldsConfiguration $exportConfig,
-        Statement $statement = null,
+        ?Statement $statement = null,
         array $data = [],
-        bool $anonymous = false
+        bool $anonymous = false,
     ): bool {
         if (self::FIELD_ID === $field) {
             return $exportConfig->isIdExportable();
@@ -143,7 +143,7 @@ class FieldDecider
             return null !== $statement->getParagraph() && $exportConfig->isParagraphExportable();
         }
         if (self::FIELD_FILES === $field) {
-            return $statement->getFiles() !== [] && $exportConfig->isFilesExportable();
+            return [] !== $statement->getFiles() && $exportConfig->isFilesExportable();
         }
         if (self::FIELD_ATTACHMENTS === $field) {
             return $exportConfig->isAttachmentsExportable();

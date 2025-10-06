@@ -1151,7 +1151,6 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
-
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1270,7 +1269,6 @@ class StatementService implements StatementServiceInterface
         return $fileHashToFileContainerMapping;
     }
 
-
     /**
      * Determines if the given statement is "locked" because of assigned to another user.
      *
@@ -1303,6 +1301,7 @@ class StatementService implements StatementServiceInterface
         if (!$this->permissions->hasPermission('feature_statement_assignment')) {
             return false;
         }
+
         return !$this->isStatementAssignedToCurrentUser($statement);
     }
 
@@ -1970,6 +1969,7 @@ class StatementService implements StatementServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Check statement for manual failed:', [$e]);
         }
+
         return null;
     }
 
@@ -3236,7 +3236,7 @@ class StatementService implements StatementServiceInterface
     private function getSorting(array $rParams): array
     {
         $sort = $this->maybeAddSort($rParams, []);
-        if ($sort !== [] && \array_key_exists('sort', $sort) && '' !== $sort['sort']) {
+        if ([] !== $sort && \array_key_exists('sort', $sort) && '' !== $sort['sort']) {
             return $sort['sort'];
         }
 

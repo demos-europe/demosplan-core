@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
-use DateTimeInterface;
 use DateTimeImmutable;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 
 class LastLoginActivityChecker implements UserActivityInterface
@@ -57,6 +57,7 @@ class LastLoginActivityChecker implements UserActivityInterface
         // If the user record has been modified since creation, there has been some activity
         $createdDate = $user->getCreatedDate();
         $modifiedDate = $user->getModifiedDate();
+
         // User appears to be completely inactive - never logged in and no signs of activity
         return $createdDate && $modifiedDate && $createdDate != $modifiedDate;
     }

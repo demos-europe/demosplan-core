@@ -75,6 +75,7 @@ final class SecurityUser implements UserInterface, EquatableInterface, PasswordA
         if ($thisRoles !== $userRoles) {
             return false;
         }
+
         return $this->login === $user->getUserIdentifier();
     }
 

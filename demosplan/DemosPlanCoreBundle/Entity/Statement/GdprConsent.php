@@ -239,6 +239,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
         if ($this->getStatement()->hasBeenSubmittedAndAuthoredByRegisteredCitizen()) {
             return true;
         }
+
         // submitted by Institution Sachbearbeiter
         // all other cases
         return (bool) $this->getStatement()->hasBeenAuthoredByInstitutionSachbearbeiterAndSubmittedByInstitutionKoordinator();
@@ -258,6 +259,7 @@ class GdprConsent extends CoreEntity implements UuidEntityInterface, GdprConsent
         if ($this->getStatement()->hasBeenSubmittedAndAuthoredByRegisteredCitizen()) {
             return true;
         }
+
         // submitted by Institution Koordinator
         // all other cases
         return (bool) $this->getStatement()->hasBeenSubmittedAndAuthoredByInvitableInstitutionKoordinator();

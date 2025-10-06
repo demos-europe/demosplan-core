@@ -56,7 +56,7 @@ class FaqHandler extends CoreHandler implements FaqHandlerInterface
         private readonly RoleHandler $roleHandler,
         private readonly RoleRepository $roleRepository,
         ContentService $contentService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;

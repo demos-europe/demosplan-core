@@ -55,7 +55,7 @@ class MapLayerMerger
      */
     private function mergeLayerWithLayersArray(MapLayer $bgLayerImage, array $layerImages): MapLayer
     {
-        if ($layerImages === []) {
+        if ([] === $layerImages) {
             return $bgLayerImage;
         }
         $mergedLayerImage = null;
@@ -79,7 +79,7 @@ class MapLayerMerger
         $this->fileSystem->remove($fgLayerImage->getImage()->basePath());
         $this->fileSystem->remove($bgLayerImage->getImage()->basePath());
 
-        if ($layerImages === []) {
+        if ([] === $layerImages) {
             return $bgLayerImage;
         }
 
@@ -94,7 +94,7 @@ class MapLayerMerger
         MapLayer $bgLayerImage,
         MapLayer $fgLayerImage,
         $leftOffset = 0,
-        $topOffset = 0
+        $topOffset = 0,
     ): MapLayer {
         $newImage = $bgLayerImage->getImage();
         $newImage->insert(

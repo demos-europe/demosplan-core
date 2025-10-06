@@ -27,7 +27,7 @@ class ServiceStorage
     public function __construct(
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         MailService $service,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->service = $service;
     }

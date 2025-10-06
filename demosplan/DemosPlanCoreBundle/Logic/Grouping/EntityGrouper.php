@@ -204,7 +204,7 @@ abstract class EntityGrouper
         EntityGroupInterface $group,
         CoreEntity&EntityInterface $entity,
         array $entityFieldsToUse,
-        array $stopGroupingForKeys = []
+        array $stopGroupingForKeys = [],
     ): int {
         if ([] === $entityFieldsToUse) {
             // if we do not have any fields to use as keys from the entity

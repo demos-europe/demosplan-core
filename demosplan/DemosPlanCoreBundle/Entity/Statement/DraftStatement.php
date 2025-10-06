@@ -1379,6 +1379,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
             if ($this->isDeleted()) {
                 return false;
             }
+
             return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;

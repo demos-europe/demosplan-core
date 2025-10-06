@@ -78,7 +78,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         $paragraphs = [];
 
         // Handle content before first heading (if any)
-        if ($headings !== []) {
+        if ([] !== $headings) {
             $preContent = $this->getContentBeforeFirstHeading($xpath, $headings[0]);
             if (!in_array(trim(strip_tags($preContent)), ['', '0'], true)) {
                 $paragraphs[] = $this->createParagraphFromContent($preContent, 0);
@@ -103,7 +103,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         }
 
         // If no headings found, create single paragraph from all content
-        if ($headings === []) {
+        if ([] === $headings) {
             $allContent = $this->getAllContent($xpath);
             if (!in_array(trim(strip_tags($allContent)), ['', '0'], true)) {
                 $paragraphs[] = $this->createParagraphFromContent($allContent, 0);
@@ -127,7 +127,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
             $title = trim(strip_tags($node->textContent));
 
             // Skip empty headings
-            if ($title === '' || $title === '0') {
+            if ('' === $title || '0' === $title) {
                 continue;
             }
 
@@ -296,13 +296,13 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
         // Generate title from first sentence or first 50 characters
         $title = '';
-        if ($textContent !== '' && $textContent !== '0') {
+        if ('' !== $textContent && '0' !== $textContent) {
             // Try to get first sentence
             $sentences = preg_split('/([.!?]+)/', $textContent, 2, PREG_SPLIT_DELIM_CAPTURE);
             $firstSentence = trim($sentences[0]);
 
             // Add back the punctuation if it exists
-            if (isset($sentences[1]) && (isset($sentences[1]) && ($sentences[1] !== '' && $sentences[1] !== '0'))) {
+            if (isset($sentences[1]) && (isset($sentences[1]) && ('' !== $sentences[1] && '0' !== $sentences[1]))) {
                 $firstSentence .= $sentences[1][0];
             }
 

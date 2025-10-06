@@ -371,6 +371,7 @@ class AssessmentTableServiceStorage
     {
         $submit = new DateTime();
         $date = $submit->createFromFormat('d.m.Y', $string);
+
         return $date instanceof DateTime;
     }
 

@@ -37,7 +37,7 @@ class WmsToWmtsCoordinatesConverter
      */
     public function convert(array $layers): array
     {
-        if ($layers === []) {
+        if ([] === $layers) {
             throw new Exception('No Layers received');
         }
 
@@ -52,7 +52,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function adaptWmsLayerCoordinates(MapLayer $bgLayer, array $layers): array
     {
-        if ($layers === []) {
+        if ([] === $layers) {
             return [$bgLayer];
         }
 
@@ -86,7 +86,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getWmsLayersWithWmtsLayerCoordinates(
         MapLayer $wmtsLayer,
-        array $wmsLayers
+        array $wmsLayers,
     ): array {
         $newWmsLayerImages = [];
         foreach ($wmsLayers as $wmsLayer) {
@@ -105,7 +105,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getSingleWmsLayerWithWmtsLayerCoordinates(
         MapLayer $wmsLayer,
-        MapLayer $wmtsLayer
+        MapLayer $wmtsLayer,
     ): MapLayer {
         $wmsUrl = $this->getWmsUrlWithWmtsLayerCoordinates(
             $wmsLayer->getUrl(),
@@ -134,7 +134,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function getWmsUrlWithWmtsLayerCoordinates(
         string $wmsUrl,
-        MapLayer $wmtsLayer
+        MapLayer $wmtsLayer,
     ): string {
         $wmsLayerParsedUrl = parse_url($wmsUrl);
         parse_str($wmsLayerParsedUrl['query'], $wmsLayerUrlParameters);
@@ -184,7 +184,7 @@ class WmsToWmtsCoordinatesConverter
      */
     private function splitSuccessiveWMSLayers(array $layers): array
     {
-        if ($layers === []) {
+        if ([] === $layers) {
             return [];
         }
         $successiveWmsLayers = [];

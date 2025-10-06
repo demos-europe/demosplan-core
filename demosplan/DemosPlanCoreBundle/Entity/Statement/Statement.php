@@ -2087,6 +2087,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
             if ($this->isDeleted()) {
                 return false;
             }
+
             return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;

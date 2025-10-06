@@ -201,7 +201,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     public function validateOptionSet(array $options, $isOverrideConfig = false)
     {
-        if ($options !== [] && !array_key_exists('defaults', $options)) {
+        if ([] !== $options && !array_key_exists('defaults', $options)) {
             throw AssessmentExportOptionsException::noDefaultsException();
         }
 

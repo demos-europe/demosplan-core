@@ -58,7 +58,7 @@ class Breadcrumb
         private readonly HelpService $helpService,
         RouterInterface $router,
         TranslatorInterface $translator,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -132,7 +132,7 @@ class Breadcrumb
                         ),
                     };
 
-                    if ($result !== '' && $result !== '0') {
+                    if ('' !== $result && '0' !== $result) {
                         $markup .= $result;
                         break;
                     }

@@ -60,7 +60,7 @@ class FragmentElasticsearchRepository extends CoreRepository
         SortMethodFactory $sortMethodFactory,
         ElementsService $elementsService,
         ParagraphService $paragraphService,
-        string $entityClass
+        string $entityClass,
     ) {
         $this->index = $fragmentSearchType;
         $this->globalConfig = $globalConfig;

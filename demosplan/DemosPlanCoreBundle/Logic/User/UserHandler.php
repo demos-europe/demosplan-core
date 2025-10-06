@@ -1400,6 +1400,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         } else {
             $this->getMessageBag()->add('error', 'error.delete');
         }
+
         return null;
     }
 
@@ -2054,7 +2055,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
             if ($masterUser instanceof User) {
-                if ($masterUser->getPassword() === null || $masterUser->getPassword() === '' || $masterUser->getPassword() === '0') {
+                if (null === $masterUser->getPassword() || '' === $masterUser->getPassword() || '0' === $masterUser->getPassword()) {
                     $this->inviteUser($masterUser);
                 }
                 $to = $masterUser->getEmail();

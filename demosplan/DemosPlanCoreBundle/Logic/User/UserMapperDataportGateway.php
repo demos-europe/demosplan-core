@@ -354,7 +354,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             }
         }
 
-        if ($roles === []) {
+        if ([] === $roles) {
             $this->logger->debug('Roles not found', [DemosPlanTools::varExport($this->data['roles'], true)]);
             $this->logger->debug('Set default role: RINTPA (Interessent)');
             $roles[] = Role::PROSPECT;
@@ -542,7 +542,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             $update['deleted'] = false;
         }
 
-        if ($update !== []) {
+        if ([] !== $update) {
             $user = $this->userService->updateUser($user->getId(), $update);
             $this->logger->debug('Update User: ', ['id' => $user->getId(), 'update'.DemosPlanTools::varExport($update, true)]);
         }
@@ -641,7 +641,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             }
         }
 
-        if ($update !== []) {
+        if ([] !== $update) {
             $this->logger->info('Update Orga: ', ['id' => $orga->getId(), 'update' => DemosPlanTools::varExport($update, true)]);
             $orga = $this->userService->updateOrga($orga->getId(), $update);
         } else {

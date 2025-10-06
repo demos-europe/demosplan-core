@@ -279,7 +279,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 ->andWhere('category.enabled = true')
                 ->orderBy('category.title');
 
-            if ($categoryNames !== []) {
+            if ([] !== $categoryNames) {
                 $query->andWhere('category.name IN (:categoryNames)')
                     ->setParameter('categoryNames', $categoryNames, Connection::PARAM_STR_ARRAY);
             }

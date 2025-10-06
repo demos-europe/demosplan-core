@@ -65,6 +65,7 @@ class TokenCreationNotifier
         if (null === $emailAddress) {
             return false;
         }
+
         // everything seems fine
         return '' !== trim((string) $emailAddress);
     }
@@ -76,7 +77,7 @@ class TokenCreationNotifier
         ConsultationToken $consultationToken,
         Procedure $procedure,
         Statement $statement,
-        string $statementSubmitterAddress
+        string $statementSubmitterAddress,
     ): void {
         try {
             $mailSend = $this->mailService->sendMail(

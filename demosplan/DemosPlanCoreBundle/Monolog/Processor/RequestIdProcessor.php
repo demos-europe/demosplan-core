@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Monolog\Processor;
 
-use Symfony\Component\HttpFoundation\Request;
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**

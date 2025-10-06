@@ -54,7 +54,7 @@ class ForumHandler extends CoreHandler
         MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ) {
         parent::__construct($messageBag);
         $this->forumService = $forumService;
@@ -651,7 +651,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToModerator(
         $mailTemplateVars,
         $vars,
-        $allUsersWithRole
+        $allUsersWithRole,
     ) {
         // Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
         if (isset($mailTemplateVars['userStory'])) {
@@ -708,7 +708,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToAuthor(
         $data,
         $mailTemplateVars,
-        $vars
+        $vars,
     ) {
         // Besorge dir auch die Flags des Users
         /** @var User $starterEntryAuthor */

@@ -35,7 +35,7 @@ class StatementFragmentFactory extends FactoryBase
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
         private readonly StatementFragmentService $statementFragmentService,
-        StatementService $statementService
+        StatementService $statementService,
     ) {
         $this->statementService = $statementService;
 

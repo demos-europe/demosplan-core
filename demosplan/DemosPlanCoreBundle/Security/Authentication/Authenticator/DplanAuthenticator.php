@@ -71,7 +71,6 @@ abstract class DplanAuthenticator extends AbstractAuthenticator
      */
     protected $messageBag;
 
-
     public function __construct(
         UserMapperInterface $authenticator,
         LoggerInterface $logger,

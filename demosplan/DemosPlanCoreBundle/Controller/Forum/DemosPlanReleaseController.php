@@ -54,7 +54,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             }
         }
         // wenn ja dann leite zu deren Detailansicht weiter
-        if (isset($templateVars['releaseForVoting']) && $templateVars['releaseForVoting'] !== []) {
+        if (isset($templateVars['releaseForVoting']) && [] !== $templateVars['releaseForVoting']) {
             // zeige das jüngste an
             $sumActiveReleases = count($templateVars['releaseForVoting']);
             $latestActiveReleaseKey = $sumActiveReleases - 1;

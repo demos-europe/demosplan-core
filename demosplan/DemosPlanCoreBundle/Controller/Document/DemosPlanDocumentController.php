@@ -73,7 +73,6 @@ use ZipStream\ZipStream;
 
 use function array_key_exists;
 use function array_merge;
-use function compact;
 use function explode;
 use function is_array;
 use function set_time_limit;
@@ -1703,7 +1702,7 @@ class DemosPlanDocumentController extends BaseController
         $fileService = $this->fileService;
         $elementHandler = $this->elementHandler;
         $filesRequestInfo = $this->getFilesRequestInfo($request);
-        $filesToZip = $filesRequestInfo === []
+        $filesToZip = [] === $filesRequestInfo
                         ? $this->getAllProcedureFilesInfo($procedureId)
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
@@ -1751,14 +1750,14 @@ class DemosPlanDocumentController extends BaseController
             $filesInfo
         );
         $otherProcedureFileIds = $singleDocumentService->getSingleDocumentsNotInProcedure($filesToZipIds, $procedureId);
-        if ($otherProcedureFileIds !== []) {
+        if ([] !== $otherProcedureFileIds) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($otherProcedureFileIds)).' are not in procedure '.$procedureId.' and can\'t be downloaded');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
 
         // Validate that none of the files to be zipped are set as not visible
         $invisibleFileIds = $singleDocumentService->getNotVisibleSingleDocuments($filesToZipIds, $procedureId);
-        if ($invisibleFileIds !== []) {
+        if ([] !== $invisibleFileIds) {
             $this->logger->error('SingleDocuments '.Json::encode(array_values($invisibleFileIds)).' are disabled and can\'t be downloaded.');
             throw new \InvalidArgumentException('files.download.error.try_later');
         }
@@ -1772,7 +1771,7 @@ class DemosPlanDocumentController extends BaseController
         );
         $elementsToZip = array_unique(array_merge([], ...$elementsToZip));
         $disabledElementsToZip = array_diff($elementsToZip, $enabledElementIds);
-        if ($disabledElementsToZip !== []) {
+        if ([] !== $disabledElementsToZip) {
             // remove files from zip that have disabled element (parents)
             $filesInfo = collect($filesInfo)->reject(static function ($file) use ($disabledElementsToZip) {
                 $disabledElementsInPath = array_intersect($file['path'], $disabledElementsToZip);

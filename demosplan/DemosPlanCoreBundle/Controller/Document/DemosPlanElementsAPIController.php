@@ -10,11 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -66,7 +66,7 @@ class DemosPlanElementsAPIController extends APIController
     public function getAction(
         ApiResourceService $apiResourceService,
         ElementHandler $elementHandler,
-        string $elementId
+        string $elementId,
     ): JsonResponse {
         try {
             $element = $elementHandler->getElement($elementId);

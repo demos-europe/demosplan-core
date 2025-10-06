@@ -72,7 +72,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
      * Berechnet die letzte Aktivität in einem Thread.
      * Dazu wird der Beitrag des Threads ermittelt, der das jüngste Änderungsdatum hat.
      *
-     * @param forumThread $thread , dessen letzte Aktivität ermittelt werden soll
+     * @param ForumThread $thread , dessen letzte Aktivität ermittelt werden soll
      *
      * @return string|null das jüngste Änderungsdatum des Threads als Unix Timestamp, wenn ein Beitrag zu dem Thread gefunden werden konnte, ansonsten null
      */
@@ -104,7 +104,7 @@ class ForumThreadRepository extends CoreRepository implements ArrayInterface
     /**
      * Berechnet die Anzahl der Beiträge eines bestimmten Threads.
      *
-     * @param forumThread $thread , dessen Anzahl der Beiträge ermittelt werden soll
+     * @param ForumThread $thread , dessen Anzahl der Beiträge ermittelt werden soll
      *
      * @return int anzahl der Beiträge des als Parameter übergebenen Threads
      */

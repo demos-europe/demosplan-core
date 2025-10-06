@@ -29,7 +29,7 @@ class DetermineProcedureSubscriber implements EventSubscriberInterface
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
-        private readonly ProcedureService $procedureService
+        private readonly ProcedureService $procedureService,
     ) {
     }
 

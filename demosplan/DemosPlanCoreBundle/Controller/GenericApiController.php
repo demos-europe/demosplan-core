@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
-use League\Fractal\Resource\Item;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\SearchCapableListRequest;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\CreatableResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DeletableResourceTypeInterface;
@@ -31,6 +30,7 @@ use EDT\JsonApi\Requests\GetRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use League\Fractal\Resource\Item;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

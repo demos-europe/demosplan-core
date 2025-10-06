@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
-use League\Fractal\ParamBag;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use League\Fractal\ParamBag;
 use League\Fractal\Scope;
 
 class AttributeBuilder

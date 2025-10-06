@@ -408,6 +408,7 @@ class ProcedureExtension extends ExtensionBase
         if (!$this->currentUser->getUser() instanceof User) {
             return true;
         }
+
         return $this->currentUser->getUser()->isPublicUser();
     }
 
@@ -442,6 +443,7 @@ class ProcedureExtension extends ExtensionBase
         }
 
         $this->permissions->setProcedure($procedure);
+
         return $this->permissions->ownsProcedure();
     }
 

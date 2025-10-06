@@ -616,7 +616,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
             }
         }
 
-        if ($update !== []) {
+        if ([] !== $update) {
             $this->logger->info('Update Orga: ', ['id' => $orga->getId(), 'update' => DemosPlanTools::varExport($update, true), 'isToeb' => DemosPlanTools::varExport($isToeb, true)]);
             $orga = $this->userService->updateOrga($orga->getId(), $update);
         } else {

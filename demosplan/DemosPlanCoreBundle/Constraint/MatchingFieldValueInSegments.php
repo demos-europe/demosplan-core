@@ -51,8 +51,8 @@ class MatchingFieldValueInSegments extends Constraint
         string $statementWorksheetTitle,
         string $segmentWorksheetTitle,
         $options = null,
-        array $groups = null,
-        $payload = null
+        ?array $groups = null,
+        $payload = null,
     ) {
         parent::__construct($options, $groups, $payload);
         $this->statementWorksheetTitle = $statementWorksheetTitle;

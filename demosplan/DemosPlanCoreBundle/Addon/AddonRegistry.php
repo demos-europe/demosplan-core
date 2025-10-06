@@ -50,7 +50,7 @@ class AddonRegistry implements ArrayAccess
      */
     public function getEnabledAddons(): array
     {
-        return array_filter($this->getAddonInfos(), fn(AddonInfo $addonInfo) => $addonInfo->isEnabled());
+        return array_filter($this->getAddonInfos(), fn (AddonInfo $addonInfo) => $addonInfo->isEnabled());
     }
 
     /**

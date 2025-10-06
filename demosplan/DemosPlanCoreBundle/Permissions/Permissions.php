@@ -161,7 +161,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // Load role-based permissions from access_control table
         $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
 
-        if ($permissions !== []) {
+        if ([] !== $permissions) {
             $this->enablePermissions($permissions);
         }
 
@@ -744,7 +744,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         // Ist eine eingeladene Institution oder Datenerfasser-Organisation
-        if ($this->user === null || !$this->user instanceof User) {
+        if (null === $this->user || !$this->user instanceof User) {
             $this->logger->debug('No User defined');
 
             return false;

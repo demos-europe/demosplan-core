@@ -350,11 +350,11 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
         $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
-        if ($phaseErrorMessage !== []) {
+        if ([] !== $phaseErrorMessage) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
         $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
-        if ($phaseErrorMessage !== []) {
+        if ([] !== $phaseErrorMessage) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
 

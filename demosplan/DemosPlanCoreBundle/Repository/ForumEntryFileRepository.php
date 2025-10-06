@@ -198,6 +198,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
     private function isValidEntry($entryId)
     {
         $forumEntry = $this->getEntityManager()->find(ForumEntry::class, $entryId);
+
         return !is_null($forumEntry) && !is_null($forumEntry->getUserId());
     }
 

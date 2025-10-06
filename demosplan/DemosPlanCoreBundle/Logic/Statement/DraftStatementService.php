@@ -994,7 +994,7 @@ class DraftStatementService
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
         // Does the statement have a polygon but no screenshot?
-        if (0 < strlen((string) $statementArray['polygon']) && (string) ($statementArray['mapFile'] ?? '') === '') {
+        if (0 < strlen((string) $statementArray['polygon']) && '' === (string) ($statementArray['mapFile'] ?? '')) {
             $this->logger->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
@@ -2093,7 +2093,7 @@ class DraftStatementService
         if (is_string($itemsToExport)) {
             return collect(explode(',', $itemsToExport));
         }
-        if (is_array($itemsToExport) && $itemsToExport !== []) {
+        if (is_array($itemsToExport) && [] !== $itemsToExport) {
             return collect($itemsToExport);
         }
 
@@ -2107,7 +2107,7 @@ class DraftStatementService
         array $draftStatementList,
         ?IlluminateCollection $selectedStatementsToExport,
     ): IlluminateCollection {
-        if (!$selectedStatementsToExport instanceof \Illuminate\Support\Collection) {
+        if (!$selectedStatementsToExport instanceof IlluminateCollection) {
             return collect($draftStatementList);
         }
 

@@ -460,7 +460,6 @@ abstract class AbstractQuery
      * Append filtervalue.
      *
      * @param string $fieldName
-     * @param mixed  $value
      */
     public function addFilterMust($fieldName, $value): AbstractQuery
     {
@@ -485,7 +484,6 @@ abstract class AbstractQuery
      * Append filtervalue.
      *
      * @param string $fieldName
-     * @param mixed  $value
      */
     public function addFilterShould($fieldName, $value): AbstractQuery
     {
@@ -568,8 +566,6 @@ abstract class AbstractQuery
 
     /**
      * Append filtervalue.
-     *
-     * @param mixed $value
      */
     public function addFilterMustNot(string $fieldName, $value): AbstractQuery
     {

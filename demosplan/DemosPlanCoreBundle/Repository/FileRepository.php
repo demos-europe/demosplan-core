@@ -206,6 +206,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 
             // try deleting by ident
             $outputIdent = $this->delete($hashOrIdent);
+
             // pass on output from sub methods
             return !in_array(false, [$outputHash, $outputIdent], true);
         } catch (Exception) {

@@ -46,7 +46,7 @@ final class ProcedureNewsResourceType extends AbstractNewsResourceType
 {
     public function __construct(
         private readonly ManualListSortRepository $manualListSortRepository,
-        private readonly RoleService $roleService
+        private readonly RoleService $roleService,
     ) {
     }
 

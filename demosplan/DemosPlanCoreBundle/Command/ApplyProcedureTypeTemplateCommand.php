@@ -116,7 +116,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $this->displayProcedureTypeInfo($procedureType, $io);
         $changes = $this->analyzeFieldChanges($procedureType, $config['fields'], $io);
 
-        if ($changes === []) {
+        if ([] === $changes) {
             $io->success('No field changes needed. Configuration is already up to date.');
 
             return Command::SUCCESS;
@@ -144,7 +144,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
 
     private function displayProcedureTypesTable(array $procedureTypes, SymfonyStyle $io): void
     {
-        if ($procedureTypes === []) {
+        if ([] === $procedureTypes) {
             $io->info('No procedure types found in the database.');
 
             return;

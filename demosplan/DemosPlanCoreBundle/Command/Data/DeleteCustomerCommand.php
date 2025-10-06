@@ -41,7 +41,7 @@ class DeleteCustomerCommand extends CoreCommand
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerDeleter $customerDeleter,
         private readonly QuestionHelper $helper = new QuestionHelper(),
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
