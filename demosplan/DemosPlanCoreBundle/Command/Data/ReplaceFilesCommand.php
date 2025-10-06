@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,10 +36,9 @@ use function is_dir;
 use function strrpos;
 use function substr;
 
+#[AsCommand(name: 'dplan:data:replace-files')]
 class ReplaceFilesCommand extends CoreCommand
 {
-    public static $defaultName = 'dplan:data:replace-files';
-
     public function __construct(
         private readonly FakeDataGeneratorFactory $generatorFactory,
         private readonly FileRepository $fileRepository,

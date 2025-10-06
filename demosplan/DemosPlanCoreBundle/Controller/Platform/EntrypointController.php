@@ -26,7 +26,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -138,7 +138,7 @@ class EntrypointController extends BaseController
     public function indexAction(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         if ($this->currentUserService->hasPermission('area_public_participation')) {
             return $this->renderPublicIndexList(
@@ -202,7 +202,7 @@ class EntrypointController extends BaseController
     protected function renderPublicIndexList(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         $templateVars = $procedureLister->getPublicIndexProcedureList($request);
         $templateVars = $procedureLister->reformatPhases(

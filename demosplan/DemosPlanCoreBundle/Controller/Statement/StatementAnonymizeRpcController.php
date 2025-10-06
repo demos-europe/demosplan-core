@@ -22,7 +22,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StatementAnonymizeRpcController extends RpcController
 {
@@ -37,7 +37,7 @@ class StatementAnonymizeRpcController extends RpcController
         StatementAnonymizeHandler $statementAnonymizeHandler,
         StatementHandler $statementHandler,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost
+        EventDispatcherPostInterface $eventDispatcherPost,
     ): Response {
         try {
             $requestData = $this->getIncomingRpcData($request, StatementAnonymizeHandler::FIELDS);

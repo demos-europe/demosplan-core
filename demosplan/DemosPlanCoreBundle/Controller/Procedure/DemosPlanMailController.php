@@ -21,7 +21,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanMailController extends BaseController
@@ -41,7 +41,7 @@ class DemosPlanMailController extends BaseController
         Request $request,
         SubmitterService $submitterService,
         TranslatorInterface $translator,
-        $procedureId
+        $procedureId,
     ): ?Response {
         // @improve T14122
         $userId = $currentUser->getUser()->getId();
@@ -195,7 +195,7 @@ class DemosPlanMailController extends BaseController
         CurrentUserService $currentUser,
         Request $request,
         SubmitterService $submitterService,
-        $procedureId
+        $procedureId,
     ) {
         // @improve T14122
         /** @var SubmitterService $submitterService */

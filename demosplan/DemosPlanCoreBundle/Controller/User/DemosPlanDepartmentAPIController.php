@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanDepartmentAPIController extends APIController
 {

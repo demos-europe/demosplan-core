@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics\StatisticsGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 use Twig\Extension\EscaperExtension;
 

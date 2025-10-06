@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class StatementHistoryAPIController extends APIController

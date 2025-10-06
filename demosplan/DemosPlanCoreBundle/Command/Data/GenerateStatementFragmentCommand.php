@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\DataProviderException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use Exception;
 use ReflectionException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,17 +27,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:generate:statement-fragment', description: 'Generate Fragments on a Statement')]
 class GenerateStatementFragmentCommand extends DataProviderCommand
 {
-    public static $defaultName = 'dplan:data:generate:statement-fragment';
-    protected static $defaultDescription = 'Generate Fragments on a Statement';
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         ParameterBagInterface $parameterBag,
         private readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentFactory $statementFragmentFactory,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

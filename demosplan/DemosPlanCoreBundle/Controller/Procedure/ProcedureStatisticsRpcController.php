@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ProcedureStatisticsRpcController extends APIController
 {
@@ -31,7 +31,7 @@ class ProcedureStatisticsRpcController extends APIController
     public function segmentationsGetAction(
         StatementService $statementService,
         ProcedureService $procedureService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         try {
             $procedure = $procedureService->getProcedure($procedureId);

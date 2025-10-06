@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Exception;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class SegmentHistoryAPIController extends APIController

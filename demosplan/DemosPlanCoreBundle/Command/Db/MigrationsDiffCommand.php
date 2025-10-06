@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Command\Db;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -21,11 +22,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Creates doctrine migration diffs with pruned cache
  */
+#[AsCommand(name: 'dplan:migrations:diff', description: 'Creates doctrine diffs with pruned cache')]
 class MigrationsDiffCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:migrations:diff';
-    protected static $defaultDescription = 'Creates doctrine diffs with pruned cache';
-
     /**
      * @throws Exception
      */

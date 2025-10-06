@@ -21,7 +21,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ConsultationController extends BaseController
 {
@@ -35,7 +35,7 @@ class ConsultationController extends BaseController
         ConsultationTokenService $consultationTokenService,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): RedirectResponse {
         $response = $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedure' => $procedureId]);
 

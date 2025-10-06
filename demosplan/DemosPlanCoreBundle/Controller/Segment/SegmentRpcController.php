@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SegmentRpcController extends APIController
 {

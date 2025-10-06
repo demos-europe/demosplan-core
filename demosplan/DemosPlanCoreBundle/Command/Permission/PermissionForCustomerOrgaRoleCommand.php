@@ -99,8 +99,8 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         $orgaId = $input->getArgument('orgaId');
         $dryRun = $input->getOption('dry-run');
 
-        $roleIds = explode(',', $roleIdsString);
-        $customerIds = explode(',', $customerIdsString);
+        $roleIds = explode(',', (string) $roleIdsString);
+        $customerIds = explode(',', (string) $customerIdsString);
         foreach ($roleIds as $roleId) {
             foreach ($customerIds as $customerId) {
                 $customerChoice = $this->customerService->findCustomerById(trim($customerId));
@@ -112,7 +112,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
                     throw new RoleNotFoundException('Role not found');
                 }
 
-                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun, $orgaId ? trim($orgaId) : null);
+                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun, $orgaId ? trim((string) $orgaId) : null);
 
                 $this->displayUpdatedOrgas($output, $updatedOrgas);
 

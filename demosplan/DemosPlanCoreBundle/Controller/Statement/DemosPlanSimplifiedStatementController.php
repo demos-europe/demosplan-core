@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Takes care of actions related to the simplified version of a Statement.
@@ -40,7 +40,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
         Request $request,
-        string $procedureId
+        string $procedureId,
     ): Response {
         /** @var CreateSimplifiedStatementEvent $event * */
         $event = $eventDispatcher->dispatch(new CreateSimplifiedStatementEvent($request), CreateSimplifiedStatementEventInterface::class);

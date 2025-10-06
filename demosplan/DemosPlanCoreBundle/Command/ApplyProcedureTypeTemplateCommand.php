@@ -31,13 +31,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'dplan:procedure-type:apply-template',
-    description: 'Apply predefined configuration templates to procedure types'
-)]
+#[AsCommand(name: 'dplan:procedure-type:apply-template', description: 'Apply predefined configuration templates to procedure types')]
 class ApplyProcedureTypeTemplateCommand extends Command
 {
-    protected static $defaultName = 'dplan:procedure-type:apply-template';
     private const TEMPLATE_CONFIGURATIONS = [
         'ewm' => [
             'name'        => 'Einwendungsmanagement',

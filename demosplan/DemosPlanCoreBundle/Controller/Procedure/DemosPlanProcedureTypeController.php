@@ -37,7 +37,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanProcedureTypeController extends BaseController
@@ -84,7 +84,7 @@ class DemosPlanProcedureTypeController extends BaseController
         Breadcrumb $breadcrumb,
         FormFactoryInterface $formFactory,
         ProcedureTypeService $procedureTypeService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $template = '@DemosPlanCore/DemosPlanProcedure/administration_procedure_type_edit.html.twig';
         $procedureTypes = $procedureTypeService->getAllProcedureTypes();
@@ -133,7 +133,7 @@ class DemosPlanProcedureTypeController extends BaseController
         ProcedureTypeResourceType $procedureTypeResourceType,
         ProcedureTypeService $procedureTypeService,
         string $procedureTypeId,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         // List of ProcedureTypes
         $procedureTypes = $procedureTypeService->getAllProcedureTypes();
@@ -186,7 +186,7 @@ class DemosPlanProcedureTypeController extends BaseController
         FormFactoryInterface $formFactory,
         ProcedureTypeResourceType $procedureTypeResourceType,
         string $procedureTypeId,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         if (!$procedureTypeResourceType->isGetAllowed()) {
             throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);
@@ -240,7 +240,7 @@ class DemosPlanProcedureTypeController extends BaseController
         ProcedureTypeResourceType $procedureTypeResourceType,
         ProcedureTypeService $procedureTypeService,
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
-        Request $request
+        Request $request,
     ) {
         if (!$procedureTypeResourceType->isAvailable()) {
             throw AccessException::typeNotAvailable($procedureTypeResourceType);
@@ -378,7 +378,7 @@ class DemosPlanProcedureTypeController extends BaseController
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
         Request $request,
         ResourcePersister $resourcePersister,
-        string $procedureTypeId
+        string $procedureTypeId,
     ) {
         if (!$procedureTypeResourceType->isGetAllowed() || !$procedureTypeResourceType->isUpdateAllowed()) {
             throw AccessException::typeNotDirectlyAccessible($procedureTypeResourceType);

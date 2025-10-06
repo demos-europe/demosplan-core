@@ -33,6 +33,7 @@ use EDT\Parsing\Utilities\Types\NonClassOrInterfaceType;
 use EDT\PathBuilding\DocblockPropertyByTraitEvaluator;
 use Exception;
 use ReflectionClass;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -53,12 +54,10 @@ use Webmozart\Assert\Assert;
  * * easy access to resource: {@link ResourceTypeStore}
  * * resource property schema config classes: e.g. {@link BaseStatementResourceConfigBuilder}, needs to be moved into `demosplan-addon` after generation
  */
+#[AsCommand(name: 'dplan:generator:entity:companion', description: 'Generate companion classes for entities.')]
 class EntityCompanionGeneratorCommand extends CoreCommand
 {
     use EntityClassGeneratorTrait;
-
-    protected static $defaultName = 'dplan:generator:entity:companion';
-    protected static $defaultDescription = 'Generate companion classes for entities.';
 
     private readonly ClassOrInterfaceType $sortingClass;
     private readonly ClassOrInterfaceType $conditionClass;
