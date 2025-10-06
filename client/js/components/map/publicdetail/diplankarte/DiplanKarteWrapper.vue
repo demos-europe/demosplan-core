@@ -99,89 +99,7 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   },
 })
 
-const buildLayerConfigsList = () => {
-  const layersFromDB = store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
-
-  return layersFromDB
-    .map((layer) => {
-      const layerType = layer.attributes.serviceType?.toLowerCase()
-      const configBuilder = layerConfigBuilders[layerType]
-
-      if (!configBuilder) {
-        console.warn(`No config builder found for layer type: ${layerType}`)
-        return null
-      }
-
-      return {
-        baseConfig: {
-          id: layer.id,
-          name: layer.attributes.name,
-          type: layerType,
-          url: layer.attributes.url,
-        },
-        specificConfig: configBuilder(layer),
-      }
-    })
-    .filter(Boolean) // Deletes null-Values for unknown Layer-Types
-}
-
-const buildLayerList = (layerConfigs) => {
-  return layerConfigs.map(config => {
-    return createLayerObject(config.baseConfig, config.specificConfig)
-  })
-}
-
-const closeLocationInfo = () => {
-  isLocationInfoClosed.value = true
-}
-
-const createLayerObject = (baseConfig, specificConfig = {}) => {
-  if (!baseConfig || Object.keys(baseConfig).length < 4) {
-    return {}
-  }
-
-  const { id, name, type, url } = baseConfig
-  const baseLayer = {
-    id,
-    name,
-    typ: type,
-    url,
-  }
-
-  const layerTypeDefaults = {
-    // Add more defaults for other types here if needed
-    wms: {
-      layers: '',
-      format: 'image/png',
-      version: '1.3.0',
-      singleTile: false,
-      transparent: true,
-      transparency: 0,
-      gutter: 0,
-      minScale: '0',
-      maxScale: '2500000',
-      tilesize: 512,
-      visibleOnLoad: false,
-    },
-  }
-
-  if (!layerTypeDefaults[type.toLowerCase()]) {
-    return {}
-  }
-
-  const mergedConfig = { ...layerTypeDefaults[type.toLowerCase()], ...specificConfig }
-
-  return {
-    ...baseLayer,
-    ...mergedConfig,
-  }
-}
-
-const customLayerConfigurationList = ref([])
-
-const customLayerGroupName = Translator.trans('gislayer')
-
-const customLayerList = ref([])
+// Feature: Drawing on Map
 
 const drawing = computed(() => {
   return initDrawing ?
@@ -217,13 +135,179 @@ const handleDrawing = (event) => {
   emit('locationDrawing', payload)
 }
 
-const instance = getCurrentInstance()
+// Feature: Set location info
+
+const closeLocationInfo = () => {
+  isLocationInfoClosed.value = true
+}
 
 const isLocationInfoClosed = ref(false)
 
 const isLocationToolSelected = computed(() => {
   return store.state.PublicStatement.activeActionBoxTab === 'draw'
 })
+
+// Feature: Show Overlays/Layers in Layer Switcher and on Map
+
+const buildLayerConfigsList = () => {
+  const layersFromDB = store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
+
+  return layersFromDB
+    .map((layer) => {
+      const layerType = layer.attributes.serviceType?.toLowerCase()
+      const configBuilder = layerConfigBuilders[layerType]
+
+      if (!configBuilder) {
+        console.warn(`No config builder found for layer type: ${layerType}`)
+        return null
+      }
+
+      return {
+        baseConfig: {
+          id: layer.id,
+          name: layer.attributes.name,
+          type: layerType,
+          url: layer.attributes.url,
+        },
+        specificConfig: configBuilder(layer),
+      }
+    })
+    .filter(Boolean) // Deletes null-Values for unknown Layer-Types
+}
+
+const buildLayerList = (layerConfigs) => {
+  return layerConfigs.map(config => {
+    return createLayerObject(config.baseConfig, config.specificConfig, layerTypeDefaults)
+  })
+}
+
+const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = {}) => {
+  if (!baseConfig || Object.keys(baseConfig).length < 4) {
+    return {}
+  }
+
+  const { id, name, type, url } = baseConfig
+  const baseLayer = {
+    id,
+    name,
+    typ: type,
+    url,
+  }
+
+  if (!layerTypeDefaults[type.toLowerCase()]) {
+    return {}
+  }
+
+  const mergedConfig = { ...layerTypeDefaults[type.toLowerCase()], ...specificConfig }
+
+  return {
+    ...baseLayer,
+    ...mergedConfig,
+  }
+}
+
+const customLayerConfigurationList = ref([])
+
+const customLayerGroupName = Translator.trans('gislayer')
+
+const customLayerList = ref([])
+
+const layerConfigBuilders = {
+  wms: (layer) => ({
+    layers: layer.attributes.layers || null,
+    version: layer.attributes.layerVersion || '1.3.0',
+  }),
+  // Add other type specific values that could come from BE here
+}
+
+const layersLoaded = ref(false)
+
+const layerTypeDefaults = {
+  // Add more defaults for other types here if needed
+  wms: {
+    layers: '',
+    format: 'image/png',
+    version: '1.3.0',
+    singleTile: false,
+    transparent: true,
+    transparency: 0,
+    gutter: 0,
+    minScale: '0',
+    maxScale: '2500000',
+    tilesize: 512,
+    visibleOnLoad: false,
+  },
+}
+
+const updateCustomLayerData = () => {
+  if (isStoreAvailable.value) {
+    const layerConfigs = buildLayerConfigsList()
+    const layerList = buildLayerList(layerConfigs)
+
+    customLayerList.value = layerList
+    customLayerConfigurationList.value = layerList.map(layer => ({
+      Titel: layer.name,
+      Layer: [{ id: layer.id }],
+    }))
+
+    layersLoaded.value = true
+  }
+}
+
+// Feature: Statement Modal
+
+const openStatementModalOrLoginPage = (event) => {
+  if (!hasPermission('feature_new_statement')) {
+    window.location.href = loginPath
+
+    return
+  }
+
+  isLocationInfoClosed.value = false
+
+  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
+
+  event.preventDefault()
+  event.stopPropagation()
+  toggleStatementModal({})
+}
+
+const toggleStatementModal = (updateStatementPayload) => {
+  instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
+}
+
+// Feature: Territory and Extent
+
+const transformedInitialExtent = ref([])
+
+const transformedTerritory = reactive({
+  type: 'FeatureCollection',
+  features: [],
+})
+
+const transformInitialExtent = () => {
+  if (!initialExtent || initialExtent.length === 0) {
+    transformedInitialExtent.value = undefined
+  } else {
+    transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
+  }
+}
+
+const transformTerritoryCoordinates = () => {
+  if (!territory || !territory.features || territory.features.length === 0) {
+    transformedTerritory.type = 'FeatureCollection'
+    transformedTerritory.features = []
+    return
+  }
+
+  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
+  transformedTerritory.type = transformed.type
+  transformedTerritory.features = transformed.features
+}
+
+// Other parameters and methods
+
+const instance = getCurrentInstance()
 
 const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
@@ -257,53 +341,9 @@ const openStatementModalOrLoginPage = (event) => {
 
 const store = useStore()
 
-const toggleStatementModal = (updateStatementPayload) => {
-  instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
-}
-
-const transformedInitialExtent = ref([])
-
-const transformedTerritory = reactive({
-  type: 'FeatureCollection',
-  features: [],
-})
-
-const transformInitialExtent = () => {
-  if (!initialExtent || initialExtent.length === 0) {
-    transformedInitialExtent.value = undefined
-  } else {
-    transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
-  }
-}
-
-const transformTerritoryCoordinates = () => {
-  if (!territory || !territory.features || territory.features.length === 0) {
-    transformedTerritory.type = 'FeatureCollection'
-    transformedTerritory.features = []
-    return
-  }
-
-  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
-  transformedTerritory.type = transformed.type
-  transformedTerritory.features = transformed.features
-}
-
-const updateCustomLayerData = () => {
-  if (isStoreAvailable.value) {
-    const layerConfigs = buildLayerConfigsList()
-    const layerList = buildLayerList(layerConfigs)
-
-    customLayerList.value = layerList
-    customLayerConfigurationList.value = layerList.map(layer => ({
-      Titel: layer.name,
-      Layer: [{ id: layer.id }],
-    }))
-
-    layersLoaded.value = true
-  }
-}
-
 instance.appContext.app.mixin(prefixClassMixin)
+
+// Hooks
 
 onMounted(() => {
   store.dispatch('Layers/get', { procedureId: store.state.PublicStatement.procedureId })
