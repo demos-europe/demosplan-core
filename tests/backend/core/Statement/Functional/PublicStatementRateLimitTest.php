@@ -17,11 +17,6 @@ use Tests\Base\FunctionalTestCase;
 
 class PublicStatementRateLimitTest extends FunctionalTestCase
 {
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     /**
      * Test that both rate limiting parameters exist and have boolean values.
      */
