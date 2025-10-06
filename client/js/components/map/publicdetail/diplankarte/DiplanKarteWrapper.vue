@@ -318,32 +318,6 @@ const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
 })
 
-const layerConfigBuilders = {
-  wms: (layer) => ({
-    layers: layer.attributes.layers || null,
-    version: layer.attributes.layerVersion || '1.3.0',
-  }),
-  // Add other type specific values that could come from BE here
-}
-
-const layersLoaded = ref(false)
-
-const openStatementModalOrLoginPage = (event) => {
-  if (!hasPermission('feature_new_statement')) {
-    window.location.href = loginPath
-
-    return
-  }
-
-  isLocationInfoClosed.value = false
-
-  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
-
-  event.preventDefault()
-  event.stopPropagation()
-  toggleStatementModal({})
-}
-
 const store = useStore()
 
 instance.appContext.app.mixin(prefixClassMixin)
