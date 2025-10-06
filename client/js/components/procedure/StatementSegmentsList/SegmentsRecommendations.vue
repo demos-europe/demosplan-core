@@ -13,7 +13,7 @@
     <div v-else>
       <!-- Pagination above table header -->
       <div
-        v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+        v-if="pagination && pagination.currentPage"
         class="flex justify-between items-center mb-4">
         <dp-pager
           :class="{ 'invisible': isLoading }"
@@ -74,7 +74,7 @@
 
         <!-- Pagination below segments list -->
         <div
-          v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+          v-if="pagination && pagination.currentPage"
           class="flex justify-between items-center mt-4">
           <dp-pager
             :class="{ 'invisible': isLoading }"
@@ -329,7 +329,7 @@ export default {
 
       this.isLoading = false
 
-      this.$nextTick(() => {
+      await this.$nextTick(() => {
         const queryParams = new URLSearchParams(window.location.search)
         const segmentId = queryParams.get('segment') || ''
 

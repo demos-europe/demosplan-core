@@ -15,7 +15,7 @@
     <template v-else-if="hasSegments">
       <!-- Pagination above segments list -->
       <div
-        v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+        v-if="pagination && pagination.currentPage"
         class="flex justify-between items-center mb-4">
         <dp-pager
           :class="{ 'invisible': isLoading }"
@@ -84,7 +84,7 @@
 
       <!-- Pagination below segments list -->
       <div
-        v-if="pagination && pagination.currentPage && pagination.totalPages > 1"
+        v-if="pagination && pagination.currentPage"
         class="flex justify-between items-center mt-4">
         <dp-pager
           :class="{ 'invisible': isLoading }"
@@ -509,7 +509,7 @@ export default {
 
       this.isLoading = false
 
-      this.$nextTick(() => {
+      await this.$nextTick(() => {
         this.scrollToSegment()
       })
     },
