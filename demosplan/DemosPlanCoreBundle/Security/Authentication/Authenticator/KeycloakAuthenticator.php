@@ -32,7 +32,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
         private readonly ClientRegistry $clientRegistry,
         private readonly LoggerInterface $logger,
         private readonly RouterInterface $router,
-        private readonly KeycloakUserBadgeCreator $keycloakUserBadgeCreator
+        private readonly KeycloakUserBadgeCreator $keycloakUserBadgeCreator,
     ) {
     }
 
@@ -46,7 +46,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     {
         $client = $this->clientRegistry->getClient('keycloak');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
+        $this->logger->info('login attempt', ['accessToken' => $accessToken]);
 
         $userIdentifier = $accessToken->getToken();
         $resourceOwner = $client->fetchUserFromToken($accessToken);

@@ -14,10 +14,7 @@ use LogicException;
 
 class UserModificationException extends LogicException
 {
-    /**
-     * @param mixed $roles
-     */
-    public static function rolesMustBeArray($roles): self
+    public static function rolesMustBeArray(mixed $roles): self
     {
         $rolesType = gettype($roles);
 

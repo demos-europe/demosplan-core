@@ -44,7 +44,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
         $html = preg_replace(
             '/<ul[^>]*>\s*<li[^>]*>\s*(<h[1-6][^>]*>.*?<\/h[1-6]>)\s*<\/li>\s*<\/ul>/s',
             '$1',
-            $html
+            (string) $html
         );
 
         // Note: Disabled automatic numbering removal to preserve structured headings like "2.1 Küstenmeer"
@@ -331,7 +331,7 @@ class ODTHtmlProcessor implements ODTHtmlProcessorInterface
 
         // Clean up any artifacts from DOM processing but preserve specific attribute spacing
         $html = preg_replace('/\s+/', ' ', $html);
-        $html = trim($html);
+        $html = trim((string) $html);
 
         // Ensure the specific spacing format for table cells as expected by tests
         $html = preg_replace('/(<td[^>]*)"(\s*>)/', '$1" >', $html);

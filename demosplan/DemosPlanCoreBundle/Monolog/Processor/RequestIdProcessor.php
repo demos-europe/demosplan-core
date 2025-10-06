@@ -19,12 +19,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class RequestIdProcessor implements ProcessorInterface
 {
-    private RequestStack $requestStack;
     private ?string $requestId = null;
 
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private readonly RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     public function __invoke(LogRecord $record): LogRecord

@@ -1715,7 +1715,7 @@ class DemosPlanProcedureController extends BaseController
                     );
                     try {
                         $eventDispatcherPost->post($event);
-                    } catch (Exception $e) {
+                    } catch (Exception) {
                         return $this->redirectToRoute('core_home');
                     }
 

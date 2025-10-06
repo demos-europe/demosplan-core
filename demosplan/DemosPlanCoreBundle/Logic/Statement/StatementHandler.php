@@ -2301,7 +2301,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $convertedRow = [];
             foreach ($record as $cell) {
                 $convertedRow[] = mb_convert_encoding($cell, 'UTF-8',
-                    mb_detect_encoding($cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
+                    mb_detect_encoding((string) $cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
             }
             $convertedRecords[] = $convertedRow;
         }

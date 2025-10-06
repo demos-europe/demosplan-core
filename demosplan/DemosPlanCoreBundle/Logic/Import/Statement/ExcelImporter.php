@@ -17,6 +17,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -119,7 +120,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly HtmlSanitizerService $htmlSanitizerService
+        private readonly HtmlSanitizerService $htmlSanitizerService,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -186,7 +187,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -403,7 +404,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,

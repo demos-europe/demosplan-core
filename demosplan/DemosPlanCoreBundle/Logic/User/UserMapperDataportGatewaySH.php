@@ -36,7 +36,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
     {
         $this->logger->info('getValidUser with', [self::class]);
         $request = $this->getRequest();
-        $token = trim($credentials->getToken());
+        $token = trim((string) $credentials->getToken());
         $this->logger->debug('Incoming Token', [$token]);
 
         $this->salt = $this->globalConfig->getSalt();

@@ -53,7 +53,7 @@ class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidato
                 $sourceProcedure = $value->getSourceProcedure();
                 $this->validateTyped($sourceProcedure, $value->getId(), $constraint->sourceProcedureMessage);
                 $this->validateTyped($value->getTargetProcedure(), $value->getId(), $constraint->targetProcedureMessage);
-            } catch (Error $e) {
+            } catch (Error) {
                 // Skip validation if entity relationships are not fully loaded
                 // This can happen during Doctrine hydration when sourceProcedure is null
                 return;

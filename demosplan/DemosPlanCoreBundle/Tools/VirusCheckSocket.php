@@ -25,9 +25,9 @@ use Throwable;
  */
 class VirusCheckSocket implements VirusCheckInterface
 {
-    private string $avscanHost;
-    private int $avscanPort;
-    private int $avscanTimeout;
+    private readonly string $avscanHost;
+    private readonly int $avscanPort;
+    private readonly int $avscanTimeout;
     private string $noVirusResponse = 'stream: OK';
 
     public function __construct(

@@ -84,7 +84,7 @@ class RoleHandler extends CoreHandler
 
         try {
             Assert::count($roles, 1);
-        } catch (\Webmozart\Assert\InvalidArgumentException $e) {
+        } catch (\Webmozart\Assert\InvalidArgumentException) {
             // Log the warning
             $this->logger->warning('More than one role found for the given role name. Using the first one.', [
                 'roleName' => $roleCode,

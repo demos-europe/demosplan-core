@@ -43,24 +43,18 @@ abstract class SegmentsExporter
      */
     protected array $styles;
 
-    protected TranslatorInterface $translator;
-
-    protected Slugify $slugify;
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
-        Slugify $slugify,
+        protected Slugify $slugify,
         StyleInitializer $styleInitializer,
-        TranslatorInterface $translator,
+        protected TranslatorInterface $translator,
         private readonly DocumentWriterSelector $writerSelector,
         int $smallColumnWidth = 1550,
         int $wideColumnWidth = 6950,
     ) {
-        $this->translator = $translator;
         $this->styles = $styleInitializer->initialize($smallColumnWidth, $wideColumnWidth);
-        $this->slugify = $slugify;
     }
 
     /**
@@ -412,7 +406,7 @@ abstract class SegmentsExporter
             $this->addSegmentCell(
                 $headerRow,
                 htmlspecialchars(
-                    $config['text'],
+                    (string) $config['text'],
                     ENT_NOQUOTES,
                     'UTF-8'
                 ),

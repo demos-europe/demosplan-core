@@ -111,7 +111,7 @@ class LocationService
             $this->logger->error('Address search failed via Geodatenzentrum API', [
                 ...$logContext,
                 'error'             => $e->getMessage(),
-                'errorType'         => get_class($e),
+                'errorType'         => $e::class,
                 'file'              => $e->getFile(),
                 'line'              => $e->getLine(),
                 'fallbackAvailable' => false,
@@ -171,7 +171,7 @@ class LocationService
             $this->logger->error('City search failed via database', [
                 ...$logContext,
                 'error'           => $e->getMessage(),
-                'errorType'       => get_class($e),
+                'errorType'       => $e::class,
                 'file'            => $e->getFile(),
                 'dataSource'      => 'internal database (LocationRepository)',
             ]);

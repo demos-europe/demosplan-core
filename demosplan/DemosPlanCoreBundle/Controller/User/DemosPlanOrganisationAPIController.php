@@ -158,7 +158,7 @@ class DemosPlanOrganisationAPIController extends APIController
             if ('' !== $filterNameContains) {
                 $orgaList = array_filter(
                     $orgaList,
-                    static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                    static fn (Orga $orga) => false !== stripos((string) $orga->getName(), (string) $filterNameContains)
                 );
             }
 
@@ -396,7 +396,7 @@ class DemosPlanOrganisationAPIController extends APIController
                         $canCreateProcedures = true;
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                     }
-                } catch (NullPointerException $e) {
+                } catch (NullPointerException) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
                         'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
@@ -483,7 +483,7 @@ class DemosPlanOrganisationAPIController extends APIController
                         $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
                     }
-                } catch (NullPointerException $e) {
+                } catch (NullPointerException) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
                         'roleName'   => RoleInterface::PRIVATE_PLANNING_AGENCY,
                         'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,

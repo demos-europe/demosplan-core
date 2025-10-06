@@ -1611,7 +1611,7 @@ class DemosPlanDocumentController extends BaseController
                         $documentList[$docKey]['text'] = preg_replace(
                             '|ALTTEXT|',
                             $parts[3],
-                            $documentList[$docKey]['text']
+                            (string) $documentList[$docKey]['text']
                         );
                     }
                 }

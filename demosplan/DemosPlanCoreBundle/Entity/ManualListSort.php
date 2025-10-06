@@ -64,7 +64,7 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
      *
      * @ORM\JoinColumn(name="customer_id", referencedColumnName="_c_id", onDelete="CASCADE", nullable=true)
      */
-    protected ?CustomerInterface $customer;
+    protected ?CustomerInterface $customer = null;
 
     /**
      * @var string

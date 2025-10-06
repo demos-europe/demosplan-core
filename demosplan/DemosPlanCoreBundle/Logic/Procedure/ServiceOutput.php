@@ -90,7 +90,7 @@ class ServiceOutput
         ProcedureService $procedureService,
         ServiceImporter $serviceImport,
         private readonly StatementService $statementService,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->contentService = $contentService;
         $this->permissions = $permissions;
@@ -181,13 +181,11 @@ class ServiceOutput
     /**
      * Verarbeitet alle Anfragen aus der Listenansicht.
      *
-     * @param mixed $search
-     *
      * @return array
      *
      * @throws Exception
      */
-    public function procedureTemplateAdminListHandler(array $filter, $search)
+    public function procedureTemplateAdminListHandler(array $filter, mixed $search)
     {
         if (0 === count($filter)) {
             throw new InvalidArgumentException('provide at least one filter');
@@ -343,6 +341,7 @@ class ServiceOutput
     public function getProcedureWithPhaseNames($procedureId): array
     {
         $sResult = $this->service->getSingleProcedure($procedureId);
+
         // Füge den Phasennamen aus der Config hinzu
         return $this->addPhaseNames($sResult);
     }
@@ -522,8 +521,6 @@ class ServiceOutput
      * Füge den sprechenden Namen der Phase aus den Parametern hinzu.
      *
      * @param array $procedure
-     *
-     * @return mixed
      */
     protected function addPhaseNames($procedure)
     {
