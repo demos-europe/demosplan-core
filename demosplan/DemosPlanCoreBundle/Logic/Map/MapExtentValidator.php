@@ -22,8 +22,8 @@ class MapExtentValidator
     /**
      * Validates that the map extent (boundaries) fully contains the initial viewport (bounding box).
      *
-     * @param array|null $mapExtent      The maximum extent boundaries [minX, minY, maxX, maxY]
-     * @param array|null $boundingBox    The initial map viewport [minX, minY, maxX, maxY]
+     * @param array|null $mapExtent   The maximum extent boundaries [minX, minY, maxX, maxY]
+     * @param array|null $boundingBox The initial map viewport [minX, minY, maxX, maxY]
      *
      * @throws InvalidArgumentException if the bounding box is not fully contained within the map extent
      */
@@ -52,11 +52,7 @@ class MapExtentValidator
             || $boxMaxX > $extentMaxX
             || $boxMaxY > $extentMaxY
         ) {
-            throw new InvalidArgumentException(
-                'Der Startkartenausschnitt (boundingBox) muss vollständig innerhalb der Kartenbegrenzung (mapExtent) liegen. '
-                .'MapExtent: ['.implode(', ', $flatMapExtent).'], '
-                .'BoundingBox: ['.implode(', ', $flatBoundingBox).']'
-            );
+            throw new InvalidArgumentException('Der Startkartenausschnitt (boundingBox) muss vollständig innerhalb der Kartenbegrenzung (mapExtent) liegen. MapExtent: ['.implode(', ', $flatMapExtent).'], BoundingBox: ['.implode(', ', $flatBoundingBox).']');
         }
     }
 
