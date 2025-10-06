@@ -24,23 +24,20 @@ class AbstractEntityGroup implements EntityGroupInterface
     /**
      * @var array<int|string,T>
      */
-    private $entries;
+    private $entries = [];
 
     /**
      * @var array<int|string,EntityGroupInterface<T>>
      */
-    private $subgroups;
+    private $subgroups = [];
 
     /**
      * @var int
      */
-    private $level;
+    private $level = 0;
 
     public function __construct(private readonly string $title = '')
     {
-        $this->entries = [];
-        $this->subgroups = [];
-        $this->level = 0;
     }
 
     public function setSubgroups(array $subgroups): void

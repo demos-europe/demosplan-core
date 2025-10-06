@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -36,7 +37,7 @@ class DemosPlanRequestListener
         GlobalConfigInterface $globalConfig,
         private readonly JsonApiRequestValidator $jsonApiRequestValidator,
         RouterInterface $router,
-        SubdomainHandlerInterface $subdomainHandler
+        SubdomainHandlerInterface $subdomainHandler,
     ) {
         $this->subdomainHandler = $subdomainHandler;
         $this->globalConfig = $globalConfig;
@@ -68,10 +69,10 @@ class DemosPlanRequestListener
         }
 
         // API-Requests are always master requests
-        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType()) &&
-            $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
+        if ((HttpKernelInterface::MAIN_REQUEST === $event->getRequestType())
+            && $this->jsonApiRequestValidator->isApiRequest($event->getRequest())) {
             $response = $this->jsonApiRequestValidator->validateJsonApiRequest($event->getRequest());
-            if (null !== $response) {
+            if ($response instanceof Response) {
                 $event->setResponse($response);
             }
         }

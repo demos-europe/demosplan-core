@@ -263,11 +263,9 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
             $toUpdate->setText($data['text']);
         }
 
-        if (null !== $data['files'] && null !== $toUpdate->getUser()) {
-            if (null === $data['anonymise'] || !$data['anonymise']) {
-                $this->getEntityManager()->getRepository(ForumEntryFile::class)
-                    ->add(['entryId' => $entityId, 'files' => $data['files']]);
-            }
+        if (null !== $data['files'] && null !== $toUpdate->getUser() && (null === $data['anonymise'] || !$data['anonymise'])) {
+            $this->getEntityManager()->getRepository(ForumEntryFile::class)
+                ->add(['entryId' => $entityId, 'files' => $data['files']]);
         }
 
         $this->getEntityManager()->persist($toUpdate);

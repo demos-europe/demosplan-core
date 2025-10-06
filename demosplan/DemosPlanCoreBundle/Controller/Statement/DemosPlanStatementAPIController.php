@@ -111,7 +111,7 @@ class DemosPlanStatementAPIController extends APIController
             $targetProcedure = $procedureHandler->getProcedureWithCertainty($targetProcedureId);
             $statementToCopy = $statementHandler->getStatement($statementId);
 
-            if (null === $statementToCopy) {
+            if (!$statementToCopy instanceof Statement) {
                 throw new Exception('CopyStatement: Could not find Statement ID: '.$statementId);
             }
 
@@ -212,7 +212,7 @@ class DemosPlanStatementAPIController extends APIController
             }
             $targetProcedure = $procedureHandler->getProcedureWithCertainty($targetProcedureId);
             $statementToMove = $statementHandler->getStatement($statementId);
-            if (null === $statementToMove) {
+            if (!$statementToMove instanceof Statement) {
                 throw new Exception('MoveStatement: Could not find Statement ID: '.$statementId);
             } // In case of statement will be moved to his "origin" procedure,
             // the statement will be not longer marked as moved statement.
@@ -692,7 +692,7 @@ class DemosPlanStatementAPIController extends APIController
         }
         // fill remaining parameters with old values
         $oldFilterSet = $filterSetService->findHashedQueryWithHash($filterSetHash);
-        if (null === $oldFilterSet) {
+        if (!$oldFilterSet instanceof HashedQuery) {
             $oldFilterSet = $assessmentHandler->handleFilterHash($request, $procedureId, $filterSetHash);
         }
         /** @var AssessmentTableQuery $oldAssessmentQuery */

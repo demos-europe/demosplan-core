@@ -45,6 +45,7 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
@@ -243,7 +244,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return $this->getResourceConfig()->getUpdatability();
     }
 
-    protected function getSchemaPathProcessor(): \EDT\Wrapping\Utilities\SchemaPathProcessor
+    protected function getSchemaPathProcessor(): SchemaPathProcessor
     {
         return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
     }

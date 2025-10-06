@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Logic\ResourceChange;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -32,7 +33,7 @@ final class ProcedureBehaviorDefinitionResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             // if the user provided no procedure it must be a one with the permission to
             // access the list of ProcedureTypes and should be restricted to ProcedureBehaviorDefinitions
             // that are connected to a ProcedureType (and thus not connected to a Procedure)

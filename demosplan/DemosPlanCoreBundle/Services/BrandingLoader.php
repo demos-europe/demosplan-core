@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Services;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
@@ -90,7 +91,7 @@ class BrandingLoader
         if ($orga instanceof Orga) {
             $brandingContainer->setOrgaLogo($orga->getLogo());
             $brandingContainer->setOrgaId($orga->getId());
-            if (null !== $orga->getBranding()) {
+            if ($orga->getBranding() instanceof Branding) {
                 $orgaCss = $this->brandingProvider->generateFullCss($orga);
                 $brandingContainer->setOrgaCss($orgaCss);
             }
@@ -152,7 +153,7 @@ class BrandingLoader
     {
         if (null !== $procedureId) {
             $procedure = $this->procedureService->getProcedure($procedureId);
-            if (null !== $procedure) {
+            if ($procedure instanceof Procedure) {
                 return $procedure->getOrga();
             }
         }

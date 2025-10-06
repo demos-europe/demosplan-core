@@ -198,7 +198,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $entry->setIdentifier($procedureIdToCreateTheReportEntryFor);
         $entry->setMessage(Json::encode($messageData, JSON_UNESCAPED_UNICODE));
         $entry->setUser($user);
-        if (null === $user) {
+        if (!$user instanceof User) {
             $entry->setUserName($this->translator->trans('anonymized'));
         }
 

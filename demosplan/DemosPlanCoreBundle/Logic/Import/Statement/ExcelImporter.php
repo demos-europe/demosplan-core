@@ -17,8 +17,10 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -26,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
@@ -119,7 +122,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly HtmlSanitizerService $htmlSanitizerService
+        private readonly HtmlSanitizerService $htmlSanitizerService,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -152,7 +155,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
             $statementData = $worksheet->toArray();
             $columnNames = array_shift($statementData);
-            if (0 === count($statementData)) {
+            if ([] === $statementData) {
                 throw new MissingDataException('No data in rows found.');
             }
             foreach ($statementData as $line => $statement) {
@@ -186,7 +189,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -392,18 +395,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     public function isEmpty(array $input): bool
     {
-        return empty(
-            array_filter(
-                $input,
-                static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
-            )
+        return [] === array_filter(
+            $input,
+            static fn ($field) => null !== $field && (!is_string($field) || '' !== trim($field))
         );
     }
 
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,
@@ -429,7 +430,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
 
         $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
-        if (null === $place) {
+        if (!$place instanceof Place) {
             throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedure->getId());
         }
 
@@ -451,7 +452,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $tagTitle = $tagTitle->trim()->toString();
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
 
-                $createNewTag = null === $matchingTag;
+                $createNewTag = !$matchingTag instanceof Tag;
                 if ($createNewTag) {
                     $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
                 }
@@ -497,7 +498,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta = new StatementMeta();
         $currentProcedure = $this->currentProcedureService->getProcedure();
 
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new MissingPostParameterException('Current procedure is missing.');
         }
 
@@ -612,7 +613,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // Check if Sonstiges-Topic exists, otherwise create it
         $miscTopic = $this->tagService->findOneTopicByTitle(TagTopic::TAG_TOPIC_MISC, $procedure->getId());
 
-        if (null === $miscTopic) {
+        if (!$miscTopic instanceof TagTopic) {
             // create new Topic
             $miscTopic = $this->tagService->createTagTopic(
                 TagTopic::TAG_TOPIC_MISC,

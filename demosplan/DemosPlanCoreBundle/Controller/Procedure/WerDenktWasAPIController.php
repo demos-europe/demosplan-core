@@ -36,7 +36,7 @@ class WerDenktWasAPIController extends BaseController
             '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',
         );
 
-        if (!is_a($searchProceduresResponse, JsonResponse::class)) {
+        if (!$searchProceduresResponse instanceof JsonResponse) {
             return new JsonResponse(null);
         }
 

@@ -23,13 +23,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Illuminate\Support\Collection;
 use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
-use Illuminate\Support\Collection;
 
 /**
  * @template T of EntityInterface
@@ -309,7 +309,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function setEntityFieldFromData($entity, array $data)
     {
-        if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
+        if (!is_a($entity, CoreEntity::class) && !$entity instanceof User) {
             throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
@@ -339,7 +339,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function setEntityFlagFieldFromData($entity, array $data)
     {
-        if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
+        if (!is_a($entity, CoreEntity::class) && !$entity instanceof User) {
             throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
@@ -374,7 +374,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function setEntityFieldsOnFieldCollection(Collection $fields, $entity, array $data)
     {
-        if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
+        if (!is_a($entity, CoreEntity::class) && !$entity instanceof User) {
             throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 
@@ -392,7 +392,7 @@ abstract class CoreRepository extends FluentRepository
      */
     protected function setEntityFlagFieldsOnFlagFieldCollection(Collection $fields, $entity, array $data)
     {
-        if (!is_a($entity, CoreEntity::class) && !is_a($entity, User::class)) {
+        if (!is_a($entity, CoreEntity::class) && !$entity instanceof User) {
             throw new LogicException('This method only supports CoreEntity and User. Got '.$entity::class);
         }
 

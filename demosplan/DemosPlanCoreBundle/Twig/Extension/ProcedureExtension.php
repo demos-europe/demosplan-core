@@ -141,7 +141,7 @@ class ProcedureExtension extends ExtensionBase
      */
     public function getStartDate(array $procedure, $type = 'auto')
     {
-        if (0 === count($procedure)) {
+        if ([] === $procedure) {
             throw new InvalidArgumentException('Got empty procedure: '.var_export($procedure, true));
         }
 
@@ -205,15 +205,12 @@ class ProcedureExtension extends ExtensionBase
      */
     public function getEndDate($procedure, $type = 'auto')
     {
-        if (false === $procedure instanceof Procedure) {
-            if (!is_array($procedure)
-                || (
-                    is_array($procedure)
-                    && 0 === count($procedure)
-                )
-            ) {
-                throw new RuntimeException('Got empty procedure: '.var_export($procedure, true));
-            }
+        if (false === $procedure instanceof Procedure && (!is_array($procedure)
+            || (
+                is_array($procedure)
+                && [] === $procedure
+            ))) {
+            throw new RuntimeException('Got empty procedure: '.var_export($procedure, true));
         }
 
         try {
@@ -412,11 +409,7 @@ class ProcedureExtension extends ExtensionBase
             return true;
         }
 
-        if ($this->currentUser->getUser()->isPublicUser()) {
-            return true;
-        }
-
-        return false;
+        return $this->currentUser->getUser()->isPublicUser();
     }
 
     /**
@@ -450,11 +443,8 @@ class ProcedureExtension extends ExtensionBase
         }
 
         $this->permissions->setProcedure($procedure);
-        if ($this->permissions->ownsProcedure()) {
-            return true;
-        }
 
-        return false;
+        return $this->permissions->ownsProcedure();
     }
 
     /**

@@ -25,11 +25,10 @@ use Symfony\Component\DependencyInjection\Definition;
 class AddonRegistry implements ArrayAccess
 {
     /** @var array<string, AddonInfo> */
-    private array $addonInfos;
+    private array $addonInfos = [];
 
     public function __construct()
     {
-        $this->addonInfos = [];
     }
 
     /**
@@ -51,7 +50,7 @@ class AddonRegistry implements ArrayAccess
      */
     public function getEnabledAddons(): array
     {
-        return array_filter($this->getAddonInfos(), fn(AddonInfo $addonInfo) => $addonInfo->isEnabled());
+        return array_filter($this->getAddonInfos(), fn (AddonInfo $addonInfo) => $addonInfo->isEnabled());
     }
 
     /**

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
@@ -166,7 +167,7 @@ class StatementDeleter
             if ($allowedToDelete) {
                 try {
                     // Prohibit deletion if a consultation token exists for this statement
-                    if (null !== $this->consultationTokenService->getTokenForStatement($statement)) {
+                    if ($this->consultationTokenService->getTokenForStatement($statement) instanceof ConsultationToken) {
                         throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
                     }
                     if ($canTransaction) {
@@ -179,14 +180,11 @@ class StatementDeleter
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
                     try {
-                        if (true === $deleted) {
+                        if ($deleted) {
                             $originalStatement = $statement->getOriginal();
-                            if ($originalStatement instanceof Statement) {
-                                if ($this->permissions->hasPermission('feature_auto_delete_original_statement')
-                                    && $originalStatement->getChildren()->isEmpty()
-                                ) {
-                                    $this->deleteOriginalStatement($originalStatement);
-                                }
+                            if ($originalStatement instanceof Statement && ($this->permissions->hasPermission('feature_auto_delete_original_statement')
+                                && $originalStatement->getChildren()->isEmpty())) {
+                                $this->deleteOriginalStatement($originalStatement);
                             }
                         }
                     } catch (Exception $e) {

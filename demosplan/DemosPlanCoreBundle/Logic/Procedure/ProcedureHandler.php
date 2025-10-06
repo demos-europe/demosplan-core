@@ -636,7 +636,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             }
         }
 
-        if (0 === count($proceduresWithSoonEndingPhase)) {
+        if ([] === $proceduresWithSoonEndingPhase) {
             $this->getLogger()->info('No soon ending procedures found');
         }
 
@@ -743,7 +743,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     ->lock(),
                 false
             );
-            if (is_array($settings) && 0 === count($settings)) {
+            if (is_array($settings) && [] === $settings) {
                 $this->contentService->setSetting('markedParticipated', [
                     'procedureId' => $procedureId,
                     'userId'      => $this->currentUser->getUser()->getId(),
@@ -938,7 +938,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
-        if (0 < count($formEmailCC)) {
+        if ([] !== $formEmailCC) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim((string) $mailAddress));
             }

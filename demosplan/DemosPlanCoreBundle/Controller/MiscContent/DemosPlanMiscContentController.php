@@ -362,7 +362,7 @@ class DemosPlanMiscContentController extends BaseController
         // Ausgabe
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatic/xplan.html.twig',
-            compact('templateVars', 'title')
+            ['templateVars' => $templateVars, 'title' => $title]
         );
     }
 

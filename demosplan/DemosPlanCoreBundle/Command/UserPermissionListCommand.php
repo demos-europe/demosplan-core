@@ -69,7 +69,7 @@ class UserPermissionListCommand extends CoreCommand
 
             // Validate and fetch user
             $user = $this->validateAndGetUser($userId, $io);
-            if (null === $user) {
+            if (!$user instanceof UserInterface) {
                 return Command::FAILURE;
             }
 
@@ -96,7 +96,7 @@ class UserPermissionListCommand extends CoreCommand
 
     private function validateAndGetUser(string $userId, SymfonyStyle $io): ?UserInterface
     {
-        if (empty(trim($userId))) {
+        if (in_array(trim($userId), ['', '0'], true)) {
             $io->error('User ID cannot be empty');
 
             return null;
@@ -116,7 +116,7 @@ class UserPermissionListCommand extends CoreCommand
     {
         $io->title(sprintf('User-Specific Permissions for "%s"', $user->getLogin()));
 
-        if (empty($userPermissions)) {
+        if ([] === $userPermissions) {
             $io->note('No user-specific permissions found for this user.');
 
             return;

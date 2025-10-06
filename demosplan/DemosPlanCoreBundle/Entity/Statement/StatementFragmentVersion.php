@@ -257,9 +257,6 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
         $this->setMunicipalityNames($fragmentToCreateVersionFrom->getMunicipalityNames());
         $this->setPriorityAreaKeys($fragmentToCreateVersionFrom->getPriorityAreaKeys());
         $this->tagAndTopicNames = $fragmentToCreateVersionFrom->getTagsAndTopicsAsString();
-
-        $this->departmentName = null;
-        $this->orgaName = null;
         if (!is_null($fragmentToCreateVersionFrom->getDepartment())) {
             $this->departmentName = $fragmentToCreateVersionFrom->getDepartment()->getName();
             $this->orgaName = $fragmentToCreateVersionFrom->getDepartment()->getOrgaName();

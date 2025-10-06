@@ -202,11 +202,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     public function shouldBeIndexed()
     {
         try {
-            if ('statement' === $this->getGroup() && 'access' === $this->getCategory()) {
-                return false;
-            }
-
-            return true;
+            return !('statement' === $this->getGroup() && 'access' === $this->getCategory());
         } catch (Exception) {
             return false;
         }

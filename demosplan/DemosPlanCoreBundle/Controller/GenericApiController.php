@@ -30,6 +30,7 @@ use EDT\JsonApi\Requests\GetRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use League\Fractal\Resource\Item;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -149,9 +150,9 @@ class GenericApiController extends APIController
         $item = $updateRequest->updateResource($type, $resourceId);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item);
+        return $item instanceof Item
+            ? $this->renderResource($item)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -194,9 +195,9 @@ class GenericApiController extends APIController
         $item = $creationRequest->createResource($type);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item, Response::HTTP_CREATED);
+        return $item instanceof Item
+            ? $this->renderResource($item, Response::HTTP_CREATED)
+            : $this->createEmptyResponse();
     }
 
     /**

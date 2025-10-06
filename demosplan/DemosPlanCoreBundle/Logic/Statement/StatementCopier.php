@@ -618,7 +618,7 @@ class StatementCopier
                 $em->flush();
             }
 
-            if (true === $createReport) {
+            if ($createReport) {
                 try {
                     $entry = $this->statementReportEntryFactory->createStatementCopiedEntry($newStatement);
                     if ($persistAndFlush) {
@@ -688,7 +688,7 @@ class StatementCopier
 
         // T7137: avoid copy Statement if statement or fragments are not claimed by current user
         // or fragments are assigned to orga
-        if (true === $this->permissions->hasPermission('feature_statement_assignment')) {
+        if ($this->permissions->hasPermission('feature_statement_assignment')) {
             // check for claim of statement
             if (!$this->assignService->isStatementObjectAssignedToCurrentUser($statement)
                 && null !== $statement->getAssignee()) {

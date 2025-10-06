@@ -408,7 +408,7 @@ class DemosPlanNewsController extends BaseController
 
         // Formulardaten verarbeiten
         $success = $this->handleNewsAdminNewPostRequest($request, $fileUploadService, $templateVars, $procedure);
-        if (true === $success) {
+        if ($success) {
             return $this->redirectToRoute('DemosPlan_news_administration_news', ['procedure' => $procedure]);
         }
 
@@ -447,7 +447,7 @@ class DemosPlanNewsController extends BaseController
         );
 
         $success = $this->handleNewsAdminEditPostRequest($request, $fileUploadService, $this->procedureNewsService, $procedure);
-        if (true === $success) {
+        if ($success) {
             return $this->redirectToRoute('DemosPlan_news_administration_news', ['procedure' => $procedure]);
         }
 
@@ -480,7 +480,7 @@ class DemosPlanNewsController extends BaseController
         );
 
         $success = $this->handleNewsAdminEditPostRequest($request, $fileUploadService, $this->globalNewsHandler);
-        if (true === $success) {
+        if ($success) {
             return $this->redirectToRoute('DemosPlan_globalnews_administration_news', ['procedure' => null]);
         }
 
@@ -515,7 +515,7 @@ class DemosPlanNewsController extends BaseController
 
         // Formulardaten verarbeiten
         $success = $this->handleNewsAdminNewPostRequest($request, $fileUploadService, $templateVars);
-        if (true === $success) {
+        if ($success) {
             return $this->redirectToRoute('DemosPlan_globalnews_administration_news', ['procedure' => null]);
         }
 

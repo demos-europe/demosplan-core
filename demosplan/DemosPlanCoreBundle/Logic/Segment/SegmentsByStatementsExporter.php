@@ -85,7 +85,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
-        if (0 === count($statements)) {
+        if ([] === $statements) {
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 

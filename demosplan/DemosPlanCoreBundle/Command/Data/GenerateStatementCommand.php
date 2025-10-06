@@ -110,7 +110,7 @@ class GenerateStatementCommand extends DataProviderCommand
             $organisation = StatementFactory::RANDOM_ORGANISATION;
         }
 
-        $data = compact('user', 'organisation', 'procedure', 'maxChars');
+        $data = ['user' => $user, 'organisation' => $organisation, 'procedure' => $procedure, 'maxChars' => $maxChars];
 
         $amount = $this->getArgument('amount');
 

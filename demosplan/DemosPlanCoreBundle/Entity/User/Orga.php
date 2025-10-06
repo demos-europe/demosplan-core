@@ -1128,7 +1128,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         }
         // If a branding relationship does not exist, but a file is given,
         // create branding entity and add it as a relationship
-        if (null === $branding && $logo instanceof File) {
+        if (!$branding instanceof Branding && $logo instanceof File) {
             $branding = new Branding();
             $branding->setLogo($logo);
             $this->setBranding($branding);

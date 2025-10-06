@@ -62,7 +62,7 @@ class CustomFieldValueCreator
             // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
-            if ($existingCustomFieldValue) {
+            if ($existingCustomFieldValue instanceof CustomFieldValue) {
                 $this->handleExistingCustomField($updatedCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
                 $this->handleNewCustomField($updatedCustomFieldValuesList, $newCustomFieldValue);

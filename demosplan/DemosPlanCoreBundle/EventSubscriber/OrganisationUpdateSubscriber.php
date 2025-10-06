@@ -52,7 +52,7 @@ class OrganisationUpdateSubscriber extends BaseEventSubscriber
 
         // new submissiontype is default
         if ($orgaBefore->getSubmissionType() != $orgaUpdated->getSubmissionType()
-            && Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT == $orgaUpdated->getSubmissionType()) {
+            && Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT === $orgaUpdated->getSubmissionType()) {
             // Nothing to do but tell user that resetting worked
             $this->messageBag->add('confirm', 'confirm.statement.orgaedit.submissiontype.default');
         }

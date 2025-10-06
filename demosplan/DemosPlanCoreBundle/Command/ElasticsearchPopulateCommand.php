@@ -10,9 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -21,7 +23,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
-use Illuminate\Support\Collection;
 
 /**
  * Populate elasticsearch index with multiple Workers.
@@ -161,7 +162,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     private function getCurrentProjectConsole(): string
     {
-        if (null === $this->getApplication()) {
+        if (!$this->getApplication() instanceof ConsoleApplication) {
             throw new RuntimeException('Cannot run this command without an application');
         }
         /** @var DemosPlanKernel $kernel */

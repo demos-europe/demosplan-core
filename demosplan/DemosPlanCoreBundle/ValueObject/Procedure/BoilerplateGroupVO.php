@@ -38,9 +38,9 @@ class BoilerplateGroupVO extends ValueObject
      *
      * @param BoilerplateGroup|null $group create a BoilerplateGroupVO from if given, otherwise this is a simple empty constructor
      */
-    public function __construct(BoilerplateGroup $group = null)
+    public function __construct(?BoilerplateGroup $group = null)
     {
-        if (null !== $group) {
+        if ($group instanceof BoilerplateGroup) {
             $this->generateFromBoilerplateGroup($group);
         }
     }

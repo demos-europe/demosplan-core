@@ -133,7 +133,6 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     {
         $this->key = $key;
         $this->step = $step;
-        $this->permissionSet = ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
         $this->endDate = new DateTime();
         $this->startDate = new DateTime();
     }

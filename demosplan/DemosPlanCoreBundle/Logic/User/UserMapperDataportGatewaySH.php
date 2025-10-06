@@ -52,7 +52,7 @@ class UserMapperDataportGatewaySH extends UserMapperDataportGateway
         $userUpdatedDepartment = $request->request->has('UpdatedDepartment');
 
         // -> Frage das Gateway mit dem Token an, also if gatewayData is saved but user does not come from Orga Verify page
-        if (is_null($this->data) || !($userChangedDepartment || $userUpdatedDepartment)) {
+        if (is_null($this->data) || !$userChangedDepartment && !$userUpdatedDepartment) {
             $this->logger->info('Call Gateway for Token', [$token]);
             $aResult = $this->authenticateByService($token);
             if (false === $aResult) {

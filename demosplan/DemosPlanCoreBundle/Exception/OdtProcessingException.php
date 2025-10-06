@@ -27,7 +27,7 @@ class OdtProcessingException extends Exception
     public static function extractionFailed(string $filePath, string $reason = ''): self
     {
         $message = "ODT extraction failed for file: {$filePath}";
-        if (!empty($reason)) {
+        if ('' !== $reason && '0' !== $reason) {
             $message .= " Reason: {$reason}";
         }
 

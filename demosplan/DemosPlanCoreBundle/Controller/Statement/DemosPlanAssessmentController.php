@@ -72,11 +72,11 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         UserService $userService,
         string $entityId,
-        string $assignOrUnassign = 'assign'
+        string $assignOrUnassign = 'assign',
     ): Response {
         $statementToUpdate = $statementHandler->getStatement($entityId);
 
-        if (null === $statementToUpdate) {
+        if (!$statementToUpdate instanceof Statement) {
             $this->getMessageBag()->add('error', 'error.statement.assignment.assigned');
             $this->getLogger()->warning('Could not find Statement Id '.$entityId);
 
@@ -157,7 +157,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         StatementService $statementService,
         AssessmentHandler $assessmentHandler,
-        string $procedureId
+        string $procedureId,
     ): ?Response {
         $rParams = $request->request->all();
         $fParams = $fileUploadService->prepareFilesUpload($request, 'r_upload');
@@ -188,7 +188,7 @@ class DemosPlanAssessmentController extends BaseController
                 $isDataInput = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT);
                 $newStatement = $statementHandler->newStatement($rParams, $isDataInput);
 
-                if (null !== $headStatement) {
+                if ($headStatement instanceof Statement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
                 if ($newStatement instanceof Statement) {
@@ -228,7 +228,7 @@ class DemosPlanAssessmentController extends BaseController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $procedure = $procedureService->getProcedureWithCertainty($procedureId);
@@ -255,7 +255,7 @@ class DemosPlanAssessmentController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
-            compact('title', 'templateVars')
+            ['title' => $title, 'templateVars' => $templateVars]
         );
     }
 
@@ -301,7 +301,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
@@ -327,7 +327,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
@@ -579,7 +579,7 @@ class DemosPlanAssessmentController extends BaseController
         string $procedureId,
         ServiceOutput $serviceOutput,
         StatementHandler $statementHandler,
-        StatementService $statementService
+        StatementService $statementService,
     ): array {
         $templateVars = $statementHandler->generateTemplateVarsForNewStatementForm($procedureId);
 

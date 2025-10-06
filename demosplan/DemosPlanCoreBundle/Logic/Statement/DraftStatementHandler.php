@@ -319,7 +319,7 @@ class DraftStatementHandler extends CoreHandler
         bool $gdprConsentReceived = false,
     ): array {
         $county = null;
-        if ('' != $notificationReceiverId) {
+        if ('' !== $notificationReceiverId) {
             /** @var NotificationReceiverRepository $countyRepo */
             $countyRepo = $this->doctrine->getRepository(NotificationReceiver::class);
             $county = $countyRepo->get($notificationReceiverId);
@@ -444,11 +444,9 @@ class DraftStatementHandler extends CoreHandler
             $statement['represents'] = $data['r_represents'];
         }
 
-        if (array_key_exists('r_uploaddocument', $data)) {
-            if ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
-                || (is_array($data['r_uploaddocument']) && 0 < count($data['r_uploaddocument']))) {
-                $statement['files'] = $data['r_uploaddocument'];
-            }
+        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
+            || (is_array($data['r_uploaddocument']) && [] !== $data['r_uploaddocument']))) {
+            $statement['files'] = $data['r_uploaddocument'];
         }
 
         if (array_key_exists('delete_file', $data) && isset($statement['ident'])) {
@@ -457,11 +455,7 @@ class DraftStatementHandler extends CoreHandler
 
         $statement['publicAllowed'] = $this->isPublicAllowed($data);
 
-        if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
-            $statement['negativ'] = true;
-        } else {
-            $statement['negativ'] = false;
-        }
+        $statement['negativ'] = array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport'];
 
         if (array_key_exists('userStreet', $data)) {
             $statement['uStreet'] = $data['userStreet'];

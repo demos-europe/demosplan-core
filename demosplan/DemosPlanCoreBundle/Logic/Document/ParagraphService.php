@@ -255,7 +255,7 @@ class ParagraphService implements ParagraphServiceInterface
             $returnValue = 0;
             foreach ($paragraph->getChildren() as $child) {
                 $childOrder = $this->calculateLastOrder($child->getId());
-                $returnValue = $childOrder > $returnValue ? $childOrder : $returnValue;
+                $returnValue = max($childOrder, $returnValue);
             }
         }
 
@@ -509,7 +509,7 @@ class ParagraphService implements ParagraphServiceInterface
 
         unset($result['result']['search']);
         unset($paragraphList['search']);
-        $result['total'] = sizeof($paragraphList);
+        $result['total'] = count($paragraphList);
 
         return $result;
     }

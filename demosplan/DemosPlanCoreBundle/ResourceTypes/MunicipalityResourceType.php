@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -37,13 +38,13 @@ final class MunicipalityResourceType extends DplanResourceType
     public function isAvailable(): bool
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return false;
         }
 
         if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $formDefinition = $procedure->getStatementFormDefinition();
-            if (null === $formDefinition) {
+            if (!$formDefinition instanceof StatementFormDefinition) {
                 return false;
             }
 

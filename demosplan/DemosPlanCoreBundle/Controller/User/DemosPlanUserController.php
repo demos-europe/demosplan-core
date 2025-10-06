@@ -53,6 +53,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -475,7 +476,7 @@ class DemosPlanUserController extends BaseController
             $this->logger->warning('Registration failed, email address in use', ['emailAddress' => $emailAddress]);
         } catch (ViolationsException $e) {
             $violations = $e->getViolations();
-            if (null !== $violations) {
+            if ($violations instanceof ConstraintViolationListInterface) {
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($violations as $violation) {
                     $this->getMessageBag()->add('error', $violation->getMessage());
@@ -801,7 +802,7 @@ class DemosPlanUserController extends BaseController
      * @param string $assertedOrganisationId
      * @param string $redirectRoute
      *
-     * @return RedirectResponse|void
+     * @return RedirectResponse|null
      */
     protected function checkUserOrganisation($assertedOrganisationId, $redirectRoute)
     {
@@ -809,5 +810,7 @@ class DemosPlanUserController extends BaseController
         if (($currentUser instanceof User) && $currentUser->getOrganisationId() !== $assertedOrganisationId) {
             return $this->redirectToRoute($redirectRoute, ['organisationId' => $currentUser->getOrganisationId()]);
         }
+
+        return null;
     }
 }

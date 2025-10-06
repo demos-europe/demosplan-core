@@ -269,7 +269,7 @@ class DemosPlanMapController extends BaseController
         $relatedCategoryId = $categoriesOfProcedure->getId();
         // create new if necessary data is given:
         if (array_key_exists('r_layerCategoryName', $request)) {
-            $childrenHidden = array_key_exists('r_layerWithChildrenHidden', $request) ? true : false;
+            $childrenHidden = array_key_exists('r_layerWithChildrenHidden', $request);
             $name = $request['r_layerCategoryName'];
             // set custom category if given, else use rootCategory
             if (array_key_exists('r_layerCategoryCategory', $request)) {

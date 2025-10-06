@@ -97,7 +97,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
         $fileStrings = [];
 
         foreach ($files as $file) {
-            array_push($fileStrings, $file->getString());
+            $fileStrings[] = $file->getString();
         }
 
         return $fileStrings;
@@ -159,7 +159,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
             $forumEntryFile->setOrder($this->calculateOrder());
 
             $this->getEntityManager()->persist($forumEntryFile);
-            array_push($addedFiles, $forumEntryFile);
+            $addedFiles[] = $forumEntryFile;
         }
 
         $this->getEntityManager()->flush();
@@ -176,10 +176,8 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
             ->from(ForumEntryFile::class, 'forumEntryFile')
             ->getQuery();
         $entryFileList = $query->getResult();
-        if (!is_null($entryFileList) && 0 < sizeof($entryFileList)) {
-            if (!is_null($entryFileList[0])) {
-                $orderNumber = $entryFileList[sizeof($entryFileList) - 1]['order'];
-            }
+        if (!is_null($entryFileList) && 0 < count($entryFileList) && !is_null($entryFileList[0])) {
+            $orderNumber = $entryFileList[count($entryFileList) - 1]['order'];
         }
 
         return $orderNumber + 1;
@@ -201,13 +199,7 @@ class ForumEntryFileRepository extends CoreRepository implements ArrayInterface
     {
         $forumEntry = $this->getEntityManager()->find(ForumEntry::class, $entryId);
 
-        if (!is_null($forumEntry)) {
-            if (!is_null($forumEntry->getUserId())) {
-                return true;
-            }
-        }
-
-        return false;
+        return !is_null($forumEntry) && !is_null($forumEntry->getUserId());
     }
 
     /**

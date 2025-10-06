@@ -56,7 +56,7 @@ class StatementFragmentVersionRepository extends CoreRepository implements Objec
             $manager->flush();
         } catch (Exception $e) {
             $this->logger->error('Add StatementFragmentVersion failed: ', [$e]);
-            throw new Exception('Could not add StatementFragmentVersion');
+            throw new Exception('Could not add StatementFragmentVersion', $e->getCode(), $e);
         }
 
         return $fragmentVersion;

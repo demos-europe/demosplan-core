@@ -182,7 +182,7 @@ class LocationUpdateService
             $existingEntryHashes[] = $newEntryHash;
         }
 
-        if (0 < count($entriesToAdd)) {
+        if ([] !== $entriesToAdd) {
             $locationRepository->addObjects($entriesToAdd);
         }
     }

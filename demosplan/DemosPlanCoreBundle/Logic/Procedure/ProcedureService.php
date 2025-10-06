@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -358,7 +359,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         $entitiesToPersist = array_filter(
             $entitiesToPersist,
-            static fn (?object $entityToPersist): bool => null !== $entityToPersist
+            static fn (?object $entityToPersist): bool => $entityToPersist instanceof ReportEntry
         );
 
         $this->procedureRepository->updateObjects($entitiesToPersist);
@@ -745,7 +746,7 @@ class ProcedureService implements ProcedureServiceInterface
         $excludeUser = false,
         $excludeProcedureAuthorizedUsers = true,
     ): Collection {
-        if (null === $user) {
+        if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
         }
 
@@ -919,7 +920,7 @@ class ProcedureService implements ProcedureServiceInterface
                 ];
 
                 $procedure = $this->getProcedure($procedureId);
-                if (null === $procedure) {
+                if (!$procedure instanceof Procedure) {
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
@@ -1287,7 +1288,7 @@ class ProcedureService implements ProcedureServiceInterface
             // Get Postleitzahl vom Verfahren
             $locationService = $this->locationService;
             $procedure = $this->getProcedure($procedureId);
-            if (null === $procedure) {
+            if (!$procedure instanceof Procedure) {
                 throw new Exception('Procedure not found. '.$procedureId);
             }
             if (null === $procedure->getLocationPostCode() || '' === $procedure->getLocationPostCode()) {
@@ -1407,7 +1408,7 @@ class ProcedureService implements ProcedureServiceInterface
 
     private function getUserIdOrNull(?User $user): ?string
     {
-        return null === $user ? null : $user->getId();
+        return $user instanceof User ? $user->getId() : null;
     }
 
     /**
@@ -1754,7 +1755,7 @@ class ProcedureService implements ProcedureServiceInterface
 
     public function isCustomerMasterBlueprintExisting(string $customerId): bool
     {
-        return $this->customerService->findCustomerById($customerId)?->getDefaultProcedureBlueprint() instanceof Procedure;
+        return $this->customerService->findCustomerById($customerId)->getDefaultProcedureBlueprint() instanceof Procedure;
     }
 
     /**
@@ -1884,9 +1885,9 @@ class ProcedureService implements ProcedureServiceInterface
     {
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
-        return null !== $participationPhase->getDesignatedSwitchDate()
+        return $participationPhase->getDesignatedSwitchDate() instanceof DateTime
             && null !== $participationPhase->getDesignatedPhase()
-            && null !== $participationPhase->getDesignatedEndDate();
+            && $participationPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
     /**
@@ -1898,9 +1899,9 @@ class ProcedureService implements ProcedureServiceInterface
     {
         $institutionPhase = $procedure->getPhaseObject();
 
-        return null !== $institutionPhase->getDesignatedSwitchDate()
+        return $institutionPhase->getDesignatedSwitchDate() instanceof DateTime
             && null !== $institutionPhase->getDesignatedPhase()
-            && null !== $institutionPhase->getDesignatedEndDate();
+            && $institutionPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
     /**
@@ -2199,7 +2200,7 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param string $procedureId - Identifies the Procedure, of the BoilerpalteGroup to create
      *
-     * @return Boilerplate|void
+     * @return Boilerplate|null
      */
     public function addBoilerplateGroupVO($procedureId, BoilerplateGroupVO $groupVO)
     {
@@ -2213,6 +2214,8 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
+        return null;
     }
 
     /**
@@ -2267,6 +2270,8 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Could not add Boilerplate: ', [$e]);
         }
+
+        return null;
     }
 
     /**
@@ -2400,16 +2405,13 @@ class ProcedureService implements ProcedureServiceInterface
      */
     public function isUserAuthorized(string $procedureId, ?User $user = null): bool
     {
-        if (null === $user) {
+        if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
         }
         $authorizedUsers = $this->getAuthorizedUsers($procedureId, $user);
         $authorizedUserIds = $authorizedUsers->transform(static fn (User $user) => $user->getId());
-        if ($authorizedUserIds->contains($user->getId())) {
-            return true;
-        }
 
-        return false;
+        return $authorizedUserIds->contains($user->getId());
     }
 
     /**
@@ -2459,7 +2461,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function resetMapHint(string $procedureId): void
     {
         $procedure = $this->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
         $defaultMapHintText = $procedure->getProcedureUiDefinition()?->getMapHintDefault();
@@ -2479,7 +2481,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function isProcedureInCustomer(string $procedureId, string $subdomain): bool
     {
         $procedure = $this->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             $this->logger->warning('Could not find Procedure', ['procedureId' => $procedure]);
 
             return false;
@@ -2576,14 +2578,12 @@ class ProcedureService implements ProcedureServiceInterface
                 $this->customerService->getCurrentCustomer()->getId(),
                 Paths::procedure()->customer->id
             );
-            if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template')) {
-                // Just exclude the default-customer-blueprint if exists
-                if (null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
-                    $conditions[] = $this->conditionFactory->propertyHasNotValue(
-                        $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
-                        Paths::procedure()->id
-                    );
-                }
+            // Just exclude the default-customer-blueprint if exists
+            if (!$this->permissions->hasPermission('feature_admin_customer_master_procedure_template') && null !== $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()) {
+                $conditions[] = $this->conditionFactory->propertyHasNotValue(
+                    $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint()->getId(),
+                    Paths::procedure()->id
+                );
             }
         }
 

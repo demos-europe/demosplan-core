@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\MailAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
@@ -121,7 +122,7 @@ class MailService
         $emailBcc = $this->checkEMailField($bcc);
 
         $emailTemplate = $this->mailRepository->getTemplate($template);
-        if (null === $emailTemplate) {
+        if (!$emailTemplate instanceof MailTemplate) {
             throw new InvalidArgumentException("No template entity found for the given template label: '$template'");
         }
         $emailTitle = $this->mailRepository->replacePlaceholder($emailTemplate->getTitle(), $vars);

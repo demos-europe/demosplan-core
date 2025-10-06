@@ -71,7 +71,7 @@ class EventFinder extends CoreCommand
             // add root-path of demosplan will be searched anyway
             $startPaths[] = DemosPlanPath::getRootPath('demosplan');
 
-            $phpFilePaths = self::findPhpClassFilesInDirectories($startPaths);
+            $phpFilePaths = $this->findPhpClassFilesInDirectories($startPaths);
             $this->collectEventMatches($phpFilePaths, $targetParentClassNames);
             $this->findUsagesOfEvents($phpFilePaths, $this->namedEventMatches);
 
@@ -183,7 +183,7 @@ class EventFinder extends CoreCommand
      *
      * @return true if the given stringToCompare ending with 'EventInterface' or 'Event', otherwise false
      */
-    private static function isEventLikeName(string $stringToCompare): bool
+    private function isEventLikeName(string $stringToCompare): bool
     {
         return str_ends_with($stringToCompare, 'EventInterface')
             || str_ends_with($stringToCompare, 'Event');
@@ -231,7 +231,7 @@ class EventFinder extends CoreCommand
      *
      * @return list<string>
      */
-    private static function findPhpClassFilesInDirectories(array $startPaths): array
+    private function findPhpClassFilesInDirectories(array $startPaths): array
     {
         $phpFilePaths = [];
 
@@ -273,9 +273,9 @@ class EventFinder extends CoreCommand
         if ([] !== $anonymousClasses) {
             foreach ($anonymousClasses as $class) {
                 $matchingParent = $this->extractMatchingParentClassName($class, $targetParentClassNames);
-                $className = self::getClassName($classFilePath);
+                $className = $this->getClassName($classFilePath);
 
-                if (null !== $matchingParent || self::isEventLikeName($className)) {
+                if (null !== $matchingParent || $this->isEventLikeName($className)) {
                     $this->unnamedEventMatches[$prettifiedFilePath][] = new UnnamedEventMatch(
                         $prettifiedFilePath,
                         $namespace,
@@ -320,16 +320,16 @@ class EventFinder extends CoreCommand
         if ([] !== $namedClasses) {
             $class = $namedClasses[0];
             $matchingParent = $this->extractMatchingParentClassName($class, $targetParentClassNames);
-            $className = self::getClassName($classFilePath);
+            $className = $this->getClassName($classFilePath);
 
             // is it identified as event class?
-            if (null !== $matchingParent || self::isEventLikeName($className)) {
+            if (null !== $matchingParent || $this->isEventLikeName($className)) {
                 $this->namedEventMatches[$prettifiedFilePath] = new EventMatch(
                     $prettifiedFilePath,
                     $namespace,
                     $className,
                     $matchingParent,
-                    self::isEventLikeName($className)
+                    $this->isEventLikeName($className)
                 );
             }
         }
@@ -342,7 +342,7 @@ class EventFinder extends CoreCommand
      *
      * @return non-empty-string
      */
-    private static function getClassName(string $classFilePath): string
+    private function getClassName(string $classFilePath): string
     {
         return substr(basename($classFilePath), 0, -4);
     }

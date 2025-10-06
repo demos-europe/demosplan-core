@@ -446,10 +446,8 @@ class ElasticSearchService
                     return true;
                 }
             }
-        } else {
-            if ('' !== $filter) {
-                return true;
-            }
+        } elseif ('' !== $filter) {
+            return true;
         }
 
         return false;

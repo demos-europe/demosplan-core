@@ -82,7 +82,7 @@ final class RpcElementsListReorderer implements RpcMethodSolverInterface
             return [
                 $element->getId() => [
                     'index'    => $element->getOrder(),
-                    'parentId' => null === $parent ? null : $parent->getId(),
+                    'parentId' => $parent instanceof Elements ? $parent->getId() : null,
                 ],
             ];
         })->all();

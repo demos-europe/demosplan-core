@@ -115,7 +115,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                         $progressBar->advance();
 
-                        return compact('license', 'package', 'website');
+                        return ['license' => $license, 'package' => $package, 'website' => $website];
                     }
                 )
                 ->filter(static fn ($packageInfo): bool =>
@@ -198,7 +198,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
                         $progressBar->advance();
 
-                        return compact('package', 'license', 'website');
+                        return ['package' => $package, 'license' => $license, 'website' => $website];
                     }
                 )
                 ->filter(

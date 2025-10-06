@@ -134,7 +134,7 @@ class OdtElementProcessor
         // Handle image with caption
         if ($this->containsImageFrame($node)) {
             $caption = $this->findFollowingCaption($node);
-            if ($caption) {
+            if ($caption instanceof DOMNode) {
                 return '<figure>'.$content.'<figcaption>'.$this->processChildren($caption).'</figcaption></figure>';
             }
         }
@@ -463,7 +463,7 @@ class OdtElementProcessor
     private function getListType(string $styleName, string $listType): bool
     {
         // First check if we have parsed style information from styles.xml
-        if (!empty($styleName)) {
+        if ('' !== $styleName && '0' !== $styleName) {
             $isOrdered = $this->listStyleMap[$styleName] ?? null;
             if (null !== $isOrdered) {
                 return $isOrdered;
@@ -479,7 +479,7 @@ class OdtElementProcessor
      */
     private function getListStartValue(string $listId, string $continuesList): int
     {
-        if (!empty($continuesList)) {
+        if ('' !== $continuesList && '0' !== $continuesList) {
             // This list continues from another list
             $this->listContinuation[$listId] = $continuesList;
 

@@ -274,10 +274,8 @@ class AddonInstallFromZipCommand extends CoreCommand
     private function createDirectoryIfNecessary(string $directory): void
     {
         // uses local file, no need for flysystem
-        if (!file_exists($directory)) {
-            if (!mkdir($directory, 0777, true) && !is_dir($directory)) {
-                throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
-            }
+        if (!file_exists($directory) && (!mkdir($directory, 0777, true) && !is_dir($directory))) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
         }
     }
 
@@ -383,7 +381,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     {
         $zips = glob(DemosPlanPath::getRootPath($this->folder).'/*.zip');
 
-        if (!is_array($zips) || 0 === count($zips)) {
+        if (!is_array($zips) || [] === $zips) {
             throw new RuntimeException("No Addon zips found in Folder {$this->folder}");
         }
 
@@ -418,7 +416,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             $availableAddons = Json::decodeToArray($existingTagsContent);
         } catch (JsonException $exception) {
-            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent);
+            throw new RuntimeException('Could not decode response from repository. '.$exception->getMessage().' Response was '.$existingTagsContent, $exception->getCode(), $exception);
         }
         $repoQuestion = new ChoiceQuestion('Which addon do you want to install? ', $availableAddons);
         /** @var QuestionHelper $questionHelper */
@@ -568,7 +566,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         }
 
         $localAddons = glob($addonDevFolder.'/*');
-        if (!is_array($localAddons) || 0 === count($localAddons)) {
+        if (!is_array($localAddons) || [] === $localAddons) {
             throw new RuntimeException("No local addons found in folder {$addonDevFolder}. Please check out the demosplan-addon-* repositories into this folder.");
         }
         $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);

@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -104,9 +105,9 @@ final class UserResourceType extends DplanResourceType implements UserResourceTy
         $currentProcedure = $this->currentProcedureService->getProcedure();
 
         $user = $this->currentUser->getUser();
-        $userAuthorized = null === $currentProcedure
-            ? false
-            : $this->procedureService->isUserAuthorized($currentProcedure->getId());
+        $userAuthorized = $currentProcedure instanceof Procedure
+            ? $this->procedureService->isUserAuthorized($currentProcedure->getId())
+            : false;
         if ($userAuthorized) {
             // allow access to all users when working inside a procedure to request assignees of statements or segments
             // TODO: split into AssigneeResourceType to differentiate between claiming and normal (more restricted) user accesses

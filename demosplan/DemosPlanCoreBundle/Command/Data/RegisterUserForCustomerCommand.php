@@ -46,7 +46,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserRepository $userRepository,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -55,7 +55,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $userToRegister = $this->askUserLogin($input, $output);
-        if (null === $userToRegister) {
+        if (!$userToRegister instanceof User) {
             $output->writeln('No user for Login found', OutputInterface::VERBOSITY_NORMAL);
 
             return Command::FAILURE;

@@ -116,7 +116,7 @@ class FileService implements FileServiceInterface
     {
         $file = $this->fileRepository->getFile($hash, $procedureId);
 
-        if (null !== $file) {
+        if ($file instanceof File) {
             $path = $file->getPath();
             $absolutePath = $this->getAbsolutePath($path);
 
@@ -530,7 +530,7 @@ class FileService implements FileServiceInterface
     {
         $file = $this->fileRepository->get($fileId);
         $fileContainer = $this->fileContainerRepository->getByPairing($file, $entityId);
-        if (null !== $fileContainer) {
+        if ($fileContainer instanceof FileContainer) {
             $this->fileContainerRepository->delete($fileContainer->getId());
         }
     }

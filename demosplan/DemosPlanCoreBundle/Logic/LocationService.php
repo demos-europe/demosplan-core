@@ -88,7 +88,7 @@ class LocationService
 
             $resultCount = count($locations);
 
-            if (!empty($locations)) {
+            if ([] !== $locations) {
                 $this->logger->info('Address search completed successfully with results', [
                     ...$logContext,
                     'resultCount' => $resultCount,
@@ -281,7 +281,7 @@ class LocationService
 
     private function formatDatabaseResults(array $dbResults): array
     {
-        if (empty($dbResults)) {
+        if ([] === $dbResults) {
             return [];
         }
         $formattedResults = [];

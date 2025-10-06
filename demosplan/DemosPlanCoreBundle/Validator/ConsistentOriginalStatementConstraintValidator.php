@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Validator;
 
 use demosplan\DemosPlanCoreBundle\Constraint\ConsistentOriginalStatementConstraint;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -30,7 +31,7 @@ class ConsistentOriginalStatementConstraintValidator extends ConstraintValidator
     private function validateTyped(ConsultationToken $token, ConsistentOriginalStatementConstraint $constraint): void
     {
         $statement = $token->getStatement();
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return;
         }
 

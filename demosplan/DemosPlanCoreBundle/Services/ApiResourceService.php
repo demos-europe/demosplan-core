@@ -65,7 +65,7 @@ class ApiResourceService implements ApiResourceServiceInterface
         /** @var BaseTransformer $transformer */
         $transformer = $this->transformerLoader->get($transformerName);
 
-        if (!is_a($transformer, BaseTransformer::class)) {
+        if (!$transformer instanceof BaseTransformer) {
             throw new LogicException('Got '.$transformer::class.' expected demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;');
         }
 

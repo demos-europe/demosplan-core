@@ -51,7 +51,7 @@ class LegacyFlashMessageCreator
      */
     public function setFlashMessages($messages): void
     {
-        if (!is_array($messages) || 0 === count($messages)) {
+        if (!is_array($messages) || [] === $messages) {
             return;
         }
 
@@ -64,7 +64,7 @@ class LegacyFlashMessageCreator
 
         // setze den Flashbag
         foreach ($flashMessages as $severity => $severityFlashMessages) {
-            if (0 < count($severityFlashMessages)) {
+            if ([] !== $severityFlashMessages) {
                 $this->messageBag->add($severity, implode("\n", $severityFlashMessages));
             }
         }
