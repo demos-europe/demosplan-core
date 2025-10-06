@@ -24,8 +24,7 @@ class MapExtentValidator
     public function __construct(
         private readonly MessageBagInterface $messageBag,
         private readonly LoggerInterface $logger
-    )
-    {
+    ) {
     }
 
     /**
