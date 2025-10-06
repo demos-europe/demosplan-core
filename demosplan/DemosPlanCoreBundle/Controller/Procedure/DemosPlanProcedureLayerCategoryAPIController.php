@@ -35,7 +35,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
-    public function layerCategoryDeleteAction(string $layerCategoryId, MapService $mapService)
+    public function layerCategoryDelete(string $layerCategoryId, MapService $mapService)
     {
         try {
             $mapService->deleteGisLayerCategory($layerCategoryId);

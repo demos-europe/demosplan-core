@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
@@ -17,7 +19,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  * Custom Eventlistener
  * Class SubdomainListener.
  */
-class SubdomainListener
+class SubdomainEventSubscriber implements EventSubscriberInterface
 {
     /** @var SubdomainHandlerInterface */
     protected $subdomainHandler;
@@ -33,5 +35,12 @@ class SubdomainListener
     public function handle(RequestEvent $event)
     {
         $this->subdomainHandler->setSubdomainParameter($event->getRequest());
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::REQUEST => ['handle', 22]];
     }
 }

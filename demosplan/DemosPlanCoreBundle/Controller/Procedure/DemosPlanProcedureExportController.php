@@ -40,7 +40,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
-    public function titlePageExportAction(
+    public function titlePageExport(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
         NameGenerator $nameGenerator,
@@ -65,7 +65,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
             throw new Exception('PDF-Export fehlgeschlagen');
         }
 
-        $response = new Response($pdfContent, 200);
+        $response = new Response($pdfContent, Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
@@ -85,14 +85,14 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
-    public function administrationMemberListPdfAction(
+    public function administrationMemberListPdf(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,
         NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         Request $request,
         $procedure,
-    ) {
+    ): Response {
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->all('orga_selected');
 
@@ -115,7 +115,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $procedureName = $currentProcedureService->getProcedureWithCertainty()->getName();
         $filename = "{$procedureName}_$institutionListPhrase.pdf";
 
-        $response = new Response($file, 200);
+        $response = new Response($file, Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
@@ -135,7 +135,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(path: '/verfahren/{procedure}/export', name: 'DemosPlan_procedure_export')]
-    public function exportProcedureAction(
+    public function exportProcedure(
         CurrentUserService $currentUser,
         ExportService $exportService,
         PermissionsInterface $permissions,

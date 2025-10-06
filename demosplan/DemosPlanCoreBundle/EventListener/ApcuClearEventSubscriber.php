@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 /**
  * Check whether apcu cache needs to be cleared.
  */
-class ApcuClearListener
+class ApcuClearEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly LoggerInterface $logger)
     {
@@ -57,5 +59,12 @@ class ApcuClearListener
             $fs = new DemosFilesystem();
             $fs->remove($cacheScheduleFile);
         }
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::CONTROLLER => ['onControllerRequest', 20]];
     }
 }

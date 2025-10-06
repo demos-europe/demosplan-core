@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
@@ -243,7 +244,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return $this->getResourceConfig()->getUpdatability();
     }
 
-    protected function getSchemaPathProcessor(): \EDT\Wrapping\Utilities\SchemaPathProcessor
+    protected function getSchemaPathProcessor(): SchemaPathProcessor
     {
         return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
     }

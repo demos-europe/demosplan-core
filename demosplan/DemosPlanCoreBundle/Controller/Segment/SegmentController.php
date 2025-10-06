@@ -45,7 +45,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
-    public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
+    public function list(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
         $segmentListQuery = new SegmentListQuery();
         $segmentListQuery->setProcedureId($procedureId);
@@ -66,7 +66,7 @@ class SegmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
-    public function statementSpecificListAction(
+    public function statementSpecificList(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         ProcedureService $procedureService,
@@ -233,7 +233,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
-    public function listFilteredAction(
+    public function listFiltered(
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,

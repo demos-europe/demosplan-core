@@ -91,7 +91,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_assessmenttable_view_table', path: '/verfahren/abwaegung/view/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => false], options: ['expose' => true])]
-    public function viewTableAction(
+    public function viewTable(
         AssessmentExportOptions $exportOptions,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentUserInterface $currentUser,
@@ -307,7 +307,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_assessmenttable_view_original_table', path: '/verfahren/original/{procedureId}/{filterHash}', defaults: ['filterHash' => null, 'original' => true], options: ['expose' => true])]
-    public function viewOriginalTableAction(
+    public function viewOriginalTable(
         AssessmentExportOptions $exportOptions,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CountyService $countyService,
@@ -591,7 +591,7 @@ class DemosPlanAssessmentTableController extends BaseController
      */
     #[Route(name: 'DemosPlan_cluster_view', path: '/verfahren/{procedureId}/cluster/{statement}', defaults: ['title' => 'assessment.table.cluster.detail', 'isCluster' => true], options: ['expose' => true])]
     #[Route(name: 'dm_plan_assessment_single_view', path: '/verfahren/{procedureId}/abwaegung/sview/{statement}', defaults: ['title' => 'assessment.table.statement.detail'], options: ['expose' => true])]
-    public function viewSingleAction(
+    public function viewSingle(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
@@ -754,7 +754,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_single_copy', path: '/verfahren/{procedure}/abwaegung/copy/{statement}')]
-    public function copySingleStatementAction(StatementService $statementService, string $procedure, string $statement): RedirectResponse
+    public function copySingleStatement(StatementService $statementService, string $procedure, string $statement): RedirectResponse
     {
         try {
             $result = $statementService->copyStatementWithinProcedure($statement);
@@ -789,7 +789,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_boilerplates_ajax', path: '/boilerplatetext/{procedure}/{tag}', options: ['expose' => true])]
-    public function getBoilerplateAjaxAction(TagService $tagService, TranslatorInterface $translator, $tag)
+    public function getBoilerplateAjax(TagService $tagService, TranslatorInterface $translator, $tag): JsonResponse
     {
         try {
             $err = [
@@ -837,7 +837,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_statement_ajax', path: '/_ajax/statement/{statementId}', options: ['expose' => true])]
-    public function getStatementRemainderAjaxAction(Request $request, StatementService $statementService, $statementId)
+    public function getStatementRemainderAjax(Request $request, StatementService $statementService, $statementId): JsonResponse
     {
         try {
             /* @var Statement $statement */
@@ -875,7 +875,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dm_plan_assessment_get_recommendation_ajax', path: '/_ajax/recommendation/{statementId}', options: ['expose' => true])]
-    public function getRecommendationRemainderAjaxAction(Request $request, StatementService $statementService, $statementId)
+    public function getRecommendationRemainderAjax(Request $request, StatementService $statementService, $statementId): JsonResponse
     {
         try {
             /* @var Statement $statement */
@@ -913,7 +913,7 @@ class DemosPlanAssessmentTableController extends BaseController
      */
     #[Route(name: 'dplan_assessment_fragment_get_consideration_versions', path: '/_ajax/assessment/{ident}/fragment/{fragmentId}/get', defaults: ['isReviewer' => false], options: ['expose' => true])]
     #[Route(name: 'dplan_assessment_fragment_get_consideration_versions_reviewer', path: '/_ajax/fragment/{fragmentId}/get', defaults: ['isReviewer' => true], options: ['expose' => true])]
-    public function getFragmentConsiderationVersionsAjaxAction(CurrentUserInterface $currentUser, $isReviewer, $fragmentId)
+    public function getFragmentConsiderationVersionsAjax(CurrentUserInterface $currentUser, $isReviewer, $fragmentId)
     {
         try {
             $returnCode = 100;
@@ -984,7 +984,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_action', path: '/verfahren/{procedureId}/bulk-edit', methods: ['GET'], options: ['expose' => true])]
-    public function statementBulkEditAction(FormFactoryInterface $formFactory, Request $request, string $procedureId)
+    public function statementBulkEdit(FormFactoryInterface $formFactory, string $procedureId): Response
     {
         $templateVars = [];
         // get authorized users
@@ -1021,7 +1021,7 @@ class DemosPlanAssessmentTableController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_assessment_table_assessment_table_statement_fragment_bulk_edit', path: '/verfahren/{procedureId}/fragment-bulk-edit', methods: ['GET'], options: ['expose' => true])]
-    public function statementFragmentBulkEditAction(Request $request, $procedureId)
+    public function statementFragmentBulkEdit($procedureId)
     {
         $templateVars = [];
         // get authorized users

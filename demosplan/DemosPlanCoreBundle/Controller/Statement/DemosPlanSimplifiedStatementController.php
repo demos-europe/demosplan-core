@@ -36,7 +36,7 @@ class DemosPlanSimplifiedStatementController extends BaseController
      * @DplanPermissions("feature_simplified_new_statement_create")
      */
     #[Route(name: 'dplan_simplified_new_statement_create', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/neu', options: ['expose' => true])]
-    public function createAction(
+    public function create(
         TraceableEventDispatcher $eventDispatcher,
         ManualSimplifiedStatementCreator $statementCreator,
         Request $request,

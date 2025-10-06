@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
 use demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface;
@@ -21,7 +23,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * Custom Eventlistener.
  */
-class DemosPlanRequestListener
+class DemosPlanRequestEventSubscriber implements EventSubscriberInterface
 {
     /** @var RouterInterface */
     protected $router;
@@ -75,5 +77,12 @@ class DemosPlanRequestListener
                 $event->setResponse($response);
             }
         }
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::REQUEST => 'onKernelRequest'];
     }
 }

@@ -33,7 +33,7 @@ class DemosPlanSubmitterController extends BaseController
      * @DplanPermissions("area_admin_submitters")
      */
     #[Route(name: 'dplan_submitters_list', methods: 'GET', path: '/verfahren/{procedureId}/submitters/list')]
-    public function listAction(string $procedureId): Response
+    public function list(string $procedureId): Response
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_submitters.html.twig',
@@ -48,7 +48,7 @@ class DemosPlanSubmitterController extends BaseController
      * @DplanPermissions("area_admin_submitters")
      */
     #[Route(name: 'dplan_admin_procedure_submitter_export', path: '/verfahren/{procedureId}/einreicher/export', methods: ['GET'], options: ['expose' => true])]
-    public function exportAction(
+    public function export(
         Request $request,
         FileResponseGeneratorStrategy $responseGenerator,
         TranslatorInterface $translator,

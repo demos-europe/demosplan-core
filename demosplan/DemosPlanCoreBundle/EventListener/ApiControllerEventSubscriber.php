@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
@@ -17,7 +19,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
-class ApiControllerListener
+class ApiControllerEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly ApiResourceService $resourceService,
@@ -45,5 +47,12 @@ class ApiControllerListener
                 $this->logger->warning('API controller setup failed', ['exception' => $e]);
             }
         }
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::CONTROLLER => 'onKernelController'];
     }
 }

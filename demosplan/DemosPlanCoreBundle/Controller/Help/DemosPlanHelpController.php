@@ -34,7 +34,7 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
-    public function listAction(
+    public function list(
         Request $request,
         HelpHandler $helpHandler
     ): Response {
@@ -73,7 +73,7 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
-    public function newAction(
+    public function new(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator
     ): Response {
@@ -103,7 +103,7 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
-    public function createAction(
+    public function create(
         HelpHandler $helpHandler,
         Request $request
     ): Response {
@@ -129,7 +129,7 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
-    public function editAction(
+    public function edit(
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
         TranslatorInterface $translator,
@@ -168,7 +168,7 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
-    public function updateAction(
+    public function update(
         Request $request,
         HelpHandler $helpHandler,
         string $contextualHelpId

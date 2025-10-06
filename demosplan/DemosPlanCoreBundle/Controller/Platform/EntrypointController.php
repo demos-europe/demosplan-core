@@ -55,7 +55,7 @@ class EntrypointController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/loggedin', name: 'core_home_loggedin')]
-    public function loggedInIndexEntrypointAction(Request $request): Response
+    public function loggedInIndexEntrypoint(Request $request): Response
     {
         // check whether user tried to call route before login
         if (!$this->isAlreadyRedirected($request) && $request->cookies->has(PreviousRouteCookie::NAME)) {
@@ -135,7 +135,7 @@ class EntrypointController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/', name: 'core_home', options: ['expose' => true])]
-    public function indexAction(
+    public function index(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
         Request $request

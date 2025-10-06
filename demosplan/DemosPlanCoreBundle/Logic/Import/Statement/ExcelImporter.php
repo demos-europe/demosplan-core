@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -186,7 +187,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -403,7 +404,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Response;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -30,7 +31,7 @@ class GenericRpcController extends BaseController
      * @DplanPermissions("feature_json_rpc_post")
      */
     #[Route(path: '/rpc/2.0', methods: ['POST'], name: 'rpc_generic_post', options: ['expose' => true])]
-    public function postAction(
+    public function post(
         CurrentProcedureService $currentProcedureService,
         Request $request,
         RpcErrorGenerator $errorGenerator,
@@ -59,12 +60,12 @@ class GenericRpcController extends BaseController
         if ($e instanceof InvalidSchemaException
             || $e instanceof InvalidArgumentException
             || $e instanceof JsonException) {
-            return new JsonResponse($errorGenerator->parseError(), 400);
+            return new JsonResponse($errorGenerator->parseError(), Response::HTTP_BAD_REQUEST);
         }
         if ($e instanceof AccessDeniedException) {
-            return new JsonResponse($errorGenerator->accessDenied(), 403);
+            return new JsonResponse($errorGenerator->accessDenied(), Response::HTTP_FORBIDDEN);
         }
 
-        return new JsonResponse($errorGenerator->serverError(), 500);
+        return new JsonResponse($errorGenerator->serverError(), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Psr\Log\LoggerInterface;
@@ -20,7 +22,7 @@ use Throwable;
 
 use function is_array;
 
-class ExceptionListener
+class ExceptionEventSubscriber implements EventSubscriberInterface
 {
     /** @var LoggerInterface */
     protected $logger;
@@ -73,5 +75,12 @@ class ExceptionListener
         }
 
         $event->setResponse($this->exceptionService->handleError($exception));
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::EXCEPTION => 'handleException', KernelEvents::CONTROLLER => 'trackController'];
     }
 }

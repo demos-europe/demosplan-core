@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\Writer;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -27,7 +30,7 @@ class APIDocumentationController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/api', methods: ['GET', 'HEAD'])]
-    public function indexAction(): Response
+    public function index(): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {
             return $this->redirectToRoute('core_home');
@@ -42,7 +45,7 @@ class APIDocumentationController extends BaseController
      * @throws TypeErrorException
      */
     #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
-    public function jsonAction(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
+    public function openapi(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {
             return $this->redirectToRoute('core_home');
@@ -51,13 +54,13 @@ class APIDocumentationController extends BaseController
         $schemaGenerator = $manager->createOpenApiDocumentBuilder();
 
         $schemaGenerator->setGetActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\GetActionConfig($router, $translator)
+            new GetActionConfig($router, $translator)
         );
         $schemaGenerator->setListActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\ListActionConfig($router, $translator)
+            new ListActionConfig($router, $translator)
         );
 
-        $openApi = $schemaGenerator->buildDocument(new \EDT\JsonApi\ApiDocumentation\OpenApiWording($translator));
+        $openApi = $schemaGenerator->buildDocument(new OpenApiWording($translator));
 
         return new Response(
             Writer::writeToJson($openApi),

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -74,7 +75,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_list_search', path: '/verfahren/suche')]
-    public function publicProcedureSearchAction(
+    public function publicProcedureSearch(
         BrandingService $brandingService,
         ContentService $contentService,
         CurrentUserInterface $currentUser,
@@ -145,7 +146,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_public_orga_index', path: '/plaene/{orgaSlug}')]
-    public function publicOrgaIndexAction(
+    public function publicOrgaIndex(
         BrandingService $brandingService,
         ContentService $contentService,
         CurrentUserInterface $currentUser,
@@ -211,7 +212,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(path: '/verfahren/suche/stellungnahmen', methods: ['GET'], name: 'DemosPlan_procedure_search_statements')]
-    public function findProceduresByStatementAuthorViewAction(ProcedureHandler $procedureHandler)
+    public function findProceduresByStatementAuthorView(ProcedureHandler $procedureHandler)
     {
         $procedures = $procedureHandler->getProceduresForAdmin();
         $procedures = $procedureHandler->convertProceduresForTwigAdminList($procedures);
@@ -231,7 +232,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedures_delete', path: '/verfahren/delete', methods: ['POST'], options: ['expose' => true])]
-    public function deleteProceduresAction(Request $request): RedirectResponse
+    public function deleteProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
 
@@ -244,7 +245,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_templates_delete', path: '/verfahren/blaupausen/delete', methods: ['POST'], options: ['expose' => true])]
-    public function deleteMasterProceduresAction(Request $request): RedirectResponse
+    public function deleteMasterProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
 
@@ -264,7 +265,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         options: ['expose' => true],
         methods: ['POST']
     )]
-    public function exportProceduresAction(ExportService $exportService, Request $request): Response
+    public function exportProcedures(ExportService $exportService, Request $request): Response
     {
         $selectedProcedures = $this->getSelectedItems($request);
         if (0 === count($selectedProcedures)) {
@@ -285,7 +286,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      */
     #[Route(name: 'DemosPlan_procedure_administration_post', path: '/verfahren/verwalten', methods: ['POST'])]
     #[Route(name: 'DemosPlan_procedure_administration_get', path: '/verfahren/verwalten', methods: ['GET'], options: ['expose' => true])]
-    public function proceduresListAction(ProcedureListService $procedureListService): Response
+    public function proceduresList(ProcedureListService $procedureListService): Response
     {
         $title = 'procedure.admin.list';
         $templateVars = $procedureListService->generateProcedureBaseTemplateVars([], $title);
@@ -307,7 +308,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_templates_list', path: '/verfahren/blaupausen', methods: ['GET'], options: ['expose' => true])]
-    public function proceduresMasterListAction(
+    public function proceduresMasterList(
         PermissionsInterface $permissions,
         ProcedureListService $procedureListService,
         Request $request,
@@ -346,7 +347,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_public_list_json', path: '/list/json', options: ['expose' => true])]
-    public function publicProcedureListJsonAction(
+    public function publicProcedureListJson(
         CurrentUserInterface $currentUser,
         ContentService $contentService,
         ProcedureExtension $procedureExtension,
@@ -463,12 +464,12 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @return Response
      */
     #[Route(name: 'DemosPlan_procedure_public_suggest_procedure_location_json', path: '/suggest/procedureLocation/json', options: ['expose' => true])]
-    public function searchProcedureJsonAction(
+    public function searchProcedureJson(
         Request $request,
         CurrentProcedureService $currentProcedureService,
         LocationService $locationService,
         CurrentUserInterface $currentUser,
-    ) {
+    ): JsonResponse {
         $this->profilerStart('Proj4ProfilerInit');
         $proj4 = new Proj4php();
         // Create two different projections.
@@ -551,7 +552,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_procedure_public_orga_id_index', path: '/oid/{orgaId}')]
-    public function publicOrgaIdIndexAction(OrgaHandler $orgaHandler, string $orgaId)
+    public function publicOrgaIdIndex(OrgaHandler $orgaHandler, string $orgaId)
     {
         try {
             $orga = $orgaHandler->getOrga($orgaId);

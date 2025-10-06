@@ -10,6 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use EDT\JsonApi\ApiDocumentation\GetActionConfig;
+use EDT\JsonApi\ApiDocumentation\ListActionConfig;
+use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\Writer;
@@ -152,13 +155,13 @@ class FrontendIntegratorCommand extends CoreCommand
         $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
 
         $schemaGenerator->setGetActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\GetActionConfig($this->router, $this->translator)
+            new GetActionConfig($this->router, $this->translator)
         );
         $schemaGenerator->setListActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\ListActionConfig($this->router, $this->translator)
+            new ListActionConfig($this->router, $this->translator)
         );
 
-        $openApiSpec = $schemaGenerator->buildDocument(new \EDT\JsonApi\ApiDocumentation\OpenApiWording($this->translator));
+        $openApiSpec = $schemaGenerator->buildDocument(new OpenApiWording($this->translator));
 
         // just to be safe, reset permissions after getting everything we want
         $this->currentUser->getPermissions()->initPermissions($user);

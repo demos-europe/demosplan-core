@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
@@ -36,7 +38,7 @@ use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
  * Procedure permissions are enhanced in {@link AccessProcedureListener}, general
  * procedure access check is also done in {@link AccessProcedureListener}.
  */
-class CheckPermissionListener
+class CheckPermissionEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -134,5 +136,12 @@ class CheckPermissionListener
             $this->logger->error('Session Initialization not successful', [$e]);
             throw new SessionUnavailableException('Session Initialization not successful: '.$e);
         }
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::CONTROLLER => ['onControllerRequest', 4]];
     }
 }

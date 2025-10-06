@@ -36,7 +36,7 @@ class StatementListController extends BaseController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function readOnlyStatementListAction(
+    public function readOnlyStatementList(
         string $procedureId,
         ProcedureCoupleTokenFetcher $tokenFetcher,
         ProcedureService $procedureService,
@@ -73,7 +73,7 @@ class StatementListController extends BaseController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function readOnlyOriginalStatementListAction(
+    public function readOnlyOriginalStatementList(
         string $procedureId,
         ProcedureService $procedureService,
     ): Response {
