@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
@@ -55,6 +56,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
         private readonly StatementArrayConverter $statementArrayConverter,
+        DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct(
             $currentUser,
@@ -63,6 +65,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $slugify,
             $styleInitializer,
             $translator,
+            $writerSelector,
             self::SEGMENT_ID_COLUMN_WIDTH,
             self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
     }

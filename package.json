@@ -1,6 +1,7 @@
 {
   "private": true,
-  "version": "v4.11.0",
+  "name": "demosplan-core",
+  "version": "v4.15.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
@@ -127,7 +128,7 @@
     "babel-loader": "^10.0.0",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
-    "caniuse-lite": "^1.0.30001739",
+    "caniuse-lite": "^1.0.30001741",
     "chalk": "4.1.2",
     "cli-progress": "^3.12.0",
     "commander": "^14.0.0",
@@ -187,7 +188,11 @@
     "ff esr"
   ],
   "resolutions": {
-    "globals": "15.13.0"
+    "globals": "15.13.0",
+    "prosemirror-model": "1.25.2",
+    "prosemirror-view": "1.40.1",
+    "prosemirror-state": "1.4.3",
+    "prosemirror-transform": "1.10.4"
   },
   "workspaces": [
     "projects/*"

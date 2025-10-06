@@ -24,6 +24,12 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    # CustomField cleanup services
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory:
+        arguments:
+            $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
+
+
     DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
@@ -35,6 +41,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\SegmentFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
@@ -138,6 +146,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
@@ -498,10 +510,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
-
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
@@ -1036,6 +1044,15 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
+    # Document Writer Selector
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector: ~
+
+    # ODT HTML Processor
+    demosplan\DemosPlanCoreBundle\Logic\Export\OdtHtmlProcessor: ~
+
+    # DOCX Exporter (explicit configuration for proper DI)
+    demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter: ~
+
     # File Response Generator Strategy
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy:
         lazy: true
@@ -1362,3 +1379,5 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'

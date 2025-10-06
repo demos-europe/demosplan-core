@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -147,6 +148,7 @@ class AssessmentTableServiceOutput
         StatementService $statementService,
         private readonly TranslatorInterface $translator,
         ValidatorInterface $validator,
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
@@ -635,10 +637,12 @@ class AssessmentTableServiceOutput
     protected function getDefaultDocxTableStyle(): \PhpOffice\PhpWord\Style\Table
     {
         $tableStyle = new \PhpOffice\PhpWord\Style\Table();
+        $formatSpecificTableStyle = $this->writerSelector->getTableStyleForFormat($this->tableStyle);
+
         $tableStyle->setLayout(\PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED)
-            ->setBorderColor($this->tableStyle['borderColor'])
-            ->setBorderSize($this->tableStyle['borderSize'])
-            ->setCellMargin($this->tableStyle['cellMargin']);
+            ->setBorderColor($formatSpecificTableStyle['borderColor'])
+            ->setBorderSize($formatSpecificTableStyle['borderSize'])
+            ->setCellMargin($formatSpecificTableStyle['cellMargin']);
 
         return $tableStyle;
     }
