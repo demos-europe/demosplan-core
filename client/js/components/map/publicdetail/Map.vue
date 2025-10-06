@@ -1044,7 +1044,7 @@ export default {
           }),
         })
 
-        queryArea = evt => {
+        const queryArea = evt => {
           const viewResolution = (this.mapview.getResolution())
           const coordinate = evt.coordinate
 

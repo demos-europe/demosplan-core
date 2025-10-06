@@ -305,19 +305,7 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
-    publicParticipationFeedbackEnabled: {
-      type: Boolean,
-      required: false,
-      default: false
+      default: false,
     },
 
     statement: {
