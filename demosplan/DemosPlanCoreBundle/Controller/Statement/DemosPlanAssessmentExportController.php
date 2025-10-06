@@ -60,7 +60,7 @@ class DemosPlanAssessmentExportController extends BaseController
         options: ['expose' => true],
         defaults: ['original' => true]
     )]
-    public function exportAction(
+    public function export(
         Request $request,
         AssessmentTableExporterStrategy $assessmentExporter,
         FileResponseGeneratorStrategy $responseGenerator,

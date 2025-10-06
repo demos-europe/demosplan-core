@@ -31,7 +31,7 @@ class AuthorizedUsersController extends BaseController
      * @DplanPermissions("area_admin_consultations")
      */
     #[Route(path: '/verfahren/{procedureId}/berechtigte', name: 'dplan_admin_procedure_authorized_users', methods: ['HEAD', 'GET'])]
-    public function listAction(string $procedureId)
+    public function list(string $procedureId)
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_authorized_users_list.html.twig',
@@ -46,7 +46,7 @@ class AuthorizedUsersController extends BaseController
      * @DplanPermissions("area_admin_consultations")
      */
     #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', methods: ['HEAD', 'GET'], options: ['expose' => true])]
-    public function exportAction(
+    public function export(
         ConsultationTokenService $consultationTokenService,
         CurrentUserInterface $currentUser,
         FileResponseGeneratorStrategy $responseGenerator,

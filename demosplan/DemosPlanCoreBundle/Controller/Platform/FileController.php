@@ -40,7 +40,7 @@ class FileController extends BaseController
      * @return BinaryFileDownload|Response
      */
     #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
-    public function fileAction(FileService $fileService, string $hash)
+    public function fileHash(FileService $fileService, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true);
@@ -56,7 +56,7 @@ class FileController extends BaseController
      * @DplanPermissions("area_main_file")
      */
     #[Route(path: '/file/{procedureId}/{hash}', name: 'core_file_procedure', options: ['expose' => true])]
-    public function fileProcedureAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedure(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -72,7 +72,7 @@ class FileController extends BaseController
      */
     #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['area_main_file'])]
     #[Route(path: '/api/ai/file/{procedureId}/{hash}', name: 'core_file_procedure_api_ai', options: ['expose' => true])]
-    public function fileProcedureApiAction(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedureApi(FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
             return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
@@ -131,7 +131,7 @@ class FileController extends BaseController
      * @param string $hash
      */
     #[Route(path: '/image/{hash}', name: 'core_logo', options: ['expose' => true])]
-    public function imageAction(Request $request, FileService $fileService, $hash): Response
+    public function image(Request $request, FileService $fileService, $hash): Response
     {
         try {
             // create a Response with an ETag and/or a Last-Modified header

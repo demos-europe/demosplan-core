@@ -44,7 +44,7 @@ class DemosPlanAdminController extends BaseController
     #[AttributeDplanPermissions('area_statistics')]
     #[Route(path: '/statistik', name: 'DemosPlan_statistics', defaults: ['format' => 'html', 'part' => 'all'])]
     #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
-    public function generateStatisticsAction(
+    public function generateStatistics(
         string $part,
         string $format,
     ): Response {

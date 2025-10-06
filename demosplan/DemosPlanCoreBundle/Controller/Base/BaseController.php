@@ -187,7 +187,7 @@ abstract class BaseController extends AbstractController
             // to inject TranslatorInterface in all Controllers
             return new Response(
                 'Ein interner Fehler ist aufgetreten',
-                500
+                Response::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }

@@ -27,7 +27,7 @@ class FaqApiController extends APIController
      * @deprecated use `api_resource_update` route instead
      */
     #[Route(path: '/api/1.0/faq/{faqId}', methods: ['PATCH'], name: 'dp_api_admin_faq_update', options: ['expose' => true])]
-    public function updateAction(ApiLogger $apiLogger, string $faqId): Response
+    public function update(ApiLogger $apiLogger, string $faqId): Response
     {
         try {
             $apiLogger->warning('Use the generic JSON:API (/api/2.0) instead of /api/1.0 to update Faq resources');
@@ -48,7 +48,7 @@ class FaqApiController extends APIController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/api/1.0/faq/{faqId}', methods: ['DELETE'], name: 'dp_api_admin_faq_delete', options: ['expose' => true])]
-    public function deleteAction(string $faqId, FaqHandler $faqHandler): APIResponse
+    public function delete(string $faqId, FaqHandler $faqHandler): APIResponse
     {
         try {
             $faqHandler->deleteFaqById($faqId);

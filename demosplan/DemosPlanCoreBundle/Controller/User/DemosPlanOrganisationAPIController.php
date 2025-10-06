@@ -115,11 +115,9 @@ class DemosPlanOrganisationAPIController extends APIController
      * List organizations, depending on permissions.
      *
      * @DplanPermissions("feature_organisation_user_list")
-     *
-     * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
-    public function listAction(
+    public function list(
         CustomerHandler $customerHandler,
         OrgaResourceType $orgaResourceType,
         OrgaService $orgaService,
@@ -128,7 +126,7 @@ class DemosPlanOrganisationAPIController extends APIController
         Request $request,
         CurrentUserService $currentUser,
         JsonApiPaginationParser $paginationParser,
-    ) {
+    ): APIResponse {
         try {
             if (false === $permissions->hasPermissions(
                 ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
@@ -290,7 +288,7 @@ class DemosPlanOrganisationAPIController extends APIController
      * @DplanPermissions("feature_orga_delete")
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_delete', options: ['expose' => true], methods: ['DELETE'])]
-    public function wipeOrgaAction(UserHandler $userHandler, string $id): APIResponse
+    public function wipeOrga(UserHandler $userHandler, string $id): APIResponse
     {
         $orgaId = $id;
         try {
@@ -345,17 +343,14 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @DplanPermissions("area_manage_orgas")
      *
-     * @return APIResponse
-     *
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
-    public function createOrgaAction(Request $request,
-        UserHandler $userHandler,
+    public function createOrga(UserHandler $userHandler,
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         AccessControlService $accessControlPermission,
-        EventDispatcherInterface $eventDispatcher)
+        EventDispatcherInterface $eventDispatcher): APIResponse
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -424,11 +419,9 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * @DplanPermissions("feature_orga_edit")
-     *
-     * @return APIResponse
      */
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
-    public function updateOrgaAction(
+    public function updateOrga(
         CustomerHandler $customerHandler,
         OrgaHandler $orgaHandler,
         PermissionsInterface $permissions,
@@ -436,7 +429,7 @@ class DemosPlanOrganisationAPIController extends APIController
         UserHandler $userHandler,
         AccessControlService $accessControlPermission,
         EventDispatcherInterface $eventDispatcher,
-        string $id)
+        string $id): APIResponse
     {
         $orgaId = $id;
         try {

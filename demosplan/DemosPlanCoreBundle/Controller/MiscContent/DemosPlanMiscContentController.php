@@ -50,7 +50,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws CustomerNotFoundException
      */
     #[Route(path: '/barrierefreiheit', name: 'DemosPlan_misccontent_static_accessibility_explanation')]
-    public function showAccessibilityExplanationAction(CustomerService $customerService): Response
+    public function showAccessibilityExplanation(CustomerService $customerService): Response
     {
         $templateVars = [];
         $accessibilityExplanation = $customerService->getCurrentCustomer()->getAccessibilityExplanation();
@@ -72,7 +72,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_sign_language', path: '/gebaerdensprache')]
-    public function showSignLanguagePageAction(CustomerService $customerService): Response
+    public function showSignLanguagePage(CustomerService $customerService): Response
     {
         $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();
@@ -94,7 +94,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_imprint', path: '/impressum', options: ['expose' => true])]
-    public function imprintAction(
+    public function imprint(
         CustomerService $customerService,
         OrgaHandler $orgaHandler,
     ) {
@@ -131,7 +131,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_dataprotection', path: '/datenschutz', options: ['expose' => true])]
-    public function dataProtectionAction(CustomerService $customerService, OrgaHandler $orgaHandler)
+    public function dataProtection(CustomerService $customerService, OrgaHandler $orgaHandler)
     {
         $templateVars = [
             'piwikUrl' => $this->globalConfig->getPiwikUrl(),
@@ -164,7 +164,7 @@ class DemosPlanMiscContentController extends BaseController
      * @return RedirectResponse|Response
      */
     #[Route(name: 'DemosPlan_misccontent_static_how_to_login', path: '/anmeldung')]
-    public function howToLoginAction()
+    public function howToLogin()
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatic/how_to_login.html.twig',
@@ -184,7 +184,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_contact', path: '/kontakt')]
-    public function contactAction(
+    public function contact(
         MessageBagInterface $messageBag,
         Request $request,
         ServiceStorage $serviceStorage,
@@ -276,7 +276,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_softwarecomponents', path: '/software')]
-    public function softwareComponentsAction()
+    public function softwareComponents()
     {
         $templateVars = [];
         // uses local file, no need for flysystem
@@ -328,7 +328,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_terms', path: '/nutzungsbedingungen', options: ['expose' => true])]
-    public function termsAction(CustomerService $customerService, TranslatorInterface $translator)
+    public function terms(CustomerService $customerService, TranslatorInterface $translator)
     {
         $templateVars = [];
         $customer = $customerService->getCurrentCustomer();
@@ -351,7 +351,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_xplanung', path: '/xplanung')]
-    public function xplanAction(CustomerService $customerService)
+    public function xplan(CustomerService $customerService)
     {
         $templateVars = [];
         $title = 'misc.xplanning';
@@ -374,7 +374,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_terms_of_use', path: '/informationen/nutzungsbedingungen', options: ['expose' => true])]
-    public function termsOfUseAction()
+    public function termsOfUse()
     {
         $templateVars = [];
 
@@ -394,7 +394,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_misccontent_static_documents', path: '/unterlagen')]
-    public function documentsAction(Breadcrumb $breadcrumb, TranslatorInterface $translator): Response
+    public function documents(Breadcrumb $breadcrumb, TranslatorInterface $translator): Response
     {
         $templateVars = [];
 
@@ -426,7 +426,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_information', path: '/informationen')]
-    public function informationAction(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
+    public function information(CurrentUserInterface $userProvider, FaqHandler $faqHandler): Response
     {
         $platformCategories = new Collection();
         $customFaqCategories = new Collection();
@@ -458,7 +458,7 @@ class DemosPlanMiscContentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_misccontent_static_simple_language', path: '/leichte-sprache')]
-    public function showSimpleLanguagePageAction(CustomerService $customerService): Response
+    public function showSimpleLanguagePage(CustomerService $customerService): Response
     {
         $templateVars = [];
         $templateVars['customer'] = $customerService->getCurrentCustomer();

@@ -67,7 +67,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_public_detail', path: '/verfahren/{procedure}/public/aktuelles/{newsID}')]
-    public function newsPublicDetailAction(
+    public function newsPublicDetail(
         BrandingService $brandingService,
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
@@ -110,7 +110,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_export', path: '/news/export')]
-    public function globalnewsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator)
+    public function globalnewsExport(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator)
     {
         $pdfName = $translator->trans('news.global.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -132,7 +132,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_export', path: '/verfahren/{procedure}/aktuelles/export')]
-    public function newsExportAction(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator, string $procedure)
+    public function newsExport(ServiceOutput $serviceOutputNews, TranslatorInterface $translator, NameGenerator $nameGenerator, string $procedure)
     {
         $pdfName = $translator->trans('news.export', [], 'page-title');
         $pdfContent = $serviceOutputNews->generatePdf(
@@ -154,7 +154,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news', path: '/news')]
-    public function newsListGlobalIndexAction(
+    public function newsListGlobalIndex(
         Breadcrumb $breadcrumb,
         CurrentUserService $currentUserService,
         TranslatorInterface $translator,
@@ -210,7 +210,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_news_public', path: '/verfahren/{procedure}/public/aktuelles')]
-    public function newsPublicListAction(Request $request, CurrentProcedureService $currentProcedureService, CurrentUserService $currentUserService, string $procedure)
+    public function newsPublicList(CurrentProcedureService $currentProcedureService, CurrentUserService $currentUserService, string $procedure)
     {
         try {
             // Nur News für Gäste auflisten
@@ -257,7 +257,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_news_administration_news', path: '/verfahren/{procedure}/verwalten/aktuelles', options: ['expose' => true])]
-    public function newsAdminListAction(Request $request, TranslatorInterface $translator, string $procedure)
+    public function newsAdminList(Request $request, TranslatorInterface $translator, string $procedure)
     {
         $procedureId = $procedure;
 
@@ -294,7 +294,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news', path: '/news/verwalten', options: ['expose' => true])]
-    public function globalNewsAdminListAction(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator, CustomerService $customerService)
+    public function globalNewsAdminList(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator, CustomerService $customerService)
     {
         $this->handleNewsAdminListManualSortPostRequest($request, $translator);
 
@@ -388,7 +388,7 @@ class DemosPlanNewsController extends BaseController
      */
     #[Route(name: 'DemosPlan_news_administration_news_new_get', path: '/verfahren/{procedure}/verwalten/aktuelles/neu', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_news_administration_news_new_post', path: '/verfahren/{procedure}/verwalten/aktuelles/neu', methods: ['POST'])]
-    public function newsAdminNewAction(
+    public function newsAdminNew(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
@@ -426,7 +426,7 @@ class DemosPlanNewsController extends BaseController
      */
     #[Route(name: 'DemosPlan_news_administration_news_edit_get', path: '/verfahren/{procedure}/verwalten/aktuelles/{newsID}', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_news_administration_news_edit_post', path: '/verfahren/{procedure}/verwalten/aktuelles/{newsID}', methods: ['POST'])]
-    public function newsAdminEditAction(
+    public function newsAdminEdit(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
@@ -463,7 +463,7 @@ class DemosPlanNewsController extends BaseController
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news_edit_get', path: '/news/{newsID}/edit', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_globalnews_administration_news_edit_post', path: '/news/{newsID}/edit', methods: ['POST'])]
-    public function globalnewsAdminEditAction(
+    public function globalnewsAdminEdit(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
@@ -496,7 +496,7 @@ class DemosPlanNewsController extends BaseController
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news_new_get', path: '/news/neu', methods: ['GET'], options: ['expose' => true])]
     #[Route(name: 'DemosPlan_globalnews_administration_news_new_post', path: '/news/neu', methods: ['POST'])]
-    public function globalnewsAdminNewAction(
+    public function globalnewsAdminNew(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
@@ -532,7 +532,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_news_detail', path: '/news/{newsID}')]
-    public function globalnewsDetailAction(Breadcrumb $breadcrumb, TranslatorInterface $translator, string $newsID)
+    public function globalnewsDetail(Breadcrumb $breadcrumb, TranslatorInterface $translator, string $newsID)
     {
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = [
@@ -758,7 +758,7 @@ class DemosPlanNewsController extends BaseController
             throw new Exception('PDF-Export fehlgeschlagen');
         }
 
-        $response = new Response($pdfContent, 200);
+        $response = new Response($pdfContent, Response::HTTP_OK);
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Content-Type', 'application/pdf');
         $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));

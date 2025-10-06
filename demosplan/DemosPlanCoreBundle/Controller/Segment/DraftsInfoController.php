@@ -41,11 +41,11 @@ class DraftsInfoController extends BaseController
     // Instead of receiving the statement ID the BE should chose a statement by
     // itself in this route.
     #[Route(name: 'dplan_drafts_list_claim', methods: 'POST', path: '/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
-    public function startSegmentationAction(
+    public function startSegmentation(
         CurrentUserService $currentUser,
         StatementService $statementService,
         string $statementId,
-        string $procedureId
+        string $procedureId,
     ): RedirectResponse {
         $statement = $statementService->getStatement($statementId);
         if (null === $statement) {
@@ -72,11 +72,11 @@ class DraftsInfoController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_drafts_list_edit', methods: 'GET', path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', options: ['expose' => true])]
-    public function editAction(
+    public function edit(
         string $procedureId,
         string $statementId,
         SegmentableStatementValidator $segmentableStatementValidator,
-        StatementHandler $statementHandler
+        StatementHandler $statementHandler,
     ): Response {
         try {
             $segmentableStatementValidator->validate($statementId);

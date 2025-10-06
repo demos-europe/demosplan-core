@@ -55,7 +55,7 @@ class DemosPlanReportAPIController extends APIController
         defaults: ['group' => null],
         options: ['expose' => true]
     )]
-    public function listProcedureReportsAction(
+    public function listProcedureReports(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
         Request $request,

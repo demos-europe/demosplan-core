@@ -44,7 +44,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagViewAction(
+    public function tagView(
         ProcedureService $procedureService,
         Request $request,
         StatementHandler $statementHandler,
@@ -119,7 +119,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagListAction(
+    public function tagList(
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
         string $procedure,
@@ -156,7 +156,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         options: ['expose' => true],
         defaults: ['master' => false]
     )]
-    public function tagListCsvImportAction(
+    public function tagListCsvImport(
         FileService $fileService,
         FileUploadService $fileUploadService,
         Request $request,

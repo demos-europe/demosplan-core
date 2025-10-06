@@ -103,7 +103,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
-    public function copyStatementAction(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId)
+    public function copyStatement(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId): APIResponse
     {
         try {
             $targetProcedureId = $request->query->get('targetProcedureId');
@@ -195,13 +195,13 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
-    public function moveStatementAction(
+    public function moveStatement(
         CurrentProcedureService $currentProcedureService,
         ProcedureHandler $procedureHandler,
         Request $request,
         StatementHandler $statementHandler,
         StatementMover $statementMover,
-        string $statementId)
+        string $statementId): APIResponse
     {
         try {
             $targetProcedureId = $request->query->get('targetProcedureId'); // fix T13442:
@@ -292,7 +292,7 @@ class DemosPlanStatementAPIController extends APIController
      * @return JsonResponse
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
-    public function editStatementAction(StatementService $statementService, ValidatorInterface $validator, $statementId)
+    public function editStatement(StatementService $statementService, ValidatorInterface $validator, $statementId): APIResponse
     {
         try {
             // quick and dirty validation that the frontend send the statementId as UUID
@@ -389,7 +389,7 @@ class DemosPlanStatementAPIController extends APIController
      * @DplanPermissions("area_admin_assessmenttable")
      */
     #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
-    public function listAction(
+    public function list(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
         JsonApiPaginationParser $paginationParser,
@@ -477,7 +477,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
-    public function createGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
+    public function createGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
             /** @var ResourceObject $resourceObject */
@@ -521,7 +521,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
-    public function updateGroupStatementAction(StatementHandler $statementHandler, string $procedureId): APIResponse
+    public function updateGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
             /** @var ResourceObject $resourceObject */
@@ -572,7 +572,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
-    public function statementBulkEditApiAction(StatementService $statementService, ValidatorInterface $validator, string $procedureId)
+    public function statementBulkEditApi(StatementService $statementService, ValidatorInterface $validator, string $procedureId): APIResponse
     {
         try {
             if (!$this->requestData instanceof TopLevel) {

@@ -41,7 +41,7 @@ class SlugDraftApiController extends APIController
      * @return APIResponse|JsonResponse
      */
     #[Route(methods: ['POST'], name: 'create')]
-    public function createAction(SlugDraftTransformer $slugDraftTransformer)
+    public function create(SlugDraftTransformer $slugDraftTransformer): APIResponse
     {
         $slugDraftType = $slugDraftTransformer->getType();
 

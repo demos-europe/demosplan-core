@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use Doctrine\DBAL\Exception;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
@@ -27,7 +28,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     /**
      * @throws PersistResourceException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function removeUsages(string $customFieldId): void
     {

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -197,9 +198,9 @@ class SingleDocumentService implements SingleDocumentServiceInterface
      *
      * @return SingleDocumentInterface|array|null
      *
-     * @throws ReflectionException
-     *
      * @psalm-return SingleDocumentInterface|array{statement_enabled: mixed}|null
+     *
+     * @throws ReflectionException
      */
     public function getSingleDocument($ident, bool $legacy = true)
     {
@@ -290,7 +291,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
-     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
+     * @throws JsonException
      */
     public function updateSingleDocument($data): array
     {

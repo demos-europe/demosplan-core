@@ -16,12 +16,14 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Check whether apcu cache needs to be cleared.
  */
-class ApcuClearListener
+class ApcuClearEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(private readonly LoggerInterface $logger)
     {
@@ -57,5 +59,13 @@ class ApcuClearListener
             $fs = new DemosFilesystem();
             $fs->remove($cacheScheduleFile);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::CONTROLLER => ['onControllerRequest', 20]];
     }
 }

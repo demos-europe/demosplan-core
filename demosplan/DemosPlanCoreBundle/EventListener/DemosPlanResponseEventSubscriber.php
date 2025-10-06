@@ -14,21 +14,23 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SecurityUserProvider;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Custom Eventlistener
  * Class DemosPlanResponseListener.
  */
-class DemosPlanResponseListener
+class DemosPlanResponseEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly SecurityUserProvider $securityUserProvider,
         private readonly TokenStorageInterface $tokenStorage,
-        private readonly TransformMessageBagService $transformMessageBagService
+        private readonly TransformMessageBagService $transformMessageBagService,
     ) {
     }
 
@@ -99,5 +101,13 @@ class DemosPlanResponseListener
         );
 
         $existingToken->setUser($securityUser);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::RESPONSE => 'onKernelResponse'];
     }
 }
