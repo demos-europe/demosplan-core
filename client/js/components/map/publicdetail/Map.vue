@@ -363,7 +363,7 @@ export default {
     handlePriorityAreaQuery (remappedUrl, coordinate, getFeatureinfoSource) {
       dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
         params: remappedUrl,
-        infotype: 'vorranggebietId'
+        infotype: 'vorranggebietId',
       }).then(response => {
         const parsedData = JSON.parse(response.data)
         if (parsedData.code === 100 && parsedData.success && parsedData.body !== null) {
@@ -374,7 +374,7 @@ export default {
             r_location_priority_area_type: parsedData.body.type,
             r_location_point: '',
             r_location_geometry: '',
-            location_is_set: 'priority_area'
+            location_is_set: 'priority_area',
           }
           window.statementActionState = 'locationPriorityAreaAdded'
         }
@@ -388,7 +388,7 @@ export default {
 
           const priorityAreaContent = {
             title: title,
-            text: `${parsedData.body.key}`
+            text: `${parsedData.body.key}`,
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
@@ -411,11 +411,11 @@ export default {
       if (this.vorrangGebiete.getVisible() === true) {
         /* URL for FeatureInfo */
         const vorrangurl = this.vorrangGebiete.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         /* URL to check if we are in the correct procedure */
         const planungsraumUrl = this.getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
         const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
@@ -425,7 +425,7 @@ export default {
             // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
             dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
               params: remappedPrUrl,
-              url: this.getFeatureInfoUrlPlanningArea
+              url: this.getFeatureInfoUrlPlanningArea,
             })
               .then(responsePr => {
                 /*
@@ -444,7 +444,7 @@ export default {
 
                   this.showPopup('contentPopup', {
                     title: Translator.trans('procedure.not.in.scope'),
-                    text: popUpContent
+                    text: popUpContent,
                   }, coordinate)
                 } else {
                   // Query priority area after successful planning area validation
@@ -1044,6 +1044,69 @@ export default {
           }),
         })
 
+        const queryArea = evt => {
+          const viewResolution = (this.mapview.getResolution())
+          const coordinate = evt.coordinate
+
+          this.resetPopup()
+
+          $('#queryAreaButton').addClass(this.prefixClass('is-progress'))
+
+          if (vorrangGebiete.getVisible() === true) {
+            /* URL for FeatureInfo */
+            const vorrangurl = vorrangGebiete.getSource().getFeatureInfoUrl(
+              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
+            )
+            /* URL to check if we are in the correct procedure */
+            const planungsraumUrl = getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
+              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
+            )
+            const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
+            const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
+
+            if (remappedUrl) {
+              if (remappedPrUrl) {
+                // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
+                dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
+                  params: remappedPrUrl,
+                  url: this.getFeatureInfoUrlPlanningArea,
+                })
+                  .then(responsePr => {
+                    /*
+                     * If we can't check the procedure we want to get the featureInfos anyway and
+                     * if coordinates are in the area of the current procedure, but only if planningarea is not set to 'all'
+                     */
+                    if (responsePr.data.code === 100 &&
+                      responsePr.data.success &&
+                      responsePr.data.body?.id !== this.procedureId &&
+                      this.procedureSettings.planningArea !== 'all' &&
+                      hasPermission('feature_map_new_statement')) {
+                      const popUpContent = Translator.trans('procedure.move.to.list') +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      Translator.trans('procedures.all.show') +
+                      '</a>'
+
+                      this.showPopup('contentPopup', {
+                        title: Translator.trans('procedure.not.in.scope'),
+                        text: popUpContent,
+                      }, coordinate)
+                    } else {
+                      this.showPopup('contentPopup', {
+                        title: Translator.trans('error.generic'),
+                        text: popUpContent,
+                      }, coordinate)
+                    }
+                  })
+                  .catch(e => {
+                    console.error(e)
+                  })
+                  .then(() => {
+                    $('#queryAreaButton').removeClass(this.prefixClass('is-progress'))
+                  })
+              }
+            }
+          }
+        }
         // Store reference to getFeatureinfoSource for method access
         this.getFeatureinfoSource = getFeatureinfoSource
 
