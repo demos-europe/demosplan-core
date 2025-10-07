@@ -168,7 +168,7 @@
     "vimeo/psalm": "^5",
     "weirdan/doctrine-psalm-plugin": "^2",
     "wsdltophp/packagegenerator": "^4.1",
-    "zenstruck/foundry": "^1.33"
+    "zenstruck/foundry": "^2.5"
   },
   "autoload": {
     "psr-4": {
