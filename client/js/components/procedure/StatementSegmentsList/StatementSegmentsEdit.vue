@@ -16,17 +16,19 @@
       <!-- Pagination above segments list -->
       <div
         v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mb-4">
+        class="flex justify-between items-center mb-4"
+      >
         <dp-pager
+          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :limits="pagination.limits || defaultPagination.limits"
           :per-page="pagination.perPage || defaultPagination.perPage"
           :total-pages="pagination.totalPages || 1"
           :total-items="pagination.total || 0"
           @page-change="handlePageChange"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
       </div>
 
       <div
@@ -92,17 +94,19 @@
       <!-- Pagination below segments list -->
       <div
         v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mt-4">
+        class="flex justify-between items-center mt-4"
+      >
         <dp-pager
+          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
           :limits="pagination.limits || defaultPagination.limits"
           :per-page="pagination.perPage || defaultPagination.perPage"
           :total-pages="pagination.totalPages || 1"
           :total-items="pagination.total || 0"
           @page-change="handlePageChange"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
       </div>
     </template>
 
@@ -515,7 +519,7 @@ export default {
         },
         page: {
           number: page,
-          size: this.pagination?.perPage || this.defaultPagination.perPage
+          size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         filter: {
           parentStatementOfSegment: {
@@ -553,7 +557,7 @@ export default {
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
       this.pagination.perPage = newSize
       this.fetchSegments(page)
-    }
+    },
   },
 
   mounted () {
