@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -22,6 +23,7 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly HeaderSanitizerService $headerSanitizer,
+        private readonly LoggerInterface $logger,
         private readonly ParameterBagInterface $parameterBag,
         private readonly RateLimiterFactory $jwtTokenLimiter,
     ) {
@@ -39,9 +41,11 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
 
             // avoid brute force attacks with captured JWT tokens
             // token is reset on every request
-            if (true === $this->parameterBag->get('ratelimit_api_enable')
-                && false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+            if (true === $limiter->consume(1)->isAccepted()) {
+                if (false === $this->parameterBag->get('ratelimit_api_enable')) {
+                    throw new TooManyRequestsHttpException();
+                }
+                $this->logger->warning('Rate limiting for api is disabled but would have been active now.');
             }
         }
     }

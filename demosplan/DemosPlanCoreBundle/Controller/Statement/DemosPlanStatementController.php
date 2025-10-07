@@ -866,10 +866,11 @@ class DemosPlanStatementController extends BaseController
             $limiter = $anonymousStatementLimiter->create($request->getClientIp());
 
             // avoid brute force attacks
-            // if the limit bites during development or testing, you can increase the limit in the config via setting
-            // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
-            if (true === $parameterBag->get('ratelimit_public_statement_enable') && false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+            if (false === $limiter->consume(1)->isAccepted()) {
+                if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
+                    throw new TooManyRequestsHttpException();
+                }
+                $this->logger->warning('Rate limiting for public statement is disabled but would have been active now.', ['ip' => $request->getClientIp()]);
             }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
