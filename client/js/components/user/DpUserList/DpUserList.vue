@@ -208,7 +208,7 @@ export default {
       }
 
       const isConfirmed = window.dpconfirm(
-        Translator.trans('check.user.delete', { count: this.selectedItems.length })
+        Translator.trans('check.user.delete', { count: this.selectedItems.length }),
       )
 
       if (!isConfirmed) return
@@ -232,7 +232,7 @@ export default {
             console.error(`Failed to delete user with ID ${id}:`, error)
             errorCount++
           }
-        })
+        }),
       )
 
       // Show appropriate messages

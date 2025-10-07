@@ -321,13 +321,16 @@
           id="odt"
           class="tab-content"
           :class="activeTab('odt')"
-          role="tabpanel">
+          role="tabpanel"
+        >
           <fieldset
             v-if="options.odt.anonymize || options.odt.obscure"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.type')" />
+              v-text="Translator.trans('export.type')"
+            />
             <dp-checkbox
               id="odtNumberStatements"
               v-model="exportChoice.odt.numberStatements"
@@ -337,7 +340,8 @@
                 bold: true,
                 text: Translator.trans('export.numbered_statements'),
                 hint: Translator.trans('explanation.export.numbered_statements')
-              }" />
+              }"
+            />
             <dp-checkbox
               id="odtAnonymous"
               v-model="exportChoice.odt.anonymous"
@@ -346,15 +350,18 @@
                 bold: true,
                 hint: Translator.trans('explanation.export.anonymous'),
                 text: Translator.trans('export.anonymous')
-              }" />
+              }"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.odt.templates"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.format')" />
+              v-text="Translator.trans('export.format')"
+            />
             <dp-radio
               v-for="(identifier, index) in Object.keys(odtTemplateOptions)"
               :id="`odtTemplate_${identifier}`"
@@ -369,15 +376,18 @@
               }"
               name="odtTemplate"
               :value="identifier"
-              @change="exportChoice.odt.template = identifier" />
+              @change="exportChoice.odt.template = identifier"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.data')" />
+              v-text="Translator.trans('export.data')"
+            />
             <dp-radio
               id="odtExportTypeStatementsOnly"
               :checked="exportChoice.odt.exportType === 'statementsOnly'"
@@ -388,7 +398,8 @@
                 text: Translator.trans('statements')
               }"
               value="statementsOnly"
-              @change="() => handleOdtExportTypeChange('statementsOnly')" />
+              @change="() => handleOdtExportTypeChange('statementsOnly')"
+            />
             <dp-radio
               id="odtExportTypeStatementsAndFragments"
               :checked="exportChoice.odt.exportType === 'statementsAndFragments'"
@@ -398,16 +409,19 @@
                 text: Translator.trans('fragments')
               }"
               value="statementsAndFragments"
-              @change="() => handleOdtExportTypeChange('statementsAndFragments')" />
+              @change="() => handleOdtExportTypeChange('statementsAndFragments')"
+            />
           </fieldset>
 
           <!--choose sorting type-->
           <fieldset
             v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.structure')" />
+              v-text="Translator.trans('export.structure')"
+            />
             <dp-radio
               id="odtSortTypeDefault"
               :checked="exportChoice.odt.sortType === 'default'"
@@ -419,7 +433,8 @@
                 text: Translator.trans('assessmenttable.view.mode.default')
               }"
               value="default"
-              @change="exportChoice.odt.sortType = 'default'" />
+              @change="exportChoice.odt.sortType = 'default'"
+            />
             <dp-radio
               id="odtSortTypeByParagraph"
               :checked="isOdtSortTypeByParagraphChecked"
@@ -429,19 +444,22 @@
                 text: Translator.trans('groupedBy.elements')
               }"
               :value="exportChoice.odt.exportType === 'statementsAndFragments' ? 'byParagraphFragmentsOnly' : 'byParagraph'"
-              @change="handleOdtSortTypeByParagraphChange" />
+              @change="handleOdtSortTypeByParagraphChange"
+            />
           </fieldset>
           <!--end of sorting type-->
 
           <p
             v-if="!options.odt.anonymize && !options.odt.obscure && !options.odt.exportTypes && !options.odt.templates"
-            class="ml-2 mt-2">
+            class="ml-2 mt-2"
+          >
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
 
           <div
             v-if="!isDefaultViewMode"
-            class="flash flash-info mb-0">
+            class="flash flash-info mb-0"
+          >
             {{ Translator.trans('explanation.export.disabled.viewMode') }}
           </div>
         </div>

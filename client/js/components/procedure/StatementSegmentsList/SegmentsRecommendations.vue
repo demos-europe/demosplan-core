@@ -14,17 +14,19 @@
       <!-- Pagination above table header -->
       <div
         v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mb-4">
+        class="flex justify-between items-center mb-4"
+      >
         <dp-pager
+          :key="`segmentsPagerTop_${pagination.currentPage}_${pagination.count || 0}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`segmentsPagerTop_${pagination.currentPage}_${pagination.count || 0}`"
           :limits="pagination.limits || defaultPagination.limits"
           :per-page="pagination.perPage || defaultPagination.perPage"
           :total-pages="pagination.totalPages || 1"
           :total-items="pagination.total || 0"
           @page-change="handlePageChange"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
       </div>
 
       <div class="segment-list-row">
@@ -78,17 +80,19 @@
         <!-- Pagination below segments list -->
         <div
           v-if="pagination && pagination.currentPage"
-          class="flex justify-between items-center mt-4">
+          class="flex justify-between items-center mt-4"
+        >
           <dp-pager
+            :key="`segmentsPagerBottom_${pagination.currentPage}_${pagination.count || 0}`"
             :class="{ 'invisible': isLoading }"
             :current-page="pagination.currentPage"
-            :key="`segmentsPagerBottom_${pagination.currentPage}_${pagination.count || 0}`"
             :limits="pagination.limits || defaultPagination.limits"
             :per-page="pagination.perPage || defaultPagination.perPage"
             :total-pages="pagination.totalPages || 1"
             :total-items="pagination.total || 0"
             @page-change="handlePageChange"
-            @size-change="handleSizeChange" />
+            @size-change="handleSizeChange"
+          />
         </div>
       </div>
     </div>
@@ -316,7 +320,7 @@ export default {
         },
         page: {
           number: page,
-          size: this.pagination?.perPage || this.defaultPagination.perPage
+          size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         sort: 'orderInProcedure',
         filter: {
