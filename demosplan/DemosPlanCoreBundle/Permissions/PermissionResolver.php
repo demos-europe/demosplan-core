@@ -20,8 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -58,16 +57,13 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
 
-    /**
-     * @var DrupalFilterParser<ClauseFunctionInterface<bool>>
-     */
     private readonly DrupalFilterParser $filterParser;
 
     private readonly DrupalFilterValidator $filterValidator;
 
     public function __construct(
         private readonly ConditionEvaluator $conditionEvaluator,
-        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ConditionFactoryInterface $conditionFactory,
         private readonly EntityFetcher $entityFetcher,
         ValidatorInterface $validator
     ) {

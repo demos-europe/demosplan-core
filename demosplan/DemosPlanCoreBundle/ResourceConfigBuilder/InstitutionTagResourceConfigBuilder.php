@@ -15,16 +15,14 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $name
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $isUsed
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,InstitutionTag,InstitutionTagCategory> $category
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $creationDate
+ * @property-read AttributeConfigBuilderInterface<InstitutionTag> $name
+ * @property-read AttributeConfigBuilderInterface<InstitutionTag> $isUsed
+ * @property-read ToOneRelationshipConfigBuilderInterface<InstitutionTag,InstitutionTagCategory> $category
+ * @property-read AttributeConfigBuilderInterface<InstitutionTag> $creationDate
  */
 class InstitutionTagResourceConfigBuilder extends BaseInstitutionTagResourceConfigBuilder
 {

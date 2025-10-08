@@ -18,9 +18,13 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory as DqlSortMethodFactory;
 use EDT\DqlQuerying\Utilities\JoinFinder;
 use EDT\DqlQuerying\Utilities\QueryBuilderPreparer;
+use EDT\JsonApi\InputHandling\ConditionConverter;
+use EDT\JsonApi\InputHandling\SortMethodConverter;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\MappingEntityProvider;
 use EDT\Querying\Contracts\PaginationException;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortException;
@@ -29,6 +33,7 @@ use EDT\Querying\ObjectProviders\PrefilledEntityProvider;
 use EDT\Querying\Pagination\OffsetPagination;
 use EDT\Querying\Utilities\ConditionEvaluator;
 use EDT\Querying\Utilities\Sorter;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 use const PHP_INT_MAX;
 
@@ -40,7 +45,9 @@ class EntityFetcher
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManager $entityManager,
-        private readonly Sorter $sorter
+        private readonly Sorter $sorter,
+        private readonly ValidatorInterface $validator,
+        private readonly DqlSortMethodFactory $dqlSortMethodFactory
     ) {
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
     }
@@ -135,13 +142,22 @@ class EntityFetcher
      *
      * @param class-string<T> $entityClass
      *
-     * @return DoctrineOrmEntityProvider<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, T>
+     * @return MappingEntityProvider
      */
-    private function createOrmEntityProvider(string $entityClass): DoctrineOrmEntityProvider
+    private function createOrmEntityProvider(string $entityClass): MappingEntityProvider
     {
         $builderPreparer = $this->createQueryBuilderPreparer($entityClass);
+        $doctrineProvider = new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer, $entityClass);
 
-        return new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer, $entityClass);
+        // EDT 0.26: Create converters that transform predefined types to Doctrine-specific types
+        $conditionConverter = ConditionConverter::createDefault($this->validator, $this->conditionFactory);
+        $sortMethodConverter = SortMethodConverter::createDefault($this->validator, $this->dqlSortMethodFactory);
+
+        return new MappingEntityProvider(
+            $conditionConverter,
+            $sortMethodConverter,
+            $doctrineProvider
+        );
     }
 
     /**

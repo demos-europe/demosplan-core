@@ -16,22 +16,20 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseUserResourceConfigBuilder;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $profileCompleted
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $accessConfirmed
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $invited
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $newsletter
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $noPiwik
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,UserInterface,RoleInterface> $roles
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,UserInterface,DepartmentInterface> $department
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface,OrgaInterface> $orga
+ * @property-read AttributeConfigBuilderInterface<UserInterface> $profileCompleted
+ * @property-read AttributeConfigBuilderInterface<UserInterface> $accessConfirmed
+ * @property-read AttributeConfigBuilderInterface<UserInterface> $invited
+ * @property-read AttributeConfigBuilderInterface<UserInterface> $newsletter
+ * @property-read AttributeConfigBuilderInterface<UserInterface> $noPiwik
+ * @property-read ToManyRelationshipConfigBuilderInterface<UserInterface,RoleInterface> $roles
+ * @property-read ToOneRelationshipConfigBuilderInterface<UserInterface,DepartmentInterface> $department
+ * @property-read ToOneRelationshipConfigBuilderInterface<\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface,OrgaInterface> $orga
  */
 class UserResourceConfigBuilder extends BaseUserResourceConfigBuilder
 {

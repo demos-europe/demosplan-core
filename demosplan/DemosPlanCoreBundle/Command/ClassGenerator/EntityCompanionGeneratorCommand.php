@@ -25,11 +25,8 @@ use EDT\DqlQuerying\ClassGeneration\AbstractTypeFromInterfaceDetector;
 use EDT\DqlQuerying\ClassGeneration\PathClassFromEntityGenerator;
 use EDT\DqlQuerying\ClassGeneration\ResourceConfigBuilderFromEntityGenerator;
 use EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 use EDT\Parsing\Utilities\Types\ClassOrInterfaceType;
-use EDT\Parsing\Utilities\Types\NonClassOrInterfaceType;
 use EDT\PathBuilding\DocblockPropertyByTraitEvaluator;
 use Exception;
 use ReflectionClass;
@@ -60,9 +57,6 @@ class EntityCompanionGeneratorCommand extends CoreCommand
     protected static $defaultName = 'dplan:generator:entity:companion';
     protected static $defaultDescription = 'Generate companion classes for entities.';
 
-    private readonly ClassOrInterfaceType $sortingClass;
-    private readonly ClassOrInterfaceType $conditionClass;
-
     /**
      * @param Traversable<DplanResourceType> $resourceTypes
      */
@@ -76,12 +70,6 @@ class EntityCompanionGeneratorCommand extends CoreCommand
         ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
-
-        $this->sortingClass = ClassOrInterfaceType::fromFqcn(OrderBySortMethodInterface::class);
-        $this->conditionClass = ClassOrInterfaceType::fromFqcn(
-            ClauseFunctionInterface::class,
-            [NonClassOrInterfaceType::fromRawString('bool')]
-        );
     }
 
     public function configure(): void
@@ -216,14 +204,14 @@ class EntityCompanionGeneratorCommand extends CoreCommand
 
         $entityInterface = $parentDetector($entityType);
 
+        // EDT 0.26: Only entity interface as template parameter
         $parentClass = ClassOrInterfaceType::fromFqcn(
             MagicResourceConfigBuilder::class,
-            [$this->conditionClass, $this->sortingClass, $entityInterface]
+            [$entityInterface]
         );
 
+        // EDT 0.26: No condition/sort class parameters needed
         return new ResourceConfigBuilderFromEntityGenerator(
-            $this->conditionClass,
-            $this->sortingClass,
             $parentClass,
             $this->traitEvaluator,
             $parentDetector,

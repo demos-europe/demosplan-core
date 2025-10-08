@@ -1239,8 +1239,19 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\User, lazy: true }
 
+    # EDT 0.26: New predefined condition/sort factories
+    EDT\ConditionFactory\ConditionFactory: ~
+
+    EDT\Querying\SortMethodFactories\SortMethodFactory: ~
+
+    # Keep old DQL factories for conversion layer
+    EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
+
+    EDT\DqlQuerying\SortMethodFactories\SortMethodFactory: ~
+
+    # EDT 0.26: Update alias to point to new factory
     EDT\ConditionFactory\ConditionFactoryInterface:
-        alias: 'EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+        alias: 'EDT\ConditionFactory\ConditionFactory'
 
     EDT\Wrapping\TypeProviders\PrefilledTypeProvider:
         alias: 'demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider'
@@ -1255,13 +1266,9 @@ services:
 
     EDT\JsonApi\Manager: ~
 
-    EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
-
     EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
         arguments:
             $objectManager: '@doctrine.orm.entity_manager'
-
-    EDT\DqlQuerying\SortMethodFactories\SortMethodFactory: ~
 
     EDT\JsonApi\ApiDocumentation\AttributeTypeResolver: ~
 
@@ -1271,9 +1278,10 @@ services:
 
     EDT\JsonApi\ApiDocumentation\TagStore: ~
 
+    # EDT 0.26: Use new sort method factory
     EDT\JsonApi\RequestHandling\JsonApiSortingParser:
         arguments:
-            - '@EDT\DqlQuerying\SortMethodFactories\SortMethodFactory'
+            - '@EDT\Querying\SortMethodFactories\SortMethodFactory'
 
     EDT\JsonApi\RequestHandling\PaginatorFactory: ~
 
@@ -1283,20 +1291,23 @@ services:
         arguments:
             $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
+    # EDT 0.26: Use new condition factory
     EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
         arguments:
-            $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            $conditionFactory: '@EDT\ConditionFactory\ConditionFactory'
 
+    # EDT 0.26: Use new condition factory
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser:
         public: true
         arguments:
-            - '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
+            - '@EDT\ConditionFactory\ConditionFactory'
             - '@EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser'
             - '@EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator'
 
+    # EDT 0.26: DrupalFilterValidator now takes validator and operatorConstraintProvider
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
-            $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
+            $operatorConstraintProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:
         arguments:

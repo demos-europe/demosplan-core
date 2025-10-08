@@ -15,12 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseElementsResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 
 /**
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Elements, Paragraph> $paragraphs
+ * @property-read ToManyRelationshipConfigBuilderInterface<Elements, Paragraph> $paragraphs
  */
 class PlaningDocumentCategoryResourceConfigBuilder extends BaseElementsResourceConfigBuilder
 {

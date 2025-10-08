@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "855f55ceb2c69e3f416795fa9e2e031b",
+    "content-hash": "c28a7b8513f62b1467a5c6185b437dcd",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -538,25 +538,25 @@
         },
         {
             "name": "brick/math",
-            "version": "0.13.1",
+            "version": "0.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/brick/math.git",
-                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04"
+                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/brick/math/zipball/fc7ed316430118cc7836bf45faff18d5dfc8de04",
-                "reference": "fc7ed316430118cc7836bf45faff18d5dfc8de04",
+                "url": "https://api.github.com/repos/brick/math/zipball/113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
+                "reference": "113a8ee2656b882d4c3164fa31aa6e12cbb7aaa2",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.1"
+                "php": "^8.2"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.2",
-                "phpunit/phpunit": "^10.1",
-                "vimeo/psalm": "6.8.8"
+                "phpstan/phpstan": "2.1.22",
+                "phpunit/phpunit": "^11.5"
             },
             "type": "library",
             "autoload": {
@@ -586,7 +586,7 @@
             ],
             "support": {
                 "issues": "https://github.com/brick/math/issues",
-                "source": "https://github.com/brick/math/tree/0.13.1"
+                "source": "https://github.com/brick/math/tree/0.14.0"
             },
             "funding": [
                 {
@@ -594,7 +594,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-29T13:50:30+00:00"
+            "time": "2025-08-29T12:40:03+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -1621,24 +1621,24 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.64",
+            "version": "dev-f-update-EDT-dependencies-versions",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "11b582947805eed3be74bc8d0cd9aa83de1a7294"
+                "reference": "0e7205e8b8ef0774a93bbdfb10101938582e00de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/11b582947805eed3be74bc8d0cd9aa83de1a7294",
-                "reference": "11b582947805eed3be74bc8d0cd9aa83de1a7294",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/0e7205e8b8ef0774a93bbdfb10101938582e00de",
+                "reference": "0e7205e8b8ef0774a93bbdfb10101938582e00de",
                 "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.0",
-                "demos-europe/edt-dql": "^0.25",
-                "demos-europe/edt-extra": "^0.25",
-                "demos-europe/edt-jsonapi": "^0.25",
-                "demos-europe/edt-paths": "^0.25",
+                "demos-europe/edt-dql": "^0.26",
+                "demos-europe/edt-extra": "^0.26",
+                "demos-europe/edt-jsonapi": "^0.26",
+                "demos-europe/edt-paths": "^0.26",
                 "doctrine/doctrine-bundle": "^2",
                 "illuminate/collections": "^10.48",
                 "league/csv": "^9.18",
@@ -1697,26 +1697,26 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.64"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/f-update-EDT-dependencies-versions"
             },
-            "time": "2025-09-10T11:40:26+00:00"
+            "time": "2025-10-07T09:05:57+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-access-definitions.git",
-                "reference": "32e55a99a1b5b34398ffbd73b7a538c72a02d485"
+                "reference": "1c79609fe8b7ed77ccec3223af242fb756ce5b67"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/32e55a99a1b5b34398ffbd73b7a538c72a02d485",
-                "reference": "32e55a99a1b5b34398ffbd73b7a538c72a02d485",
+                "url": "https://api.github.com/repos/demos-europe/edt-access-definitions/zipball/1c79609fe8b7ed77ccec3223af242fb756ce5b67",
+                "reference": "1c79609fe8b7ed77ccec3223af242fb756ce5b67",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.25.1",
+                "demos-europe/edt-queries": "^0.26",
                 "pagerfanta/core": "^2.7 || ^3 || ^4.2",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
@@ -1745,27 +1745,27 @@
             ],
             "description": "Tools to regulate access to entities and their properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-access-definitions/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:06+00:00"
+            "time": "2024-05-21T13:16:41+00:00"
         },
         {
             "name": "demos-europe/edt-dql",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-dql.git",
-                "reference": "585097d2ce0659bc5f72a5aeba65bb56d1f5b71b"
+                "reference": "b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/585097d2ce0659bc5f72a5aeba65bb56d1f5b71b",
-                "reference": "585097d2ce0659bc5f72a5aeba65bb56d1f5b71b",
+                "url": "https://api.github.com/repos/demos-europe/edt-dql/zipball/b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014",
+                "reference": "b6e6ba4eeebcfc73ebc02a3fbd44ff02a4657014",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-paths": "^0.25.1",
-                "demos-europe/edt-queries": "^0.25.1",
+                "demos-europe/edt-paths": "^0.26",
+                "demos-europe/edt-queries": "^0.26",
                 "doctrine/orm": "^2.5",
                 "nette/php-generator": "^4.0",
                 "php": "^8.1",
@@ -1795,26 +1795,26 @@
             ],
             "description": "Extension for demos-europe/edt-queries to use Doctrine ORM as data source.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-dql/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-dql/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:06+00:00"
+            "time": "2024-05-21T13:16:44+00:00"
         },
         {
             "name": "demos-europe/edt-extra",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-extra.git",
-                "reference": "480587a07ea386fa28bbe7cd76d282862be13117"
+                "reference": "5b936ca5a3ef4bce562b1739e2cdea3364fe9893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/480587a07ea386fa28bbe7cd76d282862be13117",
-                "reference": "480587a07ea386fa28bbe7cd76d282862be13117",
+                "url": "https://api.github.com/repos/demos-europe/edt-extra/zipball/5b936ca5a3ef4bce562b1739e2cdea3364fe9893",
+                "reference": "5b936ca5a3ef4bce562b1739e2cdea3364fe9893",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-jsonapi": "^0.25.1",
+                "demos-europe/edt-jsonapi": "^0.26",
                 "php": "^8.1",
                 "thecodingmachine/safe": "^2.4.0"
             },
@@ -1842,28 +1842,28 @@
             ],
             "description": "Extension for edt-queries containing various convenience and use-case specific functionality.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-extra/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-extra/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:08+00:00"
+            "time": "2024-05-21T13:16:40+00:00"
         },
         {
             "name": "demos-europe/edt-jsonapi",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-jsonapi.git",
-                "reference": "c5945e330683686e29b6bbef6958bb457bcf65e7"
+                "reference": "d7fcdc34da82188e1d2c851b16b9c8f3f50af702"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/c5945e330683686e29b6bbef6958bb457bcf65e7",
-                "reference": "c5945e330683686e29b6bbef6958bb457bcf65e7",
+                "url": "https://api.github.com/repos/demos-europe/edt-jsonapi/zipball/d7fcdc34da82188e1d2c851b16b9c8f3f50af702",
+                "reference": "d7fcdc34da82188e1d2c851b16b9c8f3f50af702",
                 "shasum": ""
             },
             "require": {
                 "cebe/php-openapi": "^1.5",
-                "demos-europe/edt-access-definitions": "^0.25.1",
-                "demos-europe/edt-queries": "^0.25.1",
+                "demos-europe/edt-access-definitions": "^0.26",
+                "demos-europe/edt-queries": "^0.26",
                 "doctrine/collections": "^1.5 || ^2.1",
                 "ext-json": "*",
                 "league/fractal": "^0.19 || ^0.20",
@@ -1904,26 +1904,26 @@
             "description": "Expose Doctrine entities as JSON:API resources.",
             "support": {
                 "issues": "https://github.com/demos-europe/edt-jsonapi/issues",
-                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-jsonapi/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:07+00:00"
+            "time": "2024-05-21T13:16:40+00:00"
         },
         {
             "name": "demos-europe/edt-paths",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-paths.git",
-                "reference": "266e16cc31fbba0bdace16d9afbf5eb781c3f364"
+                "reference": "c20073afae4b3f558352b2cd5c921e38b4e242ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/266e16cc31fbba0bdace16d9afbf5eb781c3f364",
-                "reference": "266e16cc31fbba0bdace16d9afbf5eb781c3f364",
+                "url": "https://api.github.com/repos/demos-europe/edt-paths/zipball/c20073afae4b3f558352b2cd5c921e38b4e242ea",
+                "reference": "c20073afae4b3f558352b2cd5c921e38b4e242ea",
                 "shasum": ""
             },
             "require": {
-                "demos-europe/edt-queries": "^0.25.1",
+                "demos-europe/edt-queries": "^0.26",
                 "nikic/php-parser": "^4.14 || ^5",
                 "php": "^8.1",
                 "phpdocumentor/reflection-docblock": "^5.1.0",
@@ -1954,22 +1954,22 @@
             ],
             "description": "Tools to create paths between entities and entity properties.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-paths/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-paths/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:05+00:00"
+            "time": "2024-05-21T13:24:25+00:00"
         },
         {
             "name": "demos-europe/edt-queries",
-            "version": "0.25.1",
+            "version": "0.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/edt-queries.git",
-                "reference": "ee084065c7e47daaeb79442197f751177dfd1d20"
+                "reference": "c569ed69fdfba8aeddde37073191690c05b87284"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/ee084065c7e47daaeb79442197f751177dfd1d20",
-                "reference": "ee084065c7e47daaeb79442197f751177dfd1d20",
+                "url": "https://api.github.com/repos/demos-europe/edt-queries/zipball/c569ed69fdfba8aeddde37073191690c05b87284",
+                "reference": "c569ed69fdfba8aeddde37073191690c05b87284",
                 "shasum": ""
             },
             "require": {
@@ -2002,9 +2002,9 @@
             ],
             "description": "Eases querying entities via property paths.",
             "support": {
-                "source": "https://github.com/demos-europe/edt-queries/tree/0.25.1"
+                "source": "https://github.com/demos-europe/edt-queries/tree/0.26.0"
             },
-            "time": "2025-04-28T13:59:10+00:00"
+            "time": "2024-05-21T13:16:41+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -9119,20 +9119,20 @@
         },
         {
             "name": "open-telemetry/api",
-            "version": "1.5.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opentelemetry-php/api.git",
-                "reference": "7692075f486c14d8cfd37fba98a08a5667f089e5"
+                "reference": "610b79ad9d6d97e8368bcb6c4d42394fbb87b522"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opentelemetry-php/api/zipball/7692075f486c14d8cfd37fba98a08a5667f089e5",
-                "reference": "7692075f486c14d8cfd37fba98a08a5667f089e5",
+                "url": "https://api.github.com/repos/opentelemetry-php/api/zipball/610b79ad9d6d97e8368bcb6c4d42394fbb87b522",
+                "reference": "610b79ad9d6d97e8368bcb6c4d42394fbb87b522",
                 "shasum": ""
             },
             "require": {
-                "open-telemetry/context": "^1.0",
+                "open-telemetry/context": "^1.4",
                 "php": "^8.1",
                 "psr/log": "^1.1|^2.0|^3.0",
                 "symfony/polyfill-php82": "^1.26"
@@ -9148,7 +9148,7 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-main": "1.4.x-dev"
+                    "dev-main": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -9185,20 +9185,20 @@
                 "issues": "https://github.com/open-telemetry/opentelemetry-php/issues",
                 "source": "https://github.com/open-telemetry/opentelemetry-php"
             },
-            "time": "2025-08-07T23:07:38+00:00"
+            "time": "2025-10-02T23:44:28+00:00"
         },
         {
             "name": "open-telemetry/context",
-            "version": "1.3.1",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opentelemetry-php/context.git",
-                "reference": "438f71812242db3f196fb4c717c6f92cbc819be6"
+                "reference": "d4c4470b541ce72000d18c339cfee633e4c8e0cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opentelemetry-php/context/zipball/438f71812242db3f196fb4c717c6f92cbc819be6",
-                "reference": "438f71812242db3f196fb4c717c6f92cbc819be6",
+                "url": "https://api.github.com/repos/opentelemetry-php/context/zipball/d4c4470b541ce72000d18c339cfee633e4c8e0cf",
+                "reference": "d4c4470b541ce72000d18c339cfee633e4c8e0cf",
                 "shasum": ""
             },
             "require": {
@@ -9244,7 +9244,7 @@
                 "issues": "https://github.com/open-telemetry/opentelemetry-php/issues",
                 "source": "https://github.com/open-telemetry/opentelemetry-php"
             },
-            "time": "2025-08-13T01:12:00+00:00"
+            "time": "2025-09-19T00:05:49+00:00"
         },
         {
             "name": "openlss/lib-array2xml",
@@ -11691,23 +11691,23 @@
         },
         {
             "name": "ruflin/elastica",
-            "version": "8.1.0",
+            "version": "8.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ruflin/Elastica.git",
-                "reference": "5e5f9b220e34fdcc1a55b9153323e2548f9a51f1"
+                "reference": "cd0a5fa54a5c7c17da3f8e581d47de2f9c0b26a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/5e5f9b220e34fdcc1a55b9153323e2548f9a51f1",
-                "reference": "5e5f9b220e34fdcc1a55b9153323e2548f9a51f1",
+                "url": "https://api.github.com/repos/ruflin/Elastica/zipball/cd0a5fa54a5c7c17da3f8e581d47de2f9c0b26a6",
+                "reference": "cd0a5fa54a5c7c17da3f8e581d47de2f9c0b26a6",
                 "shasum": ""
             },
             "require": {
                 "elastic/transport": "^8.8",
                 "elasticsearch/elasticsearch": "^8.4.1",
                 "ext-json": "*",
-                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0"
             },
             "conflict": {
@@ -11748,9 +11748,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ruflin/Elastica/issues",
-                "source": "https://github.com/ruflin/Elastica/tree/8.1.0"
+                "source": "https://github.com/ruflin/Elastica/tree/8.2.0"
             },
-            "time": "2024-11-29T07:37:01+00:00"
+            "time": "2025-09-23T06:44:07+00:00"
         },
         {
             "name": "sabberworm/php-css-parser",
@@ -13373,16 +13373,16 @@
         },
         {
             "name": "symfony/doctrine-bridge",
-            "version": "v6.4.25",
+            "version": "v6.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/doctrine-bridge.git",
-                "reference": "d6cda6208c77c4c1f28ba9ff9be4ceaa33416c8c"
+                "reference": "c14bb5a9125c411e73354954940e06b6e7fcc344"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/doctrine-bridge/zipball/d6cda6208c77c4c1f28ba9ff9be4ceaa33416c8c",
-                "reference": "d6cda6208c77c4c1f28ba9ff9be4ceaa33416c8c",
+                "url": "https://api.github.com/repos/symfony/doctrine-bridge/zipball/c14bb5a9125c411e73354954940e06b6e7fcc344",
+                "reference": "c14bb5a9125c411e73354954940e06b6e7fcc344",
                 "shasum": ""
             },
             "require": {
@@ -13461,7 +13461,7 @@
             "description": "Provides integration for Doctrine with various Symfony components",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/doctrine-bridge/tree/v6.4.25"
+                "source": "https://github.com/symfony/doctrine-bridge/tree/v6.4.26"
             },
             "funding": [
                 {
@@ -13481,7 +13481,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-18T12:29:30+00:00"
+            "time": "2025-09-26T15:07:38+00:00"
         },
         {
             "name": "symfony/dom-crawler",
@@ -24509,6 +24509,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "demos-europe/demosplan-addon": 20,
         "friendsofsymfony/elastica-bundle": 20
     },
     "prefer-stable": false,
@@ -24538,9 +24539,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
-        "php": "8.1.12"
+        "php": "8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

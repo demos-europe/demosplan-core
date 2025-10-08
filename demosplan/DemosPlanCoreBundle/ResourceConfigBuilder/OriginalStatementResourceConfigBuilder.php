@@ -18,28 +18,26 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fullText
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $shortText
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitDate
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isSubmittedByCitizen
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $attachmentsDeleted
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterAndAuthorMetaDataAnonymized
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textPassagesAnonymized
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textIsTruncated
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $procedurePhase
+ * @property-read AttributeConfigBuilderInterface<Statement> $fullText
+ * @property-read AttributeConfigBuilderInterface<Statement> $shortText
+ * @property-read AttributeConfigBuilderInterface<Statement> $submitDate
+ * @property-read AttributeConfigBuilderInterface<Statement> $isSubmittedByCitizen
+ * @property-read AttributeConfigBuilderInterface<Statement> $attachmentsDeleted
+ * @property-read AttributeConfigBuilderInterface<Statement> $submitterAndAuthorMetaDataAnonymized
+ * @property-read AttributeConfigBuilderInterface<Statement> $textPassagesAnonymized
+ * @property-read AttributeConfigBuilderInterface<Statement> $textIsTruncated
+ * @property-read AttributeConfigBuilderInterface<Statement> $procedurePhase
  *
  * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachment> $sourceAttachment
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,FileContainer> $genericAttachments
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
+ * @property-read ToManyRelationshipConfigBuilderInterface<StatementInterface,StatementAttachment> $sourceAttachment
+ * @property-read ToManyRelationshipConfigBuilderInterface<StatementInterface,FileContainer> $genericAttachments
+ * @property-read ToOneRelationshipConfigBuilderInterface<Statement, Elements> $elements
+ * @property-read ToOneRelationshipConfigBuilderInterface<Statement, Statement> $parentStatementOfSegment
  */
 class OriginalStatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {
