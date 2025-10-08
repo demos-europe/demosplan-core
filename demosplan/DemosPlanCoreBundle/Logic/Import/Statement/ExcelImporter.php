@@ -47,11 +47,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use Exception;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -111,6 +113,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly SegmentValidator $segmentValidator,
         StatementService $statementService,
         private readonly StatementValidator $statementValidator,
+        private readonly TagRepository $tagRepository,
         private readonly TagResourceType $tagResourceType,
         private readonly TagService $tagService,
         private readonly TagValidator $tagValidator,
@@ -187,7 +190,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws UserNotFoundException
      * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
-    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
+    public function processSegments(SplFileInfo $fileInfo, bool $flushAndPersist = false): SegmentExcelImportResult
     {
         $result = new SegmentExcelImportResult();
 
@@ -220,7 +223,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
 
             $statement = \array_combine($columnNamesMeta, $statement);
-            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
+            if (isset($statement['Typ']) && null !== $statement['Typ']) {
+                $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ']);
+            } else {
+                $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement(self::PUBLIC);
+            }
 
             $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
             if (0 !== $idConstraints->count()) {
@@ -261,7 +268,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             // create all corresponding segments
             $counter = 1;
             foreach ($correspondingSegments as $segmentData) {
-                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic);
+                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic, $flushAndPersist);
 
                 // validate segment
                 $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
@@ -407,6 +414,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $line,
         string $worksheetTitle,
         TagTopic $miscTopic,
+        bool $flushAndPersist,
     ): Segment {
         $procedure = $statement->getProcedure();
 
@@ -416,8 +424,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setExternId($statement->getExternId().'-'.$counter);
         $segment->setPhase('participation');
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
-        $segment->setText($segmentData['Einwand'] ?? '');
-        $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
+        $segmentText = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']);
+        $segment->setText($segmentText ?? '');
+        $segmentReply = $this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']);
+        $segment->setRecommendation($segmentReply ?? '');
 
         $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
         if (null === $place) {
@@ -430,35 +440,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Handle Tags
         if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
-            $procedureId = $statement->getProcedure()->getId();
-            $tagTitlesString = $segmentData['Schlagworte'];
-            if (is_numeric($tagTitlesString)) {
-                $tagTitlesString = (string) $tagTitlesString;
-            }
-            $tagTitles = explode(',', (string) $tagTitlesString);
-
-            foreach ($tagTitles as $tagTitle) {
-                $tagTitle = new UnicodeString($tagTitle);
-                $tagTitle = $tagTitle->trim()->toString();
-                $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
-
-                $createNewTag = null === $matchingTag;
-                if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
-                }
-
-                // Check if valid tag
-                $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
-
-                if (0 === $violations->count()) {
-                    $segment->addTag($matchingTag);
-                    if ($createNewTag) {
-                        $this->generatedTags[] = $matchingTag;
-                    }
-                } else {
-                    $this->addImportViolations($violations, $line, $worksheetTitle);
-                }
-            }
+            $this->processSegmentTags($statement, $segmentData['Schlagworte'], $miscTopic, $segment, $line, $worksheetTitle, $flushAndPersist);
         }
 
         return $segment;
@@ -513,14 +495,32 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newOriginalStatement->setInternId($statementData['Eingangsnummer']);
         $newOriginalStatement->setMemo($statementData['Memo'] ?? '');
 
-        // necessary to check incoming date-string:
-        // use symfony forms + kleiner service um validator zu bauen um die folgene zeile zu vermeiden:
-        //        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
-        $violations = $this->validator->validate($statementData['Einreichungsdatum'], [new DateStringConstraint()]);
-        if (0 === $violations->count()) {
-            $newOriginalStatement->setSubmit(Carbon::parse($statementData['Einreichungsdatum'])->toDate());
+        // Handle Einreichungsdatum - can be Excel serial date or string
+        $submitDateValue = $statementData['Einreichungsdatum'];
+
+        if (null === $submitDateValue || '' === $submitDateValue) {
+            // Leave submit date empty if no value provided
         } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+            // Handle both Excel serial dates and string dates
+            if (is_numeric($submitDateValue) && $submitDateValue > 1) {
+                // It's an Excel serial date number - convert to DateTime
+                try {
+                    $submitDateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($submitDateValue);
+                    $newOriginalStatement->setSubmit($submitDateObject);
+                } catch (Exception $e) {
+                    $violations = $this->validator->validate($submitDateValue, [new DateStringConstraint()]);
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            } else {
+                // It's a string date - validate and parse
+                $violations = $this->validator->validate($submitDateValue, [new DateStringConstraint()]);
+                if (0 === $violations->count()) {
+                    $submitDateObject = Carbon::parse($submitDateValue)->toDate();
+                    $newOriginalStatement->setSubmit($submitDateObject);
+                } else {
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            }
         }
 
         $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT] ?? '', $line, $currentWorksheetTitle);
@@ -534,13 +534,31 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $newStatementMeta->setOrgaStreet($statementData['Straße'] ?? '');
         $newStatementMeta->setHouseNumber((string) ($statementData['Hausnummer'] ?? ''));
 
-        $violations = $this->validator->validate($statementData['Verfassungsdatum'], new DateStringConstraint());
-        if (0 === $violations->count()) {
-            $dateString = $statementData['Verfassungsdatum'];
-            $dateString = null == $dateString ? null : Carbon::parse($dateString)->toDate();
-            $newStatementMeta->setAuthoredDate($dateString);
+        $dateValue = $statementData['Verfassungsdatum'];
+
+        if (null === $dateValue || '' === $dateValue) {
+            $newStatementMeta->setAuthoredDate(null);
         } else {
-            $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+            // Handle both Excel serial dates and string dates
+            if (is_numeric($dateValue) && $dateValue > 1) {
+                // It's an Excel serial date number - convert to DateTime
+                try {
+                    $dateObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateValue);
+                    $newStatementMeta->setAuthoredDate($dateObject);
+                } catch (Exception $e) {
+                    $violations = $this->validator->validate($dateValue, new DateStringConstraint());
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            } else {
+                // It's a string date - validate and parse
+                $violations = $this->validator->validate($dateValue, new DateStringConstraint());
+                if (0 === $violations->count()) {
+                    $dateObject = Carbon::parse($dateValue)->toDate();
+                    $newStatementMeta->setAuthoredDate($dateObject);
+                } else {
+                    $this->addImportViolations($violations, $line, $currentWorksheetTitle);
+                }
+            }
         }
 
         $newStatementMeta->setSubmitOrgaId($this->currentUser->getUser()->getOrganisationId());
@@ -634,6 +652,45 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
+     * @throws DuplicatedTagTitleException
+     * @throws PathException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function processSegmentTags(Statement $statement, $tagTitles, TagTopic $miscTopic, Segment $segment, int $line, string $worksheetTitle, bool $flushAndPersist): void
+    {
+        $procedureId = $statement->getProcedure()->getId();
+        if (is_numeric($tagTitles)) {
+            $tagTitles = (string) $tagTitles;
+        }
+
+        $tagTitleList = explode(',', (string) $tagTitles);
+
+        foreach ($tagTitleList as $tagTitle) {
+            // Strip HTML tags and trim whitespace
+            $tagTitle = strip_tags($tagTitle);
+            $tagTitle = new UnicodeString($tagTitle);
+            $tagTitle = $tagTitle->trim()->toString();
+
+            $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
+
+            if (null === $matchingTag) {
+                $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, $flushAndPersist);
+                $this->generatedTags[] = $matchingTag;
+            }
+
+            // Check if valid tag
+            $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
+
+            if (0 === $violations->count()) {
+                $segment->addTag($matchingTag);
+            } else {
+                $this->addImportViolations($violations, $line, $worksheetTitle);
+                array_pop($this->generatedTags);
+            }
+        }
+    }
+
+    /**
      * Get the first {@link Tag} entity with a title and procedure matching the given one.
      *
      * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
@@ -643,17 +700,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
-        $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
-            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
-        );
-
-        $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
-        if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
-        }
-
-        return $matchingTags[0] ?? null;
+        return $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
     }
 
     protected function getValidatedStatementText(
