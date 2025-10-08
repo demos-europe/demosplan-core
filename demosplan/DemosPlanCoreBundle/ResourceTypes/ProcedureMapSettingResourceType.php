@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapExtentValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
@@ -35,6 +36,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         protected readonly ContentService $contentService,
         protected readonly MasterTemplateService $masterTemplateService,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        protected readonly MapExtentValidator $mapExtentValidator,
     ) {
     }
 
@@ -56,6 +58,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->updatable([], function (ProcedureSettings $procedureSettings, ?array $boundingBox): array {
                 $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($boundingBox));
 
+                // Validate that boundingBox is within mapExtent
+                $this->validateMapExtentContainsBoundingBox($procedureSettings);
+
                 return [];
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
@@ -68,6 +73,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $configBuilder->mapExtent
                 ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
                     $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($mapExtent));
+
+                    // Validate that boundingBox is within mapExtent
+                    $this->validateMapExtentContainsBoundingBox($procedureSettings);
 
                     return [];
                 })
@@ -385,5 +393,17 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue($procedureId, Paths::procedureSettings()->procedure->id),
             $this->conditionFactory->propertyHasValue(false, Paths::procedureSettings()->procedure->deleted),
         ];
+    }
+
+    /**
+     * Validates that the mapExtent (stored as boundingBox in DB) contains
+     * the boundingBox (stored as mapExtent in DB).
+     */
+    protected function validateMapExtentContainsBoundingBox(ProcedureSettings $procedureSettings): void
+    {
+        $mapExtent = $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true);
+        $boundingBox = $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true);
+
+        $this->mapExtentValidator->validateExtentContainsBoundingBox($mapExtent, $boundingBox);
     }
 }
