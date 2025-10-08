@@ -189,7 +189,10 @@ const buildLayerList = (layerConfigs) => {
 }
 
 const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = {}) => {
-  if (!baseConfig || Object.keys(baseConfig).length < 4) {
+  const requiredKeys = ['id', 'name', 'type', 'url']
+  const baseConfigHasNeededKeys = baseConfig && requiredKeys.every(key => baseConfig?.hasOwnProperty(key))
+
+  if (!baseConfigHasNeededKeys) {
     return {}
   }
 
