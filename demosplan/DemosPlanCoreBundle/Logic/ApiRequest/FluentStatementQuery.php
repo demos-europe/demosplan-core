@@ -26,14 +26,10 @@ use EDT\Querying\FluentQueries\SortDefinition;
  */
 class FluentStatementQuery extends DqlFluentQuery
 {
-    /**
-     * @param DqlConditionFactory $conditionFactory
-     * @param DoctrineOrmEntityProvider $objectProvider
-     */
     public function __construct(
         DqlConditionFactory $conditionFactory,
         SortMethodFactoryInterface $sortMethodFactory,
-        DoctrineOrmEntityProvider $objectProvider
+        DoctrineOrmEntityProvider $objectProvider,
     ) {
         parent::__construct(
             $objectProvider,

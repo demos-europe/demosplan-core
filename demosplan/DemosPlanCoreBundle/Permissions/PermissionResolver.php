@@ -65,7 +65,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly ConditionFactoryInterface $conditionFactory,
         private readonly EntityFetcher $entityFetcher,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
         $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
@@ -105,7 +105,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ResolvablePermission $permission,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         foreach ($permission->getConditions() as $permissionCondition) {
             $userConditions = $permissionCondition->getUserConditions();
@@ -131,7 +131,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?UuidEntityInterface $evaluationTarget,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         $processedFilterList = $this->replaceParameterConditions($filterList, $user, $procedure, $customer);
         $processedFilterList = $this->filterParser->validateFilter($processedFilterList);
@@ -189,7 +189,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         array $filterList,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {

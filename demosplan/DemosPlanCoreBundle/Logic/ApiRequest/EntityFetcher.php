@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManager;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory as DqlSortMethodFactory;
 use EDT\DqlQuerying\Utilities\JoinFinder;
@@ -47,7 +46,7 @@ class EntityFetcher
         private readonly EntityManager $entityManager,
         private readonly Sorter $sorter,
         private readonly ValidatorInterface $validator,
-        private readonly DqlSortMethodFactory $dqlSortMethodFactory
+        private readonly DqlSortMethodFactory $dqlSortMethodFactory,
     ) {
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
     }
@@ -69,7 +68,7 @@ class EntityFetcher
      * @throws PaginationException
      * @throws SortException
      */
-    public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, ?int $limit = null): array
     {
         $entityProvider = new PrefilledEntityProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
 
@@ -87,7 +86,7 @@ class EntityFetcher
     /**
      * @deprecated use {@link FluentRepository::getEntities()} instead
      */
-    public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, ?int $limit = null): array
     {
         $entityProvider = $this->createOrmEntityProvider($entityClass);
         $entities = $entityProvider->getEntities($conditions, $sortMethods, new OffsetPagination($offset, $limit ?? PHP_INT_MAX));
@@ -141,8 +140,6 @@ class EntityFetcher
      * @template T of object
      *
      * @param class-string<T> $entityClass
-     *
-     * @return MappingEntityProvider
      */
     private function createOrmEntityProvider(string $entityClass): MappingEntityProvider
     {
