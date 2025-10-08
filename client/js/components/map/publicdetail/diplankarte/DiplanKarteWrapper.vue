@@ -105,6 +105,16 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   },
 })
 
+const instance = getCurrentInstance()
+
+const store = useStore()
+
+instance.appContext.app.mixin(prefixClassMixin)
+
+const isStoreAvailable = computed(() => {
+  return store.state.PublicStatement.storeInitialised
+})
+
 // Feature: Drawing on Map
 
 const drawing = computed(() => {
@@ -143,17 +153,48 @@ const handleDrawing = (event) => {
 
 // Feature: Set location info
 
+const isLocationInfoClosed = ref(false)
+
 const closeLocationInfo = () => {
   isLocationInfoClosed.value = true
 }
-
-const isLocationInfoClosed = ref(false)
 
 const isLocationToolSelected = computed(() => {
   return store.state.PublicStatement.activeActionBoxTab === 'draw'
 })
 
 // Feature: Show Overlays/Layers in Layer Switcher and on Map
+
+const customLayerConfigurationList = ref([])
+
+const customLayerList = ref([])
+
+const layersLoaded = ref(false)
+
+const layerTypeDefaults = {
+  // Add more defaults for other types here if needed
+  wms: {
+    layers: '',
+    format: 'image/png',
+    version: '1.3.0',
+    singleTile: false,
+    transparent: true,
+    transparency: 0,
+    gutter: 0,
+    minScale: '0',
+    maxScale: '2500000',
+    tilesize: 512,
+    visibleOnLoad: false,
+  },
+}
+
+const layerConfigBuilders = {
+  wms: (layer) => ({
+    layers: layer.attributes.layers || null,
+    version: layer.attributes.layerVersion || '1.3.0',
+  }),
+  // Add other type specific values that could come from BE here
+}
 
 const buildLayerConfigsList = () => {
   const layersFromDB = store.getters['Layers/elementListForLayerSidebar'](null, 'overlay', true)
@@ -214,37 +255,6 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
     ...baseLayer,
     ...mergedConfig,
   }
-}
-
-const customLayerConfigurationList = ref([])
-
-const customLayerList = ref([])
-
-const layerConfigBuilders = {
-  wms: (layer) => ({
-    layers: layer.attributes.layers || null,
-    version: layer.attributes.layerVersion || '1.3.0',
-  }),
-  // Add other type specific values that could come from BE here
-}
-
-const layersLoaded = ref(false)
-
-const layerTypeDefaults = {
-  // Add more defaults for other types here if needed
-  wms: {
-    layers: '',
-    format: 'image/png',
-    version: '1.3.0',
-    singleTile: false,
-    transparent: true,
-    transparency: 0,
-    gutter: 0,
-    minScale: '0',
-    maxScale: '2500000',
-    tilesize: 512,
-    visibleOnLoad: false,
-  },
 }
 
 const updateCustomLayerData = () => {
@@ -312,18 +322,6 @@ const transformTerritoryCoordinates = () => {
   transformedTerritory.type = transformed.type
   transformedTerritory.features = transformed.features
 }
-
-// Other parameters and methods
-
-const instance = getCurrentInstance()
-
-const isStoreAvailable = computed(() => {
-  return store.state.PublicStatement.storeInitialised
-})
-
-const store = useStore()
-
-instance.appContext.app.mixin(prefixClassMixin)
 
 // Hooks
 
