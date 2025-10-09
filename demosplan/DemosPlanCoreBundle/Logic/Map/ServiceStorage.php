@@ -108,7 +108,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if ((!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
+        $isXtrasse = array_key_exists('r_serviceType', $data) && 'xtrasse' === strtolower(trim((string) $data['r_serviceType']));
+        if (!$isXtrasse && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
             && !array_key_exists('r_xplanDefaultlayers', $data)) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
