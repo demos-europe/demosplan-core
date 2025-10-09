@@ -186,13 +186,13 @@ class ElasticsearchResultCreator
                 }
                 $statementMustIds = \array_unique($statementMustIds);
                 $shouldQuery = new BoolQuery();
-                foreach ($statementMustIds as $statementMustId) {
-                    $shouldQuery->addShould(
-                        $this->elasticSearchService->getElasticaTermsInstance(
-                            'id',
-                            $statementMustId
-                        ));
-                }
+                // Use a single terms query with all IDs to avoid exceeding maxClauseCount
+                $shouldQuery->addShould(
+                    $this->elasticSearchService->getElasticaTermsInstance(
+                        'id',
+                        $statementMustIds
+                    )
+                );
                 // add search query as a should request as we already found statements
                 // that have the searchstring at their fragment
                 if ($searchQuery instanceof AbstractQuery) {
@@ -222,6 +222,9 @@ class ElasticsearchResultCreator
                     $shouldQuery = new BoolQuery();
                     $shouldFilter = [];
                     $shouldNotFilter = [];
+                    $normalValues = [];
+
+                    // Collect all normal filter values to use in a single terms query
                     foreach ($filterValues as $filterValue) {
                         if ($filterValue === $this->elasticSearchService::KEINE_ZUORDNUNG
                             || null === $filterValue
@@ -231,14 +234,20 @@ class ElasticsearchResultCreator
                                 $filterName
                             );
                         } else {
-                            $filterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
                             $value = $filterValue === $this->elasticSearchService::EMPTY_FIELD ? '' : $filterValue;
-                            $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
-                                $filterName,
-                                $value
-                            );
+                            $normalValues[] = $value;
                         }
                     }
+
+                    // Create a single terms query with all normal values to avoid maxClauseCount
+                    if (count($normalValues) > 0) {
+                        $adjustedFilterName = $this->isRawFilteredTerm($filterName) ? $filterName.'.raw' : $filterName;
+                        $shouldFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
+                            $adjustedFilterName,
+                            $normalValues
+                        );
+                    }
+
                     array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
                     if (0 < count($shouldNotFilter)) {
