@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Permissions;
 
-use EDT\ConditionFactory\PathsBasedConditionFactoryInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory;
 use EDT\Querying\Contracts\PathsBasedInterface;
 
@@ -28,7 +28,7 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
 
     final public const NOT_SIZE = 'NOT SIZE';
 
-    public function __construct(PathsBasedConditionFactoryInterface $conditionFactory)
+    public function __construct(ConditionFactoryInterface $conditionFactory)
     {
         parent::__construct($conditionFactory);
     }
@@ -47,7 +47,7 @@ class PermissionDrupalConditionFactory extends PredefinedDrupalConditionFactory
         $operators = parent::getOperatorFunctionsWithValue();
 
         $operators[self::NOT_SIZE] = fn (
-            $conditionValue, array $path
+            $conditionValue, array $path,
         ): PathsBasedInterface => $this->conditionFactory->propertyHasNotSize($this->assertPrimitiveNonNull($conditionValue), $this->assertPath($path));
 
         return $operators;

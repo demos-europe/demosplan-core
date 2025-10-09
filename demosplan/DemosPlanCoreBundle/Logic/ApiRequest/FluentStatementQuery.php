@@ -14,9 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\DqlFluentQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use EDT\ConditionFactory\PathsBasedConditionFactoryInterface;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
 use EDT\Querying\FluentQueries\ConditionDefinition;
@@ -28,14 +26,10 @@ use EDT\Querying\FluentQueries\SortDefinition;
  */
 class FluentStatementQuery extends DqlFluentQuery
 {
-    /**
-     * @param PathsBasedConditionFactoryInterface<ClauseFunctionInterface<bool>>                              $conditionFactory
-     * @param DoctrineOrmEntityProvider<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement> $objectProvider
-     */
     public function __construct(
-        PathsBasedConditionFactoryInterface $conditionFactory,
+        DqlConditionFactory $conditionFactory,
         SortMethodFactoryInterface $sortMethodFactory,
-        DoctrineOrmEntityProvider $objectProvider
+        DoctrineOrmEntityProvider $objectProvider,
     ) {
         parent::__construct(
             $objectProvider,

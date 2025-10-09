@@ -36,7 +36,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "composer/package-versions-deprecated": "1.11.99.5",
-    "demos-europe/demosplan-addon": "^0.64",
+    "demos-europe/demosplan-addon": "dev-f-update-EDT-dependencies-versions",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",
@@ -216,7 +216,7 @@
       "endroid/installer": true
     },
     "platform": {
-      "php": "8.1.12"
+      "php": "8.2"
     }
   },
   "conflict": {

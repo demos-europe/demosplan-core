@@ -20,8 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -58,18 +57,15 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
 
-    /**
-     * @var DrupalFilterParser<ClauseFunctionInterface<bool>>
-     */
     private readonly DrupalFilterParser $filterParser;
 
     private readonly DrupalFilterValidator $filterValidator;
 
     public function __construct(
         private readonly ConditionEvaluator $conditionEvaluator,
-        private readonly DqlConditionFactory $conditionFactory,
+        private readonly ConditionFactoryInterface $conditionFactory,
         private readonly EntityFetcher $entityFetcher,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
         $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
@@ -109,7 +105,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ResolvablePermission $permission,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         foreach ($permission->getConditions() as $permissionCondition) {
             $userConditions = $permissionCondition->getUserConditions();
@@ -135,7 +131,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?UuidEntityInterface $evaluationTarget,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         $processedFilterList = $this->replaceParameterConditions($filterList, $user, $procedure, $customer);
         $processedFilterList = $this->filterParser->validateFilter($processedFilterList);
@@ -193,7 +189,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         array $filterList,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {
