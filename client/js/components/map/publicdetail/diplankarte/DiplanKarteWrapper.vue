@@ -105,6 +105,8 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   },
 })
 
+const emit = defineEmits(['locationDrawing'])
+
 const instance = getCurrentInstance()
 
 const store = useStore()
@@ -122,8 +124,6 @@ const drawing = computed(() => {
     transformFeatureCollection(JSON.parse(initDrawing), 'EPSG:3857', 'EPSG:4326') :
     ''
 })
-
-const emit = defineEmits(['locationDrawing'])
 
 const handleDrawing = (event) => {
   let payload
