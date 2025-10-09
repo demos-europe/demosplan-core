@@ -348,7 +348,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (!$isGlobalLayer && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
+        $isXtrasse = array_key_exists('r_serviceType', $data) && 'xtrasse' === strtolower(trim((string) $data['r_serviceType']));
+        if (!$isGlobalLayer && !$isXtrasse && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
