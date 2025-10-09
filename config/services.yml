@@ -24,6 +24,14 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    # CustomField cleanup services
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory:
+        arguments:
+            $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
+
+
+    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
@@ -33,6 +41,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\SegmentFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
@@ -136,6 +146,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
+        public: true
+
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType
         public: true
 
     DemosEurope\DemosplanAddon\Contracts\ResourceType\UserResourceTypeInterface:
@@ -366,6 +380,14 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\CoreService: ~
 
+    # Dynamic session handler service
+    app.session_handler:
+        class: SessionHandlerInterface
+        factory: ['@demosplan\DemosPlanCoreBundle\Logic\SessionHandlerFactory', 'createSessionHandler']
+        arguments:
+            - '%env(SESSION_HANDLER)%'
+        public: true
+
     demosplan\DemosPlanCoreBundle\Logic\DefaultTwigVariablesService:
         arguments:
             $publicCSSClassPrefix: '%public_css_class_prefix%'
@@ -488,10 +510,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface:
         '@demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDecider'
-
-    demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
-        tags:
-            - { name: monolog.logger, channel: session }
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
@@ -1361,3 +1379,5 @@ services:
     DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
+
+    DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
