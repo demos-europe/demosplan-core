@@ -355,6 +355,7 @@
       <dp-editor
         ref="statementText"
         v-model="values.text"
+        :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
         required
         hidden-input="r_text"
