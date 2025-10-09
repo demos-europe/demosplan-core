@@ -1077,69 +1077,6 @@ export default {
           }),
         })
 
-        queryArea = evt => {
-          const viewResolution = (this.mapview.getResolution())
-          const coordinate = evt.coordinate
-
-          this.resetPopup()
-
-          $('#queryAreaButton').addClass(this.prefixClass('is-progress'))
-
-          if (vorrangGebiete.getVisible() === true) {
-            /* URL for FeatureInfo */
-            const vorrangurl = vorrangGebiete.getSource().getFeatureInfoUrl(
-              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
-            )
-            /* URL to check if we are in the correct procedure */
-            const planungsraumUrl = getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
-              coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
-            )
-            const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
-            const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
-
-            if (remappedUrl) {
-              if (remappedPrUrl) {
-                // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
-                dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
-                  params: remappedPrUrl,
-                  url: this.getFeatureInfoUrlPlanningArea,
-                })
-                  .then(responsePr => {
-                    /*
-                     * If we can't check the procedure we want to get the featureInfos anyway and
-                     * if coordinates are in the area of the current procedure, but only if planningarea is not set to 'all'
-                     */
-                    if (responsePr.data.code === 100 &&
-                      responsePr.data.success &&
-                      responsePr.data.body?.id !== this.procedureId &&
-                      this.procedureSettings.planningArea !== 'all' &&
-                      hasPermission('feature_map_new_statement')) {
-                      const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                      Translator.trans('procedures.all.show') +
-                      '</a>'
-
-                      this.showPopup('contentPopup', {
-                        title: Translator.trans('procedure.not.in.scope'),
-                        text: popUpContent,
-                      }, coordinate)
-                    } else {
-                      this.showPopup('contentPopup', {
-                        title: Translator.trans('error.generic'),
-                        text: popUpContent,
-                      }, coordinate)
-                    }
-                  })
-                  .catch(e => {
-                    console.error(e)
-                  })
-                  .then(() => {
-                    $('#queryAreaButton').removeClass(this.prefixClass('is-progress'))
-                  })
-              }
-            }
-          }
-        }
         // Store reference to getFeatureinfoSource for method access
         this.getFeatureinfoSource = getFeatureinfoSource
 
