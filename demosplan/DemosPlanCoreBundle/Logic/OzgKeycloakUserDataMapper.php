@@ -461,7 +461,6 @@ class OzgKeycloakUserDataMapper
      * Extract role codes from customer groups.
      *
      * @param array<string, array<int, string>> $rolesOfCustomer
-     * @param string $subdomain
      *
      * @return array{0: array<int, string>, 1: array<int, string>} [recognizedRoleCodes, unIdentifiedRoles]
      */
