@@ -29,6 +29,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     protected string $addressExtension = '';
     protected string $city = '';
+    protected bool $isPrivatePerson = false;
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -61,6 +62,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
 
+        // Extract isPrivatePerson attribute from token
+        $this->isPrivatePerson = isset($userInformation['isPrivatePerson'])
+            && ('true' === $userInformation['isPrivatePerson'] || true === $userInformation['isPrivatePerson']);
+
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
@@ -92,12 +97,41 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
     }
 
+    public function isPrivatePerson(): bool
+    {
+        return $this->isPrivatePerson;
+    }
+
+    /**
+     * Override parent method to make roles optional when isPrivatePerson is true.
+     * For private persons, roles will be assigned automatically to CITIZEN role,
+     * so empty customerRoleRelations is acceptable.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        // For private persons, temporarily set a dummy role to pass parent validation
+        if ($this->isPrivatePerson) {
+            $originalRoles = $this->customerRoleRelations;
+            $this->customerRoleRelations = ['temp' => ['CITIZEN']];
+
+            try {
+                parent::checkMandatoryValuesExist();
+            } finally {
+                $this->customerRoleRelations = $originalRoles;
+            }
+        } else {
+            // Non-private persons use standard validation
+            parent::checkMandatoryValuesExist();
+        }
+    }
+
     public function __toString(): string
     {
         $parentString = parent::__toString();
 
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
-            ', city: '.$this->city;
+            ', city: '.$this->city.
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }
