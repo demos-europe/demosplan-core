@@ -27,7 +27,10 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
+        $parameterBag = new ParameterBag([
+            'keycloak_group_role_string' => 'Beteiligung-Berechtigung',
+            'keycloak_client_id'         => 'diplan-develop-beteiligung-test',
+        ]);
         $this->sut = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
     }
 
