@@ -11,6 +11,7 @@
   <div aria-hidden="true">
     <dp-autocomplete
       v-if="hasPermission('feature_map_search_location')"
+      id="map_autosuggest"
       :class="prefixClass('c-map__autocomplete')"
       :options="autocompleteOptions"
       :model-value="selectedValue"

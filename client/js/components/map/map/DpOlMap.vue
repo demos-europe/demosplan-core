@@ -71,6 +71,7 @@
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
               v-if="_options.autoSuggest.enabled"
+              id="ol_map_autosuggest"
               :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
