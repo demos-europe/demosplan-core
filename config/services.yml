@@ -18,6 +18,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper: ~
+
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
     demosplan\DemosPlanCoreBundle\Controller\Document\DemosPlanDocumentDashboardAPIController:
