@@ -87,25 +87,38 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         return $resourceOwner;
     }
 
-    public function testMapUserDataWithIsPrivatePersonAttributeCreatesCitizenUser(): void
+    /**
+     * Helper to create OzgKeycloakUserData and map it to a User entity.
+     */
+    private function mapResourceOwnerToUser(ResourceOwnerInterface $resourceOwner): User
     {
-        $resourceOwner = $this->createPrivatePersonResourceOwner();
-
         $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
         $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
         $ozgKeycloakUserData->fill($resourceOwner);
 
-        $user = $this->sut->mapUserData($ozgKeycloakUserData);
+        return $this->sut->mapUserData($ozgKeycloakUserData);
+    }
+
+    /**
+     * Asserts that a user has the CITIZEN role.
+     */
+    private function assertUserHasCitizenRole(User $user): void
+    {
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+        self::assertContains(Role::CITIZEN, $userRoles);
+    }
+
+    public function testMapUserDataWithIsPrivatePersonAttributeCreatesCitizenUser(): void
+    {
+        $resourceOwner = $this->createPrivatePersonResourceOwner();
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
 
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
         self::assertEquals('max.mustermann', $user->getLogin());
         self::assertEquals('Max', $user->getFirstname());
         self::assertEquals('Mustermann', $user->getLastname());
-
-        // Check that user has CITIZEN role
-        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
-        self::assertContains(Role::CITIZEN, $userRoles);
+        $this->assertUserHasCitizenRole($user);
     }
 
     public function testMapUserDataWithIsPrivatePersonStringTrueCreatesCitizenUser(): void
@@ -118,30 +131,17 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'preferred_username' => 'erika.musterfrau',
             'isPrivatePerson'    => 'true',
         ]);
-
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData->fill($resourceOwner);
-
-        $user = $this->sut->mapUserData($ozgKeycloakUserData);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
 
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
-
-        // Check that user has CITIZEN role
-        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
-        self::assertContains(Role::CITIZEN, $userRoles);
+        $this->assertUserHasCitizenRole($user);
     }
 
     public function testMapUserDataWithoutIsPrivatePersonAndOrgaDataCreatesOrgaUser(): void
     {
         $resourceOwner = $this->createOrganizationResourceOwner();
-
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData->fill($resourceOwner);
-
-        $user = $this->sut->mapUserData($ozgKeycloakUserData);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
 
         self::assertInstanceOf(User::class, $user);
         self::assertNotEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
@@ -169,18 +169,11 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
                 ],
             ]);
 
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData->fill($resourceOwner);
-
-        $user = $this->sut->mapUserData($ozgKeycloakUserData);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
 
         self::assertInstanceOf(User::class, $user);
         self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
-
-        // Check that user has CITIZEN role
-        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
-        self::assertContains(Role::CITIZEN, $userRoles);
+        $this->assertUserHasCitizenRole($user);
     }
 
     public function testUpdateExistingCitizenUserWithIsPrivatePersonAttribute(): void
@@ -193,12 +186,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'sub'                => 'test-existing-citizen-001',
             'preferred_username' => 'existing.citizen',
         ]);
-
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData->fill($resourceOwner);
-
-        $firstUser = $this->sut->mapUserData($ozgKeycloakUserData);
+        $firstUser = $this->mapResourceOwnerToUser($resourceOwner);
         $firstUserId = $firstUser->getId();
 
         // Now login again with updated data
@@ -209,11 +197,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'sub'                => 'test-existing-citizen-001', // Same sub = same user
             'preferred_username' => 'updated.citizen',
         ]);
-
-        $ozgKeycloakUserData2 = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData2->fill($resourceOwner2);
-
-        $secondUser = $this->sut->mapUserData($ozgKeycloakUserData2);
+        $secondUser = $this->mapResourceOwnerToUser($resourceOwner2);
 
         // Should be the same user (by ID)
         self::assertEquals($firstUserId, $secondUser->getId());
