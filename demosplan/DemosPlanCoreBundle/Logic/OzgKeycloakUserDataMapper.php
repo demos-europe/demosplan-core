@@ -110,12 +110,19 @@ class OzgKeycloakUserDataMapper
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupOrgaByGwId();
 
-        // At this point we handle users that have the role CITIZEN within their requested roles.
+        // At this point we handle users that are private persons (citizens).
+        // Check the isPrivatePerson attribute from the token first, then fall back to role-based detection.
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
-        if ($this->isUserCitizen($requestedRoles)
-            || (null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
-        ) {
+        $isPrivatePersonByAttribute = $this->ozgKeycloakUserData->isPrivatePerson();
+        $isPrivatePersonByRole = $this->isUserCitizen($requestedRoles);
+        $isPrivatePersonByOrga = null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
+
+        if ($isPrivatePersonByAttribute) {
+            $this->logger->info('User identified as private person via isPrivatePerson token attribute');
+        }
+
+        if ($isPrivatePersonByAttribute || $isPrivatePersonByRole || $isPrivatePersonByOrga) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
             if (null !== $existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
@@ -391,6 +398,17 @@ class OzgKeycloakUserDataMapper
      */
     private function mapUserRoleData(): array
     {
+        // Special handling for private persons - automatically assign CITIZEN role
+        if ($this->ozgKeycloakUserData->isPrivatePerson()) {
+            $this->logger->info('Private person detected - automatically assigning CITIZEN role');
+            $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
+            if (null === $citizenRole) {
+                throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
+            }
+
+            return [$citizenRole];
+        }
+
         $rolesOfCustomer = $this->ozgKeycloakUserData->getCustomerRoleRelations();
         $customer = $this->customerService->getCurrentCustomer();
         $recognizedRoleCodes = [];

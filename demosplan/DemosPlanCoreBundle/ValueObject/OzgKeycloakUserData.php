@@ -14,6 +14,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
  * @method string getAddressExtension()
@@ -29,6 +30,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     protected string $addressExtension = '';
     protected string $city = '';
+    protected bool $isPrivatePerson = false;
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -61,6 +63,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
 
+        // Extract isPrivatePerson attribute from token
+        $this->isPrivatePerson = isset($userInformation['isPrivatePerson'])
+            && ('true' === $userInformation['isPrivatePerson'] || true === $userInformation['isPrivatePerson']);
+
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
@@ -92,12 +98,59 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
     }
 
+    public function isPrivatePerson(): bool
+    {
+        return $this->isPrivatePerson;
+    }
+
+    /**
+     * Override parent method to make roles optional when isPrivatePerson is true.
+     * For private persons, roles will be assigned automatically to CITIZEN role,
+     * so empty customerRoleRelations is acceptable.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        $missingMandatoryValues = [];
+        if ('' === $this->userId) {
+            $missingMandatoryValues[] = 'userId';
+        }
+
+        if ('' === $this->userName) {
+            $missingMandatoryValues[] = 'userName';
+        }
+
+        if ('' === $this->emailAddress) {
+            $missingMandatoryValues[] = 'emailAddress';
+        }
+
+        if ('' === $this->organisationId) {
+            $missingMandatoryValues[] = 'organisationId';
+        }
+
+        if ('' === $this->firstName && '' === $this->lastName) {
+            $missingMandatoryValues[] = 'name';
+        }
+
+        // Roles are only mandatory if this is NOT a private person
+        // Private persons will get CITIZEN role automatically
+        if (!$this->isPrivatePerson && [] === $this->customerRoleRelations) {
+            $missingMandatoryValues[] = 'roles';
+        }
+
+        if ([] !== $missingMandatoryValues) {
+            throw new AuthenticationCredentialsNotFoundException(
+                implode(', ', $missingMandatoryValues).' are missing in requestValues'
+            );
+        }
+    }
+
     public function __toString(): string
     {
         $parentString = parent::__toString();
 
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
-            ', city: '.$this->city;
+            ', city: '.$this->city.
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }
