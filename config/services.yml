@@ -18,7 +18,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
 
-    demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper: ~
+    demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper:
+        public: true # unfortunately ci tests seem to need this
 
     demosplan\DemosPlanCoreBundle\ValueObject\AzureUserData: ~
 
