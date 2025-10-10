@@ -400,47 +400,97 @@ class OzgKeycloakUserDataMapper
     {
         // Special handling for private persons - automatically assign CITIZEN role
         if ($this->ozgKeycloakUserData->isPrivatePerson()) {
-            $this->logger->info('Private person detected - automatically assigning CITIZEN role');
-            $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
-            if (null === $citizenRole) {
-                throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
-            }
-
-            return [$citizenRole];
+            return $this->getCitizenRoleForPrivatePerson();
         }
 
+        return $this->mapGroupBasedRoles();
+    }
+
+    /**
+     * Get CITIZEN role for private persons.
+     *
+     * @return array<int, Role>
+     *
+     * @throws AuthenticationCredentialsNotFoundException
+     */
+    private function getCitizenRoleForPrivatePerson(): array
+    {
+        $this->logger->info('Private person detected - automatically assigning CITIZEN role');
+        $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
+        if (null === $citizenRole) {
+            throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
+        }
+
+        return [$citizenRole];
+    }
+
+    /**
+     * Map roles based on group information from token.
+     *
+     * @return array<int, Role>
+     *
+     * @throws AuthenticationCredentialsNotFoundException
+     */
+    private function mapGroupBasedRoles(): array
+    {
         $rolesOfCustomer = $this->ozgKeycloakUserData->getCustomerRoleRelations();
         $customer = $this->customerService->getCurrentCustomer();
-        $recognizedRoleCodes = [];
-        $unIdentifiedRoles = [];
-        // If we received partially recognizable roles - we try to ignore the garbage data...
-        // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
-            foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
-                if (null === $roleName || '' === $roleName) {
-                    continue;
-                }
-                $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
-                if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
-                    $this->logger->info('Role recognized: '.$roleName);
-                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
-                } else {
-                    $this->logger->info('Role not recognized: '.$roleName);
-                    $unIdentifiedRoles[] = $roleName;
-                }
-            }
-        }
+
+        [$recognizedRoleCodes, $unIdentifiedRoles] = $this->extractRoleCodesFromGroups(
+            $rolesOfCustomer,
+            $customer->getSubdomain()
+        );
+
         if (0 !== count($unIdentifiedRoles)) {
             $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
+
         $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
+
         if (0 === count($requestedRoles)) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
+
         $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
 
         return $requestedRoles;
+    }
+
+    /**
+     * Extract role codes from customer groups.
+     *
+     * @param array<string, array<int, string>> $rolesOfCustomer
+     * @param string $subdomain
+     *
+     * @return array{0: array<int, string>, 1: array<int, string>} [recognizedRoleCodes, unIdentifiedRoles]
+     */
+    private function extractRoleCodesFromGroups(array $rolesOfCustomer, string $subdomain): array
+    {
+        $recognizedRoleCodes = [];
+        $unIdentifiedRoles = [];
+
+        if (!array_key_exists($subdomain, $rolesOfCustomer)) {
+            return [$recognizedRoleCodes, $unIdentifiedRoles];
+        }
+
+        foreach ($rolesOfCustomer[$subdomain] as $roleName) {
+            if (null === $roleName || '' === $roleName) {
+                continue;
+            }
+
+            $this->logger->info("Role found for subdomain {$subdomain}: {$roleName}");
+
+            if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                $this->logger->info("Role recognized: {$roleName}");
+                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
+            } else {
+                $this->logger->info("Role not recognized: {$roleName}");
+                $unIdentifiedRoles[] = $roleName;
+            }
+        }
+
+        return [$recognizedRoleCodes, $unIdentifiedRoles];
     }
 
     /**
