@@ -110,35 +110,19 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
      */
     public function checkMandatoryValuesExist(): void
     {
-        $missingMandatoryValues = [];
-        if ('' === $this->userId) {
-            $missingMandatoryValues[] = 'userId';
-        }
+        // For private persons, temporarily set a dummy role to pass parent validation
+        if ($this->isPrivatePerson) {
+            $originalRoles = $this->customerRoleRelations;
+            $this->customerRoleRelations = ['temp' => ['CITIZEN']];
 
-        if ('' === $this->userName) {
-            $missingMandatoryValues[] = 'userName';
-        }
-
-        if ('' === $this->emailAddress) {
-            $missingMandatoryValues[] = 'emailAddress';
-        }
-
-        if ('' === $this->organisationId) {
-            $missingMandatoryValues[] = 'organisationId';
-        }
-
-        if ('' === $this->firstName && '' === $this->lastName) {
-            $missingMandatoryValues[] = 'name';
-        }
-
-        // Roles are only mandatory if this is NOT a private person
-        // Private persons will get CITIZEN role automatically
-        if (!$this->isPrivatePerson && [] === $this->customerRoleRelations) {
-            $missingMandatoryValues[] = 'roles';
-        }
-
-        if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).' are missing in requestValues');
+            try {
+                parent::checkMandatoryValuesExist();
+            } finally {
+                $this->customerRoleRelations = $originalRoles;
+            }
+        } else {
+            // Non-private persons use standard validation
+            parent::checkMandatoryValuesExist();
         }
     }
 
