@@ -36,15 +36,15 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'John',
-                'family_name'      => 'Doe',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => '456',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'John',
+                'family_name'        => 'Doe',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => '456',
                 'preferred_username' => 'johndoe',
-                'isPrivatePerson'  => true,
-                'groups'           => [], // No groups needed for private persons
+                'isPrivatePerson'    => true,
+                'groups'             => [], // No groups needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);
@@ -57,15 +57,15 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Jane',
-                'family_name'      => 'Smith',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => '789',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Jane',
+                'family_name'        => 'Smith',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => '789',
                 'preferred_username' => 'janesmith',
-                'isPrivatePerson'  => 'true',
-                'groups'           => [], // No groups needed for private persons
+                'isPrivatePerson'    => 'true',
+                'groups'             => [], // No groups needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);
@@ -78,14 +78,14 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Alice',
-                'family_name'      => 'Brown',
-                'organisationId'   => '123',
-                'organisationName' => 'Test Organisation',
-                'sub'              => '101',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Alice',
+                'family_name'        => 'Brown',
+                'organisationId'     => '123',
+                'organisationName'   => 'Test Organisation',
+                'sub'                => '101',
                 'preferred_username' => 'alicebrown',
-                'groups'           => [
+                'groups'             => [
                     '/Beteiligung-Organisation/Test Organisation',
                     '/Beteiligung-Berechtigung/testcustomer/Fachplanung Administration',
                 ],
@@ -101,15 +101,15 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Bob',
-                'family_name'      => 'Johnson',
-                'organisationId'   => '456',
-                'organisationName' => 'Company Inc',
-                'sub'              => '202',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Bob',
+                'family_name'        => 'Johnson',
+                'organisationId'     => '456',
+                'organisationName'   => 'Company Inc',
+                'sub'                => '202',
                 'preferred_username' => 'bobjohnson',
-                'isPrivatePerson'  => false,
-                'groups'           => [
+                'isPrivatePerson'    => false,
+                'groups'             => [
                     '/Beteiligung-Organisation/Company Inc',
                     '/Beteiligung-Berechtigung/testcustomer/Institutions Sachbearbeitung',
                 ],
@@ -125,15 +125,15 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Charlie',
-                'family_name'      => 'Davis',
-                'organisationId'   => '789',
-                'organisationName' => 'Enterprise LLC',
-                'sub'              => '303',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Charlie',
+                'family_name'        => 'Davis',
+                'organisationId'     => '789',
+                'organisationName'   => 'Enterprise LLC',
+                'sub'                => '303',
                 'preferred_username' => 'charliedavis',
-                'isPrivatePerson'  => 'false',
-                'groups'           => [
+                'isPrivatePerson'    => 'false',
+                'groups'             => [
                     '/Beteiligung-Organisation/Enterprise LLC',
                     '/Beteiligung-Berechtigung/testcustomer/Support',
                 ],
@@ -149,15 +149,15 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => self::TEST_EMAIL,
-                'given_name'       => 'Test',
-                'family_name'      => 'User',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => '999',
+                'email'              => self::TEST_EMAIL,
+                'given_name'         => 'Test',
+                'family_name'        => 'User',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => '999',
                 'preferred_username' => 'testuser',
-                'isPrivatePerson'  => true,
-                'groups'           => [], // No groups needed for private persons
+                'isPrivatePerson'    => true,
+                'groups'             => [], // No groups needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);

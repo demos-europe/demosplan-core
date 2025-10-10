@@ -37,15 +37,15 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => 'privatperson@example.com',
-                'given_name'       => 'Max',
-                'family_name'      => 'Mustermann',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => 'test-private-person-001',
+                'email'              => 'privatperson@example.com',
+                'given_name'         => 'Max',
+                'family_name'        => 'Mustermann',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => 'test-private-person-001',
                 'preferred_username' => 'max.mustermann',
-                'isPrivatePerson'  => true,
-                'groups'           => [],
+                'isPrivatePerson'    => true,
+                'groups'             => [],
             ]);
 
         $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
@@ -70,15 +70,15 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => 'erika@example.com',
-                'given_name'       => 'Erika',
-                'family_name'      => 'Musterfrau',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => 'test-private-person-002',
+                'email'              => 'erika@example.com',
+                'given_name'         => 'Erika',
+                'family_name'        => 'Musterfrau',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => 'test-private-person-002',
                 'preferred_username' => 'erika.musterfrau',
-                'isPrivatePerson'  => 'true',
-                'groups'           => [],
+                'isPrivatePerson'    => 'true',
+                'groups'             => [],
             ]);
 
         $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
@@ -138,12 +138,12 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => 'citizen.legacy@example.com',
-                'given_name'       => 'Legacy',
-                'family_name'      => 'Citizen',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => 'test-legacy-citizen-001',
+                'email'              => 'citizen.legacy@example.com',
+                'given_name'         => 'Legacy',
+                'family_name'        => 'Citizen',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => 'test-legacy-citizen-001',
                 'preferred_username' => 'legacy.citizen',
                 // No isPrivatePerson attribute - should fallback to role-based detection
                 'groups'           => [
@@ -172,15 +172,15 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
-                'email'            => 'existing.citizen@example.com',
-                'given_name'       => 'Existing',
-                'family_name'      => 'Citizen',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => 'test-existing-citizen-001',
+                'email'              => 'existing.citizen@example.com',
+                'given_name'         => 'Existing',
+                'family_name'        => 'Citizen',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => 'test-existing-citizen-001',
                 'preferred_username' => 'existing.citizen',
-                'isPrivatePerson'  => true,
-                'groups'           => [],
+                'isPrivatePerson'    => true,
+                'groups'             => [],
             ]);
 
         $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
@@ -194,15 +194,15 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner2 = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner2->method('toArray')
             ->willReturn([
-                'email'            => 'updated.email@example.com',
-                'given_name'       => 'Updated',
-                'family_name'      => 'Name',
-                'organisationId'   => 'PrivatpersonId',
-                'organisationName' => 'Privatperson',
-                'sub'              => 'test-existing-citizen-001', // Same sub = same user
+                'email'              => 'updated.email@example.com',
+                'given_name'         => 'Updated',
+                'family_name'        => 'Name',
+                'organisationId'     => 'PrivatpersonId',
+                'organisationName'   => 'Privatperson',
+                'sub'                => 'test-existing-citizen-001', // Same sub = same user
                 'preferred_username' => 'updated.citizen',
-                'isPrivatePerson'  => true,
-                'groups'           => [],
+                'isPrivatePerson'    => true,
+                'groups'             => [],
             ]);
 
         $ozgKeycloakUserData2 = new OzgKeycloakUserData(new NullLogger(), $parameterBag);

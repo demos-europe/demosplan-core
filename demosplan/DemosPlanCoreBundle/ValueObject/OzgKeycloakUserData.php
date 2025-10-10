@@ -138,9 +138,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
 
         if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(
-                implode(', ', $missingMandatoryValues).' are missing in requestValues'
-            );
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).' are missing in requestValues');
         }
     }
 
