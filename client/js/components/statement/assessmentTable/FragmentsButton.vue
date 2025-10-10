@@ -73,7 +73,6 @@ export default {
 
   emits: [
     'fragments:show',
-    'fragments:load',
   ],
 
   computed: {
@@ -106,10 +105,6 @@ export default {
        *  and the event becomes the first argument (when called from actionmenu)
        */
       statementId = typeof statementId === 'object' ? false : statementId
-      if (!this.$store.state.Fragment.fragments[this.statementId]) {
-        // Load statements only if the button is clicked for the first time, because then they are stored in fragment store
-        this.$root.$emit('fragments:load', statementId)
-      }
 
       this.$emit('fragments:show', statementId)
     },
