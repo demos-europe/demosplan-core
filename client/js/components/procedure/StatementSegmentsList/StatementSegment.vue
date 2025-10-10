@@ -1069,7 +1069,6 @@ export default {
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
       this.$root.$emit('show-slidebar')
-      this.$root.$emit('segmentMap:show')
     },
 
     showSegmentVersionHistory () {
