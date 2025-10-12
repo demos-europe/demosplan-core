@@ -12,7 +12,8 @@
     type="button"
     data-cy="map:zoomWindow"
     :class="[active ? prefixClass('color-highlight') : '', prefixClass('btn--blank u-ml-0_5 o-link--default weight--bold')]"
-    @click="toggle">
+    @click="toggle"
+  >
     {{ Translator.trans('zoomwindow') }}
   </button>
 </template>

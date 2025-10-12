@@ -14,21 +14,25 @@
     :required="required"
     role="radiogroup"
     aria-labelledby="statementMapReference"
-    aria-required="true">
+    aria-required="true"
+  >
     <legend
       id="statementMapReference"
-      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')">
+      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')"
+    >
       {{ Translator.trans('statement.map.reference') }}
       <span
         v-if="required"
-        aria-hidden="true">*</span>
+        aria-hidden="true"
+      >*</span>
     </legend>
 
     <div
       :class="[
         statement.r_location === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
         prefixClass('block m-0 py-1 px-2 h-[36px] u-1-of-1-palm')
-      ]">
+      ]"
+    >
       <dp-radio
         id="locationNone"
         :label="{
@@ -39,7 +43,8 @@
         data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
         value="notLocated"
-        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }" />
+        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
+      />
     </div>
 
     <div
@@ -49,7 +54,8 @@
         isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
         prefixClass('m-0 pt-1 px-2 h-[66px]'),
         highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
-      ]">
+      ]"
+    >
       <dp-radio
         id="locationPoint"
         name="r_location"
@@ -61,7 +67,8 @@
           text: Translator.trans('statement.map.reference.add_on_map')
         }"
         value="point"
-        @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}" />
+        @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
+      />
 
       <a
         v-show="isLocationSelected"
@@ -72,7 +79,8 @@
           highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
         ]"
         data-cy="formGroupMap:procedureDetailsMap"
-        @click.prevent="gotoTab('procedureDetailsMap')">
+        @click.prevent="gotoTab('procedureDetailsMap')"
+      >
         <template v-if="statement.r_location_point !== ''">
           {{ Translator.trans('location.marked.yours') }}
         </template>
@@ -93,7 +101,8 @@
       :class="[
         statement.r_location === 'county' ? 'bg-color--grey-light-2' : '',
         'c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'
-      ]">
+      ]"
+    >
       <dp-radio
         id="locationcounty"
         :label="{
@@ -104,7 +113,8 @@
         :checked="statement.r_location === 'county'"
         :disabled="disabled"
         value="county"
-        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }" />
+        @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }"
+      />
       <select
         v-if="statement.r_location === 'county'"
         id="r_county"
@@ -113,12 +123,14 @@
         :required="statement.r_location === 'county'"
         :class="prefixClass('o-form__control-select')"
         :value="statement.r_county"
-        @change="val => setStatementData({r_county: val.target.value})">
+        @change="val => setStatementData({r_county: val.target.value})"
+      >
         <option
           v-for="county in counties"
           :key="county.value"
           :selected="county.selected"
-          :value="county.value">
+          :value="county.value"
+        >
           {{ county.label }}
         </option>
       </select>

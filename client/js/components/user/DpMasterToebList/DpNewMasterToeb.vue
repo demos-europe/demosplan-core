@@ -13,7 +13,8 @@
     <dp-new-orga-modal
       ref="newOrgaModal"
       :fields="fields"
-      @save="addOrga" />
+      @save="addOrga"
+    />
     <!-- button to trigger the "new orga modal" -->
     <button
       class="btn btn--primary"
@@ -22,7 +23,8 @@
       aria-role="navigation"
       :aria-label="Translator.trans('organisation.add')"
       aria-expanded="false"
-      @click="() => { $refs.newOrgaModal.toggleModal() }">
+      @click="() => { $refs.newOrgaModal.toggleModal() }"
+    >
       {{ Translator.trans('organisation.add') }}
     </button>
   </div>

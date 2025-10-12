@@ -11,14 +11,17 @@
   <div
     v-if="procedures.length"
     v-scroller
-    class="u-mv-0_25">
+    class="u-mv-0_25"
+  >
     <ul
       class="u-m-0 u-pb-0_25"
-      data-cy="procedureList">
+      data-cy="procedureList"
+    >
       <dp-list-item
         v-for="procedure in procedures"
         :key="procedure.id"
-        :procedure="procedure" />
+        :procedure="procedure"
+      />
     </ul>
   </div>
 </template>

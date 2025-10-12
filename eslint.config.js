@@ -187,8 +187,6 @@ module.exports = [
       'vue/custom-event-name-casing': ['warn', 'camelCase', {
         'ignores': ['/^[a-z][a-zA-Z]*(?::[a-z][a-zA-Z]*)?$/'],
       }],
-      'vue/v-on-event-hyphenation': 'off',
-      'vue/html-closing-bracket-newline': ['off'],
       'vue/order-in-components': ['error', {
         'order': [
           'el',

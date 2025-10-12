@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
@@ -52,7 +53,7 @@ use Elastica\Index;
  * @property-read SegmentCommentResourceType $comments
  * @property-read End $customFields
  */
-final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
+final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface, StatementSegmentResourceTypeInterface
 {
     /**
      * @var Index

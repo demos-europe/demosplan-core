@@ -13,7 +13,8 @@
     <div
       v-if="areElementsSelected"
       role="menu"
-      class="layout__item u-12-of-12 u-p-0_5 bg-color-selection line-height--1_6">
+      class="layout__item u-12-of-12 u-p-0_5 bg-color-selection line-height--1_6"
+    >
       <span class="u-mr">
         {{ selectedItemsText }}
       </span>
@@ -23,15 +24,16 @@
         :procedure-id="procedureId"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
-        @consolidateStatements="$root.$emit('consolidateStatements')"
-        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
+        @export-modal:toggle="tab => $emit('exportModal:toggle', tab)"
+      />
 
       <dp-button
         class="float-right"
         data-cy="editSelectedItemsMenu:unselect"
         :text="Translator.trans('unselect')"
         variant="outline"
-        @click="resetSelection" />
+        @click="resetSelection"
+      />
     </div>
     <!--this slot is needed for the search field and filter modal etc.-->
     <div v-show="!areElementsSelected">
@@ -73,7 +75,6 @@ export default {
   },
 
   emits: [
-    'consolidateStatements',
     'exportModal:toggle',
   ],
 
