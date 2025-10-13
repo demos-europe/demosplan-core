@@ -831,7 +831,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             if ($setProcedureAsDefaultCustomerBlueprint) {
                 $customer = $data['customer'];
-                if ($this->isCustomerMasterBlueprintExisting($customer->getId())) {
+                if ($customer->getDefaultProcedureBlueprint() instanceof Procedure) {
                     $this->messageBag->add(
                         'warning',
                         'customer.master.blueprint.changed',

@@ -124,7 +124,7 @@
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
           id="r_customerMasterBlueprint"
           class="mt-4"
-          :disabled="isCustomerMasterBlueprintExisting"
+          :disabled="customerMasterBlueprintName !== ''"
           :label="{
             hint: Translator.trans('explanation.customer.masterblueprint'),
             text: Translator.trans('master.of.customer.set')
@@ -133,8 +133,11 @@
         />
 
         <dp-inline-notification
-          v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
+          v-if="customerMasterBlueprintName !== '' && hasPermission('feature_admin_customer_master_procedure_template')"
+          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing', {
+            procedureName: customerMasterBlueprintName,
+            organisationName: customerMasterBlueprintOrgaName
+          })"
           type="warning"
         />
 
@@ -218,9 +221,16 @@ export default {
       default: () => [],
     },
 
-    isCustomerMasterBlueprintExisting: {
-      type: Boolean,
-      required: true,
+    customerMasterBlueprintName: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    customerMasterBlueprintOrgaName: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     masterBlueprintId: {

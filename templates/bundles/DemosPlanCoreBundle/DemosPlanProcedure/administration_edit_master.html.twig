@@ -258,7 +258,7 @@
                 </div>
             {% endif %}
 
-            {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.isCustomerMasterBlueprintExisting == true and (proceduresettings.master != true or proceduresettings.customer == null))  %}
+            {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.customerMasterBlueprint is not null and (proceduresettings.master != true or proceduresettings.customer == null))  %}
 
             {% if hasPermission('feature_admin_customer_master_procedure_template') %}
                 <label class="u-mb-0 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
@@ -276,7 +276,10 @@
                     <p class="lbl__hint u-ml-0_75">{{ 'explanation.customer.masterblueprint'|trans }}</p>
                 </label>
                 {% if isAnotherBlueprintSetAsCustomerMaster %}
-                    <p class="lbl__hint u-ml-0_75">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans }}</p>
+                    <p class="lbl__hint u-ml-0_75">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans({
+                        'procedureName': templateVars.customerMasterBlueprint.name,
+                        'organisationName': templateVars.customerMasterBlueprint.orgaName
+                    }) }}</p>
                 {% endif %}
             {% endif %}
 

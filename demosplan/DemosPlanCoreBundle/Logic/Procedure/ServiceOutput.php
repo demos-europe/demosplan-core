@@ -510,10 +510,7 @@ class ServiceOutput
         );
         $templateVars['list'] = $masterListResult;
 
-        $templateVars['isCustomerMasterBlueprintExisting'] =
-            $this->service->isCustomerMasterBlueprintExisting(
-                $this->customerService->getCurrentCustomer()->getId()
-            );
+        $templateVars['customerMasterBlueprint'] = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
 
         return $templateVars;
     }
