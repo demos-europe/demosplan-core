@@ -509,7 +509,8 @@ class ServiceOutput
         );
         $templateVars['list'] = $masterListResult;
 
-        $templateVars['customerMasterBlueprint'] = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
+        $customerMasterBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
+        $templateVars['customerMasterBlueprint'] = $customerMasterBlueprint;
 
         return $templateVars;
     }

@@ -258,7 +258,13 @@
                 </div>
             {% endif %}
 
-            {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.customerMasterBlueprint is not null and (proceduresettings.master != true or proceduresettings.customer == null))  %}
+            {#
+                A procedure is considered "not a customer master" if either:
+                - It is not marked as master (proceduresettings.master != true)
+                - It does not have a customer assigned (proceduresettings.customer == null)
+            #}
+            {% set isNotCustomerMaster = (proceduresettings.master != true or proceduresettings.customer == null) %}
+            {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.customerMasterBlueprint is not null and isNotCustomerMaster) %}
 
             {% if hasPermission('feature_admin_customer_master_procedure_template') %}
                 <label class="u-mb-0 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
