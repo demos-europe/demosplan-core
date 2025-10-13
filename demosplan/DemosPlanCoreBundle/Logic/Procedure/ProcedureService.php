@@ -655,9 +655,9 @@ class ProcedureService implements ProcedureServiceInterface
         }
 
         return $this->procedureRepository->findBy([
-            'orga' => $organisationId,
+            'orga'           => $organisationId,
             'masterTemplate' => true,
-            'deleted' => false,
+            'deleted'        => false,
         ]);
     }
 
