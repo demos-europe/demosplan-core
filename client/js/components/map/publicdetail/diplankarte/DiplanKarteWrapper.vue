@@ -186,12 +186,22 @@ const layerTypeDefaults = {
     tilesize: 512,
     visibleOnLoad: false,
   },
+  xtrasse: {
+    bboxCrs: 'http://www.opengis.net/def/crs/EPSG/0/25832',
+    crs: 'http://www.opengis.net/def/crs/EPSG/0/25832',
+    params: {
+      f: 'json',
+    },
+  },
 }
 
 const layerConfigBuilders = {
   wms: (layer) => ({
     layers: layer.attributes.layers || null,
     version: layer.attributes.layerVersion || '1.3.0',
+  }),
+  xtrasse: (layer) => ({
+    collection: extractCollection(layer.attributes.url),
   }),
   // Add other type specific values that could come from BE here
 }
@@ -202,6 +212,7 @@ const buildLayerConfigsList = () => {
   return layersFromDB
     .map(layer => {
       const layerType = layer.attributes.serviceType?.toLowerCase()
+      const url = 'xtrasse' === layerType ? reduceUrl(layer.attributes.url) : layer.attributes.url
       const configBuilder = layerConfigBuilders[layerType]
 
       if (!configBuilder) {
@@ -215,7 +226,7 @@ const buildLayerConfigsList = () => {
           id: layer.id,
           name: layer.attributes.name,
           type: layerType,
-          url: layer.attributes.url,
+          url: url,
         },
         specificConfig: configBuilder(layer),
       }
@@ -238,10 +249,12 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
   }
 
   const { id, name, type, url } = baseConfig
+  // Map xtrasse type to OAF
+  const typ = type === 'xtrasse' ? 'OAF' : type
   const baseLayer = {
     id,
     name,
-    typ: type,
+    typ,
     url,
   }
 
@@ -257,6 +270,10 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
   }
 }
 
+const extractCollection = (url) => {
+
+}
+
 const updateCustomLayerData = () => {
   if (isStoreAvailable.value) {
     const layerConfigs = buildLayerConfigsList()
@@ -270,6 +287,10 @@ const updateCustomLayerData = () => {
 
     layersLoaded.value = true
   }
+}
+
+const reduceUrl = (url) => {
+
 }
 
 // Feature: Statement Modal
