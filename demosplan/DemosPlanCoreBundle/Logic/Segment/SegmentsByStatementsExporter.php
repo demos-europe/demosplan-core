@@ -138,7 +138,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     private function convertImagesToReferencesInRecommendations(array $segments): array
     {
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
+        $sortedSegments = $this->sortSegmentsByOrderInStatement($segments);
 
         $convertedSegments = [];
         /** @var Segment $segment */
@@ -213,7 +213,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     protected function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
+        $sortedSegments = $this->sortSegmentsByOrderInStatement($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
             $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
@@ -263,16 +263,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $this->createTableWithHeader($section, $headerConfigs);
     }
 
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    protected function sortSegmentsByOrderInStatement(array $segments): array
     {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
+        uasort($segments, [$this, 'compareOrderInStatement']); // sure?
 
         return $segments;
     }
 
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    private function compareOrderInStatement(Segment $segmentA, Segment $segmentB): int
     {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
+        return $segmentA->getOrderInStatement() - $segmentB->getOrderInStatement();
     }
 
     protected function addNoSegmentsMessage(Section $section): void

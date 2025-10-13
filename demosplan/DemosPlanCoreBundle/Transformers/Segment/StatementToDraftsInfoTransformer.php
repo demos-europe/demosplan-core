@@ -51,6 +51,12 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
         $this->segmentableStatementValidator->validate($statementId);
         /** @var Statement $statement */
         $statement = $this->statementHandler->getStatement($statementId);
+
+        // Check if statement is already segmented with new architecture
+        if ($statement->isSegmented()) {
+            return $this->transformSegmentedStatement($statement);
+        }
+
         $result = $statement->getDraftsListJson();
         if (empty($result)) {
             $text = $statement->getText();
@@ -72,6 +78,69 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
         $this->draftsInfoValidator->validate($result);
 
         return $this->adaptDraftsInfo($result, $statement->getProcedureId());
+    }
+
+    /**
+     * Transform an already-segmented statement into drafts info format.
+     * This handles statements using the new order-based segmentation architecture.
+     */
+    private function transformSegmentedStatement(Statement $statement): string
+    {
+        $contentBlocks = [];
+
+        // Collect all segments and text sections
+        $allBlocks = [];
+
+        foreach ($statement->getSegmentsOfStatement() as $segment) {
+            $allBlocks[] = [
+                'type' => 'Segment',
+                'order' => $segment->getOrderInStatement(),
+                'data' => [
+                    'id' => $segment->getId(),
+                    'text' => $segment->getText(),
+                    'textRaw' => $segment->getText(),
+                    'tags' => [], // Tags would need to be loaded if needed
+                    'place' => $segment->getPlace() ? $segment->getPlace()->getId() : null,
+                    'status' => $segment->getStatus(),
+                ],
+            ];
+        }
+
+        foreach ($statement->getTextSections() as $textSection) {
+            $allBlocks[] = [
+                'type' => 'TextSection',
+                'order' => $textSection->getOrderInStatement(),
+                'data' => [
+                    'text' => $textSection->getText(),
+                    'textRaw' => $textSection->getTextRaw(),
+                    'sectionType' => $textSection->getSectionType(),
+                ],
+            ];
+        }
+
+        // Sort by order
+        usort($allBlocks, fn($a, $b) => $a['order'] <=> $b['order']);
+
+        // Convert to content blocks format
+        foreach ($allBlocks as $block) {
+            $contentBlocks[] = array_merge(['type' => $block['type'], 'order' => $block['order']], $block['data']);
+        }
+
+        $draftsInfo = [
+            'data' => [
+                'id' => Uuid::uuid(),
+                'type' => 'slicing transaction',
+                'attributes' => [
+                    'statementId' => $statement->getId(),
+                    'procedureId' => $statement->getProcedureId(),
+                    'segmentationStatus' => 'SEGMENTED',
+                    'contentBlocks' => $contentBlocks,
+                    'textualReference' => $statement->getText(),
+                ],
+            ],
+        ];
+
+        return Json::encode($draftsInfo);
     }
 
     /**

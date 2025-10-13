@@ -47,7 +47,7 @@ final class SegmentFactory extends StatementFactory
     {
         $defaults = parent::defaults();
 
-        $defaults['orderInProcedure'] = 1;
+        $defaults['orderInStatement'] = 1;
         $defaults['parentStatementOfSegment'] = StatementFactory::new(['procedure' => $defaults['procedure']]);
         $defaults['place'] = PlaceFactory::new(['procedure' => $defaults['procedure']]);
 

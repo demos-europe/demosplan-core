@@ -370,10 +370,79 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 })
                 ->aliasedPath(Paths::statement()->draftsListJson)
-                ->readable(false, static function (Statement $statement): ?array {
+                ->readable(false, function (Statement $statement): ?array {
                     $draftsListJson = $statement->getDraftsListJson();
 
-                    return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
+                    // If no drafts list JSON exists yet, generate a default structure
+                    if ('' === $draftsListJson) {
+                        // Check if statement is already segmented with new architecture
+                        if ($statement->isSegmented()) {
+                            // For segmented statements, build from segments and text sections
+                            $contentBlocks = [];
+                            $allBlocks = [];
+
+                            foreach ($statement->getSegmentsOfStatement() as $segment) {
+                                $allBlocks[] = [
+                                    'type' => 'Segment',
+                                    'order' => $segment->getOrderInProcedure(),
+                                    'id' => $segment->getId(),
+                                    'text' => $segment->getText(),
+                                    'textRaw' => $segment->getText(),
+                                    'tags' => [],
+                                    'place' => $segment->getPlace()?->getId(),
+                                    'status' => $segment->getStatus(),
+                                ];
+                            }
+
+                            foreach ($statement->getTextSections() as $textSection) {
+                                $allBlocks[] = [
+                                    'type' => 'TextSection',
+                                    'order' => $textSection->getOrderInStatement(),
+                                    'text' => $textSection->getText(),
+                                    'textRaw' => $textSection->getTextRaw(),
+                                    'sectionType' => $textSection->getSectionType(),
+                                ];
+                            }
+
+                            usort($allBlocks, fn($a, $b) => $a['order'] <=> $b['order']);
+
+                            foreach ($allBlocks as $block) {
+                                $blockData = ['type' => $block['type'], 'order' => $block['order']];
+                                unset($block['type'], $block['order']);
+                                $contentBlocks[] = array_merge($blockData, $block);
+                            }
+
+                            return [
+                                'data' => [
+                                    'id' => \Faker\Provider\Uuid::uuid(),
+                                    'type' => 'slicing transaction',
+                                    'attributes' => [
+                                        'statementId' => $statement->getId(),
+                                        'procedureId' => $statement->getProcedureId(),
+                                        'segmentationStatus' => 'SEGMENTED',
+                                        'contentBlocks' => $contentBlocks,
+                                        'textualReference' => $statement->getText(),
+                                    ],
+                                ],
+                            ];
+                        }
+
+                        // For unsegmented statements, return default structure
+                        return [
+                            'data' => [
+                                'id' => \Faker\Provider\Uuid::uuid(),
+                                'type' => 'slicing transaction',
+                                'attributes' => [
+                                    'statementId' => $statement->getId(),
+                                    'procedureId' => $statement->getProcedureId(),
+                                    'textualReference' => $statement->getText(),
+                                    'segments' => [],
+                                ],
+                            ],
+                        ];
+                    }
+
+                    return Json::decodeToArray($draftsListJson);
                 });
             $configBuilder->status->readable(true, function (Statement $statement) {
                 return $this->statementService->getProcessingStatus($statement);

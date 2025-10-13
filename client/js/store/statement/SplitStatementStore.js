@@ -21,6 +21,7 @@ const SplitStatementStore = {
     availablePlaces: [],
     availableTags: [],
     categorizedTags: [],
+    contentBlocks: [], // NEW: Order-based content blocks
     currentlyHighlightedSegmentId: null,
     editModeActive: false,
     // Segment currently being edited
@@ -231,10 +232,19 @@ const SplitStatementStore = {
             return []
           }
           const initialData = data.data.attributes.segmentDraftList.data
-          const segments = initialData.attributes.segments
+
+          // Check if we have contentBlocks (new format) or segments (legacy format)
+          const hasContentBlocks = hasOwnProp(initialData.attributes, 'contentBlocks')
+          const segments = hasContentBlocks
+            ? [] // Don't populate segments for new format
+            : (initialData.attributes.segments || [])
+          const contentBlocks = hasContentBlocks
+            ? (initialData.attributes.contentBlocks || [])
+            : []
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
+          commit('setProperty', { prop: 'contentBlocks', val: contentBlocks })
 
           // This should not be neccessary once the BE always sends a place
           segments.forEach((segment, idx) => {
@@ -428,8 +438,20 @@ const SplitStatementStore = {
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
-      dataToSend.attributes.segments = state.segmentsWithText
-      dataToSend.attributes.statementText = state.statementText
+
+      // Check if we're using new order-based format
+      // The segmentationStatus is in initialData.attributes (from segmentDraftList)
+      const useOrderBased = state.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+
+      if (useOrderBased && state.contentBlocks && state.contentBlocks.length > 0) {
+        // NEW: Send contentBlocks instead of segmentsWithText
+        dataToSend.attributes.contentBlocks = state.contentBlocks
+        // statementText is optional for order-based, backend computes it
+      } else {
+        // LEGACY: Send segmentsWithText and statementText
+        dataToSend.attributes.segments = state.segmentsWithText
+        dataToSend.attributes.statementText = state.statementText
+      }
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
         statementId: state.statementId,

@@ -545,6 +545,63 @@ export default {
       return wrapper.innerHTML.trim()
     },
 
+    /**
+     * Extract content blocks from ProseMirror document
+     * This replaces the position-based extraction with order-based composition
+     *
+     * @returns {Array} Array of content blocks with type, order, and content
+     */
+    extractContentBlocks () {
+      const blocks = []
+      let order = 1
+
+      // Serialize document to HTML
+      const state = this.prosemirror.view.state
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+      wrapper.appendChild(fragment)
+
+      // Walk through all top-level elements
+      const nodes = wrapper.querySelectorAll('p, ul, ol, h1, h2, h3, h4, h5, h6, blockquote')
+
+      nodes.forEach(node => {
+        // Check if this node contains a segment mark
+        const segmentSpan = node.querySelector('span[data-segment-id]')
+
+        if (segmentSpan) {
+          const segmentId = segmentSpan.getAttribute('data-segment-id')
+          const segment = this.segments.find(s => s.id === segmentId)
+
+          if (segment) {
+            blocks.push({
+              type: 'Segment',
+              id: segmentId,
+              order: order++,
+              textRaw: node.outerHTML,
+              text: node.textContent,
+              tags: segment.tags || [],
+              place: segment.place || null,
+              status: segment.status || 'confirmed'
+            })
+          }
+        } else {
+          // This is unstructured content (TextSection)
+          blocks.push({
+            type: 'TextSection',
+            order: order++,
+            textRaw: node.outerHTML,
+            text: node.textContent,
+            sectionType: 'INTERLUDE'
+          })
+        }
+      })
+
+      return blocks
+    },
+
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
       return dpApi.get(url, { sort: 'lastname' })
@@ -824,21 +881,36 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Set data with html not only charStart and charEnd
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text,
-                }
-              })
-            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
-            const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
-            this.setProperty({ prop: 'statementText', val: currentStatementText })
-            this.saveSegmentsFinal()
-              .then(() => this.setProperty({ prop: 'isBusy', val: false }))
+            // Check if we're using new order-based format (contentBlocks) or legacy position-based
+            // The segmentationStatus is in initialData.attributes (from segmentDraftList)
+            const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+
+            if (useOrderBased) {
+              // NEW: Extract content blocks with order
+              const contentBlocks = this.extractContentBlocks()
+              this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+
+              // For order-based, we don't need full statement text
+              // Backend will compute it from blocks
+              this.saveSegmentsFinal()
+                .then(() => this.setProperty({ prop: 'isBusy', val: false }))
+            } else {
+              // LEGACY: Use position-based approach
+              const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+              const segmentsWithText = this.segments
+                .filter(segment => !!ranges[segment.id])
+                .map(segment => {
+                  return {
+                    ...segment,
+                    text: ranges[segment.id].text,
+                  }
+                })
+              this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
+              const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+              this.setProperty({ prop: 'statementText', val: currentStatementText })
+              this.saveSegmentsFinal()
+                .then(() => this.setProperty({ prop: 'isBusy', val: false }))
+            }
           } catch (err) {
             console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))

@@ -94,10 +94,26 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     {
         $segments = [];
         $procedure = $statement->getProcedure();
-        $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-        // The segments are received potentially unsorted. Hence sort them by their position
-        // in the text so their $externId is set in the correct order afterwards.
-        usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Check if we're using the new order-based format (contentBlocks) or legacy position-based (segments)
+        $attributes = $draftsInfoArray['data']['attributes'] ?? [];
+        $isOrderBased = isset($attributes['contentBlocks']);
+
+        if ($isOrderBased) {
+            // NEW: Extract segments from contentBlocks (filter only type='segment')
+            $draftsList = array_filter(
+                $attributes['contentBlocks'],
+                static fn (array $block): bool => ($block['type'] ?? '') === 'segment'
+            );
+            // Sort by order field
+            usort($draftsList, static fn (array $draft1, array $draft2): int => ($draft1['order'] ?? 0) <=> ($draft2['order'] ?? 0));
+        } else {
+            // LEGACY: Extract segments from segments array
+            $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
+            // Sort by charEnd position in the text
+            usort($draftsList, static fn (array $draft1, array $draft2): int => ($draft1['charEnd'] ?? 0) < ($draft2['charEnd'] ?? 0) ? -1 : 1);
+        }
+
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
@@ -107,10 +123,10 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setText($draft['text']);
             $externId = $statement->getExternId().'-'.$counter;
             $segment->setExternId($externId);
-            $segment->setOrderInProcedure($internId);
+            $segment->setOrderInStatement($internId); // wrong
             $segment->setPhase('analysis');
             $segment->setProcedure($statement->getProcedure());
-            $tags = $this->getTags($draft['tags'], $procedure);
+            $tags = $this->getTags($draft['tags'] ?? [], $procedure);
             $segment->setTags($tags);
             $segment = $this->statementService->setPublicVerified(
                 $segment,

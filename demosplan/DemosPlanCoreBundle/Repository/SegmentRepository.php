@@ -72,22 +72,22 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
-     * Returns the highest number in field orderInProcedure filtered by procedure id.
+     * Returns the highest number in field orderInStatement filtered by procedure id.
      */
     public function getLastSortedSegmentNumber(string $procedureId): int
     {
         $manager = $this->getEntityManager();
         $query = $manager->createQueryBuilder()
-            ->select('segment.orderInProcedure')
+            ->select('segment.orderInStatement')//wrong, probably orderInProcedure
             ->from(Segment::class, 'segment')
-            ->where('segment.orderInProcedure IS NOT NULL')
+            ->where('segment.orderInStatement IS NOT NULL')
             ->andWhere('segment.procedure = :procedureId')->setParameter('procedureId', $procedureId)
-            ->addOrderBy('segment.orderInProcedure', 'DESC')
+            ->addOrderBy('segment.orderInStatement', 'DESC')
             ->setMaxResults(1)
             ->getQuery();
         $segments = $query->getResult();
 
-        return 0 === (is_countable($segments) ? count($segments) : 0) ? 0 : $segments[0]['orderInProcedure'];
+        return 0 === (is_countable($segments) ? count($segments) : 0) ? 0 : $segments[0]['orderInStatement'];
     }
 
     /**

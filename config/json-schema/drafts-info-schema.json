@@ -37,8 +37,17 @@
           "required": [
             "statementId",
             "procedureId",
-            "textualReference",
-            "segments"
+            "textualReference"
+          ],
+          "oneOf": [
+            {
+              "required": ["segments"],
+              "description": "Legacy position-based segmentation format"
+            },
+            {
+              "required": ["contentBlocks"],
+              "description": "New order-based segmentation format"
+            }
           ],
           "properties": {
             "statementId": {
@@ -65,7 +74,7 @@
               "$id": "#/properties/data/properties/attributes/properties/segments",
               "type": "array",
               "title": "The Segments Schema",
-              "description": "Array with the Segments Drafts",
+              "description": "Array with the Segments Drafts (legacy position-based format)",
               "items": {
                 "$id": "#/properties/data/properties/attributes/properties/segments/items",
                 "type": "object",
@@ -73,8 +82,6 @@
                 "description": "Segment Draft.",
                 "required": [
                   "id",
-                  "charStart",
-                  "charEnd",
                   "tags"
                 ],
                 "properties": {
@@ -141,6 +148,110 @@
                   }
                 }
               }
+            },
+            "contentBlocks": {
+              "$id": "#/properties/data/properties/attributes/properties/contentBlocks",
+              "type": "array",
+              "title": "The ContentBlocks Schema",
+              "description": "Array with content blocks in order-based format (segments and text sections)",
+              "items": {
+                "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items",
+                "type": "object",
+                "title": "The ContentBlock Items Schema",
+                "description": "A content block (segment or text section)",
+                "required": [
+                  "id",
+                  "type",
+                  "order"
+                ],
+                "properties": {
+                  "id": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/id",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36,
+                    "title": "The Id Schema"
+                  },
+                  "type": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/type",
+                    "type": "string",
+                    "enum": ["segment", "textSection"],
+                    "title": "The Type Schema",
+                    "description": "Type discriminator: 'segment' for segments, 'textSection' for text sections"
+                  },
+                  "order": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/order",
+                    "type": "integer",
+                    "minimum": 1,
+                    "title": "The Order Schema",
+                    "description": "Sequential position in the statement (1, 2, 3, ...)"
+                  },
+                  "text": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/text",
+                    "type": "string",
+                    "title": "The Text Schema",
+                    "description": "The text content of this block"
+                  },
+                  "sectionType": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/sectionType",
+                    "type": "string",
+                    "enum": ["heading", "paragraph", "list"],
+                    "title": "The SectionType Schema",
+                    "description": "Type of text section (only for type='textSection')"
+                  },
+                  "assigneeId": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/assigneeId",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36,
+                    "title": "The AssigneeId Schema",
+                    "description": "Assigned user ID (only for type='segment')"
+                  },
+                  "placeId": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/placeId",
+                    "type": "string",
+                    "minLength": 36,
+                    "maxLength": 36,
+                    "title": "The PlaceId Schema",
+                    "description": "Place ID (only for type='segment')"
+                  },
+                  "tags": {
+                    "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/tags",
+                    "type": "array",
+                    "title": "The Tags Schema",
+                    "description": "Tags array (only for type='segment')",
+                    "items": {
+                      "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/tags/items",
+                      "type": "object",
+                      "title": "The Tag Items Schema",
+                      "required": [
+                        "tagName", "id"
+                      ],
+                      "properties": {
+                        "tagName": {
+                          "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/tags/items/properties/tagName",
+                          "type": "string",
+                          "title": "Tagname Schema"
+                        },
+                        "id": {
+                          "$id": "#/properties/data/properties/attributes/properties/contentBlocks/items/properties/tags/items/properties/id",
+                          "type": "string",
+                          "minLength": 36,
+                          "maxLength": 36,
+                          "title": "The id Schema"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "segmentationStatus": {
+              "$id": "#/properties/data/properties/attributes/properties/segmentationStatus",
+              "type": "string",
+              "enum": ["unsegmented", "SEGMENTED"],
+              "title": "The SegmentationStatus Schema",
+              "description": "Status indicating whether statement uses legacy or new segmentation format"
             }
           }
         }
