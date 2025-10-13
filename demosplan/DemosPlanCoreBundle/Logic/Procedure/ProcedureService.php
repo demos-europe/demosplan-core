@@ -625,9 +625,16 @@ class ProcedureService implements ProcedureServiceInterface
             $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
             // Add master templates for the user's organization when fetching templates
-            if ($template) {
+            if ($template && null !== $user->getOrganisationId()) {
                 $masterTemplates = $this->getMasterTemplatesForUser($user);
-                $procedureList = array_merge($procedureList, $masterTemplates);
+                // Merge and deduplicate procedures by their ID to prevent duplicates
+                $allProcedures = array_merge($procedureList, $masterTemplates);
+                $uniqueProcedures = [];
+                foreach ($allProcedures as $procedure) {
+                    $uniqueProcedures[$procedure->getId()] = $procedure;
+                }
+                // Re-index array to maintain numeric keys
+                $procedureList = array_values($uniqueProcedures);
             }
 
             if ($toLegacy) {
