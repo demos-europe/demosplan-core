@@ -271,7 +271,21 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
 }
 
 const extractCollection = (url) => {
+  const startIndex = url.indexOf('/collections/') + '/collections/'.length
 
+  // Find the next '/' or '?' or end of string
+  let endIndex = url.length
+  const nextSlash = url.indexOf('/', startIndex)
+  const nextQuery = url.indexOf('?', startIndex)
+
+  if (nextSlash !== -1) {
+    endIndex = nextSlash
+  }
+  if (nextQuery !== -1 && nextQuery < endIndex) {
+    endIndex = nextQuery
+  }
+
+  return url.substring(startIndex, endIndex)
 }
 
 const updateCustomLayerData = () => {
@@ -290,7 +304,7 @@ const updateCustomLayerData = () => {
 }
 
 const reduceUrl = (url) => {
-
+  return url.substring(0, url.indexOf('/collections/'))
 }
 
 // Feature: Statement Modal
