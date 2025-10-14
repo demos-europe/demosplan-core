@@ -31,8 +31,8 @@
       data-cy="newMapLayerURL"
       name="r_url"
       required
-      @blur="getLayerCapabilities"
-      @enter="getLayerCapabilities"
+      @blur="validateUrlAndGetCapabilities"
+      @enter="validateUrlAndGetCapabilities"
     />
 
     <dp-select
@@ -45,7 +45,7 @@
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
-      @select="serviceType !== 'xtrasse' && setServiceInUrl"
+      @select="onServiceTypeChange"
     />
 
     <input
@@ -356,6 +356,65 @@ export default {
       })
     },
 
+    validateXtrasseUrl () {
+      // UX feedback via notifications only - backend does authoritative validation
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const collectionsPattern = '/collections/'
+      const lowerUrl = this.url.toLowerCase()
+      const collectionsIndex = lowerUrl.indexOf(collectionsPattern)
+
+      // Check if URL contains /collections/ (case-insensitive)
+      if (collectionsIndex === -1) {
+        const errorMessage = Translator.trans('error.map.layer.xtrasse.missing.collections')
+        dplan.notify.error(errorMessage)
+        return false
+      }
+
+      // Check if /collections/ is not at the end (there must be content after it)
+      const afterCollections = this.url.substring(collectionsIndex + collectionsPattern.length)
+      if (afterCollections.trim() === '' || afterCollections === '/' || afterCollections.match(/^\/+$/)) {
+        const errorMessage = Translator.trans('error.map.layer.xtrasse.collections.end')
+        dplan.notify.error(errorMessage)
+        return false
+      }
+
+      return true
+    },
+
+    validateWmsWmtsUrl () {
+      // UX feedback via notifications only - backend does authoritative validation
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const upperUrl = this.url.toUpperCase()
+
+      // Check if URL contains SERVICE parameter
+      if (!upperUrl.includes('SERVICE=')) {
+        const errorMessage = Translator.trans('error.map.layer.missing.service')
+        dplan.notify.error(errorMessage)
+        return false
+      }
+
+      return true
+    },
+
+    validateUrlAndGetCapabilities () {
+      if (this.serviceType === 'xtrasse') {
+        if (!this.validateXtrasseUrl()) {
+          return
+        }
+      }
+      if (!this.validateWmsWmtsUrl()) {
+        return
+      }
+
+      this.getLayerCapabilities()
+    },
+
     extractDataFromWMSCapabilities () {
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
@@ -536,7 +595,6 @@ export default {
       const serviceKey = 'SERVICE='
       if (upperUrl.includes(serviceKey) === false) {
         url = `${url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
-        this.url = url
         separator = '&'
       } else {
         const serviceMatch = upperUrl.match(new RegExp(serviceKey + '(\\w*)', 'i'))[1]
@@ -580,22 +638,6 @@ export default {
 
     deselectAllLayers () {
       this.layers = []
-    },
-
-    setServiceInUrl () {
-      const serviceKey = 'SERVICE='
-      // Find existing Key
-      const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
-
-      const match = this.url.match(serviceParam)
-      if (match && match.length > 0) {
-        this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
-      } else {
-        const separator = this.url.includes('?') ? '&' : '?'
-        this.url = `${this.url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
-      }
-
-      this.getLayerCapabilities()
     },
 
     validateSavedLayersAvailability () {

@@ -47,7 +47,7 @@ class ServiceStorage implements MapServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly MapHandler $handler,
         MapService $service,
-        private readonly TranslatorInterface $translator,
+        private readonly TranslatorInterface $translator
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
         $this->service = $service;
@@ -122,8 +122,50 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']
-            && (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
+        // Validate xtrasse URL format
+        if ($isXtrasse && array_key_exists('r_url', $data)) {
+            $url = trim((string) $data['r_url']);
+            $lowerUrl = strtolower($url);
+            $collectionsPattern = '/collections/';
+            $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+
+            // Check if URL contains /collections/ (case-insensitive)
+            if (false === $collectionsIndex) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.map.layer.xtrasse.missing.collections'),
+                ];
+            } else {
+                // Check if /collections/ is not at the end (there must be content after it)
+                $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
+                $afterCollectionsTrimmed = trim($afterCollections, '/ ');
+                if ('' === $afterCollectionsTrimmed) {
+                    $mandatoryErrors[] = [
+                        'type'    => 'error',
+                        'message' => $this->translator->trans('error.map.layer.xtrasse.collections.end'),
+                    ];
+                }
+            }
+        }
+
+        // Validate WMS/WMTS URL contains SERVICE parameter
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data) &&
+            in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
+            $url = trim((string) $data['r_url']);
+            $upperUrl = strtoupper($url);
+
+            // Check if URL contains SERVICE parameter (case-insensitive)
+            if (false === strpos($upperUrl, 'SERVICE=')) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.map.layer.missing.service'),
+                ];
+            }
+        }
+
+        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'] &&
+            (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -297,6 +339,8 @@ class ServiceStorage implements MapServiceStorageInterface
      * @param string $procedure
      * @param array  $data
      *
+     * @return mixed
+     *
      * @throws MapValidationException
      */
     public function administrationGislayerEditHandler($procedure, $data)
@@ -359,8 +403,50 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'])
-            && (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
+        // Validate xtrasse URL format
+        if (!$isGlobalLayer && $isXtrasse && array_key_exists('r_url', $data)) {
+            $url = trim((string) $data['r_url']);
+            $lowerUrl = strtolower($url);
+            $collectionsPattern = '/collections/';
+            $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+
+            // Check if URL contains /collections/ (case-insensitive)
+            if (false === $collectionsIndex) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.map.layer.xtrasse.missing.collections'),
+                ];
+            } else {
+                // Check if /collections/ is not at the end (there must be content after it)
+                $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
+                $afterCollectionsTrimmed = trim($afterCollections, '/ ');
+                if ('' === $afterCollectionsTrimmed) {
+                    $mandatoryErrors[] = [
+                        'type'    => 'error',
+                        'message' => $this->translator->trans('error.map.layer.xtrasse.collections.end'),
+                    ];
+                }
+            }
+        }
+
+        // Validate WMS/WMTS URL contains SERVICE parameter
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data) &&
+            in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
+            $url = trim((string) $data['r_url']);
+            $upperUrl = strtoupper($url);
+
+            // Check if URL contains SERVICE parameter (case-insensitive)
+            if (false === strpos($upperUrl, 'SERVICE=')) {
+                $mandatoryErrors[] = [
+                    'type'    => 'error',
+                    'message' => $this->translator->trans('error.map.layer.missing.service'),
+                ];
+            }
+        }
+
+        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']) &&
+            (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -410,7 +496,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
             $originalPath = parse_url((string) $data['r_url'], \PHP_URL_PATH);
             $encodedPathSegments = array_map(
-                static fn (string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
+                static fn(string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
             );
 
             $encodedPath = implode('/', $encodedPathSegments);
