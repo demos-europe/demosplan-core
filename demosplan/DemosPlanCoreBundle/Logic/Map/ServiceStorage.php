@@ -47,7 +47,7 @@ class ServiceStorage implements MapServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly MapHandler $handler,
         MapService $service,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
         $this->service = $service;
@@ -149,8 +149,8 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         // Validate WMS/WMTS URL contains SERVICE parameter
-        $isWmsOrWmts = array_key_exists('r_serviceType', $data) &&
-            in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data)
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
             $url = trim((string) $data['r_url']);
             $upperUrl = strtoupper($url);
@@ -164,8 +164,8 @@ class ServiceStorage implements MapServiceStorageInterface
             }
         }
 
-        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'] &&
-            (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
+        if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']
+            && (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -339,8 +339,6 @@ class ServiceStorage implements MapServiceStorageInterface
      * @param string $procedure
      * @param array  $data
      *
-     * @return mixed
-     *
      * @throws MapValidationException
      */
     public function administrationGislayerEditHandler($procedure, $data)
@@ -430,8 +428,8 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         // Validate WMS/WMTS URL contains SERVICE parameter
-        $isWmsOrWmts = array_key_exists('r_serviceType', $data) &&
-            in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data)
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
             $url = trim((string) $data['r_url']);
             $upperUrl = strtoupper($url);
@@ -445,8 +443,8 @@ class ServiceStorage implements MapServiceStorageInterface
             }
         }
 
-        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']) &&
-            (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
+        if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'])
+            && (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -496,7 +494,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
             $originalPath = parse_url((string) $data['r_url'], \PHP_URL_PATH);
             $encodedPathSegments = array_map(
-                static fn(string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
+                static fn (string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
             );
 
             $encodedPath = implode('/', $encodedPathSegments);
