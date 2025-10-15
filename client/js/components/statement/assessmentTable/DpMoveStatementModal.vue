@@ -245,7 +245,11 @@ export default {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(statementId).fragments
         this.statementFragments = fragments.map(fragment => {
-          return { id: fragment.id, assigneeId: fragment.assignee.id, departmentId: fragment.departmentId }
+          return {
+            id: fragment.id,
+            assigneeId: fragment.assignee?.id || '',
+            departmentId: fragment.departmentId,
+          }
         })
       }
 
