@@ -68,14 +68,14 @@
     />
 
     <dp-label
-      v-if="serviceType!=='xtrasse'"
+      v-if="serviceType !== 'xtrasse'"
       :text="Translator.trans('layers')"
       for="r_layers"
       required
     />
 
     <dp-multiselect
-      v-if="serviceType!=='xtrasse'"
+      v-if="serviceType !== 'xtrasse'"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
@@ -116,7 +116,7 @@
     >
 
     <dp-ol-map
-      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType!=='xtrasse'"
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType !== 'xtrasse'"
       :layers="previewLayers"
       :procedure-id="procedureId"
       small
@@ -337,6 +337,7 @@ export default {
       if (hasPermission('feature_map_wmts')) {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
+
       if (hasPermission('feature_diplan_karte')) {
         serviceTypeOptions.push({ value: 'xtrasse', label: 'Xtrasse' })
       }
@@ -356,63 +357,6 @@ export default {
       })
     },
 
-    validateXtrasseUrl () {
-      // UX feedback via notifications only - backend does authoritative validation
-      if (!this.url || this.url === '') {
-        return true
-      }
-
-      const collectionsPattern = '/collections/'
-      const lowerUrl = this.url.toLowerCase()
-      const collectionsIndex = lowerUrl.indexOf(collectionsPattern)
-
-      // Check if URL contains /collections/ (case-insensitive)
-      if (collectionsIndex === -1) {
-        const errorMessage = Translator.trans('error.map.layer.xtrasse.missing.collections')
-        dplan.notify.error(errorMessage)
-        return false
-      }
-
-      // Check if /collections/ is not at the end (there must be content after it)
-      const afterCollections = this.url.substring(collectionsIndex + collectionsPattern.length)
-      if (afterCollections.trim() === '' || afterCollections === '/' || afterCollections.match(/^\/+$/)) {
-        const errorMessage = Translator.trans('error.map.layer.xtrasse.collections.end')
-        dplan.notify.error(errorMessage)
-        return false
-      }
-
-      return true
-    },
-
-    validateWmsWmtsUrl () {
-      // UX feedback via notifications only - backend does authoritative validation
-      if (!this.url || this.url === '') {
-        return true
-      }
-
-      const upperUrl = this.url.toUpperCase()
-
-      // Check if URL contains SERVICE parameter
-      if (!upperUrl.includes('SERVICE=')) {
-        const errorMessage = Translator.trans('error.map.layer.missing.service')
-        dplan.notify.error(errorMessage)
-        return false
-      }
-
-      return true
-    },
-
-    validateUrlAndGetCapabilities () {
-      if (this.serviceType === 'xtrasse' && !this.validateXtrasseUrl()) {
-        return
-      }
-
-      if (this.serviceType !== 'xtrasse' && !this.validateWmsWmtsUrl()) {
-        return
-      }
-
-      this.getLayerCapabilities()
-    },
 
     extractDataFromWMSCapabilities () {
       // Show available layers in layers dropdown
@@ -660,6 +604,73 @@ export default {
       } else {
         this.unavailableLayers = []
       }
+    },
+
+    validateUrlAndGetCapabilities () {
+      if (this.serviceType === 'xtrasse' && !this.validateXtrasseUrl()) {
+        return
+      }
+
+      if (this.serviceType !== 'xtrasse' && !this.validateWmsWmtsUrl()) {
+        return
+      }
+
+      this.getLayerCapabilities()
+    },
+
+    validateWmsWmtsUrl () {
+      // UX feedback via notifications only - backend does authoritative validation
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const upperUrl = this.url.toUpperCase()
+
+      // Check if URL contains SERVICE parameter
+      if (!upperUrl.includes('SERVICE=')) {
+        const errorMessage = Translator.trans('error.map.layer.missing.service')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      return true
+    },
+
+    validateXtrasseUrl () {
+      /*
+       * With the current frontend architecture, it's not possible to validate the url on submit,
+       * because the submit button is in a twig file (map_admin_gislayer_edit.html.twig).
+       * So here we give UX feedback via notifications only - backend does authoritative validation that prevents the save.
+       */
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const collectionsPattern = '/collections/'
+      const lowerUrl = this.url.toLowerCase()
+      const collectionsIndex = lowerUrl.indexOf(collectionsPattern)
+
+      // Check if URL contains /collections/ (case-insensitive)
+      if (collectionsIndex === -1) {
+        const errorMessage = Translator.trans('error.map.layer.xtrasse.missing.collections')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      // Check if /collections/ is not at the end (there must be content after it)
+      const afterCollections = this.url.substring(collectionsIndex + collectionsPattern.length)
+      const hasNoCollectionName = afterCollections.trim() === '' || afterCollections === '/' || afterCollections.match(/^\/+$/)
+
+      if (hasNoCollectionName) {
+        const errorMessage = Translator.trans('error.map.layer.xtrasse.collections.end')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      return true
     },
   },
 

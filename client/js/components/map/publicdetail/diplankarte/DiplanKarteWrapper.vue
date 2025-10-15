@@ -275,14 +275,14 @@ const extractCollection = (url) => {
 
   // Find the next '/' or '?' or end of string
   let endIndex = url.length
-  const nextSlash = url.indexOf('/', startIndex)
-  const nextQuery = url.indexOf('?', startIndex)
+  const nextSlashIndex = url.indexOf('/', startIndex)
+  const nextQueryIndex = url.indexOf('?', startIndex)
 
-  if (nextSlash !== -1) {
-    endIndex = nextSlash
+  if (nextSlashIndex !== -1) {
+    endIndex = nextSlashIndex
   }
-  if (nextQuery !== -1 && nextQuery < endIndex) {
-    endIndex = nextQuery
+  if (nextQueryIndex !== -1 && nextQueryIndex < endIndex) {
+    endIndex = nextQueryIndex
   }
 
   return url.substring(startIndex, endIndex)
