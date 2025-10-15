@@ -304,26 +304,11 @@ const transformedTerritory = reactive({
 })
 
 const transformInitialExtent = () => {
-  console.log('=== EXTENT TRANSFORM DEBUG ===')
-  console.log('Original initialExtent:', initialExtent)
-
   if (!initialExtent || initialExtent.length === 0) {
-    console.log('Initial extent is empty, setting undefined')
     transformedInitialExtent.value = undefined
   } else {
-    console.log('Transforming extent from EPSG:3857 to EPSG:4326')
-    console.log('=== TERRITORY TRANSFORM DEBUG ===')
-    console.log('Original territory:', territory)
-    console.log('Transformed territory:', transformedTerritory)
-    console.log('=== END TERRITORY TRANSFORM DEBUG ===')
-
-    transformedInitialExtent.value = transformExtent(initialExtent,
-      'EPSG:3857', 'EPSG:4326')
+    transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
   }
-
-  console.log('Final transformedInitialExtent:',
-    transformedInitialExtent.value)
-  console.log('=== END EXTENT TRANSFORM DEBUG ===')
 }
 
 const transformTerritoryCoordinates = () => {
