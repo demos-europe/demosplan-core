@@ -11,7 +11,7 @@
   <dp-modal
     ref="moveStatementModal"
     content-classes="u-1-of-2"
-    @modal:toggled="resetFragments"
+    @modal:toggled="handleModalToggled"
   >
     <!-- modal header -->
     <template v-slot:header>
@@ -225,6 +225,13 @@ export default {
     ...mapMutations('AssessmentTable', [
       'setModalProperty',
     ]),
+
+    handleModalToggled (isOpen) {
+      if (!isOpen) {
+        this.setModalProperty({ prop: 'moveStatementModal', val: { show: false, statementId: null } })
+        this.resetFragments()
+      }
+    },
 
     handleToggleModal () {
       this.selectedProcedureId = ''
