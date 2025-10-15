@@ -1,10 +1,10 @@
 <license>
-(c) 2010-present DEMOS plan GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
-This file is part of the package demosplan,
-for more information see the license file.
+  This file is part of the package demosplan,
+  for more information see the license file.
 
-All rights reserved
+  All rights reserved
 </license>
 
 <template>
@@ -438,9 +438,9 @@ export default {
                   this.procedureSettings.planningArea !== 'all' &&
                   hasPermission('feature_map_new_statement')) {
                   const popUpContent = Translator.trans('procedure.move.to.list') +
-                    '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                    Translator.trans('procedures.all.show') +
-                    '</a>'
+                  '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                  Translator.trans('procedures.all.show') +
+                  '</a>'
 
                   this.showPopup('contentPopup', {
                     title: Translator.trans('procedure.not.in.scope'),
@@ -1082,9 +1082,9 @@ export default {
                       this.procedureSettings.planningArea !== 'all' &&
                       hasPermission('feature_map_new_statement')) {
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                        Translator.trans('procedures.all.show') +
-                        '</a>'
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      Translator.trans('procedures.all.show') +
+                      '</a>'
 
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
@@ -1416,17 +1416,17 @@ export default {
                   if (responsePr.data.code === 100 && responsePr.data.success && responsePr.data.body !== null && responsePr.data.body !== '') {
                     /* Check if coordinates are in the area of the current procedure */
                     if (responsePr.data.body.id !== this.procedureId) {
-                      /*
-                       * Roll back to this one when we can handle procedure versions
-                       * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                       *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
-                       *     Translator.trans('procedure.goto') +
-                       *     '</a>';
-                       */
+                    /*
+                     * Roll back to this one when we can handle procedure versions
+                     * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
+                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                     *     Translator.trans('procedure.goto') +
+                     *     '</a>';
+                     */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                        Translator.trans('procedures.all.show') +
-                        '</a>'
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      Translator.trans('procedures.all.show') +
+                      '</a>'
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
                         text: popUpContent,
@@ -2216,4 +2216,3 @@ export default {
   },
 }
 </script>
-
