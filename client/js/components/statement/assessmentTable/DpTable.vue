@@ -431,10 +431,6 @@ export default {
     },
   },
 
-  emits: [
-    'assessmentTable:loaded',
-  ],
-
   data () {
     return {
       filterHash: this.initFilterHash,
@@ -819,8 +815,6 @@ export default {
              * to ensure dom manipulation of Stickier is executed last.
              */
             this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
-
-            this.$root.$emit('assessmentTable:loaded')
           })
       })
 

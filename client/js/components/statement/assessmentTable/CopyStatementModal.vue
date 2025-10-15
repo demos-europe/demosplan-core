@@ -205,15 +205,15 @@ export default {
         statementId: this.statementId,
       })
         .finally(() => {
-        this.setModalProperty({
-          prop: 'copyStatementModal',
-          val: {
-            ...this.copyStatementModal,
-            statementId: null
-          }
+          this.setModalProperty({
+            prop: 'copyStatementModal',
+            val: {
+              ...this.copyStatementModal,
+              statementId: null,
+            },
+          })
+          this.handleToggleModal()
         })
-        this.handleToggleModal()
-      })
     },
 
     // Fetch statement fragments to check if user can move this statement

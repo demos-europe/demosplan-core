@@ -292,7 +292,7 @@ export default {
               movedStatementId,
               placeholderStatementId,
               movedToAccessibleProcedure: this.movedToAccessibleProcedure(movedToProcedureId),
-              movedToProcedureName: movedToProcedureName || ''
+              movedToProcedureName: movedToProcedureName || '',
             }
 
             // Handle update of assessment table ui from TableCard.vue
