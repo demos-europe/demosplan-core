@@ -1,10 +1,10 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
@@ -202,33 +202,18 @@ export default {
     },
 
     initialExtent () { // This is the Startkartenausschnitt, stored in prop procedureInitialExtent
-      console.log('=== EXTENT DEBUG ===')
-      console.log('procedureId:', this.procedureId)
-      console.log('procedureInitialExtent:', this.procedureInitialExtent)
-      console.log('procedureDefaultInitialExtent:', this.procedureDefaultInitialExtent)
-      console.log('procedureMaxExtent:', this.procedureMaxExtent)
-
       if (this.procedureInitialExtent.length === 0 && this.procedureDefaultInitialExtent.length === 0) {
-        console.log('Using publicExtent fallback')
         return JSON.parse(this.projectMapSettings.publicExtent)
       }
 
       let initialExtent
-      const initialMatch = JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent)
-      console.log('Initial extent matches default?', initialMatch)
-
-      if (this.procedureInitialExtent.length !== 0 && !initialMatch) {
-        console.log('Using procedureInitialExtent:', this.procedureInitialExtent)
+      if (this.procedureInitialExtent.length !== 0 &&
+        JSON.stringify(this.procedureInitialExtent) !== JSON.stringify(this.procedureDefaultInitialExtent)) {
         initialExtent = this.procedureInitialExtent
       } else {
-        console.log('Falling back to maxExtent:', this.maxExtent)
         initialExtent = this.maxExtent
       }
-
-      const result = typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
-      console.log('Final initialExtent:', result)
-      console.log('=== END EXTENT DEBUG ===')
-      return result
+      return typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
     },
 
     mapx () {
@@ -453,9 +438,9 @@ export default {
                   this.procedureSettings.planningArea !== 'all' &&
                   hasPermission('feature_map_new_statement')) {
                   const popUpContent = Translator.trans('procedure.move.to.list') +
-                  '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                  Translator.trans('procedures.all.show') +
-                  '</a>'
+                    '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                    Translator.trans('procedures.all.show') +
+                    '</a>'
 
                   this.showPopup('contentPopup', {
                     title: Translator.trans('procedure.not.in.scope'),
@@ -577,11 +562,7 @@ export default {
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
       if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
-        const features = new GeoJSON().readFeatures(this.procedureSettings.territory, {
-          dataProjection: 'EPSG:4326',        // Source: WGS84 (lat/lon)
-          featureProjection: this.mapprojection // Target: Map projection
-        })
-
+        const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
         const territoryLayer = new VectorLayer({
           name: 'territory',
@@ -1101,9 +1082,9 @@ export default {
                       this.procedureSettings.planningArea !== 'all' &&
                       hasPermission('feature_map_new_statement')) {
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                      Translator.trans('procedures.all.show') +
-                      '</a>'
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        Translator.trans('procedures.all.show') +
+                        '</a>'
 
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
@@ -1435,17 +1416,17 @@ export default {
                   if (responsePr.data.code === 100 && responsePr.data.success && responsePr.data.body !== null && responsePr.data.body !== '') {
                     /* Check if coordinates are in the area of the current procedure */
                     if (responsePr.data.body.id !== this.procedureId) {
-                    /*
-                     * Roll back to this one when we can handle procedure versions
-                     * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                     *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
-                     *     Translator.trans('procedure.goto') +
-                     *     '</a>';
-                     */
+                      /*
+                       * Roll back to this one when we can handle procedure versions
+                       * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
+                       *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
+                       *     Translator.trans('procedure.goto') +
+                       *     '</a>';
+                       */
                       const popUpContent = Translator.trans('procedure.move.to.list') +
-                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                      Translator.trans('procedures.all.show') +
-                      '</a>'
+                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                        Translator.trans('procedures.all.show') +
+                        '</a>'
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
                         text: popUpContent,
