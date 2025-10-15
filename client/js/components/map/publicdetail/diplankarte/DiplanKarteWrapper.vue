@@ -304,11 +304,26 @@ const transformedTerritory = reactive({
 })
 
 const transformInitialExtent = () => {
+  console.log('=== EXTENT TRANSFORM DEBUG ===')
+  console.log('Original initialExtent:', initialExtent)
+
   if (!initialExtent || initialExtent.length === 0) {
+    console.log('Initial extent is empty, setting undefined')
     transformedInitialExtent.value = undefined
   } else {
-    transformedInitialExtent.value = transformExtent(initialExtent, 'EPSG:3857', 'EPSG:4326')
+    console.log('Transforming extent from EPSG:3857 to EPSG:4326')
+    console.log('=== TERRITORY TRANSFORM DEBUG ===')
+    console.log('Original territory:', territory)
+    console.log('Transformed territory:', transformedTerritory)
+    console.log('=== END TERRITORY TRANSFORM DEBUG ===')
+
+    transformedInitialExtent.value = transformExtent(initialExtent,
+      'EPSG:3857', 'EPSG:4326')
   }
+
+  console.log('Final transformedInitialExtent:',
+    transformedInitialExtent.value)
+  console.log('=== END EXTENT TRANSFORM DEBUG ===')
 }
 
 const transformTerritoryCoordinates = () => {
@@ -318,10 +333,44 @@ const transformTerritoryCoordinates = () => {
     return
   }
 
-  const transformed = transformFeatureCollection(territory, 'EPSG:3857', 'EPSG:4326')
-  transformedTerritory.type = transformed.type
-  transformedTerritory.features = transformed.features
+  // Transform each feature individually based on its coordinate system
+  const transformedFeatures = territory.features.map(feature => {
+    if (!feature.geometry || !feature.geometry.coordinates) {
+      return feature
+    }
+
+    // Get first coordinate to detect projection
+    const coords = feature.geometry.coordinates
+    let firstCoord
+
+    // Navigate to the first coordinate pair based on geometry type
+    if (feature.geometry.type === 'Polygon') {
+      firstCoord = coords[0][0]
+    } else if (feature.geometry.type === 'MultiPolygon') {
+      firstCoord = coords[0][0][0]
+    } else {
+      firstCoord = coords[0]
+    }
+
+    // Detect coordinate system: WGS84 has values between -180/180, -90/90
+    const isWGS84 = Math.abs(firstCoord[0]) <= 180 && Math.abs(firstCoord[1]) <= 90
+
+    if (isWGS84) {
+      // Already in WGS84, no transformation needed
+      console.log(`Feature ${feature.geometry.type} already in WGS84, skipping transform`)
+      return feature
+    } else {
+      // Transform from EPSG:3857 to EPSG:4326
+      console.log(`Feature ${feature.geometry.type} in EPSG:3857, transforming`)
+      return transformFeatureCollection({ type: 'FeatureCollection', features: [feature] }, 'EPSG:3857', 'EPSG:4326').features[0]
+    }
+  })
+
+  transformedTerritory.type = 'FeatureCollection'
+  transformedTerritory.features = transformedFeatures
 }
+
+
 
 // Hooks
 

@@ -202,18 +202,33 @@ export default {
     },
 
     initialExtent () { // This is the Startkartenausschnitt, stored in prop procedureInitialExtent
+      console.log('=== EXTENT DEBUG ===')
+      console.log('procedureId:', this.procedureId)
+      console.log('procedureInitialExtent:', this.procedureInitialExtent)
+      console.log('procedureDefaultInitialExtent:', this.procedureDefaultInitialExtent)
+      console.log('procedureMaxExtent:', this.procedureMaxExtent)
+
       if (this.procedureInitialExtent.length === 0 && this.procedureDefaultInitialExtent.length === 0) {
+        console.log('Using publicExtent fallback')
         return JSON.parse(this.projectMapSettings.publicExtent)
       }
 
       let initialExtent
-      if (this.procedureInitialExtent.length !== 0 &&
-        JSON.stringify(this.procedureInitialExtent) !== JSON.stringify(this.procedureDefaultInitialExtent)) {
+      const initialMatch = JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent)
+      console.log('Initial extent matches default?', initialMatch)
+
+      if (this.procedureInitialExtent.length !== 0 && !initialMatch) {
+        console.log('Using procedureInitialExtent:', this.procedureInitialExtent)
         initialExtent = this.procedureInitialExtent
       } else {
+        console.log('Falling back to maxExtent:', this.maxExtent)
         initialExtent = this.maxExtent
       }
-      return typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
+
+      const result = typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
+      console.log('Final initialExtent:', result)
+      console.log('=== END EXTENT DEBUG ===')
+      return result
     },
 
     mapx () {
@@ -562,7 +577,11 @@ export default {
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
       if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
-        const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
+        const features = new GeoJSON().readFeatures(this.procedureSettings.territory, {
+          dataProjection: 'EPSG:4326',        // Source: WGS84 (lat/lon)
+          featureProjection: this.mapprojection // Target: Map projection
+        })
+
 
         const territoryLayer = new VectorLayer({
           name: 'territory',
