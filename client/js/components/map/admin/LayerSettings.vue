@@ -45,7 +45,7 @@
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
-      @select="onServiceTypeChange"
+      @select="getLayerCapabilities"
     />
 
     <input
@@ -403,12 +403,11 @@ export default {
     },
 
     validateUrlAndGetCapabilities () {
-      if (this.serviceType === 'xtrasse') {
-        if (!this.validateXtrasseUrl()) {
-          return
-        }
+      if (this.serviceType === 'xtrasse' && !this.validateXtrasseUrl()) {
+        return
       }
-      if (!this.validateWmsWmtsUrl()) {
+
+      if (this.serviceType !== 'xtrasse' && !this.validateWmsWmtsUrl()) {
         return
       }
 
