@@ -456,9 +456,6 @@ export default {
       } else if (e && typeof e === 'object' && e.value !== undefined) {
         // DpMultiselect (object with value property)
         this.form[key] = e.value
-      } else {
-        // Fallback
-        this.form[key] = e || ''
       }
 
       this.submitForm()
