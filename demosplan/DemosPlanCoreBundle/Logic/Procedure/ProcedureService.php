@@ -1097,11 +1097,11 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * Update of a procedure-object.
      *
-     * @return array|Procedure
+     * @return array|ProcedureInterface
      *
      * @throws Exception
      */
-    public function updateProcedureObject(Procedure $procedureToUpdate)
+    public function updateProcedureObject(ProcedureInterface $procedureToUpdate)
     {
         try {
             // this method cant create report entry, because doctrine cant get "un"updated procedure from DB:

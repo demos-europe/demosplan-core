@@ -132,4 +132,19 @@ class CustomFieldConfigurationRepository extends CoreRepository
             )
         );
     }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteObject(CustomFieldConfiguration $customFieldConfiguration): bool
+    {
+        try {
+            $this->getEntityManager()->remove($customFieldConfiguration);
+
+            return true;
+        } catch (Exception $e) {
+            $this->logger->error('Delete CustomFieldConfiguration failed: ', [$e]);
+            throw $e;
+        }
+    }
 }

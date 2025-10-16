@@ -62,9 +62,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
             $this->logger->info('Start of doctrine transaction.');
             $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
 
-            $accessTokenExpirationDate = $accessToken->getExpires();
             $tokenValues = $accessToken->getValues();
-            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $accessTokenExpirationDate, $tokenValues);
+            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
 
             $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
             $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);

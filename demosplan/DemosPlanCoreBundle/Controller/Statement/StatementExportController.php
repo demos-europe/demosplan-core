@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
@@ -36,6 +37,7 @@ class StatementExportController extends BaseController
         private readonly RequestStack $requestStack,
         private readonly TranslatorInterface $translator,
         private readonly NameGenerator $nameGenerator,
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
     }
 
@@ -121,14 +123,14 @@ class StatementExportController extends BaseController
         );
 
         $filename = $this->translator->trans('statements.original').'-'.
-            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.docx';
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').$this->writerSelector->getFileExtension();
 
         $response->headers->set('Content-Disposition',
             $this->nameGenerator->generateDownloadFilename(
                 $filename
             ));
 
-        $this->setResponseHeaders($response, '.docx');
+        $this->setResponseHeaders($response, $this->writerSelector->getFileExtension());
 
         return $response;
     }

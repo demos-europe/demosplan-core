@@ -836,6 +836,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         '%numberOfOpenProcedures' => $numberOfOpenProcedures,
                     ]
                 );
+
+                return $userId; // Return the failed user ID to indicate failure
             } else {
                 $result = $this->wipeUserData($userId);
 
