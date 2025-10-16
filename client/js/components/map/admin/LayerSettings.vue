@@ -21,20 +21,6 @@
       required
     />
 
-    <dp-input
-      id="r_url"
-      v-model="url"
-      :label="{
-        text: Translator.trans('url')
-      }"
-      class="u-mb-0_5"
-      data-cy="newMapLayerURL"
-      name="r_url"
-      required
-      @blur="validateUrlAndGetCapabilities"
-      @enter="validateUrlAndGetCapabilities"
-    />
-
     <dp-select
       v-model="serviceType"
       :label="{
@@ -53,6 +39,20 @@
       name="r_serviceType"
       type="hidden"
     >
+
+    <dp-input
+      id="r_url"
+      v-model="url"
+      :label="{
+        text: Translator.trans('url')
+      }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerURL"
+      name="r_url"
+      required
+      @blur="validateUrlAndGetCapabilities"
+      @enter="validateUrlAndGetCapabilities"
+    />
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
