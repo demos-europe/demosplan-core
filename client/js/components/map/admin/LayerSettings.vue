@@ -339,7 +339,7 @@ export default {
       }
 
       if (hasPermission('feature_diplan_karte')) {
-        serviceTypeOptions.push({ value: 'xtrasse', label: 'Xtrasse' })
+        serviceTypeOptions.push({ value: 'OAF', label: 'OGC API – Features (OAF)' })
       }
       return serviceTypeOptions
     },
@@ -483,7 +483,7 @@ export default {
     },
 
     getLayerCapabilities: debounce(function () {
-      if (this.serviceType === 'xtrasse') {
+      if (this.serviceType === 'OAF') {
         return
       }
 
@@ -607,11 +607,11 @@ export default {
     },
 
     validateUrlAndGetCapabilities () {
-      if (this.serviceType === 'xtrasse' && !this.validateXtrasseUrl()) {
+      if (this.serviceType === 'OAF' && !this.validateOafUrl()) {
         return
       }
 
-      if (this.serviceType !== 'xtrasse' && !this.validateWmsWmtsUrl()) {
+      if (this.serviceType !== 'OAF' && !this.validateWmsWmtsUrl()) {
         return
       }
 
@@ -637,7 +637,7 @@ export default {
       return true
     },
 
-    validateXtrasseUrl () {
+    validateOafUrl () {
       /*
        * With the current frontend architecture, it's not possible to validate the url on submit,
        * because the submit button is in a twig file (map_admin_gislayer_edit.html.twig).
@@ -653,7 +653,7 @@ export default {
 
       // Check if URL contains /collections/ (case-insensitive)
       if (collectionsIndex === -1) {
-        const errorMessage = Translator.trans('error.map.layer.xtrasse.missing.collections')
+        const errorMessage = Translator.trans('error.map.layer.oaf.missing.collections')
         dplan.notify.error(errorMessage)
 
         return false
@@ -664,7 +664,7 @@ export default {
       const hasNoCollectionName = afterCollections.trim() === '' || afterCollections === '/' || afterCollections.match(/^\/+$/)
 
       if (hasNoCollectionName) {
-        const errorMessage = Translator.trans('error.map.layer.xtrasse.collections.end')
+        const errorMessage = Translator.trans('error.map.layer.oaf.collections.end')
         dplan.notify.error(errorMessage)
 
         return false

@@ -186,7 +186,7 @@ const layerTypeDefaults = {
     tilesize: 512,
     visibleOnLoad: false,
   },
-  xtrasse: {
+  OAF: {
     bboxCrs: 'http://www.opengis.net/def/crs/EPSG/0/25832',
     crs: 'http://www.opengis.net/def/crs/EPSG/0/25832',
     params: {
@@ -200,7 +200,7 @@ const layerConfigBuilders = {
     layers: layer.attributes.layers || null,
     version: layer.attributes.layerVersion || '1.3.0',
   }),
-  xtrasse: (layer) => ({
+  OAF: (layer) => ({
     collection: extractCollection(layer.attributes.url),
   }),
   // Add other type specific values that could come from BE here
@@ -212,7 +212,7 @@ const buildLayerConfigsList = () => {
   return layersFromDB
     .map(layer => {
       const layerType = layer.attributes.serviceType?.toLowerCase()
-      const url = 'xtrasse' === layerType ? reduceUrl(layer.attributes.url) : layer.attributes.url
+      const url = 'OAF' === layerType ? reduceUrl(layer.attributes.url) : layer.attributes.url
       const configBuilder = layerConfigBuilders[layerType]
 
       if (!configBuilder) {
@@ -249,12 +249,10 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
   }
 
   const { id, name, type, url } = baseConfig
-  // Map xtrasse type to OAF
-  const typ = type === 'xtrasse' ? 'OAF' : type
   const baseLayer = {
     id,
     name,
-    typ,
+    typ: type,
     url,
   }
 
