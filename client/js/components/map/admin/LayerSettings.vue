@@ -68,14 +68,14 @@
     />
 
     <dp-label
-      v-if="serviceType !== 'xtrasse'"
+      v-if="serviceType !== 'OAF'"
       :text="Translator.trans('layers')"
       for="r_layers"
       required
     />
 
     <dp-multiselect
-      v-if="serviceType !== 'xtrasse'"
+      v-if="serviceType !== 'OAF'"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
@@ -116,7 +116,7 @@
     >
 
     <dp-ol-map
-      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType !== 'xtrasse'"
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType !== 'OAF'"
       :layers="previewLayers"
       :procedure-id="procedureId"
       small
