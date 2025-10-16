@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- change filter selects on start overview page to dp-multiselect
 ## v4.20.0 (2025-10-09)
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
