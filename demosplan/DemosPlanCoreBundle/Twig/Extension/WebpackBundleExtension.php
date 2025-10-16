@@ -263,6 +263,11 @@ ERR);
 
     private function addNonce(string $type): string
     {
+        // style nonces are not yet supported
+        if ('style' === $type) {
+
+            return '';
+        }
         return sprintf('nonce="%s"', $this->cspListener->getNonce($type));
     }
 }

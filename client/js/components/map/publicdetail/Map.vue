@@ -363,7 +363,7 @@ export default {
     handlePriorityAreaQuery (remappedUrl, coordinate, getFeatureinfoSource) {
       dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
         params: remappedUrl,
-        infotype: 'vorranggebietId'
+        infotype: 'vorranggebietId',
       }).then(response => {
         const parsedData = JSON.parse(response.data)
         if (parsedData.code === 100 && parsedData.success && parsedData.body !== null) {
@@ -374,7 +374,7 @@ export default {
             r_location_priority_area_type: parsedData.body.type,
             r_location_point: '',
             r_location_geometry: '',
-            location_is_set: 'priority_area'
+            location_is_set: 'priority_area',
           }
           window.statementActionState = 'locationPriorityAreaAdded'
         }
@@ -388,7 +388,7 @@ export default {
 
           const priorityAreaContent = {
             title: title,
-            text: `${parsedData.body.key}`
+            text: `${parsedData.body.key}`,
           }
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
@@ -411,11 +411,11 @@ export default {
       if (this.vorrangGebiete.getVisible() === true) {
         /* URL for FeatureInfo */
         const vorrangurl = this.vorrangGebiete.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         /* URL to check if we are in the correct procedure */
         const planungsraumUrl = this.getFeatureinfoSourcePlanungsraum.getSource().getFeatureInfoUrl(
-          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' }
+          coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/xml' },
         )
         const remappedUrl = vorrangurl.split('?')[1] // Get only the parameter part of the generated URL.
         const remappedPrUrl = planungsraumUrl.split('?')[1] // Get only the parameter part of the generated URL.
@@ -425,7 +425,7 @@ export default {
             // Because of Browser-Ajax-Security, we have to pipe the getfeatureInfo-Request through our server
             dpApi.get(Routing.generate('DemosPlan_map_get_planning_area', { procedure: this.procedureId }), {
               params: remappedPrUrl,
-              url: this.getFeatureInfoUrlPlanningArea
+              url: this.getFeatureInfoUrlPlanningArea,
             })
               .then(responsePr => {
                 /*
@@ -444,7 +444,7 @@ export default {
 
                   this.showPopup('contentPopup', {
                     title: Translator.trans('procedure.not.in.scope'),
-                    text: popUpContent
+                    text: popUpContent,
                   }, coordinate)
                 } else {
                   // Query priority area after successful planning area validation
