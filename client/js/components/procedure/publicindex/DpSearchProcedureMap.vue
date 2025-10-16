@@ -373,7 +373,9 @@ export default {
 
     getSelectedFilterOption (filter) {
       const selectedValue = this.form[filter.name]
+
       if (!selectedValue) return null
+
       return filter.options.find(option => option.value === selectedValue) || null
     },
 
@@ -383,6 +385,7 @@ export default {
 
     onFilterChange (selectedOption, filterName) {
       this.form[filterName] = selectedOption ? selectedOption.value : ''
+
       this.submitForm()
     },
 
