@@ -90,7 +90,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
                 '--no-debug',
                 '--env=prod',
             ],
-            DemosPlanPath::getRootPath()
+            DemosPlanPath::getRootPath(),
+            ['ACTIVE_PROJECT' => $this->getActiveProject()]
         );
 
         $populateProcess->disableOutput();
@@ -125,7 +126,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
                     '--no-debug',
                     '--env=prod',
                 ],
-                DemosPlanPath::getProjectPath()
+                DemosPlanPath::getProjectPath(),
+                ['ACTIVE_PROJECT' => $this->getActiveProject()]
             );
 
             $indexProcess->setIdleTimeout(0);
@@ -161,12 +163,17 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     private function getCurrentProjectConsole(): string
     {
+        return DemosPlanPath::getRootPath('bin/console');
+    }
+
+    private function getActiveProject(): string
+    {
         if (null === $this->getApplication()) {
             throw new RuntimeException('Cannot run this command without an application');
         }
         /** @var DemosPlanKernel $kernel */
         $kernel = $this->getApplication()->getKernel();
 
-        return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
+        return $kernel->getActiveProject();
     }
 }

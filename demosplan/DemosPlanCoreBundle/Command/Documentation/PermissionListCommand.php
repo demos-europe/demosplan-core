@@ -147,14 +147,14 @@ class PermissionListCommand extends CoreCommand
     ): ?string {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             implode('--role ', $roleCombination),
         ];
 
         try {
-            $projectPermissionsProcess = new Process($cmd);
+            $projectPermissionsProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectPermissionsProcess->enableOutput();
             $projectPermissionsProcess->mustRun();
 
@@ -168,14 +168,14 @@ class PermissionListCommand extends CoreCommand
     {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             '--list-roles',
         ];
 
         try {
-            $projectRolesProcess = new Process($cmd);
+            $projectRolesProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectRolesProcess->enableOutput();
             $projectRolesProcess->mustRun();
 
