@@ -315,6 +315,155 @@
           </div>
         </div>
 
+        <!-- ODT -->
+        <div
+          v-if="options.odt"
+          id="odt"
+          class="tab-content"
+          :class="activeTab('odt')"
+          role="tabpanel"
+        >
+          <fieldset
+            v-if="options.odt.anonymize || options.odt.obscure"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.type')"
+            />
+            <dp-checkbox
+              id="odtNumberStatements"
+              v-model="exportChoice.odt.numberStatements"
+              class="mb-1"
+              data-cy="exportModal:odtNumberStatements"
+              :label="{
+                bold: true,
+                text: Translator.trans('export.numbered_statements'),
+                hint: Translator.trans('explanation.export.numbered_statements')
+              }"
+            />
+            <dp-checkbox
+              id="odtAnonymous"
+              v-model="exportChoice.odt.anonymous"
+              data-cy="exportModal:odtObscure"
+              :label="{
+                bold: true,
+                hint: Translator.trans('explanation.export.anonymous'),
+                text: Translator.trans('export.anonymous')
+              }"
+            />
+          </fieldset>
+
+          <fieldset
+            v-if="options.odt.templates"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.format')"
+            />
+            <dp-radio
+              v-for="(identifier, index) in Object.keys(odtTemplateOptions)"
+              :id="`odtTemplate_${identifier}`"
+              :key="identifier"
+              :checked="exportChoice.odt.template === identifier"
+              :class="{ 'mb-1': index !== Object.keys(odtTemplateOptions).length - 1 }"
+              :data-cy="`exportModal:odtTemplate_${identifier}`"
+              :label="{
+                bold: true,
+                hint: odtTemplateOptions[identifier].explanation ? Translator.trans(odtTemplateOptions[identifier].explanation) : '',
+                text: Translator.trans(odtTemplateOptions[identifier].name)
+              }"
+              name="odtTemplate"
+              :value="identifier"
+              @change="exportChoice.odt.template = identifier"
+            />
+          </fieldset>
+
+          <fieldset
+            v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.data')"
+            />
+            <dp-radio
+              id="odtExportTypeStatementsOnly"
+              :checked="exportChoice.odt.exportType === 'statementsOnly'"
+              class="mb-1"
+              data-cy="exportModal:odtExportTypeStatementsOnly"
+              :label="{
+                bold: true,
+                text: Translator.trans('statements')
+              }"
+              value="statementsOnly"
+              @change="() => handleOdtExportTypeChange('statementsOnly')"
+            />
+            <dp-radio
+              id="odtExportTypeStatementsAndFragments"
+              :checked="exportChoice.odt.exportType === 'statementsAndFragments'"
+              data-cy="exportModal:odtExportTypeStatementsAndFragments"
+              :label="{
+                bold: true,
+                text: Translator.trans('fragments')
+              }"
+              value="statementsAndFragments"
+              @change="() => handleOdtExportTypeChange('statementsAndFragments')"
+            />
+          </fieldset>
+
+          <!--choose sorting type-->
+          <fieldset
+            v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.structure')"
+            />
+            <dp-radio
+              id="odtSortTypeDefault"
+              :checked="exportChoice.odt.sortType === 'default'"
+              class="mb-1"
+              data-cy="exportModal:odtSortTypeDefault"
+              :label="{
+                bold: true,
+                hint: exportChoice.odt.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
+                text: Translator.trans('assessmenttable.view.mode.default')
+              }"
+              value="default"
+              @change="exportChoice.odt.sortType = 'default'"
+            />
+            <dp-radio
+              id="odtSortTypeByParagraph"
+              :checked="isOdtSortTypeByParagraphChecked"
+              data-cy="exportModal:odtSortTypeByParagraph"
+              :label="{
+                bold: true,
+                text: Translator.trans('groupedBy.elements')
+              }"
+              :value="exportChoice.odt.exportType === 'statementsAndFragments' ? 'byParagraphFragmentsOnly' : 'byParagraph'"
+              @change="handleOdtSortTypeByParagraphChange"
+            />
+          </fieldset>
+          <!--end of sorting type-->
+
+          <p
+            v-if="!options.odt.anonymize && !options.odt.obscure && !options.odt.exportTypes && !options.odt.templates"
+            class="ml-2 mt-2"
+          >
+            {{ Translator.trans('explanation.export.anonymous') }}
+          </p>
+
+          <div
+            v-if="!isDefaultViewMode"
+            class="flash flash-info mb-0"
+          >
+            {{ Translator.trans('explanation.export.disabled.viewMode') }}
+          </div>
+        </div>
+
         <!-- Excel -->
         <div
           v-if="options.xlsx"
@@ -577,6 +726,14 @@ export default {
       return Object.fromEntries(optionsDocxFilter)
     },
 
+    odtTemplateOptions () {
+      if (!this.options.odt?.templates) return {}
+      const optionsOdtFilter = Object.entries(this.options.odt.templates).filter(([key, value]) => {
+        return value ? this.hasVisibleTemplate({ [key]: value }) : false
+      })
+      return Object.fromEntries(optionsOdtFilter)
+    },
+
     //  Return exportChoice for currently selected format
     format () {
       return this.exportChoice[this.currentTab]
@@ -590,6 +747,13 @@ export default {
       return this.exportChoice.docx.exportType === 'statementsAndFragments' ?
         this.exportChoice.docx.sortType === 'byParagraphFragmentsOnly' :
         this.exportChoice.docx.sortType === 'byParagraph'
+    },
+
+    isOdtSortTypeByParagraphChecked () {
+      if (!this.exportChoice.odt) return false
+      return this.exportChoice.odt.exportType === 'statementsAndFragments' ?
+        this.exportChoice.odt.sortType === 'byParagraphFragmentsOnly' :
+        this.exportChoice.odt.sortType === 'byParagraph'
     },
 
     pdfTemplateOptions () {
@@ -617,6 +781,7 @@ export default {
       switch (this.currentTab) {
         case 'pdf':
         case 'docx':
+        case 'odt':
         default:
           transKey = 'export.verb'
           break
@@ -662,6 +827,19 @@ export default {
 
     handleDocxSortTypeByParagraphChange () {
       this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
+        'byParagraphFragmentsOnly' :
+        'byParagraph'
+    },
+
+    handleOdtExportTypeChange (value) {
+      if (!this.exportChoice.odt) return
+      this.exportChoice.odt.exportType = value
+      this.exportChoice.odt.sortType = 'default'
+    },
+
+    handleOdtSortTypeByParagraphChange () {
+      if (!this.exportChoice.odt) return
+      this.exportChoice.odt.sortType = this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         'byParagraphFragmentsOnly' :
         'byParagraph'
     },

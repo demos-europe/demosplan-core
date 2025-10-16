@@ -861,13 +861,13 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
-            $limiter = $anonymousStatementLimiter->create($request->getClientIp());
+            $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
 
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
             // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
             if (false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+                //throw new TooManyRequestsHttpException();
             }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
