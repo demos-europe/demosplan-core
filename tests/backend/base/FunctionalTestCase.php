@@ -13,7 +13,9 @@ namespace Tests\Base;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -776,5 +778,25 @@ class FunctionalTestCase extends WebTestCase
         $statement->_save();
 
         return $statement;
+    }
+
+    /**
+     * Creates a minimal test segment for use in tests.
+     * Moved here to avoid code duplication across multiple test files.
+     */
+    protected function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
+    {
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real(),
+            'orderInProcedure'         => 1,
+        ]);
+
+        $segment->setPlace(PlaceFactory::createOne([])->_real());
+        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
+            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
+        });
+        $segment->_save();
+
+        return $segment->_real();
     }
 }

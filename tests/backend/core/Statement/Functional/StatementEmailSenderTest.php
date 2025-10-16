@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * This file is part of the package demosplan.
  *
@@ -26,13 +25,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-class StatementEmailSenderTest extends FunctionalTestCase {
-
+class StatementEmailSenderTest extends FunctionalTestCase
+{
     /**
      * @var StatementEmailSender
      */
@@ -57,7 +55,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     private Procedure|Proxy|null $procedure;
 
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -77,7 +74,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $statementId = $this->statement->getId();
         $subject = 'My subject';
-        $body =' Email body';
+        $body = ' Email body';
         $sendEmailCC = 'not-formated-email';
         $emailAttachments = [];
 
@@ -90,12 +87,11 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $errorMessages = $this->messageBag->getErrorMessages();
         static::assertCount(1, $errorMessages);
 
-        //Get first error message
-        $errorMessage =  $errorMessages->get(0);
+        // Get first error message
+        $errorMessage = $errorMessages->get(0);
 
-        //Assert error message text
-        static::assertSame( $this->translator->trans('error.statement.final.send.syntax.email.cc'), $errorMessage->getText());
-
+        // Assert error message text
+        static::assertSame($this->translator->trans('error.statement.final.send.syntax.email.cc'), $errorMessage->getText());
     }
 
     public function testSendStatementMailToPublicStatement(): void
@@ -103,14 +99,12 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $this->setupInitialData(publicStatement: Statement::EXTERNAL, feedback: 'email');
         $this->setupStatementMeta('', 'hola-orga@test.de');
         $this->assertConfirmationMessages('citizen_only');
-
     }
 
     public function testSendStatementMailToInstitutionOnly(): void
     {
         $this->setupInitialData();
         $this->assertConfirmationMessages('institution_only');
-
     }
 
     public function testSendStatementMailToStatementMetaOrgaEmail(): void
@@ -118,7 +112,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $this->setupInitialData();
         $this->setupStatementMeta('', 'hola-orga@test.de');
         $this->assertConfirmationMessages('institution_only');
-
     }
 
     public function testSendStatementMailToInstitutionAndCoordination(): void
@@ -126,16 +119,15 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $this->setupInitialData('party-parrot@test-de');
         $this->setupStatementMeta('conga-parrot@test-de', '');
         $this->assertConfirmationMessages('institution_and_coordination');
-
     }
 
-    private function assertConfirmationMessages(string $sentToConfirmMessageKey): void {
-
+    private function assertConfirmationMessages(string $sentToConfirmMessageKey): void
+    {
         // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
         $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
 
         $subject = 'My subject';
-        $body =' Email body';
+        $body = ' Email body';
         $sendEmailCC = 'hola@test.de';
         $emailAttachments = [];
 
@@ -152,7 +144,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         // Define the expected confirmation messages
         $expectedMessages = [
             $this->translator->trans('confirm.statement.final.sent', ['sent_to' => $sentToConfirmMessageKey]),
-            $this->translator->trans('confirm.statement.final.sent.emailCC')
+            $this->translator->trans('confirm.statement.final.sent.emailCC'),
         ];
 
         // Loop through the expected messages and assert that they match the actual confirmation messages
@@ -162,30 +154,47 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         }
     }
 
-    private function setupStatementMeta(string $statementSubmitterEmail, string $statementMetaOrgaEmail): void {
+    private function setupStatementMeta(string $statementSubmitterEmail, string $statementMetaOrgaEmail): void
+    {
         $statementSubmitter = UserFactory::createOne(['email' => $statementSubmitterEmail]);
         $statementMeta = StatementMetaFactory::createOne(['statement' => $this->statement, 'orgaEmail' => $statementMetaOrgaEmail]);
         $statementMeta->setSubmitUId($statementSubmitter->getId());
         $statementMeta->_save();
     }
 
-    private function setupInitialData(string $userEmail = 'myemail@test.de', string $publicStatement = Statement::INTERNAL, string $feedback = ''): void {
-        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+    private function setupInitialData(string $userEmail = 'myemail@test.de', string $publicStatement = Statement::INTERNAL, string $feedback = ''): void
+    {
+        // Initialize procedure - this was missing!
         $this->procedure = ProcedureFactory::createOne();
 
-        $user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
-        $user->setOrga($orga->_real());
+        // Create Orga with explicit participation email
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
 
-        $orga->addUser($user->_real());
-
-        $user->_save();
+        // Ensure participationEmail is properly set using foundry v2 pattern
+        $orga->_withoutAutoRefresh(function ($o) {
+            $o->setParticipationEmail('hello@partipation-email.de');
+        });
         $orga->_save();
 
+        // Create User with Orga using foundry v2 callable approach for complex relationships
+        // Documentation: https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#complex-relationships
+        $user = UserFactory::new(function () use ($orga, $userEmail) {
+            return [
+                'email'    => $userEmail,
+                'password' => 'xxx',
+                'orga'     => $orga->_real(),
+            ];
+        })->create();
+
+        // Ensure bidirectional relationship is set
+        $orga->_real()->addUser($user->_real());
+
+        // Force persist to database
+        $this->getEntityManager()->flush();
 
         $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
 
         $this->currentUserService->setUser($user->_real());
         $this->currentProcedureService->setProcedure($this->procedure->_real());
     }
-
 }

@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use Ramsey\Uuid\Uuid;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\ObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<CustomFieldOption>
+ * @extends ObjectFactory<CustomFieldOption>
  */
-final class CustomFieldOptionFactory extends PersistentProxyObjectFactory
+final class CustomFieldOptionFactory extends ObjectFactory
 {
     public static function class(): string
     {
