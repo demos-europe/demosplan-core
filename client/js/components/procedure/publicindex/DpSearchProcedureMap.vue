@@ -116,46 +116,25 @@
       <dp-label
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
-        for="municipalCode"
         :text="Translator.trans('county')"
+        for="municipalCode"
       /><!--
    --><div
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('layout__item u-1-of-1 u-mb')"
       >
-        <select
+        <dp-multiselect
           id="municipalCode"
-          :class="prefixClass('o-form__control-select')"
+          v-model="selectedMunicipalCode"
+          :name="'municipalCode'"
+          :options="municipalityGroupOptions"
           data-cy="searchProcedureMapForm:municipalCode"
-          name="municipalCode"
-          @blur="setValueAndSubmitForm($event, 'municipalCode')"
-        >
-          <template
-            v-for="municipalityGroup in municipalities"
-            :key="`group_${municipalityGroup.label}`"
-          >
-            <optgroup
-              v-if="hasOwnProp(municipalityGroup,'options')"
-              :label="municipalityGroup.label"
-            >
-              <option
-                v-for="(county, idx) in municipalityGroup.options"
-                :key="`county:${idx}`"
-                :selected="county.value === form.municipalCode ? true : null"
-                :value="county.value"
-              >
-                {{ county.title }}
-              </option>
-            </optgroup>
-            <option
-              v-else
-              :key="`opt_${municipalityGroup.value}`"
-              :value="municipalityGroup.value"
-            >
-              {{ municipalityGroup.label }}
-            </option>
-          </template>
-        </select>
+          group-label="label"
+          group-values="options"
+          label="title"
+          track-by="value"
+          @input="setValueAndSubmitForm($event, 'municipalCode')"
+        />
       </div>
 
       <!-- All other filters -->
@@ -345,6 +324,52 @@ export default {
 
     isSearch () {
       return this.currentSearch !== Translator.trans('entries.all.dative')
+    },
+
+    municipalityGroupOptions () {
+      return this.municipalities.map(item => {
+        if (hasOwnProp(item, 'options')) {
+          return {
+            label: item.label,
+            options: item.options.map(opt => ({
+              title: opt.title,
+              value: opt.value,
+            })),
+          }
+        }
+
+        return {
+          label: item.label,
+          options: [
+            {
+              title: item.label,
+              value: item.value,
+            },
+          ],
+        }
+      })
+    },
+
+    selectedMunicipalCode: {
+      get () {
+        if (!this.form.municipalCode) {
+          return null
+        }
+
+        for (const group of this.municipalityGroupOptions) {
+          const found = group.options.find(opt => opt.value === this.form.municipalCode)
+
+          if (found) {
+            return found
+          }
+        }
+
+        return null
+      },
+
+      set (newValue) {
+        this.form.municipalCode = newValue ? newValue.value : ''
+      },
     },
 
     selectedSort: {
