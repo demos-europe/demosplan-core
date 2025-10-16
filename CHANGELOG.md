@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fix addon asset build during docker build
+
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis
