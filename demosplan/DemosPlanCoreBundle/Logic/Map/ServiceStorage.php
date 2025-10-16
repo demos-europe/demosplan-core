@@ -108,8 +108,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        $isXtrasse = array_key_exists('r_serviceType', $data) && 'xtrasse' === strtolower(trim((string) $data['r_serviceType']));
-        if (!$isXtrasse && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
+        $isOaf = array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+        if (!$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
             && !array_key_exists('r_xplanDefaultlayers', $data)) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -122,8 +122,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        // Validate xtrasse URL format
-        if ($isXtrasse && array_key_exists('r_url', $data)) {
+        // Validate OAF URL format
+        if ($isOaf && array_key_exists('r_url', $data)) {
             $url = trim((string) $data['r_url']);
             $lowerUrl = strtolower($url);
             $collectionsPattern = '/collections/';
@@ -133,7 +133,7 @@ class ServiceStorage implements MapServiceStorageInterface
             if (false === $collectionsIndex) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.xtrasse.missing.collections'),
+                    'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
                 ];
             } else {
                 // Check if /collections/ is not at the end (there must be content after it)
@@ -142,7 +142,7 @@ class ServiceStorage implements MapServiceStorageInterface
                 if ('' === $afterCollectionsTrimmed) {
                     $mandatoryErrors[] = [
                         'type'    => 'error',
-                        'message' => $this->translator->trans('error.map.layer.xtrasse.collections.end'),
+                        'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
                     ];
                 }
             }
@@ -388,8 +388,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        $isXtrasse = array_key_exists('r_serviceType', $data) && 'xtrasse' === strtolower(trim((string) $data['r_serviceType']));
-        if (!$isGlobalLayer && !$isXtrasse && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
+        $isOaf = array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+        if (!$isGlobalLayer && !$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -401,8 +401,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        // Validate xtrasse URL format
-        if (!$isGlobalLayer && $isXtrasse && array_key_exists('r_url', $data)) {
+        // Validate OAF URL format
+        if (!$isGlobalLayer && $isOaf && array_key_exists('r_url', $data)) {
             $url = trim((string) $data['r_url']);
             $lowerUrl = strtolower($url);
             $collectionsPattern = '/collections/';
@@ -412,7 +412,7 @@ class ServiceStorage implements MapServiceStorageInterface
             if (false === $collectionsIndex) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.xtrasse.missing.collections'),
+                    'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
                 ];
             } else {
                 // Check if /collections/ is not at the end (there must be content after it)
@@ -421,7 +421,7 @@ class ServiceStorage implements MapServiceStorageInterface
                 if ('' === $afterCollectionsTrimmed) {
                     $mandatoryErrors[] = [
                         'type'    => 'error',
-                        'message' => $this->translator->trans('error.map.layer.xtrasse.collections.end'),
+                        'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
                     ];
                 }
             }
