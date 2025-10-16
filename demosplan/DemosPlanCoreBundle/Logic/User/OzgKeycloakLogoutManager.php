@@ -19,7 +19,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Store test tokens (in user session) only in dev/test environments when Keycloak is not configured.
  * Stores Keycloak tokens in session and builds logout URLs with customer subdomains.
  */
 class OzgKeycloakLogoutManager
@@ -30,8 +29,8 @@ class OzgKeycloakLogoutManager
     private const POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri=https://';
     private const ID_TOKEN_HINT = 'id_token_hint=';
 
-    /** @var int Session expiration time for testing (120 minutes) */
-    private const TEST_SESSION_LIFETIME_SECONDS = 7200;
+    /** @var int Default session expiration time when not set in parameters (6 hours) */
+    private const DEFAULT_SESSION_LIFETIME_SECONDS = 21600;
 
     public function __construct(
         private readonly KernelInterface $kernel,
@@ -56,23 +55,13 @@ class OzgKeycloakLogoutManager
             && !$this->isKeycloakConfigured();
     }
 
-    /**
-     * Determines if test token expiration should be injected in dev/test environments.
-     *
-     * @return bool True if injection should occur, false otherwise
-     */
-    public function shouldInjectTestExpiration(): bool
-    {
-        return DemosPlanKernel::ENVIRONMENT_TEST === $this->kernel->getEnvironment() || DemosPlanKernel::ENVIRONMENT_DEV === $this->kernel->getEnvironment();
-    }
-
     public function hasLogoutWarningPermission(): bool
     {
         return $this->currentUser->hasPermission('feature_auto_logout_warning');
     }
 
     /**
-     * Stores test expiration timestamp into the user session.
+     * Stores expiration timestamp into the user session.
      */
     public function injectTokenExpirationIntoSession(SessionInterface $session, UserInterface $user): void
     {
@@ -84,18 +73,18 @@ class OzgKeycloakLogoutManager
         try {
             $metadataBag = $session->getMetadataBag();
             $sessionCreated = $metadataBag->getCreated();
-            $sessionLifetime = $metadataBag->getLifetime() ?: self::TEST_SESSION_LIFETIME_SECONDS;
+            $sessionLifetime = $this->parameterBag->get('session_lifetime_seconds') ?: self::DEFAULT_SESSION_LIFETIME_SECONDS;
             $expirationTimestamp = $sessionCreated + $sessionLifetime;
 
             // Set the custom expiration directly in session
             $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
 
-            $this->logger->debug('Expiration timestamp injected into session for testing', [
+            $this->logger->debug('Expiration timestamp injected into session', [
                 'user'       => $user->getUserIdentifier(),
                 'expiration' => $expirationTimestamp,
             ]);
         } catch (Exception $e) {
-            $this->logger->warning('Failed to inject expiration timestamp into session for testing', [
+            $this->logger->warning('Failed to inject expiration timestamp into session', [
                 'user'  => $user->getUserIdentifier(),
                 'error' => $e->getMessage(),
             ]);
@@ -125,9 +114,8 @@ class OzgKeycloakLogoutManager
         return $isValid;
     }
 
-    public function storeTokenAndExpirationInSession(SessionInterface $session, int $expirationTimestamp, array $tokenValues): void
+    public function storeTokenAndExpirationInSession(SessionInterface $session, array $tokenValues): void
     {
-        $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
         if (isset($tokenValues['id_token'])) {
             $session->set(self::KEYCLOAK_TOKEN, $tokenValues['id_token']);
             $this->logger->info('Adding keycloak id_token to session');

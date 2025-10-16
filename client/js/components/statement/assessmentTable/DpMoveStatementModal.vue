@@ -284,13 +284,15 @@ export default {
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
           if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
+            const { movedToProcedureId, movedStatementId, placeholderStatementId, movedToProcedureName } = response.data.data
+
             const moveToProcedureParams = {
-              movedToProcedureId: response.data.movedToProcedureId,
+              movedToProcedureId,
               statementId: this.statementId,
-              movedStatementId: response.data.movedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
+              movedStatementId,
+              placeholderStatementId,
+              movedToAccessibleProcedure: this.movedToAccessibleProcedure(movedToProcedureId),
+              movedToProcedureName: movedToProcedureName || '',
             }
 
             // Handle update of assessment table ui from TableCard.vue

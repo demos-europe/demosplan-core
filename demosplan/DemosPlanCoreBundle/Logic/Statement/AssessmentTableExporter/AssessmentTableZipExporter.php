@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -44,6 +45,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        DocumentWriterSelector $writerSelector,
         LoggerInterface $logger,
         RequestStack $requestStack,
         StatementHandler $statementHandler,
@@ -51,7 +53,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         private readonly AssessmentTablePdfExporter $pdfExporter,
         private readonly AssessmentTableXlsExporter $xlsExporter,
         private readonly StatementService $statementService,
-        private readonly FileService $fileService
+        private readonly FileService $fileService,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -60,7 +62,8 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             $translator,
             $logger,
             $requestStack,
-            $statementHandler
+            $statementHandler,
+            $writerSelector
         );
     }
 

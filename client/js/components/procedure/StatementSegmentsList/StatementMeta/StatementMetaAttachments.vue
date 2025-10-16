@@ -173,6 +173,8 @@ import {
   DpLabel,
   DpUpload,
 } from '@demos-europe/demosplan-ui'
+import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
+import { mapActions } from 'vuex'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {
@@ -200,6 +202,12 @@ export default {
      * but keep the uploaded files list accessible at the same time.
      */
     editable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    isSourceAndCoupledProcedure: {
       type: Boolean,
       required: false,
       default: false,
@@ -269,6 +277,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('Statement', {
+      getStatementAction: 'get',
+    }),
+
     createSourceAttachment () {
       this.isProcessingSourceAttachment = true
 
@@ -523,7 +535,11 @@ export default {
     },
 
     triggerStatementRequest () {
-      this.$root.$emit('statementAttachments:added')
+      const params = buildDetailedStatementQuery(this.statementId, {
+        isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
+      })
+
+      return this.getStatementAction(params)
     },
   },
 }
