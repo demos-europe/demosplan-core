@@ -93,12 +93,11 @@
     <!-- Sorting -->
     <div :class="prefixClass('u-pt-0_5-palm ' + (showFilter ? 'block' : 'hidden'))">
       <template v-if="sortOptions.length > 1">
-        <label
+        <dp-label
           for="sort"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
-        >
-          {{ Translator.trans('sortation') }}
-        </label><!--
+          :text="Translator.trans('sortation')"
+        /><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <dp-multiselect
             id="sort"
@@ -114,13 +113,12 @@
       </template>
 
       <!-- Filter: Municipal code -->
-      <label
+      <dp-label
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
         for="municipalCode"
-      >
-        Kreis
-      </label><!--
+        :text="Translator.trans('county')"
+      /><!--
    --><div
         v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('layout__item u-1-of-1 u-mb')"
@@ -130,7 +128,7 @@
           :class="prefixClass('o-form__control-select')"
           data-cy="searchProcedureMapForm:municipalCode"
           name="municipalCode"
-          @change="setValueAndSubmitForm($event, 'municipalCode')"
+          @blur="setValueAndSubmitForm($event, 'municipalCode')"
         >
           <template
             v-for="municipalityGroup in municipalities"
@@ -165,17 +163,12 @@
         v-for="(filter, idx) in filters"
         :key="'label_' + idx"
       >
-        <label
+        <dp-label
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')"
-        >
-          {{ filter.title }}
-          <dp-contextual-help
-            v-if="filter.contextHelp !== ''"
-            class="u-ml-0_25"
-            :text="filter.contextHelp"
-          />
-        </label><!--
+          :text="filter.title"
+          :tooltip="filter.contextHelp === '' ? '' : filter.contextHelp"
+        /><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <dp-multiselect
             :id="filter.name"
@@ -242,8 +235,8 @@
 <script>
 import {
   DpAutocomplete,
-  DpContextualHelp,
   DpInput,
+  DpLabel,
   DpLoading,
   DpMultiselect,
   hasOwnProp,
@@ -257,8 +250,8 @@ export default {
 
   components: {
     DpAutocomplete,
-    DpContextualHelp,
     DpInput,
+    DpLabel,
     DpLoading,
     DpMultiselect,
   },
