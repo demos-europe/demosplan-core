@@ -4130,7 +4130,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->similarStatementSubmitters;
     }
 
-    public function addSimilarStatementSubmitter(ProcedurePerson $similarStatementSubmitter): void
+    public function addSimilarStatementSubmitter(ProcedurePersonInterface $similarStatementSubmitter): void
     {
         if (!$this->similarStatementSubmitters->contains($similarStatementSubmitter)) {
             $this->similarStatementSubmitters->add($similarStatementSubmitter);
@@ -4180,6 +4180,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->anonymous = $anonymous;
 
         return $this;
+    }
+
+    public function setStatementsCreatedFromOriginal(ArrayCollection|Collection $statementsCreatedFromOriginal): void
+    {
+        $this->statementsCreatedFromOriginal = $statementsCreatedFromOriginal;
     }
 
     public function getStatementsCreatedFromOriginal(): ArrayCollection|Collection

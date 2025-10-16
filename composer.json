@@ -2,7 +2,7 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.11.0",
+  "version": "v4.18.1",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
@@ -36,7 +36,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "composer/package-versions-deprecated": "1.11.99.5",
-    "demos-europe/demosplan-addon": "^0.63",
+    "demos-europe/demosplan-addon": "^0.64",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",
@@ -141,7 +141,7 @@
     "thenetworg/oauth2-azure": "^2.2",
     "wgirhad/geophp": "^3.0",
     "willdurand/geocoder-bundle": "^5.16",
-    "willdurand/js-translation-bundle": "~6.0",
+    "willdurand/js-translation-bundle": "~7.0",
     "wrep/daemonizable-command": "^4.0"
   },
   "require-dev": {
