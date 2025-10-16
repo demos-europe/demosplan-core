@@ -100,23 +100,16 @@
           {{ Translator.trans('sortation') }}
         </label><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
-          <select
+          <dp-multiselect
             id="sort"
+            v-model="selectedSort"
+            :name="'sort'"
+            :options="sortOptions"
             data-cy="searchProcedureMapForm:sort"
-            name="sort"
-            :class="prefixClass('o-form__control-select')"
-            :value="form.sort"
-            @change="setValueAndSubmitForm($event, 'sort')"
-          >
-            <option
-              v-for="option in sortOptions"
-              :key="'sort_' + option.value"
-              :selected="option.selected ? true : null"
-              :value="option.value"
-            >
-              {{ option.title }}
-            </option>
-          </select>
+            label="title"
+            track-by="value"
+            @input="setValueAndSubmitForm($event, 'sort')"
+          />
         </div>
       </template>
 
@@ -184,25 +177,17 @@
           />
         </label><!--
      --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
-          <select
+          <dp-multiselect
             :id="filter.name"
             :ref="'filter_' + idx"
-            :class="prefixClass('o-form__control-select')"
             :data-cy="'searchProcedureMapForm:' + filter.name"
             :name="filter.name"
-            @change="setValueAndSubmitForm($event, filter.name)"
-          >
-            <option value="">
-              {{ Translator.trans('all') }}
-            </option>
-            <option
-              v-for="(filterOption, index) in filter.options"
-              :key="'filter_opt_' + index"
-              :value="filterOption.value"
-            >
-              {{ filterOption.label }}
-            </option>
-          </select>
+            :options="filter.options"
+            :value="getSelectedFilterOption(filter)"
+            label="label"
+            track-by="value"
+            @input="onFilterChange($event, filter.name)"
+          />
         </div>
       </template>
     </div>
@@ -260,6 +245,7 @@ import {
   DpContextualHelp,
   DpInput,
   DpLoading,
+  DpMultiselect,
   hasOwnProp,
   makeFormPost,
   prefixClassMixin,
@@ -274,6 +260,7 @@ export default {
     DpContextualHelp,
     DpInput,
     DpLoading,
+    DpMultiselect,
   },
 
   mixins: [prefixClassMixin],
@@ -366,6 +353,15 @@ export default {
     isSearch () {
       return this.currentSearch !== Translator.trans('entries.all.dative')
     },
+
+    selectedSort: {
+      get () {
+        return this.sortOptions.find(option => option.value === this.form.sort) || null
+      },
+      set (newValue) {
+        this.form.sort = newValue ? newValue.value : ''
+      },
+    },
   },
 
   methods: {
@@ -382,8 +378,19 @@ export default {
       }, 200)
     },
 
+    getSelectedFilterOption (filter) {
+      const selectedValue = this.form[filter.name]
+      if (!selectedValue) return null
+      return filter.options.find(option => option.value === selectedValue) || null
+    },
+
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
+    },
+
+    onFilterChange (selectedOption, filterName) {
+      this.form[filterName] = selectedOption ? selectedOption.value : ''
+      this.submitForm()
     },
 
     removeDefaultFilters () {
@@ -446,7 +453,18 @@ export default {
         this.currentAutocompleteSearch = e.target.value
       }
 
-      this.form[key] = e.target.value
+      // Handle different input types
+      if (e && typeof e === 'object' && e.target && e.target.value !== undefined) {
+        // Fields with regular DOM event
+        this.form[key] = e.target.value
+      } else if (e && typeof e === 'object' && e.value !== undefined) {
+        // DpMultiselect (object with value property)
+        this.form[key] = e.value
+      } else {
+        // Fallback
+        this.form[key] = e || ''
+      }
+
       this.submitForm()
     },
 
