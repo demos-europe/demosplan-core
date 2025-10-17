@@ -164,6 +164,13 @@
     >
 
     <input
+      v-if="serviceType === 'OAF' && projectionOgcUri"
+      v-model="projectionOgcUri"
+      name="r_layerProjectionOgcUri"
+      type="hidden"
+    >
+
+    <input
       v-model="version"
       name="r_layerVersion"
       type="hidden"
@@ -286,6 +293,7 @@ export default {
       matrixSetOptions: [],
       name: this.initName,
       projection: this.initProjection || window.dplan.defaultProjectionLabel,
+      projectionOgcUri: '',
       projectionOptions: this.availableProjections,
       serviceError: false,
       serviceType: this.initServiceType || 'wms',
@@ -357,6 +365,59 @@ export default {
       })
     },
 
+    clearSelections () {
+      this.currentCapabilities = null
+      this.layersOptions = []
+      this.matrixSetOptions = []
+      this.projectionOptions = this.availableProjections
+    },
+
+    /**
+     * Convert OGC URI format to EPSG label
+     * @param {string} ogcUri - e.g., "http://www.opengis.net/def/crs/EPSG/0/25832"
+     * @returns {string} - e.g., "EPSG:25832"
+     */
+    convertOgcUriToEpsgLabel (ogcUri) {
+      // Handle EPSG URIs
+      const epsgMatch = ogcUri.match(/\/EPSG\/\d+\/(\d+)$/i)
+      if (epsgMatch) {
+        return `EPSG:${epsgMatch[1]}`
+      }
+
+      // Handle CRS84 (maps to WGS84)
+      if (ogcUri.includes('CRS84')) {
+        return 'EPSG:4326'
+      }
+
+      // Return original if can't parse
+      return ogcUri
+    },
+
+    deselectAllLayers () {
+      this.layers = []
+    },
+
+    /**
+     * Extract collection name from OAF URL
+     * @param {string} url - Full OAF URL
+     * @returns {string} - Collection name
+     */
+    extractCollectionNameFromUrl (url) {
+      const startIndex = url.indexOf('/collections/') + '/collections/'.length
+      let endIndex = url.length
+
+      const nextSlashIndex = url.indexOf('/', startIndex)
+      const nextQueryIndex = url.indexOf('?', startIndex)
+
+      if (nextSlashIndex !== -1) {
+        endIndex = nextSlashIndex
+      }
+      if (nextQueryIndex !== -1 && nextQueryIndex < endIndex) {
+        endIndex = nextQueryIndex
+      }
+
+      return url.substring(startIndex, endIndex)
+    },
 
     extractDataFromWMSCapabilities () {
       // Show available layers in layers dropdown
@@ -531,6 +592,42 @@ export default {
         })
     }),
 
+    /**
+     * Fetch OAF collection metadata and auto-detect projection
+     */
+    getOafProjection () {
+      if (!this.url || this.url === '') {
+        return
+      }
+
+      try {
+        const collectionName = this.extractCollectionNameFromUrl(this.url)
+        const baseUrl = this.url.substring(0, this.url.indexOf('/collections/'))
+        const metadataUrl = `${baseUrl}/collections/${collectionName}`
+
+        this.isLoading = true
+
+        externalApi(metadataUrl)
+          .then(response => response.json())
+          .then(data => {
+            // Store OGC URI from metadata
+            this.projectionOgcUri = data.storageCrs
+            // Set dropdown to matching EPSG label
+            this.setProjectionFromOgcUri(data.storageCrs)
+          })
+          .catch(error => {
+            console.error('OAF metadata fetch error:', error)
+            dplan.notify.error(Translator.trans('error.map.layer.oaf.metadata.fetch'))
+          })
+          .finally(() => {
+            this.isLoading = false
+          })
+      } catch (error) {
+        console.error('Error parsing OAF URL:', error)
+        this.isLoading = false
+      }
+    },
+
     handleUrlParams (url) {
       const upperUrl = url.toUpperCase()
       let separator = url.includes('?') ? '&' : '?'
@@ -554,13 +651,6 @@ export default {
       return url
     },
 
-    clearSelections () {
-      this.currentCapabilities = null
-      this.layersOptions = []
-      this.matrixSetOptions = []
-      this.projectionOptions = this.availableProjections
-    },
-
     resetLayerSelection () {
       if (this.initialLoad) {
         return
@@ -579,62 +669,14 @@ export default {
       this.layers = [...this.layersOptions]
     },
 
-    deselectAllLayers () {
-      this.layers = []
-    },
-
-    validateSavedLayersAvailability () {
-      if (this.layers.length === 0) {
-        return
-      }
-
-      const savedLayers = this.layers.map(layer => layer.label)
-
-      if (this.layersOptions.length === 0) {
-        this.unavailableLayers = savedLayers
-
-        return
-      }
-
-      const availableLayerOptions = this.layersOptions.map(option => option.label)
-      const outdatedLayers = savedLayers.filter(savedName => !availableLayerOptions.includes(savedName))
-
-      if (outdatedLayers.length > 0) {
-        this.unavailableLayers = outdatedLayers
-      } else {
-        this.unavailableLayers = []
-      }
-    },
-
-    validateUrlAndGetCapabilities () {
-      if (this.serviceType === 'OAF' && !this.validateOafUrl()) {
-        return
-      }
-
-      if (this.serviceType !== 'OAF' && !this.validateWmsWmtsUrl()) {
-        return
-      }
-
-      this.getLayerCapabilities()
-    },
-
-    validateWmsWmtsUrl () {
-      // UX feedback via notifications only - backend does authoritative validation
-      if (!this.url || this.url === '') {
-        return true
-      }
-
-      const upperUrl = this.url.toUpperCase()
-
-      // Check if URL contains SERVICE parameter
-      if (!upperUrl.includes('SERVICE=')) {
-        const errorMessage = Translator.trans('error.map.layer.missing.service')
-        dplan.notify.error(errorMessage)
-
-        return false
-      }
-
-      return true
+    /**
+     * Set projection field based on OGC URI from metadata
+     * @param {string} ogcUri - OGC URI format from storageCrs
+     */
+    setProjectionFromOgcUri (ogcUri) {
+      const epsgLabel = this.convertOgcUriToEpsgLabel(ogcUri)
+      this.projection = epsgLabel
+      dplan.notify.confirm(Translator.trans('map.layer.oaf.projection.detected', { projection: epsgLabel }))
     },
 
     validateOafUrl () {
@@ -665,6 +707,65 @@ export default {
 
       if (hasNoCollectionName) {
         const errorMessage = Translator.trans('error.map.layer.oaf.collections.end')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      return true
+    },
+
+    validateSavedLayersAvailability () {
+      if (this.layers.length === 0) {
+        return
+      }
+
+      const savedLayers = this.layers.map(layer => layer.label)
+
+      if (this.layersOptions.length === 0) {
+        this.unavailableLayers = savedLayers
+
+        return
+      }
+
+      const availableLayerOptions = this.layersOptions.map(option => option.label)
+      const outdatedLayers = savedLayers.filter(savedName => !availableLayerOptions.includes(savedName))
+
+      if (outdatedLayers.length > 0) {
+        this.unavailableLayers = outdatedLayers
+      } else {
+        this.unavailableLayers = []
+      }
+    },
+
+    validateUrlAndGetCapabilities () {
+      if (this.serviceType === 'OAF') {
+        if (!this.validateOafUrl()) {
+          return
+        }
+
+        this.getOafProjection()
+        return
+      }
+
+      if (!this.validateWmsWmtsUrl()) {
+        return
+      }
+
+      this.getLayerCapabilities()
+    },
+
+    validateWmsWmtsUrl () {
+      // UX feedback via notifications only - backend does authoritative validation
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const upperUrl = this.url.toUpperCase()
+
+      // Check if URL contains SERVICE parameter
+      if (!upperUrl.includes('SERVICE=')) {
+        const errorMessage = Translator.trans('error.map.layer.missing.service')
         dplan.notify.error(errorMessage)
 
         return false
