@@ -111,7 +111,7 @@
     />
 
     <dp-move-statement-modal
-      v-if="hasPermission('feature_statement_move_to_procedure')"
+      v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
@@ -456,6 +456,7 @@ export default {
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
+      'moveStatementModal',
       'isLoading',
     ]),
 

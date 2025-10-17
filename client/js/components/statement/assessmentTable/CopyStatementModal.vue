@@ -261,7 +261,7 @@ export default {
         this.statementFragments = fragments.map(fragment => {
           return {
             id: fragment.id,
-            assigneeId: fragment.assignee.id,
+            assigneeId: fragment.assignee?.id || '',
             departmentId: fragment.departmentId,
           }
         })
