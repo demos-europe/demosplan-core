@@ -112,7 +112,6 @@
       data-dp-validate="userForm"
     >
       <dp-user-form-fields
-        :ref="'user-form-fields-' + user.id"
         :user="user"
         :user-id="user.id"
         @user:update="updateUser"
@@ -251,19 +250,7 @@ export default {
     // Close item and reset roles multiselect
     reset () {
       this.restoreUser(this.user.id).then(() => {
-        const userFormFields = this.$refs[`user-form-fields-${this.user.id}`]
-        userFormFields.$data.localUser = JSON.parse(JSON.stringify(userFormFields.$props.user))
-        userFormFields.setInitialOrgaData()
         this.isOpen = !this.isOpen
-
-        const inputsWithErrors = this.$el.querySelector('[data-dp-validate="userForm"]').querySelectorAll('.is-invalid')
-        Array.from(inputsWithErrors).forEach(input => {
-          input.classList.remove('is-invalid')
-          const inputNodeName = input.nodeName
-          if (inputNodeName === 'INPUT' || inputNodeName === 'SELECT') {
-            input.setCustomValidity('')
-          }
-        })
       })
     },
 
