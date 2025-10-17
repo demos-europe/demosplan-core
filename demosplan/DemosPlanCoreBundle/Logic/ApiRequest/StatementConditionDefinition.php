@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\DqlConditionDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use EDT\DqlQuerying\Functions\InvertedBoolean;
-use EDT\Querying\FluentQueries\ConditionDefinition;
 
-class StatementConditionDefinition extends ConditionDefinition
+class StatementConditionDefinition extends DqlConditionDefinition
 {
     /**
      * @return $this
@@ -47,7 +47,7 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function hasSegments(string $procedureId): self
     {
-        return $this->add(new HasSegmentsClause($procedureId));
+        return $this->addDqlCondition(new HasSegmentsClause($procedureId));
     }
 
     /**
@@ -55,7 +55,7 @@ class StatementConditionDefinition extends ConditionDefinition
      */
     public function hasNoSegments(string $procedureId): self
     {
-        return $this->add(new InvertedBoolean(new HasSegmentsClause($procedureId)));
+        return $this->addDqlCondition(new InvertedBoolean(new HasSegmentsClause($procedureId)));
     }
 
     /**
@@ -82,7 +82,7 @@ class StatementConditionDefinition extends ConditionDefinition
     /**
      * @return StatementConditionDefinition
      */
-    public function anyConditionApplies(): ConditionDefinition
+    public function anyConditionApplies(): DqlConditionDefinition
     {
         $subDefinition = new self($this->conditionFactory, false);
         $this->subDefinitions[] = $subDefinition;
@@ -93,7 +93,7 @@ class StatementConditionDefinition extends ConditionDefinition
     /**
      * @return StatementConditionDefinition
      */
-    public function allConditionsApply(): ConditionDefinition
+    public function allConditionsApply(): DqlConditionDefinition
     {
         $subDefinition = new self($this->conditionFactory, true);
         $this->subDefinitions[] = $subDefinition;

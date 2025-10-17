@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\Querying\Contracts\SortMethodFactoryInterface;
-use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\FluentQueries\SliceDefinition;
 use EDT\Querying\FluentQueries\SortDefinition;
 
@@ -37,14 +36,6 @@ class FluentStatementQuery extends DqlFluentQuery
             new SortDefinition($sortMethodFactory),
             new SliceDefinition()
         );
-    }
-
-    /**
-     * @return StatementConditionDefinition
-     */
-    public function getConditionDefinition(): ConditionDefinition
-    {
-        return parent::getConditionDefinition();
     }
 
     /**

@@ -147,6 +147,7 @@ class EntityFetcher
         $doctrineProvider = new DoctrineOrmEntityProvider($this->entityManager, $builderPreparer, $entityClass);
 
         // EDT 0.26: Create converters that transform predefined types to Doctrine-specific types
+        // Note: Pass DqlConditionFactory (not ConditionFactory) to convert TO DQL types
         $conditionConverter = ConditionConverter::createDefault($this->validator, $this->conditionFactory);
         $sortMethodConverter = SortMethodConverter::createDefault($this->validator, $this->dqlSortMethodFactory);
 

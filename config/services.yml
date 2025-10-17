@@ -1307,6 +1307,7 @@ services:
     # EDT 0.26: DrupalFilterValidator now takes validator and operatorConstraintProvider
     EDT\Querying\ConditionParsers\Drupal\DrupalFilterValidator:
         arguments:
+            $validator: '@validator'
             $operatorConstraintProvider: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\Utilities\ConditionEvaluator:

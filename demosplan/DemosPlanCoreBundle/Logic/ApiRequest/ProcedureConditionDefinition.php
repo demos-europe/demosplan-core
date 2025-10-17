@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Logic\ApiRequest\DqlConditionDefinition;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Functions\Constant;
 use EDT\DqlQuerying\Functions\Greater;
@@ -20,13 +21,9 @@ use EDT\DqlQuerying\Functions\Property;
 use EDT\DqlQuerying\Functions\Smaller;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathAccessInterface;
-use EDT\Querying\FluentQueries\ConditionDefinition;
 use EDT\Querying\PropertyPaths\PropertyPath;
 
-/**
- * @template-extends ConditionDefinition<ClauseFunctionInterface<bool>>
- */
-class ProcedureConditionDefinition extends ConditionDefinition
+class ProcedureConditionDefinition extends DqlConditionDefinition
 {
     /**
      * @param non-empty-list<non-empty-string> $properties
@@ -35,14 +32,12 @@ class ProcedureConditionDefinition extends ConditionDefinition
      *
      * @throws PathException
      */
-    public function propertyHasValueBeforeNow(array $properties): ConditionDefinition
+    public function propertyHasValueBeforeNow(array $properties): DqlConditionDefinition
     {
-        $this->conditions[] = new Smaller(
+        return $this->addDqlCondition(new Smaller(
             $this->createDirectProperty($properties),
             $this->createNowConstant()
-        );
-
-        return $this;
+        ));
     }
 
     /**
@@ -52,14 +47,12 @@ class ProcedureConditionDefinition extends ConditionDefinition
      *
      * @throws PathException
      */
-    public function propertyHasValueAfterNow(array $properties): ConditionDefinition
+    public function propertyHasValueAfterNow(array $properties): DqlConditionDefinition
     {
-        $this->conditions[] = new Greater(
+        return $this->addDqlCondition(new Greater(
             $this->createDirectProperty($properties),
             $this->createNowConstant()
-        );
-
-        return $this;
+        ));
     }
 
     /**
@@ -87,7 +80,7 @@ class ProcedureConditionDefinition extends ConditionDefinition
     /**
      * @return ProcedureConditionDefinition
      */
-    public function anyConditionApplies(): ConditionDefinition
+    public function anyConditionApplies(): DqlConditionDefinition
     {
         $subDefinition = new self($this->conditionFactory, false);
         $this->subDefinitions[] = $subDefinition;
@@ -98,7 +91,7 @@ class ProcedureConditionDefinition extends ConditionDefinition
     /**
      * @return ProcedureConditionDefinition
      */
-    public function allConditionsApply(): ConditionDefinition
+    public function allConditionsApply(): DqlConditionDefinition
     {
         $subDefinition = new self($this->conditionFactory, true);
         $this->subDefinitions[] = $subDefinition;
