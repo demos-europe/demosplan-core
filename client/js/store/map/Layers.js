@@ -454,7 +454,10 @@ const LayersStore = {
       const allRequests = []
 
       state.apiData.included.forEach(el => {
-        allRequests.push(dispatch('save', el))
+        // Skip ContextualHelp - it's read-only and managed by the backend when GisLayer is updated
+        if (el.type !== 'ContextualHelp') {
+          allRequests.push(dispatch('save', el))
+        }
       })
 
       return Promise.all(allRequests)
