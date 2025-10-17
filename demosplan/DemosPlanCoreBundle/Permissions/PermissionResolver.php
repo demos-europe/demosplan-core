@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\Querying\ConditionParsers\Drupal\DrupalConditionParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterException;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -58,24 +57,33 @@ class PermissionResolver implements PermissionFilterValidatorInterface
     private const PARAMETER_CONDITION = 'parameterCondition';
     private const PARAMETER = 'parameter';
 
-    /**
-     * @var DrupalFilterParser<ClauseFunctionInterface<bool>>
-     */
     private readonly DrupalFilterParser $filterParser;
 
     private readonly DrupalFilterValidator $filterValidator;
+
+    private readonly DrupalFilterParser $dqlFilterParser;
 
     public function __construct(
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityFetcher $entityFetcher,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
-        $drupalConditionFactory = new PermissionDrupalConditionFactory($conditionFactory);
+        // For in-memory condition evaluation (FunctionalUser), we need predefined conditions
+        $predefinedConditionFactory = new \EDT\ConditionFactory\ConditionFactory();
+        $drupalConditionFactory = new PermissionDrupalConditionFactory($predefinedConditionFactory);
         $this->filterValidator = new DrupalFilterValidator($validator, $drupalConditionFactory);
         $this->filterParser = new DrupalFilterParser(
-            $conditionFactory,
+            $predefinedConditionFactory,
             new DrupalConditionParser($drupalConditionFactory),
+            $this->filterValidator
+        );
+
+        // For database queries via EntityFetcher, we need DQL conditions
+        $dqlDrupalConditionFactory = new PermissionDrupalConditionFactory($this->conditionFactory);
+        $this->dqlFilterParser = new DrupalFilterParser(
+            $this->conditionFactory,
+            new DrupalConditionParser($dqlDrupalConditionFactory),
             $this->filterValidator
         );
     }
@@ -109,7 +117,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ResolvablePermission $permission,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         foreach ($permission->getConditions() as $permissionCondition) {
             $userConditions = $permissionCondition->getUserConditions();
@@ -135,20 +143,23 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         ?UuidEntityInterface $evaluationTarget,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): bool {
         $processedFilterList = $this->replaceParameterConditions($filterList, $user, $procedure, $customer);
         $processedFilterList = $this->filterParser->validateFilter($processedFilterList);
-        $conditions = $this->filterParser->parseFilter($processedFilterList);
 
         // If there is no target (e.g. no procedure because the request has no procedure context)
         // then we only evaluate to `true` if there are no conditions a procedure would need to
         // fulfill.
         if (null === $evaluationTarget) {
+            $conditions = $this->filterParser->parseFilter($processedFilterList);
+
             return [] === $conditions;
         }
 
+        // For FunctionalUser, use in-memory evaluation with predefined conditions
         if ($evaluationTarget instanceof FunctionalUser) {
+            $conditions = $this->filterParser->parseFilter($processedFilterList);
             foreach ($conditions as $condition) {
                 if (!$this->conditionEvaluator->evaluateCondition($evaluationTarget, $condition)) {
                     return false;
@@ -158,6 +169,8 @@ class PermissionResolver implements PermissionFilterValidatorInterface
             return true;
         }
 
+        // For database entities, use DQL conditions for EntityFetcher
+        $conditions = $this->dqlFilterParser->parseFilter($processedFilterList);
         $conditions[] = $this->conditionFactory->propertyHasValue($evaluationTarget->getId(), ['id']);
 
         return [] !== $this->entityFetcher->listEntitiesUnrestricted(
@@ -193,7 +206,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         array $filterList,
         ?User $user,
         ?Procedure $procedure,
-        ?Customer $customer
+        ?Customer $customer,
     ): array {
         foreach ($filterList as $filterName => $conditionWrapper) {
             if (array_key_exists(self::PARAMETER_CONDITION, $conditionWrapper)) {

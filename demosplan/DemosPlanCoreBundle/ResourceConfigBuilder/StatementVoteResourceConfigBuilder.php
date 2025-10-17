@@ -14,14 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementVoteResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $city
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $postcode
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $name
+ * @property-read AttributeConfigBuilderInterface<StatementVote> $email
+ * @property-read AttributeConfigBuilderInterface<StatementVote> $city
+ * @property-read AttributeConfigBuilderInterface<StatementVote> $postcode
+ * @property-read AttributeConfigBuilderInterface<StatementVote> $name
  */
 class StatementVoteResourceConfigBuilder extends BaseStatementVoteResourceConfigBuilder
 {
