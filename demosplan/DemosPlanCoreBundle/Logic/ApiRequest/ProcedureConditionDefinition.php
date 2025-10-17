@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\DqlConditionDefinition;
-use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Functions\Constant;
 use EDT\DqlQuerying\Functions\Greater;
 use EDT\DqlQuerying\Functions\Property;

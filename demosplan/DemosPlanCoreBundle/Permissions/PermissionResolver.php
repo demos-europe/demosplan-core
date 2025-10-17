@@ -153,6 +153,7 @@ class PermissionResolver implements PermissionFilterValidatorInterface
         // fulfill.
         if (null === $evaluationTarget) {
             $conditions = $this->filterParser->parseFilter($processedFilterList);
+
             return [] === $conditions;
         }
 
