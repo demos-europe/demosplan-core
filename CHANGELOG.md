@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 ## v4.20.0 (2025-10-09)
+## v4.18.1 (2025-10-16)
+## v4.18.0 (2025-10-13)
+## v4.16.1 (2025-10-16)
+- Fix addon asset build during docker build
+
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis

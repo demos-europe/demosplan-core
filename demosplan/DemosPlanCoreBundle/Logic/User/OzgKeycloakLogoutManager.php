@@ -29,8 +29,8 @@ class OzgKeycloakLogoutManager
     private const POST_LOGOUT_REDIRECT_URI = 'post_logout_redirect_uri=https://';
     private const ID_TOKEN_HINT = 'id_token_hint=';
 
-    /** @var int Default session expiration time when not set in parameters (120 minutes) */
-    private const DEFAULT_SESSION_LIFETIME_SECONDS = 7200;
+    /** @var int Default session expiration time when not set in parameters (6 hours) */
+    private const DEFAULT_SESSION_LIFETIME_SECONDS = 21600;
 
     public function __construct(
         private readonly KernelInterface $kernel,

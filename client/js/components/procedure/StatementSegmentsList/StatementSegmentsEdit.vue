@@ -203,9 +203,9 @@ export default {
     },
 
     hasDraftSegments: {
-      type: Object,
+      type: Boolean,
       required: false,
-      default: () => {},
+      default: false,
     },
 
     statementId: {
@@ -410,7 +410,10 @@ export default {
     scrollToSegment () {
       const queryParams = new URLSearchParams(window.location.search)
       const segmentId = queryParams.get('segment')
-      scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+
+      if (segmentId) {
+        scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+      }
     },
 
     /*
