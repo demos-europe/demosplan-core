@@ -134,6 +134,7 @@
 
         <dp-inline-notification
           v-if="customerMasterBlueprintName !== '' && hasPermission('feature_admin_customer_master_procedure_template')"
+          class="mt-2 mb-4"
           :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing', {
             procedureName: customerMasterBlueprintName,
             organisationName: customerMasterBlueprintOrgaName
