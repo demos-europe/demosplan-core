@@ -293,16 +293,24 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
-        if (array_key_exists('r_layerProjection', $data)) {
-            $projectionValue = $this->getProjectionAsValue($data['r_layerProjection']);
-            $gislayer['projectionLabel'] = $data['r_layerProjection'];
-            $gislayer['projectionValue'] = $projectionValue;
-        }
-
         // Legende
         if (array_key_exists('r_legend', $data)) {
             if (null != $data['r_legend']) {
                 $gislayer['legend'] = $data['r_legend'];
+            }
+        }
+
+        if (array_key_exists('r_layerProjection', $data)) {
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            // Determine projection value based on service type
+            if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
+                // Use OGC URI from metadata
+                $gislayer['projectionValue'] = $data['r_layerProjectionOgcUri'];
+            } else {
+                // WMS/WMTS: convert label to proj4 string
+                $gislayer['projectionValue'] = $this->getProjectionAsValue($projectionLabel);
             }
         }
 
@@ -572,9 +580,16 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if (array_key_exists('r_layerProjection', $data)) {
-            $projectionValue = $this->getProjectionAsValue($data['r_layerProjection']);
-            $gislayer['projectionLabel'] = $data['r_layerProjection'];
-            $gislayer['projectionValue'] = $projectionValue;
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            // Determine projection value based on service type
+            if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
+                $gislayer['projectionValue'] = $data['r_layerProjectionOgcUri'];
+            } else {
+                // WMS/WMTS: convert label to proj4 string
+                $gislayer['projectionValue'] = $this->getProjectionAsValue($projectionLabel);
+            }
         }
 
         $this->validateGisLayer($gislayer);
