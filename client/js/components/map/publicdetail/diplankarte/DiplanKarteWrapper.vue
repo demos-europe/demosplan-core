@@ -150,7 +150,7 @@ const handleDrawing = (event) => {
       r_location_point: '',
       location_is_set: 'geometry',
     }
-    
+
     // Only open modal when features are added, not when deleted
     if (currentFeatureCount > previousFeatureCount.value) {
       toggleStatementModal()
@@ -358,10 +358,10 @@ watch(
   drawing,
   (val) => {
     if (val && typeof val === 'object' && Array.isArray(val.features) && val.features.length > 0) {
-      previousFeatureCount.value = val.features.length;
+      previousFeatureCount.value = val.features.length
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 </script>
