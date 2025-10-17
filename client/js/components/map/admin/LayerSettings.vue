@@ -776,7 +776,7 @@ export default {
   },
 
   mounted () {
-    this.getLayerCapabilities()
+    this.validateUrlAndGetCapabilities()
   },
 }
 </script>
