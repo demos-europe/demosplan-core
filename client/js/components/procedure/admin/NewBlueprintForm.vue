@@ -139,7 +139,7 @@
             procedureName: customerMasterBlueprintName,
             organisationName: customerMasterBlueprintOrgaName
           })"
-          type="warning"
+          type="info"
         />
 
         <div class="text-right space-inline-s">
