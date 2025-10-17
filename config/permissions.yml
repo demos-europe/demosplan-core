@@ -137,6 +137,7 @@ area_admin_procedure_templates:
     loginRequired: true
     parent: area_admin
 area_admin_procedures:
+    description: "Enables the tab Grundeinstellungen in the admin panel of a procedure"
     label: 'Verfahren verwalten'
     loginRequired: true
     parent: area_admin
