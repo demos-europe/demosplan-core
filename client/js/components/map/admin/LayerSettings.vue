@@ -70,6 +70,7 @@
     <dp-label
       v-if="serviceType === 'wms' || serviceType === 'wmts'"
       :text="Translator.trans('layers')"
+      class="mb-0.5"
       for="r_layers"
       required
     />
