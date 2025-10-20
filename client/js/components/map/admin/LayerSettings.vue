@@ -31,7 +31,7 @@
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
-      @select="getLayerCapabilities"
+      @select="handleServiceTypeSelection"
     />
 
     <input
@@ -544,10 +544,6 @@ export default {
     },
 
     getLayerCapabilities: debounce(function () {
-      if (this.serviceType === 'OAF') {
-        return
-      }
-
       this.clearSelections()
       this.isLoading = true
       // Don't fetch anything if there is no url
@@ -626,6 +622,14 @@ export default {
         console.error('Error parsing OAF URL:', error)
         this.isLoading = false
       }
+    },
+
+    handleServiceTypeSelection () {
+      if (this.serviceType === 'OAF') {
+        return
+      }
+
+      this.getLayerCapabilities()
     },
 
     handleUrlParams (url) {
