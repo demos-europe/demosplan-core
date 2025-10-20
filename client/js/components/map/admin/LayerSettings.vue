@@ -68,14 +68,14 @@
     />
 
     <dp-label
-      v-if="serviceType !== 'OAF'"
+      v-if="serviceType === 'WMS' || serviceType === 'WMTS'"
       :text="Translator.trans('layers')"
       for="r_layers"
       required
     />
 
     <dp-multiselect
-      v-if="serviceType !== 'OAF'"
+      v-if="serviceType === 'WMS' || serviceType === 'WMTS'"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
