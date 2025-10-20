@@ -392,7 +392,9 @@ class ServiceImporter implements ServiceImporterInterface
     {
         // Check if file can be opened as ZIP
         $zip = new ZipArchive();
-        if (true !== $zip->open($filePath, ZipArchive::RDONLY)) {
+        // RDONLY requires libzip >= 1.0.0 and php > 7.4.3, fallback to default read mode if not available
+        $flags = defined('ZipArchive::RDONLY') ? ZipArchive::RDONLY : 0;
+        if (true !== $zip->open($filePath, $flags)) {
             return false;
         }
 

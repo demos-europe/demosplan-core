@@ -11,7 +11,7 @@
   <dp-modal
     ref="moveStatementModal"
     content-classes="u-1-of-2"
-    @modal:toggled="resetFragments"
+    @modal:toggled="handleModalToggled"
   >
     <!-- modal header -->
     <template v-slot:header>
@@ -128,7 +128,7 @@
 
 <script>
 import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpMoveStatementModal',
@@ -174,6 +174,7 @@ export default {
   },
 
   computed: {
+    ...mapGetters('AssessmentTable', ['moveStatementModal']),
     ...mapGetters('Fragment', ['fragmentsByStatement']),
     ...mapState('AssessmentTable', ['currentUserId']),
     ...mapState('Statement', ['statements']),
@@ -217,18 +218,31 @@ export default {
   },
 
   methods: {
-    ...mapActions('Fragment', ['loadFragments']),
-    toggleModal (statementId) {
-      //  Reset selection when radio list changes
-      this.selectedProcedureId = ''
-      //  Set actual statement id
-      this.statementId = statementId
-      //  Actually toggle the modal
-      this.$refs.moveStatementModal.toggle()
+    ...mapActions('Fragment', [
+      'loadFragments',
+    ]),
 
-      // Get statement fragments to check if user can move this statement
-      if (statementId) {
-        this.setFragments(statementId).then(() => { this.isLoading = false })
+    ...mapMutations('AssessmentTable', [
+      'setModalProperty',
+    ]),
+
+    handleModalToggled (isOpen) {
+      if (!isOpen) {
+        this.setModalProperty({ prop: 'moveStatementModal', val: { show: false, statementId: null } })
+        this.resetFragments()
+      }
+    },
+
+    handleToggleModal () {
+      this.selectedProcedureId = ''
+      this.statementId = this.moveStatementModal.statementId
+      this.toggleModal()
+      this.handleFragments()
+    },
+
+    handleFragments () {
+      if (this.statementId) {
+        this.setFragments(this.statementId).then(() => { this.isLoading = false })
       } else {
         this.resetFragments()
       }
@@ -238,7 +252,11 @@ export default {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(statementId).fragments
         this.statementFragments = fragments.map(fragment => {
-          return { id: fragment.id, assigneeId: fragment.assignee.id, departmentId: fragment.departmentId }
+          return {
+            id: fragment.id,
+            assigneeId: fragment.assignee?.id || '',
+            departmentId: fragment.departmentId,
+          }
         })
       }
 
@@ -298,18 +316,23 @@ export default {
             // Handle update of assessment table ui from TableCard.vue
             this.$root.$emit('statement:moveToProcedure', moveToProcedureParams)
           }
-          this.toggleModal(null)
+          this.toggleModal()
         })
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.results.loading'))
-          this.toggleModal(null)
+          this.toggleModal()
         })
+    },
+
+    toggleModal () {
+      this.$refs.moveStatementModal.toggle()
     },
   },
 
   mounted () {
-    //  Emitted from TableCard.vue
-    this.$root.$on('moveStatement:toggle', (statementId) => this.toggleModal(statementId))
+    this.$nextTick(() => {
+      this.handleToggleModal()
+    })
   },
 }
 </script>
