@@ -226,7 +226,7 @@ const buildLayerConfigsList = () => {
           id: layer.id,
           name: layer.attributes.name,
           type: layerType,
-          url: url,
+          url,
         },
         specificConfig: configBuilder(layer),
       }
