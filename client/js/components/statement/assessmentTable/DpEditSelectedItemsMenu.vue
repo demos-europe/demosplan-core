@@ -24,7 +24,6 @@
         :procedure-id="procedureId"
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
-        @consolidate-statements="$root.$emit('consolidateStatements')"
         @export-modal:toggle="tab => $emit('exportModal:toggle', tab)"
       />
 
@@ -76,7 +75,6 @@ export default {
   },
 
   emits: [
-    'consolidateStatements',
     'exportModal:toggle',
   ],
 

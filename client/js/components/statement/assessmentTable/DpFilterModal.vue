@@ -284,7 +284,6 @@ export default {
     return {
       activeTabId: null,
       disabledInteractions: false, // Do not submit form if filters are currently updating
-      disabledOpenModalButton: true, // Do not open modal if AT is still loading
       isLoading: true,
       saveFilterSet: false,
       saveFilterSetView: false,
@@ -536,12 +535,6 @@ export default {
     userFilterSetFilterHash (userFilterSet) {
       return this.getFilterHash(userFilterSet)
     },
-  },
-
-  mounted () {
-    this.$root.$on('assessmentTable:loaded', () => {
-      this.disabledOpenModalButton = false
-    })
   },
 }
 </script>
