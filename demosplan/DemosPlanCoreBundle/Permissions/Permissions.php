@@ -560,7 +560,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung
                 'area_admin_news',  // Verwalten Aktuelles (im Verfahren)
                 'area_admin_paragraphed_document',  // Verwalten Begruendung + Textliche Festsettung/Verordnung
-                //'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
+                'area_admin_preferences',  // Verwalten Allgemeine Einstellungen
                 'area_admin_protocol',  // Verwalten Protokoll
                 'area_admin_single_document',  // Verwalten Planungsdokumente
                 'feature_export_protocol',
