@@ -93,13 +93,14 @@ initialize(components).then(() => {
   AdministrationMaster()
   dpValidate()
 
-  document.addEventListener('customValidationPassed', (e) => {
-    const form = e.detail.form
-    if (form.getAttribute('data-dp-validate') === 'configForm') {
-      try {
-        form.querySelector('[type="submit"]').setAttribute('disabled', 'disabled')
-      } catch (e) {
-        form.querySelector('[type="submit"]').removeAttribute('disabled')
+  document.addEventListener('customValidationPassed', (event) => {
+    const form = event.detail.form
+
+    if (form.dataset.dpValidate === 'configForm') {
+      const submitButton = form.querySelector('[type="submit"]')
+
+      if (submitButton) {
+        submitButton.setAttribute('disabled', 'disabled')
       }
     }
   })
