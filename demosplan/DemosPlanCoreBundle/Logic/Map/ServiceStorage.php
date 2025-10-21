@@ -124,28 +124,12 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Validate OAF URL format
         if ($isOaf && array_key_exists('r_url', $data)) {
-            $url = trim((string) $data['r_url']);
-            $lowerUrl = strtolower($url);
-            $collectionsPattern = '/collections/';
-            $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+            $oafUrlFormatError = $this->validateOafUrlFormat($data);
 
-            // Check if URL contains /collections/ (case-insensitive)
-            if (false === $collectionsIndex) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
-                ];
-            } else {
-                // Check if /collections/ is not at the end (there must be content after it)
-                $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
-                $afterCollectionsTrimmed = trim($afterCollections, '/ ');
-                if ('' === $afterCollectionsTrimmed) {
-                    $mandatoryErrors[] = [
-                        'type'    => 'error',
-                        'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
-                    ];
-                }
+            if (!empty($oafUrlFormatError)) {
+                $mandatoryErrors[] = $oafUrlFormatError;
             }
+
         }
 
         // Validate WMS/WMTS URL contains SERVICE parameter
@@ -411,27 +395,10 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Validate OAF URL format
         if (!$isGlobalLayer && $isOaf && array_key_exists('r_url', $data)) {
-            $url = trim((string) $data['r_url']);
-            $lowerUrl = strtolower($url);
-            $collectionsPattern = '/collections/';
-            $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+            $oafUrlFormatError = $this->validateOafUrlFormat($data);
 
-            // Check if URL contains /collections/ (case-insensitive)
-            if (false === $collectionsIndex) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
-                ];
-            } else {
-                // Check if /collections/ is not at the end (there must be content after it)
-                $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
-                $afterCollectionsTrimmed = trim($afterCollections, '/ ');
-                if ('' === $afterCollectionsTrimmed) {
-                    $mandatoryErrors[] = [
-                        'type'    => 'error',
-                        'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
-                    ];
-                }
+            if (!empty($oafUrlFormatError)) {
+                $mandatoryErrors[] = $oafUrlFormatError;
             }
         }
 
@@ -601,6 +568,34 @@ class ServiceStorage implements MapServiceStorageInterface
     {
         return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
 
+    }
+
+    private function validateOafUrlFormat($data): array
+    {
+        $url = trim((string) $data['r_url']);
+        $lowerUrl = strtolower($url);
+        $collectionsPattern = '/collections/';
+        $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+
+        // Check if URL contains /collections/ (case-insensitive)
+        if (false === $collectionsIndex) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
+            ];
+        }
+
+        // Check if /collections/ is not at the end (there must be content after it)
+        $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
+        $afterCollectionsTrimmed = trim($afterCollections, '/ ');
+        if ('' === $afterCollectionsTrimmed) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
+            ];
+        }
+
+        return [];
     }
 
     /**
