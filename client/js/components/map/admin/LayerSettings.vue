@@ -21,20 +21,6 @@
       required
     />
 
-    <dp-input
-      id="r_url"
-      v-model="url"
-      :label="{
-        text: Translator.trans('url')
-      }"
-      class="u-mb-0_5"
-      data-cy="newMapLayerURL"
-      name="r_url"
-      required
-      @blur="getLayerCapabilities"
-      @enter="getLayerCapabilities"
-    />
-
     <dp-select
       v-model="serviceType"
       :label="{
@@ -45,14 +31,28 @@
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
-      @select="setServiceInUrl"
+      @select="handleServiceTypeSelection"
     />
 
     <input
-      v-model="serviceType"
+      :value="serviceType"
       name="r_serviceType"
       type="hidden"
     >
+
+    <dp-input
+      id="r_url"
+      v-model="url"
+      :label="{
+        text: Translator.trans('url')
+      }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerURL"
+      name="r_url"
+      required
+      @blur="validateUrlAndGetCapabilities"
+      @enter="validateUrlAndGetCapabilities"
+    />
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
@@ -68,12 +68,15 @@
     />
 
     <dp-label
+      v-if="serviceType === 'wms' || serviceType === 'wmts'"
       :text="Translator.trans('layers')"
+      class="mb-0.5"
       for="r_layers"
       required
     />
 
     <dp-multiselect
+      v-if="serviceType === 'wms' || serviceType === 'wmts'"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
@@ -114,7 +117,7 @@
     >
 
     <dp-ol-map
-      v-if="hasPermission('feature_map_layer_preview') && hasPreview"
+      v-if="hasPermission('feature_map_layer_preview') && hasPreview && serviceType !== 'OAF'"
       :layers="previewLayers"
       :procedure-id="procedureId"
       small
@@ -158,6 +161,13 @@
     <input
       v-model="projection"
       name="r_layerProjection"
+      type="hidden"
+    >
+
+    <input
+      v-if="serviceType === 'OAF' && projectionOgcUri"
+      v-model="projectionOgcUri"
+      name="r_layerProjectionOgcUri"
       type="hidden"
     >
 
@@ -284,6 +294,7 @@ export default {
       matrixSetOptions: [],
       name: this.initName,
       projection: this.initProjection || window.dplan.defaultProjectionLabel,
+      projectionOgcUri: '',
       projectionOptions: this.availableProjections,
       serviceError: false,
       serviceType: this.initServiceType || 'wms',
@@ -335,6 +346,10 @@ export default {
       if (hasPermission('feature_map_wmts')) {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
+
+      if (hasPermission('feature_diplan_karte')) {
+        serviceTypeOptions.push({ value: 'OAF', label: 'OGC API – Features (OAF)' })
+      }
       return serviceTypeOptions
     },
   },
@@ -349,6 +364,60 @@ export default {
           this.addLayerToOptions(layer.Layer, identifier)
         }
       })
+    },
+
+    clearSelections () {
+      this.currentCapabilities = null
+      this.layersOptions = []
+      this.matrixSetOptions = []
+      this.projectionOptions = this.availableProjections
+    },
+
+    /**
+     * Convert OGC URI format to EPSG label
+     * @param {string} ogcUri - e.g., "http://www.opengis.net/def/crs/EPSG/0/25832"
+     * @returns {string} - e.g., "EPSG:25832"
+     */
+    convertOgcUriToEpsgLabel (ogcUri) {
+      // Handle EPSG URIs
+      const epsgMatch = ogcUri.match(/\/EPSG\/\d+\/(\d+)$/i)
+      if (epsgMatch) {
+        return `EPSG:${epsgMatch[1]}`
+      }
+
+      // Handle CRS84 (maps to WGS84)
+      if (ogcUri.includes('CRS84')) {
+        return 'EPSG:4326'
+      }
+
+      // Return original if can't parse
+      return ogcUri
+    },
+
+    deselectAllLayers () {
+      this.layers = []
+    },
+
+    /**
+     * Extract collection name from OAF URL
+     * @param {string} url - Full OAF URL
+     * @returns {string} - Collection name
+     */
+    extractCollectionNameFromUrl (url) {
+      const startIndex = url.indexOf('/collections/') + '/collections/'.length
+      let endIndex = url.length
+
+      const nextSlashIndex = url.indexOf('/', startIndex)
+      const nextQueryIndex = url.indexOf('?', startIndex)
+
+      if (nextSlashIndex !== -1) {
+        endIndex = nextSlashIndex
+      }
+      if (nextQueryIndex !== -1 && nextQueryIndex < endIndex) {
+        endIndex = nextQueryIndex
+      }
+
+      return url.substring(startIndex, endIndex)
     },
 
     extractDataFromWMSCapabilities () {
@@ -520,6 +589,50 @@ export default {
         })
     }),
 
+    /**
+     * Fetch OAF collection metadata and auto-detect projection
+     */
+    getOafProjection () {
+      if (!this.url || this.url === '') {
+        return
+      }
+
+      try {
+        const collectionName = this.extractCollectionNameFromUrl(this.url)
+        const baseUrl = this.url.substring(0, this.url.indexOf('/collections/'))
+        const metadataUrl = `${baseUrl}/collections/${collectionName}`
+
+        this.isLoading = true
+
+        externalApi(metadataUrl)
+          .then(response => response.json())
+          .then(data => {
+            // Store OGC URI from metadata
+            this.projectionOgcUri = data.storageCrs
+            // Set dropdown to matching EPSG label
+            this.setProjectionFromOgcUri(data.storageCrs)
+          })
+          .catch(error => {
+            console.error('OAF metadata fetch error:', error)
+            dplan.notify.error(Translator.trans('error.map.layer.oaf.metadata.fetch'))
+          })
+          .finally(() => {
+            this.isLoading = false
+          })
+      } catch (error) {
+        console.error('Error parsing OAF URL:', error)
+        this.isLoading = false
+      }
+    },
+
+    handleServiceTypeSelection () {
+      if (this.serviceType === 'OAF') {
+        return
+      }
+
+      this.getLayerCapabilities()
+    },
+
     handleUrlParams (url) {
       const upperUrl = url.toUpperCase()
       let separator = url.includes('?') ? '&' : '?'
@@ -527,7 +640,6 @@ export default {
       const serviceKey = 'SERVICE='
       if (upperUrl.includes(serviceKey) === false) {
         url = `${url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
-        this.url = url
         separator = '&'
       } else {
         const serviceMatch = upperUrl.match(new RegExp(serviceKey + '(\\w*)', 'i'))[1]
@@ -542,13 +654,6 @@ export default {
       }
 
       return url
-    },
-
-    clearSelections () {
-      this.currentCapabilities = null
-      this.layersOptions = []
-      this.matrixSetOptions = []
-      this.projectionOptions = this.availableProjections
     },
 
     resetLayerSelection () {
@@ -569,23 +674,50 @@ export default {
       this.layers = [...this.layersOptions]
     },
 
-    deselectAllLayers () {
-      this.layers = []
+    /**
+     * Set projection field based on OGC URI from metadata
+     * @param {string} ogcUri - OGC URI format from storageCrs
+     */
+    setProjectionFromOgcUri (ogcUri) {
+      const epsgLabel = this.convertOgcUriToEpsgLabel(ogcUri)
+      this.projection = epsgLabel
+      dplan.notify.confirm(Translator.trans('map.layer.oaf.projection.detected', { projection: epsgLabel }))
     },
 
-    setServiceInUrl () {
-      const serviceKey = 'SERVICE='
-      // Find existing Key
-      const serviceParam = new RegExp(serviceKey + '(\\w*)', 'i')
-
-      if (this.url.match(serviceParam).length > 0) {
-        this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
-      } else {
-        const separator = this.url.includes('?') ? '&' : '?'
-        this.url = `${this.url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
+    validateOafUrl () {
+      /*
+       * With the current frontend architecture, it's not possible to validate the url on submit,
+       * because the submit button is in a twig file (map_admin_gislayer_edit.html.twig).
+       * So here we give UX feedback via notifications only - backend does authoritative validation that prevents the save.
+       */
+      if (!this.url || this.url === '') {
+        return true
       }
 
-      this.getLayerCapabilities()
+      const collectionsPattern = '/collections/'
+      const lowerUrl = this.url.toLowerCase()
+      const collectionsIndex = lowerUrl.indexOf(collectionsPattern)
+
+      // Check if URL contains /collections/ (case-insensitive)
+      if (collectionsIndex === -1) {
+        const errorMessage = Translator.trans('error.map.layer.oaf.missing.collections')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      // Check if /collections/ is not at the end (there must be content after it)
+      const afterCollections = this.url.substring(collectionsIndex + collectionsPattern.length)
+      const hasNoCollectionName = afterCollections.trim() === '' || afterCollections === '/' || afterCollections.match(/^\/+$/)
+
+      if (hasNoCollectionName) {
+        const errorMessage = Translator.trans('error.map.layer.oaf.collections.end')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      return true
     },
 
     validateSavedLayersAvailability () {
@@ -610,10 +742,46 @@ export default {
         this.unavailableLayers = []
       }
     },
+
+    validateUrlAndGetCapabilities () {
+      if (this.serviceType === 'OAF') {
+        if (!this.validateOafUrl()) {
+          return
+        }
+
+        this.getOafProjection()
+        return
+      }
+
+      if (!this.validateWmsWmtsUrl()) {
+        return
+      }
+
+      this.getLayerCapabilities()
+    },
+
+    validateWmsWmtsUrl () {
+      // UX feedback via notifications only - backend does authoritative validation
+      if (!this.url || this.url === '') {
+        return true
+      }
+
+      const upperUrl = this.url.toUpperCase()
+
+      // Check if URL contains SERVICE parameter
+      if (!upperUrl.includes('SERVICE=')) {
+        const errorMessage = Translator.trans('error.map.layer.missing.service')
+        dplan.notify.error(errorMessage)
+
+        return false
+      }
+
+      return true
+    },
   },
 
   mounted () {
-    this.getLayerCapabilities()
+    this.validateUrlAndGetCapabilities()
   },
 }
 </script>

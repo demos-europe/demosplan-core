@@ -197,12 +197,22 @@ const layerTypeDefaults = {
     tilesize: 512,
     visibleOnLoad: false,
   },
+  oaf: {
+    params: {
+      f: 'json',
+    },
+  },
 }
 
 const layerConfigBuilders = {
   wms: (layer) => ({
     layers: layer.attributes.layers || null,
     version: layer.attributes.layerVersion || '1.3.0',
+  }),
+  oaf: (layer) => ({
+    collection: extractCollection(layer.attributes.url),
+    bboxCrs: layer.attributes.projectionValue || 'http://www.opengis.net/def/crs/EPSG/0/25832',
+    crs: layer.attributes.projectionValue || 'http://www.opengis.net/def/crs/EPSG/0/25832',
   }),
   // Add other type specific values that could come from BE here
 }
@@ -213,6 +223,7 @@ const buildLayerConfigsList = () => {
   return layersFromDB
     .map(layer => {
       const layerType = layer.attributes.serviceType?.toLowerCase()
+      const url = 'oaf' === layerType ? reduceUrl(layer.attributes.url) : layer.attributes.url
       const configBuilder = layerConfigBuilders[layerType]
 
       if (!configBuilder) {
@@ -226,7 +237,7 @@ const buildLayerConfigsList = () => {
           id: layer.id,
           name: layer.attributes.name,
           type: layerType,
-          url: layer.attributes.url,
+          url,
         },
         specificConfig: configBuilder(layer),
       }
@@ -268,6 +279,24 @@ const createLayerObject = (baseConfig, specificConfig = {}, layerTypeDefaults = 
   }
 }
 
+const extractCollection = (url) => {
+  const startIndex = url.indexOf('/collections/') + '/collections/'.length
+
+  // Find the next '/' or '?' or end of string
+  let endIndex = url.length
+  const nextSlashIndex = url.indexOf('/', startIndex)
+  const nextQueryIndex = url.indexOf('?', startIndex)
+
+  if (nextSlashIndex !== -1) {
+    endIndex = nextSlashIndex
+  }
+  if (nextQueryIndex !== -1 && nextQueryIndex < endIndex) {
+    endIndex = nextQueryIndex
+  }
+
+  return url.substring(startIndex, endIndex)
+}
+
 const updateCustomLayerData = () => {
   if (isStoreAvailable.value) {
     const layerConfigs = buildLayerConfigsList()
@@ -281,6 +310,10 @@ const updateCustomLayerData = () => {
 
     layersLoaded.value = true
   }
+}
+
+const reduceUrl = (url) => {
+  return url.substring(0, url.indexOf('/collections/'))
 }
 
 // Feature: Statement Modal
