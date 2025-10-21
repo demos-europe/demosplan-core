@@ -136,15 +136,9 @@ class ServiceStorage implements MapServiceStorageInterface
         $isWmsOrWmts = array_key_exists('r_serviceType', $data)
             && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
-            $url = trim((string) $data['r_url']);
-            $upperUrl = strtoupper($url);
-
-            // Check if URL contains SERVICE parameter (case-insensitive)
-            if (false === strpos($upperUrl, 'SERVICE=')) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.missing.service'),
-                ];
+            $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
+            if (!empty($wmsWmtsUrFormatError)) {
+                $mandatoryErrors[] = $wmsWmtsUrFormatError;
             }
         }
 
@@ -406,15 +400,9 @@ class ServiceStorage implements MapServiceStorageInterface
         $isWmsOrWmts = array_key_exists('r_serviceType', $data)
             && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
-            $url = trim((string) $data['r_url']);
-            $upperUrl = strtoupper($url);
-
-            // Check if URL contains SERVICE parameter (case-insensitive)
-            if (false === strpos($upperUrl, 'SERVICE=')) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->translator->trans('error.map.layer.missing.service'),
-                ];
+            $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
+            if (!empty($wmsWmtsUrFormatError)) {
+                $mandatoryErrors[] = $wmsWmtsUrFormatError;
             }
         }
 
@@ -592,6 +580,21 @@ class ServiceStorage implements MapServiceStorageInterface
             return [
                 'type'    => 'error',
                 'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
+            ];
+        }
+
+        return [];
+    }
+
+    private function validateWmsWmtsUrlFormat($data): array {
+        $url = trim((string) $data['r_url']);
+        $upperUrl = strtoupper($url);
+
+        // Check if URL contains SERVICE parameter (case-insensitive)
+        if (false === strpos($upperUrl, 'SERVICE=')) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.missing.service'),
             ];
         }
 
