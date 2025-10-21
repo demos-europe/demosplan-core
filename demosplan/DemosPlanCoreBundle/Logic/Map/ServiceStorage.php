@@ -108,7 +108,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        $isOaf = array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+        $isOaf = $this->isOaf($data);
         if (!$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
             && !array_key_exists('r_xplanDefaultlayers', $data)) {
             $mandatoryErrors[] = [
@@ -396,7 +396,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        $isOaf = array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+        $isOaf = $this->isOaf($data);
         if (!$isGlobalLayer && !$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -595,6 +595,12 @@ class ServiceStorage implements MapServiceStorageInterface
         $this->validateGisLayer($gislayer);
 
         return $this->handler->updateGis($gislayer);
+    }
+
+    private function isOaf($data): bool
+    {
+        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+
     }
 
     /**
