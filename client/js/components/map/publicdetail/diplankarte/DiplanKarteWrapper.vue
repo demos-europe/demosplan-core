@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { computed, getCurrentInstance, onMounted, reactive, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, reactive, ref, watch } from 'vue'
 import { DpButton, DpLoading, DpNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { transformExtent, transformFeatureCollection } from '@DpJs/lib/map/transformFeature'
 import layerConfig from './config/layerConfig.json'
@@ -125,12 +125,16 @@ const drawing = computed(() => {
     ''
 })
 
+// Track previous feature count to detect additions vs deletions
+const previousFeatureCount = ref(0)
+
 const handleDrawing = (event) => {
   let payload
   const geometry = transformFeatureCollection(event.detail[0], 'EPSG:4326', 'EPSG:3857')
+  const currentFeatureCount = geometry.features.length
 
   // If all geometry was deleted, reset location reference
-  if (geometry.features.length === 0) {
+  if (currentFeatureCount === 0) {
     payload = {
       r_location: 'notLocated',
       r_location_geometry: '',
@@ -146,7 +150,14 @@ const handleDrawing = (event) => {
       r_location_point: '',
       location_is_set: 'geometry',
     }
+
+    // Only open modal when features are added/edited, not when deleted
+    if (currentFeatureCount >= previousFeatureCount.value) {
+      toggleStatementModal()
+    }
   }
+
+  previousFeatureCount.value = currentFeatureCount
 
   emit('locationDrawing', payload)
 }
@@ -374,5 +385,16 @@ onMounted(() => {
 
   store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 })
+
+// Initialize previousFeatureCount based on the features-array length in the drawing-computed
+watch(
+  drawing,
+  (val) => {
+    if (val && typeof val === 'object' && Array.isArray(val.features) && val.features.length > 0) {
+      previousFeatureCount.value = val.features.length
+    }
+  },
+  { immediate: true },
+)
 
 </script>
