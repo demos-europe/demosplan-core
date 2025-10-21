@@ -108,12 +108,6 @@ export default {
       default: () => [],
     },
 
-    plisId: {
-      required: false,
-      type: String,
-      default: '',
-    },
-
     procedureExternalDesc: {
       required: false,
       type: String,
@@ -200,16 +194,6 @@ export default {
           },
         ...(url === 'api_resource_update' ? { id } : {}),
       }
-    },
-
-    getDataPlis (plisId, routeName) {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate(routeName, { uuid: plisId }),
-      })
-        .then(data => {
-          return data.data
-        })
     },
 
     handleAddonRequest () {
