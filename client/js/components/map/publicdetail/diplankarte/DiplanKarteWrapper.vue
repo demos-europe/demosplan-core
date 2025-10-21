@@ -152,7 +152,7 @@ const handleDrawing = (event) => {
     }
 
     // Only open modal when features are added/edited, not when deleted
-    if (currentFeatureCount !== 0 && currentFeatureCount >= previousFeatureCount.value) {
+    if (currentFeatureCount >= previousFeatureCount.value) {
       toggleStatementModal()
     }
   }
