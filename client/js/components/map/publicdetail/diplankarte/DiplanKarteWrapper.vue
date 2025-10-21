@@ -151,8 +151,8 @@ const handleDrawing = (event) => {
       location_is_set: 'geometry',
     }
 
-    // Only open modal when features are added, not when deleted
-    if (currentFeatureCount > previousFeatureCount.value) {
+    // Only open modal when features are added/edited, not when deleted
+    if (currentFeatureCount >= previousFeatureCount.value) {
       toggleStatementModal()
     }
   }
