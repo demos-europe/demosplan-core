@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Make tag and tag topic title unique constraints case-sensitive by changing collation to utf8_bin
 ## v4.18.0 (2025-10-13)
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
