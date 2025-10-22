@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.22.0 (2025-10-22)
 ## v4.20.0 (2025-10-09)
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
