@@ -28,6 +28,7 @@
       :customLayerList.prop="customLayerList"
       :customLayerConfigurationList.prop="customLayerConfigurationList"
       :customLayerGroupName.prop="Translator.trans('gislayer')"
+      enabled-toolbar-group="digitizer"
       profile="beteiligung"
       enable-layer-switcher
       enable-searchbar
