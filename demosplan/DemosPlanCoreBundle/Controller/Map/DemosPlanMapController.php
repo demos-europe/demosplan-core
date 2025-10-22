@@ -498,10 +498,10 @@ class DemosPlanMapController extends BaseController
         $templateVars['contextualHelp Breadcrumb'] = $breadcrumb->getContextualHelp($title);
 
         return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_list.html.twig', [
-            'templateVars' => $templateVars,
-            'procedure'    => $procedureId,
-            'title'        => $title,
-        ]
+                'templateVars' => $templateVars,
+                'procedure'    => $procedureId,
+                'title'        => $title,
+            ]
         );
     }
 
@@ -816,6 +816,7 @@ class DemosPlanMapController extends BaseController
                 'r_contextualHelpText',
                 'r_default_visibility',
                 'r_layerProjection',
+                'r_layerProjectionOgcUri',
                 'r_layers',
                 'r_layerVersion',
                 'r_layerTemplate',
@@ -878,6 +879,7 @@ class DemosPlanMapController extends BaseController
                 'r_ident',
                 'r_isGlobalLayer',
                 'r_layerProjection',
+                'r_layerProjectionOgcUri',
                 'r_layers',
                 'r_layerVersion',
                 'r_legend',
