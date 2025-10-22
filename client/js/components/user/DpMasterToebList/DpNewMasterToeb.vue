@@ -66,7 +66,8 @@ export default {
 
       makeFormPost(initialPayload, Routing.generate('DemosPlan_user_mastertoeblist_add_ajax')).then((response) => {
         delete newOrgaCpy.orgaName
-        newOrgaCpy.ident = response.data.ident
+        const parsedResponse = JSON.parse(response.data)
+        newOrgaCpy.ident = parsedResponse.ident
         this.batchRequest(newOrgaCpy).then(() => {
           newOrgaCpy.orgaName = newOrga.orgaName
           this.$emit('orga-added', newOrgaCpy)
