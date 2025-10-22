@@ -587,7 +587,7 @@ class ServiceStorage implements MapServiceStorageInterface
         return [];
     }
 
-    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel)
+    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
     {
         // Determine projection value based on service type
         if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
