@@ -129,7 +129,6 @@ class ServiceStorage implements MapServiceStorageInterface
             if (!empty($oafUrlFormatError)) {
                 $mandatoryErrors[] = $oafUrlFormatError;
             }
-
         }
 
         // Validate WMS/WMTS URL contains SERVICE parameter
@@ -283,7 +282,6 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['projectionLabel'] = $projectionLabel;
 
             $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
-
         }
 
         // Globale GIS-Layer haben kein Procedure
@@ -543,7 +541,6 @@ class ServiceStorage implements MapServiceStorageInterface
     private function isOaf(array $data): bool
     {
         return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
-
     }
 
     private function validateOafUrlFormat(array $data): array
@@ -574,7 +571,8 @@ class ServiceStorage implements MapServiceStorageInterface
         return [];
     }
 
-    private function validateWmsWmtsUrlFormat(array $data): array {
+    private function validateWmsWmtsUrlFormat(array $data): array
+    {
         $url = trim((string) $data['r_url']);
         $upperUrl = strtoupper($url);
 
@@ -589,11 +587,13 @@ class ServiceStorage implements MapServiceStorageInterface
         return [];
     }
 
-    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel) {
+    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel)
+    {
         // Determine projection value based on service type
         if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
             return $data['r_layerProjectionOgcUri'];
         }
+
         // WMS/WMTS: convert label to proj4 string
         return $this->getProjectionAsValue($projectionLabel);
     }
