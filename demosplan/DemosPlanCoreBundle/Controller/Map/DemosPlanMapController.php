@@ -498,10 +498,10 @@ class DemosPlanMapController extends BaseController
         $templateVars['contextualHelp Breadcrumb'] = $breadcrumb->getContextualHelp($title);
 
         return $this->renderTemplate('@DemosPlanCore/DemosPlanMap/map_admin_gislayer_list.html.twig', [
-                'templateVars' => $templateVars,
-                'procedure'    => $procedureId,
-                'title'        => $title,
-            ]
+            'templateVars' => $templateVars,
+            'procedure'    => $procedureId,
+            'title'        => $title,
+        ]
         );
     }
 
