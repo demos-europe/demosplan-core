@@ -127,7 +127,7 @@ export default {
       procedureDescription: props.procedureExternalDesc,
       procedureName: props.initProcedureName,
       selectedAgencies: props.initAgencies,
-      selectedAuthUsers: sortAlphabetically(JSON.parse(JSON.stringify(props.initAuthUsers)), 'name'),
+      selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
       selectedDataInputOrgas: props.initDataInputOrgas,
       selectedInternalPhase: props.initProcedurePhaseInternal,
       selectedProcedureCategories: props.initProcedureCategories,
