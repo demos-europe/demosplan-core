@@ -1208,6 +1208,13 @@ export default {
     saveStatement (data, propType, fieldName) {
       const payload = this.preparePayload(data, propType, fieldName)
       this.$emit('statement:updated')
+
+      // Store the text data that is being saved for passing to the event
+      const savedTextData = {}
+      if (propType === 'attribute' && (fieldName === 'text' || fieldName === 'recommendation')) {
+        savedTextData[fieldName] = data[fieldName]
+      }
+
       //  ##### Fire store action #####
       this.updateStatementAction({ data: payload })
         .then(updated => {
@@ -1276,10 +1283,16 @@ export default {
           // Used in DpEditField to disable editing
           this.$root.$emit('saveSuccess', this.statementId, 'statement')
 
-          return updatedField
+          return { updatedField, savedTextData }
         })
-        .then(updatedField => {
-          this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
+        .then(({ updatedField, savedTextData }) => {
+          // Used in EditableText.vue to update short and full texts
+          // Includes saved text to prevent race conditions with DB updates
+          this.$root.$emit('entityTextSaved:' + this.statementId, {
+            entityId: this.statementId,
+            field: updatedField,
+            textData: savedTextData
+          })
         })
     },
 

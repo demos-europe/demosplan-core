@@ -272,6 +272,34 @@ export default {
   },
 
   methods: {
+    /**
+     * Create a simple shortened version of HTML content
+     * This approximates the backend HTMLFragmentSlicer behavior
+     */
+    createShortened (htmlContent, maxLength = 500) {
+      // Create a temporary element to extract text content
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = htmlContent
+      const textContent = tempDiv.textContent || tempDiv.innerText || ''
+
+      if (textContent.length <= maxLength) {
+        return htmlContent
+      }
+
+      // For long content, try to truncate at word boundaries
+      const truncatedText = textContent.substring(0, maxLength)
+      const lastSpaceIndex = truncatedText.lastIndexOf(' ')
+      const cutoff = lastSpaceIndex > 0 ? lastSpaceIndex : maxLength
+
+      // Truncate the HTML content roughly at the same position
+      const htmlLength = htmlContent.length
+      const textLength = textContent.length
+      const ratio = htmlLength / textLength
+      const htmlCutoff = Math.floor(cutoff * ratio)
+
+      return htmlContent.substring(0, htmlCutoff) + '...'
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -417,12 +445,32 @@ export default {
     // Update texts after entity save
     this.$root.$on('entityTextSaved:' + this.entityId, (updatedData) => {
       if (updatedData.entityId === this.entityId && updatedData.field === this.fieldKey) {
-        if (this.fullTextFetchRoute !== '') {
-          this.update(() => {
-            this.isEditing = false
-          }, true)
-        } else if (this.fullTextFetchRoute === '' && this.isShortened === false) {
-          this.shortText = this.fullText
+        // Check if text data is provided in the event
+        if (updatedData.textData && updatedData.textData[this.fieldKey]) {
+          const savedText = updatedData.textData[this.fieldKey]
+
+          // Use the saved text directly instead of making AJAX call
+          this.fullText = savedText
+          this.uneditedFullText = savedText
+          this.fullTextLoaded = true
+
+          // Create shortened version using frontend logic
+          this.shortText = this.createShortened(savedText)
+          this.isShortened = savedText.length > this.shortText.length
+
+          // Exit editing mode
+          this.isEditing = false
+          this.loading = false
+
+        } else {
+          // Fallback to original AJAX behavior if text data is not provided
+          if (this.fullTextFetchRoute !== '') {
+            this.update(() => {
+              this.isEditing = false
+            }, true)
+          } else if (this.fullTextFetchRoute === '' && this.isShortened === false) {
+            this.shortText = this.fullText
+          }
         }
       }
     })
