@@ -301,10 +301,10 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             $categoryLabels = [
-              'update' => $translator->trans('update', [], 'master-toeb-list'),
-              'delete' => $translator->trans('delete', [], 'master-toeb-list'),
-              'add'    => $translator->trans('add', [], 'master-toeb-list'),
-              'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
+                'update' => $translator->trans('update', [], 'master-toeb-list'),
+                'delete' => $translator->trans('delete', [], 'master-toeb-list'),
+                'add'    => $translator->trans('add', [], 'master-toeb-list'),
+                'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
             ];
 
             $reportEntries = $results;

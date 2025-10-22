@@ -94,8 +94,6 @@ class MasterToebService extends CoreService
      *
      * @param string $masterToebId
      *
-     * @return mixed
-     *
      * @throws Exception
      */
     public function getMasterToeb($masterToebId)
@@ -406,8 +404,6 @@ class MasterToebService extends CoreService
 
     /**
      * Get all organisations, which are not in the mastertoeblist.
-     *
-     * @return mixed
      */
     public function getOrganisations()
     {
