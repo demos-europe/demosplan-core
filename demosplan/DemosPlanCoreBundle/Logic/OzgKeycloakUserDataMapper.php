@@ -82,7 +82,7 @@ class OzgKeycloakUserDataMapper
         private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
         private readonly UserService $userService,
         private readonly ValidatorInterface $validator,
-    private readonly DepartmentMapper $departmentMapper)
+        private readonly DepartmentMapper $departmentMapper)
     {
     }
 

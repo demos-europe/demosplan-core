@@ -20,16 +20,13 @@ use Psr\Log\LoggerInterface;
 
 class DepartmentMapper
 {
-
-
     public function __construct(private readonly OzgKeycloakUserData $ozgKeycloakUserData,
-                                private readonly EntityManagerInterface $entityManager,
-                                private readonly LoggerInterface $logger)
+        private readonly EntityManagerInterface $entityManager,
+        private readonly LoggerInterface $logger)
     {
-
     }
-    public function findOrCreateDepartment(Orga $orga):
-    Department
+
+    public function findOrCreateDepartment(Orga $orga): Department
     {
         $orgUnitName = $this->ozgKeycloakUserData->getCompanyDepartment();
 
@@ -61,8 +58,8 @@ class DepartmentMapper
         $this->logger->info('Created new department for organisational unit',
             [
                 'departmentName' => $orgUnitName,
-                'orgaName' => $orga->getName(),
-                'orgaId' => $orga->getId()
+                'orgaName'       => $orga->getName(),
+                'orgaId'         => $orga->getId(),
             ]);
 
         return $newDepartment;
@@ -74,6 +71,4 @@ class DepartmentMapper
             static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
         )->first() ?? $userOrga->getDepartments()->first();
     }
-
-
 }

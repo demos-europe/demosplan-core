@@ -27,7 +27,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschriftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
-    private const COMPANY_DEPARTMENT= 'Organisationseinheit';
+    private const COMPANY_DEPARTMENT = 'Organisationseinheit';
 
     protected string $addressExtension = '';
     protected string $city = '';
