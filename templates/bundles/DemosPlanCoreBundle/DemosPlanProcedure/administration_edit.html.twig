@@ -447,7 +447,7 @@
                                 {% else %}
                                     <dp-input
                                         id="expandProcedureDescription"
-                                        :value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
+                                        :model-value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
                                         name="expandProcedureDescription"
                                         type="hidden">
                                     </dp-input>
@@ -1031,7 +1031,7 @@
                                     {# Allow anonymous statements by default #}
                                     <dp-input
                                         id="allowAnonymousStatements"
-                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        :model-value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
                                         type="hidden">
                                     </dp-input>
