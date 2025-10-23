@@ -347,12 +347,13 @@ export default {
 
       if (this.fullTextLoaded) {
         callback()
+
         return
       }
 
       this.loading = true
 
-      const params = (fullUpdate) ? { includeShortened: true } : {}
+      const params = fullUpdate ? { includeShortened: true } : {}
 
       /*
        * @TODO: This Request can be faster than the Update of the Statement which gets requested here. In that case the
@@ -368,6 +369,7 @@ export default {
         { serialize: true },
       ).then(response => {
         const responseData = response.data.data
+
         this.fullTextLoaded = true
 
         // Check if it is the first update
@@ -383,7 +385,7 @@ export default {
           this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+        if (fullUpdate && hasOwnProp(responseData, 'shortened')) {
           this.shortText = responseData.shortened
         }
 
