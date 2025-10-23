@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "855f55ceb2c69e3f416795fa9e2e031b",
+    "content-hash": "b5c486f9a2ba4a28bcc5640b8f903d14",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4968,16 +4968,16 @@
         },
         {
             "name": "friendsofsymfony/elastica-bundle",
-            "version": "dev-master",
+            "version": "v7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSElasticaBundle.git",
-                "reference": "82b4660e0e1c22bd95da6e9d7b8584fc2ffabcd2"
+                "reference": "32f7f9887ac997e348e32b7aaac896961f40979d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/82b4660e0e1c22bd95da6e9d7b8584fc2ffabcd2",
-                "reference": "82b4660e0e1c22bd95da6e9d7b8584fc2ffabcd2",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/32f7f9887ac997e348e32b7aaac896961f40979d",
+                "reference": "32f7f9887ac997e348e32b7aaac896961f40979d",
                 "shasum": ""
             },
             "require": {
@@ -5022,7 +5022,6 @@
                 "enqueue/elastica-bundle": "For populating Elasticsearch indexes asynchronously and using significanly less resources. Uses Enqueue.",
                 "symfony/messenger": "For populating Elasticsearch indexes asynchronously and using significanly less resources."
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -5067,9 +5066,9 @@
             ],
             "support": {
                 "issues": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/issues",
-                "source": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/master"
+                "source": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/v7.0.0"
             },
-            "time": "2025-05-15T08:42:21+00:00"
+            "time": "2025-10-20T20:30:15+00:00"
         },
         {
             "name": "friendsofsymfony/jsrouting-bundle",
@@ -24508,9 +24507,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "friendsofsymfony/elastica-bundle": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -24538,9 +24535,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

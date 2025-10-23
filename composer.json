@@ -2,7 +2,7 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.18.0",
+  "version": "v4.23.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
@@ -54,7 +54,7 @@
     "erusev/parsedown": "^1.7",
     "exercise/htmlpurifier-bundle": "^5.0",
     "fakerphp/faker": "^1.24",
-    "friendsofsymfony/elastica-bundle": "7.0.x-dev",
+    "friendsofsymfony/elastica-bundle": "^7.0",
     "friendsofsymfony/jsrouting-bundle": "^3.5",
     "geocoder-php/nominatim-provider": "^5.5",
     "goetas-webservices/xsd2php-runtime": "^0.2.2",
