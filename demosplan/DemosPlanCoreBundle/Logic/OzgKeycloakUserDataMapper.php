@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -67,7 +68,21 @@ class OzgKeycloakUserDataMapper
         'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
     ];
 
-    public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
+    public function __construct(
+        private readonly CustomerService $customerService,
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly GlobalConfig $globalConfig,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaService $orgaService,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
+        private readonly UserService $userService,
+        private readonly ValidatorInterface $validator,
+    private readonly DepartmentMapper $departmentMapper)
     {
     }
 
@@ -324,7 +339,7 @@ class OzgKeycloakUserDataMapper
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
-            'department'    => $this->getDepartmentToSetForUser($userOrga),
+            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga),
             'roles'         => $requestedRoles,
         ];
 
