@@ -543,7 +543,7 @@ class OzgKeycloakUserDataMapper
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        $departmentToSet = $this->getDepartmentToSetForUser($orga);
+        $departmentToSet = $this->departmentMapper->syncUserDepartmentFromToken($dplanUser, $orga);
         if ($dplanUser->getDepartment() !== $departmentToSet) {
             $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
         }
@@ -576,13 +576,6 @@ class OzgKeycloakUserDataMapper
         );
 
         return $dplanUser;
-    }
-
-    private function getDepartmentToSetForUser(Orga $userOrga): Department
-    {
-        return $userOrga->getDepartments()->filter(
-            static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
-        )->first() ?? $userOrga->getDepartments()->first();
     }
 
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
