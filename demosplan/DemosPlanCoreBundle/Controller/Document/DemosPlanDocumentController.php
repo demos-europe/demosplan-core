@@ -1710,10 +1710,19 @@ class DemosPlanDocumentController extends BaseController
         $fileInfo = [];
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
-            $fileHash = $fileService->getFileIdFromSingleDocumentId($singleDocId);
-            $fileInfoObj = $fileService->getFileInfo($fileHash, $procedureId);
-            $fileName = $fileInfoObj->getFileName();
-            $fileFullPath = $fileInfoObj->getAbsolutePath();
+            try {
+                $fileHash = $fileService->getFileIdFromSingleDocumentId($singleDocId);
+                $fileInfoObj = $fileService->getFileInfo($fileHash, $procedureId);
+                $fileName = $fileInfoObj->getFileName();
+                $fileFullPath = $fileInfoObj->getAbsolutePath();
+                if (!$this->defaultStorage->fileExists($fileFullPath)) {
+                    $this->getLogger()->warning('Could not find file to add to zip', [$fileInfoObj->getHash()]);
+                    continue;
+                }
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Could not find file to add to zip', [$singleDocId, $e]);
+                continue;
+            }
             // $fileName might be an empty string. If for some reasons it is empty, better use a random string than fail
             $fileName = '' === $fileName ? random_bytes(10) : $fileName;
             $fileNamedPath = $elementHandler->getFileNamedPath($fileRequestInfo['path'], $fileName);
