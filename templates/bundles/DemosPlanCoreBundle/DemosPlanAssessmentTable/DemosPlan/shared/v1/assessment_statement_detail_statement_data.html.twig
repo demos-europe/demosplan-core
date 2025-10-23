@@ -659,6 +659,7 @@
                             {% set phases = templateVars.externalPhases|default %}
                         {% endif %}
 
+                        {% set phaseFound = false %}
                         {% for phase in phases %}
                             {% if phase.name == statement.phase %}
                                 {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
@@ -666,6 +667,7 @@
                                     value: phase.key,
                                     selected: true
                                 }]) %}
+                                {% set phaseFound = true %}
                             {% else %}
                                 {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
                                     label: phase.name,
@@ -673,6 +675,15 @@
                                 }]) %}
                             {% endif %}
                         {% endfor %}
+
+                        {# If the statement's phase was not found in the available phases list, add it as the selected option #}
+                        {% if not phaseFound and statement.phase %}
+                            {% set procedurePhaseOptions = [{
+                                label: statement.phase,
+                                value: '',
+                                selected: true
+                            }]|merge(procedurePhaseOptions) %}
+                        {% endif %}
 
                         {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
                     {% endif %}
