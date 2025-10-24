@@ -61,9 +61,13 @@
                 }) }}
 
                 {# set as include to be easily overridden in Projects #}
-                {% set predefinedText -%}
-                    {{ include('@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final_emailtext.html.twig') }}
-                {%- endset %}
+                {% if hasPermission('field_send_final_email_empty_text') %}
+                    {% set predefinedText = '' %}
+                {% else %}
+                    {% set predefinedText -%}
+                        {{ include('@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/shared/v1/assessment_statement_detail_statement_final_emailtext.html.twig') }}
+                    {%- endset %}
+                {% endif %}
 
                 <detail-view-final-email-body
                     class="u-mb-0_5"

@@ -303,13 +303,17 @@ export default {
     },
 
     setEmailDefaultText  () {
-      this.emailBodyText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.statement.attributes.fullText.length < 2000,
-        orgaName: this.procedure.orgaName,
-        procedureName: this.procedure.name,
-        statementText: this.statement.attributes.fullText,
-        statementRecommendation: this.statement.attributes.recommendation,
-      })
+      if (hasPermission('field_send_final_email_empty_text')) {
+        this.emailBodyText = ''
+      } else {
+        this.emailBodyText = Translator.trans('statement.send.final_mail.default', {
+          hasStatementText: this.statement.attributes.fullText.length < 2000,
+          orgaName: this.procedure.orgaName,
+          procedureName: this.procedure.name,
+          statementText: this.statement.attributes.fullText,
+          statementRecommendation: this.statement.attributes.recommendation,
+        })
+      }
     },
 
     setFinalEmailOnlyToVoters () {
