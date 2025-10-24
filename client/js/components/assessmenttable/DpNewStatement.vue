@@ -231,10 +231,6 @@ export default {
       this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
-    handlePhaseSelect () {
-      this.values.phase = document.querySelector('select[name="r_phase"]').value
-    },
-
     /**
      * Sets the preselected phase to the phase that the procedure is currently in. External phase is for citizen and
      * internal phase applies to institutions.
