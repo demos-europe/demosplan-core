@@ -41,7 +41,7 @@ rsync --exclude-from=rsyncExcludeProject.txt -az ../projects/$projectname $conte
 cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
 # use --progress=plain to see all build output
-DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode --secret id=envlocal,src=../.env.local -t $imagename:$version -f $folder/Dockerfile --target fpm $context
+DOCKER_BUILDKIT=1 docker build --progress=plain --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode --secret id=envlocal,src=../.env.local -t $imagename:$version -f $folder/Dockerfile --target fpm $context
 
 # Build nginx image with / if project contains "diplan", otherwise with -
 if [[ $projectname == *"diplan"* ]]
