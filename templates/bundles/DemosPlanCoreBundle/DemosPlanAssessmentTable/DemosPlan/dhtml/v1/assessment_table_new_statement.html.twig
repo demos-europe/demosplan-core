@@ -1,10 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
-{% endblock javascripts %}
-
 {% block component_part %}
 
     {# Header #}
@@ -35,20 +30,42 @@
     {% endif %}
 
     <dp-new-statement
-        inline-template
         procedure-id="{{ templateVars.table.procedure.ident }}"
         default-submit-type="{{ getFormOption('statement_submit_types.default')|first }}"
         current-external-phase="{{ templateVars.table.procedure.publicParticipationPhase|default }}"
         current-internal-phase="{{  templateVars.table.procedure.phase|default }}"
         :internal-phases="JSON.parse('{{ templateVars.internalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
         :external-phases="JSON.parse('{{ templateVars.externalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
-        request-text="{{ app.request.get('r_text')|default('') }}"
-        request-head-statement="{{ app.request.get('r_head_statement')|default('') }}"
+        request-text="{{ app.request.get('r_text')|default }}"
+        request-head-statement="{{ app.request.get('r_head_statement')|default }}"
         :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
         used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ ')$)[0-9a-zA-Z_ \\- ]{1,}$' : '^[0-9a-zA-Z_ \\- ]{1,}$' }}"
     >
+        <template #default="{
+            values,
+            counties,
+            municipalities,
+            priorityAreas,
+            tags,
+            elements,
+            paragraph,
+            documents,
+            phases,
+            elementHasParagraphs,
+            elementHasFiles,
+            countiesPromptAdded,
+            institutionSelected,
+            usedInternIdsPattern,
+            addLocationPrompt,
+            handleRoleChange,
+            checkForParagraphsAndFiles,
+            setPhaseValue,
+            sortSelected,
+            dpValidateAction,
+            submit
+        }">
         <form
             id="bpform"
             name="bpform"
@@ -292,8 +309,8 @@
                         {% set clusters = [] %}
                         {% if templateVars.table.procedure.clusterStatements is defined %}
                             {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
-                                {% set assignee = {'id': clusterStatement.assignee.id|default(''), 'name': clusterStatement.assignee.firstname|default('') ~ ' ' ~ clusterStatement.assignee.lastname|default(''), 'organisation': clusterStatement.assignee.orgaName|default('') } %}
-                                {% set clusterStatement = {'id': clusterStatement.id|default(''), 'externId': clusterStatement.externId|default(''), 'assignee': assignee, 'name': clusterStatement.name|default} %}
+                                {% set assignee = {'id': clusterStatement.assignee.id|default, 'name': clusterStatement.assignee.firstname|default ~ ' ' ~ clusterStatement.assignee.lastname|default, 'organisation': clusterStatement.assignee.orgaName|default } %}
+                                {% set clusterStatement = {'id': clusterStatement.id|default, 'externId': clusterStatement.externId|default, 'assignee': assignee, 'name': clusterStatement.name|default} %}
                                 {% set clusters = clusters|merge([clusterStatement]) %}
                             {% endfor %}
                         {% endif %}
@@ -628,5 +645,11 @@
             </div>
 
         </form>
+        </template>
     </dp-new-statement>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
+{% endblock javascripts %}
