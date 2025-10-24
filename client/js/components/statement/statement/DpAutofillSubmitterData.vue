@@ -570,7 +570,6 @@ export default {
       return this.transWithFallback(field, label)
     },
 
-    //  @TODO #move-to-lib
     transWithFallback (fallback, key) {
       return Translator.trans(key || fallback)
     },
