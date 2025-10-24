@@ -722,7 +722,7 @@ class ContentService extends CoreService
      *
      * @param string $userId identifies the User, whose settings will be returned
      *
-     * @return Entity\Setting[]
+     * @return Setting[]
      */
     public function getSettingsOfUser($userId)
     {

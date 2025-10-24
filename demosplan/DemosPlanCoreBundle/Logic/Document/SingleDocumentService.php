@@ -30,7 +30,6 @@ use Exception;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-
 class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {
     /**

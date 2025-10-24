@@ -25,7 +25,7 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
     public function __construct(
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         SingleDocumentService $service,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->service = $service;
     }

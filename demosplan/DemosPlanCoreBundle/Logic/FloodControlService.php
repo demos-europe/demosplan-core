@@ -24,9 +24,9 @@ use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 
 class FloodControlService extends CoreService

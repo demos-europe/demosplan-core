@@ -42,7 +42,7 @@ class KeycloakUserDataMapper
         private readonly LoggerInterface $logger,
         private readonly OrgaService $orgaService,
         private readonly RoleHandler $roleHandler,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
     }
 

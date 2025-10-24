@@ -29,14 +29,14 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
             'title'                     => $singleDocument->getTitle(),
             'text'                      => $singleDocument->getText(),
             'category'                  => $singleDocument->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'fileName'               => $singleDocument->getFileInfo()->getFileName(),
+            'fileName'                  => $singleDocument->getFileInfo()->getFileName(),
             'relatedElementCategory'    => $singleDocument->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
             'relatedElementTitle'       => $singleDocument->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'visible'                   => $singleDocument->getVisible(),
             'statement_enabled'         => $singleDocument->isStatementEnabled(),
             'keyOfInternalPhase'        => $singleDocument->getProcedure()->getPhase(),
             'keyOfEternalPhase'         => $singleDocument->getProcedure()->getPublicParticipationPhase(),
-            //The translation of the time the report is created is the important one, not the key
+            // The translation of the time the report is created is the important one, not the key
             'nameOfInternalPhase'       => $singleDocument->getProcedure()->getPhaseName(),
             'nameOfExternalPhase'       => $singleDocument->getProcedure()->getPublicParticipationPhaseName(),
         ];
@@ -45,7 +45,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
     public function createSingleDocumentEntry(
         SingleDocument $singleDocument,
         string $reportCategory,
-        int $date = null
+        ?int $date = null,
     ): ReportEntry {
         $data = $this->createMessageData($singleDocument);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;

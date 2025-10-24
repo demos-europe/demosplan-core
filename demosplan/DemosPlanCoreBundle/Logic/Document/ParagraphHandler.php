@@ -26,7 +26,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         protected readonly ParagraphRepository $paragraphRepository,
         private readonly FlashMessageHandler $flashMessageHandler,
         MessageBag $messageBag,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
     }
