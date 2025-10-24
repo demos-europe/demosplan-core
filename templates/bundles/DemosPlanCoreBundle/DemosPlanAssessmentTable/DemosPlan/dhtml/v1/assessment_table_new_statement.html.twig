@@ -324,7 +324,7 @@
                             :init-selected-cluster="values.headStatement"
                             current-user-id="{{ user.ident }}"
                             current-user-name="{{ username }}"
-                            current-user-organisation="{{ user.organisation|default('') }}"
+                            current-user-organisation="{{ user.organisation|default }}"
                             procedure-id="{{ templateVars.table.procedure.id|default }}"
                             :ignore-last-claimed="true"
                             :key="'cluster_' + values.headStatement"
@@ -599,7 +599,7 @@
                                 id="dp-new-statement-voter"
                                 data-cy="newStatementVoter"
                                 class="o-box--dark u-ph u-pt-0_5 flow-root"
-                                readonly="{{ readonly|default('') }}"
+                                readonly="{{ readonly|default }}"
                                 is-manual="true"
                             ></statement-voter>
                         </dp-accordion>
