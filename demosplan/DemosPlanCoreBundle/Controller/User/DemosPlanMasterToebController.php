@@ -203,7 +203,7 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             // return result as JSON
-            return new Response(Json::encode($response));
+            return new JsonResponse($response);
         } catch (HttpException $e) {
             // fange unterschiedliche Fehler ab
             switch ($e->getStatusCode()) {
@@ -218,7 +218,7 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             // return result as JSON
-            return new Response(Json::encode($response));
+            return new JsonResponse($response);
         }
     }
 
@@ -301,10 +301,10 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             $categoryLabels = [
-              'update' => $translator->trans('update', [], 'master-toeb-list'),
-              'delete' => $translator->trans('delete', [], 'master-toeb-list'),
-              'add'    => $translator->trans('add', [], 'master-toeb-list'),
-              'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
+                'update' => $translator->trans('update', [], 'master-toeb-list'),
+                'delete' => $translator->trans('delete', [], 'master-toeb-list'),
+                'add'    => $translator->trans('add', [], 'master-toeb-list'),
+                'merge'  => $translator->trans('merge', [], 'master-toeb-list'),
             ];
 
             $reportEntries = $results;
