@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.15.2 (2025-10-24)
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
