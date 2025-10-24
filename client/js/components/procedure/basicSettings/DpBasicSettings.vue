@@ -55,6 +55,12 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    agenciesOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     authorizedUsersOptions: {
       type: Array,
       required: false,
@@ -171,6 +177,11 @@ export default {
   },
 
   computed: {
+    sortedAgenciesOptions () {
+      const agencies = JSON.parse(JSON.stringify(this.agenciesOptions))
+      return sortAlphabetically(agencies, 'name')
+    },
+
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
