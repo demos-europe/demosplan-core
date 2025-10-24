@@ -129,8 +129,8 @@ export default {
 
     usedInternIdsPattern: {
       required: false,
-      type: Array,
-      default: () => [],
+      type: String,
+      default: '',
     },
   },
 
