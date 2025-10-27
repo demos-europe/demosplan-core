@@ -17,6 +17,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidDataException extends DemosException
 {
+    /**
+     * Stores the HTTP request that triggered this invalid data exception.
+     * Used for context tracking and debugging purposes.
+     *
+     * @var Request
+     */
     private Request $request;
 
     public function __construct(
