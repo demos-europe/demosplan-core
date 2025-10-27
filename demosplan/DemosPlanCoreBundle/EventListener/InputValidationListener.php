@@ -12,15 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use demosplan\DemosPlanCoreBundle\Logic\ValidationLoggerInterface;
-use demosplan\DemosPlanCoreBundle\Service\InputValidationService;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\ValidationLoggerInterface;
+use demosplan\DemosPlanCoreBundle\Services\InputValidationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class InputValidationListener implements EventSubscriberInterface
 {

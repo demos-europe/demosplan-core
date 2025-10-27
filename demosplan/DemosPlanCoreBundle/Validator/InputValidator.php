@@ -52,7 +52,7 @@ class InputValidator
      */
     private function validateAndEscapeString(string $input): string
     {
-        // Validate: Detect null bytes - reject request rather than sanitize
+        // Validate: Detect null bytes and reject
         if (str_contains($input, "\0")) {
             throw new NullByteDetectedException('Null byte detected in input string');
         }
