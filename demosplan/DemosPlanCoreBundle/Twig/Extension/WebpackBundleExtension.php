@@ -44,6 +44,14 @@ class WebpackBundleExtension extends ExtensionBase
     ];
 
     /**
+     * These bundles should not have defer attribute as they are dependencies
+     * that must be loaded synchronously for inline scripts.
+     */
+    private const NON_DEFER_BUNDLES = [
+        'jquery-3.5.1.min.js',
+    ];
+
+    /**
      * The webpack manifest.
      *
      * This is the combination of `dplan.manifest.json` and `styles.manifest.json`.
@@ -185,11 +193,15 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function renderTag($bundleSrc, bool $legacy, string $bundleName, string $dataBundle): string
     {
-        $tagTemplate = '<script src="%s" '.$this->addNonce('script').'></script>';
+        // Determine if this bundle should have defer attribute
+        $shouldDefer = !in_array($bundleName, self::NON_DEFER_BUNDLES, true);
+        $deferAttr = $shouldDefer ? 'defer ' : '';
+
+        $tagTemplate = '<script src="%s" '.$deferAttr.$this->addNonce('script').'></script>';
 
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
-            $tagTemplate = '<script src="%s" data-bundle="%s" '.$this->addNonce('script').'></script>';
+            $tagTemplate = '<script src="%s" data-bundle="%s" '.$deferAttr.$this->addNonce('script').'></script>';
         }
 
         if (strpos($bundleName, '.css') > 0) {
