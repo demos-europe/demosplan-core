@@ -209,6 +209,7 @@ class WebpackBundleExtension extends ExtensionBase
         // Script with data-bundle attribute
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
+
             return sprintf(
                 '<script src="%s" data-bundle="%s" %s></script>',
                 $this->formatBundlePath($bundleSrc),
