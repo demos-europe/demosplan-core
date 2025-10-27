@@ -85,13 +85,13 @@ server
         }
 
         # Cache images privately for 1 year
-        location ~* \.(jpg|jpeg|png|gif|svg|ico|webp|avif)$ {
+        location ~* \.(jpg|jpeg|png|gif|ico|webp|avif)$ {
             expires 1y;
             add_header Cache-Control "private, immutable";
         }
 
         # Cache other static assets publicly for 1 year
-        location ~* \.(css|js|woff2?|ttf|eot|otf)$ {
+        location ~* \.(css|woff2?|ttf|eot|otf|svg)$ {
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
