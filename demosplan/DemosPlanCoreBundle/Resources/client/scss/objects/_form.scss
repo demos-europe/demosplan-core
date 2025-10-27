@@ -503,7 +503,8 @@ input.disabled {
             > label,
             > .o-form__label {
                 padding-left: $inuit-base-spacing-unit;
-                word-break: break-word;
+                overflow-wrap: anywhere;
+                word-break: normal;
             }
         }
 
@@ -523,7 +524,8 @@ input.disabled {
             > label,
             > .o-form__label {
                 padding-left: $inuit-base-spacing-unit;
-                word-break: break-word;
+                overflow-wrap: anywhere;
+                word-break: normal;
             }
         }
     }
