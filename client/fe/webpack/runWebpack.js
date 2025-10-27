@@ -181,6 +181,8 @@ function showErrorMessage (err, stats) {
       if (err.details) {
         log(err.details)
       }
+    } else {
+      log(chalk.red('Build failed: Unknown error (no stats or error information available)'))
     }
     return
   }

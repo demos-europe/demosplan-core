@@ -193,22 +193,36 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function renderTag($bundleSrc, bool $legacy, string $bundleName, string $dataBundle): string
     {
-        // Determine if this bundle should have defer attribute
+        // Handle CSS files
+        if (strpos($bundleName, '.css') > 0) {
+            return sprintf(
+                '<link rel="stylesheet" href="%s" %s>',
+                $this->formatBundlePath($bundleSrc),
+                $this->addNonce('style')
+            );
+        }
+
+        // Build script tag attributes (defer + nonce)
         $shouldDefer = !in_array($bundleName, self::NON_DEFER_BUNDLES, true);
-        $deferAttr = $shouldDefer ? 'defer ' : '';
+        $attributes = ($shouldDefer ? 'defer ' : '').$this->addNonce('script');
 
-        $tagTemplate = '<script src="%s" '.$deferAttr.$this->addNonce('script').'></script>';
-
+        // Script with data-bundle attribute
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
-            $tagTemplate = '<script src="%s" data-bundle="%s" '.$deferAttr.$this->addNonce('script').'></script>';
+            return sprintf(
+                '<script src="%s" data-bundle="%s" %s></script>',
+                $this->formatBundlePath($bundleSrc),
+                $dataBundle,
+                $attributes
+            );
         }
 
-        if (strpos($bundleName, '.css') > 0) {
-            $tagTemplate = '<link rel="stylesheet" href="%s" '.$this->addNonce('style').'>';
-        }
-
-        return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
+        // Regular script tag
+        return sprintf(
+            '<script src="%s" %s></script>',
+            $this->formatBundlePath($bundleSrc),
+            $attributes
+        );
     }
 
     /**
