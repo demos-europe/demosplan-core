@@ -23,7 +23,7 @@ class InvalidDataException extends DemosException
     public function __construct(
         string $message,
         Request $request,
-        int $statusCode = Response::HTTP_BAD_REQUEST
+        int $statusCode = Response::HTTP_BAD_REQUEST,
     ) {
         // DemosException expects ($userMsg, $logMsg, $code)
         // Pass message as both user message and log message

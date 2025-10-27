@@ -15,7 +15,6 @@ namespace Tests\Core\Core\Unit\EventListener;
 use demosplan\DemosPlanCoreBundle\EventListener\SecurityValidationListener;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -263,8 +262,8 @@ class SecurityValidationListenerTest extends TestCase
     public function testLegitimateArrayRequestIsAllowed(): void
     {
         $request = Request::create('/test', 'GET', [
-            'page' => '1',
-            'search' => 'test query',
+            'page'    => '1',
+            'search'  => 'test query',
             'filters' => ['status' => 'active', 'type' => 'user'],
         ]);
         $event = $this->createRequestEvent($request);
@@ -279,8 +278,8 @@ class SecurityValidationListenerTest extends TestCase
     {
         $request = Request::create('/test', 'GET', [
             'company' => 'AT&T',
-            'query' => '<script>alert(1)</script>',
-            'email' => 'user@example.com',
+            'query'   => '<script>alert(1)</script>',
+            'email'   => 'user@example.com',
         ]);
         $event = $this->createRequestEvent($request);
 
@@ -347,9 +346,9 @@ class SecurityValidationListenerTest extends TestCase
             ->with(
                 'Security validation rejected request',
                 $this->callback(function ($context) {
-                    return $context['threat_type'] === 'null_byte_detected'
-                        && $context['path'] === '/test'
-                        && $context['method'] === 'GET'
+                    return 'null_byte_detected' === $context['threat_type']
+                        && '/test' === $context['path']
+                        && 'GET' === $context['method']
                         && isset($context['ip']);
                 })
             );

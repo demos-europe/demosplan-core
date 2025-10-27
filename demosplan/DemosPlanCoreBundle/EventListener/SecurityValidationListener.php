@@ -64,7 +64,7 @@ class SecurityValidationListener implements EventSubscriberInterface
     private const PROTOTYPE_POLLUTION_KEYS = ['__proto__', 'constructor', 'prototype'];
 
     public function __construct(
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -268,9 +268,9 @@ class SecurityValidationListener implements EventSubscriberInterface
     {
         $this->logger->warning('Security validation rejected request', [
             'threat_type' => $threatType,
-            'path' => $request->getPathInfo(),
-            'method' => $request->getMethod(),
-            'ip' => $request->getClientIp(),
+            'path'        => $request->getPathInfo(),
+            'method'      => $request->getMethod(),
+            'ip'          => $request->getClientIp(),
         ]);
     }
 }
