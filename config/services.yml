@@ -334,8 +334,6 @@ services:
             - { name: kernel.event_listener, event: kernel.exception, method: handleException }
             - { name: kernel.event_listener, event: kernel.controller, method: trackController }
 
-    demosplan\DemosPlanCoreBundle\EventListener\InputValidationListener: ~
-
     demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaListener:
         arguments:
             $indexManager: '@fos_elastica.index_manager'
@@ -528,10 +526,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Router:
         decorates: 'router'
 
-    demosplan\DemosPlanCoreBundle\Logic\ValidationLogger:
-        tags:
-            - { name: monolog.logger, channel: validation }
-
     demosplan\DemosPlanCoreBundle\Mailer\Transport\PlainTransportFactory:
         tags: [mailer.transport_factory]
 
@@ -594,8 +588,6 @@ services:
         lazy: true
         arguments:
             $cacheDirectory: '%kernel.cache_dir%/htmlpurifier'
-
-    demosplan\DemosPlanCoreBundle\Services\InputValidationService: ~
 
     demosplan\DemosPlanCoreBundle\Services\SubdomainHandlerInterface: '@demosplan\DemosPlanCoreBundle\Services\SubdomainHandler'
 
@@ -664,8 +656,6 @@ services:
     demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator:
         arguments:
             $schemaFilePath: "%drafts_info_schema_path%"
-
-    demosplan\DemosPlanCoreBundle\Validator\InputValidator: ~
 
     demosplan\DemosPlanCoreBundle\Validator\MatchingSubmitTypesConstraintValidator:
         tags:
