@@ -5,9 +5,94 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.23.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.18.1 (2025-10-16)
+## v4.18.0 (2025-10-13)
+## v4.16.1 (2025-10-16)
+- Fix addon asset build during docker build
+
+## v4.16.0 (2025-09-30)
+- Allow project specific CSS
+- allow sessions to be stored in redis
+
+-  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+
+- Turn projects into yarn workspaces
+
+### Features
+- Add possibility to delete custom fields and their options
+
+## v4.15.2 (2025-10-24)
+- fix zip download for older uploads
+
+## v4.15.0 (2025-09-15)
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
+
+## v4.12.0 (2025-09-10)
+- Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+- Update demosplan-addon from v0.59 to v0.60
+
+## v4.11.0 (2025-08-27)
+- Allow to edit custom field type singleSelect
+- Mark outdated map layers in the map settings
+
+## v4.10.1 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.10.0 (2025-07-30)
+## v4.9.1 (2025-08-07)
+- Fix time based procedure phase switch
+
+## v4.9.0 (2025-07-30)
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements
+- Migrate to Tailwind CSS v4
+
+## v4.7.0 (2025-07-18)
+## v4.6.0 (2025-07-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements 
+
+
+## v4.5.0 (2025-06-25)
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+
+## v4.4.0 (2025-06-13)
+
+## v4.3.1-ewm (2025-09-25)
+- allow sessions to be stored in redis
+
+## v4.3.0 (2025-06-13)
+- Add Versioning of custom fields of segments
+- Update Elasticsearch to version 8
+- Export Original Statements as csv in the Statement List
+
+## v4.1.0 (2025-05-21)
+## v4.0.0 (2025-05-21)
+- Update to symfony 6.4
+
+## v3.3.0 (2025-05-13)
+- restore deleted logger entry 
+
+## v3.2.0 (2025-05-13)
+- Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
+- Add Custom Field feature: Allow users to add custom fields to their procedures
+
+## v2.27.1 (2025-04-09)
+- Fix zip import encoding and recursion
+
+## v3.0.0 (2025-04-09)
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
+- Enhance security by sanitizing HTTP headers to prevent injection attacks
 
 ## v2.26.5 (2025-03-28)
 - new parameter proxy_no_proxy to allow to exclude local services from the proxy

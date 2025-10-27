@@ -20,7 +20,7 @@ use Tests\Base\FunctionalTestCase;
 
 class QueryFragmentTest extends FunctionalTestCase
 {
-    /** @var \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment */
+    /** @var QueryFragment */
     protected $sut;
 
     /**
@@ -30,7 +30,7 @@ class QueryFragmentTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(QueryFragment::class);
+        $this->sut = self::getContainer()->get(QueryFragment::class);
         $this->loginTestUser();
     }
 

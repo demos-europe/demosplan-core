@@ -13,12 +13,14 @@
       data-cy="exportModal:open"
       :text="Translator.trans('export.verb')"
       variant="subtle"
-      @click.prevent="openModal" />
+      @click.prevent="openModal"
+    />
 
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
-      content-body-classes="flex flex-col h-[95%]">
+      content-body-classes="flex flex-col h-[95%]"
+    >
       <h2 class="mb-5">
         {{ exportModalTitle }}
       </h2>
@@ -26,12 +28,13 @@
       <fieldset v-if="!isSingleStatementExport">
         <legend
           class="o-form__label text-base"
-          v-text="Translator.trans('export.type')" />
+          v-text="Translator.trans('export.type')"
+        />
         <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
-            :key="key"
             :id="key"
+            :key="key"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
@@ -39,26 +42,30 @@
             }"
             :value="key"
             :checked="active === key"
-            @change="active = key" />
+            @change="active = key"
+          />
           <template v-if="active !== 'xlsx_normal'">
             <dp-checkbox
               id="censoredCitizen"
               v-model="isCitizenDataCensored"
               :label="{
                 text: Translator.trans('export.censored.citizen')
-              }" />
+              }"
+            />
             <dp-checkbox
               id="censoredInstitution"
               v-model="isInstitutionDataCensored"
               :label="{
                 text: Translator.trans('export.censored.institution')
-              }" />
+              }"
+            />
             <dp-checkbox
               id="obscured"
               v-model="isObscure"
               :label="{
                 text: Translator.trans('export.docx.obscured')
-              }" />
+              }"
+            />
           </template>
         </div>
       </fieldset>
@@ -70,30 +77,35 @@
             v-model="isCitizenDataCensored"
             :label="{
               text: Translator.trans('export.censored.citizen')
-            }" />
+            }"
+          />
           <dp-checkbox
             id="singleStatementInstitution"
             v-model="isInstitutionDataCensored"
             :label="{
               text: Translator.trans('export.censored.institution')
-            }" />
+            }"
+          />
           <dp-checkbox
             id="singleStatementObscure"
             v-model="isObscure"
             :label="{
               text: Translator.trans('export.docx.obscured')
-            }" />
+            }"
+          />
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
-          v-text="Translator.trans('docx.export.column.title')" />
+          v-text="Translator.trans('docx.export.column.title')"
+        />
         <dp-contextual-help
           aria-labelledby="docxColumnTitles"
-          :text="Translator.trans('docx.export.column.title.hint')" />
+          :text="Translator.trans('docx.export.column.title.hint')"
+        />
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in docxColumns"
@@ -103,26 +115,31 @@
             :data-cy="column.dataCy"
             :placeholder="Translator.trans(column.placeholder)"
             type="text"
-            :width="column.width" />
+            :width="column.width"
+          />
         </div>
-        <fieldset v-if="this.active === 'zip' || isSingleStatementExport">
+        <fieldset v-if="active === 'zip' || isSingleStatementExport">
           <legend
             id="docxFileName"
             class="o-form__label text-base float-left mr-1"
-            v-text="Translator.trans('docx.export.file_name')" />
+            v-text="Translator.trans('docx.export.file_name')"
+          />
           <dp-contextual-help
             aria-labelledby="docxFileName"
-            :text="Translator.trans('docx.export.file_name.hint')" />
+            :text="Translator.trans('docx.export.file_name.hint')"
+          />
           <dp-input
             id="fileName"
             v-model="fileName"
             class="mt-1"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
-            type="text" />
+            type="text"
+          />
           <div class="font-size-small mt-2">
             <span
               class="weight--bold"
-              v-text="Translator.trans('docx.export.example_file_name')" />
+              v-text="Translator.trans('docx.export.example_file_name')"
+            />
             <span v-text="exampleFileName" />
           </div>
         </fieldset>
@@ -130,13 +147,14 @@
 
       <dp-button-row
         class="text-right mt-auto"
-        data-cy="statementExport"
+        data-cy="exportModal"
         primary
         secondary
         :primary-text="Translator.trans('export.statements')"
         :secondary-text="Translator.trans('abort')"
         @primary-action="handleExport"
-        @secondary-action="closeModal" />
+        @secondary-action="closeModal"
+      />
     </dp-modal>
   </div>
 </template>
@@ -150,7 +168,7 @@ import {
   DpInput,
   DpModal,
   DpRadio,
-  sessionStorageMixin
+  sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -163,7 +181,7 @@ export default {
     DpContextualHelp,
     DpInput,
     DpModal,
-    DpRadio
+    DpRadio,
   },
 
   mixins: [sessionStorageMixin],
@@ -172,12 +190,12 @@ export default {
     isSingleStatementExport: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
-    'export'
+    'export',
   ],
 
   data () {
@@ -188,46 +206,46 @@ export default {
           width: 'col-span-1',
           dataCy: 'exportModal:input:col1',
           placeholder: Translator.trans('segments.export.segment.id'),
-          title: null
+          title: null,
         },
         col2: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:col2',
           placeholder: Translator.trans('segments.export.statement.label'),
-          title: null
+          title: null,
         },
         col3: {
           width: 'col-span-2',
           dataCy: 'exportModal:input:col3',
           placeholder: Translator.trans('segment.recommendation'),
-          title: null
-        }
+          title: null,
+        },
       },
       exportTypes: {
         docx_normal: {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx'
+          dataCy: 'exportModal:export:docx',
         },
         zip_normal: {
           label: 'export.zip',
           hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
-          dataCy: 'exportModal:export:zip'
+          dataCy: 'exportModal:export:zip',
         },
         xlsx_normal: {
           label: 'export.xlsx',
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
-          dataCy: 'exportModal:export:xlsx'
-        }
+          dataCy: 'exportModal:export:xlsx',
+        },
       },
       fileName: '',
       isInstitutionDataCensored: false,
       isCitizenDataCensored: false,
       isObscure: false,
-      singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
+      singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
     }
   },
 
@@ -257,7 +275,7 @@ export default {
       }
 
       return exampleFileName
-    }
+    },
   },
 
   methods: {
@@ -289,7 +307,7 @@ export default {
         shouldConfirm,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
-        isObscured: this.isObscure
+        isObscured: this.isObscure,
       })
       this.closeModal()
     },
@@ -307,7 +325,7 @@ export default {
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
-    }
-  }
+    },
+  },
 }
 </script>

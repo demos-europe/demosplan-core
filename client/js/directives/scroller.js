@@ -59,12 +59,12 @@ const Scroller = {
     const contextMutationObserver = new MutationObserver(updateElement.bind(null, element))
     contextMutationObserver.observe(element, {
       childList: true,
-      subtree: true
+      subtree: true,
     })
   },
   unmounted: function () {
     window.removeEventListener('resize', updateElement)
-  }
+  },
 }
 
 export default Scroller

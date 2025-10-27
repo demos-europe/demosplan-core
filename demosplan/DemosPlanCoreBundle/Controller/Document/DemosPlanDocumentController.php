@@ -61,6 +61,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -670,7 +671,9 @@ class DemosPlanDocumentController extends BaseController
          *
          * @see DemosPlanDocumentController::saveImportedElementsAdminAction
          * */
-        $errorReports = $session->getFlashBag()->get('errorReports');
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $errorReports = $flashBag->get('errorReports');
         $templateVars['errorReport'] = [];
 
         if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
@@ -735,7 +738,9 @@ class DemosPlanDocumentController extends BaseController
         );
 
         // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
-        $session->getFlashBag()->add('errorReports', $errorReport);
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $session->getBag('flashes');
+        $flashBag->add('errorReports', $errorReport);
 
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
@@ -1337,19 +1342,8 @@ class DemosPlanDocumentController extends BaseController
             $documentList = $documentHandler->getPublicParaDocuments($procedureId, $elementId);
         } catch (RuntimeException $e) {
             if ('Access to this document is forbidden.' === $e->getMessage()) {
-                $templateVars = [];
-
-                if ($this->permissions instanceof Permissions
-                    && $this->permissions->hasPermission('area_combined_participation_area')
-                ) {
-                    $templateVars['procedureLayer'] = 'participation';
-                }
-
-                return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
-                    'procedure'    => $procedureId,
-                    'templateVars' => $templateVars,
-                    'title'        => 'element.paragraph',
-                    'category'     => $category,
+                return $this->redirectToRoute('core_404', [
+                    'currentPage' => $request->getPathInfo(),
                 ]);
             }
         }
@@ -1716,16 +1710,17 @@ class DemosPlanDocumentController extends BaseController
         $fileInfo = [];
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
-            $fileId = $fileService->getFileIdFromSingleDocumentId($singleDocId);
-            $fileEntity = $fileService->getFileById($fileId);
-            if (null === $fileEntity) {
-                $this->logger->error("No File Entity found for id: $fileId");
-                throw new \InvalidArgumentException('error.generic');
-            }
-            $fileName = $fileEntity->getFilename();
-            $fileFullPath = $fileEntity->getFilePathWithHash();
-            if (!$this->defaultStorage->fileExists($fileFullPath)) {
-                $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
+            try {
+                $fileHash = $fileService->getFileIdFromSingleDocumentId($singleDocId);
+                $fileInfoObj = $fileService->getFileInfo($fileHash, $procedureId);
+                $fileName = $fileInfoObj->getFileName();
+                $fileFullPath = $fileInfoObj->getAbsolutePath();
+                if (!$this->defaultStorage->fileExists($fileFullPath)) {
+                    $this->getLogger()->warning('Could not find file to add to zip', [$fileInfoObj->getHash()]);
+                    continue;
+                }
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Could not find file to add to zip', [$singleDocId, $e]);
                 continue;
             }
             // $fileName might be an empty string. If for some reasons it is empty, better use a random string than fail

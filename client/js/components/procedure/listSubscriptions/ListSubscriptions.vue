@@ -11,11 +11,13 @@
   <form
     id="subscriptionForm"
     :action="Routing.generate('DemosPlan_procedure_list_subscriptions')"
-    method="post">
+    method="post"
+  >
     <input
       name="_token"
       type="hidden"
-      :value="csrfToken">
+      :value="csrfToken"
+    >
 
     <h2 class="font-size-large u-mt-0_5">
       {{ Translator.trans('notification.create') }}
@@ -24,6 +26,7 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
+        id="subscriptions_autosuggest"
         class="u-nojs-hide inline-block w-11 bg-color--white"
         height="32px"
         label="value"
@@ -37,17 +40,20 @@
         }"
         track-by="value"
         @search-changed="handleSearchChanged"
-        @selected="handleSelected" />
+        @selected="handleSelected"
+      />
 
       <input
         v-model="postalCode"
         type="hidden"
-        name="r_postalCode">
+        name="r_postalCode"
+      >
 
       <input
         v-model="city"
         type="hidden"
-        name="r_city">
+        name="r_city"
+      >
 
       <dp-select
         id="r_radius"
@@ -55,13 +61,15 @@
         :options="[5,10,50].map(i => {
           return { label: i + ' km', value: i }
         })"
-        :show-placeholder="false" />
+        :show-placeholder="false"
+      />
 
       <div>
         <dp-button
           name="newSubscription"
           :text="Translator.trans('save')"
-          type="submit" />
+          type="submit"
+        />
       </div>
     </div>
 
@@ -74,10 +82,12 @@
         class="btn--blank o-link--default weight--bold u-ml-0_25"
         name="deleteSubscription"
         :data-form-actions-confirm="Translator.trans('check.entries.marked.delete')"
-        type="submit">
+        type="submit"
+      >
         <i
           class="fa fa-times-circle u-mr-0_25"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('items.marked.delete') }}
       </button>
 
@@ -86,7 +96,8 @@
         is-selectable
         is-selectable-name="region_selected[]"
         :items="subscriptions"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:radius="rowData">
           {{ rowData.radius }} km
         </template>
@@ -100,7 +111,8 @@
       v-else
       class="mt-3 mb-2"
       :message="Translator.trans('explanation.noentries')"
-      type="info" />
+      type="info"
+    />
   </form>
 </template>
 
@@ -122,20 +134,20 @@ export default {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     }),
-    DpSelect
+    DpSelect,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     subscriptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -145,10 +157,10 @@ export default {
         { field: 'postalcode', label: Translator.trans('postalcode') },
         { field: 'city', label: Translator.trans('city') },
         { field: 'radius', label: Translator.trans('radius') },
-        { field: 'created', label: Translator.trans('date.created') }
+        { field: 'created', label: Translator.trans('date.created') },
       ],
       postalCode: null,
-      postalCodeOptions: []
+      postalCodeOptions: [],
     }
   },
 
@@ -172,7 +184,7 @@ export default {
     handleSelected (suggestion) {
       this.postalCode = suggestion.data.postcode
       this.city = suggestion.data.name
-    }
-  }
+    },
+  },
 }
 </script>

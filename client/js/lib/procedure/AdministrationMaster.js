@@ -49,7 +49,7 @@ export default function AdministrationMaster () {
         $('input[name="r_municipalCode"]').val(suggestion.data.municipalCode.substr(0, 5))
       },
       width: 350,
-      zIndex: 10000
+      zIndex: 10000,
     })
   }
 

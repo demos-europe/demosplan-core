@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -38,7 +39,8 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly LoggerInterface $logger,
         private readonly OzgKeycloakUserDataMapper $ozgKeycloakUserDataMapper,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly OzgKeycloakLogoutManager $keycloakLogoutManager,
     ) {
     }
 
@@ -54,33 +56,38 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('login attempt', ['accessToken' => $accessToken ?? null]);
 
+        // Execute user creation immediately instead of deferring it
+        try {
+            $this->entityManager->getConnection()->beginTransaction();
+            $this->logger->info('Start of doctrine transaction.');
+            $this->logger->info('raw token', [$client->fetchUserFromToken($accessToken)->toArray()]);
+
+            $tokenValues = $accessToken->getValues();
+            $this->keycloakLogoutManager->storeTokenAndExpirationInSession($request->getSession(), $tokenValues);
+
+            $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
+            $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
+            $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
+
+            $this->entityManager->getConnection()->commit();
+            $this->logger->info('doctrine transaction commit.');
+            $request->getSession()->set('userId', $user->getId());
+        } catch (Exception $e) {
+            $this->entityManager->getConnection()->rollBack();
+            $this->logger->info('doctrine transaction rollback.');
+            $this->logger->error(
+                'login failed',
+                [
+                    'requestValues' => $this->ozgKeycloakUserData ?? null,
+                    'exception'     => $e,
+                ]
+            );
+            throw new AuthenticationException('You shall not pass!');
+        }
+
         return new SelfValidatingPassport(
-            new UserBadge($accessToken->getToken(), function () use ($accessToken, $client, $request) {
-                try {
-                    $this->entityManager->getConnection()->beginTransaction();
-                    $this->logger->info('Start of doctrine transaction.');
-
-                    $this->ozgKeycloakUserData->fill($client->fetchUserFromToken($accessToken));
-                    $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
-                    $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
-
-                    $this->entityManager->getConnection()->commit();
-                    $this->logger->info('doctrine transaction commit.');
-                    $request->getSession()->set('userId', $user->getId());
-
-                    return $user;
-                } catch (Exception $e) {
-                    $this->entityManager->getConnection()->rollBack();
-                    $this->logger->info('doctrine transaction rollback.');
-                    $this->logger->error(
-                        'login failed',
-                        [
-                            'requestValues' => $this->ozgKeycloakUserData ?? null,
-                            'exception'     => $e,
-                        ]
-                    );
-                    throw new AuthenticationException('You shall not pass!');
-                }
+            new UserBadge($user->getUserIdentifier(), function () use ($user) {
+                return $user;
             })
         );
     }

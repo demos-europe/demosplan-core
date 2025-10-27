@@ -1,4 +1,4 @@
-@import '~a11y-datepicker/dist/css/themes/light.css';
+@import 'a11y-datepicker/dist/css/themes/light.css';
 
 /* The Content Security Policy (CSP) prevents cross-site scripting attacks by blocking inline execution of scripts and style sheets.
    Because of this, the styles need to be duplicated here. */
@@ -25,8 +25,7 @@
 
     white-space: nowrap;
 
-    clip-path: inset(100%);
-    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
     overflow: hidden;
 }
 

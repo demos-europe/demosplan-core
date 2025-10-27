@@ -31,7 +31,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\SessionHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
@@ -77,7 +76,6 @@ class DemosPlanUserController extends BaseController
         MailService $mailService,
         OrgaService $orgaService,
         Request $request,
-        SessionHandler $sessionHandler,
         UserHandler $userHandler,
     ) {
         $orga = $orgaService->getOrga($this->currentUser->getUser()->getOrganisationId());
@@ -183,7 +181,7 @@ class DemosPlanUserController extends BaseController
         // Schicke die nicht zuständigen Mitarbeiter auf die öffentlichen Seiten
         if ($isSachbearbeiterOnly) {
             $this->getLogger()->info('Welcomepage logout and redirect to home');
-            $sessionHandler->logoutUser($request);
+            $request->getSession()->invalidate();
 
             return $this->redirectToRoute('core_home', ['status' => 'missingOrgadata']);
         }
@@ -659,7 +657,7 @@ class DemosPlanUserController extends BaseController
             );
         }
 
-        $addressBookEntryIds = $requestPost->get('entry_selected');
+        $addressBookEntryIds = $requestPost->all('entry_selected');
 
         try {
             $addressBookEntryService->deleteAddressBookEntries($addressBookEntryIds);

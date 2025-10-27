@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\ProdData;
 
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -56,7 +57,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $this->createSuperUser($orgaTypeOlauth, $manager, $customer);
 
         // Citizen pseudo user suboptimal, but isso
-        $this->createAnonymousCitizenUser($manager, $orgaTypeOlauth, $customer);
+        $this->createFunctionalUsers($manager, $orgaTypeOlauth, $customer);
 
         $this->accessControlPermissionService->enablePermissionCustomerOrgaRole(
             AccessControlService::CREATE_PROCEDURES_PERMISSION,
@@ -130,7 +131,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function createAnonymousCitizenUser(
+    public function createFunctionalUsers(
         ObjectManager $manager,
         OrgaType $orgaTypeOlauth,
         Customer $customer,
@@ -220,6 +221,8 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         $manager->persist($citizenUser);
 
+        $this->createAiApiUser($customer, $orga, $department, $manager);
+
         $manager->flush();
     }
 
@@ -235,5 +238,26 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($orgaType);
 
         return $orgaType;
+    }
+
+    private function createAiApiUser(Customer $customer, Orga $orga, Department $department, ObjectManager $manager): void
+    {
+        $aiApiUserTemplate = new AiApiUser();
+        $aiApiUser = new User();
+        $aiApiUser->setLogin($aiApiUserTemplate->getLogin());
+        $aiApiUser->setFirstname('aiapi');
+        $aiApiUser->setLastname('user');
+        $aiApiUser->setEmail($aiApiUserTemplate->getLogin());
+        $aiApiUser->setDplanroles([
+            $this->getReference('role_RAICOM'),
+        ], $customer);
+        $aiApiUser->setAccessConfirmed(true);
+        $aiApiUser->setProfileCompleted(true);
+        $aiApiUser->setOrga($orga);
+        $orga->addUser($aiApiUser);
+        $aiApiUser->setDepartment($department);
+        $department->addUser($aiApiUser);
+
+        $manager->persist($aiApiUser);
     }
 }

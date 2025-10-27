@@ -36,7 +36,8 @@ All rights reserved
         }"
         :name="regularDropdownId"
 
-        :options="statusOptions" />
+        :options="statusOptions"
+      />
     </div>
     <div class="layout">
       <div class="layout__item u-5-of-12 u-12-of-12-lap-down u-mt-0_125">
@@ -47,34 +48,40 @@ All rights reserved
             value="1"
             type="checkbox"
             :checked="active"
-            @click="toggleCheckbox">
+            @click="toggleCheckbox"
+          >
           <label
             :for="checkSwitchId"
-            class="o-form__label inline-block">
+            class="o-form__label inline-block"
+          >
             {{ Translator.trans('change.state.at.date') }}
           </label>
         </span>
       </div><!--
    --><div
         v-if="active"
-        class="u-mt-0_125">
+        class="u-mt-0_125"
+      >
         <div
           class="layout__item u-2-of-12 u-6-of-12-lap-down"
-          :class="{ 'color--grey': active === false }">
+          :class="{ 'color--grey': active === false }"
+        >
           <dp-label
             required
             :text="Translator.trans('on')"
-            :for="dateId" />
+            :for="dateId"
+          />
           <dp-datepicker
+            :id="dateId"
+            v-model="changeDate"
             class="o-form__control-wrapper"
             required
-            :id="dateId"
             :name="dateId"
             :min-date="disabledDates.to"
             :disabled="active === false"
-            v-model="changeDate"
+            :calendars-after="2"
             @change="dateChanged"
-            :calendars-after="2" />
+          />
         </div><!--
      --><dp-select
           v-model="futureStatus"
@@ -83,7 +90,8 @@ All rights reserved
             text: Translator.trans('change.state.to')
           }"
           :name="delayedSwitchDropdownId"
-          :options="statusOptions" />
+          :options="statusOptions"
+        />
       </div>
     </div>
   </div>
@@ -95,7 +103,7 @@ import {
   DpLabel,
   DpSelect,
   formatDate,
-  toDate
+  toDate,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -104,78 +112,78 @@ export default {
   components: {
     DpDatepicker,
     DpLabel,
-    DpSelect
+    DpSelect,
   },
 
   props: {
     dateId: {
       required: true,
-      type: String
+      type: String,
     },
 
     delayedSwitchDropdownId: {
       required: true,
-      type: String
+      type: String,
     },
 
     checkSwitchId: {
       required: false,
       type: String,
-      default: 'change_state_delay_toggle'
+      default: 'change_state_delay_toggle',
     },
 
     activeDelay: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     defaultNewState: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     defaultCurrentState: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     regularDropdownId: {
       required: true,
-      type: String
+      type: String,
     },
 
     label: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     initDate: {
       required: false,
       type: String,
-      default: null
+      default: null,
     },
 
     // Has to match a value from the statusOptions
     initStatus: {
       required: false,
       type: String,
-      default: null
+      default: null,
     },
 
     // Array of Objects with { value, label }
     statusOptions: {
       required: true,
-      type: Array
-    }
+      type: Array,
+    },
   },
 
   emits: [
     'date:changed',
-    'status:changed'
+    'status:changed',
   ],
 
   data () {
@@ -185,8 +193,8 @@ export default {
       actualStatus: this.defaultCurrentState,
       futureStatus: this.defaultNewState,
       disabledDates: {
-        to: formatDate(this.getTomorrowDate()) // Disable all dates in the past
-      }
+        to: formatDate(this.getTomorrowDate()), // Disable all dates in the past
+      },
     }
   },
 
@@ -194,7 +202,7 @@ export default {
     initLabel () {
       const initLabel = this.statusOptions.find(el => el.value === this.initStatus).label
       return Translator.trans(initLabel)
-    }
+    },
   },
 
   methods: {
@@ -215,7 +223,7 @@ export default {
 
     toggleCheckbox () {
       this.active = this.active === false
-    }
+    },
   },
 
   mounted () {
@@ -224,6 +232,6 @@ export default {
     } else {
       this.changeDate = formatDate()
     }
-  }
+  },
 }
 </script>

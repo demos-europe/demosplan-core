@@ -35,8 +35,8 @@ export default class BarChart {
         'no-data-fallback': Translator.trans('fragments.not.submitted'),
         'legend-headline': Translator.trans('fragments'),
         'data-names': Translator.trans('fragments'),
-        'data-name': Translator.trans('fragment')
-      }
+        'data-name': Translator.trans('fragment'),
+      },
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -58,7 +58,7 @@ export default class BarChart {
           colors: this.colors,
           activeColor: this.activeColor,
           texts: this.texts,
-          total: this.total
+          total: this.total,
         })
       } // Create the legend.
     } else {

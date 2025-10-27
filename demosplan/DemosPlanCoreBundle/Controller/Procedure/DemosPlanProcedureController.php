@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTyp
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -73,8 +74,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -108,6 +107,7 @@ use Exception;
 use InvalidArgumentException;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -129,6 +129,14 @@ class DemosPlanProcedureController extends BaseController
 {
     private const NONE = 'none';
     private const AGGREGATION_STATUS_PRIORITY = 'status_priority';
+
+    private const PARAM_BOILERPLATE_DELETE_CHECKED = 'boilerplateDeleteChecked';
+    private const PARAM_BOILERPLATE_DELETE = 'boilerplate_delete';
+    private const PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE = 'boilerplateGroupIdsTo_delete';
+    private const PARAM_BOILERPLATE_DELETE_ITEM = 'boilerplateDeleteItem';
+    private const PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT = 'boilerplateGroupDeleteAllContent';
+    private const PARAM_CREATE_GROUP = 'r_createGroup';
+    private const PARAM_NEW_GROUP = 'r_newGroup';
 
     /**
      * @var MapService
@@ -154,6 +162,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -229,7 +238,6 @@ class DemosPlanProcedureController extends BaseController
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
-        SurveyService $surveyService,
         TranslatorInterface $translator,
         string $procedure,
     ) {
@@ -290,11 +298,6 @@ class DemosPlanProcedureController extends BaseController
             );
         }
 
-        if ($this->permissions->hasPermission('area_survey')) {
-            $templateVars['surveys'] = $procedureObject->getSurveys();
-            $templateVars['surveyStatistics'] = $surveyService->generateSurveyStatistics($procedureObject);
-        }
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_dashboard.html.twig',
             [
@@ -331,7 +334,7 @@ class DemosPlanProcedureController extends BaseController
      *       ],
      *   ];
      *
-     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData, procedureHasSurveys?: bool}
+     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData}
      *
      * @throws Exception
      */
@@ -377,7 +380,6 @@ class DemosPlanProcedureController extends BaseController
             if (null !== $movedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
-            $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
         } catch (Exception $e) {
             $this->getLogger()->error('Failed to get moved procedures for dashboard', [$e]);
         }
@@ -443,30 +445,35 @@ class DemosPlanProcedureController extends BaseController
 
         // save status counts
         $aggregations = $statementQueryResult->getFilterSet()['filters'];
-        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
-                $statusValue = $aggregationBucket['value'];
-                $statusCount = $aggregationBucket['count'];
-                $statementStatusData[$statusValue]['count'] = $statusCount;
 
-                // add link with filterhash to assessment table
-                if (0 < $statusCount) {
-                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                        $statusValue,
-                        $procedureId,
-                        'statement'
-                    );
+        // Check if the status aggregation exists
+        if (isset($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS])) {
+            foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
+                if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                    $statusValue = $aggregationBucket['value'];
+                    $statusCount = $aggregationBucket['count'];
+                    $statementStatusData[$statusValue]['count'] = $statusCount;
+
+                    // add link with filterhash to assessment table
+                    if (0 < $statusCount) {
+                        $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                            $statusValue,
+                            $procedureId,
+                            'statement'
+                        );
+                    }
                 }
             }
         }
 
-        // save priority count per status
-        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
-            [$statusValue, $priorityValue] = $aggregationBucket['value'];
-            if ('' == $priorityValue || 'no_value' === $priorityValue) {
-                $priorityValue = self::NONE;
+        if (isset($aggregations[self::AGGREGATION_STATUS_PRIORITY])) {
+            foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+                [$statusValue, $priorityValue] = $aggregationBucket['value'];
+                if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                    $priorityValue = self::NONE;
+                }
+                $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
             }
-            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
         }
 
         return [
@@ -670,6 +677,9 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipationEndDate',
                 'r_publicParticipationPhase',
                 'r_publicParticipationPublicationEnabled',
+                'r_publicParticipationFeedbackEnabled',
+                'allowAnonymousStatements',
+                'expandProcedureDescription',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
@@ -1399,7 +1409,26 @@ class DemosPlanProcedureController extends BaseController
             } else {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
+
+                $evaluatingPhase = null;
+                foreach ($templateVars['internalPhases'] as $internalPhase) {
+                    if ('evaluating' === $internalPhase['key']) {
+                        $evaluatingPhase = $internalPhase['name'];
+                        break;
+                    }
+                }
+
+                // Fallback to 'analysis' if 'evaluating' phase not found
+                if (null === $evaluatingPhase) {
+                    foreach ($templateVars['internalPhases'] as $internalPhase) {
+                        if ('analysis' === $internalPhase['key']) {
+                            $evaluatingPhase = $internalPhase['name'];
+                            break;
+                        }
+                    }
+                }
             }
+
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
             $notificationReveicerRepository = $em->getRepository(NotificationReceiver::class);
 
@@ -1435,15 +1464,15 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['statementCount'] = $statementService->getStatementResourcesCount($procedureId);
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
-            return $this->renderTemplate(
-                $template,
-                [
-                    'templateVars' => $templateVars,
-                    'procedure'    => $procedureId,
-                    'title'        => $title,
-                    'form'         => $form->createView(),
-                ]
-            );
+            $data = [
+                'templateVars'    => $templateVars,
+                'procedure'       => $procedureId,
+                'title'           => $title,
+                'form'            => $form->createView(),
+                'evaluatingPhase' => $evaluatingPhase ?? '',
+            ];
+
+            return $this->renderTemplate($template, $data);
         } catch (DuplicateSlugException $e) {
             $this->getMessageBag()->add('error', 'error.procedure.duplicated.shorturl', ['slug' => $e->getDuplicatedSlug()]);
 
@@ -1628,7 +1657,6 @@ class DemosPlanProcedureController extends BaseController
         Request $request,
         StatementHandler $statementHandler,
         StatementService $statementService,
-        SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
         CoordinateJsonConverter $coordinateJsonConverter,
         string $procedure,
@@ -1794,7 +1822,7 @@ class DemosPlanProcedureController extends BaseController
         // Öffentliche Stellungnahmen
         $publicLimit = $request->get('r_limit', 10);
         $publicPage = $request->get('page', 1);
-        $statementService->setPaginatorLimits([10]);
+        $statementService->setPaginatorLimits([10, 25, 50]);
         $statements = $statementService->getStatementsByProcedureId(
             $procedureId,
             $filters,
@@ -1934,15 +1962,6 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-
-        // Survey Info
-        if ($this->permissions->hasPermission('area_survey')) {
-            $survey = $procedure->getFirstSurvey();
-            $templateVars['survey'] = $surveyShowHandler->entityToFrontend(
-                $survey,
-                $user
-            );
-        }
 
         // Is autorisation via token available in current procedure
         if ($permissions->hasPermission('feature_public_consultation')) {
@@ -2275,7 +2294,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen')]
+    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', options: ['expose' => true])]
     public function administrationNewMemberListAction(
         Breadcrumb $breadcrumb,
         MessageBagInterface $messageBag,
@@ -2357,63 +2376,16 @@ class DemosPlanProcedureController extends BaseController
     ) {
         $procedureId = $procedure;
         $requestPost = $request->request;
-        $procedureService = $this->procedureService;
 
-        // Delete checked Boilerplates and or BoilerPlateGroups
-        if ($requestPost->has('boilerplateDeleteChecked')) {
-            // Delete checked Boilerplates
-            if ($requestPost->has('boilerplate_delete')) {
-                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->get('boilerplate_delete'));
-            }
-
-            // Delete checked BoilerplateGroups
-            if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
-            }
-
-            if (false ===
-                $requestPost->has('boilerplate_delete') || $requestPost->has('boilerplateGroupIdsTo_delete')
-            ) {
-                $this->getMessageBag()->add('warning', 'warning.select.entries');
-            }
-        }
-
-        // delete single boilerplate
-        if ($requestPost->has('boilerplateDeleteItem')) {
-            $this->handleDeleteBoilerplate($requestPost->get('boilerplateDeleteItem'));
-        }
-
-        // delete single boilerplateGroup
-        if ($requestPost->has('boilerplateGroupDeleteAllContent')) {
-            $this->handleDeleteBoilerplateGroup($requestPost->get('boilerplateGroupDeleteAllContent'));
-        }
-
-        if ($requestPost->has('r_createGroup') && $requestPost->has('r_newGroup')) {
-            try {
-                $createdGroup = $procedureService->createBoilerplateGroup($requestPost->get('r_newGroup'), $procedureId);
-                $this->getMessageBag()->add(
-                    'confirm',
-                    'confirm.boilerplate.group.created',
-                    ['title' => $createdGroup->getTitle()]
-                );
-            } catch (Exception) {
-                $this->getMessageBag()->add(
-                    'error',
-                    'error.boilerplate.group.not.created',
-                    ['title' => $requestPost['r_newGroup']]
-                );
-            }
-        }
-
-        $templateVars = [];
-        $templateVars['list'] = $procedureService->getBoilerplateList($procedure);
-        $templateVars['boilerplateGroups'] = $procedureService->getBoilerplateGroups($procedureId);
+        $this->processBoilerplateActions($procedureHandler, $requestPost, $procedureId);
 
         if (!$request->isMethod('GET')) {
             // prevent sending the same post multiple times when browser reloads the same page (F5)
             // therefore redirect to self as a get call instead.
             return $this->redirectBack($request);
         }
+
+        $templateVars = $this->prepareBoilerplateTemplateVars($procedure, $procedureId);
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
@@ -2423,6 +2395,76 @@ class DemosPlanProcedureController extends BaseController
                 'procedure'    => $procedure,
             ]
         );
+    }
+
+    private function processBoilerplateActions(ProcedureHandler $procedureHandler, ParameterBag $requestPost, string $procedureId): void
+    {
+        $this->processDeleteCheckedBoilerplates($procedureHandler, $requestPost);
+        $this->processSingleBoilerplateDeletion($requestPost);
+        $this->processGroupCreation($requestPost, $procedureId);
+    }
+
+    private function processDeleteCheckedBoilerplates(ProcedureHandler $procedureHandler, ParameterBag $requestPost): void
+    {
+        if (!$requestPost->has(self::PARAM_BOILERPLATE_DELETE_CHECKED)) {
+            return;
+        }
+
+        $hasBoilerplateDelete = $requestPost->has(self::PARAM_BOILERPLATE_DELETE);
+        $hasGroupDelete = $requestPost->has(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE);
+
+        if ($hasBoilerplateDelete) {
+            $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all(self::PARAM_BOILERPLATE_DELETE));
+        }
+
+        if ($hasGroupDelete) {
+            $this->handleDeleteBoilerplateGroups($requestPost->all(self::PARAM_BOILERPLATE_GROUP_IDS_TO_DELETE));
+        }
+
+        if (!$hasBoilerplateDelete && !$hasGroupDelete) {
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
+        }
+    }
+
+    private function processSingleBoilerplateDeletion(ParameterBag $requestPost): void
+    {
+        if ($requestPost->has(self::PARAM_BOILERPLATE_DELETE_ITEM)) {
+            $this->handleDeleteBoilerplate($requestPost->get(self::PARAM_BOILERPLATE_DELETE_ITEM));
+        }
+
+        if ($requestPost->has(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT)) {
+            $this->handleDeleteBoilerplateGroup($requestPost->get(self::PARAM_BOILERPLATE_GROUP_DELETE_ALL_CONTENT));
+        }
+    }
+
+    private function processGroupCreation(ParameterBag $requestPost, string $procedureId): void
+    {
+        if (!$requestPost->has(self::PARAM_CREATE_GROUP) || !$requestPost->has(self::PARAM_NEW_GROUP)) {
+            return;
+        }
+
+        try {
+            $createdGroup = $this->procedureService->createBoilerplateGroup($requestPost->get(self::PARAM_NEW_GROUP), $procedureId);
+            $this->getMessageBag()->add(
+                'confirm',
+                'confirm.boilerplate.group.created',
+                ['title' => $createdGroup->getTitle()]
+            );
+        } catch (Exception) {
+            $this->getMessageBag()->add(
+                'error',
+                'error.boilerplate.group.not.created',
+                ['title' => $requestPost[self::PARAM_NEW_GROUP]]
+            );
+        }
+    }
+
+    private function prepareBoilerplateTemplateVars(string $procedure, string $procedureId): array
+    {
+        return [
+            'list'              => $this->procedureService->getBoilerplateList($procedure),
+            'boilerplateGroups' => $this->procedureService->getBoilerplateGroups($procedureId),
+        ];
     }
 
     /**
@@ -2437,6 +2479,21 @@ class DemosPlanProcedureController extends BaseController
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
+    }
+
+    /**
+     * Creation of custom fields, each is either procedure or procedure template related.
+     */
+    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    public function showProcedureCustomFieldsAction(string $procedureId)
+    {
+        $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
+        $templateVars['procedureId'] = $procedureId;
+
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+            ['templateVars' => $templateVars]);
     }
 
     /**

@@ -21,7 +21,7 @@ import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsL
 import Voter from '@DpJs/store/statement/Voter'
 
 const components = {
-  StatementSegmentsList
+  StatementSegmentsList,
 }
 
 const stores = {
@@ -29,7 +29,7 @@ const stores = {
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
   SplitStatement: SplitStatementStore,
-  Voter
+  Voter,
 }
 
 if (hasPermission('area_admin_boilerplates')) {
@@ -37,7 +37,9 @@ if (hasPermission('area_admin_boilerplates')) {
 }
 
 const apiStores = [
+  'AdminProcedure',
   'AggregationFilterItems',
+  'CustomField',
   'AssignableUser',
   'ElementsDetails',
   'Place',
@@ -46,7 +48,11 @@ const apiStores = [
   'StatementSegment',
   'StatementVote',
   'Tags',
-  'User'
+  'User',
 ]
+
+if (hasPermission('feature_similar_statement_submitter')) {
+  apiStores.push('SimilarStatementSubmitter')
+}
 
 initialize(components, stores, apiStores)

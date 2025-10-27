@@ -25,7 +25,7 @@ class UCFirstExtensionTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new UCFirstExtension(self::$container);
+        $this->twigExtension = new UCFirstExtension(self::getContainer());
     }
 
     public function testGetName()

@@ -195,13 +195,13 @@ class AddonInstallFromZipCommand extends CoreCommand
             $activeProject = $kernel->getActiveProject();
 
             $batch = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment]);
+                ->addShell(['bin/console', 'cache:clear', '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
             // if addon has a package.json, build the frontend assets
             if (file_exists($this->zipCachePath.'package.json')) {
-                $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
+                $batch->addShell(['bin/console', 'dplan:addon:build-frontend', $name, '-e', $environment], null, ['ACTIVE_PROJECT' => $activeProject]);
             }
             $batchReturn = $batch->run();
-            if($batch->hasException()) {
+            if ($batch->hasException()) {
                 $output->error($batch->getLastException()->getMessage());
             }
 
@@ -572,7 +572,10 @@ class AddonInstallFromZipCommand extends CoreCommand
             throw new RuntimeException("No local addons found in folder {$addonDevFolder}. Please check out the demosplan-addon-* repositories into this folder.");
         }
         $question = new ChoiceQuestion('Which addon do you want to install from your local development environment?', $localAddons);
-        $path = $this->getHelper('question')->ask($input, $output, $question);
+
+        /** @var QuestionHelper $questionHelper */
+        $questionHelper = $this->getHelper('question');
+        $path = $questionHelper->ask($input, $output, $question);
 
         // create symlink from cache to addonsDev
         $addonFolder = explode('/', $path)[count(explode('/', $path)) - 1];

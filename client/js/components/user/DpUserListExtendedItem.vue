@@ -10,33 +10,32 @@
 <template>
   <dp-table-card
     class="layout__item c-card u-1-of-1"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <!-- card header -->
-    <template
-      v-slot:header="">
+    <template v-slot:header="">
       <div
         :class="{ 'u-pb-0_5 border--bottom': isOpen }"
         class="cursor-pointer"
-        @click="handleToggle">
+        @click="handleToggle"
+      >
         <div class="w-[20px] u-pv-0_25 inline-block">
           <input
-            type="checkbox"
             :id="`selected` + user.id"
+            type="checkbox"
             :checked="selected"
             :value="user.id"
             @click.stop="$emit('change')"
-            @change="$emit('item:selected', user.id)">
+            @change="$emit('item:selected', user.id)"
+          >
         </div><!--
-     --><div
-          class="layout__item u-1-of-4 u-pv-0_25">
+     --><div class="layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes?.firstname }} {{ user.attributes?.lastname }}
         </div><!--
-     --><div
-          class="break-words layout__item u-1-of-4 u-pv-0_25">
+     --><div class="break-words layout__item u-1-of-4 u-pv-0_25">
           {{ user.attributes?.login }}
         </div><!--
-     --><div
-        class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
+     --><div class="layout__item u-1-of-4 u-ml-0_25 u-pv-0_25">
           {{ user.attributes?.email }}
         </div><!--
       --><div class="text-right layout__item u-ml-0_5 u-1-of-5 u-pv-0_25">
@@ -44,19 +43,23 @@
               type="button"
               title="Löschen"
               class="btn--blank o-link--default u-mr"
-              @click.prevent.stop="$emit('delete')"
               data-cy="deleteItem"
-              :aria-label="Translator.trans('item.delete')">
+              :aria-label="Translator.trans('item.delete')"
+              @click.prevent.stop="$emit('delete')"
+            >
               <i
                 class="fa fa-trash"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
             <button
               type="button"
-              class="btn--blank o-link--default">
+              class="btn--blank o-link--default"
+            >
               <i
                 class="fa"
-                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'" />
+                :class="isOpen ? 'fa-angle-up': 'fa-angle-down'"
+              />
             </button>
         </div><!--
    -->
@@ -66,7 +69,8 @@
     <!-- card content -->
     <dl
       :class="{'u-pt-0_5' : isOpen}"
-      class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1">
+      class="layout c-at-item__row u-pl-1_5 u-mr u-1-of-1"
+    >
       <dd class="layout__item u-pr u-1-of-2">
         <dp-edit-field-single-select
           :entity-id="user.id"
@@ -77,7 +81,8 @@
           :readonly="!hasPermission('feature_user_edit')"
           :value="currentOrganisation"
           @field:input="(val) => updateRelationship('currentOrganisation', val)"
-          @field:save="saveUser" />
+          @field:save="saveUser"
+        />
       </dd><!--
    --><dd class="layout__item u-1-of-2">
         <dp-edit-field-single-select
@@ -90,15 +95,16 @@
           :readonly="!hasPermission('feature_user_edit')"
           :value="currentDepartment"
           @field:input="(val) => updateRelationship('currentDepartment', val)"
-          @field:save="saveUser" />
+          @field:save="saveUser"
+        />
       </dd>
     </dl>
   </dp-table-card>
 </template>
 
 <script>
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 
 export default {
@@ -106,30 +112,30 @@ export default {
 
   components: {
     DpEditFieldSingleSelect: () => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DpJs/components/statement/assessmentTable/DpEditFieldSingleSelect'),
-    DpTableCard
+    DpTableCard,
   },
 
   props: {
     allOrganisations: {
       type: Array,
-      required: true
+      required: true,
     },
 
     isOpen: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     selected: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     user: {
       type: Object,
-      default: () => ({ })
-    }
+      default: () => ({ }),
+    },
   },
 
   emits: [
@@ -138,7 +144,7 @@ export default {
     'delete',
     'item:selected',
     'reset',
-    'save-success'
+    'saveSuccess',
   ],
 
   data () {
@@ -148,13 +154,13 @@ export default {
       // Options for department select
       availableDepartments: [],
       // Options for organisation select
-      availableOrganisations: []
+      availableOrganisations: [],
     }
   },
 
   computed: {
     ...mapState('Department', {
-      departmentsList: 'items'
+      departmentsList: 'items',
     }),
 
     getOrgaId () {
@@ -164,25 +170,25 @@ export default {
     isInstitution () {
       const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
       return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
-    }
+    },
   },
 
   methods: {
     ...mapActions('AdministratableUser', {
-      saveUserAction: 'save'
+      saveUserAction: 'save',
     }),
 
     initialUserDepartment () {
       return {
         id: this.user?.relationships?.orga.data?.id,
-        title: this.getDepartmentName()
+        title: this.getDepartmentName(),
       }
     },
 
     initialUserOrganisation () {
       return {
         id: this.user?.relationships?.orga.data?.id,
-        title: this.getOrgaName()
+        title: this.getOrgaName(),
       }
     },
 
@@ -207,7 +213,7 @@ export default {
         if (org.id === this.currentOrganisation.id) {
           this.currentOrganisation = {
             ...this.currentOrganisation,
-            departments: org.departments
+            departments: org.departments,
           }
         }
         // Convert to required format
@@ -280,27 +286,31 @@ export default {
             orga: {
               data: {
                 id: this.currentOrganisation.id,
-                type: 'Orga'
-              }
+                type: 'Orga',
+              },
             },
             department: {
               data: {
                 id: this.currentDepartment.id,
-                type: 'Department'
-              }
-            }
+                type: 'Department',
+              },
+            },
           },
-          type: 'AdministratableUser'
-        }
+          type: 'AdministratableUser',
+        },
       }
 
-      return dpApi.patch(url, {}, payload)
-        .then(checkResponse, {
-          200: { type: 'confirm', text: 'info.user.updated' },
-          204: { type: 'confirm', text: 'info.user.updated' }
+      return dpApi.patch(url,
+        {},
+        payload,
+        {
+          messages: {
+            200: { type: 'confirm', text: 'info.user.updated' },
+            204: { type: 'confirm', text: 'info.user.updated' },
+          },
         })
         .then(() => {
-          this.$root.$emit('save-success')
+          this.$root.$emit('saveSuccess')
           // Update department options
           this.setAvailableDepartments()
         })
@@ -334,11 +344,11 @@ export default {
      */
     updateRelationship (prop, val) {
       this[prop] = val
-    }
+    },
   },
 
   mounted () {
     this.setInitialUserData()
-  }
+  },
 }
 </script>

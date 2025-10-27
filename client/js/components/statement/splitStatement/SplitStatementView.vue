@@ -13,36 +13,45 @@
       <dp-sticky-element border>
         <header
           id="header"
-          class="u-pv-0_25 flow-root">
+          class="u-pv-0_25 flow-root"
+        >
+          <dp-inline-notification
+            v-if="!isLoading && availablePlaces.length < 1"
+            class="mt-3 mb-2"
+            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: procedureId }) })"
+            type="warning"
+          />
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
             class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
-            type="info" />
+            type="info"
+          />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">
             {{ Translator.trans('statement.do.segment', { id: statementExternId }) }}
           </h1>
 
           <ul
             v-if="segmentationStatus === 'inUserSegmentation'"
-            class="float-right u-pt-0_25 u-m-0">
+            class="float-right u-pt-0_25 u-m-0"
+          >
             <li class="inline-block">
-              <dp-flyout
-                ref="metadataFlyout"
-                :has-menu="false">
+              <dp-flyout ref="metadataFlyout">
                 <template v-slot:trigger>
                   <span>
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
                     <i
                       class="fa fa-angle-down"
-                      aria-hidden="true" />
+                      aria-hidden="true"
+                    />
                   </span>
                 </template>
                 <statement-meta-tooltip
                   v-if="statement"
                   :statement="statement"
                   toggle-button
-                  @toggle="toggleInfobox" />
+                  @toggle="toggleInfobox"
+                />
               </dp-flyout>
             </li>
           </ul>
@@ -58,24 +67,29 @@
         }"
         hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
-        @segmentationStatus:change="setSegmentationStatus" />
+        @segmentation-status:change="setSegmentationStatus"
+      />
 
       <transition
         name="slide-fade"
-        mode="out-in">
+        mode="out-in"
+      >
         <div v-if="segmentationStatus === 'inUserSegmentation'">
           <transition
             name="slide-fade"
-            mode="out-in">
+            mode="out-in"
+          >
             <button
               v-show="displayScrollButton"
               :aria-label="Translator.trans('scroll.back.to.segment')"
               class="scroll-button text-center"
               :style="scrollButtonStyles"
-              @click="scrollToSegment">
+              @click="scrollToSegment"
+            >
               <i
                 :class="scrollButtonPosition.direction === 'top' ? 'fa fa-angle-double-up' : scrollButtonPosition.direction === 'bottom' ? 'fa fa-angle-double-down' : ''"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </transition>
 
@@ -83,69 +97,81 @@
             v-if="statement && showInfobox"
             :statement="statement"
             :submit-type-options="submitTypeOptions"
-            @close="showInfobox = false" />
+            @close="showInfobox = false"
+          />
 
           <div v-if="isLoading">
             <dp-loading class="u-mt u-ml" />
           </div>
           <main
+            v-else-if="initialData"
             ref="main"
             class="container pt-2"
-            v-else-if="initialData">
+          >
             <segmentation-editor
-              @prosemirror-initialized="runPostInitTasks"
-              @prosemirror-max-range="setMaxRange"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
-              :class="{ 'is-fullwidth': !showTags }" />
+              :class="{ 'is-fullwidth': !showTags }"
+              @prosemirror:initialized="runPostInitTasks"
+              @prosemirror:max-range="setMaxRange"
+              @focus="event => handleMouseOver(event)"
+              @focusout="handleMouseLeave"
+              @mouseover="event => handleMouseOver(event)"
+              @mouseleave="handleMouseLeave"
+            />
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <card-pane
                 v-if="showTags && editModeActive === false && maxRange"
                 id="cardPane"
-                class="u-ml"
                 :key="tagsCounter"
+                class="u-ml"
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
-                @edit-segment="enableEditMode"
-                @delete-segment="immediatelyDeleteSegment" />
+                @segment:edit="enableEditMode"
+                @segment:delete="immediatelyDeleteSegment"
+              />
             </transition>
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <dp-sticky-element
                 v-if="editModeActive"
                 :apply-z-index="false"
                 :context="$refs.main"
-                :offset="headerOffset">
+                :offset="headerOffset"
+              >
                 <side-bar
                   id="sideBar"
+                  ref="sideBar"
                   class="u-mb-0_25"
                   :offset="headerOffset"
-                  ref="sideBar"
                   @abort="abortEdit"
                   @keydown.esc="toggleSideBar"
-                  @save="save(editingSegment)" />
+                  @save="save(editingSegment)"
+                />
               </dp-sticky-element>
             </transition>
           </main>
 
           <div
             v-if="editModeActive === false"
-            class="button-container">
+            class="button-container"
+          >
             <dp-button
-              @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
               data-cy="statementSplitComplete"
-              variant="outline" />
+              variant="outline"
+              @click="saveAndFinish"
+            />
           </div>
         </div>
       </transition>
@@ -159,7 +185,7 @@ import {
   applySelectionChange,
   removeRange,
   setRange,
-  setRangeEditingState
+  setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
 import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -216,12 +242,12 @@ export default {
     SegmentationEditor,
     SideBar,
     StatementMeta,
-    StatementMetaTooltip
+    StatementMetaTooltip,
   },
 
   provide () {
     return {
-      procedureId: this.procedureId
+      procedureId: this.procedureId,
     }
   },
 
@@ -229,35 +255,35 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     showTags: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     statementExternId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -277,17 +303,18 @@ export default {
       processingTime: 0,
       scrollButtonPosition: {
         direction: '',
-        offset: ''
+        offset: '',
       },
       prosemirror: null,
       segmentationStatus: 'processing',
       showInfobox: false,
-      tagsCounter: 0
+      tagsCounter: 0,
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', [
+      'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -298,7 +325,7 @@ export default {
       'segmentById',
       'segments',
       'statement',
-      'statementSegmentDraftList'
+      'statementSegmentDraftList',
     ]),
 
     /**
@@ -321,9 +348,9 @@ export default {
 
     scrollButtonStyles () {
       return {
-        top: this.scrollButtonPosition.offset
+        top: this.scrollButtonPosition.offset,
       }
-    }
+    },
   },
 
   watch: {
@@ -336,7 +363,7 @@ export default {
           this.displayScrollButton = false
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
 
     initialData: {
@@ -346,8 +373,8 @@ export default {
           this.isLoading = false
         }
       },
-      deep: false // Set default for migrating purpose. To know this occurrence is checked
-    }
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -355,7 +382,7 @@ export default {
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapActions('SplitStatement', [
@@ -366,7 +393,7 @@ export default {
       'fetchStatementSegmentDraftList',
       'fetchTags',
       'saveSegmentsDrafts',
-      'saveSegmentsFinal'
+      'saveSegmentsFinal',
     ]),
 
     setCurrentTime () {
@@ -404,19 +431,19 @@ export default {
       if (segmentIsAtTop) {
         this.scrollButtonPosition = {
           direction: 'top',
-          offset: '65px'
+          offset: '65px',
         }
       } else if (segmentIsAtBottom) {
         const vh = document.documentElement.clientHeight
         this.scrollButtonPosition = {
           direction: 'bottom',
-          offset: `${vh - 70}px`
+          offset: `${vh - 70}px`,
         }
       }
 
-      return segmentSpans.length
-        ? segmentIsAtTop || segmentIsAtBottom
-        : false
+      return segmentSpans.length ?
+        segmentIsAtTop || segmentIsAtBottom :
+        false
     },
 
     determineIfStatementReady (counter = 0) {
@@ -478,7 +505,7 @@ export default {
         rangeTrackerKey,
         editStateTrackerKey,
         id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
+        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart },
       )
       this.ignoreProsemirrorUpdates = false
     },
@@ -490,7 +517,7 @@ export default {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-              id: assignableUser.id
+              id: assignableUser.id,
             }
           })
           this.assignableUsers.unshift({ name: Translator.trans('not.assigned'), id: 'noAssigneeId' })
@@ -505,16 +532,16 @@ export default {
           Place: [
             'name',
             'description',
-            'solved'
-          ].join()
+            'solved',
+          ].join(),
         },
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       })).then((response) => {
         const availablePlaces = response.data.data.map(place => {
           return {
             name: place.attributes.name,
             id: place.id,
-            description: place.attributes.description
+            description: place.attributes.description,
           }
         })
         this.setProperty({ prop: 'availablePlaces', val: availablePlaces })
@@ -544,10 +571,8 @@ export default {
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
-        } else {
-          if (card.classList.contains('highlighted')) {
-            card.classList.remove('highlighted')
-          }
+        } else if (card.classList.contains('highlighted')) {
+          card.classList.remove('highlighted')
         }
       }
     },
@@ -568,9 +593,9 @@ export default {
      * Adds highlighting background color to segment and border color to corresponding card
      * Updates currentlyHighlightedSegmentId in the store
      */
-    handleMouseOver (e) {
+    handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = e.target.getAttribute('data-range') || e.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
 
         /**
          * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
@@ -579,7 +604,7 @@ export default {
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = e.target.closest('span[data-range]')
+          const closestParent = event.target.closest('span[data-range]')
           segmentId = closestParent ? closestParent.getAttribute('data-range') : null
         }
 
@@ -639,7 +664,7 @@ export default {
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
-        text: segmentToCreate.text
+        text: segmentToCreate.text,
       }
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.setProperty({ prop: 'editModeActive', val: true })
@@ -748,7 +773,7 @@ export default {
               .map(segment => {
                 return {
                   ...segment,
-                  text: ranges[segment.id].text
+                  text: ranges[segment.id].text,
                 }
               })
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
@@ -757,6 +782,7 @@ export default {
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
+            console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))
             this.setProperty({ prop: 'isBusy', val: false })
           }
@@ -793,7 +819,7 @@ export default {
       const offsetPosition = elementPosition - 100
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     },
 
@@ -819,7 +845,7 @@ export default {
     updateSegments (updatedSegments) {
       const newSegments = mergeRangesAndSegments(updatedSegments, this.segments)
       this.locallyUpdateSegments(newSegments)
-    }
+    },
   },
 
   created () {
@@ -841,6 +867,6 @@ export default {
      * This is necessary to prevent memory leaks
      */
     document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
-  }
+  },
 }
 </script>

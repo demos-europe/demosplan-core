@@ -13,13 +13,13 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 
 // Test data which is defined in Twig
-import Submitters from './__mocks__/DpAutofillSubmitterData.json'
+import Submitters from './fixtures/DpAutofillSubmitterData.json'
 
 describe('Submitter', () => {
   it.skip('renders correct markup with permission..SubmitterInvited but permission..SubmitterCitizens = false', () => {
     global.features = {
       featureInstitutionParticipation: true,
-      featureStatementCreateAutofillSubmitterInvited: true
+      featureStatementCreateAutofillSubmitterInvited: true,
     }
 
     const instance = shallowMountWithGlobalMocks(
@@ -29,12 +29,12 @@ describe('Submitter', () => {
           procedureId: 'procedureId',
           request: {},
           submitters: Submitters,
-          formDefinitions: {}
+          formDefinitions: {},
         },
         stubs: {
-          'dp-multiselect': true
-        }
-      }
+          'dp-multiselect': true,
+        },
+      },
     )
 
     expect(instance.html()).toMatchSnapshot()
@@ -42,7 +42,7 @@ describe('Submitter', () => {
 
   it.skip('renders correct markup with featureInstitutionParticipation = false', () => {
     global.features = {
-      featureInstitutionParticipation: false
+      featureInstitutionParticipation: false,
     }
 
     const instance = shallowMountWithGlobalMocks(
@@ -52,9 +52,9 @@ describe('Submitter', () => {
           procedureId: 'procedureId',
           request: {},
           formDefinitions: {},
-          submitters: Submitters
-        }
-      }
+          submitters: Submitters,
+        },
+      },
     )
 
     expect(instance.html()).toMatchSnapshot()
@@ -64,7 +64,7 @@ describe('Submitter', () => {
     global.features = {
       featureInstitutionParticipation: true,
       featureStatementCreateAutofillSubmitterInstitutions: true,
-      featureStatementCreateAutofillSubmitterCitizens: true
+      featureStatementCreateAutofillSubmitterCitizens: true,
     }
 
     const instance = shallowMountWithGlobalMocks(
@@ -74,9 +74,9 @@ describe('Submitter', () => {
           procedureId: 'procedureId',
           request: {},
           formDefinitions: {},
-          submitters: Submitters
-        }
-      }
+          submitters: Submitters,
+        },
+      },
     )
 
     expect(instance.html()).toMatchSnapshot()

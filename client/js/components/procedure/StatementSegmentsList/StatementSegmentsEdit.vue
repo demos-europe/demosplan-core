@@ -13,17 +13,37 @@
 
     <!-- if statement has segments and user has the permission, display segments -->
     <template v-else-if="hasSegments">
+      <!-- Pagination above segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mb-4"
+      >
+        <dp-pager
+          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
+
       <div
         v-for="segment in segments"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
+        class="u-ph-0_25"
+        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
         @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null">
+        @mouseleave="hoveredSegment = null"
+      >
         <div
           class="inline-block"
-          style="width: 5%">
+          style="width: 5%"
+        >
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -33,65 +53,93 @@
             :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
             entity-type="segment"
             :is-loading="claimLoading === segment.id"
-            @click="() => toggleClaimSegment(segment)" />
+            @click="() => toggleClaimSegment(segment)"
+          />
         </div><!--
-        --><div
-            class="inline-block break-words"
-            style="width: 95%">
+     --><div
+          class="inline-block break-words"
+          style="width: 95%"
+        >
           <dp-edit-field
+            :ref="`editField_${segment.id}`"
+            class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
             no-margin
             persist-icons
-            :ref="`editField_${segment.id}`"
             @reset="() => reset(segment.id)"
-            @toggleEditing="() => addToEditing(segment.id)"
-            @save="() => saveSegment(segment.id)">
+            @toggle-editing="() => addToEditing(segment.id)"
+            @save="() => saveSegment(segment.id)"
+          >
             <template v-slot:display>
               <text-content-renderer
                 class="pr-3"
-                :text="segment.attributes.text" />
+                :text="segment.attributes.text"
+              />
             </template>
             <template v-slot:edit>
               <dp-editor
                 class="u-mr u-pt-0_25"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
-                @transformObscureTag="transformObscureTag"
-                @input="(val) => updateSegmentText(segment.id, val)" />
+                @transform-obscure-tag="transformObscureTag"
+                @input="(val) => updateSegmentText(segment.id, val)"
+              />
             </template>
           </dp-edit-field>
         </div>
+      </div>
+
+      <!-- Pagination below segments list -->
+      <div
+        v-if="pagination && pagination.currentPage"
+        class="flex justify-between items-center mt-4"
+      >
+        <dp-pager
+          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
+          :class="{ 'invisible': isLoading }"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits || defaultPagination.limits"
+          :per-page="pagination.perPage || defaultPagination.perPage"
+          :total-pages="pagination.totalPages || 1"
+          :total-items="pagination.total || 0"
+          @page-change="handlePageChange"
+          @size-change="handleSizeChange"
+        />
       </div>
     </template>
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <template v-if="editable && !segmentDraftList">
+      <template v-if="editable && !hasDraftSegments">
         <dp-editor
           hidden-input="statementText"
           required
           :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
-          @transformObscureTag="transformObscureTag"
-          @input="updateStatementText" />
+          @transform-obscure-tag="transformObscureTag"
+          @input="updateStatementText"
+        />
         <dp-button-row
           class="u-mv"
           primary
           secondary
           :secondary-text="Translator.trans('discard.changes')"
           @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-          @secondary-action="resetStatement" />
+          @secondary-action="resetStatement"
+        />
       </template>
       <div
         v-else
-        class="border space-inset-s">
+        class="border space-inset-s"
+      >
         <dp-inline-notification
-          v-if="segmentDraftList"
+          v-if="hasDraftSegments"
           class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
-          type="warning" />
+          type="warning"
+        />
         <p class="weight--bold">
           {{ Translator.trans('statement.text.short') }}
         </p>
@@ -103,13 +151,13 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpButtonRow,
   DpInlineNotification,
   DpLoading,
-  dpValidateMixin
+  DpPager,
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
@@ -117,6 +165,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -126,47 +175,48 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
+    DpPager,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
     DpInlineNotification,
-    TextContentRenderer
+    TextContentRenderer,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
-  mixins: [dpValidateMixin],
+  mixins: [dpValidateMixin, paginationMixin],
 
   props: {
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     editable: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
-    segmentDraftList: {
-      type: Object,
+    hasDraftSegments: {
+      type: Boolean,
       required: false,
-      default: () => {}
+      default: false,
     },
 
     statementId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   emits: [
-    'save-statement',
-    'statement-text-updated'
+    'saveStatement',
+    'statementText:updated',
   ],
 
   data () {
@@ -175,17 +225,24 @@ export default {
       editingSegmentIds: [],
       hoveredSegment: null,
       isLoading: false,
-      obscuredText: ''
+      obscuredText: '',
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 20, 50],
+        perPage: 20,
+      },
+      pagination: {},
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
     }
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     ...mapState('Statement', {
-      statements: 'items'
+      statements: 'items',
     }),
 
     assigneeBySegment () {
@@ -198,20 +255,20 @@ export default {
           return {
             id: assignee.id,
             name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : ''
+            orgaName: orga ? orga.attributes.name : '',
           }
         } catch (err) {
           if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
             return {
               id: this.currentUser.id,
               name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName
+              orgaName: this.currentUser.orgaName,
             }
           } else {
             return {
               id: '',
               name: '',
-              orgaName: ''
+              orgaName: '',
             }
           }
         }
@@ -224,28 +281,28 @@ export default {
 
     statement () {
       return this.statements[this.statementId] || null
-    }
+    },
   },
 
   methods: {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
-      setSegment: 'setItem'
+      setSegment: 'setItem',
     }),
 
     ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
-      listSegments: 'list'
+      listSegments: 'list',
     }),
 
     ...mapActions('Statement', {
-      restoreStatementAction: 'restoreFromInitial'
+      restoreStatementAction: 'restoreFromInitial',
     }),
 
     ...mapMutations('Statement', {
-      setStatement: 'setItem'
+      setStatement: 'setItem',
     }),
 
     addToEditing (id) {
@@ -264,22 +321,39 @@ export default {
             assignee: {
               data: {
                 type: 'AssignableUser',
-                id: this.currentUser.id
-              }
-            }
-          }
-        }
+                id: this.currentUser.id,
+              },
+            },
+          },
+        },
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }),
+        {},
+        payload,
+        {
+          messages: {
+            200: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            204: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm',
+            },
+            400: {
+              text: Translator.trans('segment.claim.fail'),
+              type: 'error',
+            },
+          },
+        },
+      )
         .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('segment.claim.success'))
           this.claimLoading = null
         })
         .catch((err) => {
           console.error(err)
-          dplan.notify.notify('error', Translator.trans('segment.claim.fail'))
           // Restore segment in store if it didn't work
           this.restoreSegmentAction(segment.id)
           this.claimLoading = null
@@ -330,13 +404,16 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('save-statement', this.statement)
+      this.$emit('saveStatement', this.statement)
     },
 
     scrollToSegment () {
       const queryParams = new URLSearchParams(window.location.search)
       const segmentId = queryParams.get('segment')
-      scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+
+      if (segmentId) {
+        scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+      }
     },
 
     /*
@@ -363,13 +440,12 @@ export default {
           id: segment.id,
           relationships: {
             assignee: {
-              data: null
-            }
-          }
-        }
+              data: null,
+            },
+          },
+        },
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
-        .then(checkResponse)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
           delete dataToUpdate.relationships.assignee
@@ -389,8 +465,8 @@ export default {
         ...this.segments[segmentId],
         attributes: {
           ...this.segments[segmentId].attributes,
-          text: fullText
-        }
+          text: fullText,
+        },
       }
       this.setSegment({ ...updated, id: segmentId })
     },
@@ -398,54 +474,99 @@ export default {
     updateStatementText (val) {
       const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
-      this.$emit('statement-text-updated')
+      this.$emit('statementText:updated')
 
       const updated = {
         ...this.statement,
         attributes: {
           ...this.statement.attributes,
-          fullText
-        }
+          fullText,
+        },
       }
       this.setStatement({ ...updated, id: this.statement.id })
     },
 
     transformObscureTag (val) {
       this.obscuredText = val
-    }
-  },
+    },
 
-  mounted () {
-    if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
+    async fetchSegments (page = 1) {
       this.isLoading = true
-      this.listSegments({
-        include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
+      const response = await this.listSegments({
+        include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
+          StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
-          Orga: ['name'].join()
+          Orga: ['name'].join(),
+        },
+        page: {
+          number: page,
+          size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         filter: {
           parentStatementOfSegment: {
             condition: {
               path: 'parentStatement.id',
-              value: this.statementId
-            }
-          }
-        }
+              value: this.statementId,
+            },
+          },
+        },
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            this.scrollToSegment()
-          })
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+
+      // Update pagination with response metadata
+      if (response && response.meta && response.meta.pagination) {
+        this.setLocalStorage(response.meta.pagination)
+        this.updatePagination(response.meta.pagination)
+      }
+
+      this.isLoading = false
+
+      await this.$nextTick(() => {
+        this.scrollToSegment()
+      })
+    },
+
+    handlePageChange (page) {
+      this.fetchSegments(page)
+    },
+
+    handleSizeChange (newSize) {
+      if (newSize <= 0) {
+        // Prevent division by zero or negative page size
+        return
+      }
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.fetchSegments(page)
+    },
+  },
+
+  mounted () {
+    if (hasPermission('area_statement_segmentation')) {
+      this.initPagination()
+      this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },
 
@@ -456,6 +577,6 @@ export default {
     if (this.hasSegments === false && this.segment) {
       this.resetStatement()
     }
-  }
+  },
 }
 </script>

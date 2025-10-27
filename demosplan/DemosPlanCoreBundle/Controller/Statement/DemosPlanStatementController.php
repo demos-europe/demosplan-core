@@ -550,7 +550,7 @@ class DemosPlanStatementController extends BaseController
         // freigeben verarbeiten
         if ($requestPost->has('statement_release')) {
             if ($requestPost->has('item_check')) {
-                return $this->releaseStatement($procedure, $requestPost->get('item_check'), $currentProcedureArray);
+                return $this->releaseStatement($procedure, $requestPost->all('item_check'), $currentProcedureArray);
             }
 
             $this->getMessageBag()->add('warning', $translator->trans('warning.select.entries'));
@@ -861,13 +861,13 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
-            $limiter = $anonymousStatementLimiter->create($request->getClientIp());
+            $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
 
             // avoid brute force attacks
             // if the limit bites during development or testing, you can increase the limit in the config via setting
             // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
             if (false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+                //throw new TooManyRequestsHttpException();
             }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);
@@ -1266,7 +1266,10 @@ class DemosPlanStatementController extends BaseController
                 'draftStatementVersions' => $this->draftStatementService->getVersionList($draftStatementId),
             ];
         } catch (UserNotFoundException) {
-            $this->logger->addError(UserNotFoundException::createFromId($this->currentUser->getUser()->getId()));
+            $this->logger->error(
+                UserNotFoundException::createFromId($this->currentUser->getUser()->getId())
+                    ->getMessage()
+            );
         }
         $templateVars['procedureLayer'] = 'participation';
 
@@ -1718,7 +1721,7 @@ class DemosPlanStatementController extends BaseController
         $templateName, Procedure $procedure,
     ) {
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
-        $itemsToExport = $requestPost->get('item_check');
+        $itemsToExport = $requestPost->all('item_check');
         if (null !== $itemsToExport && 0 < (is_countable($itemsToExport) ? count($itemsToExport) : 0)) {
             $itemsToExport = \implode(',', $itemsToExport);
         }
@@ -2022,8 +2025,8 @@ class DemosPlanStatementController extends BaseController
             // Handler Formulardaten uebergeben
             try {
                 $gdprConsentReceived = 'on' === $requestPost->get('r_gdpr_consent');
-                $statementHandler->submitStatement($requestPost->get('item_check'), $receiverId, false, $gdprConsentReceived);
-                $statementNumbers = $statementHandler->getDraftStatementNumbers($requestPost->get('item_check'));
+                $statementHandler->submitStatement($requestPost->all('item_check'), $receiverId, false, $gdprConsentReceived);
+                $statementNumbers = $statementHandler->getDraftStatementNumbers($requestPost->all('item_check'));
                 $numberstring = \implode(', ', $statementNumbers);
 
                 $this->getMessageBag()->add('confirm', 'confirm.statements.marked.submitted');
@@ -2040,7 +2043,7 @@ class DemosPlanStatementController extends BaseController
                     && $procedureObject->getSettings()->getSendMailsToCounties()
                 ) {
                     $countyNotificationData = $statementHandler->getCountyNotificationData(
-                        $requestPost->get('item_check'),
+                        $requestPost->all('item_check'),
                         $receiverId,
                         $procedure
                     );
@@ -2206,7 +2209,7 @@ class DemosPlanStatementController extends BaseController
         );
 
         if ($requestPost->has('item_check')) {
-            $itemsToExport = (array) $requestPost->get('item_check');
+            $itemsToExport = $requestPost->all('item_check');
         }
 
         if (isset($itemsToExport) && [] !== $itemsToExport) {
@@ -2223,7 +2226,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
-        $itemsToExport = $requestPost->get('item_check');
+        $itemsToExport = $requestPost->all('item_check');
 
         if (\is_array($itemsToExport) && 0 < count($itemsToExport)) {
             $itemsToExport = \implode(',', $itemsToExport);
