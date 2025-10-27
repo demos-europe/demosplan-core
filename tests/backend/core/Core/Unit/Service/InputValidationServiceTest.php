@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Unit\Service;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\NullByteDetectedException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
 use demosplan\DemosPlanCoreBundle\Service\InputValidationService;
-use demosplan\DemosPlanCoreBundle\Validator\ContentSanitizer;
+use demosplan\DemosPlanCoreBundle\Validator\InputValidator;
 use JsonException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +32,7 @@ class InputValidationServiceTest extends TestCase
      */
     protected $sut;
     private ?JsonApiRequestValidator $jsonApiValidator;
-    private ?ContentSanitizer $contentSanitizer;
+    private ?InputValidator $inputValidator;
     private ?RequestStack $requestStack;
 
     protected function setUp(): void
@@ -39,12 +40,12 @@ class InputValidationServiceTest extends TestCase
         parent::setUp();
 
         $this->jsonApiValidator = $this->createMock(JsonApiRequestValidator::class);
-        $this->contentSanitizer = $this->createMock(ContentSanitizer::class);
+        $this->inputValidator = $this->createMock(InputValidator::class);
         $this->requestStack = $this->createMock(RequestStack::class);
 
         $this->sut = new InputValidationService(
             $this->jsonApiValidator,
-            $this->contentSanitizer,
+            $this->inputValidator,
             $this->requestStack
         );
     }
@@ -57,18 +58,19 @@ class InputValidationServiceTest extends TestCase
         $this->jsonApiValidator->method('isApiRequest')->willReturn(true);
         $this->jsonApiValidator->method('validateJsonApiRequest')->willReturn(null);
 
-        // Configure content sanitizer to return sanitized values
-        $this->contentSanitizer->method('sanitize')->willReturnCallback(function ($value) {
-            return $value . '_sanitized';
+        // Configure input validator to return processed values
+        $this->inputValidator->method('validateAndEscape')->willReturnCallback(function ($value) {
+            return $value . '_processed';
         });
 
         // Configure request stack to return the current request
         $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
-        // Call the method
+        // Call the method - should not throw an exception
         $this->sut->validateRequest($request);
 
-        // The validation happens without throwing an exception, which is what we're testing for
+        // Assert that the request was marked as validated
+        self::assertTrue($request->attributes->get('validated'));
     }
 
     public function testValidateRequestWithInvalidJsonApiRequest(): void
@@ -93,10 +95,10 @@ class InputValidationServiceTest extends TestCase
         // Configure JsonApiRequestValidator for a non-JSON:API request
         $this->jsonApiValidator->method('isApiRequest')->willReturn(false);
 
-        // Configure content sanitizer to sanitize input
-        $this->contentSanitizer->method('sanitize')->willReturnCallback(function ($value) {
+        // Configure input validator to validate and escape input
+        $this->inputValidator->method('validateAndEscape')->willReturnCallback(function ($value) {
             if ($value === 'value1') {
-                return 'value1_sanitized';
+                return 'value1_processed';
             }
             if ($value === '<script>alert("xss")</script>') {
                 return '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;';
@@ -110,8 +112,8 @@ class InputValidationServiceTest extends TestCase
         // Call the method
         $this->sut->validateRequest($request);
 
-        // Assert query parameters were sanitized
-        self::assertEquals('value1_sanitized', $request->query->get('param1'));
+        // Assert query parameters were validated and escaped
+        self::assertEquals('value1_processed', $request->query->get('param1'));
         self::assertEquals('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;', $request->query->get('param2'));
     }
 
@@ -124,10 +126,10 @@ class InputValidationServiceTest extends TestCase
         // Configure JsonApiRequestValidator for a non-JSON:API request
         $this->jsonApiValidator->method('isApiRequest')->willReturn(false);
 
-        // Configure content sanitizer to sanitize JSON data
-        $this->contentSanitizer->method('sanitize')->willReturnCallback(function ($value) {
+        // Configure input validator to validate and escape JSON data
+        $this->inputValidator->method('validateAndEscape')->willReturnCallback(function ($value) {
             if ($value === 'value') {
-                return 'value_sanitized';
+                return 'value_processed';
             }
             if ($value === '<script>alert(1)</script>') {
                 return '&lt;script&gt;alert(1)&lt;/script&gt;';
@@ -141,11 +143,11 @@ class InputValidationServiceTest extends TestCase
         // Call the method
         $this->sut->validateRequest($request);
 
-        // Assert JSON content was sanitized and stored
-        $sanitizedJson = $request->attributes->get('sanitized_json');
-        self::assertIsArray($sanitizedJson);
-        self::assertEquals('value_sanitized', $sanitizedJson['key']);
-        self::assertEquals('&lt;script&gt;alert(1)&lt;/script&gt;', $sanitizedJson['script']);
+        // Assert JSON content was validated, escaped and stored
+        $processedJson = $request->attributes->get('sanitized_json');
+        self::assertIsArray($processedJson);
+        self::assertEquals('value_processed', $processedJson['key']);
+        self::assertEquals('&lt;script&gt;alert(1)&lt;/script&gt;', $processedJson['script']);
     }
 
     public function testValidateInvalidJsonContent(): void
@@ -158,6 +160,48 @@ class InputValidationServiceTest extends TestCase
         $this->jsonApiValidator->method('isApiRequest')->willReturn(false);
 
         $this->expectException(JsonException::class);
+
+        // Call the method
+        $this->sut->validateRequest($request);
+    }
+
+    public function testNullByteInQueryParametersRejectsRequest(): void
+    {
+        // Create request with null byte in query parameter
+        $request = new Request(['param' => "malicious\0value"]);
+
+        // Configure JsonApiRequestValidator for a non-JSON:API request
+        $this->jsonApiValidator->method('isApiRequest')->willReturn(false);
+
+        // Configure input validator to throw NullByteDetectedException
+        $this->inputValidator->method('validateAndEscape')
+            ->willThrowException(new NullByteDetectedException('Null byte detected in input string'));
+
+        // Expect InvalidDataException to be thrown with appropriate message
+        $this->expectException(InvalidDataException::class);
+        $this->expectExceptionMessage('Request rejected: Null byte detected in input');
+
+        // Call the method
+        $this->sut->validateRequest($request);
+    }
+
+    public function testNullByteInRequestBodyRejectsRequest(): void
+    {
+        // Create request with JSON body containing null byte
+        $jsonContent = '{"key": "malicious\u0000value"}';
+        $request = new Request([], [], [], [], [], ['CONTENT_TYPE' => 'application/json'], $jsonContent);
+        $request->headers->set('Content-Type', 'application/json');
+
+        // Configure JsonApiRequestValidator for a non-JSON:API request
+        $this->jsonApiValidator->method('isApiRequest')->willReturn(false);
+
+        // Configure input validator to throw NullByteDetectedException when processing the value
+        $this->inputValidator->method('validateAndEscape')
+            ->willThrowException(new NullByteDetectedException('Null byte detected in input string'));
+
+        // Expect InvalidDataException to be thrown
+        $this->expectException(InvalidDataException::class);
+        $this->expectExceptionMessage('Request rejected: Null byte detected in input');
 
         // Call the method
         $this->sut->validateRequest($request);

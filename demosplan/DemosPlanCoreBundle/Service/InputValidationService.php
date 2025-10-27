@@ -13,17 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Service;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Exception\NullByteDetectedException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator;
-use demosplan\DemosPlanCoreBundle\Validator\ContentSanitizer;
+use demosplan\DemosPlanCoreBundle\Validator\InputValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class InputValidationService
 {
     public function __construct(
         private readonly JsonApiRequestValidator $jsonApiValidator,
-        private readonly ContentSanitizer $contentSanitizer,
+        private readonly InputValidator $inputValidator,
         private readonly RequestStack $requestStack
     ) {
     }
@@ -34,25 +34,36 @@ class InputValidationService
      * - Content sanitization
      * - Request parameters validation
      * - JSON structure validation
+     *
+     * @throws InvalidDataException when validation fails or null bytes are detected
      */
     public function validateRequest(Request $request): void
     {
-        // 1. Basic validation based on request type
-        if ($this->jsonApiValidator->isApiRequest($request)) {
-            $response = $this->jsonApiValidator->validateJsonApiRequest($request);
-            if (null !== $response) {
-                throw new InvalidDataException('Invalid JSON:API request', $request, $response->getStatusCode());
+        try {
+            // 1. Basic validation based on request type
+            if ($this->jsonApiValidator->isApiRequest($request)) {
+                $response = $this->jsonApiValidator->validateJsonApiRequest($request);
+                if (null !== $response) {
+                    throw new InvalidDataException('Invalid JSON:API request', $request, $response->getStatusCode());
+                }
             }
+
+            // 2. Sanitize and validate query parameters
+            $this->validateQueryParameters($request);
+
+            // 3. Sanitize and validate request body
+            $this->validateRequestBody($request);
+
+            // 4. Store sanitized content back to request for further processing
+            $this->requestStack->getCurrentRequest()?->attributes->set('validated', true);
+        } catch (NullByteDetectedException $e) {
+            // Null bytes detected - reject the request
+            throw new InvalidDataException(
+                'Request rejected: Null byte detected in input. This is a potential security threat.',
+                $request,
+                400
+            );
         }
-
-        // 2. Sanitize and validate query parameters
-        $this->validateQueryParameters($request);
-
-        // 3. Sanitize and validate request body
-        $this->validateRequestBody($request);
-
-        // 4. Store sanitized content back to request for further processing
-        $this->requestStack->getCurrentRequest()?->attributes->set('validated', true);
     }
 
     private function validateQueryParameters(Request $request): void
@@ -60,12 +71,12 @@ class InputValidationService
         $queryParams = $request->query->all();
 
         foreach ($queryParams as $key => $value) {
-            // Sanitize each parameter
-            $sanitizedValue = $this->contentSanitizer->sanitize($value);
-            $request->query->set($key, $sanitizedValue);
+            // Validate and escape each parameter
+            $processedValue = $this->inputValidator->validateAndEscape($value);
+            $request->query->set($key, $processedValue);
 
             // Additional validation logic as needed
-            if ($this->isInvalidQueryParam($key, $sanitizedValue)) {
+            if ($this->isInvalidQueryParam($key, $processedValue)) {
                 throw new InvalidDataException("Invalid query parameter: $key", $request);
             }
         }
@@ -103,11 +114,11 @@ class InputValidationService
             throw new InvalidDataException('Invalid JSON format', $request);
         }
 
-        // Recursive sanitization of JSON data
-        $sanitizedData = $this->sanitizeRecursively($jsonData);
+        // Recursive validation and escaping of JSON data
+        $processedData = $this->validateAndEscapeRecursively($jsonData);
 
-        // Set sanitized data back to request
-        $request->attributes->set('sanitized_json', $sanitizedData);
+        // Set processed data back to request
+        $request->attributes->set('sanitized_json', $processedData);
     }
 
     private function validateFormData(Request $request): void
@@ -115,10 +126,10 @@ class InputValidationService
         $requestData = $request->request->all();
         $files = $request->files->all();
 
-        // Sanitize form fields
+        // Validate and escape form fields
         foreach ($requestData as $key => $value) {
-            $sanitizedValue = $this->contentSanitizer->sanitize($value);
-            $request->request->set($key, $sanitizedValue);
+            $processedValue = $this->inputValidator->validateAndEscape($value);
+            $request->request->set($key, $processedValue);
         }
 
         // Validate file uploads
@@ -129,16 +140,16 @@ class InputValidationService
         }
     }
 
-    private function sanitizeRecursively($data)
+    private function validateAndEscapeRecursively($data)
     {
         if (is_array($data)) {
             return array_map(function ($value)
             {
-                return $this->sanitizeRecursively($value);
+                return $this->validateAndEscapeRecursively($value);
             }, $data);
         }
 
-        return $this->contentSanitizer->sanitize($data);
+        return $this->inputValidator->validateAndEscape($data);
     }
 
     private function isJsonContentType(Request $request): bool

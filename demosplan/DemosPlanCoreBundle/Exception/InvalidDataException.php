@@ -25,7 +25,9 @@ class InvalidDataException extends DemosException
         Request $request,
         int $statusCode = Response::HTTP_BAD_REQUEST
     ) {
-        parent::__construct($message);
+        // DemosException expects ($userMsg, $logMsg, $code)
+        // Pass message as both user message and log message
+        parent::__construct($message, $message, $statusCode);
         $this->request = $request;
         $this->statusCode = $statusCode;
     }

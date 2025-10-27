@@ -19,13 +19,12 @@ services:
         class: demosplan\DemosPlanCoreBundle\Service\InputValidationService
         arguments:
             - '@demosplan.jsonapi_request_validator'
-            - '@demosplan.content_sanitizer'
-            - '@validator'
+            - '@demosplan.input_validator'
             - '@request_stack'
 
-    # Content sanitizer
-    demosplan.content_sanitizer:
-        class: demosplan\DemosPlanCoreBundle\Validator\ContentSanitizer
+    # Input validator (validates for security threats and escapes HTML)
+    demosplan.input_validator:
+        class: demosplan\DemosPlanCoreBundle\Validator\InputValidator
 
     # Validation logger
     demosplan.validation_logger:
