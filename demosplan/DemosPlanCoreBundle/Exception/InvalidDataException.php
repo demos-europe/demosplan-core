@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 class InvalidDataException extends DemosException
 {
     private Request $request;
-    private int $statusCode;
 
     public function __construct(
         string $message,
@@ -29,7 +28,6 @@ class InvalidDataException extends DemosException
         // Pass message as both user message and log message
         parent::__construct($message, $message, $statusCode);
         $this->request = $request;
-        $this->statusCode = $statusCode;
     }
 
     public function getRequest(): Request
@@ -39,6 +37,6 @@ class InvalidDataException extends DemosException
 
     public function getStatusCode(): int
     {
-        return $this->statusCode;
+        return $this->getCode();
     }
 }

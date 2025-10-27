@@ -425,8 +425,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Faq\FaqService:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator: ~
-
     OldSound\RabbitMqBundle\RabbitMq\RpcClient: '@old_sound_rabbit_mq.demos_plan_import_rpc'
 
     demosplan\DemosPlanCoreBundle\Logic\FileService:
