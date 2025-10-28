@@ -49,7 +49,6 @@ class DepartmentMapper
         }
 
         return $this->createDeparmentAndAddToOrga($orga, $departmentNameInToken);
-
     }
 
     private function createDeparmentAndAddToOrga(Orga $orga, string $departmentNameInToken): Department
@@ -70,7 +69,6 @@ class DepartmentMapper
                 'orgaName'       => $orga->getName(),
                 'orgaId'         => $orga->getId(),
             ]);
-
 
         return $newDepartment;
     }
