@@ -31,16 +31,16 @@ class DepartmentMapper
 
     public function findOrCreateDepartment(Orga $orga): Department
     {
-        $orgUnitName = $this->ozgKeycloakUserData->getCompanyDepartment();
+        $departmentNameInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
 
         // If no organisational unit is provided, use default department
-        if (empty($orgUnitName)) {
+        if (empty($departmentNameInToken)) {
             return $this->getDepartmentToSetForUser($orga);
         }
 
         // Try to find existing department with this name in the organisation
         $existingDepartment = $orga->getDepartments()->filter(
-            fn (Department $dept): bool => $dept->getName() === $orgUnitName
+            fn (Department $dept): bool => $dept->getName() === $departmentNameInToken
                 && !$dept->isDeleted()
         )->first();
 
@@ -50,7 +50,7 @@ class DepartmentMapper
 
         // Create new department
         $newDepartment = new Department();
-        $newDepartment->setName($orgUnitName);
+        $newDepartment->setName($departmentNameInToken);
         $newDepartment->addOrga($orga);
         $this->entityManager->persist($newDepartment);
 
@@ -61,7 +61,7 @@ class DepartmentMapper
 
         $this->logger->info('Created new department for organisational unit',
             [
-                'departmentName' => $orgUnitName,
+                'departmentName' => $departmentNameInToken,
                 'orgaName'       => $orga->getName(),
                 'orgaId'         => $orga->getId(),
             ]);
