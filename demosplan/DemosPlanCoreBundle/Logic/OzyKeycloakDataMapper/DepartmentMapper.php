@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -23,6 +24,7 @@ class DepartmentMapper
 {
     public function __construct(private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly EntityManagerInterface $entityManager,
+        private readonly UserService $userService,
         private readonly LoggerInterface $logger)
     {
     }
@@ -55,6 +57,7 @@ class DepartmentMapper
         // Add to organisation's departments
         $orga->addDepartment($newDepartment);
         $this->entityManager->persist($orga);
+        $this->entityManager->flush();
 
         $this->logger->info('Created new department for organisational unit',
             [
@@ -91,28 +94,14 @@ class DepartmentMapper
             return $currentDepartment;
         }
 
-        // Find or create department
-        $targetDepartment = $this->findOrCreateDepartment($orga);
-
-        // If user needs to be moved to different department
-        if (!$currentDepartment || $currentDepartment->getId() !== $targetDepartment->getId()) {
-            if ($currentDepartment) {
-                $currentDepartment->removeUser($user);
-                $this->entityManager->persist($currentDepartment);
-            }
-
-            $targetDepartment->addUser($user);
-            $this->entityManager->persist($targetDepartment);
-            $this->entityManager->persist($user);
-
-            $this->logger->info('User moved to department from organisational unit', [
-                'userId'             => $user->getId(),
-                'oldDepartment'      => $currentDepartment?->getName(),
-                'newDepartment'      => $targetDepartment->getName(),
-                'organisationalUnit' => $departmentInToken,
-            ]);
+        $originalDepartment = $user->getDepartment();
+        if ($originalDepartment instanceof Department) {
+            $originalDepartment->setGwId(null);
+            $originalDepartment->removeUser($user);
         }
 
-        return $targetDepartment;
+        // Find or create department
+        return $this->findOrCreateDepartment($orga);
+
     }
 }
