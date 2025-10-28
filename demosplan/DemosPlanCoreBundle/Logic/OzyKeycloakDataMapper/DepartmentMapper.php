@@ -119,5 +119,4 @@ class DepartmentMapper
             $originalDepartment->removeUser($user);
         }
     }
-
 }
