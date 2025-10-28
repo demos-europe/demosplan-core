@@ -26,7 +26,6 @@
       'cursor-pointer' : (!layer.attributes.isBaseLayer && layer.type !== 'GisLayerCategory' && !isChildOfCategoryThatAppearsAsLayer),
     }"
     data-cy="adminLayerListItem:setLayerActive"
-    :disabled="layer.attributes.isBaseLayer || layer.type === 'GisLayerCategory' || isChildOfCategoryThatAppearsAsLayer"
     :aria-pressed="isActive"
     :aria-label="layer.attributes.name + (isActive ? ' (active)' : ' (inactive)')"
     @click="setActiveState"
