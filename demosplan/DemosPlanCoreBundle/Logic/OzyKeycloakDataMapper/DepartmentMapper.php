@@ -77,7 +77,7 @@ class DepartmentMapper
     }
 
     // Sync department on subsequent logins
-    public function syncUserDepartmentFromToken(User $user, Orga $orga): Department
+    public function assingUserDepartmentFromToken(User $user, Orga $orga): Department
     {
         $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
         $currentDepartment = $user->getDepartment();

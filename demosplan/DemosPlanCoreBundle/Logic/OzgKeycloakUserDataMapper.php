@@ -544,7 +544,7 @@ class OzgKeycloakUserDataMapper
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
         // Handle department using the same approach as createNewUser/UserCreateCommand
-        $departmentToSet = $this->departmentMapper->syncUserDepartmentFromToken($dplanUser, $orga);
+        $departmentToSet = $this->departmentMapper->assingUserDepartmentFromToken($dplanUser, $orga);
 
         // DEBUG: Log before department assignment
         $this->logger->info('DEBUG Before department assignment', [
