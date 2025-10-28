@@ -102,6 +102,5 @@ class DepartmentMapper
 
         // Find or create department
         return $this->findOrCreateDepartment($orga);
-
     }
 }

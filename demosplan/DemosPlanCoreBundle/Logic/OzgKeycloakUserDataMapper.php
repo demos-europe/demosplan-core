@@ -547,25 +547,19 @@ class OzgKeycloakUserDataMapper
         $departmentToSet = $this->departmentMapper->syncUserDepartmentFromToken($dplanUser, $orga);
 
         // DEBUG: Log before department assignment
-        $this->logger->info("DEBUG Before department assignment", [
-            'userLogin' => $dplanUser->getLogin(),
+        $this->logger->info('DEBUG Before department assignment', [
+            'userLogin'        => $dplanUser->getLogin(),
             'departmentsCount' => $dplanUser->getDepartments()->count(),
         ]);
 
         if ($dplanUser->getDepartment() !== $departmentToSet) {
             /** @var DepartmentRepository $departmentRepos */
-
-
-
             $departmentRepos = $this->entityManager->getRepository(Department::class);
             $departmentRepos->addUser(
                 $departmentToSet->getId(),
                 $dplanUser);
-            //$this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
+            // $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
             $this->entityManager->refresh($dplanUser);
-
-
-
         }
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
@@ -578,7 +572,7 @@ class OzgKeycloakUserDataMapper
         $dplanUser->setProvidedByIdentityProvider(true);
 
         $this->entityManager->persist($dplanUser);
-        //$this->userRepository->invalidateCachedLoginList();
+        // $this->userRepository->invalidateCachedLoginList();
         // Force reload from database to trigger postLoad event
 
         // Removed flush() call - let the main transaction handle persistence
