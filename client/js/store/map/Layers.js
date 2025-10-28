@@ -461,7 +461,10 @@ const LayersStore = {
       const allRequests = []
 
       state.apiData.included.forEach(el => {
-        allRequests.push(dispatch('save', el))
+        // Skip ContextualHelp resources - they are read-only platform-wide help texts
+        if (el.type !== 'ContextualHelp') {
+          allRequests.push(dispatch('save', el))
+        }
       })
 
       return Promise.all(allRequests)
