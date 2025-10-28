@@ -46,17 +46,17 @@ class DepartmentMapper
         if (empty($departmentInToken)) {
             $departmentToSet = $this->getDepartmentToSetForUser($orga);
             $this->updateUserDeparment($user, $departmentToSet);
+
             return;
         }
-
 
         // Find or create department
         $departmentToSet = $this->findOrCreateDepartment($orga);
         $this->updateUserDeparment($user, $departmentToSet);
-
     }
 
-    private function updateUserDeparment(User $user, Department $departmentToSet): void{
+    private function updateUserDeparment(User $user, Department $departmentToSet): void
+    {
         if ($user->getDepartment() !== $departmentToSet) {
             $this->removeDeparmentFromUser($user);
             $this->storeNewDeparmentToUser($departmentToSet, $user);
