@@ -29,6 +29,30 @@ class DepartmentMapper
     {
     }
 
+    // Sync department on subsequent logins
+    public function assingUserDepartmentFromToken(User $user, Orga $orga): Department
+    {
+        $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
+        $currentDepartment = $user->getDepartment();
+
+        // If no department in ozgKeycloak token, keep current or use default
+        if (empty($departmentInToken)) {
+            return $currentDepartment ??
+                $this->getDepartmentToSetForUser($orga);
+        }
+
+        // Check if current department name matches token
+        if ($currentDepartment && $currentDepartment->getName() ===
+            $departmentInToken) {
+            return $currentDepartment;
+        }
+
+        $this->removeDeparmentFromUser($user);
+
+        // Find or create department
+        return $this->findOrCreateDepartment($orga);
+    }
+
     public function findOrCreateDepartment(Orga $orga): Department
     {
         $departmentNameInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
@@ -80,31 +104,13 @@ class DepartmentMapper
         )->first() ?? $userOrga->getDepartments()->first();
     }
 
-    // Sync department on subsequent logins
-    public function assingUserDepartmentFromToken(User $user, Orga $orga): Department
+
+    private function removeDeparmentFromUser(User $user): void
     {
-        $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
-        $currentDepartment = $user->getDepartment();
-
-        // If no department in ozgKeycloak token, keep current or use default
-        if (empty($departmentInToken)) {
-            return $currentDepartment ??
-                $this->getDepartmentToSetForUser($orga);
-        }
-
-        // Check if current department name matches token
-        if ($currentDepartment && $currentDepartment->getName() ===
-            $departmentInToken) {
-            return $currentDepartment;
-        }
-
         $originalDepartment = $user->getDepartment();
         if ($originalDepartment instanceof Department) {
             $originalDepartment->setGwId(null);
             $originalDepartment->removeUser($user);
         }
-
-        // Find or create department
-        return $this->findOrCreateDepartment($orga);
     }
 }
