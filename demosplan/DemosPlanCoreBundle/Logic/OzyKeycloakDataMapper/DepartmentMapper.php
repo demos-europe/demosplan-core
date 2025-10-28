@@ -43,6 +43,7 @@ class DepartmentMapper
                 $this->removeDeparmentFromUser($user);
                 $this->storeNewDeparmentToUser($departmentToSet, $user);
             }
+
             return;
         }
 
@@ -55,7 +56,7 @@ class DepartmentMapper
         $this->removeDeparmentFromUser($user);
 
         // Find or create department
-        $departmentToSet =$this->findOrCreateDepartment($orga);
+        $departmentToSet = $this->findOrCreateDepartment($orga);
 
         if ($user->getDepartment() !== $departmentToSet) {
             $this->storeNewDeparmentToUser($departmentToSet, $user);
