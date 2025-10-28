@@ -546,20 +546,8 @@ class OzgKeycloakUserDataMapper
         // Handle department using the same approach as createNewUser/UserCreateCommand
         $departmentToSet = $this->departmentMapper->assingUserDepartmentFromToken($dplanUser, $orga);
 
-        // DEBUG: Log before department assignment
-        $this->logger->info('DEBUG Before department assignment', [
-            'userLogin'        => $dplanUser->getLogin(),
-            'departmentsCount' => $dplanUser->getDepartments()->count(),
-        ]);
-
         if ($dplanUser->getDepartment() !== $departmentToSet) {
-            /** @var DepartmentRepository $departmentRepos */
-            $departmentRepos = $this->entityManager->getRepository(Department::class);
-            $departmentRepos->addUser(
-                $departmentToSet->getId(),
-                $dplanUser);
-            // $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-            $this->entityManager->refresh($dplanUser);
+            $this->departmentMapper->storeNewDeparmentToUser($departmentToSet, $dplanUser);
         }
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));

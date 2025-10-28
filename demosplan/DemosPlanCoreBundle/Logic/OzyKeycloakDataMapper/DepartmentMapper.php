@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -111,5 +112,16 @@ class DepartmentMapper
             $originalDepartment->setGwId(null);
             $originalDepartment->removeUser($user);
         }
+    }
+
+    public function storeNewDeparmentToUser(Department $departmentToSet, User $dplanUser): void{
+        /** @var DepartmentRepository $departmentRepos */
+        $departmentRepos = $this->entityManager->getRepository(Department::class);
+        $departmentRepos->addUser(
+            $departmentToSet->getId(),
+            $dplanUser);
+        // $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
+        $this->entityManager->refresh($dplanUser);
+
     }
 }
