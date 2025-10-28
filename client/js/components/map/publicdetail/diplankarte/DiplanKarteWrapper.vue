@@ -20,15 +20,15 @@
 
     <diplan-karte
       v-if="isStoreAvailable && layersLoaded"
+      :customLayerConfigurationList.prop="customLayerConfigurationList"
+      :customLayerGroupName.prop="Translator.trans('gislayer')"
+      :customLayerList.prop="customLayerList"
+      :enabledToolbarGroup.prop="showButton ? 'digitizer' : 'none'"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
-      :customLayerList.prop="customLayerList"
-      :customLayerConfigurationList.prop="customLayerConfigurationList"
-      :customLayerGroupName.prop="Translator.trans('gislayer')"
-      :enabledToolbarGroup.prop="showButton ? 'digitizer' : 'none'"
       profile="beteiligung"
       enable-layer-switcher
       enable-searchbar
