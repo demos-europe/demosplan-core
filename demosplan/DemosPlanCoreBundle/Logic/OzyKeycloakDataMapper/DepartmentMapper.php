@@ -104,7 +104,6 @@ class DepartmentMapper
         )->first() ?? $userOrga->getDepartments()->first();
     }
 
-
     private function removeDeparmentFromUser(User $user): void
     {
         $originalDepartment = $user->getDepartment();
