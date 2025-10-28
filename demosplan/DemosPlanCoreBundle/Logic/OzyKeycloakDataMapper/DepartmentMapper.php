@@ -38,8 +38,7 @@ class DepartmentMapper
 
         // If no department in ozgKeycloak token, keep current or use default
         if (empty($departmentInToken)) {
-            return $currentDepartment ??
-                $this->getDepartmentToSetForUser($orga);
+            return $this->getDepartmentToSetForUser($orga);
         }
 
         // Check if current department name matches token
