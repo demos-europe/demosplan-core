@@ -59,7 +59,7 @@ import portalConfig from './config/portalConfig.json'
 import { registerWebComponent } from '@init/diplan-karten'
 import { useStore } from 'vuex'
 
-const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, showButton, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
@@ -89,6 +89,12 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   loginPath: {
     type: String,
     required: true,
+  },
+
+  showButton: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 
   styleNonce: {
