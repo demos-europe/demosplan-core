@@ -23,12 +23,12 @@
       :customLayerConfigurationList.prop="customLayerConfigurationList"
       :customLayerGroupName.prop="Translator.trans('gislayer')"
       :customLayerList.prop="customLayerList"
-      :enabledToolbarGroup.prop="showButton ? 'digitizer' : 'info'"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
+      enabled-toolbar-group="digitizer"
       profile="beteiligung"
       enable-layer-switcher
       enable-searchbar
