@@ -23,7 +23,7 @@
       :customLayerConfigurationList.prop="customLayerConfigurationList"
       :customLayerGroupName.prop="Translator.trans('gislayer')"
       :customLayerList.prop="customLayerList"
-      :enabledToolbarGroup.prop="showButton ? 'digitizer' : 'none'"
+      :enabledToolbarGroup.prop="showButton ? 'digitizer' : 'info'"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
