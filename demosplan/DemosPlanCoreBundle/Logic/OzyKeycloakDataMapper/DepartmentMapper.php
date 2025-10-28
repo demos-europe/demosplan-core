@@ -114,7 +114,8 @@ class DepartmentMapper
         }
     }
 
-    public function storeNewDeparmentToUser(Department $departmentToSet, User $dplanUser): void{
+    public function storeNewDeparmentToUser(Department $departmentToSet, User $dplanUser): void
+    {
         /** @var DepartmentRepository $departmentRepos */
         $departmentRepos = $this->entityManager->getRepository(Department::class);
         $departmentRepos->addUser(
@@ -122,6 +123,5 @@ class DepartmentMapper
             $dplanUser);
         // $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
         $this->entityManager->refresh($dplanUser);
-
     }
 }
