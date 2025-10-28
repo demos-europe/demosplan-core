@@ -123,12 +123,6 @@ class DepartmentMapper
 
     public function storeNewDeparmentToUser(Department $departmentToSet, User $dplanUser): void
     {
-        /** @var DepartmentRepository $departmentRepos */
-        $departmentRepos = $this->entityManager->getRepository(Department::class);
-        $departmentRepos->addUser(
-            $departmentToSet->getId(),
-            $dplanUser);
-        // $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-        $this->entityManager->refresh($dplanUser);
+        $departmentToSet->addUser($dplanUser);
     }
 }
