@@ -543,12 +543,9 @@ class OzgKeycloakUserDataMapper
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        // Handle department using the same approach as createNewUser/UserCreateCommand
-        $departmentToSet = $this->departmentMapper->assingUserDepartmentFromToken($dplanUser, $orga);
 
-        if ($dplanUser->getDepartment() !== $departmentToSet) {
-            $this->departmentMapper->storeNewDeparmentToUser($departmentToSet, $dplanUser);
-        }
+        $this->departmentMapper->assingUserDepartmentFromToken($dplanUser, $orga);
+
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
         $violations->addAll($this->validator->validate($orga));

@@ -31,26 +31,35 @@ class DepartmentMapper
     }
 
     // Sync department on subsequent logins
-    public function assingUserDepartmentFromToken(User $user, Orga $orga): Department
+    public function assingUserDepartmentFromToken(User $user, Orga $orga): void
     {
         $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
         $currentDepartment = $user->getDepartment();
 
         // If no department in ozgKeycloak token, keep current or use default
         if (empty($departmentInToken)) {
-            return $this->getDepartmentToSetForUser($orga);
+            $departmentToSet = $this->getDepartmentToSetForUser($orga);
+            if ($user->getDepartment() !== $departmentToSet) {
+                $this->removeDeparmentFromUser($user);
+                $this->storeNewDeparmentToUser($departmentToSet, $user);
+            }
+            return;
         }
 
         // Check if current department name matches token
         if ($currentDepartment && $currentDepartment->getName() ===
             $departmentInToken) {
-            return $currentDepartment;
+            return;
         }
 
         $this->removeDeparmentFromUser($user);
 
         // Find or create department
-        return $this->findOrCreateDepartment($orga);
+        $departmentToSet =$this->findOrCreateDepartment($orga);
+
+        if ($user->getDepartment() !== $departmentToSet) {
+            $this->storeNewDeparmentToUser($departmentToSet, $user);
+        }
     }
 
     public function findOrCreateDepartment(Orga $orga): Department
