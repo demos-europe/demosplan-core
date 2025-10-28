@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,7 +24,6 @@ class DepartmentMapper
 {
     public function __construct(private readonly OzgKeycloakUserData $ozgKeycloakUserData,
         private readonly EntityManagerInterface $entityManager,
-        private readonly UserService $userService,
         private readonly LoggerInterface $logger)
     {
     }
@@ -44,7 +42,7 @@ class DepartmentMapper
 
         // If no department in ozgKeycloak token, keep current or use default
         if (empty($departmentInToken)) {
-            $departmentToSet = $this->getDepartmentToSetForUser($orga);
+            $departmentToSet = $this->getDefaultDepartment($orga);
             $this->updateUserDeparment($user, $departmentToSet);
 
             return;
@@ -58,7 +56,7 @@ class DepartmentMapper
     private function updateUserDeparment(User $user, Department $departmentToSet): void
     {
         if ($user->getDepartment() !== $departmentToSet) {
-            $this->removeDeparmentFromUser($user);
+            $this->removeDepartmentFromUser($user);
             $this->storeNewDeparmentToUser($departmentToSet, $user);
         }
     }
@@ -69,7 +67,7 @@ class DepartmentMapper
 
         // If no organisational unit is provided, use default department
         if (empty($departmentNameInToken)) {
-            return $this->getDepartmentToSetForUser($orga);
+            return $this->getDefaultDepartment($orga);
         }
 
         // Try to find existing department with this name in the organisation
@@ -107,14 +105,14 @@ class DepartmentMapper
         return $newDepartment;
     }
 
-    private function getDepartmentToSetForUser(Orga $userOrga): Department
+    private function getDefaultDepartment(Orga $userOrga): Department
     {
         return $userOrga->getDepartments()->filter(
             static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
         )->first() ?? $userOrga->getDepartments()->first();
     }
 
-    private function removeDeparmentFromUser(User $user): void
+    private function removeDepartmentFromUser(User $user): void
     {
         $originalDepartment = $user->getDepartment();
         if ($originalDepartment instanceof Department) {
