@@ -36,6 +36,12 @@ class DepartmentMapper
         $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
         $currentDepartment = $user->getDepartment();
 
+        // Check if current department name matches token
+        if ($currentDepartment && $currentDepartment->getName() ===
+            $departmentInToken) {
+            return;
+        }
+
         // If no department in ozgKeycloak token, keep current or use default
         if (empty($departmentInToken)) {
             $departmentToSet = $this->getDepartmentToSetForUser($orga);
@@ -44,12 +50,6 @@ class DepartmentMapper
                 $this->storeNewDeparmentToUser($departmentToSet, $user);
             }
 
-            return;
-        }
-
-        // Check if current department name matches token
-        if ($currentDepartment && $currentDepartment->getName() ===
-            $departmentInToken) {
             return;
         }
 
