@@ -20,14 +20,14 @@
 
     <diplan-karte
       v-if="isStoreAvailable && layersLoaded"
+      :customLayerConfigurationList.prop="customLayerConfigurationList"
+      :customLayerGroupName.prop="Translator.trans('gislayer')"
+      :customLayerList.prop="customLayerList"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
-      :customLayerList.prop="customLayerList"
-      :customLayerConfigurationList.prop="customLayerConfigurationList"
-      :customLayerGroupName.prop="Translator.trans('gislayer')"
       enabled-toolbar-group="digitizer"
       profile="beteiligung"
       enable-layer-switcher
