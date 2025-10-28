@@ -398,6 +398,10 @@
                             :active-statement="activeStatement"
                             :init-drawing="statement.r_location_geometry"
                             :initial-extent="JSON.parse('{{ templateVars.mapOptions.procedureInitialExtent|json_encode|e('js', 'utf-8') }}')"
+                            :show-button="{{
+                                hasPermission('feature_new_statement') or
+                                (currentUser.loggedIn == false and getProcedurePermissionset('external') == 'write')
+                                ? 'true' : 'false' }}"
                             :territory="JSON.parse('{{ procedureSettings.territory|json_encode|e('js', 'utf-8') }}')"
                             copyright="{{ procedureSettings.copyright|default('') }}"
                             @location-drawing="handleLocationDrawing"
