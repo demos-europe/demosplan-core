@@ -39,7 +39,7 @@ class DepartmentMapper
             return;
         }
 
-        // If no department in ozgKeycloak token, keep current or use default
+        // If no department in ozgKeycloak token, use default
         if (empty($departmentInToken)) {
             $departmentToSet = $this->getDefaultDepartment($orga);
             $this->updateUserDeparment($user, $departmentToSet);
@@ -54,9 +54,9 @@ class DepartmentMapper
 
     private function updateUserDeparment(User $user, Department $departmentToSet): void
     {
-        if ($user->getDepartment() !== $departmentToSet) {
+        if ($departmentToSet !== $user->getDepartment()) {
             $this->removeDepartmentFromUser($user);
-            $this->storeNewDeparmentToUser($departmentToSet, $user);
+            $departmentToSet->addUser($user);
         }
     }
 
@@ -120,8 +120,4 @@ class DepartmentMapper
         }
     }
 
-    public function storeNewDeparmentToUser(Department $departmentToSet, User $dplanUser): void
-    {
-        $departmentToSet->addUser($dplanUser);
-    }
 }
