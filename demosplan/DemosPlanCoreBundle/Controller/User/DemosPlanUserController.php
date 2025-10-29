@@ -130,14 +130,7 @@ class DemosPlanUserController extends BaseController
             $currentUser = $this->currentUser->getUser();
 
             if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
-                $data = [
-                    'email'            => $currentUser->getEmail(), // Pflichtfeld beim Update
-                    'firstname'        => $currentUser->getFirstname(), // Pflichtfeld beim Update
-                    'lastname'         => $currentUser->getLastname(), // Pflichtfeld beim Update
-                    'newUser'          => false,
-                    'profileCompleted' => true,
-                    'access_confirmed' => true,
-                ];
+                $data = $this->createUserProfileCompletionData($currentUser);
 
                 $updatedUser = null;
                 try {
@@ -184,14 +177,7 @@ class DemosPlanUserController extends BaseController
 
             $currentUser = $this->currentUser->getUser();
             if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
-                $data = [
-                    'email'            => $currentUser->getEmail(),
-                    'firstname'        => $currentUser->getFirstname(),
-                    'lastname'         => $currentUser->getLastname(),
-                    'newUser'          => false,
-                    'profileCompleted' => true,
-                    'access_confirmed' => true,
-                ];
+                $data = $this->createUserProfileCompletionData($currentUser);
 
                 try {
                     $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
@@ -838,5 +824,24 @@ class DemosPlanUserController extends BaseController
         if (($currentUser instanceof User) && $currentUser->getOrganisationId() !== $assertedOrganisationId) {
             return $this->redirectToRoute($redirectRoute, ['organisationId' => $currentUser->getOrganisationId()]);
         }
+    }
+
+    /**
+     * Creates data array for marking user profile as completed.
+     *
+     * @param User $user The user to create profile completion data for
+     *
+     * @return array<string, mixed> Data array for user profile completion
+     */
+    private function createUserProfileCompletionData(User $user): array
+    {
+        return [
+            'email'            => $user->getEmail(),
+            'firstname'        => $user->getFirstname(),
+            'lastname'         => $user->getLastname(),
+            'newUser'          => false,
+            'profileCompleted' => true,
+            'access_confirmed' => true,
+        ];
     }
 }
