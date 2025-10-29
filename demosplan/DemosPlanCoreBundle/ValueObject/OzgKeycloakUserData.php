@@ -31,7 +31,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
     protected string $addressExtension = '';
     protected string $city = '';
-    protected $companyDepartment = '';
+    protected string $companyDepartment = '';
 
     public function __construct(
         private readonly LoggerInterface $logger,
