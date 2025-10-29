@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
 ## v4.21.0 (2025-10-22)
 ## v4.18.1 (2025-10-16)
