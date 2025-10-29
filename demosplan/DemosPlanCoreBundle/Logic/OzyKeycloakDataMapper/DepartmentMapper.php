@@ -15,32 +15,30 @@ namespace demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class DepartmentMapper
 {
-    public function __construct(private readonly OzgKeycloakUserData $ozgKeycloakUserData,
+    public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger)
     {
     }
 
     // Detect department fromy Keycloak token and assign to user
-    public function assignUserDepartmentFromToken(User $user, Orga $orga): void
+    public function assignUserDepartmentFromToken(User $user, Orga $orga, string $departmentNameInToken): void
     {
-        $departmentInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
         $currentDepartment = $user->getDepartment();
 
         // Check if current department name matches token
         if ($currentDepartment && $currentDepartment->getName() ===
-            $departmentInToken) {
+            $departmentNameInToken) {
             return;
         }
 
         // If no department in ozgKeycloak token, use default
-        if (empty($departmentInToken)) {
+        if (empty($departmentNameInToken)) {
             $departmentToSet = $this->getDefaultDepartment($orga);
             $this->updateUserDeparment($user, $departmentToSet);
 
@@ -48,7 +46,7 @@ class DepartmentMapper
         }
 
         // Find or create department
-        $departmentToSet = $this->findOrCreateDepartment($orga);
+        $departmentToSet = $this->findOrCreateDepartment($orga, $departmentNameInToken);
         $this->updateUserDeparment($user, $departmentToSet);
     }
 
@@ -60,10 +58,8 @@ class DepartmentMapper
         }
     }
 
-    public function findOrCreateDepartment(Orga $orga): Department
+    public function findOrCreateDepartment(Orga $orga, string $departmentNameInToken): Department
     {
-        $departmentNameInToken = $this->ozgKeycloakUserData->getCompanyDepartment();
-
         // If no organisational unit is provided, use default department
         if (empty($departmentNameInToken)) {
             return $this->getDefaultDepartment($orga);

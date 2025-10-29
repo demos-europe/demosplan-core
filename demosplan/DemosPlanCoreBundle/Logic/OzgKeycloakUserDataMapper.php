@@ -339,7 +339,7 @@ class OzgKeycloakUserDataMapper
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
-            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga),
+            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
             'roles'         => $requestedRoles,
         ];
 
@@ -544,7 +544,7 @@ class OzgKeycloakUserDataMapper
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
 
-        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga);
+        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga, $this->ozgKeycloakUserData->getCompanyDepartment());
 
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
