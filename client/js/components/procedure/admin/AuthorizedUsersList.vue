@@ -180,7 +180,7 @@
                 }"
                 required
                 :model-value="rowData.submitterName"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterName', val)"
               />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
@@ -203,7 +203,7 @@
                 }"
                 type="email"
                 :model-value="rowData.submitterEmailAddress"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterEmailAddress', val)"
               />
               <div class="flex flex-row mb-2 mt-3">
                 <dp-input
@@ -214,7 +214,7 @@
                     text: Translator.trans('street')
                   }"
                   :model-value="rowData.submitterStreet"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterStreet', val)"
                 />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
@@ -225,7 +225,7 @@
                   :model-value="rowData.submitterHouseNumber"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterHouseNumber', val)"
                 />
               </div>
               <div class="flex flex-row mb-2 mt-3">
@@ -240,7 +240,7 @@
                   pattern="^[0-9]{5}$"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterPostalCode', val)"
                 />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
@@ -250,7 +250,7 @@
                     text: Translator.trans('city')
                   }"
                   :model-value="rowData.submitterCity"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterCity', val)"
                 />
               </div>
             </div>
@@ -289,7 +289,7 @@
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val"
+                @input="val => updateUserField(rowData.tokenId, 'note', val)"
               />
               <dp-button-row
                 v-if="rowData.isEditable"
@@ -410,6 +410,14 @@ export default {
     abortCreate () {
       this.resetCreateForm()
       this.closeCreateForm()
+    },
+
+    updateUserField (tokenId, fieldName, value) {
+      const user = this.localUsers.find(user => user.tokenId === tokenId)
+
+      if (user) {
+        user[fieldName] = value
+      }
     },
 
     copyTokenToClipboard (tokenId) {

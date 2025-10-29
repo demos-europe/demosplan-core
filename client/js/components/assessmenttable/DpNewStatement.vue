@@ -133,6 +133,12 @@ export default {
       type: Array,
       default: () => [],
     },
+
+    userOrganisation: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   data () {
@@ -155,6 +161,7 @@ export default {
         submitType: this.defaultSubmitType,
         tags: [],
         text: this.requestText,
+        userOrganisation: this.userOrganisation,
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
