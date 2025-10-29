@@ -32,8 +32,7 @@ class DepartmentMapper
         $currentDepartment = $user->getDepartment();
 
         // Check if current department name matches token
-        if ($currentDepartment && $currentDepartment->getName() ===
-            $departmentNameInToken) {
+        if (null !== $currentDepartment && $currentDepartment instanceof Department && $departmentNameInToken === $currentDepartment->getName()) {
             return;
         }
 
@@ -71,7 +70,7 @@ class DepartmentMapper
                 && !$dept->isDeleted()
         )->first();
 
-        if ($existingDepartment) {
+        if (null !== $existingDepartment) {
             return $existingDepartment;
         }
 
