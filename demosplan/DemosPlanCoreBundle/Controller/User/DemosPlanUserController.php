@@ -178,12 +178,41 @@ class DemosPlanUserController extends BaseController
             $isSachbearbeiterOnly = false;
         }
 
-        // Schicke die nicht zuständigen Mitarbeiter auf die öffentlichen Seiten
+        // Allow Sachbearbeiter to proceed with warning instead of logging out
         if ($isSachbearbeiterOnly) {
-            $this->getLogger()->info('Welcomepage logout and redirect to home');
-            $request->getSession()->invalidate();
+            $this->getLogger()->info('Welcomepage Sachbearbeiter with missing orgadata, allowing login with warning');
 
-            return $this->redirectToRoute('core_home', ['status' => 'missingOrgadata']);
+            $currentUser = $this->currentUser->getUser();
+            if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
+                $data = [
+                    'email'            => $currentUser->getEmail(),
+                    'firstname'        => $currentUser->getFirstname(),
+                    'lastname'         => $currentUser->getLastname(),
+                    'newUser'          => false,
+                    'profileCompleted' => true,
+                    'access_confirmed' => true,
+                ];
+
+                try {
+                    $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
+                    if ($updatedUser instanceof User) {
+                        $this->messageBag->add('warning', 'warning.organisation.email2.missing');
+                        $this->getLogger()->info('Welcomepage redirect to logged in home with email2 warning');
+
+                        return $this->redirectToRoute('core_home_loggedin');
+                    }
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Update user failed with exception', [$e]);
+                }
+
+                // Fallback: if update failed, logout to avoid issues
+                $this->getLogger()->warning('Update user failed, perform logout');
+                $this->messageBag->add('warning', 'warning.login.welcomepage.failed');
+
+                return $this->redirectToRoute('DemosPlan_user_logout');
+            }
+
+            return $this->redirectToRoute('core_home_loggedin');
         }
 
         // verarbeite die Nutzereingaben
