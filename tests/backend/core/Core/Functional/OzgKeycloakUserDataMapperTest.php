@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Functional;
 
-use
-    demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
@@ -21,20 +26,16 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserData;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\NullLogger;
 use Stevenmaguire\OAuth2\Client\Provider\KeycloakResourceOwner;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\FunctionalTestCase;
-use Tests\Base\MockMethodDefinition;
 
 class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 {
-
     protected $sut;
 
     protected function setUp(): void
@@ -131,8 +132,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertNotEquals($firstDepartmentId, $user2->getDepartment()->getId());
     }
 
-    private function createUserData(array $attributes):
-    OzgKeycloakUserData
+    private function createUserData(array $attributes): OzgKeycloakUserData
     {
         $resourceOwner = new KeycloakResourceOwner($attributes);
         $userData = new OzgKeycloakUserData(
@@ -142,6 +142,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             ]),
         );
         $userData->fill($resourceOwner);
+
         return $userData;
     }
 
@@ -157,8 +158,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'sub'                => '456-user-id',
             'groups'             => [
                 '/Beteiligung-Organisation/Amt Nordwest',
-                '/PlaceholderForKeycloakForRole/hindsight/Fachplanung Administration'
-                ], // This provides roles
+                '/PlaceholderForKeycloakForRole/hindsight/Fachplanung Administration',
+            ], // This provides roles
         ];
     }
 }
