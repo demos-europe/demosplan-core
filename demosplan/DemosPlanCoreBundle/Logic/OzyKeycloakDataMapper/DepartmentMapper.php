@@ -79,10 +79,10 @@ class DepartmentMapper
             return $existingDepartment;
         }
 
-        return $this->createDeparmentAndAddToOrga($orga, $departmentNameInToken);
+        return $this->createDepartmentAndAddToOrga($orga, $departmentNameInToken);
     }
 
-    private function createDeparmentAndAddToOrga(Orga $orga, string $departmentNameInToken): Department
+    private function createDepartmentAndAddToOrga(Orga $orga, string $departmentNameInToken): Department
     {
         $newDepartment = new Department();
         $newDepartment->setName($departmentNameInToken);
