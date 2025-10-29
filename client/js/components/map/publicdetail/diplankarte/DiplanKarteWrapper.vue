@@ -1,7 +1,7 @@
 <template>
   <div class="h-full w-full">
     <dp-button
-      v-if="layersLoaded"
+      v-if="showButton"
       id="statementModalButton"
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] !absolute z-above-zero')"
       :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
@@ -20,14 +20,14 @@
 
     <diplan-karte
       v-if="isStoreAvailable && layersLoaded"
+      :customLayerConfigurationList.prop="customLayerConfigurationList"
+      :customLayerGroupName.prop="Translator.trans('gislayer')"
+      :customLayerList.prop="customLayerList"
       :fitToExtent.prop="transformedInitialExtent"
       :geltungsbereich.prop="transformedTerritory"
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
-      :customLayerList.prop="customLayerList"
-      :customLayerConfigurationList.prop="customLayerConfigurationList"
-      :customLayerGroupName.prop="Translator.trans('gislayer')"
       enabled-toolbar-group="digitizer"
       profile="beteiligung"
       enable-layer-switcher
@@ -59,7 +59,7 @@ import portalConfig from './config/portalConfig.json'
 import { registerWebComponent } from '@init/diplan-karten'
 import { useStore } from 'vuex'
 
-const { activeStatement, copyright, initDrawing, initialExtent, loginPath, styleNonce, territory } = defineProps({
+const { activeStatement, copyright, initDrawing, initialExtent, loginPath, showButton, styleNonce, territory } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true,
@@ -89,6 +89,12 @@ const { activeStatement, copyright, initDrawing, initialExtent, loginPath, style
   loginPath: {
     type: String,
     required: true,
+  },
+
+  showButton: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 
   styleNonce: {
