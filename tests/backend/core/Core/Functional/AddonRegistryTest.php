@@ -11,6 +11,10 @@ use Tests\Base\FunctionalTestCase;
 
 class AddonRegistryTest extends FunctionalTestCase
 {
+    /**
+     * @var AddonRegistry
+     */
+    protected $sut;
 
     protected function setUp(): void
     {
