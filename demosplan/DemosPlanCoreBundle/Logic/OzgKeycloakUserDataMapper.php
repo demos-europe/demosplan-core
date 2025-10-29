@@ -544,7 +544,7 @@ class OzgKeycloakUserDataMapper
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
 
-        $this->departmentMapper->assingUserDepartmentFromToken($dplanUser, $orga);
+        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga);
 
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
