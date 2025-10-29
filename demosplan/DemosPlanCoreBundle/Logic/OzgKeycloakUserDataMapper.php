@@ -557,9 +557,6 @@ class OzgKeycloakUserDataMapper
         $dplanUser->setProvidedByIdentityProvider(true);
 
         $this->entityManager->persist($dplanUser);
-        // $this->userRepository->invalidateCachedLoginList();
-        // Force reload from database to trigger postLoad event
-
         // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
