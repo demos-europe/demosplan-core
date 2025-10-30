@@ -152,6 +152,7 @@ import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { useSegmentNavigation } from '@DpJs/lib/segment/useSegmentNavigation'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -218,7 +219,8 @@ export default {
         perPage: 20
       },
       pagination: {},
-      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      hasNavigatedToSegment: false
     }
   },
 
@@ -460,6 +462,21 @@ export default {
     async fetchSegments (page = 1) {
       this.isLoading = true
 
+      // Initialize segment navigation composable
+      const { calculatePageForSegment } = useSegmentNavigation(
+        this.statementId,
+        this.storageKeyPagination,
+        this.pagination,
+        this.defaultPagination
+      )
+
+      // Calculate correct page for segment parameter (only runs once)
+      const result = await calculatePageForSegment({ hasNavigatedToSegment: this.hasNavigatedToSegment })
+      if (result.shouldCalculate) {
+        page = result.calculatedPage
+        this.hasNavigatedToSegment = true
+      }
+
       const statementSegmentFields = [
         'tags',
         'text',
@@ -532,8 +549,22 @@ export default {
 
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
-      this.initPagination()
-      this.fetchSegments(this.pagination?.currentPage || 1)
+      // Initialize segment navigation composable
+      const { initializeSegmentPagination } = useSegmentNavigation(
+        this.statementId,
+        this.storageKeyPagination,
+        this.pagination,
+        this.defaultPagination
+      )
+
+      // Handle pagination initialization with segment navigation support
+      const paginationOverride = initializeSegmentPagination(() => this.initPagination())
+      if (paginationOverride) {
+        this.pagination = paginationOverride
+      }
+
+      // Always start with page 1, let fetchSegments calculate the real page if needed
+      this.fetchSegments(1)
     }
   },
 

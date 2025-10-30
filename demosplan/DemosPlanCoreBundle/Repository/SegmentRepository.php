@@ -99,6 +99,64 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Get the position of a segment within its parent statement.
+     *
+     * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found
+     */
+    public function getSegmentPosition(string $segmentId, string $statementId): ?array
+    {
+        $em = $this->getEntityManager();
+
+        // First, get the target segment's orderInProcedure
+        $targetQuery = $em->createQueryBuilder()
+            ->select('segment.id', 'segment.orderInProcedure')
+            ->from(Segment::class, 'segment')
+            ->where('segment.id = :segmentId')
+            ->andWhere('segment.parentStatementOfSegment = :statementId')
+            ->setParameter('segmentId', $segmentId)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $targetResult = $targetQuery->getOneOrNullResult();
+
+        if (null === $targetResult) {
+            return null;
+        }
+
+        $targetOrder = $targetResult['orderInProcedure'];
+
+        // Count how many segments in this statement have orderInProcedure <= target
+        $positionQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where('segment.parentStatementOfSegment = :statementId')
+            ->andWhere('segment.orderInProcedure IS NOT NULL')
+            ->andWhere('segment.orderInProcedure <= :targetOrder')
+            ->setParameter('statementId', $statementId)
+            ->setParameter('targetOrder', $targetOrder)
+            ->getQuery();
+
+        $position = (int) $positionQuery->getSingleScalarResult();
+
+        // Get total count of segments in this statement
+        $totalQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where('segment.parentStatementOfSegment = :statementId')
+            ->andWhere('segment.orderInProcedure IS NOT NULL')
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $total = (int) $totalQuery->getSingleScalarResult();
+
+        return [
+            'segmentId' => $segmentId,
+            'position' => $position,
+            'total' => $total,
+        ];
+    }
+
+    /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
      *
      * @param array<int, string> $segmentIds
