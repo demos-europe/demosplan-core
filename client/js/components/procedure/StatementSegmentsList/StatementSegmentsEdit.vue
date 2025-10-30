@@ -466,15 +466,17 @@ export default {
       this.isLoading = true
 
       // Calculate correct page for segment parameter (only runs once)
-      const result = await this.segmentNavigation.calculatePageForSegment()
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
       let shouldRemoveSegmentParam = false
-      if (result.shouldCalculate) {
-        page = result.calculatedPage
-        // Update pagination with returned values
-        this.pagination.currentPage = result.calculatedPage
-        if (result.perPage) {
-          this.pagination.perPage = result.perPage
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
         }
+
         // Mark that we need to remove segment param after scroll completes
         shouldRemoveSegmentParam = true
       }

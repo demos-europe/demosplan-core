@@ -71,7 +71,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
    * Returns updated pagination values without mutating component state
    * Does NOT remove segment parameter - that should happen after scrolling completes
    *
-   * @returns {Promise<Object>} Object with pagination updates, shouldCalculate flag, and segmentId
+   * @returns {Promise<Object>} Object with pagination updates and segmentId, or all null if no calculation needed
    */
   async function calculatePageForSegment () {
     const queryParams = new URLSearchParams(window.location.search)
@@ -80,7 +80,6 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     // Only calculate if we have a segment parameter in the URL
     if (!targetSegmentId) {
       return {
-        shouldCalculate: false,
         calculatedPage: null,
         perPage: null,
         segmentId: null
@@ -95,7 +94,6 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       removeSegmentParameter()
 
       return {
-        shouldCalculate: false,
         calculatedPage: null,
         perPage: null,
         segmentId: null
@@ -111,7 +109,6 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
 
     // Return segment ID so component can use it for scrolling before cleanup
     return {
-      shouldCalculate: true,
       calculatedPage: calculatedPage,
       perPage: perPage,
       segmentId: targetSegmentId
