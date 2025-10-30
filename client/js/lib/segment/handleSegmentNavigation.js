@@ -14,7 +14,7 @@ import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
  * @param {string} uuid - The UUID string to validate
  * @returns {boolean} True if valid UUID format
  */
-export function isValidUUID (uuid) {
+function isValidUUID (uuid) {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
   return uuidRegex.test(uuid)
 }
@@ -151,10 +151,8 @@ export function handleSegmentNavigation (statementId, storageKey, currentPerPage
   }
 
   return {
-    getSegmentPosition,
     calculatePageForSegment,
     initializeSegmentPagination,
     removeSegmentParameter,
-    isValidUUID
   }
 }
