@@ -152,7 +152,7 @@ import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import { useSegmentNavigation } from '@DpJs/lib/segment/useSegmentNavigation'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -465,7 +465,7 @@ export default {
       this.isLoading = true
 
       // Initialize segment navigation composable
-      const { calculatePageForSegment, removeSegmentParameter } = useSegmentNavigation(
+      const { calculatePageForSegment, removeSegmentParameter } = handleSegmentNavigation(
         this.statementId,
         this.storageKeyPagination,
         this.pagination?.perPage,
@@ -564,7 +564,7 @@ export default {
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
       // Initialize segment navigation composable
-      const { initializeSegmentPagination } = useSegmentNavigation(
+      const { initializeSegmentPagination } = handleSegmentNavigation(
         this.statementId,
         this.storageKeyPagination,
         this.pagination?.perPage,

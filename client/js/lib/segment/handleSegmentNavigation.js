@@ -29,7 +29,7 @@ export function isValidUUID (uuid) {
  * @param {Object} defaultPagination - Default pagination settings
  * @returns {Object} Methods for segment navigation
  */
-export function useSegmentNavigation (statementId, storageKey, currentPerPage, defaultPagination) {
+export function handleSegmentNavigation (statementId, storageKey, currentPerPage, defaultPagination) {
   /**
    * Fetches the position of a segment within its statement
    * @param {string} segmentId - The segment ID to get position for
