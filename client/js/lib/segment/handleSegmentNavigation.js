@@ -20,7 +20,16 @@ export function isValidUUID (uuid) {
 }
 
 /**
- * Composable for segment navigation with pagination
+ * Removes the segment parameter from the URL without reloading the page
+ */
+function removeSegmentParameter () {
+  const url = new URL(window.location)
+  url.searchParams.delete('segment')
+  window.history.replaceState({}, '', url)
+}
+
+/**
+ * Utility for segment navigation with pagination
  * Handles URL-based navigation to specific segments with automatic pagination
  *
  * @param {string} statementId - The parent statement ID
@@ -54,15 +63,6 @@ export function handleSegmentNavigation (statementId, storageKey, currentPerPage
       console.error('Failed to get segment position:', error)
       return null
     }
-  }
-
-  /**
-   * Removes the segment parameter from the URL without reloading the page
-   */
-  function removeSegmentParameter () {
-    const url = new URL(window.location)
-    url.searchParams.delete('segment')
-    window.history.replaceState({}, '', url)
   }
 
   /**
