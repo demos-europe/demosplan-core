@@ -219,8 +219,7 @@ export default {
         perPage: 20
       },
       pagination: {},
-      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
-      hasNavigatedToSegment: false
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`
     }
   },
 
@@ -381,7 +380,10 @@ export default {
     scrollToSegment () {
       const queryParams = new URLSearchParams(window.location.search)
       const segmentId = queryParams.get('segment')
-      scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+
+      if (segmentId) {
+        scrollTo('#segmentTextEdit_' + segmentId, { offset: -110 })
+      }
     },
 
     /*
@@ -463,18 +465,25 @@ export default {
       this.isLoading = true
 
       // Initialize segment navigation composable
-      const { calculatePageForSegment } = useSegmentNavigation(
+      const { calculatePageForSegment, removeSegmentParameter } = useSegmentNavigation(
         this.statementId,
         this.storageKeyPagination,
-        this.pagination,
+        this.pagination?.perPage,
         this.defaultPagination
       )
 
       // Calculate correct page for segment parameter (only runs once)
-      const result = await calculatePageForSegment({ hasNavigatedToSegment: this.hasNavigatedToSegment })
+      const result = await calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
       if (result.shouldCalculate) {
         page = result.calculatedPage
-        this.hasNavigatedToSegment = true
+        // Update pagination with returned values
+        this.pagination.currentPage = result.calculatedPage
+        if (result.perPage) {
+          this.pagination.perPage = result.perPage
+        }
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
       }
 
       const statementSegmentFields = [
@@ -528,6 +537,11 @@ export default {
 
       await this.$nextTick(() => {
         this.scrollToSegment()
+
+        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+        if (shouldRemoveSegmentParam) {
+          removeSegmentParameter()
+        }
       })
     },
 
@@ -553,7 +567,7 @@ export default {
       const { initializeSegmentPagination } = useSegmentNavigation(
         this.statementId,
         this.storageKeyPagination,
-        this.pagination,
+        this.pagination?.perPage,
         this.defaultPagination
       )
 
@@ -563,8 +577,8 @@ export default {
         this.pagination = paginationOverride
       }
 
-      // Always start with page 1, let fetchSegments calculate the real page if needed
-      this.fetchSegments(1)
+      // Use current page from pagination (segment calculation or localStorage)
+      this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },
 

@@ -25,11 +25,11 @@ export function isValidUUID (uuid) {
  *
  * @param {string} statementId - The parent statement ID
  * @param {string} storageKey - LocalStorage key for pagination persistence
- * @param {Object} paginationRef - Reactive pagination object reference
+ * @param {number} currentPerPage - Current items per page setting
  * @param {Object} defaultPagination - Default pagination settings
  * @returns {Object} Methods for segment navigation
  */
-export function useSegmentNavigation (statementId, storageKey, paginationRef, defaultPagination) {
+export function useSegmentNavigation (statementId, storageKey, currentPerPage, defaultPagination) {
   /**
    * Fetches the position of a segment within its statement
    * @param {string} segmentId - The segment ID to get position for
@@ -57,22 +57,32 @@ export function useSegmentNavigation (statementId, storageKey, paginationRef, de
   }
 
   /**
-   * Calculates the correct page for a segment and updates pagination
-   * Should be called once during component initialization if segment param exists
-   *
-   * @param {Object} context - Context object
-   * @param {boolean} context.hasNavigatedToSegment - Flag to prevent re-calculation
-   * @returns {Promise<Object>} Object with calculatedPage and shouldCalculate flag
+   * Removes the segment parameter from the URL without reloading the page
    */
-  async function calculatePageForSegment (context) {
+  function removeSegmentParameter () {
+    const url = new URL(window.location)
+    url.searchParams.delete('segment')
+    window.history.replaceState({}, '', url)
+  }
+
+  /**
+   * Calculates the correct page for a segment
+   * Returns updated pagination values without mutating component state
+   * Does NOT remove segment parameter - that should happen after scrolling completes
+   *
+   * @returns {Promise<Object>} Object with pagination updates, shouldCalculate flag, and segmentId
+   */
+  async function calculatePageForSegment () {
     const queryParams = new URLSearchParams(window.location.search)
     const targetSegmentId = queryParams.get('segment')
 
-    // Only calculate if we have a segment param and haven't navigated yet
-    if (!targetSegmentId || context.hasNavigatedToSegment) {
+    // Only calculate if we have a segment parameter in the URL
+    if (!targetSegmentId) {
       return {
         shouldCalculate: false,
-        calculatedPage: null
+        calculatedPage: null,
+        perPage: null,
+        segmentId: null
       }
     }
 
@@ -80,26 +90,29 @@ export function useSegmentNavigation (statementId, storageKey, paginationRef, de
     const positionData = await getSegmentPosition(targetSegmentId)
 
     if (!positionData || !positionData.position) {
+      // Remove invalid segment parameter from URL
+      removeSegmentParameter()
       return {
         shouldCalculate: false,
-        calculatedPage: null
+        calculatedPage: null,
+        perPage: null,
+        segmentId: null
       }
     }
 
-    const perPage = paginationRef.perPage || defaultPagination.perPage
+    const perPage = currentPerPage || defaultPagination.perPage
     const calculatedPage = Math.ceil(positionData.position / perPage)
 
     // Update localStorage with calculated page
     const paginationData = { currentPage: calculatedPage, perPage: perPage }
     window.localStorage.setItem(storageKey, JSON.stringify(paginationData))
 
-    // Update pagination object
-    paginationRef.currentPage = calculatedPage
-    paginationRef.perPage = perPage
-
+    // Return segment ID so component can use it for scrolling before cleanup
     return {
       shouldCalculate: true,
-      calculatedPage: calculatedPage
+      calculatedPage: calculatedPage,
+      perPage: perPage,
+      segmentId: targetSegmentId
     }
   }
 
@@ -108,12 +121,13 @@ export function useSegmentNavigation (statementId, storageKey, paginationRef, de
    * Handles URL parameter detection and localStorage interaction
    *
    * @param {Function} initPaginationCallback - Component's initPagination method
-   * @returns {Object} Initial pagination state
+   * @returns {Object|null} Initial pagination state or null to use component's default
    */
   function initializeSegmentPagination (initPaginationCallback) {
     const queryParams = new URLSearchParams(window.location.search)
     const hasSegmentParam = queryParams.has('segment')
 
+    // Only override initialization if we have a segment parameter
     if (hasSegmentParam) {
       // Initialize with default pagination, ignoring localStorage for page number
       // The correct page will be calculated in fetchSegments
@@ -140,6 +154,7 @@ export function useSegmentNavigation (statementId, storageKey, paginationRef, de
     getSegmentPosition,
     calculatePageForSegment,
     initializeSegmentPagination,
+    removeSegmentParameter,
     isValidUUID
   }
 }

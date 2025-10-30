@@ -136,8 +136,7 @@ export default {
         perPage: 20
       },
       pagination: {},
-      storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`,
-      hasNavigatedToSegment: false
+      storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`
     }
   },
 
@@ -262,18 +261,25 @@ export default {
       this.isLoading = true
 
       // Initialize segment navigation composable
-      const { calculatePageForSegment } = useSegmentNavigation(
+      const { calculatePageForSegment, removeSegmentParameter } = useSegmentNavigation(
         this.statementId,
         this.storageKeyPagination,
-        this.pagination,
+        this.pagination?.perPage,
         this.defaultPagination
       )
 
       // Calculate correct page for segment parameter (only runs once)
-      const result = await calculatePageForSegment({ hasNavigatedToSegment: this.hasNavigatedToSegment })
+      const result = await calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
       if (result.shouldCalculate) {
         page = result.calculatedPage
-        this.hasNavigatedToSegment = true
+        // Update pagination with returned values
+        this.pagination.currentPage = result.calculatedPage
+        if (result.perPage) {
+          this.pagination.perPage = result.perPage
+        }
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
       }
 
       await this.fetchPlaces({
@@ -357,6 +363,11 @@ export default {
           if (segmentComponent) {
             segmentComponent.isCollapsed = false
           }
+
+          // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+          if (shouldRemoveSegmentParam) {
+            removeSegmentParameter()
+          }
         }
       })
     },
@@ -396,7 +407,7 @@ export default {
     const { initializeSegmentPagination } = useSegmentNavigation(
       this.statementId,
       this.storageKeyPagination,
-      this.pagination,
+      this.pagination?.perPage,
       this.defaultPagination
     )
 
@@ -406,8 +417,8 @@ export default {
       this.pagination = paginationOverride
     }
 
-    // Always start with page 1, let fetchSegments calculate the real page if needed
-    this.fetchSegments(1)
+    // Use current page from pagination (segment calculation or localStorage)
+    this.fetchSegments(this.pagination?.currentPage || 1)
   }
 }
 </script>
