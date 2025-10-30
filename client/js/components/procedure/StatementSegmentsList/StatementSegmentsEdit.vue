@@ -219,7 +219,8 @@ export default {
         perPage: 20
       },
       pagination: {},
-      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`
+      storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      segmentNavigation: null
     }
   },
 
@@ -464,16 +465,8 @@ export default {
     async fetchSegments (page = 1) {
       this.isLoading = true
 
-      // Initialize segment navigation composable
-      const { calculatePageForSegment, removeSegmentParameter } = handleSegmentNavigation({
-        statementId: this.statementId,
-        storageKey: this.storageKeyPagination,
-        currentPerPage: this.pagination?.perPage,
-        defaultPagination: this.defaultPagination
-      })
-
       // Calculate correct page for segment parameter (only runs once)
-      const result = await calculatePageForSegment()
+      const result = await this.segmentNavigation.calculatePageForSegment()
       let shouldRemoveSegmentParam = false
       if (result.shouldCalculate) {
         page = result.calculatedPage
@@ -540,7 +533,7 @@ export default {
 
         // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
         if (shouldRemoveSegmentParam) {
-          removeSegmentParameter()
+          this.segmentNavigation.removeSegmentParameter()
         }
       })
     },
@@ -561,23 +554,31 @@ export default {
     }
   },
 
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination
+    })
+  },
+
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
-      // Initialize segment navigation composable
-      const { initializeSegmentPagination } = handleSegmentNavigation({
-        statementId: this.statementId,
-        storageKey: this.storageKeyPagination,
-        currentPerPage: this.pagination?.perPage,
-        defaultPagination: this.defaultPagination
-      })
+      /**
+       * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+       * that segment is found (i.e., override pagination)
+       */
+      const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
 
-      // Handle pagination initialization with segment navigation support
-      const paginationOverride = initializeSegmentPagination(() => this.initPagination())
       if (paginationOverride) {
         this.pagination = paginationOverride
       }
 
-      // Use current page from pagination (segment calculation or localStorage)
+      /**
+       * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+       * default to 1st page
+       */
       this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },

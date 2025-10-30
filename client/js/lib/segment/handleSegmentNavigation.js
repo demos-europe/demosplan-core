@@ -93,6 +93,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     if (!positionData || !positionData.position) {
       // Remove invalid segment parameter from URL
       removeSegmentParameter()
+
       return {
         shouldCalculate: false,
         calculatedPage: null,
