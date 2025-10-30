@@ -251,10 +251,7 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
             [$this->testRole]
         );
 
-        $executionTime = microtime(true) - $startTime;
-
         // Assert - Log execution time for informational purposes
-        error_log(sprintf('Query execution time: %.4f seconds', $executionTime));
         self::assertCount(5, $result);
     }
 }

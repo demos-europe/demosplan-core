@@ -33,6 +33,11 @@ class VirusCheckSocketTest extends UnitTestCase
     /** @var File|MockObject */
     private $fileMock;
 
+    /**
+     * @var VirusCheckSocket
+     */
+    private $sut;
+
     protected function setUp(): void
     {
         parent::setUp();
