@@ -20,6 +20,8 @@ use Exception;
  */
 class SegmentRepository extends CoreRepository
 {
+    private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
+    private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
     /**
      * @return array<Segment>
      */
@@ -112,7 +114,7 @@ class SegmentRepository extends CoreRepository
             ->select('segment.id', 'segment.orderInProcedure')
             ->from(Segment::class, 'segment')
             ->where('segment.id = :segmentId')
-            ->andWhere('segment.parentStatementOfSegment = :statementId')
+            ->andWhere(self::PARENT_STATEMENT_CONDITION)
             ->setParameter('segmentId', $segmentId)
             ->setParameter('statementId', $statementId)
             ->getQuery();
@@ -129,8 +131,8 @@ class SegmentRepository extends CoreRepository
         $positionQuery = $em->createQueryBuilder()
             ->select('COUNT(segment.id)')
             ->from(Segment::class, 'segment')
-            ->where('segment.parentStatementOfSegment = :statementId')
-            ->andWhere('segment.orderInProcedure IS NOT NULL')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
             ->andWhere('segment.orderInProcedure <= :targetOrder')
             ->setParameter('statementId', $statementId)
             ->setParameter('targetOrder', $targetOrder)
@@ -142,8 +144,8 @@ class SegmentRepository extends CoreRepository
         $totalQuery = $em->createQueryBuilder()
             ->select('COUNT(segment.id)')
             ->from(Segment::class, 'segment')
-            ->where('segment.parentStatementOfSegment = :statementId')
-            ->andWhere('segment.orderInProcedure IS NOT NULL')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
             ->setParameter('statementId', $statementId)
             ->getQuery();
 
@@ -151,8 +153,8 @@ class SegmentRepository extends CoreRepository
 
         return [
             'segmentId' => $segmentId,
-            'position' => $position,
-            'total' => $total,
+            'position'  => $position,
+            'total'     => $total,
         ];
     }
 
