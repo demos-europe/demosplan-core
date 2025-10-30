@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fix Textbaustein checkbox disappearing bug by removing cascade delete from BoilerplateCategory relations
 - Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
 ## v4.22.0 (2025-10-22)
