@@ -23,9 +23,9 @@ function isValidUUID (uuid) {
  * Removes the segment parameter from the URL without reloading the page
  */
 function removeSegmentParameter () {
-  const url = new URL(window.location)
+  const url = new URL(globalThis.location)
   url.searchParams.delete('segment')
-  window.history.replaceState({}, '', url)
+  globalThis.history.replaceState({}, '', url)
 }
 
 /**
@@ -74,7 +74,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
    * @returns {Promise<Object>} Object with pagination updates and segmentId, or all null if no calculation needed
    */
   async function calculatePageForSegment () {
-    const queryParams = new URLSearchParams(window.location.search)
+    const queryParams = new URLSearchParams(globalThis.location.search)
     const targetSegmentId = queryParams.get('segment')
 
     // Only calculate if we have a segment parameter in the URL
@@ -104,13 +104,13 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     const calculatedPage = Math.ceil(positionData.position / perPage)
 
     // Update localStorage with calculated page
-    const paginationData = { currentPage: calculatedPage, perPage: perPage }
-    window.localStorage.setItem(storageKey, JSON.stringify(paginationData))
+    const paginationData = { currentPage: calculatedPage, perPage }
+    globalThis.localStorage.setItem(storageKey, JSON.stringify(paginationData))
 
     // Return segment ID so component can use it for scrolling before cleanup
     return {
-      calculatedPage: calculatedPage,
-      perPage: perPage,
+      calculatedPage,
+      perPage,
       segmentId: targetSegmentId
     }
   }
@@ -123,7 +123,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
    * @returns {Object|null} Initial pagination state or null to use component's default
    */
   function initializeSegmentPagination (initPaginationCallback) {
-    const queryParams = new URLSearchParams(window.location.search)
+    const queryParams = new URLSearchParams(globalThis.location.search)
     const hasSegmentParam = queryParams.has('segment')
 
     // Only override initialization if we have a segment parameter
@@ -136,8 +136,8 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       }
 
       // Check localStorage only for perPage setting
-      if (window.localStorage.getItem(storageKey)) {
-        const stored = JSON.parse(window.localStorage.getItem(storageKey))
+      if (globalThis.localStorage.getItem(storageKey)) {
+        const stored = JSON.parse(globalThis.localStorage.getItem(storageKey))
         pagination.perPage = stored.perPage || defaultPagination.perPage
       }
 
