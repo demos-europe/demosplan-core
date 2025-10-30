@@ -89,7 +89,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     // Get segment position to calculate correct page
     const positionData = await getSegmentPosition(targetSegmentId)
 
-    if (!positionData || !positionData.position) {
+    if (!positionData?.position) {
       // Remove invalid segment parameter from URL
       removeSegmentParameter()
 
