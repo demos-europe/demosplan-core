@@ -51,7 +51,7 @@ final class Version20251030141444 extends AbstractMigration
                 [$procedureId, 'consideration']
             );
 
-            if ($existingConsideration == 0) {
+            if (0 == $existingConsideration) {
                 $this->addSql(
                     'INSERT INTO _predefined_texts_category (ptc_id, _p_id, ptc_title, ptc_text, ptc_create_date, ptc_modify_date) VALUES (?, ?, ?, ?, NOW(), NOW())',
                     [Uuid::uuid4()->toString(), $procedureId, 'consideration', 'Begründung']
@@ -64,7 +64,7 @@ final class Version20251030141444 extends AbstractMigration
                 [$procedureId, 'email']
             );
 
-            if ($existingEmail == 0) {
+            if (0 == $existingEmail) {
                 $this->addSql(
                     'INSERT INTO _predefined_texts_category (ptc_id, _p_id, ptc_title, ptc_text, ptc_create_date, ptc_modify_date) VALUES (?, ?, ?, ?, NOW(), NOW())',
                     [Uuid::uuid4()->toString(), $procedureId, 'email', 'E-Mail']
@@ -77,7 +77,7 @@ final class Version20251030141444 extends AbstractMigration
                 [$procedureId, 'news.notes']
             );
 
-            if ($existingNews == 0) {
+            if (0 == $existingNews) {
                 $this->addSql(
                     'INSERT INTO _predefined_texts_category (ptc_id, _p_id, ptc_title, ptc_text, ptc_create_date, ptc_modify_date) VALUES (?, ?, ?, ?, NOW(), NOW())',
                     [Uuid::uuid4()->toString(), $procedureId, 'news.notes', 'Aktuelle Mitteilungen']
