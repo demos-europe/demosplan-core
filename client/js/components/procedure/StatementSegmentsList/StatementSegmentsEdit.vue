@@ -465,12 +465,12 @@ export default {
       this.isLoading = true
 
       // Initialize segment navigation composable
-      const { calculatePageForSegment, removeSegmentParameter } = handleSegmentNavigation(
-        this.statementId,
-        this.storageKeyPagination,
-        this.pagination?.perPage,
-        this.defaultPagination
-      )
+      const { calculatePageForSegment, removeSegmentParameter } = handleSegmentNavigation({
+        statementId: this.statementId,
+        storageKey: this.storageKeyPagination,
+        currentPerPage: this.pagination?.perPage,
+        defaultPagination: this.defaultPagination
+      })
 
       // Calculate correct page for segment parameter (only runs once)
       const result = await calculatePageForSegment()
@@ -564,12 +564,12 @@ export default {
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
       // Initialize segment navigation composable
-      const { initializeSegmentPagination } = handleSegmentNavigation(
-        this.statementId,
-        this.storageKeyPagination,
-        this.pagination?.perPage,
-        this.defaultPagination
-      )
+      const { initializeSegmentPagination } = handleSegmentNavigation({
+        statementId: this.statementId,
+        storageKey: this.storageKeyPagination,
+        currentPerPage: this.pagination?.perPage,
+        defaultPagination: this.defaultPagination
+      })
 
       // Handle pagination initialization with segment navigation support
       const paginationOverride = initializeSegmentPagination(() => this.initPagination())

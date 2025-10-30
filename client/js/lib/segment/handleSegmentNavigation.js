@@ -32,13 +32,14 @@ function removeSegmentParameter () {
  * Utility for segment navigation with pagination
  * Handles URL-based navigation to specific segments with automatic pagination
  *
- * @param {string} statementId - The parent statement ID
- * @param {string} storageKey - LocalStorage key for pagination persistence
- * @param {number} currentPerPage - Current items per page setting
- * @param {Object} defaultPagination - Default pagination settings
+ * @param {Object} options - Data needed for handling segment navigation
+ * @param {string} options.statementId - The parent statement ID
+ * @param {string} options.storageKey - LocalStorage key for persisting pagination
+ * @param {number} options.currentPerPage - Current items per page setting
+ * @param {Object} options.defaultPagination - Default pagination settings
  * @returns {Object} Methods for segment navigation
  */
-export function handleSegmentNavigation (statementId, storageKey, currentPerPage, defaultPagination) {
+export function handleSegmentNavigation ({ statementId, storageKey, currentPerPage, defaultPagination }) {
   /**
    * Fetches the position of a segment within its statement
    * @param {string} segmentId - The segment ID to get position for
