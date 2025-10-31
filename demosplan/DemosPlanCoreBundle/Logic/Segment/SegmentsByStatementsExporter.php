@@ -83,7 +83,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $obscure,
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
-        ExportFieldsConfiguration $exportFieldsConfiguration = null,
         Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
@@ -101,8 +100,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $tableHeaders,
             $censorCitizenData,
             $censorInstitutionData,
-            $obscure,
-            $exportFieldsConfiguration
+            $obscure
         );
     }
 
@@ -213,7 +211,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        ExportFieldsConfiguration $exportFieldsConfiguration = null,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -225,7 +222,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter, $exportFieldsConfiguration);
+        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
     }

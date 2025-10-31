@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
 use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -31,58 +30,9 @@ class ExportOrgaInfoHeader
      */
     private $orgaHeaders;
 
-    public function __construct(Statement $statement, CurrentUserInterface $currentUser, TranslatorInterface $translator, ExportFieldsConfiguration $exportFieldsConfiguration = null)
+    public function __construct(Statement $statement, CurrentUserInterface $currentUser, TranslatorInterface $translator)
     {
         $this->orgaHeaders = new ArrayIterator();
-
-        // If no export configuration provided, use default behavior (export all fields)
-        if (null === $exportFieldsConfiguration) {
-            $this->addAllFields($statement, $currentUser, $translator);
-            return;
-        }
-
-        // Add fields based on export configuration
-        if ($exportFieldsConfiguration->isSubmitterNameExportable()) {
-            $authorName = $statement->getUserName();
-            $authorName = $this->validInfoString($authorName)
-                ? $authorName
-                : $translator->trans('statement.name_source.unknown');
-            $this->orgaHeaders->append($authorName);
-        }
-
-        if ($exportFieldsConfiguration->isOrgaNameExportable() && $this->validOrgaName($statement->getOName())) {
-            $this->orgaHeaders->append($statement->getOName());
-        }
-
-        if ($exportFieldsConfiguration->isDepartmentNameExportable() && $this->validDepartmentName($statement->getDName())) {
-            $this->orgaHeaders->append($statement->getDName());
-        }
-
-        if ($exportFieldsConfiguration->isStreetExportable() && $this->validInfoString($statement->getOrgaStreet())) {
-            if ($exportFieldsConfiguration->isStreetNumberExportable() && $currentUser->hasPermission('feature_statement_meta_house_number_export')) {
-                $this->orgaHeaders->append($statement->getOrgaStreet().' '.$statement->getMeta()->getHouseNumber());
-            } else {
-                $this->orgaHeaders->append($statement->getOrgaStreet());
-            }
-        }
-
-        if (($exportFieldsConfiguration->isPostalCodeExportable() && $this->validInfoString($statement->getOrgaPostalCode()))
-            || ($exportFieldsConfiguration->isCityExportable() && $this->validInfoString($statement->getOrgaCity()))) {
-
-            $addressParts = [];
-            if ($exportFieldsConfiguration->isPostalCodeExportable() && $this->validInfoString($statement->getOrgaPostalCode())) {
-                $addressParts[] = $statement->getOrgaPostalCode();
-            }
-            if ($exportFieldsConfiguration->isCityExportable() && $this->validInfoString($statement->getOrgaCity())) {
-                $addressParts[] = $statement->getOrgaCity();
-            }
-            $this->orgaHeaders->append(implode(' ', $addressParts));
-        }
-
-    }
-
-    private function addAllFields(Statement $statement, CurrentUserInterface $currentUser, TranslatorInterface $translator): void
-    {
         $authorName = $statement->getUserName();
         $authorName = $this->validInfoString($authorName)
             ? $authorName
