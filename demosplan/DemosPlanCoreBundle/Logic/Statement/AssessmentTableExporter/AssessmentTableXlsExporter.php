@@ -249,6 +249,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $this->addColumnDefinition($columnsDefinition, 'externId', 'field_statement_extern_id', 'id');
 
+        if ($isStatement) {
+            $this->addColumnDefinition($columnsDefinition, 'procedure.name', 'field_statement_phase', 'procedure.name');
+        }
+
         if ($isStatement && $this->permissions->hasPermission('feature_statement_cluster')) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }

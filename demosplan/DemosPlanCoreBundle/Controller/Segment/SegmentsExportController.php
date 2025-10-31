@@ -72,19 +72,21 @@ class SegmentsExportController extends BaseController
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $exportFieldsConfiguration = $procedure->getDefaultExportFieldsConfiguration();
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $segmentsExporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+            static function () use ($procedure, $statement, $segmentsExporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure, $exportFieldsConfiguration) {
                 $exportedDoc = $segmentsExporter->export(
                     $procedure,
                     $statement,
                     $tableHeaders,
                     $censorCitizenData,
                     $censorInstitutionData,
-                    $isObscure
+                    $isObscure,
+                    $exportFieldsConfiguration
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
@@ -117,6 +119,7 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $exportFieldsConfiguration = $procedure->getDefaultExportFieldsConfiguration();
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $requestHandler->getObjectsByQueryParams(
@@ -138,7 +141,8 @@ class SegmentsExportController extends BaseController
                 $exporter,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $exportFieldsConfiguration
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
@@ -146,6 +150,7 @@ class SegmentsExportController extends BaseController
                     $obscureParameter,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $exportFieldsConfiguration,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
@@ -178,6 +183,9 @@ class SegmentsExportController extends BaseController
         StatementResourceType $statementResourceType,
         string $procedureId,
     ): StreamedResponse {
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $exportFieldsConfiguration = $procedure->getDefaultExportFieldsConfiguration();
+
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(
@@ -187,8 +195,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            static function () use ($statementEntities, $exporter, $exportFieldsConfiguration) {
+                $exportedDoc = $exporter->exportAllXlsx($exportFieldsConfiguration, ...$statementEntities);
                 $exportedDoc->save('php://output');
             }
         );
@@ -200,7 +208,6 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
             $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
         );
@@ -236,6 +243,7 @@ class SegmentsExportController extends BaseController
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $exportFieldsConfiguration = $procedure->getDefaultExportFieldsConfiguration();
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
         // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
@@ -263,7 +271,8 @@ class SegmentsExportController extends BaseController
                 $tableHeaders,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $exportFieldsConfiguration
             ): void {
                 array_map(
                     static function (Statement $statement, string $filePathInZip) use (
@@ -274,7 +283,8 @@ class SegmentsExportController extends BaseController
                         $tableHeaders,
                         $censorCitizenData,
                         $censorInstitutionData,
-                        $obscureParameter
+                        $obscureParameter,
+                        $exportFieldsConfiguration
                     ): void {
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx(
                             $statement,
@@ -282,7 +292,8 @@ class SegmentsExportController extends BaseController
                             $tableHeaders,
                             $censorCitizenData,
                             $censorInstitutionData,
-                            $obscureParameter
+                            $obscureParameter,
+                            $exportFieldsConfiguration
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(

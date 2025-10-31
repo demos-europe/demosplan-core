@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -29,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -37,6 +39,7 @@ use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -52,6 +55,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
         private readonly FileNameGenerator $fileNameGenerator,
+        private readonly LoggerInterface $logger,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
@@ -79,6 +83,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $obscure,
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
+        ExportFieldsConfiguration $exportFieldsConfiguration = null,
         Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
@@ -96,7 +101,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $tableHeaders,
             $censorCitizenData,
             $censorInstitutionData,
-            $obscure
+            $obscure,
+            $exportFieldsConfiguration
         );
     }
 
@@ -109,7 +115,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws ReflectionException
      * @throws HandlerException
      */
-    public function exportAllXlsx(Statement ...$statements): IWriter
+    public function exportAllXlsx(ExportFieldsConfiguration $exportFieldsConfiguration = null, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
@@ -131,7 +137,29 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData = $this->updateRecommendationsWithTextReferences($exportData, $convertedSegment);
         }
 
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
+        // Determine if we're actually exporting segments or statements
+        $hasSegments = false;
+        foreach ($statements as $statement) {
+            if (!$statement->getSegmentsOfStatement()->isEmpty()) {
+                $hasSegments = true;
+                break;
+            }
+        }
+
+        // Use the appropriate format based on what we're actually exporting
+        $format = $hasSegments ? 'segments' : 'statements';
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat($format);
+
+
+        // Filter column definitions based on ExportFieldsConfiguration
+        if (null !== $exportFieldsConfiguration) {
+            $columnsDefinition = $this->filterColumnDefinitionsByConfiguration($columnsDefinition, $exportFieldsConfiguration);
+        }
+
+        // Use custom Excel creation to properly handle filtered columns
+        if (null !== $exportFieldsConfiguration) {
+            return $this->createFilteredExcel($exportData, $columnsDefinition);
+        }
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
     }
@@ -185,6 +213,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
+        ExportFieldsConfiguration $exportFieldsConfiguration = null,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -196,7 +225,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
+        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter, $exportFieldsConfiguration);
 
         return $phpWord;
     }
@@ -363,5 +392,112 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $withDbId
             ? "$fileName-$dbId.docx"
             : "$fileName.docx";
+    }
+
+    /**
+     * Filters the column definitions based on the ExportFieldsConfiguration.
+     * Removes entire columns from the Excel export when they are not configured to be exportable.
+     *
+     * @param array<int, array<string, mixed>>   $columnsDefinition
+     * @param ExportFieldsConfiguration          $exportFieldsConfiguration
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterColumnDefinitionsByConfiguration(array $columnsDefinition, ExportFieldsConfiguration $exportFieldsConfiguration): array
+    {
+        $filteredColumns = [];
+
+        foreach ($columnsDefinition as $column) {
+            $key = $column['key'] ?? '';
+            $shouldInclude = true;
+
+            $fieldMappings = [
+                'externId' => 'isIdExportable',
+                'internId' => 'isIdExportable',
+                'meta.submitName' => 'isSubmitterNameExportable',
+                'oName' => 'isOrgaNameExportable',
+                'dName' => 'isDepartmentNameExportable',
+                'meta.orgaStreet' => 'isStreetExportable',
+                'meta.houseNumber' => 'isStreetNumberExportable',
+                'meta.orgaPostalCode' => 'isPostalCodeExportable',
+                'meta.orgaCity' => 'isCityExportable',
+                'phase' => 'isProcedurePhaseExportable',
+                'procedure.name' => 'isProcedureNameExportable',
+                'priority' => 'isPriorityExportable',
+                'fileNames' => 'isAttachmentsExportable',
+                'elementTitle' => 'isDocumentExportable',
+                'documentTitle' => 'isDocumentExportable',
+                'paragraphTitle' => 'isParagraphExportable',
+                'submitDateString' => 'isCreationDateExportable',
+                'meta.authoredDate' => 'isCreationDateExportable',
+                'votesNum' => 'isVotesNumExportable',
+                'sentAssessment' => 'isShowInPublicAreaExportable',
+            ];
+
+            // Check if this column should be included based on configuration
+            if (array_key_exists($key, $fieldMappings)) {
+                $configMethod = $fieldMappings[$key];
+                if (!$exportFieldsConfiguration->$configMethod()) {
+                    $shouldInclude = false;
+                }
+            }
+
+            if ($shouldInclude) {
+                $filteredColumns[] = $column;
+            }
+        }
+
+        return $filteredColumns;
+    }
+
+    /**
+     * Creates Excel export with properly filtered data and columns.
+     * This ensures that data and column headers are perfectly synchronized.
+     */
+    private function createFilteredExcel(array $exportData, array $columnsDefinition): IWriter
+    {
+        // Let the AssessmentTableXlsExporter process the data first
+        $columnKeys = array_column($columnsDefinition, 'key');
+
+        // Process data through the normal Excel exporter pipeline
+        $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $columnKeys);
+
+        // Now filter the formatted data to only contain the specified columns
+        $filteredData = [];
+        foreach ($formattedData as $row) {
+            $filteredRow = [];
+            foreach ($columnKeys as $key) {
+                $filteredRow[$key] = $row[$key] ?? null;
+            }
+            $filteredData[] = $filteredRow;
+        }
+
+
+        // Create Excel document manually with synchronized data and headers
+        $simpleSpreadsheetService = new \demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService();
+        $title = $this->translator->trans('considerationtable');
+        $excelDocument = $simpleSpreadsheetService->createExcelDocument($title);
+
+        $columnTitles = array_column($columnsDefinition, 'title');
+
+        $filledExcelDocument = $simpleSpreadsheetService->addWorksheet(
+            $excelDocument,
+            $filteredData,
+            $columnTitles,
+            $title
+        );
+
+        // Apply the original column widths from the column definitions
+        $worksheet = $filledExcelDocument->getWorksheetIterator()->current();
+        $dimensions = $worksheet->getColumnDimensions();
+
+        foreach ($columnsDefinition as $index => $columnDefinition) {
+            // Convert index to Excel column letter (A, B, C, etc.)
+            $columnLetter = Coordinate::stringFromColumnIndex($index + 1);
+            $width = $columnDefinition['width'] ?? 20; // Default width if not specified
+            $dimensions[$columnLetter]->setWidth($width);
+        }
+
+        return $simpleSpreadsheetService->getExcel2007Writer($filledExcelDocument);
     }
 }

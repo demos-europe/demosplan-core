@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use Cocur\Slugify\Slugify;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
@@ -73,6 +74,7 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $isObscure,
+        ExportFieldsConfiguration $exportFieldsConfiguration = null,
     ): WriterInterface {
         $isCensored = $this->needsToBeCensored(
             $statement,
@@ -85,7 +87,7 @@ abstract class SegmentsExporter
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement, $isCensored);
+        $this->addStatementInfo($section, $statement, $isCensored, $exportFieldsConfiguration);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addContent($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
@@ -157,12 +159,12 @@ abstract class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false, ExportFieldsConfiguration $exportFieldsConfiguration = null): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
 
         if (!$censored) {
-            $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+            $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator, $exportFieldsConfiguration);
         }
 
         if ('' !== $statement->getAuthoredDateString()) {
@@ -341,8 +343,9 @@ abstract class SegmentsExporter
         array $tableHeaders,
         $censored = false,
         $obscure = false,
+        ExportFieldsConfiguration $exportFieldsConfiguration = null,
     ): void {
-        $this->addStatementInfo($section, $statement, $censored);
+        $this->addStatementInfo($section, $statement, $censored, $exportFieldsConfiguration);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addContent($section, $statement, $tableHeaders, $obscure);
         $this->addFooter($section, $statement, $censored);
@@ -361,6 +364,7 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
+        ExportFieldsConfiguration $exportFieldsConfiguration = null,
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
@@ -373,7 +377,7 @@ abstract class SegmentsExporter
                 $censorInstitutionData,
             );
 
-            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
+            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure, $exportFieldsConfiguration);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
