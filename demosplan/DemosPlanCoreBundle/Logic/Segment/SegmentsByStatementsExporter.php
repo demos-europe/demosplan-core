@@ -39,7 +39,6 @@ use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
-use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -55,7 +54,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
         private readonly FileNameGenerator $fileNameGenerator,
-        private readonly LoggerInterface $logger,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
