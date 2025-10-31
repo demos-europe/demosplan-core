@@ -113,7 +113,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws ReflectionException
      * @throws HandlerException
      */
-    public function exportAllXlsx(ExportFieldsConfiguration $exportFieldsConfiguration = null, Statement ...$statements): IWriter
+    public function exportAllXlsx(?ExportFieldsConfiguration $exportFieldsConfiguration = null, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
@@ -147,7 +147,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         // Use the appropriate format based on what we're actually exporting
         $format = $hasSegments ? 'segments' : 'statements';
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat($format);
-
 
         // Filter column definitions based on ExportFieldsConfiguration
         if (null !== $exportFieldsConfiguration) {
@@ -395,8 +394,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * Filters the column definitions based on the ExportFieldsConfiguration.
      * Removes entire columns from the Excel export when they are not configured to be exportable.
      *
-     * @param array<int, array<string, mixed>>   $columnsDefinition
-     * @param ExportFieldsConfiguration          $exportFieldsConfiguration
+     * @param array<int, array<string, mixed>> $columnsDefinition
      *
      * @return array<int, array<string, mixed>>
      */
@@ -409,26 +407,26 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $shouldInclude = true;
 
             $fieldMappings = [
-                'externId' => 'isIdExportable',
-                'internId' => 'isIdExportable',
-                'meta.submitName' => 'isSubmitterNameExportable',
-                'oName' => 'isOrgaNameExportable',
-                'dName' => 'isDepartmentNameExportable',
-                'meta.orgaStreet' => 'isStreetExportable',
-                'meta.houseNumber' => 'isStreetNumberExportable',
+                'externId'            => 'isIdExportable',
+                'internId'            => 'isIdExportable',
+                'meta.submitName'     => 'isSubmitterNameExportable',
+                'oName'               => 'isOrgaNameExportable',
+                'dName'               => 'isDepartmentNameExportable',
+                'meta.orgaStreet'     => 'isStreetExportable',
+                'meta.houseNumber'    => 'isStreetNumberExportable',
                 'meta.orgaPostalCode' => 'isPostalCodeExportable',
-                'meta.orgaCity' => 'isCityExportable',
-                'phase' => 'isProcedurePhaseExportable',
-                'procedure.name' => 'isProcedureNameExportable',
-                'priority' => 'isPriorityExportable',
-                'fileNames' => 'isAttachmentsExportable',
-                'elementTitle' => 'isDocumentExportable',
-                'documentTitle' => 'isDocumentExportable',
-                'paragraphTitle' => 'isParagraphExportable',
-                'submitDateString' => 'isCreationDateExportable',
-                'meta.authoredDate' => 'isCreationDateExportable',
-                'votesNum' => 'isVotesNumExportable',
-                'sentAssessment' => 'isShowInPublicAreaExportable',
+                'meta.orgaCity'       => 'isCityExportable',
+                'phase'               => 'isProcedurePhaseExportable',
+                'procedure.name'      => 'isProcedureNameExportable',
+                'priority'            => 'isPriorityExportable',
+                'fileNames'           => 'isAttachmentsExportable',
+                'elementTitle'        => 'isDocumentExportable',
+                'documentTitle'       => 'isDocumentExportable',
+                'paragraphTitle'      => 'isParagraphExportable',
+                'submitDateString'    => 'isCreationDateExportable',
+                'meta.authoredDate'   => 'isCreationDateExportable',
+                'votesNum'            => 'isVotesNumExportable',
+                'sentAssessment'      => 'isShowInPublicAreaExportable',
             ];
 
             // Check if this column should be included based on configuration
@@ -468,7 +466,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             }
             $filteredData[] = $filteredRow;
         }
-
 
         // Create Excel document manually with synchronized data and headers
         $simpleSpreadsheetService = new \demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService();
