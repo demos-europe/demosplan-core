@@ -7473,7 +7473,7 @@ __metadata:
     striptags: "npm:^3.2.0"
     stylelint: "npm:^16.25.0"
     stylelint-config-standard-scss: "npm:^16.0.0"
-    swagger-ui-dist: "npm:^5.27.1"
+    swagger-ui-dist: "npm:^5.30.0"
     tailwindcss: "npm:^4.1.16"
     terser-webpack-plugin: "npm:^5.3.10"
     timers-browserify: "npm:^2.0.12"
@@ -14622,12 +14622,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-ui-dist@npm:^5.27.1":
-  version: 5.27.1
-  resolution: "swagger-ui-dist@npm:5.27.1"
+"swagger-ui-dist@npm:^5.30.0":
+  version: 5.30.0
+  resolution: "swagger-ui-dist@npm:5.30.0"
   dependencies:
     "@scarf/scarf": "npm:=1.4.0"
-  checksum: 10c0/c7e5ae549203fedb22bd8ef5a1fb917bc725cf59acb43e597f31c79c4364d67803660fc3e15cda3908418e5e5a0c06a8caf455d13ae9e9f84b2b1f595f82b3a9
+  checksum: 10c0/801be3ade8f7f266d4ecc07b5c091f0f3ba4c6745b2963e9a7b018563fbe42460b769126a0609b231fe358f22737c3cab74da25771ba79a91b47bf082391e60f
   languageName: node
   linkType: hard
 
