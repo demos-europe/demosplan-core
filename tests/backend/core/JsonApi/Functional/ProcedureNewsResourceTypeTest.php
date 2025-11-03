@@ -31,6 +31,8 @@ class ProcedureNewsResourceTypeTest extends JsonApiTest
      */
     public function testDelete(string $fixtureNewsReferenceName): void
     {
+        $this->enablePermissions(['area_admin_news', 'feature_json_api_delete']);
+
         /** @var News $singleNews */
         $singleNews = $this->fixtures->getReference($fixtureNewsReferenceName);
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
