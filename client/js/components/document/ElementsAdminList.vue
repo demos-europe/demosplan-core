@@ -382,19 +382,46 @@ export default {
         return
       }
 
-      // Do an optimistic FE update, so there is no lag until item is displayed in new position
-      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex })
+      // Find the siblings list (either root level or parent's children)
+      let siblingsList
+      if (parentId === null) {
+        // Root level - use treeData directly
+        siblingsList = this.treeData
+      } else {
+        // Find the parent node in the tree
+        const parentNode = this.findNodeById(this.treeData, parentId)
+        if (!parentNode || !parentNode.children) {
+          return
+        }
+        siblingsList = parentNode.children
+      }
 
-      // Find the element that is directly following the moved element (only folders, no files)
-      const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
-      // Either send the index of the element that is being "pushed down" or null (if the moved element is the last item)
-      const index = nextSibling ? nextSibling.attributes.index : null
+      // Filter to get only folders (Elements), not files (SingleDocument)
+      const foldersOnly = siblingsList.filter(node => node.type === 'Elements')
+
+      // Sort by current order
+      const sortedFolders = [...foldersOnly].sort((a, b) => a.attributes.index - b.attributes.index)
+
+      // Find current position of moved folder
+      const currentPosition = sortedFolders.findIndex(f => f.id === id)
+
+      // Simulate the move
+      const tempFolders = [...sortedFolders]
+      const [movedFolder] = tempFolders.splice(currentPosition, 1)
+      tempFolders.splice(newIndex, 0, movedFolder)
+
+      // Find the folder that will come AFTER the moved folder
+      const folderAfterMove = tempFolders[newIndex + 1]
+      const targetBackendIndex = folderAfterMove ? folderAfterMove.attributes.index : null
+
+      // Note: We skip the optimistic UI update because moveElementInList expects flat indices
+      // but we're working with a hierarchical tree. The backend response will rebuild correctly.
 
       this.canDrag = false
 
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
-        newIndex: newIndex === 0 ? newIndex : index,
+        newIndex: newIndex === 0 ? newIndex : targetBackendIndex,
         parentId,
       })
         .then(response => {
@@ -425,10 +452,8 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(error => {
-          // Undo optimistic FE update
-          this.moveElementInList({ indexToMoveFrom: newIndex, indexToMoveTo: oldIndex })
-
           console.error(error)
+          this.canDrag = true
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
     },
