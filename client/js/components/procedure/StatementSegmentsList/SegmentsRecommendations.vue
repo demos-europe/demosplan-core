@@ -98,6 +98,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -135,7 +136,8 @@ export default {
         perPage: 20
       },
       pagination: {},
-      storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`
+      storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`,
+      segmentNavigation: null
     }
   },
 
@@ -259,6 +261,22 @@ export default {
 
       this.isLoading = true
 
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
+
       await this.fetchPlaces({
         fields: {
           Place: [
@@ -340,6 +358,11 @@ export default {
           if (segmentComponent) {
             segmentComponent.isCollapsed = false
           }
+
+          // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+          if (shouldRemoveSegmentParam) {
+            this.segmentNavigation.removeSegmentParameter()
+          }
         }
       })
     },
@@ -374,8 +397,30 @@ export default {
     }
   },
 
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination
+    })
+  },
+
   mounted () {
-    this.initPagination()
+    /**
+     * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+     * that segment is found (i.e., override pagination)
+      */
+    const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+    if (paginationOverride) {
+      this.pagination = paginationOverride
+    }
+
+    /**
+     * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+     * default to 1st page
+     */
     this.fetchSegments(this.pagination?.currentPage || 1)
   }
 }
