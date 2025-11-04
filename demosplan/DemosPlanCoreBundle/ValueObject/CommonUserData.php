@@ -26,6 +26,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getPostalCode()
  * @method string getStreet()
  * @method string getHouseNumber()
+ * @method string getCompanyDepartment()
  */
 class CommonUserData extends ValueObject
 {
