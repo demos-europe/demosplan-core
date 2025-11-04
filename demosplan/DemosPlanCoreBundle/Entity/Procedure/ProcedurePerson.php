@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePersonInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -109,7 +110,7 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
-    private Procedure $procedure)
+    private ProcedureInterface $procedure)
     {
         $this->similarForeignStatements = new ArrayCollection();
     }
