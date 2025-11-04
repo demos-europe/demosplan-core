@@ -347,19 +347,19 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        const queryParams = new URLSearchParams(window.location.search)
-        const segmentId = queryParams.get('segment') || ''
+      await this.$nextTick()
 
-        if (segmentId) {
-          scrollTo('#segment_' + segmentId, { offset: -110 })
-          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+      const queryParams = new URLSearchParams(window.location.search)
+      const segmentId = queryParams.get('segment') || ''
 
-          if (segmentComponent) {
-            segmentComponent.isCollapsed = false
-          }
+      if (segmentId) {
+        scrollTo('#segment_' + segmentId, { offset: -110 })
+        const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+        if (segmentComponent) {
+          segmentComponent.isCollapsed = false
         }
-      })
+      }
     },
 
     goToSplitStatementView () {
