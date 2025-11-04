@@ -102,9 +102,9 @@
 <script>
 import { dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'SegmentsRecommendations',
