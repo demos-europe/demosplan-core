@@ -104,13 +104,13 @@ class ProcedurePerson implements UuidEntityInterface, ProcedurePersonInterface
     public function __construct(/**
      * @ORM\Column(type="text", nullable=false)
      */
-    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
-    private string $fullName, /**
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+        private string $fullName, /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
      *
      * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
      */
-    private ProcedureInterface $procedure)
+        private ProcedureInterface $procedure)
     {
         $this->similarForeignStatements = new ArrayCollection();
     }
