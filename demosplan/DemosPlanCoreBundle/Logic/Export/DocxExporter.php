@@ -1931,7 +1931,7 @@ class DocxExporter
             $header = $section->addHeader();
             $header->addText($this->getExportPageHeader($procedure));
             $footer = $section->addFooter();
-            $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+            $this->addPageNumbers($footer);
             $this->renderGroup(
                 $group,
                 $entriesRenderFunction,
@@ -2005,7 +2005,7 @@ class DocxExporter
         }
 
         $footer = $tableSection->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
         return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
@@ -2055,7 +2055,7 @@ class DocxExporter
         }
 
         $footer = $section->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
         return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
     }
@@ -2095,9 +2095,30 @@ class DocxExporter
         );
 
         $footer = $section->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
         return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+    }
+
+    /**
+     * Adds page numbers to footer in a format-compatible way.
+     * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
+     * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
+     *
+     * @param \PhpOffice\PhpWord\Element\Footer $footer
+     */
+    private function addPageNumbers($footer): void
+    {
+        if ($this->writerSelector->isOdtFormat()) {
+            // ODT requires TextRun with Field elements
+            $textRun = $footer->addTextRun();
+            $textRun->addField('PAGE', [], [], '1');
+            $textRun->addText('/');
+            $textRun->addField('NUMPAGES', [], [], '1');
+        } else {
+            // DOCX can use PreserveText with placeholders
+            $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        }
     }
 
     /**
