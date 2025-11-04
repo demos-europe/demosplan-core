@@ -15,10 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -52,8 +54,10 @@ use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
+use InvalidArgumentException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -101,6 +105,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private $generatedSegments = [];
 
+    /**
+     * Temporary mapping of Excel ID => Statement to handle 'weitere Einreichende' relations
+     * before statements are persisted to database.
+     *
+     * @var array<string, Statement>
+     */
+    private array $excelIdToStatementMapping = [];
+
     public function __construct(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -119,7 +131,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly HtmlSanitizerService $htmlSanitizerService
+        private readonly HtmlSanitizerService $htmlSanitizerService,
+        private readonly LoggerInterface $logger
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -141,12 +154,20 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     {
         $this->generatedStatements = [];
         $this->errors = [];
+        $this->excelIdToStatementMapping = [];
         $worksheets = $this->extractWorksheets($workbook, 1);
 
         foreach ($worksheets as $worksheet) {
             $currentWorksheetTitle = $worksheet->getTitle() ?? '';
             // Exclude legend from iteration as it should not be processed
             if ('Legende' === $currentWorksheetTitle) {
+                continue;
+            }
+            // Process 'weitere Einreichende' worksheet after main statements are created
+            if ('weitere Einreichende' === $currentWorksheetTitle) {
+                if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
+                    $this->processWeitereEinreichende($worksheet);
+                }
                 continue;
             }
             $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
@@ -170,6 +191,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
                 if (0 === $constraints->count()) {
                     $this->generatedStatements[] = $generatedStatement;
+                    // Store statement in mapping for 'weitere Einreichende' processing using Excel ID
+                    $excelId = $statement['ID'] ?? null;
+                    if ($excelId) {
+                        $this->excelIdToStatementMapping[$excelId] = $generatedStatement;
+                    }
                 } else {
                     $this->addImportViolations($constraints, $line, $currentWorksheetTitle);
                 }
@@ -676,6 +702,79 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         return $this->replaceLineBreak($statementText);
+    }
+
+    /**
+     * Processes the 'weitere Einreichende' worksheet to create ProcedurePerson relations
+     * for statements that were already processed.
+     */
+    private function processWeitereEinreichende(Worksheet $worksheet): void
+    {
+        $similarStatementSubmitterParams = $worksheet->toArray();
+        $columnNames = array_shift($similarStatementSubmitterParams);
+
+        if (0 === count($similarStatementSubmitterParams)) {
+            return; // No data in worksheet
+        }
+
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (null === $currentProcedure) {
+            throw new MissingPostParameterException('Current procedure is missing.');
+        }
+
+        foreach ($similarStatementSubmitterParams as $line => $personData) {
+            if ($this->isEmpty($personData)) {
+                continue;
+            }
+
+            $personData = array_combine($columnNames, $personData);
+            $this->processWeitereEinreichendeEntry($personData, $currentProcedure); // +2 for header row and 0-based indexing
+        }
+    }
+
+    /**
+     * Processes a single 'weitere Einreichende' entry and creates ProcedurePerson relation.
+     *
+     * @param array<string, mixed> $personData
+     */
+    private function processWeitereEinreichendeEntry(array $personData, ProcedureInterface $currentProcedure): void
+    {
+        $referenceStatementId = $personData['ReferenzStatement'] ?? null;
+        $fullName = $personData['Name'] ?? null;
+
+        // Validate required fields
+        if (empty($referenceStatementId)) {
+            $message = 'ReferenzStatement is required in weitere Einreichende worksheet';
+            $this->logger->error($message);
+            throw new InvalidArgumentException($message);
+        }
+
+        if (empty($fullName)) {
+            $message = 'Name is required in weitere Einreichende worksheet';
+            $this->logger->error($message);
+            throw new InvalidArgumentException($message);
+        }
+
+        // Find corresponding statement
+        $statement = $this->excelIdToStatementMapping[$referenceStatementId] ?? null;
+        if (null === $statement) {
+            $message = 'weitere Einreichende: Statement with ID '.$referenceStatementId.' not found in mapping';
+            $this->logger->error($message);
+            throw new InvalidArgumentException($message);
+
+        }
+
+        // Create ProcedurePerson
+        $procedurePerson = new ProcedurePerson($fullName, $currentProcedure);
+
+        // Set optional contact information (only fields available in 'weitere Einreichende' template)
+        $procedurePerson->setPostalCode($personData['PLZ'] ?? null);
+        $procedurePerson->setCity($personData['Ort'] ?? null);
+        $procedurePerson->setEmailAddress($personData['E-Mail'] ?? null);
+
+        // Add bidirectional relation
+        $statement->addSimilarStatementSubmitter($procedurePerson);
+        $this->entityManager->persist($statement);
     }
 
     protected function getSubmitTypeConstraint(string $inputSubmitType): Constraint
