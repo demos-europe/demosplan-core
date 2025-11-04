@@ -27,8 +27,8 @@ export default {
   data () {
     return {
       scrollbarInnerStyle: {
-        width: '0px',
         height: '1px',
+        width: '0px',
       },
       scrollbarVisible: false,
     }
@@ -46,9 +46,9 @@ export default {
       if (parseFloat(tableWidth) > parseFloat(tableContainerWidth)) {
         this.scrollbarVisible = true
         this.scrollbarInnerStyle = {
-          width: tableWidth,
-          minWidth: tableWidth,
           height: '1px',
+          minWidth: tableWidth,
+          width: tableWidth,
         }
       } else {
         this.scrollbarVisible = false
