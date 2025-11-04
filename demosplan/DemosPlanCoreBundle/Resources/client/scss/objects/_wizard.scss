@@ -132,7 +132,7 @@ $wizard-z-index-content: $dp-z-modal;
             // Simply hide the tooltip trigger altogether in wizard mode.
             // An alternative text is rendered instead.
             [data-wizard-tooltip] {
-                display: none;
+                display: none !important;
             }
         }
 
