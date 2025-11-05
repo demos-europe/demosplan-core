@@ -23,6 +23,7 @@ class SegmentRepository extends CoreRepository
 {
     private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
     private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
+
     /**
      * @return array<Segment>
      */
