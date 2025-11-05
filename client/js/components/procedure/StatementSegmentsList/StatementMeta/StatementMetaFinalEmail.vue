@@ -100,14 +100,14 @@ All rights reserved
         <dp-upload-files
           id="uploadEmailAttachments"
           ref="uploadEmailAttachments"
-          allowed-file-types="all"
           :basic-auth="dplan.settings.basicAuth"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="10 * 1024 * 1024/* 10 MiB */"
           :max-number-of-files="20"
-          name="uploadEmailAttachments"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10MB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
+          allowed-file-types="all"
+          name="uploadEmailAttachments"
           @file-remove="removeAttachment"
           @upload-success="addAttachment"
         />
