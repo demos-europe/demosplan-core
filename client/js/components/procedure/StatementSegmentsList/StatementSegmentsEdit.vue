@@ -166,6 +166,7 @@ import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -233,6 +234,7 @@ export default {
       },
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      segmentNavigation: null,
     }
   },
 
@@ -493,6 +495,22 @@ export default {
     async fetchSegments (page = 1) {
       this.isLoading = true
 
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
+
       const statementSegmentFields = [
         'tags',
         'text',
@@ -544,6 +562,11 @@ export default {
 
       await this.$nextTick(() => {
         this.scrollToSegment()
+
+        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+        if (shouldRemoveSegmentParam) {
+          this.segmentNavigation.removeSegmentParameter()
+        }
       })
     },
 
@@ -563,9 +586,31 @@ export default {
     },
   },
 
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination
+    })
+  },
+
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
-      this.initPagination()
+      /**
+       * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+       * that segment is found (i.e., override pagination)
+       */
+      const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+      if (paginationOverride) {
+        this.pagination = paginationOverride
+      }
+
+      /**
+       * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+       * default to 1st page
+       */
       this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },

@@ -16,8 +16,9 @@ COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
 
-RUN npm install --ignore-scripts -g n && \
-    rm -rf /root/.npm && \
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,sharing=locked \
+    npm install --ignore-scripts -g n && \
 # Install specific node version first
     n 20.18.1 && \
     npm install --ignore-scripts -g corepack && \
@@ -43,7 +44,9 @@ WORKDIR /srv/www
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 USER www-data
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
+RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     if [ "$BUILD_MODE" = "dev" ]; then \
         composer install -o --prefer-dist --no-progress; \
     else \
@@ -89,7 +92,9 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
-    --mount=type=cache,target=/var/www,uid=33,gid=33 \
+    --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true && \
     if [ "$BUILD_MODE" = "dev" ]; then \
         ./fe build $PROJECT_NAME; \
