@@ -31,9 +31,11 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -120,6 +122,47 @@ class SegmentController extends BaseController
                 ],
             ]
         );
+    }
+
+    /**
+     * Get the position of a segment within its parent statement.
+     *
+     */
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_segments_of_statement_list')]
+    #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
+    public function getSegmentPosition(
+        string $segmentId,
+        string $statementId,
+        SegmentRepository $segmentRepository
+    ): JsonResponse {
+        // Explicit ownership verification: ensure segment belongs to the statement
+        $segment = $segmentRepository->find($segmentId);
+
+        if (null === $segment) {
+
+            return new JsonResponse(['error' => 'Segment not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Verify the segment belongs to the specified statement
+        $parentStatement = $segment->getParentStatementOfSegment();
+        if ($parentStatement->getId() !== $statementId) {
+            return new JsonResponse(
+                ['error' => 'Segment does not belong to the specified statement'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        // Now fetch the position using the repository method
+        $position = $segmentRepository->getSegmentPosition($segmentId, $statementId);
+
+        if (null === $position) {
+            return new JsonResponse(
+                ['error' => 'Unable to calculate segment position'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return new JsonResponse($position);
     }
 
     /**
