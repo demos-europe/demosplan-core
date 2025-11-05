@@ -6468,6 +6468,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"core-js@npm:^3.46.0":
+  version: 3.46.0
+  resolution: "core-js@npm:3.46.0"
+  checksum: 10c0/12d559d39a58227881bc6c86c36d24dcfbe2d56e52dac42e35e8643278172596ab67f57ede98baf40b153ca1b830f37420ea32c3f7417c0c5a1fed46438ae187
+  languageName: node
+  linkType: hard
+
 "cosmiconfig@npm:^9.0.0":
   version: 9.0.0
   resolution: "cosmiconfig@npm:9.0.0"
@@ -7487,7 +7494,7 @@ __metadata:
     cli-progress: "npm:^3.12.0"
     commander: "npm:^14.0.2"
     copy-webpack-plugin: "npm:^13.0.1"
-    core-js: "npm:^3.45.1"
+    core-js: "npm:^3.46.0"
     cross-env: "npm:^7.0.3"
     css-loader: "npm:^7.1.2"
     css-minimizer-webpack-plugin: "npm:^7.0.0"
