@@ -94,6 +94,7 @@ All rights reserved
       />
       <template v-if="editable">
         <dp-label
+          :hint="Translator.trans('documents.email.attach.info')"
           :text="Translator.trans('documents.attach')"
           for="uploadEmailAttachments"
         />
