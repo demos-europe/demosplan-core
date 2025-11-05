@@ -524,15 +524,17 @@
                                         <dp-input
                                             id="r_pictogramAltText"
                                             v-model="pictogramAltText"
-                                            :label="{
-                                                text: Translator.trans('procedure.pictogram.altText'),
-                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
-                                            }"
+                                            :label="pictogramAltTextLabel"
                                             class="my-2"
                                             data-cy="procedure:pictogramAltText"
                                             name="r_pictogramAltText"
                                             required>
                                         </dp-input>
+                                        <span
+                                            v-if="isWizardMode"
+                                            class="inline-block font-size-small u-mb-0_5">
+                                            {{ Translator.trans('procedure.pictogram.altText.toolTipp') }}
+                                        </span>
                                     </div>
                                 {% endif %}
 
@@ -776,7 +778,7 @@
                                         :iterator="{
                                             label: Translator.trans('procedure.phase.phasecounter'),
                                             name: 'r_phase_iteration',
-                                            tooltip: Translator.trans('text.procedure.phasecounter'),
+                                            hint: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.phaseObject.iteration }}'
                                             }"
                                         @phase:select="setSelectedInternalPhase">
@@ -926,7 +928,7 @@
                                         :iterator="{
                                             label: Translator.trans('procedure.phase.phasecounter'),
                                             name: 'r_public_participation_phase_iteration',
-                                            tooltip: Translator.trans('text.procedure.phasecounter'),
+                                            hint: Translator.trans('text.procedure.phasecounter'),
                                             value: '{{ proceduresettings.publicParticipationPhaseObject.iteration }}'
                                             }"
                                         @phase:select="setSelectedPublicPhase">
