@@ -132,7 +132,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly HtmlSanitizerService $htmlSanitizerService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -761,7 +761,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $message = 'weitere Einreichende: Statement with ID '.$referenceStatementId.' not found in mapping';
             $this->logger->error($message);
             throw new InvalidArgumentException($message);
-
         }
 
         // Create ProcedurePerson
