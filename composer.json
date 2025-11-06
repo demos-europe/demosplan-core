@@ -202,7 +202,18 @@
     }
   },
   "scripts": {
-    "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
+    "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices",
+    "post-install-cmd": [
+      "@remove-vendor-docs"
+    ],
+    "post-update-cmd": [
+      "@remove-vendor-docs"
+    ],
+    "remove-vendor-docs": [
+      "echo 'Removing CC-BY-NC-ND licensed documentation from vendor...'",
+      "find vendor -type d -name 'doc' -o -type d -name 'docs' -o -type d -name 'documentation' | xargs rm -rf 2>/dev/null || true",
+      "echo 'Vendor documentation cleanup complete.'"
+    ]
   },
   "config": {
     "process-timeout": 600,
