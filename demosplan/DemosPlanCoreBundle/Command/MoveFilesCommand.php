@@ -84,8 +84,8 @@ class MoveFilesCommand extends CoreCommand
                         $output->writeln(sprintf(
                             '<comment>Warning: Could not check existence of %s (assuming not exists): %s</comment>',
                             $file->path(),
-                            $existsCheckException->getMessage()
-                        ), OutputInterface::VERBOSITY_VERBOSE);
+                            $existsCheckException
+                        ), OutputInterface::VERBOSITY_NORMAL);
                     }
 
                     if (!$fileExistsInTarget) {

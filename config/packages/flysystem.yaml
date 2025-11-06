@@ -2,11 +2,7 @@
 flysystem:
     storages:
         s3.storage:
-            adapter: 'aws'
-            options:
-                client: 'Aws\S3\S3Client'
-                bucket: '%env(S3_BUCKET)%'
-                prefix: '%env(S3_PREFIX)%'
+            adapter: 'demosplan.s3_adapter_no_acl'
         local.storage:
             adapter: 'local'
             options:
@@ -25,8 +21,22 @@ services:
                 region: '%env(S3_REGION)%'
                 endpoint: '%env(S3_ENDPOINT)%'
                 use_path_style_endpoint: '%env(bool:S3_USE_PATH_STYLE_ENDPOINT)%'
+                signature_version: '%env(S3_SIGNATURE_VERSION)%'
                 credentials:
                     key: '%env(S3_KEY)%'
                     secret: '%env(S3_SECRET)%'
                 http:
                     verify: '%cafile%'
+
+    demosplan\DemosPlanCoreBundle\Logic\File\AwsS3V3AdapterWithoutAcl: ~
+
+    demosplan.s3_adapter_no_acl:
+        class: demosplan\DemosPlanCoreBundle\Logic\File\AwsS3V3AdapterWithoutAcl
+        arguments:
+            - '@Aws\S3\S3Client'
+            - '%env(S3_BUCKET)%'
+            - '%env(S3_PREFIX)%'
+            - null  # visibility converter (not needed since we don't use ACLs)
+            - null  # mime type detector (will use default)
+            - []    # options
+            - true  # streamReads
