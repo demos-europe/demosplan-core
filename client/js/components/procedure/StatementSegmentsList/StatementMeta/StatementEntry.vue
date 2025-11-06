@@ -93,6 +93,7 @@ All rights reserved
 
       <template v-if="hasPermission('field_statement_phase')">
         <dp-select
+          v-if="availableProcedurePhases.length > 1"
           id="statementProcedurePhase"
           v-model="localStatement.attributes.procedurePhase.key"
           class="mb-3"
@@ -102,6 +103,18 @@ All rights reserved
             text: Translator.trans('procedure.public.phase')
           }"
           :options="availableProcedurePhases" />
+        <dl
+          v-else
+          class="mb-3">
+          <dt class="font-semibold u-mb-0_25">
+            {{ Translator.trans('procedure.public.phase') }}
+          </dt>
+          <dd class="text-muted">
+            {{ localStatement.attributes.procedurePhase.name || '-' }}
+          </dd>
+        </dl>
+
+
       </template>
     </div>
     <dp-text-area
