@@ -70,15 +70,25 @@ All rights reserved
       </div>
 
       <dp-select
+        v-if="editable"
         id="statementSubmitType"
         v-model="localStatement.attributes.submitType"
-        class="mb-2"
+        class="space-y-0.5 mb-2"
         data-cy="statementEntry:submitType"
-        :disabled="!editable"
         :label="{
           text: Translator.trans('submit.type')
         }"
         :options="submitTypeOptions" />
+      <dl
+        v-else
+        class="u-mb-0_5">
+        <dt class="font-semibold u-mb-0_25">
+          {{ Translator.trans('submit.type') }}
+        </dt>
+        <dd class="text-muted">
+          {{ submitTypeOptions.find(opt => opt.value === localStatement.attributes.submitType)?.label || '-' }}
+        </dd>
+      </dl>
 
       <dp-input
         id="statementInternId"
