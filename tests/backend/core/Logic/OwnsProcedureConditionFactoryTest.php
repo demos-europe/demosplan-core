@@ -37,11 +37,6 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
     private const TEST_ORGA_NAME_DEMOS = 'DEMOS Verfahrensträger';
     private const TEST_ORGA_NAME_EXAMPLE = 'Beispielbehörde';
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     private function getTestCustomer(): Customer
     {
         return $this->getCustomerReference(LoadCustomerData::BRANDENBURG);
@@ -427,7 +422,6 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
         // Arrange
         $orga = OrgaFactory::createOne();
         $user = UserFactory::createOne();
-        $procedure = ProcedureFactory::createOne();
 
         // Set up relationships - user has org, but procedure doesn't
         $this->linkUserToOrga($user->_real(), $orga->_real());
