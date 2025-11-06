@@ -192,11 +192,9 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
-        $excludeStatementText = $this->getBooleanQueryParameter(self::EXCLUDE_STATEMENT_TEXT_PARAMETER);
-
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter, $excludeStatementText) {
-                $exportedDoc = $exporter->exportAllXlsx($excludeStatementText, ...$statementEntities);
+            static function () use ($statementEntities, $exporter) {
+                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
                 $exportedDoc->save('php://output');
             }
         );

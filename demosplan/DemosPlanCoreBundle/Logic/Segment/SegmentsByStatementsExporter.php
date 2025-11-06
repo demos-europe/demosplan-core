@@ -103,7 +103,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws ReflectionException
      * @throws HandlerException
      */
-    public function exportAllXlsx(bool $excludeStatementText = false, Statement ...$statements): IWriter
+    public function exportAllXlsx(Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
         $exportData = [];
@@ -125,7 +125,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $exportData = $this->updateRecommendationsWithTextReferences($exportData, $convertedSegment);
         }
 
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments', $excludeStatementText);
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
 
         return $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
     }

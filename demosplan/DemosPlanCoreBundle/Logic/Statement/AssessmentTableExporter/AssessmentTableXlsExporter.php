@@ -185,14 +185,14 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      * - 'title' header of column,
      * - 'width' fixed width of column.
      */
-    public function selectFormat(string $formatIdentifier, bool $excludeStatementText = false): array
+    public function selectFormat(string $formatIdentifier): array
     {
         return match ($formatIdentifier) {
             'topicsAndTags'             => $this->createColumnsDefinitionForTopicsAndTags(),
             'potentialAreas'            => $this->createColumnsDefinitionForPotentialAreas(),
             'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), // WithAttachments
             'statements'                => $this->createColumnsDefinitionForStatementsOrSegments(true),
-            'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false, $excludeStatementText),
+            'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false),
             default                     => $this->createColumnsDefinitionDefault(),
         };
     }
@@ -240,7 +240,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      * Creates an array with column definitions for statements.
      * Order of calls affects the order in the resulting xlsx document.
      */
-    protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement, bool $excludeStatementText = false): array
+    protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
     {
         $columnsDefinition = [];
 
@@ -250,9 +250,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
 
-        if (!$excludeStatementText) {
-            $this->addColumnDefinition($columnsDefinition, 'text', 'field_statement_text', 'text');
-        }
+        $this->addColumnDefinition($columnsDefinition, 'text', 'field_statement_text', 'text');
         $this->addColumnDefinition(
             $columnsDefinition,
             'recommendation',
