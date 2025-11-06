@@ -22,7 +22,7 @@ class FlashMessageHandler
     public function __construct(
         private readonly MessageBagInterface $messageBag,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -42,7 +42,7 @@ class FlashMessageHandler
                 if (!$this->isValidMessage($message)) {
                     $this->logger->warning('MessageBag message data invalid', [
                         'message' => $message,
-                        'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3),
+                        'trace'   => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3),
                     ]);
 
                     return;
