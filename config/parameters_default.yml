@@ -153,6 +153,19 @@ parameters:
     piwik_site_id: "1"
     matomo_token: ""
 
+    # Rate limiting for API access
+    ratelimit_api_enable: '%env(bool:RATELIMIT_API_ENABLE)%'
+    # JWT token rate limiting configuration (fixed_window policy)
+    ratelimit_jwt_token_limit: '%env(int:RATELIMIT_JWT_TOKEN_LIMIT)%'
+    ratelimit_jwt_token_interval: '%env(RATELIMIT_JWT_TOKEN_INTERVAL)%'
+
+    # Rate limiting for public statements
+    ratelimit_public_statement_enable: '%env(bool:RATELIMIT_PUBLIC_STATEMENT_ENABLE)%'
+    # Anonymous statement rate limiting configuration (token_bucket policy)
+    ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
+    ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
+    ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
     # addon repository is used to install addons. A token needs to be acquired

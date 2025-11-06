@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.3.3 (2025-11-04)
+- smart pagination for segment navigation
+
+## v4.3.1-ewm (2025-09-25)
 - allow sessions to be stored in redis
 
 ## v4.3.0 (2025-06-13)
