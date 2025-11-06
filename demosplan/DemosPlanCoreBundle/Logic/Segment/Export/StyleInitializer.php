@@ -68,6 +68,7 @@ class StyleInitializer
         $this->styles['noInfoMessageFont'] = ['size' => 12];
         $wideColumnWidth = 6950;
         $smallColumnWidth = 1550;
+        $extraWideColumnWidth = 13900; // Full width for recommendation when statement text is excluded (2 * $wideColumnWidth)
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
         $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
         $headerFontStyle = ['bold' => true];
@@ -99,6 +100,19 @@ class StyleInitializer
         );
         $this->styles['segmentsTableBodyCellID'] = new CellExportStyle(
             $smallColumnWidth,
+            $bodyCellStyle,
+            $bodyParagraphStyle
+        );
+
+        // Extra wide styles for recommendation column when statement text is excluded
+        $this->styles['segmentsTableHeaderCellWide'] = new CellExportStyle(
+            $extraWideColumnWidth,
+            $headerCellStyle,
+            $headerPargraphStyle,
+            $headerFontStyle
+        );
+        $this->styles['segmentsTableBodyCellWide'] = new CellExportStyle(
+            $extraWideColumnWidth,
             $bodyCellStyle,
             $bodyParagraphStyle
         );

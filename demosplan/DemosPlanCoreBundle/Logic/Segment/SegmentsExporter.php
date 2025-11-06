@@ -326,6 +326,10 @@ class SegmentsExporter
                 $this->styles['segmentsTableHeaderCell']
             );
         }
+        // Use wider column style for recommendation when statement text is excluded
+        $recommendationStyle = $excludeStatementText
+            ? $this->styles['segmentsTableHeaderCellWide']
+            : $this->styles['segmentsTableHeaderCell'];
         $this->addSegmentCell(
             $headerRow,
             htmlspecialchars(
@@ -333,7 +337,7 @@ class SegmentsExporter
                 ENT_NOQUOTES,
                 'UTF-8'
             ),
-            $this->styles['segmentsTableHeaderCell']
+            $recommendationStyle
         );
 
         return $table;
@@ -356,10 +360,14 @@ class SegmentsExporter
                 $this->styles['segmentsTableBodyCell']
             );
         }
+        // Use wider column style for recommendation when statement text is excluded
+        $recommendationStyle = $excludeStatementText
+            ? $this->styles['segmentsTableBodyCellWide']
+            : $this->styles['segmentsTableBodyCell'];
         $this->addSegmentHtmlCell(
             $textRow,
             $convertedSegment->getRecommendationText(),
-            $this->styles['segmentsTableBodyCell']
+            $recommendationStyle
         );
     }
 
