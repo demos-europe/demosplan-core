@@ -109,6 +109,7 @@
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in docxColumns"
+            v-show="!(excludeStatementText && key === 'col2')"
             :id="key"
             :key="key"
             v-model="column.title"
