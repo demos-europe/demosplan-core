@@ -1,34 +1,41 @@
 <template>
   <div>
-    <div class="flex gap-2">
-      <dp-select
-        v-model="selectedPhase"
-        :data-cy="`${dataCy}:select`"
-        :label="{
-          text: labelText,
-          tooltip: helpText
-        }"
-        :name="fieldName"
-        :options="phaseOptions"
-        class="w-8/12"
-        required
-        @select="$emit('phase:select', $event)"
-      />
+    <div class="layout">
+      <div class="layout__item u-2-of-3">
+        <dp-select
+          v-model="selectedPhase"
+          :data-cy="`${dataCy}:select`"
+          :label="phaseLabel"
+          :name="fieldName"
+          :options="phaseOptions"
+          required
+          @select="$emit('phase:select', $event)"
+        />
+        <span
+          v-if="isWizardMode && helpText"
+          class="inline-block font-size-small u-mb-0_5">
+          {{ helpText }}
+        </span>
+      </div>
 
-      <dp-input
+      <div
         v-if="hasPermission('field_phase_iterator')"
-        :id="iterator.name"
-        :data-cy="`${dataCy}:iterator`"
-        :label="{
-          text: iterator.label,
-          tooltip: iterator.tooltip
-        }"
-        :model-value="iterator.value"
-        :name="iterator.name"
-        pattern="^[1-9][0-9]*$"
-        required
-        width="w-4/12"
-      />
+        class="layout__item u-1-of-3">
+        <dp-input
+          :id="iterator.name"
+          :data-cy="`${dataCy}:iterator`"
+          :label="iteratorLabel"
+          :model-value="iterator.value"
+          :name="iterator.name"
+          pattern="^[1-9][0-9]*$"
+          required
+        />
+        <span
+          v-if="isWizardMode && iterator.hint"
+          class="inline-block font-size-small u-mb-0_5">
+          {{ iterator.hint }}
+        </span>
+      </div>
     </div>
 
     <dp-inline-notification
@@ -108,7 +115,7 @@ export default {
       required: false,
       default: () => ({}),
       validator: val => {
-        const requiredKeys = ['label', 'name', 'tooltip', 'value']
+        const requiredKeys = ['label', 'name', 'hint', 'value']
         let keyCounter = 0
 
         Object.keys(val).forEach(key => {
@@ -147,6 +154,8 @@ export default {
   data () {
     return {
       selectedPhase: this.initSelectedPhase,
+      isWizardMode: false,
+      wizardObserver: null,
     }
   },
 
@@ -167,6 +176,53 @@ export default {
 
     isInParticipation () {
       return this.participationPhases.includes(this.selectedPhase)
+    },
+
+    phaseLabel () {
+      return {
+        text: this.labelText,
+        ...(!this.isWizardMode && { tooltip: this.helpText }),
+      }
+    },
+
+    iteratorLabel () {
+      return {
+        text: this.iterator.label,
+        ...(!this.isWizardMode && { tooltip: this.iterator.hint }),
+      }
+    },
+  },
+
+  mounted () {
+    this.checkWizardMode()
+    this.observeWizardMode()
+  },
+
+  beforeUnmount () {
+    if (this.wizardObserver) {
+      this.wizardObserver.disconnect()
+    }
+  },
+
+  methods: {
+    checkWizardMode () {
+      const form = document.querySelector('form[name="configForm"]')
+      this.isWizardMode = form ? form.classList.contains('o-wizard-mode') : false
+    },
+
+    observeWizardMode () {
+      const form = document.querySelector('form[name="configForm"]')
+      if (!form) return
+
+      // Watch for class changes on the form element
+      this.wizardObserver = new MutationObserver(() => {
+        this.checkWizardMode()
+      })
+
+      this.wizardObserver.observe(form, {
+        attributes: true,
+        attributeFilter: ['class'],
+      })
     },
   },
 }

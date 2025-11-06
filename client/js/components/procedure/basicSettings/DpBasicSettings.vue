@@ -155,6 +155,7 @@ export default {
         value: '',
       },
       isLoadingPlisData: false,
+      isWizardMode: false,
       pictogramAltText: this.initPictogramAltText,
       pictogramCopyright: this.initPictogramCopyright,
       procedureDescription: this.procedureExternalDesc,
@@ -166,6 +167,7 @@ export default {
       selectedProcedureCategories: this.initProcedureCategories,
       selectedPublicPhase: this.initProcedurePhasePublic,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
+      wizardObserver: null,
     }
   },
 
@@ -173,6 +175,13 @@ export default {
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
+    },
+
+    pictogramAltTextLabel () {
+      return {
+        text: Translator.trans('procedure.pictogram.altText'),
+        ...(!this.isWizardMode && { tooltip: Translator.trans('procedure.pictogram.altText.toolTipp') }),
+      }
     },
   },
 
@@ -268,11 +277,39 @@ export default {
     updateAddonPayload (payload) {
       this.addonPayload = payload
     },
+
+    checkWizardMode () {
+      const form = document.querySelector('form[name="configForm"]')
+      this.isWizardMode = form ? form.classList.contains('o-wizard-mode') : false
+    },
+
+    observeWizardMode () {
+      const form = document.querySelector('form[name="configForm"]')
+      if (!form) return
+
+      // Watch for class changes on the form element
+      this.wizardObserver = new MutationObserver(() => {
+        this.checkWizardMode()
+      })
+
+      this.wizardObserver.observe(form, {
+        attributes: true,
+        attributeFilter: ['class'],
+      })
+    },
   },
 
   mounted () {
     const users = JSON.parse(JSON.stringify(this.initAuthUsers))
     this.selectedAuthUsers = sortAlphabetically(users, 'name')
+    this.checkWizardMode()
+    this.observeWizardMode()
+  },
+
+  beforeUnmount () {
+    if (this.wizardObserver) {
+      this.wizardObserver.disconnect()
+    }
   },
 }
 </script>
