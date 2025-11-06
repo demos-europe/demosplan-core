@@ -203,7 +203,7 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             // return result as JSON
-            return new Response(Json::encode($response));
+            return new JsonResponse($response);
         } catch (HttpException $e) {
             // fange unterschiedliche Fehler ab
             switch ($e->getStatusCode()) {
@@ -218,7 +218,7 @@ class DemosPlanMasterToebController extends BaseController
             }
 
             // return result as JSON
-            return new Response(Json::encode($response));
+            return new JsonResponse($response);
         }
     }
 
