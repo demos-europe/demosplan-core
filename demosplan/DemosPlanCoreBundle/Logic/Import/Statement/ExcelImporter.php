@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
@@ -67,6 +68,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class ExcelImporter extends AbstractStatementSpreadsheetImporter
 {
@@ -99,6 +101,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
     final public const PUBLIC = 'Öffentlichkeit';
     final public const INSTITUTION = 'Institution';
+    private const LEGENDE_WORKSHEET = 'Legende';
+    private const STATEMENT_PROCEUDRE_PERSON_WORKSHEET = 'weitere Einreichende';
 
     /**
      * @var Segment[]
@@ -149,6 +153,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * Generates statements from incoming excel document, including validation.
      * This method does not flush the generated Statements and does not persist nor flush the original statements.
+     * @throws UnexpectedWorksheetNameException
+     * @throws MissingDataException
+     * @throws CopyException
+     * @throws InvalidDataException
+     * @throws StatementElementNotFoundException
+     * @throws UserNotFoundException
+     * @throws InvalidArgumentException
+     * @throws MissingPostParameterException
      */
     public function process(SplFileInfo $workbook): void
     {
@@ -156,49 +168,22 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $this->errors = [];
         $this->excelIdToStatementMapping = [];
         $worksheets = $this->extractWorksheets($workbook, 1);
+        // get the worksheet in the correct order - sheets including statements have to be processed first
+        $worksheets = $this->sortWorkSheets($worksheets);
 
         foreach ($worksheets as $worksheet) {
+            /** @var string{'Legende'|'weitere Einreichende'|'Öffentlichkeit'|'Institution'} $currentWorksheetTitle */
             $currentWorksheetTitle = $worksheet->getTitle() ?? '';
-            // Exclude legend from iteration as it should not be processed
-            if ('Legende' === $currentWorksheetTitle) {
-                continue;
+            if (self::PUBLIC === $currentWorksheetTitle
+                || self::INSTITUTION === $currentWorksheetTitle
+            ) {
+                $this->processStatementsWorksheet($worksheet);
             }
             // Process 'weitere Einreichende' worksheet after main statements are created
-            if ('weitere Einreichende' === $currentWorksheetTitle) {
-                if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
-                    $this->processWeitereEinreichende($worksheet);
-                }
-                continue;
-            }
-            $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
-            $statementData = $worksheet->toArray();
-            $columnNames = array_shift($statementData);
-            if (0 === count($statementData)) {
-                throw new MissingDataException('No data in rows found.');
-            }
-            foreach ($statementData as $line => $statement) {
-                if ($this->isEmpty($statement)) {
-                    continue;
-                }
-                $statement = \array_combine($columnNames, $statement);
-                $statement[self::PUBLIC_STATEMENT] = $publicStatement;
-
-                $generatedOriginalStatement = $this->createNewOriginalStatement($statement, count($this->generatedStatements), $line, $currentWorksheetTitle);
-                // no validation of $generatedOriginalStatement?
-
-                $generatedStatement = $this->createCopy($generatedOriginalStatement);
-
-                $constraints = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
-                if (0 === $constraints->count()) {
-                    $this->generatedStatements[] = $generatedStatement;
-                    // Store statement in mapping for 'weitere Einreichende' processing using Excel ID
-                    $excelId = $statement['ID'] ?? null;
-                    if ($excelId) {
-                        $this->excelIdToStatementMapping[$excelId] = $generatedStatement;
-                    }
-                } else {
-                    $this->addImportViolations($constraints, $line, $currentWorksheetTitle);
-                }
+            if (self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET === $currentWorksheetTitle
+                && $this->currentUser->hasPermission('feature_similar_statement_submitter')
+            ) {
+                $this->processWeitereEinreichende($worksheet);
             }
         }
     }
@@ -326,6 +311,109 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $violations = $this->validator->validate($inputSubmitType, $this->getSubmitTypeConstraint($inputSubmitType));
         if (0 !== $violations->count()) {
             $this->addImportViolations($violations, $line, $worksheetTitle);
+        }
+    }
+
+    /**
+     * It is important to process the worksheets self::PUBLIC and self::INSTITUTION prior to the
+     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET for included references to work
+     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET depends on $this->excelIdToStatementMapping being setup beforehand
+     *
+     * @param array<Worksheet> $worksheets
+     *
+     * @throws UnexpectedWorksheetNameException
+     * @throws MissingDataException
+     *
+     * @return array<Worksheet>
+     */
+    private function sortWorkSheets(array $worksheets): array
+    {
+        $sortedWorksheets = [];
+        $indexMap = [
+            self::PUBLIC => null,
+            self::INSTITUTION => null,
+            self::LEGENDE_WORKSHEET => null,
+            self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET => null,
+        ];
+        foreach ($worksheets as $worksheet) {
+            $worksheetTitle = $worksheet->getTitle() ?? '';
+            if (!array_key_exists($worksheetTitle, $indexMap)) {
+                throw new UnexpectedWorksheetNameException(
+                    $worksheetTitle,
+                    $indexMap
+                );
+            }
+            $indexMap[$worksheetTitle] = $worksheet;
+        }
+        if (null === $indexMap[self::PUBLIC] && null === $indexMap[self::INSTITUTION]) {
+            throw new MissingDataException('The Excel Statement import is missing mandatory worksheets');
+        }
+        if (null !== $indexMap[self::PUBLIC]) {
+            $sortedWorksheets[] = $indexMap[self::PUBLIC];
+        }
+        if (null !== $indexMap[self::INSTITUTION]) {
+            $sortedWorksheets[] = $indexMap[self::INSTITUTION];
+        }
+        if (null !== $indexMap[self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET]) {
+            $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET];
+        }
+        if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
+            $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
+        }
+
+        return $sortedWorksheets;
+    }
+
+    /**
+     * @throws CopyException
+     * @throws InvalidDataException
+     * @throws MissingPostParameterException
+     * @throws StatementElementNotFoundException
+     * @throws UnexpectedWorksheetNameException
+     * @throws UserNotFoundException
+     */
+    private function processStatementsWorksheet(Worksheet $publicOrInstitutionWorksheet): void
+    {
+        $currentWorksheetTitle = $publicOrInstitutionWorksheet->getTitle();
+        Assert::oneOf($currentWorksheetTitle, [self::PUBLIC, self::INSTITUTION]);
+        $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
+        $statementData = $publicOrInstitutionWorksheet->toArray();
+        $columnNames = array_shift($statementData);
+        if (0 === count($statementData)) {
+            throw new MissingDataException('No data in rows found.');
+        }
+        foreach ($statementData as $line => $statement) {
+            if ($this->isEmpty($statement)) {
+                continue;
+            }
+            $statement = \array_combine($columnNames, $statement);
+            $statement[self::PUBLIC_STATEMENT] = $publicStatement;
+
+            $generatedOriginalStatement = $this->createNewOriginalStatement(
+                $statement,
+                count($this->generatedStatements),
+                $line,
+                $currentWorksheetTitle
+            );
+            // no validation of $generatedOriginalStatement?
+
+            $generatedStatement = $this->createCopy($generatedOriginalStatement);
+
+            $constraints = $this->statementValidator->validate(
+                $generatedStatement,
+                [StatementInterface::IMPORT_VALIDATION]
+            );
+            if (0 === $constraints->count()) {
+                $this->generatedStatements[] = $generatedStatement;
+                // Store statement in mapping for potential existing worksheet 'weitere Einreichende'
+                // processed later on to append multiple Persons to statement-references
+                $excelId = $statement['ID'] ?? null;
+                if ($excelId) {
+                    $this->excelIdToStatementMapping[$excelId] = $generatedStatement;
+                }
+            } else {
+                $this->addImportViolations($constraints, $line, $currentWorksheetTitle);
+            }
         }
     }
 
@@ -707,10 +795,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * Processes the 'weitere Einreichende' worksheet to create ProcedurePerson relations
      * for statements that were already processed.
+     *
+     * @throws InvalidArgumentException
      */
     private function processWeitereEinreichende(Worksheet $worksheet): void
     {
         $similarStatementSubmitterParams = $worksheet->toArray();
+        // cuts and extracts the firs line of the worksheet-array
         $columnNames = array_shift($similarStatementSubmitterParams);
 
         if (0 === count($similarStatementSubmitterParams)) {
@@ -719,21 +810,23 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
-            throw new MissingPostParameterException('Current procedure is missing.');
+            throw new InvalidArgumentException('Current procedure is missing.');
         }
 
         foreach ($similarStatementSubmitterParams as $line => $personData) {
             if ($this->isEmpty($personData)) {
+                // skip empty lines in worksheet
                 continue;
             }
-
             $personData = array_combine($columnNames, $personData);
-            $this->processWeitereEinreichendeEntry($personData, $currentProcedure); // +2 for header row and 0-based indexing
+            $this->processWeitereEinreichendeEntry($personData, $currentProcedure);
         }
     }
 
     /**
      * Processes a single 'weitere Einreichende' entry and creates ProcedurePerson relation.
+     *
+     * @throws InvalidArgumentException
      *
      * @param array<string, mixed> $personData
      */
