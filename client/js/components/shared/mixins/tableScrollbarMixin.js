@@ -17,13 +17,23 @@
  * <div
  *   ref="scrollBar"
  *   class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
- *   <div />
+ *   <div :style="scrollbarInnerStyle" />
  * </div>
  *
  * Important thing to note is that both elements should have exactly the refs shown in the example.
  * Also, within the using component, `isLoading` should be present within data.
  */
 export default {
+  data () {
+    return {
+      scrollbarInnerStyle: {
+        height: '1px',
+        width: '0px',
+      },
+      scrollbarVisible: false,
+    }
+  },
+
   methods: {
     /**
      * Adjust the width of the inner element of the footer scrollbar to the width of the Table,
@@ -34,10 +44,14 @@ export default {
       const tableContainerWidth = window.getComputedStyle(this.dataTableContainerElement).width
 
       if (parseFloat(tableWidth) > parseFloat(tableContainerWidth)) {
-        this.scrollbar.classList.remove('hidden')
-        this.scrollbar.firstChild.setAttribute('style', 'width:' + tableWidth + ';height:1px;')
+        this.scrollbarVisible = true
+        this.scrollbarInnerStyle = {
+          height: '1px',
+          minWidth: tableWidth,
+          width: tableWidth,
+        }
       } else {
-        this.scrollbar.classList.add('hidden')
+        this.scrollbarVisible = false
       }
     },
   },
@@ -56,6 +70,7 @@ export default {
         this.scrollbar = this.$refs?.scrollBar
         this.dataTableContainerElement = this.$refs?.dataTable?.$el
         this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
+
         if (!this.dataTableContainerElement) {
           return
         }

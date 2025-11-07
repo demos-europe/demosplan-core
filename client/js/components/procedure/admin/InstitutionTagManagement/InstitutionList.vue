@@ -136,10 +136,13 @@
       </dp-data-table>
 
       <div
+        v-show="scrollbarVisible"
         ref="scrollBar"
         class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
       >
-        <div />
+        <div
+          :style="scrollbarInnerStyle"
+        />
       </div>
     </template>
 
