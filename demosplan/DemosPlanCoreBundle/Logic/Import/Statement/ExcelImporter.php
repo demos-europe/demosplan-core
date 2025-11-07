@@ -153,6 +153,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * Generates statements from incoming excel document, including validation.
      * This method does not flush the generated Statements and does not persist nor flush the original statements.
+     *
      * @throws UnexpectedWorksheetNameException
      * @throws MissingDataException
      * @throws CopyException
@@ -317,31 +318,28 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * It is important to process the worksheets self::PUBLIC and self::INSTITUTION prior to the
      * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET for included references to work
-     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET depends on $this->excelIdToStatementMapping being setup beforehand
+     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET depends on $this->excelIdToStatementMapping being setup beforehand.
      *
      * @param array<Worksheet> $worksheets
      *
+     * @return array<Worksheet>
+     *
      * @throws UnexpectedWorksheetNameException
      * @throws MissingDataException
-     *
-     * @return array<Worksheet>
      */
     private function sortWorkSheets(array $worksheets): array
     {
         $sortedWorksheets = [];
         $indexMap = [
-            self::PUBLIC => null,
-            self::INSTITUTION => null,
-            self::LEGENDE_WORKSHEET => null,
+            self::PUBLIC                               => null,
+            self::INSTITUTION                          => null,
+            self::LEGENDE_WORKSHEET                    => null,
             self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET => null,
         ];
         foreach ($worksheets as $worksheet) {
             $worksheetTitle = $worksheet->getTitle() ?? '';
             if (!array_key_exists($worksheetTitle, $indexMap)) {
-                throw new UnexpectedWorksheetNameException(
-                    $worksheetTitle,
-                    $indexMap
-                );
+                throw new UnexpectedWorksheetNameException($worksheetTitle, $indexMap);
             }
             $indexMap[$worksheetTitle] = $worksheet;
         }
@@ -826,9 +824,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * Processes a single 'weitere Einreichende' entry and creates ProcedurePerson relation.
      *
-     * @throws InvalidArgumentException
-     *
      * @param array<string, mixed> $personData
+     *
+     * @throws InvalidArgumentException
      */
     private function processWeitereEinreichendeEntry(array $personData, ProcedureInterface $currentProcedure): void
     {
