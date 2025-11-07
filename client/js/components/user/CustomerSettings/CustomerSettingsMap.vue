@@ -19,7 +19,6 @@
         text: Translator.trans('map.base.url')
       }"
       name="r_baseLayerUrl"
-      @input="debounceUpdate"
     />
 
     <dp-input
@@ -32,7 +31,6 @@
         text: Translator.trans('layers')
       }"
       name="r_baseLayerLayers"
-      @input="debounceUpdate"
     />
 
     <dp-input
@@ -53,7 +51,6 @@
 
     <dp-ol-map
       ref="map"
-      :key="`map_${mapKey}`"
       small
       :map-options="{
         baseLayer: baseLayerUrl,
@@ -81,7 +78,7 @@
 </template>
 
 <script>
-import { debounce, DpButtonRow, DpInput } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpInput } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
@@ -131,7 +128,6 @@ export default {
       mapAttribution: this.initMapAttribution,
       baseLayerLayers: this.initLayer,
       baseLayerUrl: this.initLayerUrl,
-      mapKey: 0,
     }
   },
 
@@ -153,17 +149,6 @@ export default {
     ...mapMutations('Customer', {
       updateCustomer: 'setItem',
     }),
-
-    debounceUpdate: debounce(({ id, value }) => {
-      if (id === 'r_baseLayerUrl' || id === 'r_baseLayerLayers') {
-        if (id === 'r_baseLayerUrl') {
-          this.baseLayerUrl = value
-        } else {
-          this.baseLayerLayers = value
-        }
-        this.mapKey = Math.floor(Math.random() * 1000)
-      }
-    }, 1000),
 
     resetMapSettings () {
       const previousState = this.customerItems[this.currentCustomerId].attributes
