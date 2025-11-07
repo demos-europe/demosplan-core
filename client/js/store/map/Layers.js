@@ -447,14 +447,13 @@ const LayersStore = {
     /**
      * Saves all layers and categories to the API
      *
-     * @returns {void}
      */
     saveAll ({ state, dispatch }) {
       /* Save each GIS layer and GIS layer category with its relationships */
       const allRequests = []
 
       state.apiData.included.forEach(el => {
-        // Skip ContextualHelp - it's read-only and managed by the backend when GisLayer is updated
+        // Skip ContextualHelp resources - they are read-only platform-wide help texts
         if (el.type !== 'ContextualHelp') {
           allRequests.push(dispatch('save', el))
         }
