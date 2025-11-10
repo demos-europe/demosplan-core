@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\T
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\IdCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Illuminate\Support\Collection;
@@ -135,26 +137,12 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $parameters['items'] = [$parameters['statementId']];
             }
 
-            $fragmentIds = [];
-            if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
-                $parameters['filters']['id'] = [];
-                foreach ($parameters['items'] as $statementOrFragmentId) {
-                    $idArray = $this->assessmentHandler
-                        ->getStatementIdFromStatementIdOrStatementFragmentId(
-                            $statementOrFragmentId
-                        );
-                    $parameters['filters']['id'][] = $idArray['statementId'];
-                    if (null !== $idArray['fragmentId']) {
-                        $fragmentIds[] = $idArray['fragmentId'];
-                    }
-                    unset($idArray);
-                }
-            }// get actual data for selected items
-            // (at this point, only the id's are available)
-            // Only the ids of statements are considered. To get around this issue, the ids were transformed to statement
-            // ids in the lines above. Hence, now there are only ids of statements left.
-            // However, to be able to export only selected fragments, the fragment ids are stored seperately and filtered
-            // out later along the way.
+            $idCollection = $this->extractStatementAndFragmentIds($parameters);
+            $fragmentIds = $idCollection->getFragmentIds();
+            if (null !== $idCollection->getStatementIds()) {
+                $parameters['filters']['id'] = $idCollection->getStatementIds();
+            }
+
             $parameters['filters']['original'] = 'IS NOT NULL';
             if ($original) {
                 $parameters['filters']['original'] = 'IS NULL';
@@ -168,92 +156,35 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // add attachments to Elasticsearch statement arrays
             $statements = $this->statementHandler->addSourceStatementAttachments($statements);
 
-            // here, handling view_mode could be implemented in the future.
-            // We can ignore this at them moment, because view_mode permission is currently just enabled in bobhh
-            // and they currently have no condensed exports
-            if ('condensed' === $template && 'statementsOnly' !== $exportType) {
-                $institutionStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+            $statements = $this->filterStatementsForCondensedExport($statements, $template, $exportType);
 
-                $clusterStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => $statement['isClusterStatement'])->values();
-
-                $publicStatements = collect($statements)
-                    ->filter(static fn (array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
-
-                $statements = $institutionStatements->merge($clusterStatements)
-                    ->merge($publicStatements)
-                    ->toArray();
-            }
             $statements = array_map(
                 $this->assessmentTableOutput->replacePhase(...),
                 $statements
             );
+
             if ('condensed' === $template) {
-                if (null === $procedure) {
-                    throw ProcedureNotFoundException::createFromId($procedureId);
-                }
-                if ($procedure->getMaster()) {
-                    $statements = [];
-                } else {
-                    $filterHash = $this->session->get(
-                        'hashList'
-                    )[$procedureId]['assessment']['hash'];
-
-                    $items = $this->collectStatementsOrFragments(
-                        $statements,
-                        'statementsAndFragments' !== $exportType,
-                        $filterHash,
-                        $procedureId,
-                        $original,
-                        $fragmentIds
-                    );
-
-                    $items = $items->map(
-                        function ($item, $key) use ($anonymous) {
-                            $formattedDate = $this->formatDate($item);
-                            if (false !== $formattedDate) {
-                                $item['authoredDateDisplay'] = $formattedDate;
-                            }
-
-                            if (isset($item['cluster']) && is_array($item['cluster'])
-                                && 0 < count($item['cluster'])) {
-                                if (false === $anonymous) {
-                                    $departments = $this
-                                        ->assessmentTableOutput
-                                        ->collectClusterOrgaOutputForExport($item);
-                                    $item['clusteredInstitutions'] = $departments;
-                                }
-                                $item['metaDataOfClusteredStatements'] = $this
-                                    ->assessmentTableOutput
-                                    ->collectClusteredStatementMetaDataForExport($item);
-                            }
-
-                            return $item;
-                        }
-                    );
-                    $statements = $items->toArray();
-                }
+                $statements = $this->prepareStatementsForCondensedTemplate(
+                    $statements,
+                    $exportType,
+                    $procedureId,
+                    $original,
+                    $fragmentIds,
+                    $anonymous,
+                    $procedure
+                );
             }
             $statements = $this->createExternIds($statements);
             $changedOutputResult['entries']['statements'] = $statements;
             $changedOutputResult['entries']['total'] = $outputResult->getTotal();
 
             $templateVars['table'] = $changedOutputResult;
-            // T14612 filter house numbers depending of permission
             if (!$this->permissions->hasPermission('feature_statement_meta_house_number_export')) {
-                foreach ($templateVars['table']['entries']['statements'] as $singleStatementData) {
+                foreach ($templateVars['table']['entries']['statements'] as $key => $singleStatementData) {
                     $singleStatementData['meta']['houseNumber'] = '';
+                    $templateVars['table']['entries']['statements'][$key] = $singleStatementData;
                 }
-            }// TODO: See whether we need this:
-            //        // explicitly set procedure array, as it could not be fetched from session e.g. in export
-            //        // if not set, passing only $procedureId is of no harm
-            //        $procedure = $procedureId;
-            //        try {
-            //            $procedure = $this->getProcedureHandler()->getProcedure($procedureId);
-            //        } catch (Exception $e) {
-            //            // :-(
-            //        }
+            }
 
             // Abwägungstabelle:
             // * Kompakte Ansicht Stellungnahmen: DemosPlanAssessmentTableBundle:DemosPlan:export_condensed.tex.twig
@@ -282,31 +213,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'newPagePerStn' => array_key_exists('newPagePerStn', $parameters) ? $parameters['newPagePerStn'] : false,
                 ]
             );
-
-            $procedureName = $this
-                ->assessmentTableOutput
-                ->selectProcedureName(
-                    $procedure,
-                    $this->currentUser->getUser()->isPublicUser()
-                );
+            $isPublicUser = $this->currentUser->getUser()->isPublicUser();
+            $procedureName = $this->assessmentTableOutput->selectProcedureName($procedure, $isPublicUser);
             $pictures = $this->collectPictures(
                 $changedOutputResult['entries'],
                 $procedureId
             ); // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
-            $response = $this->serviceImport->exportPdfWithRabbitMQ(
-                base64_encode($content),
-                $pictures
-            );
-            $pdf['content'] = base64_decode($response);
-            if ('' === $pdf['content']) {
-                $this->logger->error('Exporting the assessment table as pdf failed.');
-                throw new RuntimeException('No content for PDF');
-            }
-            $pdf['name'] = $filenamePrefix.'_'.$procedureName.'.pdf';
-            $this->logger->debug(
-                'Got Response: '.DemosPlanTools::varExport($pdf['content'], true)
-            );
-            $pdf['filename'] = $this->translator->trans('export').'.pdf';
+            $pdf = $this->createPdf($content, $pictures, $filenamePrefix, $procedureName);
         } catch (Exception $e) {
             throw new DemosException('warning.export.pdf.failed', $e->getMessage());
         }
@@ -628,5 +541,149 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     {
         return ('landscape' === $template && 'export_original' === $templateName)
             || ('condensed' === $template && 'export_condensed' === $templateName && $original);
+    }
+
+    /**
+     *  Note: Handling of `view_mode` could be implemented in the future.
+     *   Currently, this can be ignored because the `view_mode` permission is only enabled in a specific project.
+     *   And this project currently has no condensed exports.
+     *
+     *  Edit: It exists no `view_mode` permission. Instead, it exists 'feature_export_docx_elements_view_mode_only'
+     *   (only enaled in the specifc project) and 'feature_assessmenttable_structural_view_mode'
+     *   (commented out only in the specific project).
+     */
+    private function filterStatementsForCondensedExport(array $statements, string $template, string $exportType): array
+    {
+        if ('condensed' === $template && 'statementsOnly' !== $exportType) {
+            $institutionStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+
+            $clusterStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => $statement['isClusterStatement'])->values();
+
+            $publicStatements = collect($statements)
+                ->filter(static fn (array $statement): bool => 'external' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
+
+            return $institutionStatements->merge($clusterStatements)
+                ->merge($publicStatements)
+                ->toArray();
+        }
+
+        return $statements;
+    }
+
+    /**
+     * @throws AsynchronousStateException
+     * @throws ReflectionException
+     * @throws ErroneousDoctrineResult
+     * @throws ProcedureNotFoundException
+     */
+    private function prepareStatementsForCondensedTemplate(
+        array $statements,
+        string $exportType,
+        string $procedureId,
+        bool $original,
+        array $fragmentIds,
+        bool $anonymous,
+        ?Procedure $procedure,
+    ): array {
+        if (null === $procedure) {
+            throw ProcedureNotFoundException::createFromId($procedureId);
+        }
+        if ($procedure->getMaster()) {
+            return [];
+        }
+
+        $filterHash = $this->session->get(
+            'hashList'
+        )[$procedureId]['assessment']['hash'];
+
+        $items = $this->collectStatementsOrFragments(
+            $statements,
+            'statementsAndFragments' !== $exportType,
+            $filterHash,
+            $procedureId,
+            $original,
+            $fragmentIds
+        );
+
+        $items = $items->map(
+            function ($item) use ($anonymous) {
+                $formattedDate = $this->formatDate($item);
+                if (false !== $formattedDate) {
+                    $item['authoredDateDisplay'] = $formattedDate;
+                }
+
+                if (isset($item['cluster']) && is_array($item['cluster'])
+                    && 0 < count($item['cluster'])) {
+                    if (false === $anonymous) {
+                        $departments = $this
+                            ->assessmentTableOutput
+                            ->collectClusterOrgaOutputForExport($item);
+                        $item['clusteredInstitutions'] = $departments;
+                    }
+                    $item['metaDataOfClusteredStatements'] = $this
+                        ->assessmentTableOutput
+                        ->collectClusteredStatementMetaDataForExport($item);
+                }
+
+                return $item;
+            }
+        );
+
+        return $items->toArray();
+    }
+
+    /**
+     * Extracts statement and fragment IDs from the provided parameters.
+     *
+     * This function processes a provided array of items to extract only the IDs of statements. To ensure that only
+     * statement IDs are considered, any identifiers are transformed into statement IDs. Additionally, fragment IDs are
+     * stored separately to allow for further filtering and potential export of selected fragments.
+     */
+    private function extractStatementAndFragmentIds(array $parameters): IdCollection
+    {
+        $idCollection = new IdCollection();
+        $fragmentIds = [];
+        if (array_key_exists('items', $parameters) && 0 < (is_countable($parameters['items']) ? count($parameters['items']) : 0)) {
+            $idArrays = [];
+            foreach ($parameters['items'] as $statementOrFragmentId) {
+                $idArray = $this->assessmentHandler
+                    ->getStatementIdFromStatementIdOrStatementFragmentId(
+                        $statementOrFragmentId
+                    );
+                $idArrays[] = $idArray['statementId'];
+                if (null !== $idArray['fragmentId']) {
+                    $fragmentIds[] = $idArray['fragmentId'];
+                }
+            }
+            $idCollection->setStatementIds($idArrays);
+        }
+        $idCollection->setFragmentIds($fragmentIds);
+
+        return $idCollection->lock();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function createPdf(string $content, array $pictures, string $filenamePrefix, string $procedureName): array
+    {
+        $response = $this->serviceImport->exportPdfWithRabbitMQ(
+            base64_encode($content),
+            $pictures
+        );
+        $pdf['content'] = base64_decode($response);
+        if ('' === $pdf['content']) {
+            $this->logger->error('Exporting the assessment table as pdf failed.');
+            throw new RuntimeException('No content for PDF');
+        }
+        $pdf['name'] = $filenamePrefix.'_'.$procedureName.'.pdf';
+        $this->logger->debug(
+            'Got Response: '.DemosPlanTools::varExport($pdf['content'], true)
+        );
+        $pdf['filename'] = $this->translator->trans('export').'.pdf';
+
+        return $pdf;
     }
 }
