@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingExcelDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -2499,6 +2500,13 @@ class DemosPlanStatementController extends BaseController
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.document.duplicate.internid'
+            );
+            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
+        } catch (MissingExcelDataException) {
+            $this->getMessageBag()->add(
+                'error',
+                'statements.import.error.missing.data',
+                ['doc' => $fileInfo->getFileName()]
             );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
         } catch (Exception $e) {
