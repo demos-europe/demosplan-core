@@ -23,7 +23,7 @@
         :required="phoneIsRequired"
         type="tel"
         :model-value="statement.r_phone"
-        @input="val => setStatementData({r_phone: val})"
+        @update:model-value="val => setStatementData({r_phone: val})"
       /><!--
    --><dp-input
         id="r_email"
@@ -37,7 +37,7 @@
         :required="mailIsRequired"
         type="email"
         :model-value="statement.r_email"
-        @input="val => setStatementData({r_email: val})"
+        @update:model-value="val => setStatementData({r_email: val})"
       />
     </div>
   </div>
