@@ -148,7 +148,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     private function setPlace(Segment $segment, array $draft): Segment
     {
         $placeId = $draft['place']['id'] ?? null;
-        $place = null !== $placeId
+        $place = null !== $placeId && '' !== $placeId
             ? $this->placeService->findWithCertainty($placeId)
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
 
