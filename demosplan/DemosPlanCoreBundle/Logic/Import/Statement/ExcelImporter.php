@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingExcelDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
@@ -102,7 +103,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     final public const PUBLIC = 'Öffentlichkeit';
     final public const INSTITUTION = 'Institution';
     private const LEGENDE_WORKSHEET = 'Legende';
-    private const STATEMENT_PROCEUDRE_PERSON_WORKSHEET = 'weitere Einreichende';
+    private const STATEMENT_PROCEDURE_PERSON_WORKSHEET = 'weitere Einreichende';
 
     /**
      * @var Segment[]
@@ -156,6 +157,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      *
      * @throws UnexpectedWorksheetNameException
      * @throws MissingDataException
+     * @throws MissingExcelDataException
      * @throws CopyException
      * @throws InvalidDataException
      * @throws StatementElementNotFoundException
@@ -181,7 +183,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $this->processStatementsWorksheet($worksheet);
             }
             // Process 'weitere Einreichende' worksheet after main statements are created
-            if (self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET === $currentWorksheetTitle
+            if (self::STATEMENT_PROCEDURE_PERSON_WORKSHEET === $currentWorksheetTitle
                 && $this->currentUser->hasPermission('feature_similar_statement_submitter')
             ) {
                 $this->processWeitereEinreichende($worksheet);
@@ -317,8 +319,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
     /**
      * It is important to process the worksheets self::PUBLIC and self::INSTITUTION prior to the
-     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET for included references to work
-     * self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET depends on $this->excelIdToStatementMapping being setup beforehand.
+     * self::STATEMENT_PROCEDURE_PERSON_WORKSHEET for included references to work
+     * self::STATEMENT_PROCEDURE_PERSON_WORKSHEET depends on $this->excelIdToStatementMapping being setup beforehand.
      *
      * @param array<Worksheet> $worksheets
      *
@@ -334,7 +336,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             self::PUBLIC                               => null,
             self::INSTITUTION                          => null,
             self::LEGENDE_WORKSHEET                    => null,
-            self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET => null,
+            self::STATEMENT_PROCEDURE_PERSON_WORKSHEET => null,
         ];
         foreach ($worksheets as $worksheet) {
             $worksheetTitle = $worksheet->getTitle() ?? '';
@@ -352,8 +354,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         if (null !== $indexMap[self::INSTITUTION]) {
             $sortedWorksheets[] = $indexMap[self::INSTITUTION];
         }
-        if (null !== $indexMap[self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET]) {
-            $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEUDRE_PERSON_WORKSHEET];
+        if (null !== $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET]) {
+            $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET];
         }
         if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
             $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
@@ -832,6 +834,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     {
         $referenceStatementId = $personData['ReferenzStatement'] ?? null;
         $fullName = $personData['Name'] ?? null;
+        $emailAddress = $personData['E-Mail'] ?? null;
 
         // Validate required fields
         if (empty($referenceStatementId)) {
@@ -842,6 +845,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         if (empty($fullName)) {
             $message = 'Name is required in weitere Einreichende worksheet';
+            $this->logger->error($message);
+            throw new InvalidArgumentException($message);
+        }
+        if (empty($emailAddress)) {
+            $message = 'Email address is required in weitere Einreichende worksheet';
             $this->logger->error($message);
             throw new InvalidArgumentException($message);
         }
@@ -860,7 +868,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // Set optional contact information (only fields available in 'weitere Einreichende' template)
         $procedurePerson->setPostalCode($personData['PLZ'] ?? null);
         $procedurePerson->setCity($personData['Ort'] ?? null);
-        $procedurePerson->setEmailAddress($personData['E-Mail'] ?? null);
 
         // Add bidirectional relation
         $statement->addSimilarStatementSubmitter($procedurePerson);
