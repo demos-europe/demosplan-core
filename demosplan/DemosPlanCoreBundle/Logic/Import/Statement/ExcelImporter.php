@@ -828,7 +828,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      *
      * @param array<string, mixed> $personData
      *
-     * @throws InvalidArgumentException
+     * @throws MissingExcelDataException
      */
     private function processWeitereEinreichendeEntry(array $personData, ProcedureInterface $currentProcedure): void
     {
@@ -840,13 +840,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         if (empty($referenceStatementId)) {
             $message = 'ReferenzStatement is required in weitere Einreichende worksheet';
             $this->logger->error($message);
-            throw new InvalidArgumentException($message);
+            throw new MissingExcelDataException($message);
         }
 
         if (empty($fullName)) {
             $message = 'Name is required in weitere Einreichende worksheet';
             $this->logger->error($message);
-            throw new InvalidArgumentException($message);
+            throw new MissingExcelDataException($message);
         }
         if (empty($emailAddress)) {
             $message = 'Email address is required in weitere Einreichende worksheet';
