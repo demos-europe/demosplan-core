@@ -813,7 +813,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             throw new InvalidArgumentException('Current procedure is missing.');
         }
 
-        foreach ($similarStatementSubmitterParams as $line => $personData) {
+        foreach ($similarStatementSubmitterParams as $personData) {
             if ($this->isEmpty($personData)) {
                 // skip empty lines in worksheet
                 continue;
