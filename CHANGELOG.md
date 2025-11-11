@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- implement option to import additional submitters via statement ID 
 ## v4.3.3 (2025-11-04)
 - smart pagination for segment navigation
 
