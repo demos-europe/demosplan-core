@@ -164,6 +164,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws UserNotFoundException
      * @throws InvalidArgumentException
      * @throws MissingPostParameterException
+     * @throws MissingExcelDataException
      */
     public function process(SplFileInfo $workbook): void
     {
@@ -796,6 +797,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * Processes the 'weitere Einreichende' worksheet to create ProcedurePerson relations
      * for statements that were already processed.
      *
+     * @throws MissingExcelDataException
      * @throws InvalidArgumentException
      */
     private function processWeitereEinreichende(Worksheet $worksheet): void
@@ -829,6 +831,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @param array<string, mixed> $personData
      *
      * @throws MissingExcelDataException
+     * @throws InvalidArgumentException
      */
     private function processWeitereEinreichendeEntry(array $personData, ProcedureInterface $currentProcedure): void
     {
