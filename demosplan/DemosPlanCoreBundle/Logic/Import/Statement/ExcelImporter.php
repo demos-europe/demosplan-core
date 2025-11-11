@@ -851,7 +851,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         if (empty($emailAddress)) {
             $message = 'Email address is required in weitere Einreichende worksheet';
             $this->logger->error($message);
-            throw new InvalidArgumentException($message);
+            throw new MissingExcelDataException($message);
         }
 
         // Find corresponding statement

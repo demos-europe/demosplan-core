@@ -2502,8 +2502,7 @@ class DemosPlanStatementController extends BaseController
                 'statements.import.error.document.duplicate.internid'
             );
             throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (MissingExcelDataException $e) {
-            $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);
+        } catch (MissingExcelDataException) {
             $this->getMessageBag()->add(
                 'error',
                 'statements.import.error.missing.data',
