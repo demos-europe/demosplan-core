@@ -4295,12 +4295,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/leaflet@npm:^1.9.20":
-  version: 1.9.20
-  resolution: "@types/leaflet@npm:1.9.20"
+"@types/leaflet@npm:^1.9.21":
+  version: 1.9.21
+  resolution: "@types/leaflet@npm:1.9.21"
   dependencies:
     "@types/geojson": "npm:*"
-  checksum: 10c0/14a32df400c6a371bc7e65ee4467118dc1b977cae002c45f7315ed032fade30bac3b97feac60a08809dd767bd68b17900ae6f947258cc0745412562ad12f2e82
+  checksum: 10c0/96a86bdeff7bf56104242e97536f39005a53dd857853aa0c5de127ce2c72f3f36638f2a5b8d23e2e825a2bfe32113be731ab26634a3143413b891299c29621ce
   languageName: node
   linkType: hard
 
@@ -7507,7 +7507,7 @@ __metadata:
     "@sentry/browser": "npm:^9.24.0"
     "@sentry/tracing": "npm:^7.120.3"
     "@tailwindcss/postcss": "npm:^4.1.16"
-    "@types/leaflet": "npm:^1.9.20"
+    "@types/leaflet": "npm:^1.9.21"
     "@uppy/core": "npm:^4.5.2"
     "@uppy/drag-drop": "npm:^4.2.2"
     "@uppy/progress-bar": "npm:^4.3.2"
