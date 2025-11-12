@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 /**
  * Validates if a string is a valid UUID v4 format
@@ -59,7 +59,6 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       })
 
       return await dpApi.get(url)
-        .then(checkResponse)
     } catch (error) {
       console.error('Failed to get segment position:', error)
       return null
