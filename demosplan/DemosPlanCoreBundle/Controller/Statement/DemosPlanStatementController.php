@@ -74,6 +74,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilter
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -848,12 +849,13 @@ class DemosPlanStatementController extends BaseController
     #[Route(name: 'DemosPlan_statement_public_participation_new_ajax', methods: 'POST', path: '/verfahren/{procedure}/stellungnahmen/public/neu/ajax', options: ['expose' => true])]
     public function newPublicStatementAjaxAction(
         CurrentProcedureService $currentProcedureService,
+        EventDispatcherInterface $eventDispatcher,
         EventDispatcherPostInterface $eventDispatcherPost,
+        FileUploadService $fileUploadService,
+        ParameterBagInterface $parameterBag,
         RateLimiterFactory $anonymousStatementLimiter,
         Request $request,
         StatementHandler $statementHandler,
-        FileUploadService $fileUploadService,
-        EventDispatcherInterface $eventDispatcher,
         string $procedure,
     ) {
         try {
@@ -861,13 +863,14 @@ class DemosPlanStatementController extends BaseController
                 throw new Exception('In der aktuellen Phase darf keine Stellungnahme abgegeben werden');
             }
 
-            $limiter = $anonymousStatementLimiter->create($request->getClientIp());
+            $limiter = $anonymousStatementLimiter->create($request->getSession()->getId());
 
             // avoid brute force attacks
-            // if the limit bites during development or testing, you can increase the limit in the config via setting
-            // framework.rate_limiter.anonymous_statement.limit in the parameters.yml to a higher value
             if (false === $limiter->consume(1)->isAccepted()) {
-                throw new TooManyRequestsHttpException();
+                if (true === $parameterBag->get('ratelimit_public_statement_enable')) {
+                    throw new TooManyRequestsHttpException();
+                }
+                $this->logger->warning('Rate limiting for public statement is disabled but would have been active now.', ['ip' => $request->getClientIp()]);
             }
             $requestPost = $request->request->all();
             $this->logger->debug('Received ajaxrequest to save statement', ['request' => $requestPost, 'procedure' => $procedure]);

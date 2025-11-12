@@ -11,17 +11,20 @@
   <dp-modal
     ref="exportModal"
     content-classes="w-1/2"
-    content-body-classes="m-0 p-0">
+    content-body-classes="m-0 p-0"
+  >
     <!-- no modal header -->
 
     <!-- modal content -->
     <div
       ref="exportModalContent"
       class="c-tabs__modal px-0 pb-0 my-0 h-auto"
-      :style="{ minHeight: minHeight + 'px' }">
+      :style="{ minHeight: minHeight + 'px' }"
+    >
       <div
         class="tab-header mt-3 mx-3"
-        role="tablist">
+        role="tablist"
+      >
         <button
           v-for="(option, key) in tabsOptions"
           :key="`${option.tabLabel}:${key}`"
@@ -30,7 +33,8 @@
           :data-cy="`exportModal:${option.tabLabel}`"
           role="tab"
           type="button"
-          @click="switchTab(key)">
+          @click="switchTab(key)"
+        >
           {{ Translator.trans(option.tabLabel) }}
         </button>
       </div>
@@ -42,13 +46,16 @@
           id="pdf"
           class="tab-content"
           :class="activeTab('pdf')"
-          role="tabpanel">
+          role="tabpanel"
+        >
           <fieldset
             v-if="options.pdf.anonymize || options.pdf.obscure"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.type')" />
+              v-text="Translator.trans('export.type')"
+            />
             <dp-checkbox
               id="pdfAnonymous"
               v-model="exportChoice.pdf.anonymous"
@@ -58,15 +65,18 @@
                 hint: Translator.trans('explanation.export.anonymous'),
                 text: Translator.trans('export.anonymous')
               }"
-              name="pdfAnonymous" />
+              name="pdfAnonymous"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.pdf.newPagePerStn && view === 'original_statements'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.pageLayout')" />
+              v-text="Translator.trans('export.pageLayout')"
+            />
             <dp-checkbox
               id="pdfNewPagePerStn"
               v-model="exportChoice.pdf.newPagePerStn"
@@ -75,15 +85,18 @@
                 bold: true,
                 text: Translator.trans('export.newPagePerStatement')
               }"
-              name="newPagePerStn" />
+              name="newPagePerStn"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.pdf.templates"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.format')" />
+              v-text="Translator.trans('export.format')"
+            />
             <dp-radio
               v-for="(identifier, index) in Object.keys(pdfTemplateOptions)"
               :id="`pdfTemplate_${identifier}`"
@@ -98,15 +111,18 @@
               }"
               name="pdfTemplate"
               :value="identifier"
-              @change="exportChoice.pdf.template = identifier" />
+              @change="exportChoice.pdf.template = identifier"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.pdf.exportTypes && exportChoice.pdf.template == 'condensed' && view == 'assessment_table'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.data')" />
+              v-text="Translator.trans('export.data')"
+            />
             <dp-radio
               id="pdfExportTypeStatementsOnly"
               :checked="exportChoice.pdf.exportType === 'statementsOnly'"
@@ -118,7 +134,8 @@
               }"
               name="pdfExportType"
               value="statementsOnly"
-              @change="exportChoice.pdf.exportType = 'statementsOnly'" />
+              @change="exportChoice.pdf.exportType = 'statementsOnly'"
+            />
             <dp-radio
               id="pdfExportTypeStatementsAndFragments"
               :checked="exportChoice.pdf.exportType === 'statementsAndFragments'"
@@ -130,18 +147,21 @@
               }"
               name="pdfExportType"
               value="statementsAndFragments"
-              @change="exportChoice.pdf.exportType = 'statementsAndFragments'" />
+              @change="exportChoice.pdf.exportType = 'statementsAndFragments'"
+            />
           </fieldset>
 
           <p
             v-if="!options.pdf.anonymize && !options.pdf.obscure && !options.pdf.exportTypes && !options.pdf.templates"
-            class="ml-2 mt-6">
+            class="ml-2 mt-6"
+          >
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
 
           <div
             v-if="!isDefaultViewMode"
-            class="flash flash-info mb-0">
+            class="flash flash-info mb-0"
+          >
             {{ Translator.trans('explanation.export.disabled.viewMode') }}
           </div>
         </div>
@@ -152,13 +172,16 @@
           id="docx"
           class="tab-content"
           :class="activeTab('docx')"
-          role="tabpanel">
+          role="tabpanel"
+        >
           <fieldset
             v-if="options.docx.anonymize || options.docx.obscure"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.type')" />
+              v-text="Translator.trans('export.type')"
+            />
             <dp-checkbox
               id="docxNumberStatements"
               v-model="exportChoice.docx.numberStatements"
@@ -168,7 +191,8 @@
                 bold: true,
                 text: Translator.trans('export.numbered_statements'),
                 hint: Translator.trans('explanation.export.numbered_statements')
-              }" />
+              }"
+            />
             <dp-checkbox
               id="docxAnonymous"
               v-model="exportChoice.docx.anonymous"
@@ -177,15 +201,18 @@
                 bold: true,
                 hint: Translator.trans('explanation.export.anonymous'),
                 text: Translator.trans('export.anonymous')
-              }" />
+              }"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.docx.templates"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.format')" />
+              v-text="Translator.trans('export.format')"
+            />
             <dp-radio
               v-for="(identifier, index) in Object.keys(docxTemplateOptions)"
               :id="`docxTemplate_${identifier}`"
@@ -200,15 +227,18 @@
               }"
               name="docxTemplate"
               :value="identifier"
-              @change="exportChoice.docx.template = identifier" />
+              @change="exportChoice.docx.template = identifier"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.data')" />
+              v-text="Translator.trans('export.data')"
+            />
             <dp-radio
               id="docxExportTypeStatementsOnly"
               :checked="exportChoice.docx.exportType === 'statementsOnly'"
@@ -219,7 +249,8 @@
                 text: Translator.trans('statements')
               }"
               value="statementsOnly"
-              @change="() => handleDocxExportTypeChange('statementsOnly')" />
+              @change="() => handleDocxExportTypeChange('statementsOnly')"
+            />
             <dp-radio
               id="docxExportTypeStatementsAndFragments"
               :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
@@ -229,16 +260,19 @@
                 text: Translator.trans('fragments')
               }"
               value="statementsAndFragments"
-              @change="() => handleDocxExportTypeChange('statementsAndFragments')" />
+              @change="() => handleDocxExportTypeChange('statementsAndFragments')"
+            />
           </fieldset>
 
           <!--choose sorting type-->
           <fieldset
             v-if="options.docx.exportTypes && exportChoice.docx.template === 'condensed' && view === 'assessment_table'"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.structure')" />
+              v-text="Translator.trans('export.structure')"
+            />
             <dp-radio
               id="docxSortTypeDefault"
               :checked="exportChoice.docx.sortType === 'default'"
@@ -250,7 +284,8 @@
                 text: Translator.trans('assessmenttable.view.mode.default')
               }"
               value="default"
-              @change="exportChoice.docx.sortType = 'default'" />
+              @change="exportChoice.docx.sortType = 'default'"
+            />
             <dp-radio
               id="docxSortTypeByParagraph"
               :checked="isDocxSortTypeByParagraphChecked"
@@ -260,19 +295,171 @@
                 text: Translator.trans('groupedBy.elements')
               }"
               :value="exportChoice.docx.exportType === 'statementsAndFragments' ? 'byParagraphFragmentsOnly' : 'byParagraph'"
-              @change="handleDocxSortTypeByParagraphChange" />
+              @change="handleDocxSortTypeByParagraphChange"
+            />
           </fieldset>
           <!--end of sorting type-->
 
           <p
             v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates"
-            class="ml-2 mt-2">
+            class="ml-2 mt-2"
+          >
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
 
           <div
             v-if="!isDefaultViewMode"
-            class="flash flash-info mb-0">
+            class="flash flash-info mb-0"
+          >
+            {{ Translator.trans('explanation.export.disabled.viewMode') }}
+          </div>
+        </div>
+
+        <!-- ODT -->
+        <div
+          v-if="options.odt"
+          id="odt"
+          class="tab-content"
+          :class="activeTab('odt')"
+          role="tabpanel"
+        >
+          <fieldset
+            v-if="options.odt.anonymize || options.odt.obscure"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.type')"
+            />
+            <dp-checkbox
+              id="odtNumberStatements"
+              v-model="exportChoice.odt.numberStatements"
+              class="mb-1"
+              data-cy="exportModal:odtNumberStatements"
+              :label="{
+                bold: true,
+                text: Translator.trans('export.numbered_statements'),
+                hint: Translator.trans('explanation.export.numbered_statements')
+              }"
+            />
+            <dp-checkbox
+              id="odtAnonymous"
+              v-model="exportChoice.odt.anonymous"
+              data-cy="exportModal:odtObscure"
+              :label="{
+                bold: true,
+                hint: Translator.trans('explanation.export.anonymous'),
+                text: Translator.trans('export.anonymous')
+              }"
+            />
+          </fieldset>
+
+          <fieldset
+            v-if="options.odt.templates"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.format')"
+            />
+            <dp-radio
+              v-for="(identifier, index) in Object.keys(odtTemplateOptions)"
+              :id="`odtTemplate_${identifier}`"
+              :key="identifier"
+              :checked="exportChoice.odt.template === identifier"
+              :class="{ 'mb-1': index !== Object.keys(odtTemplateOptions).length - 1 }"
+              :data-cy="`exportModal:odtTemplate_${identifier}`"
+              :label="{
+                bold: true,
+                hint: odtTemplateOptions[identifier].explanation ? Translator.trans(odtTemplateOptions[identifier].explanation) : '',
+                text: Translator.trans(odtTemplateOptions[identifier].name)
+              }"
+              name="odtTemplate"
+              :value="identifier"
+              @change="exportChoice.odt.template = identifier"
+            />
+          </fieldset>
+
+          <fieldset
+            v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.data')"
+            />
+            <dp-radio
+              id="odtExportTypeStatementsOnly"
+              :checked="exportChoice.odt.exportType === 'statementsOnly'"
+              class="mb-1"
+              data-cy="exportModal:odtExportTypeStatementsOnly"
+              :label="{
+                bold: true,
+                text: Translator.trans('statements')
+              }"
+              value="statementsOnly"
+              @change="() => handleOdtExportTypeChange('statementsOnly')"
+            />
+            <dp-radio
+              id="odtExportTypeStatementsAndFragments"
+              :checked="exportChoice.odt.exportType === 'statementsAndFragments'"
+              data-cy="exportModal:odtExportTypeStatementsAndFragments"
+              :label="{
+                bold: true,
+                text: Translator.trans('fragments')
+              }"
+              value="statementsAndFragments"
+              @change="() => handleOdtExportTypeChange('statementsAndFragments')"
+            />
+          </fieldset>
+
+          <!--choose sorting type-->
+          <fieldset
+            v-if="options.odt.exportTypes && exportChoice.odt.template === 'condensed' && view === 'assessment_table'"
+            class="u-mb-0_5 pb-2"
+          >
+            <legend
+              class="sr-only"
+              v-text="Translator.trans('export.structure')"
+            />
+            <dp-radio
+              id="odtSortTypeDefault"
+              :checked="exportChoice.odt.sortType === 'default'"
+              class="mb-1"
+              data-cy="exportModal:odtSortTypeDefault"
+              :label="{
+                bold: true,
+                hint: exportChoice.odt.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
+                text: Translator.trans('assessmenttable.view.mode.default')
+              }"
+              value="default"
+              @change="exportChoice.odt.sortType = 'default'"
+            />
+            <dp-radio
+              id="odtSortTypeByParagraph"
+              :checked="isOdtSortTypeByParagraphChecked"
+              data-cy="exportModal:odtSortTypeByParagraph"
+              :label="{
+                bold: true,
+                text: Translator.trans('groupedBy.elements')
+              }"
+              :value="exportChoice.odt.exportType === 'statementsAndFragments' ? 'byParagraphFragmentsOnly' : 'byParagraph'"
+              @change="handleOdtSortTypeByParagraphChange"
+            />
+          </fieldset>
+          <!--end of sorting type-->
+
+          <p
+            v-if="!options.odt.anonymize && !options.odt.obscure && !options.odt.exportTypes && !options.odt.templates"
+            class="ml-2 mt-2"
+          >
+            {{ Translator.trans('explanation.export.anonymous') }}
+          </p>
+
+          <div
+            v-if="!isDefaultViewMode"
+            class="flash flash-info mb-0"
+          >
             {{ Translator.trans('explanation.export.disabled.viewMode') }}
           </div>
         </div>
@@ -283,13 +470,16 @@
           id="xlsx"
           class="tab-content"
           :class="activeTab('xlsx')"
-          role="tabpanel">
+          role="tabpanel"
+        >
           <fieldset
             v-if="options.xlsx.anonymize || options.xlsx.obscure"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.type')" />
+              v-text="Translator.trans('export.type')"
+            />
             <dp-checkbox
               id="xlsxAnonymous"
               v-model="exportChoice.xlsx.anonymous"
@@ -298,15 +488,18 @@
                 bold: true,
                 hint: Translator.trans('explanation.export.anonymous'),
                 text: Translator.trans('export.anonymous')
-              }" />
+              }"
+            />
           </fieldset>
 
           <fieldset
             v-if="options.xlsx.exportTypes"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.data')" />
+              v-text="Translator.trans('export.data')"
+            />
             <dp-radio
               id="xlsxExportTypeTopicsAndTags"
               :checked="exportChoice.xlsx.exportType === 'topicsAndTags'"
@@ -319,7 +512,8 @@
               }"
               name="xlsxExportType"
               value="topicsAndTags"
-              @change="exportChoice.xlsx.exportType = 'topicsAndTags'" />
+              @change="exportChoice.xlsx.exportType = 'topicsAndTags'"
+            />
             <dp-radio
               v-if="hasPermission('feature_admin_assessmenttable_export_potential_areas_xlsx')"
               id="xlsxExportTypePotentialAreas"
@@ -333,7 +527,8 @@
               }"
               name="xlsxExportType"
               value="potentialAreas"
-              @change="exportChoice.xlsx.exportType = 'potentialAreas'" />
+              @change="exportChoice.xlsx.exportType = 'potentialAreas'"
+            />
             <dp-radio
               v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
               id="xlsxExportTypeStatement"
@@ -346,11 +541,13 @@
               }"
               name="xlsxExportType"
               value="statements"
-              @change="exportChoice.xlsx.exportType = 'statements'" />
+              @change="exportChoice.xlsx.exportType = 'statements'"
+            />
           </fieldset>
           <p
             v-if="!options.xlsx.anonymize && !options.xlsx.obscure && !options.xlsx.exportTypes && !options.xlsx.templates"
-            class="ml-2 mt-6">
+            class="ml-2 mt-6"
+          >
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
         </div>
@@ -361,16 +558,20 @@
           id="zip"
           class="tab-content"
           :class="activeTab('zip')"
-          role="tabpanel">
+          role="tabpanel"
+        >
           <p
             class="lbl__hint ml-2 mb-3"
-            v-text="explanationZip" />
+            v-text="explanationZip"
+          />
           <fieldset
             v-if="options.zip.templates"
-            class="u-mb-0_5 pb-2">
+            class="u-mb-0_5 pb-2"
+          >
             <legend
               class="sr-only"
-              v-text="Translator.trans('export.format')" />
+              v-text="Translator.trans('export.format')"
+            />
             <dp-radio
               v-for="(identifier, index) in Object.keys(zipTemplateOptions)"
               :id="`zipTemplate_${identifier}`"
@@ -385,7 +586,8 @@
               }"
               name="zipTemplate"
               :value="identifier"
-              @change="exportChoice.zip.template = identifier" />
+              @change="exportChoice.zip.template = identifier"
+            />
           </fieldset>
         </div>
 
@@ -393,7 +595,8 @@
           class="submitBtn"
           data-cy="exportModal:submit"
           :text="submitLabel"
-          @click.prevent="handleSubmit" />
+          @click.prevent="handleSubmit"
+        />
       </div>
     </div>
   </dp-modal>
@@ -523,6 +726,14 @@ export default {
       return Object.fromEntries(optionsDocxFilter)
     },
 
+    odtTemplateOptions () {
+      if (!this.options.odt?.templates) return {}
+      const optionsOdtFilter = Object.entries(this.options.odt.templates).filter(([key, value]) => {
+        return value ? this.hasVisibleTemplate({ [key]: value }) : false
+      })
+      return Object.fromEntries(optionsOdtFilter)
+    },
+
     //  Return exportChoice for currently selected format
     format () {
       return this.exportChoice[this.currentTab]
@@ -536,6 +747,13 @@ export default {
       return this.exportChoice.docx.exportType === 'statementsAndFragments' ?
         this.exportChoice.docx.sortType === 'byParagraphFragmentsOnly' :
         this.exportChoice.docx.sortType === 'byParagraph'
+    },
+
+    isOdtSortTypeByParagraphChecked () {
+      if (!this.exportChoice.odt) return false
+      return this.exportChoice.odt.exportType === 'statementsAndFragments' ?
+        this.exportChoice.odt.sortType === 'byParagraphFragmentsOnly' :
+        this.exportChoice.odt.sortType === 'byParagraph'
     },
 
     pdfTemplateOptions () {
@@ -563,6 +781,7 @@ export default {
       switch (this.currentTab) {
         case 'pdf':
         case 'docx':
+        case 'odt':
         default:
           transKey = 'export.verb'
           break
@@ -608,6 +827,19 @@ export default {
 
     handleDocxSortTypeByParagraphChange () {
       this.exportChoice.docx.sortType = this.exportChoice.docx.exportType === 'statementsAndFragments' ?
+        'byParagraphFragmentsOnly' :
+        'byParagraph'
+    },
+
+    handleOdtExportTypeChange (value) {
+      if (!this.exportChoice.odt) return
+      this.exportChoice.odt.exportType = value
+      this.exportChoice.odt.sortType = 'default'
+    },
+
+    handleOdtSortTypeByParagraphChange () {
+      if (!this.exportChoice.odt) return
+      this.exportChoice.odt.sortType = this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         'byParagraphFragmentsOnly' :
         'byParagraph'
     },

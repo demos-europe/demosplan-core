@@ -20,6 +20,8 @@ use Exception;
  */
 class SegmentRepository extends CoreRepository
 {
+    private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
+    private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
     /**
      * @return array<Segment>
      */
@@ -96,6 +98,87 @@ class SegmentRepository extends CoreRepository
     public function get(string $entityId): ?Segment
     {
         return $this->findOneBy(['id' => $entityId]);
+    }
+
+    /**
+     * Find all segments that have a custom field with the given ID.
+     *
+     * @return array<Segment>
+     */
+    public function findSegmentsWithCustomField(string $customFieldId): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        // Escape JSON-breaking characters to prevent injection
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+
+        return $qb
+            ->select('segment')
+            ->from(Segment::class, 'segment')
+            ->where('segment.customFields IS NOT NULL')
+            ->andWhere('segment.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get the position of a segment within its parent statement.
+     *
+     * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found
+     */
+    public function getSegmentPosition(string $segmentId, string $statementId): ?array
+    {
+        $em = $this->getEntityManager();
+
+        // First, get the target segment's orderInProcedure
+        $targetQuery = $em->createQueryBuilder()
+            ->select('segment.id', 'segment.orderInProcedure')
+            ->from(Segment::class, 'segment')
+            ->where('segment.id = :segmentId')
+            ->andWhere(self::PARENT_STATEMENT_CONDITION)
+            ->setParameter('segmentId', $segmentId)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $targetResult = $targetQuery->getOneOrNullResult();
+
+        if (null === $targetResult) {
+            return null;
+        }
+
+        $targetOrder = $targetResult['orderInProcedure'];
+
+        // Count how many segments in this statement have orderInProcedure <= target
+        $positionQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->andWhere('segment.orderInProcedure <= :targetOrder')
+            ->setParameter('statementId', $statementId)
+            ->setParameter('targetOrder', $targetOrder)
+            ->getQuery();
+
+        $position = (int) $positionQuery->getSingleScalarResult();
+
+        // Get total count of segments in this statement
+        $totalQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $total = (int) $totalQuery->getSingleScalarResult();
+
+        return [
+            'segmentId' => $segmentId,
+            'position'  => $position,
+            'total'     => $total,
+        ];
     }
 
     /**

@@ -12,7 +12,8 @@
     <dp-sticky-element
       border
       class="pt-2 pb-3"
-      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
+    >
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <custom-search-statements
@@ -20,7 +21,8 @@
             :search-in-fields="searchFields"
             @change-fields="updateSearchFields"
             @reset="resetSearch"
-            @search="(term) => applySearch(term)" />
+            @search="(term) => applySearch(term)"
+          />
         </div>
         <dp-button
           data-cy="editorFullscreen"
@@ -29,25 +31,30 @@
           hide-text
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
           variant="outline"
-          @click="handleFullscreenMode()" />
+          @click="handleFullscreenMode()"
+        />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
         class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
-        @reset-selection="resetSelection">
+        @reset-selection="resetSelection"
+      >
         <dp-button
           data-cy="statementsBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')"
           variant="outline"
-          @click.prevent="handleBulkShare" />
+          @click.prevent="handleBulkShare"
+        />
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
-        @export="showHintAndDoExport" />
+        @export="showHintAndDoExport"
+      />
       <div
         v-if="items.length > 0"
-        class="flex mt-2">
+        class="flex mt-2"
+      >
         <dp-pager
           v-if="pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
@@ -58,25 +65,29 @@
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
           @page-change="getItemsByPage"
-          @size-change="handleSizeChange" />
+          @size-change="handleSizeChange"
+        />
         <div class="ml-auto flex items-center space-inline-xs">
           <label
             class="u-mb-0"
-            for="applySortSelection">
+            for="applySortSelection"
+          >
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
             id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
-            @select="applySort" />
+            @select="applySort"
+          />
         </div>
       </div>
     </dp-sticky-element>
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
 
     <template v-else>
       <dp-data-table
@@ -95,12 +106,14 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
-        @selectAll="handleSelectAll"
-        @items-toggled="handleToggleItem">
+        @select-all="handleSelectAll"
+        @items-toggled="handleToggleItem"
+      >
         <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
-            v-text="externId" />
+            v-text="externId"
+          />
           <dp-claim
             v-if="!synchronized"
             entity-type="statement"
@@ -109,7 +122,8 @@
             :assigned-organisation="assignee.orgaName || ''"
             :current-user-id="currentUserId"
             :is-loading="claimLoadingIds.indexOf(statementId) >= 0"
-            @click="toggleClaimStatement(assignee.id, statementId)" />
+            @click="toggleClaimStatement(assignee.id, statementId)"
+          />
         </template>
         <template
           v-slot:meta="{
@@ -118,16 +132,19 @@
             initialOrganisationName,
             submitDate,
             submitName
-          }">
+          }"
+        >
           <ul class="o-list max-w-12">
             <li
               v-if="authorName !== '' || submitName !== ''"
-              class="o-list__item o-hellip--nowrap">
+              class="o-list__item o-hellip--nowrap"
+            >
               {{ authorName ? authorName : (submitName ? submitName : Translator.trans('citizen')) }}
             </li>
             <li
               v-if="initialOrganisationName !== '' && !isSubmittedByCitizen"
-              class="o-list__item o-hellip--nowrap">
+              class="o-list__item o-hellip--nowrap"
+            >
               {{ initialOrganisationName }}
             </li>
             <li class="o-list__item o-hellip--nowrap">
@@ -138,20 +155,23 @@
         <template v-slot:status="{ status }">
           <status-badge
             class="mt-0.5"
-            :status="status" />
+            :status="status"
+          />
         </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
             <div
               v-tooltip="internId"
               class="o-hellip--nowrap text-right"
-              v-text="internId" />
+              v-text="internId"
+            />
           </div>
         </template>
         <template v-slot:text="{ text }">
           <div
             v-cleanhtml="text"
-            class="line-clamp-3 c-styled-html" />
+            class="line-clamp-3 c-styled-html"
+          />
         </template>
         <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
@@ -164,14 +184,16 @@
               data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               rel="noopener"
-              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)">
+              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
+            >
               {{ Translator.trans('split') }}
             </button>
             <a
               class="block leading-[2] whitespace-nowrap"
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
-              rel="noopener">
+              rel="noopener"
+            >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
@@ -181,7 +203,8 @@
               data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
-              target="_blank">
+              target="_blank"
+            >
               {{ Translator.trans('original.pdf') }}
             </a>
             <a
@@ -190,7 +213,8 @@
               :class="{'is-disabled': !originalId}"
               data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
-              rel="noreferrer noopener">
+              rel="noreferrer noopener"
+            >
               {{ Translator.trans('statement.original') }}
             </a>
             <button
@@ -201,7 +225,8 @@
               data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
-              @click="triggerStatementDeletion(id)">
+              @click="triggerStatementDeletion(id)"
+            >
               {{ Translator.trans('delete') }}
             </button>
           </dp-flyout>
@@ -211,7 +236,8 @@
           <statement-meta-data
             class="u-pt-0_5"
             :statement="statementsObject[id]"
-            :submit-type-options="submitTypeOptions">
+            :submit-type-options="submitTypeOptions"
+          >
             <template
               v-slot:default="{
                 authorName,
@@ -225,13 +251,15 @@
                 submitName,
                 submitType,
                 location
-              }">
+              }"
+            >
               <div class="layout">
                 <dl class="description-list-inline layout__item u-1-of-2">
                   <dt>{{ Translator.trans('submitter') }}:</dt>
                   <dd>{{ authorName ? authorName : submitName }}</dd>
                   <template
-                    v-if="!isSubmittedByCitizen">
+                    v-if="!isSubmittedByCitizen"
+                  >
                     <dt>{{ Translator.trans('organisation') }}:</dt>
                     <dd>{{ initialOrganisationName }}</dd>
                     <dt>{{ Translator.trans('department') }}:</dt>
@@ -270,7 +298,8 @@
                 v-if="statementsObject[id].attributes.textIsTruncated"
                 class="show-more cursor-pointer"
                 rel="noopener"
-                @click.prevent.stop="() => getStatementsFullText(id)">
+                @click.prevent.stop="() => getStatementsFullText(id)"
+              >
                 {{ Translator.trans('show.more') }}
               </a>
             </template>
@@ -279,7 +308,8 @@
               <a
                 class="cursor-pointer"
                 rel="noopener"
-                @click="() => toggleFulltext(id)">
+                @click="() => toggleFulltext(id)"
+              >
                 {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
               </a>
             </template>
@@ -291,7 +321,8 @@
         v-else
         :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans((searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: searchValue})"
-        type="info" />
+        type="info"
+      />
     </template>
   </div>
 </template>
@@ -490,7 +521,7 @@ export default {
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
-          const segmentsCount = statement.relationships.segments.data.length
+          const { segmentsCount = 0 } = statement.attributes
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
           return {
             ...statement.attributes,
@@ -710,6 +741,7 @@ export default {
         'memo',
         'originalId',
         'status',
+        'segmentsCount',
         'submitDate',
         'submitName',
         'submitType',
@@ -719,7 +751,6 @@ export default {
         // Relationships:
         'assignee',
         'sourceAttachment',
-        'segments',
       ]
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
@@ -747,7 +778,6 @@ export default {
         },
         sort: this.selectedSort,
         include: [
-          'segments',
           'assignee',
           'sourceAttachment',
           'sourceAttachment.file',
@@ -756,6 +786,9 @@ export default {
           Statement: statementFields.join(),
           SourceStatementAttachment: [
             'file',
+          ].join(),
+          File: [
+            'hash',
           ].join(),
         },
       }).then((data) => {

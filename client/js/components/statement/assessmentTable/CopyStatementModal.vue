@@ -11,7 +11,8 @@
   <dp-modal
     ref="copyStatementModal"
     content-classes="u-1-of-2"
-    @modal:toggled="handleModalToggled">
+    @modal:toggled="handleModalToggled"
+  >
     <!-- Modal header -->
     <template v-slot:header>
       {{ Translator.trans('statement.copy.to.procedure') }}
@@ -21,14 +22,16 @@
     <div>
       <dp-loading
         v-if="isLoading"
-        class="u-pv-0_5" />
+        class="u-pv-0_5"
+      />
       <template v-else>
         <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
-          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          v-if="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           class="mb-2"
           :message="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')"
-          type="warning" />
+          type="warning"
+        />
         <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
         <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
           <label class="u-mb-0_5 inline-block">
@@ -38,32 +41,37 @@
               name="procedure_permissions"
               value="accessibleProcedures"
               required
-              @change="resetSelectedProcedureId"> {{ Translator.trans('procedure.accessible') }}
+              @change="resetSelectedProcedureId"
+            > {{ Translator.trans('procedure.accessible') }}
           </label>
           <label class="u-mb-0_5 u-ml inline-block">
             <input
               v-model="procedurePermissions"
               type="radio"
               name="procedure_permissions"
-              value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
+              value="inaccessibleProcedures"
+            > {{ Translator.trans('procedure.inaccessible') }}
           </label>
         </template>
 
         <label
           class="u-mb-0_5"
-          for="r_target_procedure">{{ Translator.trans('target.procedure') }}</label>
+          for="r_target_procedure"
+        >{{ Translator.trans('target.procedure') }}</label>
         <select
           id="r_target_procedure"
           v-model="selectedProcedureId"
           name="r_target_procedure"
-          class="w-full u-mb">
+          class="w-full u-mb"
+        >
           <option value="">
             -
           </option>
           <option
             v-for="procedure in availableProcedures"
             :key="procedure.id"
-            :value="procedure.id">
+            :value="procedure.id"
+          >
             {{ procedure.name }}
           </option>
         </select>
@@ -71,8 +79,9 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
-          @click.prevent.stop="copyStatement">
+          :disabled="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
+          @click.prevent.stop="copyStatement"
+        >
           {{ Translator.trans('statement.copy.to.procedure.action') }}
         </button>
       </template>
@@ -112,10 +121,6 @@ export default {
     },
   },
 
-  emits: [
-    'statement:copyToProcedure',
-  ],
-
   data () {
     return {
       isLoading: true,
@@ -149,12 +154,12 @@ export default {
     },
 
     /*
-     * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
-     ** The check prevents failure of moveStatement due to fragments being assigned to departments.
+     * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't copy the statement despite being the assignee of the fragment.
+     ** The check prevents failure of copyStatement due to fragments being assigned to departments.
      ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
      */
-    fragmentsAreNotAssignedToDepartments () {
-      return this.statementFragments.filter(fragment => fragment.departmentId === null || fragment.departmentId === '').length === this.statementFragments.length
+    isAnyFragmentAssignedToDepartment () {
+      return this.statementFragments.some(fragment => fragment.departmentId)
     },
 
     isNoProcedureSelected () {
@@ -199,27 +204,14 @@ export default {
         procedureId: this.selectedProcedureId,
         statementId: this.statementId,
       })
-        .then(response => {
-          // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
-          if (hasOwnProp(response, 'data') && response.data.movedStatementId !== '') {
-            const copyToProcedureParams = {
-              copyToProcedureId: response.data.copyToProcedureId,
-              statementId: this.statementId,
-              copiedStatementId: response.data.copiedStatementId,
-              placeholderStatementId: response.data.placeholderStatementId,
-              movedToAccessibleProcedure: this.movedToAccessibleProcedure(response.data.movedToProcedureId),
-              movedToProcedureName: this.movedToAccessibleProcedure(response.data.movedToProcedureId) ? Object.values(this.accessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name : Object.values(this.inaccessibleProcedures).find(entry => entry.id === response.data.movedToProcedureId).name,
-            }
-
-            // Handle update of assessment table ui from TableCard.vue
-            this.$root.$emit('statement:copyToProcedure', copyToProcedureParams)
-          }
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
-          this.handleToggleModal()
-        })
-        .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.results.loading'))
-          this.setModalProperty({ prop: 'copyStatementModal', val: { ...this.copyStatementModal, statementId: null } })
+        .finally(() => {
+          this.setModalProperty({
+            prop: 'copyStatementModal',
+            val: {
+              ...this.copyStatementModal,
+              statementId: null,
+            },
+          })
           this.handleToggleModal()
         })
     },
@@ -269,7 +261,7 @@ export default {
         this.statementFragments = fragments.map(fragment => {
           return {
             id: fragment.id,
-            assigneeId: fragment.assignee.id,
+            assigneeId: fragment.assignee?.id || '',
             departmentId: fragment.departmentId,
           }
         })

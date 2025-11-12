@@ -11,7 +11,8 @@
   <dp-table-card
     :id="organisation.id"
     class="o-accordion u-ph-0_5"
-    :open="isOpen">
+    :open="isOpen"
+  >
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex">
@@ -21,22 +22,26 @@
           type="checkbox"
           :checked="selected"
           data-cy="organisationItemSelect"
-          @change="$emit('item:selected', organisation.id)">
+          @change="$emit('item:selected', organisation.id)"
+        >
         <div
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle"
-          @click="isOpen = !isOpen">
+          @click="isOpen = !isOpen"
+        >
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
           type="button"
           data-cy="accordionToggleBtn"
           class="btn--blank o-link--default"
-          @click="isOpen = !isOpen">
+          @click="isOpen = !isOpen"
+        >
           <dp-icon
             aria-hidden="true"
             :aria-label="ariaLabel"
-            :icon="icon" />
+            :icon="icon"
+          />
         </button>
       </div>
     </template>
@@ -45,7 +50,8 @@
     <div
       data-cy="editItemToggle"
       class="u-mt"
-      data-dp-validate="organisationForm">
+      data-dp-validate="organisationForm"
+    >
       <!-- Form fields -->
       <dp-organisation-form-fields
         :additional-field-options="additionalFieldOptions"
@@ -54,8 +60,9 @@
         :organisation="organisation"
         :organisation-id="organisation.id"
         @addon:update="updateAddonPayload"
-        @addonOptions:loaded="setAdditionalFieldOptions"
-        @organisation:update="updateOrganisation" />
+        @addon-options:loaded="setAdditionalFieldOptions"
+        @organisation:update="updateOrganisation"
+      />
 
       <!-- Button row -->
       <dp-button-row
@@ -63,7 +70,8 @@
         :primary="editable"
         secondary
         @primary-action="dpValidateAction('organisationForm', save)"
-        @secondary-action="reset" />
+        @secondary-action="reset"
+      />
     </div>
   </dp-table-card>
 </template>
@@ -131,7 +139,6 @@ export default {
     'addonOptions:loaded',
     'items:get',
     'item:selected',
-    'organisation:reset',
   ],
 
   data () {
@@ -221,7 +228,6 @@ export default {
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation:reset')
           this.isOpen = !this.isOpen
         })
     },

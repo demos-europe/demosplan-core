@@ -10,34 +10,42 @@
 <template>
   <div
     ref="container"
-    class="convert-annotated-pdf">
+    class="convert-annotated-pdf"
+  >
     <div
       ref="leftColumn"
       class="column column--big"
-      :style="largeColumnStyle">
+      :style="largeColumnStyle"
+    >
       <dp-loading v-if="isLoading" />
       <div
         v-else
-        class="convert-annotated-pdf__preview">
+        class="convert-annotated-pdf__preview"
+      >
         <img
           v-for="(page, idx) in pages"
           :key="`page_${idx}`"
           alt=""
-          :src="page.attributes.url">
+          :src="page.attributes.url"
+        >
       </div>
     </div>
     <div
       class="column column--small"
-      :style="smallColumnStyle">
+      :style="smallColumnStyle"
+    >
       <div
         class="resize-handle"
-        @mousedown="startResize">
+        @mousedown="startResize"
+      >
         <button
           class="resize-handle__button"
-          :title="Translator.trans('drag.adjust.width')">
+          :title="Translator.trans('drag.adjust.width')"
+        >
           <i
             class="fa fa-arrows-h"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
       </div>
       <div class="convert-annotated-pdf__form">
@@ -55,12 +63,14 @@
           :tags="tags"
           :used-intern-ids="usedInternIds"
           :init-values="formValues"
-          submit-route-name="dplan_pdf_import_to_statement">
+          submit-route-name="dplan_pdf_import_to_statement"
+        >
           <div class="flex justify-end mt-2">
             <dp-button
               data-cy="quickSave:button"
               :text="Translator.trans('statement.save.quickSave')"
-              @click="quickSaveText" />
+              @click="quickSaveText"
+            />
           </div>
         </dp-simplified-new-statement-form>
       </div>
@@ -68,7 +78,8 @@
     <dp-send-beacon
       :url="Routing.generate('dplan_annotated_statement_pdf_pause_text_review', {
         documentId: documentId, procedureId: procedureId
-      })" />
+      })"
+    />
   </div>
 </template>
 

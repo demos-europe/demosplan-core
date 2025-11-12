@@ -22,32 +22,38 @@
       :map-options="mapOptions"
       :small="small"
       :is-valid="requiredMapIsValid"
-      :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }">
+      :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }"
+    >
       <template
         v-if="editable"
-        v-slot:controls>
+        v-slot:controls
+      >
         <dp-procedure-coordinate-input
           v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
           :coordinate="coordinate"
-          @input="updateFeatures" />
+          @input="updateFeatures"
+        />
 
         <procedure-coordinate-geolocation
           v-if="hasPermission('feature_procedures_located_by_maintenance_service')"
           :coordinate="coordinate"
-          :location="procedureLocation" />
+          :location="procedureLocation"
+        />
 
         <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
             target="layer:procedureCoordinateDrawer"
             :active="isDrawingActive"
-            @tool:setPoint="checkProcedureValidation"
-            @tool:activated="setDrawingActive" />
+            @tool:set-point="checkProcedureValidation"
+            @tool:activated="setDrawingActive"
+          />
           <dp-ol-map-drag-zoom
             ref="dragzoom"
             :class="prefixClass('u-mb-0_5')"
-            @tool:activated="newValue => isDrawingActive = !newValue" />
+            @tool:activated="newValue => isDrawingActive = !newValue"
+          />
         </div>
       </template>
 
@@ -55,7 +61,8 @@
         ref="procedureCoordinateDrawer"
         :features="featuresFromCoordinate"
         name="procedureCoordinateDrawer"
-        @layerFeatures:changed="updateProcedureCoordinate" />
+        @layer-features:changed="updateProcedureCoordinate"
+      />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.
@@ -67,7 +74,8 @@
         :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         name="r_coordinate"
         required
-        type="hidden">
+        type="hidden"
+      >
       <span :class="prefixClass('validation-hint')">
         {{ Translator.trans('statement.map.draw.no_drawing_warning') }}
       </span>
@@ -78,7 +86,8 @@
       v-else
       v-model="currentProcedureCoordinate"
       name="r_coordinate"
-      type="hidden">
+      type="hidden"
+    >
   </div>
 </template>
 

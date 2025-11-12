@@ -17,15 +17,18 @@
       'is-active-toggle': active
     }"
     :href="'#' + statementId + '_fragments'"
-    @click="loadFragments(statementId)">
+    @click="loadFragments(statementId)"
+  >
     <i
       class="fa fa-sitemap"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ Translator.trans(title) }}
     <span
       v-if="showFragmentsCount"
       class="font-size-smaller text-center block"
-      style="margin-top: -4px;">
+      style="margin-top: -4px;"
+    >
       ({{ filteredFragmentsLength }} {{ Translator.trans('hits') }})
     </span>
   </a>
@@ -70,7 +73,6 @@ export default {
 
   emits: [
     'fragments:show',
-    'fragments:load',
   ],
 
   computed: {
@@ -103,10 +105,6 @@ export default {
        *  and the event becomes the first argument (when called from actionmenu)
        */
       statementId = typeof statementId === 'object' ? false : statementId
-      if (!this.$store.state.Fragment.fragments[this.statementId]) {
-        // Load statements only if the button is clicked for the first time, because then they are stored in fragment store
-        this.$root.$emit('fragments:load', statementId)
-      }
 
       this.$emit('fragments:show', statementId)
     },

@@ -249,7 +249,7 @@ export default {
       }
 
       return dpApi.get(url)
-        .then(({ data }) => commit('loadFragmentsToStore', { fragments: data.data, statementId: data.statementId }))
+        .then(response => commit('loadFragmentsToStore', { fragments: response.data.data, statementId: data.statementId }))
     },
 
     /**

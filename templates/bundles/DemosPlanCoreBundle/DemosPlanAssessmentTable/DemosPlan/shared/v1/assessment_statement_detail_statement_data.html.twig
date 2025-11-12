@@ -653,7 +653,7 @@
 
                     {% else %}
                         {# set all options for optgroups only for edit-mode #}
-                        {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
+                        {% if statement.isSubmittedByCitizen == false %}
                             {% set phases = templateVars.internalPhases|default %}
                         {% else %}
                             {% set phases = templateVars.externalPhases|default %}
@@ -1205,7 +1205,7 @@
                                 fileupload(
                                     "r_fileupload_source_statement",
                                     "document.attach",
-                                    "all",
+                                    ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                     "form.button.upload.file",
                                     1,
                                     true
@@ -1227,7 +1227,7 @@
                                 fileupload(
                                     "r_fileupload",
                                     "documents.attach",
-                                    "all",
+                                    ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                     "form.button.upload.files",
                                     20,
                                     true

@@ -5,6 +5,38 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Detect Company Department from OzgKeycloak token and assign it to user
+## v4.23.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.18.1 (2025-10-16)
+## v4.18.0 (2025-10-13)
+## v4.16.1 (2025-10-16)
+- Fix addon asset build during docker build
+
+## v4.16.0 (2025-09-30)
+- Allow project specific CSS
+- allow sessions to be stored in redis
+
+-  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+
+- Turn projects into yarn workspaces
+
+### Features
+- Add possibility to delete custom fields and their options
+
+## v4.15.2 (2025-10-24)
+- fix zip download for older uploads
+
+## v4.15.0 (2025-09-15)
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
+
+## v4.12.0 (2025-09-10)
+- Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+- Update demosplan-addon from v0.59 to v0.60
 
 ## v4.11.0 (2025-08-27)
 - Allow to edit custom field type singleSelect
@@ -34,6 +66,13 @@
 - Allow filtering of institution tags in DpAddOrganizationList
 
 ## v4.4.0 (2025-06-13)
+
+## v4.3.3 (2025-11-04)
+- smart pagination for segment navigation
+
+## v4.3.1-ewm (2025-09-25)
+- allow sessions to be stored in redis
+
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8

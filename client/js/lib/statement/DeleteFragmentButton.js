@@ -50,7 +50,7 @@ export default function DeleteFragmentButton () {
           },
         })
           .then(({ data }) => {
-            if (data.data.code === 200 && data.data.success === true) {
+            if (data.code === 200 && data.success === true) {
               // Remove Item from DOM
               const target = document.querySelector('[data-post-delete-target="' + elem.getAttribute('data-target-id') + '"]')
               target.parentNode.removeChild(target)

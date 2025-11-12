@@ -2,11 +2,13 @@
   <div>
     <dp-map-modal
       ref="mapModal"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt" />
+      class="u-mt"
+    />
 
     <template v-else>
       <template v-if="hasPermission('feature_admin_export_original_statement')">
@@ -15,19 +17,22 @@
             class="block mt-1"
             csv
             docx
-            @export="type => handleExport(type)" />
+            @export="type => handleExport(type)"
+          />
         </div>
 
         <dp-bulk-edit-header
           v-else
           class="layout__item w-full mt-2"
           :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
-          @reset-selection="resetSelection">
+          @reset-selection="resetSelection"
+        >
           <export-flyout
             class="inline-block top-[-3px]"
             csv
             docx
-            @export="type => handleExport(type)" />
+            @export="type => handleExport(type)"
+          />
         </dp-bulk-edit-header>
       </template>
 
@@ -45,7 +50,8 @@
         :total-items="pagination.total"
         :total-pages="pagination.totalPages"
         @page-change="fetchOriginalStatementsByPage"
-        @size-change="handleSizeChange" />
+        @size-change="handleSizeChange"
+      />
 
       <dp-data-table
         v-if="items.length > 0"
@@ -57,14 +63,17 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         @items-toggled="handleToggleItem"
-        @selectAll="handleSelectAll">
+        @select-all="handleSelectAll"
+      >
         <template v-slot:externId="{ externId }">
           <span
             class="font-semibold"
-            v-text="externId" />
+            v-text="externId"
+          />
         </template>
         <template
-          v-slot:submitter="{ id }">
+          v-slot:submitter="{ id }"
+        >
           <div v-cleanhtml="getSubmitterName(id)" />
         </template>
         <template v-slot:submitDate="{ submitDate }">
@@ -75,21 +84,25 @@
         <template v-slot:shortText="{ shortText }">
           <div
             v-cleanhtml="shortText"
-            class="line-clamp-3 c-styled-html" />
+            class="line-clamp-3 c-styled-html"
+          />
         </template>
         <template v-slot:procedurePhase="{ procedurePhase }">
           <span
-            v-if="procedurePhase.name">
+            v-if="procedurePhase.name"
+          >
             {{ procedurePhase.name }}
           </span>
         </template>
         <template
           v-if="hasPermission('area_statement_anonymize')"
-          v-slot:flyout="{ externId, id }">
+          v-slot:flyout="{ externId, id }"
+        >
           <dp-flyout>
             <a
               class="block u-pt-0 leading-[2] whitespace-nowrap"
-              :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
+              :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })"
+            >
               {{ Translator.trans('statement.anonymize', { externId: externId }) }}
             </a>
           </dp-flyout>
@@ -101,7 +114,8 @@
             polygon,
             shortText,
             textIsTruncated
-          }">
+          }"
+        >
           <div class="u-pt-0_5">
             <!-- Meta data -->
             <div>
@@ -157,7 +171,8 @@
                     class="btn--blank o-link--default"
                     data-cy="originalStatementList:toggleLocationModal"
                     type="button"
-                    @click="toggleLocationModal(JSON.parse(polygon))">
+                    @click="toggleLocationModal(JSON.parse(polygon))"
+                  >
                     {{ Translator.trans('see') }}
                   </button>
                   <span v-else>
@@ -178,16 +193,19 @@
                       :href="Routing.generate('core_file_procedure', { hash: getOriginalStatementAsAttachment(id).attributes.hash, procedureId: procedureId })"
                       rel="noopener"
                       target="_blank"
-                      :title="getOriginalStatementAsAttachment(id).attributes.filename">
+                      :title="getOriginalStatementAsAttachment(id).attributes.filename"
+                    >
                       <i
                         aria-hidden="true"
                         class="fa fa-paperclip color--grey"
-                        :title="Translator.trans('attachment.original')" />
+                        :title="Translator.trans('attachment.original')"
+                      />
                       {{ getOriginalStatementAsAttachment(id).attributes.filename }}
                     </a>
                     <span
                       v-else
-                      class="ml-0">
+                      class="ml-0"
+                    >
                       -
                     </span>
                   </dd>
@@ -198,7 +216,8 @@
                 </dt>
                 <dd
                   v-if="getGenericAttachments(id).length > 0"
-                  class="ml-0">
+                  class="ml-0"
+                >
                   <a
                     v-for="(file, idx) in getGenericAttachments(id)"
                     :key="idx"
@@ -206,17 +225,20 @@
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
                     target="_blank"
-                    :title="file.filename">
+                    :title="file.filename"
+                  >
                     <i
                       aria-hidden="true"
                       class="fa fa-paperclip color--grey"
-                      :title="file.filename" />
+                      :title="file.filename"
+                    />
                     {{ file.filename }}
                   </a>
                 </dd>
                 <dd
                   v-else
-                  class="ml-0">
+                  class="ml-0"
+                >
                   -
                 </dd>
               </dl>
@@ -233,7 +255,8 @@
                   class="show-more cursor-pointer"
                   rel="noopener"
                   @click.prevent.stop="() => fetchFullTextById(id)"
-                  @keydown.enter="() => fetchFullTextById(id)">
+                  @keydown.enter="() => fetchFullTextById(id)"
+                >
                   {{ Translator.trans('show.more') }}
                 </a>
               </template>
@@ -243,7 +266,8 @@
                   class="cursor-pointer"
                   rel="noopener"
                   @click="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
-                  @keydown.enter="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)">
+                  @keydown.enter="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
+                >
                   {{ Translator.trans(originalStatements[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
                 </a>
               </template>
@@ -256,7 +280,8 @@
         v-else
         class="mt-3"
         :message="Translator.trans('statements.none')"
-        type="info" />
+        type="info"
+      />
     </template>
   </div>
 </template>

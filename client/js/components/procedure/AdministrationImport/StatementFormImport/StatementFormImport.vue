@@ -18,7 +18,8 @@
       :statement-import-email-id="null"
       :submit-type-options="submitTypeOptions"
       :tags="tags"
-      :used-intern-ids="usedInternIds" />
+      :used-intern-ids="usedInternIds"
+    />
   </div>
 </template>
 

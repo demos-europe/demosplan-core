@@ -57,6 +57,7 @@ class AssessmentExportOptions implements JsonSerializable
      */
     final public const FORMATS = [
         'docx',
+        'odt',
         'pdf',
         'xlsx',
         'zip',

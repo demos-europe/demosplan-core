@@ -10,10 +10,12 @@ All rights reserved
 <template>
   <div
     ref="contentArea"
-    class="mt-2">
+    class="mt-2"
+  >
     <dp-loading
       v-if="isLoading"
-      class="mt-4" />
+      class="mt-4"
+    />
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
@@ -23,7 +25,8 @@ All rights reserved
           data-cy="addOrganisationList:searchField"
           input-width="u-1-of-1"
           @reset="handleReset"
-          @search="handleSearch" />
+          @search="handleSearch"
+        />
 
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
@@ -31,7 +34,8 @@ All rights reserved
           :raw-items="rowItems"
           :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
-          @reset="resetSearch" />
+          @reset="resetSearch"
+        />
 
         <!-- Slot for bulk actions -->
       </div>
@@ -47,7 +51,8 @@ All rights reserved
       :total-items="totalItems"
       :total-pages="totalPages"
       @page-change="page => getInstitutionsWithContacts(page)"
-      @size-change="handleItemsPerPageChange" />
+      @size-change="handleItemsPerPageChange"
+    />
 
     <dp-data-table
       ref="DpDataTable"
@@ -59,7 +64,8 @@ All rights reserved
       lock-checkbox-by="hasNoEmail"
       track-by="id"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
-      @items-selected="setSelectedItems">
+      @items-selected="setSelectedItems"
+    >
       <!-- Resource-specific content based on resourceType -->
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -70,23 +76,27 @@ All rights reserved
             <template v-if="locationContacts && hasAdress(locationContacts)">
               <dd
                 v-if="locationContacts.street"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.street }}
               </dd>
               <dd
                 v-if="locationContacts.postalcode"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.postalcode }}
               </dd>
               <dd
                 v-if="locationContacts.city"
-                class="ml-0">
+                class="ml-0"
+              >
                 {{ locationContacts.city }}
               </dd>
             </template>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('notspecified') }}
             </dd>
           </dl>
@@ -96,12 +106,14 @@ All rights reserved
             </dt>
             <dd
               v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
-              class="ml-0">
+              class="ml-0"
+            >
               {{ locationContacts.phone }}
             </dd>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('notspecified') }}
             </dd>
             <dt class="color--grey mt-2">
@@ -109,12 +121,14 @@ All rights reserved
             </dt>
             <dd
               v-if="participationFeedbackEmailAddress"
-              class="ml-0">
+              class="ml-0"
+            >
               {{ participationFeedbackEmailAddress }}
             </dd>
             <dd
               v-else
-              class="ml-0">
+              class="ml-0"
+            >
               {{ Translator.trans('no.participation.email') }}
             </dd>
             <template v-if="ccEmailAddresses">
@@ -136,7 +150,8 @@ All rights reserved
           </dl>
           <dl
             v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
-            class="pl-4 w-full">
+            class="pl-4 w-full"
+          >
             <dt class="color--grey">
               {{ Translator.trans('tags') }}
             </dt>

@@ -16,18 +16,22 @@
       role="button"
       :href="editable ? Routing.generate('dplan_assessment_table_assessment_table_statement_fragment_bulk_edit', { procedureId: procedureId}) : false"
       :title="false === editable ? Translator.trans('locked.title') : false"
-      :aria-disabled="false === editable">
+      :aria-disabled="false === editable"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-pencil u-mr-0_125" />
+        class="fa fa-pencil u-mr-0_125"
+      />
       {{ Translator.trans('edit') }}
     </a>
     <button
       class="btn--blank o-link--default u-mr-0_5"
-      @click.prevent="$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')"
+    >
       <i
         aria-hidden="true"
-        class="fa fa-share-square u-mr-0_125" />
+        class="fa fa-share-square u-mr-0_125"
+      />
       {{ Translator.trans('export') }}
     </button>
   </div>

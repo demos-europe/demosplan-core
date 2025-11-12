@@ -39,7 +39,8 @@
           obscure: obscure,
           strikethrough: strikethrough
         }"
-        @transformObscureTag="transformObscureTag">
+        @transform-obscure-tag="transformObscureTag"
+      >
         <template v-slot:modal="modalProps">
           <dp-boiler-plate-modal
             v-if="boilerPlate"
@@ -47,7 +48,8 @@
             boiler-plate-type="consideration"
             :editor-id="editorId"
             :procedure-id="procedureId"
-            @insert="text => modalProps.handleInsertText(text)" />
+            @insert="text => modalProps.handleInsertText(text)"
+          />
         </template>
         <template v-slot:button>
           <button
@@ -55,7 +57,8 @@
             v-tooltip="Translator.trans('boilerplate.insert')"
             :class="prefixClass('menubar__button')"
             type="button"
-            @click.stop="openBoilerPlate">
+            @click.stop="openBoilerPlate"
+          >
             <i :class="prefixClass('fa fa-puzzle-piece')" />
           </button>
         </template>
@@ -65,11 +68,13 @@
           :busy="loading"
           data-cy="tipTapSave"
           :text="Translator.trans('save')"
-          @click="save" />
+          @click="save"
+        />
         <button
           class="btn btn--secondary"
           type="button"
-          @click="reset">
+          @click="reset"
+        >
           {{ Translator.trans('reset') }}
         </button>
       </div>
@@ -77,7 +82,8 @@
 
     <div
       v-else
-      class="relative u-pr">
+      class="relative u-pr"
+    >
       <template v-if="shortText !== ''">
         <height-limit
           class="c-styled-html"
@@ -85,8 +91,9 @@
           :full-text="fullText"
           :element="editLabel"
           :is-shortened="isShortened"
-          @heightLimit:toggle="update"
-          @click="toggleEditMode" />
+          @height-limit:toggle="update"
+          @click="toggleEditMode"
+        />
         <button
           v-if="!loading"
           type="button"
@@ -94,10 +101,12 @@
           class="c-edit-field__trigger btn--blank o-link--default"
           :title="Translator.trans(editable ? editLabel : 'locked.title')"
           data-cy="toggleTipTapEditMode"
-          @click.prevent.stop="toggleEditMode">
+          @click.prevent.stop="toggleEditMode"
+        >
           <i
             class="fa fa-pencil"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
         </button>
       </template>
       <button
@@ -106,13 +115,15 @@
         :disabled="!editable"
         class="btn--blank o-link--default"
         :title="Translator.trans(editable ? editLabel : 'locked.title')"
-        @click="toggleEditMode">
+        @click="toggleEditMode"
+      >
         {{ Translator.trans('author.verb') }}
       </button>
       <dp-loading
         v-if="loading"
         class="c-edit-field__trigger"
-        hide-label />
+        hide-label
+      />
     </div>
   </div>
 </template>
@@ -336,12 +347,13 @@ export default {
 
       if (this.fullTextLoaded) {
         callback()
+
         return
       }
 
       this.loading = true
 
-      const params = (fullUpdate) ? { includeShortened: true } : {}
+      const params = fullUpdate ? { includeShortened: true } : {}
 
       /*
        * @TODO: This Request can be faster than the Update of the Statement which gets requested here. In that case the
@@ -357,6 +369,7 @@ export default {
         { serialize: true },
       ).then(response => {
         const responseData = response.data.data
+
         this.fullTextLoaded = true
 
         // Check if it is the first update
@@ -372,7 +385,7 @@ export default {
           this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+        if (fullUpdate && hasOwnProp(responseData, 'shortened')) {
           this.shortText = responseData.shortened
         }
 

@@ -36,20 +36,24 @@
       <!--ASSIGN TO OTHER-->
       <div
         v-if="hasPermission('feature_statement_assignment')"
-        class="border--bottom u-mb">
+        class="border--bottom u-mb"
+      >
         <input
           id="r_new_assignee"
           v-model="options.newAssignee.checked"
-          type="checkbox">
+          type="checkbox"
+        >
         <label
           for="r_new_assignee"
-          class="inline-block">
+          class="inline-block"
+        >
           {{ Translator.trans('fragments.assign.other') }}
         </label>
 
         <div
           v-if="options.newAssignee.checked"
-          class="u-ml">
+          class="u-ml"
+        >
           <!--when assignee reset will be possible in BE, this should be back-->
           <!--<label-->
           <!--for="r_consideration_value"-->
@@ -65,7 +69,8 @@
             :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
             :options="users"
             track-by="id"
-            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}">
+            @input="() => {options.newAssignee.isValid() ? $refs.newAssignee.$el.querySelector(options.newAssignee.elementToReceiveErrorBorder).classList.remove('border--error') : null}"
+          >
             <template v-slot:option="{ props }">
               {{ props.option.name }} {{ props.option.id === currentUserId? ` (Sie)` : '' }}
             </template>
@@ -78,18 +83,22 @@
         <input
           id="r_consideration"
           v-model="options.consideration.checked"
-          type="checkbox">
+          type="checkbox"
+        >
         <label
           for="r_consideration"
-          class="inline-block">
+          class="inline-block"
+        >
           {{ Translator.trans('consideration.text.add') }}
         </label>
         <div
           v-if="options.consideration.checked"
-          class="u-ml">
+          class="u-ml"
+        >
           <label
             for="r_consideration_value"
-            class="u-mb-0_25  u-n-mt-0_5" /><!--
+            class="u-mb-0_25  u-n-mt-0_5"
+          /><!--
           --><p class="lbl__hint u-mb-0_5">
           {{ Translator.trans('consideration.text.add.explanation') }}
         </p>
@@ -97,14 +106,16 @@
           <dp-editor
             ref="consideration"
             :value="options.consideration.value"
-            @input="updateConsiderationText">
+            @input="updateConsiderationText"
+          >
             <template v-slot:modal="modalProps">
               <dp-boiler-plate-modal
                 v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
-                @insert="text => modalProps.handleInsertText(text)" />
+                @insert="text => modalProps.handleInsertText(text)"
+              />
             </template>
             <template v-slot:button>
               <button
@@ -112,7 +123,8 @@
                 v-tooltip="Translator.trans('boilerplate.insert')"
                 :class="prefixClass('menubar__button')"
                 type="button"
-                @click.stop="openBoilerPlate">
+                @click.stop="openBoilerPlate"
+              >
                 <i :class="prefixClass('fa fa-puzzle-piece')" />
               </button>
             </template>
@@ -125,14 +137,16 @@
         <a
           class="btn btn--primary"
           role="button"
-          @click.prevent="toggleMode('confirm')">
+          @click.prevent="toggleMode('confirm')"
+        >
           {{ Translator.trans('continue.confirm') }}
           <i class="fa fa-angle-right u-pl-0_25" />
         </a>
         <a
           class="btn btn--secondary float-left"
           role="button"
-          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
+          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })"
+        >
           <i class="fa fa-angle-left u-pr-0_25" />
           {{ Translator.trans('considerationtable.back') }}
         </a>
@@ -147,7 +161,8 @@
 
       <div
         v-if="options.newAssignee.checked"
-        class="u-mv">
+        class="u-mv"
+      >
         <label class="u-mb-0_25">
           {{ Translator.trans('fragments.assign.other.confirmation') }}:
         </label>
@@ -156,7 +171,8 @@
 
       <div
         v-if="options.consideration.checked"
-        class="u-mv">
+        class="u-mv"
+      >
         <label class="u-mb-0_25">
           {{ Translator.trans('consideration.text.to.be.added') }}:
         </label>
@@ -176,20 +192,23 @@
           :busy="isLoading"
           icon-after="chevron-right"
           :text="Translator.trans('actions.fragments.apply', { count: selectedFragmentsCount })"
-          @click.once="submitData" />
+          @click.once="submitData"
+        />
         <!-- if there's an error in response (so edit failed), show the 'back to ATabelle' button -->
         <a
           v-if="isError"
           class="btn btn--secondary float-right"
           role="button"
-          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
+          :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })"
+        >
           {{ Translator.trans('considerationtable.back') }}
         </a>
 
         <a
           class="btn btn--secondary float-left"
           role="button"
-          @click.prevent="toggleMode('edit')">
+          @click.prevent="toggleMode('edit')"
+        >
           <i class="fa fa-angle-left u-pr-0_25" />
           {{ Translator.trans('back.to.edit') }}
         </a>
@@ -204,16 +223,19 @@
       <p
         v-for="option in checkedOptions"
         :key="option"
-        class="flash-confirm u-p-0_5">
+        class="flash-confirm u-p-0_5"
+      >
         <i
           class="fa fa-check fa-lg"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans(options[option].successMessage) }}
       </p>
       <a
         class="btn btn--primary float-left u-mt-0_5"
         role="button"
-        :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })">
+        :href="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: filterHash })"
+      >
         <i class="fa fa-angle-left u-pr-0_25" />
         {{ Translator.trans('considerationtable.back') }}
       </a>
