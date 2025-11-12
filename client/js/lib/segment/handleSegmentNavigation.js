@@ -89,7 +89,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     // Get segment position to calculate correct page
     const positionData = await getSegmentPosition(targetSegmentId)
 
-    if (!positionData?.position) {
+    if (!positionData?.data?.position) {
       // Remove invalid segment parameter from URL
       removeSegmentParameter()
 
@@ -101,7 +101,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     }
 
     const perPage = currentPerPage || defaultPagination.perPage
-    const calculatedPage = Math.ceil(positionData.position / perPage)
+    const calculatedPage = Math.ceil(positionData.data.position / perPage)
 
     // Update localStorage with calculated page
     const paginationData = { currentPage: calculatedPage, perPage }
