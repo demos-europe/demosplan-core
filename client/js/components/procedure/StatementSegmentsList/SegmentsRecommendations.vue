@@ -102,9 +102,9 @@
 <script>
 import { dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -189,7 +189,7 @@ export default {
      */
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
-        if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
+        if (this.statement.relationships.assignee.data.id !== this.currentUser.id) {
           if (window.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
               .then(err => {
@@ -347,19 +347,19 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        const queryParams = new URLSearchParams(window.location.search)
-        const segmentId = queryParams.get('segment') || ''
+      await this.$nextTick()
 
-        if (segmentId) {
-          scrollTo('#segment_' + segmentId, { offset: -110 })
-          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+      const queryParams = new URLSearchParams(window.location.search)
+      const segmentId = queryParams.get('segment') || ''
 
-          if (segmentComponent) {
-            segmentComponent.isCollapsed = false
-          }
+      if (segmentId) {
+        scrollTo('#segment_' + segmentId, { offset: -110 })
+        const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+        if (segmentComponent) {
+          segmentComponent.isCollapsed = false
         }
-      })
+      }
     },
 
     goToSplitStatementView () {
