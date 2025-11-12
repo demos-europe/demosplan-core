@@ -55,7 +55,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     try {
       const url = Routing.generate('dplan_segment_position', {
         segmentId: segmentId,
-        statementId: statementId
+        statementId: statementId,
       })
 
       return await dpApi.get(url)
@@ -81,7 +81,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       return {
         calculatedPage: null,
         perPage: null,
-        segmentId: null
+        segmentId: null,
       }
     }
 
@@ -95,7 +95,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       return {
         calculatedPage: null,
         perPage: null,
-        segmentId: null
+        segmentId: null,
       }
     }
 
@@ -110,7 +110,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     return {
       calculatedPage,
       perPage,
-      segmentId: targetSegmentId
+      segmentId: targetSegmentId,
     }
   }
 
@@ -127,11 +127,13 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
 
     // Only override initialization if we have a segment parameter
     if (hasSegmentParam) {
-      // Initialize with default pagination, ignoring localStorage for page number
-      // The correct page will be calculated in fetchSegments
+      /*
+       * Initialize with default pagination, ignoring localStorage for page number
+       * The correct page will be calculated in fetchSegments
+       */
       const pagination = {
         currentPage: 1,
-        perPage: defaultPagination.perPage
+        perPage: defaultPagination.perPage,
       }
 
       // Check localStorage only for perPage setting

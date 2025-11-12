@@ -560,14 +560,14 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        this.scrollToSegment()
+      await this.$nextTick()
 
-        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
-        if (shouldRemoveSegmentParam) {
-          this.segmentNavigation.removeSegmentParameter()
-        }
-      })
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     handlePageChange (page) {
@@ -591,7 +591,7 @@ export default {
       statementId: this.statementId,
       storageKey: this.storageKeyPagination,
       currentPerPage: this.pagination?.perPage,
-      defaultPagination: this.defaultPagination
+      defaultPagination: this.defaultPagination,
     })
   },
 
