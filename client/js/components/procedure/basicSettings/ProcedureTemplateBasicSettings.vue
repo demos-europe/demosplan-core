@@ -55,7 +55,7 @@ export default {
       state: {
         selectedAgencies: this.agencies.filter(agency => this.initSelectedAgencies.includes(agency.id)),
         selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id)),
-      }
+      },
     }
   },
 
