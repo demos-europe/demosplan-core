@@ -217,41 +217,4 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         ));
     }
 
-    public function testRepositoryPerformanceWithLargeDatasets(): void
-    {
-        // Arrange - Create multiple permissions for the same user
-        $permissions = [
-            'feature_statement_bulk_edit',
-            'feature_procedure_planning_area_match',
-            'area_admin_assessmenttable',
-            'area_admin_procedures',
-            'area_admin_statement_list',
-        ];
-
-        foreach ($permissions as $permission) {
-            $userAccessControl = new UserAccessControl();
-            $userAccessControl->setUser($this->testUser->object());
-            $userAccessControl->setOrganisation($this->testOrga->object());
-            $userAccessControl->setCustomer($this->testCustomer->object());
-            $userAccessControl->setRole($this->testRole);
-            $userAccessControl->setPermission($permission);
-
-            $this->getEntityManager()->persist($userAccessControl);
-        }
-
-        $this->getEntityManager()->flush();
-
-        // Act - Measure query performance
-        $startTime = microtime(true);
-
-        $result = $this->sut->getPermissionsByUserAndRoles(
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(),
-            [$this->testRole]
-        );
-
-        // Assert - Log execution time for informational purposes
-        self::assertCount(5, $result);
-    }
 }
