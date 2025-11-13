@@ -132,14 +132,16 @@ export default {
     deleteElements () {
       if (dpconfirm(Translator.trans('check.items.marked.delete'))) {
         document.singleDocumentForm.r_action.value = 'singledocumentdelete'
-        this.selectedElements.forEach(el => {
+
+        for (const el of this.selectedElements) {
           const hiddenInput = document.createElement('input')
+
           hiddenInput.setAttribute('type', 'hidden')
           hiddenInput.setAttribute('name', 'document_delete[]')
           hiddenInput.setAttribute('value', el)
           hiddenInput.checked = true
           document.singleDocumentForm.appendChild(hiddenInput)
-        })
+        }
 
         document.singleDocumentForm.submit()
       }
@@ -150,7 +152,7 @@ export default {
     },
 
     saveManualSort (val) {
-      const initialSort = JSON.parse(JSON.stringify(this.tableElements))
+      const initialSort = structuredClone(this.tableElements)
       this.tableElements.splice(val.moved.newIndex, 0, this.tableElements.splice(val.moved.oldIndex, 1)[0])
 
       const payload = {
@@ -181,7 +183,16 @@ export default {
     sortSelected (type) {
       const area = `selected${type}`
 
-      this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+      this[area].sort((a, b) => {
+        if (a.name > b.name) {
+          return 1
+        }
+        if (b.name > a.name) {
+          return -1
+        }
+
+        return 0
+      })
     },
 
     toggleAutoSwitchState () {
