@@ -33,59 +33,61 @@
                 <input type="hidden" value="{% if templateVars.internalPhases.1 is defined %}{{ templateVars.internalPhases.1.key }}{% endif %}" name="r_phase">
                 <input type="hidden" value="edit" name="action">
 
-                <label>
-                    {{ "name"|trans }}*
-                    <p class="lbl__hint">
-                        {{ "input.text.maxlength"|trans({ maxlength: 200, id: 'counter' })|wysiwyg('input') }}
-                    </p>
-                    <input
-                        class="layout__item"
-                        name="r_name" type="text"
-                        value="{% if proceduresettings.name is defined %}{{ proceduresettings.name }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                        data-counter="counter"
-                        maxlength="200"
-                        data-cy="editMasterName">
-                </label>
+                <dp-input
+                    id="r_name"
+                    class="mb-4"
+                    data-counter="counter"
+                    data-cy="editMasterName"
+                    :label="{
+                        hint: Translator.trans('input.text.maxlength', { maxlength: 200, id: 'counter' }),
+                        text: Translator.trans('name')
+                    }"
+                    maxlength="200"
+                    name="r_name"
+                    required="true"
+                    model-value="{% if proceduresettings.name is defined %}{{ proceduresettings.name }}{% else %}{{ "notspecified"|trans }}{% endif %}"
+                >
+                </dp-input>
 
                 {% if hasPermission('field_procedure_adjustments_planning_agency') %}
                     {% block planningagency %}
                         <label class="u-mb-0">
-                            {{ "planningagency"|trans }}
+                            {{ 'planningagency'|trans }}
                         </label>
-                            <dp-multiselect
-                                v-model="state.selectedAgencies"
-                                class="layout__item u-1-of-1 u-pl-0 u-mb"
-                                label="name"
-                                multiple
-                                :options="agencies"
-                                track-by="id"
-                                @input="sortSelected('Agencies')">
-                                <template v-slot:option="{ props }">
-                                    {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                </template>
-                                <template v-slot:tag="{ props }">
-                                <span class="multiselect__tag">
-                                    {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
-                                    <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                    <input type="hidden" :value="props.option.id" name="r_agency[]"/>
-                                </span>
-                                </template>
-                            </dp-multiselect>
+                        <dp-multiselect
+                            v-model="state.selectedAgencies"
+                            class="layout__item w-full pl-0 mb-4"
+                            label="name"
+                            :multiple="true"
+                            :options="agencies"
+                            track-by="id"
+                            @input="sortSelected('Agencies')">
+                            <template v-slot:option="{ props }">
+                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                            </template>
+                            <template v-slot:tag="{ props }">
+                            <span class="multiselect__tag">
+                                {%  verbatim %}{{ props.option.name }}{%  endverbatim %}
+                                <i aria-hidden="true"  @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                <input type="hidden" :value="props.option.id" name="r_agency[]"/>
+                            </span>
+                            </template>
+                        </dp-multiselect>
                     {% endblock %}
                 {% endif %}
 
                 {% if hasProcedureUserRestrictedAccess and hasPermission('feature_procedure_user_restrict_access_edit') %}
-                    <div class="u-mb flow-root">
-                        <label class="inline-block u-mb-0" for="r_dataInputOrga">
-                            {{ "authorized.users"|trans }}
+                    <div class="mb-4 flow-root">
+                        <label class="inline-block mb-0" for="r_dataInputOrga">
+                            {{ 'authorized.users'|trans }}
                         </label>
                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                             helpText: 'text.procedure.edit.authorized.users'|trans,
-                            cssClasses:'float-right u-mt-0_125'
+                            cssClasses:'ml-1 mb-1'
                         } %}
                         <dp-multiselect
                             v-model="state.selectedAuthUsers"
-                            class="layout__item u-1-of-1 u-pl-0"
+                            class="layout__item w-full pl-0"
                             label="name"
                             :multiple="true"
                             :options="authUsers"
@@ -108,43 +110,42 @@
                     </div>
                 {% endif %}
 
-                <label>
-                    {{ "internalnote"|trans }}
-                    {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
-                    <textarea class="h-7" name="r_desc">{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ "notspecified"|trans }}{% endif %}</textarea>
-                </label>
+                <dp-text-area
+                    id="r_desc"
+                    class="mb-4"
+                    :label="Translator.trans('internalnote')"
+                    data-cy="newProcedureForm:internalNote"
+                    name="r_desc"
+                    :reduced-height="true"
+                    value="{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ 'notspecified'|trans }}{% endif %}"
+                >
+                </dp-text-area>
 
-                <div class="u-mb flow-root">
-                    <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
-                        {{ "email.procedure.agency"|trans }}
-                        <p class="lbl__hint weight--normal text-left">
-                            {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
-                        </p>
-                    </label>
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        helpText: 'email.procedure.agency.help'|trans,
-                        cssClasses:'float-right u-mt-0_125'
-                    } %}
+                <dp-input
+                    id="{{ form.agencyMainEmailAddress.vars.id }}"
+                    class="mb-4 flow-root"
+                    :label="{
+                        hint: Translator.trans('explanation.organisation.email.procedure.agency'),
+                        text: Translator.trans('email.procedure.agency'),
+                        tooltip: Translator.trans('email.procedure.agency.help')
+                    }"
+                    model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+                    name="agencyMainEmailAddress[fullAddress]"
+                    type="email"
+                >
+                </dp-input>
 
-                    {{ form_errors(form.agencyMainEmailAddress) }}
-                    <input
-                        id="{{ form.agencyMainEmailAddress.vars.id }}"
-                       name="agencyMainEmailAddress[fullAddress]"
-                       value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                       class="layout__item" type="email">
-                </div>
-
-                <div class="u-mb flow-root">
-                    <label class="inline-block u-mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
+                <div class="mb-4 flow-root">
+                    <label class="inline-block mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                         {{ "email.address.more"|trans }}
+                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                            helpText: 'email.address.more.explanation.help'|trans,
+                            cssClasses:'mb-0.5'
+                        } %}
                         <p class="lbl__hint weight--normal">
                             {{ "email.address.more.explanation"|trans|wysiwyg }}
                         </p>
                     </label>
-                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                        helpText: 'email.address.more.explanation.help'|trans,
-                        cssClasses:'float-right u-mt-0_125'
-                    } %}
 
                     {% set emailAddresses = [] %}
                     {% for agencyExtraEmailAddress in form.agencyExtraEmailAddresses %}
@@ -159,17 +160,17 @@
                 </div>
 
                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                    <div class="u-mb flow-root">
-                        <label class="inline-block u-mb-0" for="r_pictogram">
+                    <div class="mb-4 flow-root">
+                        <label class="inline-block mb-0" for="r_pictogram">
                             {{ 'procedure.pictogram'|trans }}
                         </label>
                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                             helpText: 'text.procedure.edit.external.pictogram'|trans,
-                            cssClasses:'float-right u-mt-0_125'
+                            cssClasses:'ml-1 mb-1'
                         } %}
                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                             <br><br>
-                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                            <img class="layout__item u-1-of-6 pl-0 mb-4" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
                                  --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                             {{ 'procedure.pictogram.delete'|trans }}
                             <input name="r_deletePictogram" type="checkbox" value="1">
@@ -198,7 +199,7 @@
                 {% endif %}
 
                 {% if permissions.field_procedure_linkbox is defined and permissions.field_procedure_linkbox.enabled == true %}
-                    <label for="r_links" class="u-mb-0">
+                    <label for="r_links" class="mb-0">
                         {{ "linkbox"|trans }}
                     </label>
                     <dp-editor
@@ -224,31 +225,31 @@
                 {% endif %}
 
                 {% if hasPermission('feature_statement_notify_counties') %}
-                    <div class="inline-block weight--bold u-mb-0">
+                    <div class="inline-block weight--bold mb-0">
                         {{ "procedure.notifyCountry"|trans }}
                     </div>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
-                        cssClasses:'u-mt-0_125'
+                        cssClasses:'ml-1 mb-0.5'
                     } %}
-                    <div class="layout__item u-pl-0">
+                    <div class="layout__item pl-0">
                         <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
                         <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                         </label>
                     </div>
 
-                    <div class="u-mv flow-root">
-                        <div class="inline-block weight--bold u-9-of-10 u-mb-0">
+                    <div class="my-4 flow-root">
+                        <div class="inline-block font-semibold u-9-of-10 mb-0">
                             {{ "procedure.notifyCountry.setEmails"|trans }}
                         </div>
-                        <p class="flash flash-warning u-mt-0_5">
+                        <p class="flash flash-warning mt-2">
                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                             {{ 'text.procedure.edit.additional.notifyCounty.setEmails.hint'|trans|wysiwyg }}
                         </p>
                         {% for receiver in templateVars.notificationReceivers %}
                             <div class="layout">
-                                <label for="receiver_{{ receiver.id }}" class="layout__item u-1-of-4 u-mb-0_5 weight--normal">
+                                <label for="receiver_{{ receiver.id }}" class="layout__item u-1-of-4 mb-2 weight--normal">
                                     {{ receiver.label|default }}
                                 </label>
                                 <input
@@ -268,7 +269,7 @@
                 {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.isCustomerMasterBlueprintExisting == true and (proceduresettings.master != true or proceduresettings.customer == null))  %}
 
                 {% if hasPermission('feature_admin_customer_master_procedure_template') %}
-                    <label class="u-mb-0 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
+                    <label class="mb-0 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
                         <input
                             type="checkbox"
                             {% if proceduresettings.master == true and proceduresettings.customer != null %}
@@ -280,14 +281,14 @@
                             {% endif %}
                         />
                         {{ 'master.of.customer.set'|trans }}
-                        <p class="lbl__hint u-ml-0_75">{{ 'explanation.customer.masterblueprint'|trans }}</p>
+                        <p class="lbl__hint ml-3">{{ 'explanation.customer.masterblueprint'|trans }}</p>
                     </label>
                     {% if isAnotherBlueprintSetAsCustomerMaster %}
-                        <p class="lbl__hint u-ml-0_75">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans }}</p>
+                        <p class="lbl__hint ml-3">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans }}</p>
                     {% endif %}
                 {% endif %}
 
-                <div class="text-right u-mt space-inline-s">
+                <div class="text-right mt-4 space-inline-s">
                     <input
                         class="btn btn--primary"
                         name="saveConfig"

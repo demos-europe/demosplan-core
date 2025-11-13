@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_edit_master.html.twig
  */
 
-import { DpContextualHelp, DpEditor, DpMultiselect, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpEditor, DpInput, DpMultiselect, DpTextArea, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import { initialize } from '@DpJs/InitVue'
@@ -21,7 +21,9 @@ const components = {
   DpContextualHelp,
   DpEditor,
   DpEmailList,
+  DpInput,
   DpMultiselect,
+  DpTextArea,
   DpUploadFiles,
   ProcedureTemplateBasicSettings,
 }
