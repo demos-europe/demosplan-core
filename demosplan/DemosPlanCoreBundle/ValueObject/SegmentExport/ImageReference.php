@@ -23,17 +23,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class ImageReference extends ValueObject
 {
-    protected string $imagePath;
-    protected string $imageReference;
-
-    protected string $fileHash;
-
-    public function __construct(string $imageReference, string $imagePath, string $fileHash = '')
+    public function __construct(protected string $imageReference, protected string $imagePath, protected string $fileHash = '')
     {
-        $this->imageReference = $imageReference;
-        $this->imagePath = $imagePath;
-        $this->fileHash = $fileHash;
-
         $this->lock();
     }
 }

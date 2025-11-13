@@ -102,7 +102,7 @@ trait ElasticsearchQueryTrait
             $boolQuery = $this->modifyBoolMustNotFilter($boolQuery, $esQuery);
 
             // if a Searchterm is set use it
-            if (null !== $esQuery->getSearch() && 0 < strlen($esQuery->getSearch()->getSearchTerm())) {
+            if (null !== $esQuery->getSearch() && 0 < strlen((string) $esQuery->getSearch()->getSearchTerm())) {
                 $baseQuery = new QueryString();
                 $baseQuery->setQuery($esQuery->getSearch()->getSearchTerm());
                 $baseQuery->setFields($esQuery->getSearch()->getFieldsArray());
@@ -153,7 +153,7 @@ trait ElasticsearchQueryTrait
 
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage((int)$page);
+                $paginator->setCurrentPage((int) $page);
             } catch (NotValidCurrentPageException $e) {
                 $paginator->setCurrentPage(1);
             }

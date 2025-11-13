@@ -86,9 +86,7 @@ class OzgKeycloakAuthenticator extends OAuth2Authenticator implements Authentica
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($user->getUserIdentifier(), function () use ($user) {
-                return $user;
-            })
+            new UserBadge($user->getUserIdentifier(), fn () => $user)
         );
     }
 

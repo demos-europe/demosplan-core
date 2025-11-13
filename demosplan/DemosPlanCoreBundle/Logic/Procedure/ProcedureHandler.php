@@ -956,15 +956,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim($orgaData->getEmail2()))) {
+                if (0 < strlen(trim((string) $orgaData->getEmail2()))) {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim($orgaData->getCcEmail2()))) {
-                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
+                    if (0 < strlen(trim((string) $orgaData->getCcEmail2()))) {
+                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }
                     $recipientsWithEmail[] = $recipientOrga;

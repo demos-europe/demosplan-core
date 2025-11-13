@@ -90,7 +90,7 @@ class OdtElementProcessor
             if (XML_ELEMENT_NODE === $child->nodeType) {
                 $html .= $this->processElement($child);
             } elseif (XML_TEXT_NODE === $child->nodeType) {
-                $html .= htmlspecialchars($child->nodeValue);
+                $html .= htmlspecialchars((string) $child->nodeValue);
             }
         }
 
@@ -232,7 +232,7 @@ class OdtElementProcessor
         // Handle case where list item starts with a paragraph followed by other elements
         $content = preg_replace('/^<p>(.*?)<\/p>(.*)$/s', '$1$2', trim($content));
         // Also handle case where entire content is just a single paragraph
-        $content = preg_replace(self::PARAGRAPH_WRAPPER_REGEX, '$1', trim($content));
+        $content = preg_replace(self::PARAGRAPH_WRAPPER_REGEX, '$1', trim((string) $content));
         // Remove page breaks from list items as they're not meaningful in this context
         $content = str_replace('<hr class="page-break">', '', $content);
 
@@ -334,7 +334,7 @@ class OdtElementProcessor
         // Remove paragraph wrappers from footnote body but preserve other formatting
         $cleanBody = preg_replace(self::PARAGRAPH_WRAPPER_REGEX, '$1', trim($body));
         // Strip HTML tags from footnote content for title attribute (title should be plain text)
-        $cleanBody = strip_tags($cleanBody);
+        $cleanBody = strip_tags((string) $cleanBody);
         $cleanBody = trim($cleanBody);
 
         return '<sup title="'.htmlspecialchars($cleanBody).'">'.$citation.'</sup>';

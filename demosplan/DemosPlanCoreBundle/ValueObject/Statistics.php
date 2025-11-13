@@ -26,34 +26,16 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
  */
 class Statistics extends ValueObject
 {
-    protected array $procedures;
-    protected array $internalPhases;
-    protected array $externalPhases;
-    protected array $roles;
-    protected array $orgas;
-    protected array $usersPerOrga;
-    protected array $allowedRoleCodeMap;
-    protected StatementStatistic $globalStatementStatistic;
-
     public function __construct(
-        StatementStatistic $globalStatementStatistic,
-        array $allowedRoleCodeMap,
-        array $externalPhases,
-        array $internalPhases,
-        array $orgas,
-        array $procedures,
-        array $roles,
-        array $usersPerOrga,
+        protected StatementStatistic $globalStatementStatistic,
+        protected array $allowedRoleCodeMap,
+        protected array $externalPhases,
+        protected array $internalPhases,
+        protected array $orgas,
+        protected array $procedures,
+        protected array $roles,
+        protected array $usersPerOrga,
     ) {
-        $this->procedures = $procedures;
-        $this->internalPhases = $internalPhases;
-        $this->externalPhases = $externalPhases;
-        $this->roles = $roles;
-        $this->orgas = $orgas;
-        $this->usersPerOrga = $usersPerOrga;
-        $this->allowedRoleCodeMap = $allowedRoleCodeMap;
-        $this->globalStatementStatistic = $globalStatementStatistic;
-
         $this->lock();
     }
 
