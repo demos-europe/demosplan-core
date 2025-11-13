@@ -48,6 +48,12 @@ export default {
       type: Array,
       default: () => [],
     },
+
+    initSendMailsToCounties: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
   },
 
   data () {
@@ -55,6 +61,7 @@ export default {
       state: {
         selectedAgencies: this.agencies.filter(agency => this.initSelectedAgencies.includes(agency.id)),
         selectedAuthUsers: this.authUsers.filter(user => this.initSelectedAuthUsers.includes(user.id)),
+        sendMailsToCounties: this.initSendMailsToCounties,
       },
     }
   },

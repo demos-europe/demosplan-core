@@ -13,6 +13,7 @@
         :init-selected-auth-users="JSON.parse('{{ templateVars.procedure.authorizedUserIds|default([])|json_encode|e('js', 'utf-8') }}')"
         :agencies="JSON.parse('{{ templateVars.agencies|map(agency => { id: agency.ident, name: agency.nameLegal })|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-selected-agencies="JSON.parse('{{ proceduresettings.planningOfficesIds|default([])|json_encode|e('js', 'utf-8') }}')"
+        :init-send-mails-to-counties="{{ proceduresettings.settings.sendMailsToCounties|default(false) ? 'true' : 'false' }}"
     >
         <template #default="{
             state,
@@ -225,19 +226,23 @@
                 {% endif %}
 
                 {% if hasPermission('feature_statement_notify_counties') %}
-                    <div class="inline-block weight--bold mb-0">
+                    <div class="inline-block weight--bold mt-4 mb-0">
                         {{ "procedure.notifyCountry"|trans }}
                     </div>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
                         cssClasses:'ml-1 mb-0.5'
                     } %}
-                    <div class="layout__item pl-0">
-                        <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
-                        <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
-                            {{ "text.procedure.edit.additional.notifyCounty"|trans }}
-                        </label>
-                    </div>
+                    <dp-checkbox
+                        id="sendMailsToCounties"
+                        v-model="state.sendMailsToCounties"
+                        class="layout__item pl-0"
+                        :label="{
+                            text: Translator.trans('text.procedure.edit.additional.notifyCounty')
+                        }"
+                        name="r_sendMailsToCounties"
+                    >
+                    </dp-checkbox>
 
                     <div class="my-4 flow-root">
                         <div class="inline-block font-semibold u-9-of-10 mb-0">
@@ -248,20 +253,20 @@
                             {{ 'text.procedure.edit.additional.notifyCounty.setEmails.hint'|trans|wysiwyg }}
                         </p>
                         {% for receiver in templateVars.notificationReceivers %}
-                            <div class="layout">
-                                <label for="receiver_{{ receiver.id }}" class="layout__item u-1-of-4 mb-2 weight--normal">
-                                    {{ receiver.label|default }}
-                                </label>
-                                <input
-                                    id="receiver_{{ receiver.id }}"
-                                    name="r_receiver[{{ receiver.id }}]"
-                                    class="layout__item u-1-of-4"
-                                    type="text"
-                                    required
-                                    data-dp-validate-if="#sendMailsToCounties===checked"
-                                    value="{{ receiver.email|default }}"
-                                >
-                            </div>
+                            <dp-input
+                                id="receiver_{{ receiver.id }}"
+                                class="w-1/3 mb-2"
+                                data-dp-validate-if="#sendMailsToCounties===checked"
+                                :disabled="!state.sendMailsToCounties"
+                                :label="{
+                                    text: {{ receiver.label|default|json_encode }}
+                                }"
+                                model-value="{{ receiver.email|default }}"
+                                name="r_receiver[{{ receiver.id }}]"
+                                required
+                                type="email"
+                            >
+                            </dp-input>
                         {% endfor %}
                     </div>
                 {% endif %}
