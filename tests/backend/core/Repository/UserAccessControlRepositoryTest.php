@@ -216,5 +216,4 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
             $this->testRole
         ));
     }
-
 }
