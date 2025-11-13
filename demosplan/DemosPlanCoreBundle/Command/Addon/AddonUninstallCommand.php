@@ -216,10 +216,10 @@ class AddonUninstallCommand extends CoreCommand
         $environment = $kernel->getEnvironment();
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
-        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment];
+        $cacheClearCommand = ['bin/console', 'cache:clear', '-e', $environment];
 
         $batchReturn = Batch::create($this->getApplication(), $output)
-            ->addShell($cacheClearCommand)
+            ->addShell($cacheClearCommand, null, ['ACTIVE_PROJECT' => $activeProject])
             ->run();
 
         if (0 !== $batchReturn) {

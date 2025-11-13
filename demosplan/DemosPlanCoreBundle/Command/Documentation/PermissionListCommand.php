@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -26,7 +27,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Collection;
 
 class PermissionListCommand extends CoreCommand
 {
@@ -138,23 +138,21 @@ class PermissionListCommand extends CoreCommand
 
     /**
      * @param string[] $roleCombination
-     *
-     * @return string
      */
     protected function loadEnabledPermissionsForProject(
         string $projectName,
-        array $roleCombination
+        array $roleCombination,
     ): ?string {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             implode('--role ', $roleCombination),
         ];
 
         try {
-            $projectPermissionsProcess = new Process($cmd);
+            $projectPermissionsProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectPermissionsProcess->enableOutput();
             $projectPermissionsProcess->mustRun();
 
@@ -168,14 +166,14 @@ class PermissionListCommand extends CoreCommand
     {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             '--list-roles',
         ];
 
         try {
-            $projectRolesProcess = new Process($cmd);
+            $projectRolesProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectRolesProcess->enableOutput();
             $projectRolesProcess->mustRun();
 
