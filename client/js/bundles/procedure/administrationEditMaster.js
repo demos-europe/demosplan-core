@@ -19,7 +19,7 @@ import {
   DpMultiselect,
   DpTextArea,
   DpUploadFiles,
-  dpValidate
+  dpValidate,
 } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import { initialize } from '@DpJs/InitVue'
