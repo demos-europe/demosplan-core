@@ -175,7 +175,7 @@ class StatementEmailSender
         if (null !== $statement->getMeta()->getSubmitUId()) {
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
 
-            if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
+            if (false === stripos((string) $user->getEmail(), $submitUser->getEmail())) {
                 return $submitUser->getEmail();
             }
         }
@@ -189,7 +189,7 @@ class StatementEmailSender
         /** @var User $user */
 
         // Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
-        if (0 < strlen($user->getOrga()->getParticipationEmail())) {
+        if (0 < strlen((string) $user->getOrga()->getParticipationEmail())) {
             $recipients[] = $user->getOrga()->getParticipationEmail();
         }
 
@@ -293,7 +293,7 @@ class StatementEmailSender
         $syntaxEmailErrors = [];
         $emailcc = [];
         // Split string into individual email addresses
-        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $sendEmailCC);
         // Check each email address for validity
         foreach ($mailsCC as $mail) {
             // Remove all whitespace at the beginning and end

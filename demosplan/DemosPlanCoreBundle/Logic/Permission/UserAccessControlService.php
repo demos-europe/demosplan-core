@@ -45,7 +45,7 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
 
         // Use the first role if none specified
-        $role = $role ?? $user->getDplanRoles()->first();
+        $role ??= $user->getDplanRoles()->first();
 
         if (null === $role || false === $role) {
             throw new InvalidArgumentException('User must have at least one role');
@@ -64,9 +64,9 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
 
         // Get fresh instances from database to ensure they're managed by EntityManager
-        $customer = $this->entityManager->find(get_class($customer), $customer->getId());
-        $role = $this->entityManager->find(get_class($role), $role->getId());
-        $orga = $this->entityManager->find(get_class($orga), $orga->getId());
+        $customer = $this->entityManager->find($customer::class, $customer->getId());
+        $role = $this->entityManager->find($role::class, $role->getId());
+        $orga = $this->entityManager->find($orga::class, $orga->getId());
 
         if (null === $customer || null === $role || null === $orga) {
             throw new InvalidArgumentException('Unable to find required entities in database');
@@ -99,10 +99,10 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
 
         $conditions = [
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'permission'   => $permission,
         ];
         if ($role instanceof RoleInterface) {
             $conditions['role'] = $role;
