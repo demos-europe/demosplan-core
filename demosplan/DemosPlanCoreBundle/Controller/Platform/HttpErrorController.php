@@ -26,7 +26,7 @@ class HttpErrorController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: 'notfound', methods: ['GET'], name: 'core_404')]
-    public function custom404Action(Request $request): Response
+    public function custom404(Request $request): Response
     {
         $content = '';
 
@@ -59,7 +59,7 @@ class HttpErrorController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: 'error', methods: ['GET'], name: 'core_500')]
-    public function custom500Action(TranslatorInterface $translator): Response
+    public function custom500(TranslatorInterface $translator): Response
     {
         $content = 'Ein Fehler ist aufgetreten';
 

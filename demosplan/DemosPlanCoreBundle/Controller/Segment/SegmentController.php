@@ -47,7 +47,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
-    public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
+    public function list(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
         $segmentListQuery = new SegmentListQuery();
         $segmentListQuery->setProcedureId($procedureId);
@@ -68,7 +68,7 @@ class SegmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
-    public function statementSpecificListAction(
+    public function statementSpecificList(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         ProcedureService $procedureService,
@@ -127,20 +127,18 @@ class SegmentController extends BaseController
 
     /**
      * Get the position of a segment within its parent statement.
-     *
      */
     #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_segments_of_statement_list')]
     #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
     public function getSegmentPosition(
         string $segmentId,
         string $statementId,
-        SegmentRepository $segmentRepository
+        SegmentRepository $segmentRepository,
     ): JsonResponse {
         // Explicit ownership verification: ensure segment belongs to the statement
         $segment = $segmentRepository->find($segmentId);
 
         if (null === $segment) {
-
             return new JsonResponse(['error' => 'Segment not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -282,7 +280,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
-    public function listFilteredAction(
+    public function listFiltered(
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
