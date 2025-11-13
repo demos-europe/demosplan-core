@@ -73,7 +73,13 @@ export default {
 
     sortSelected (type) {
       const area = `selected${type}`
-      this.state[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+
+      this.state[area].sort((a, b) => {
+        if (a.name > b.name) return 1
+        if (b.name > a.name) return -1
+
+        return 0
+      })
     },
 
     unselectAllAuthUsers () {
