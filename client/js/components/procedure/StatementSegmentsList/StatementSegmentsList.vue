@@ -162,6 +162,7 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
         :statement-form-definitions="statementFormDefinitions"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
@@ -199,6 +200,7 @@ import {
   DpStickyElement,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import SegmentCommentsList from './SegmentCommentsList'
@@ -587,149 +589,11 @@ export default {
     },
 
     getStatement () {
-      const statementFields = [
-        'assignee',
-        'authoredDate',
-        'authorName',
-        'consentRevoked',
-        'counties',
-        'document',
-        'elements',
-        'fullText',
-        'genericAttachments',
-        'initialOrganisationCity',
-        'initialOrganisationDepartmentName',
-        'initialOrganisationHouseNumber',
-        'initialOrganisationName',
-        'initialOrganisationPostalCode',
-        'initialOrganisationStreet',
-        'internId',
-        'isManual',
-        'isSubmittedByCitizen',
-        'memo',
-        'municipalities',
-        'numberOfAnonymVotes',
-        'paragraph',
-        'paragraphParentId',
-        'paragraphVersion',
-        'polygon',
-        'priorityAreas',
-        'priorityAreas',
-        'procedurePhase',
-        'publicVerified',
-        'publicVerifiedTranslation',
-        'recommendation',
-        'segmentDraftList',
-        'sourceAttachment',
-        'submitDate',
-        'submitName',
-        'submitterAndAuthorMetaDataAnonymized',
-        'submitterEmailAddress',
-        'submitType',
-        'status',
-        'votes',
-      ]
-
-      if (this.isSourceAndCoupledProcedure) {
-        statementFields.push('synchronized')
-      }
-
-      if (hasPermission('field_statement_phase')) {
-        statementFields.push('availableProcedurePhases')
-      }
-
-      if (hasPermission('area_statement_segmentation')) {
-        statementFields.push('segmentDraftList')
-      }
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        statementFields.push('similarStatementSubmitters')
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
-      }
-
-      const allFields = {
-        ElementsDetails: [
-          'documents',
-          'paragraphs',
-          'title',
-        ].join(),
-        File: [
-          'hash',
-          'filename',
-        ].join(),
-        GenericStatementAttachment: [
-          'file',
-        ].join(),
-        ParagraphVersion: [
-          'title',
-        ].join(),
-        SingleDocument: [
-          'title',
-        ].join(),
-        SourceStatementAttachment: [
-          'file',
-        ].join(),
-        Statement: statementFields.join(),
-      }
-
-      if (hasPermission('feature_statements_vote')) {
-        allFields.StatementVote = [
-          'city',
-          'createdByCitizen',
-          'departmentName',
-          'email',
-          'name',
-          'organisationName',
-          'postcode',
-        ].join()
-      }
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        allFields.SimilarStatementSubmitter = [
-          'city',
-          'emailAddress',
-          'fullName',
-          'postalCode',
-          'streetName',
-          'streetNumber',
-        ].join()
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        allFields.User = [
-          'orga',
-        ].join()
-      }
-
-      const include = [
-        'assignee',
-        'document',
-        'elements',
-        'genericAttachments',
-        'genericAttachments.file',
-        'paragraph',
-        'paragraphVersion.paragraph',
-        'sourceAttachment',
-        'sourceAttachment.file',
-        'votes',
-      ]
-
-      if (hasPermission('feature_similar_statement_submitter')) {
-        include.push('similarStatementSubmitters')
-      }
-
-      if (hasPermission('field_send_final_email')) {
-        include.push('user', 'user.orga')
-      }
-
-      return this.getStatementAction({
-        id: this.statementId,
-        include: include.join(),
-        fields: allFields,
+      const params = buildDetailedStatementQuery(this.statementId, {
+        isSourceAndCoupledProcedure: this.isSourceAndCoupledProcedure,
       })
+
+      return this.getStatementAction(params)
     },
 
     hasDraftSegments () {
@@ -889,7 +753,6 @@ export default {
 
   created () {
     this.setInitialAction()
-    this.$root.$on('statementAttachments:added', this.getStatement)
   },
 
   mounted () {

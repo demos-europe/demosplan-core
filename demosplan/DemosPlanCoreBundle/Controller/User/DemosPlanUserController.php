@@ -130,14 +130,7 @@ class DemosPlanUserController extends BaseController
             $currentUser = $this->currentUser->getUser();
 
             if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
-                $data = [
-                    'email'            => $currentUser->getEmail(), // Pflichtfeld beim Update
-                    'firstname'        => $currentUser->getFirstname(), // Pflichtfeld beim Update
-                    'lastname'         => $currentUser->getLastname(), // Pflichtfeld beim Update
-                    'newUser'          => false,
-                    'profileCompleted' => true,
-                    'access_confirmed' => true,
-                ];
+                $data = $this->createUserProfileCompletionData($currentUser);
 
                 $updatedUser = null;
                 try {
@@ -178,12 +171,34 @@ class DemosPlanUserController extends BaseController
             $isSachbearbeiterOnly = false;
         }
 
-        // Schicke die nicht zuständigen Mitarbeiter auf die öffentlichen Seiten
+        // Allow Sachbearbeiter to proceed with warning instead of logging out
         if ($isSachbearbeiterOnly) {
-            $this->getLogger()->info('Welcomepage logout and redirect to home');
-            $request->getSession()->invalidate();
+            $this->getLogger()->info('Welcomepage Sachbearbeiter with missing orgadata, allowing login with warning');
 
-            return $this->redirectToRoute('core_home', ['status' => 'missingOrgadata']);
+            $currentUser = $this->currentUser->getUser();
+            if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
+                $data = $this->createUserProfileCompletionData($currentUser);
+
+                try {
+                    $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
+                    if ($updatedUser instanceof User) {
+                        $this->messageBag->add('warning', 'warning.organisation.email2.missing');
+                        $this->getLogger()->info('Welcomepage redirect to logged in home with email2 warning');
+
+                        return $this->redirectToRoute('core_home_loggedin');
+                    }
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Update user failed with exception', [$e]);
+                }
+
+                // Fallback: if update failed, logout to avoid issues
+                $this->getLogger()->warning('Update user failed, perform logout');
+                $this->messageBag->add('warning', 'warning.login.welcomepage.failed');
+
+                return $this->redirectToRoute('DemosPlan_user_logout');
+            }
+
+            return $this->redirectToRoute('core_home_loggedin');
         }
 
         // verarbeite die Nutzereingaben
@@ -806,5 +821,24 @@ class DemosPlanUserController extends BaseController
         if (($currentUser instanceof User) && $currentUser->getOrganisationId() !== $assertedOrganisationId) {
             return $this->redirectToRoute($redirectRoute, ['organisationId' => $currentUser->getOrganisationId()]);
         }
+    }
+
+    /**
+     * Creates data array for marking user profile as completed.
+     *
+     * @param User $user The user to create profile completion data for
+     *
+     * @return array<string, mixed> Data array for user profile completion
+     */
+    private function createUserProfileCompletionData(User $user): array
+    {
+        return [
+            'email'            => $user->getEmail(),
+            'firstname'        => $user->getFirstname(),
+            'lastname'         => $user->getLastname(),
+            'newUser'          => false,
+            'profileCompleted' => true,
+            'access_confirmed' => true,
+        ];
     }
 }

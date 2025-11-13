@@ -1710,16 +1710,17 @@ class DemosPlanDocumentController extends BaseController
         $fileInfo = [];
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
-            $fileId = $fileService->getFileIdFromSingleDocumentId($singleDocId);
-            $fileEntity = $fileService->getFileById($fileId);
-            if (null === $fileEntity) {
-                $this->logger->error("No File Entity found for id: $fileId");
-                throw new \InvalidArgumentException('error.generic');
-            }
-            $fileName = $fileEntity->getFilename();
-            $fileFullPath = $fileEntity->getFilePathWithHash();
-            if (!$this->defaultStorage->fileExists($fileFullPath)) {
-                $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
+            try {
+                $fileHash = $fileService->getFileIdFromSingleDocumentId($singleDocId);
+                $fileInfoObj = $fileService->getFileInfo($fileHash, $procedureId);
+                $fileName = $fileInfoObj->getFileName();
+                $fileFullPath = $fileInfoObj->getAbsolutePath();
+                if (!$this->defaultStorage->fileExists($fileFullPath)) {
+                    $this->getLogger()->warning('Could not find file to add to zip', [$fileInfoObj->getHash()]);
+                    continue;
+                }
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Could not find file to add to zip', [$singleDocId, $e]);
                 continue;
             }
             // $fileName might be an empty string. If for some reasons it is empty, better use a random string than fail

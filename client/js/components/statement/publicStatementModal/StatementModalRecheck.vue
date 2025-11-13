@@ -173,7 +173,6 @@
     </div>
 
 
-
     <div
       v-if="statementFeedbackDefinitions.length > 0 && publicParticipationFeedbackEnabled"
       :class="prefixClass('flow-root border--top u-pt-0_25')"
@@ -305,7 +304,7 @@ export default {
     publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     statement: {
