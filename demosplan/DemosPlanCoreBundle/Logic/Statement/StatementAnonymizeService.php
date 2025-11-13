@@ -349,7 +349,7 @@ class StatementAnonymizeService
                             '<'.self::TAG.'>',
                             '</'.self::TAG.'>',
                         ],
-                        $texts[$i]
+                        (string) $texts[$i]
                     );
                 }
             }
