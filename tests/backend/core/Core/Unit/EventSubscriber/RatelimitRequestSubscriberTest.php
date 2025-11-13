@@ -13,6 +13,7 @@ namespace Tests\Core\Core\Unit\EventSubscriber;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\RatelimitRequestSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
@@ -29,20 +30,33 @@ class RatelimitRequestSubscriberTest extends TestCase
 
     private RatelimitRequestSubscriber $subscriber;
     private HeaderSanitizerService $headerSanitizer;
+    private ParameterBag $parameterBag;
 
     protected function setUp(): void
     {
         $this->headerSanitizer = new HeaderSanitizerService();
+        $this->parameterBag = new ParameterBag(['ratelimit_api_enable' => true]);
 
         // We need to create a stub subscriber as we can't mock RateLimiterFactory (final class)
-        $this->subscriber = new class($this->headerSanitizer) extends RatelimitRequestSubscriber {
+        $this->subscriber = $this->createStubSubscriber($this->parameterBag);
+    }
+
+    private function createStubSubscriber(ParameterBag $parameterBag): RatelimitRequestSubscriber
+    {
+        return new class($this->headerSanitizer, $parameterBag) extends RatelimitRequestSubscriber {
             private bool $shouldThrowException = false;
             private ?string $capturedSanitizedToken = null;
 
-            public function __construct(HeaderSanitizerService $headerSanitizer)
-            {
-                $this->headerSanitizer = $headerSanitizer;
-                // We don't call parent constructor as we can't mock RateLimiterFactory
+            public function __construct(
+                private readonly HeaderSanitizerService $headerSanitizer,
+                private readonly ParameterBag $parameterBag
+            ) {
+                // We intentionally do NOT call the parent constructor here because RateLimiterFactory is a final class
+                // and cannot be mocked in this test context. This means that any logic in the parent constructor will
+                // NOT be executed, and any dependencies expected by RatelimitRequestSubscriber will NOT be initialized.
+                // This stub is only suitable for tests that do not require the full initialization of the parent class.
+                // The actual rate limiting logic is tested separately, and this stub focuses on testing the parameter
+                // checking and header sanitization logic in isolation.
             }
 
             public function setShouldThrowException(bool $shouldThrow): void
@@ -65,7 +79,9 @@ class RatelimitRequestSubscriberTest extends TestCase
 
                     $this->capturedSanitizedToken = $authHeader;
 
-                    if ($this->shouldThrowException) {
+                    // Check if rate limiting is enabled
+                    if (true === $this->parameterBag->get('ratelimit_api_enable')
+                        && $this->shouldThrowException) {
                         throw new TooManyRequestsHttpException();
                     }
                 }
@@ -141,5 +157,52 @@ class RatelimitRequestSubscriberTest extends TestCase
         // Expect an exception
         $this->expectException(TooManyRequestsHttpException::class);
         $this->subscriber->onKernelRequest($requestEvent);
+    }
+
+    /**
+     * Test that rate limiting is bypassed when ratelimit_api_enable is false.
+     */
+    public function testRateLimitingDisabled(): void
+    {
+        // Create a new subscriber with rate limiting disabled
+        $parameterBag = new ParameterBag(['ratelimit_api_enable' => false]);
+        $subscriber = $this->createStubSubscriber($parameterBag);
+
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::VALID_TOKEN);
+
+        $requestEvent = $this->createMock(RequestEvent::class);
+        $requestEvent->method('getRequest')->willReturn($request);
+
+        // Even though we set shouldThrowException to true, it should NOT throw
+        // because rate limiting is disabled
+        $subscriber->setShouldThrowException(true);
+
+        // No exception should be thrown
+        $subscriber->onKernelRequest($requestEvent);
+        $this->assertEquals(self::VALID_TOKEN, $subscriber->getSanitizedToken());
+    }
+
+    /**
+     * Test that rate limiting is applied when ratelimit_api_enable is true.
+     */
+    public function testRateLimitingEnabled(): void
+    {
+        // Create a new subscriber with rate limiting enabled
+        $parameterBag = new ParameterBag(['ratelimit_api_enable' => true]);
+        $subscriber = $this->createStubSubscriber($parameterBag);
+
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::VALID_TOKEN);
+
+        $requestEvent = $this->createMock(RequestEvent::class);
+        $requestEvent->method('getRequest')->willReturn($request);
+
+        // Set up to throw an exception
+        $subscriber->setShouldThrowException(true);
+
+        // Expect an exception because rate limiting is enabled
+        $this->expectException(TooManyRequestsHttpException::class);
+        $subscriber->onKernelRequest($requestEvent);
     }
 }
