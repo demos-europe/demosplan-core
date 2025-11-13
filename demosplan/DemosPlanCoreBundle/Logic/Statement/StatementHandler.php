@@ -2288,7 +2288,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      */
     public function importTags(string $procedureId, $fileResource): void
     {
-        $reader = Reader::createFromStream($fileResource);
+        $reader = Reader::from($fileResource);
         $reader->setEscape('');
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
