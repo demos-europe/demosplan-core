@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
 ## v4.21.0 (2025-10-22)
 ## v4.18.1 (2025-10-16)
@@ -65,6 +66,9 @@
 - Allow filtering of institution tags in DpAddOrganizationList
 
 ## v4.4.0 (2025-06-13)
+
+## v4.3.3 (2025-11-04)
+- smart pagination for segment navigation
 
 ## v4.3.1-ewm (2025-09-25)
 - allow sessions to be stored in redis
