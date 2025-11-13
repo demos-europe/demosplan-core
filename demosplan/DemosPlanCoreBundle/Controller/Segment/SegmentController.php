@@ -127,20 +127,18 @@ class SegmentController extends BaseController
 
     /**
      * Get the position of a segment within its parent statement.
-     *
      */
     #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_segments_of_statement_list')]
     #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
     public function getSegmentPosition(
         string $segmentId,
         string $statementId,
-        SegmentRepository $segmentRepository
+        SegmentRepository $segmentRepository,
     ): JsonResponse {
         // Explicit ownership verification: ensure segment belongs to the statement
         $segment = $segmentRepository->find($segmentId);
 
         if (null === $segment) {
-
             return new JsonResponse(['error' => 'Segment not found'], Response::HTTP_NOT_FOUND);
         }
 
