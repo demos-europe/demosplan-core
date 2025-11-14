@@ -123,7 +123,7 @@
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3 min-h-12"
-          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
+          :class="{ 'px-2 overflow-y-scroll grow scrollbar-none': isFullscreen }"
           data-cy="segmentsList"
           has-flyout
           :header-fields="availableHeaderFields"
@@ -292,14 +292,6 @@
             </dp-flyout>
           </template>
         </dp-data-table>
-
-        <div
-          v-show="!isFullscreen"
-          ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden"
-        >
-          <div />
-        </div>
       </template>
 
       <dp-inline-notification
@@ -339,7 +331,6 @@ import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
-import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
@@ -368,7 +359,7 @@ export default {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
+  mixins: [fullscreenModeMixin, paginationMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
