@@ -16,11 +16,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 
 class LastLoginActivityChecker implements UserActivityInterface
 {
-    private int $dayThreshold;
-
-    public function __construct(int $dayThreshold = 180)
+    public function __construct(private int $dayThreshold = 180)
     {
-        $this->dayThreshold = $dayThreshold;
     }
 
     public function isUserActive(UserInterface $user): bool

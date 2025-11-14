@@ -185,7 +185,7 @@ class ServiceOutput
      *
      * @throws Exception
      */
-    public function procedureTemplateAdminListHandler(array $filter, $search)
+    public function procedureTemplateAdminListHandler(array $filter, mixed $search)
     {
         if ([] === $filter) {
             throw new InvalidArgumentException('provide at least one filter');

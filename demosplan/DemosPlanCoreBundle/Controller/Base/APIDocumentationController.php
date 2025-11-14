@@ -30,7 +30,7 @@ class APIDocumentationController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/api', methods: ['GET', 'HEAD'])]
-    public function indexAction(): Response
+    public function index(): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {
             return $this->redirectToRoute('core_home');
@@ -45,7 +45,7 @@ class APIDocumentationController extends BaseController
      * @throws TypeErrorException
      */
     #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
-    public function jsonAction(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
+    public function openapi(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {
             return $this->redirectToRoute('core_home');

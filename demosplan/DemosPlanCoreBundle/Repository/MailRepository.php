@@ -155,7 +155,7 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
     public function replacePlaceholder($string, array $placeholder)
     {
         foreach ($placeholder as $toReplace => $value) {
-            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, $string);
+            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, (string) $string);
         }
 
         return $string;

@@ -66,7 +66,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
-    public function setStatementAssigneeAction(
+    public function setStatementAssignee(
         CurrentUserService $currentUser,
         Request $request,
         StatementHandler $statementHandler,
@@ -116,7 +116,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
-    public function getOrgaStatementListAction(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
+    public function getOrgaStatementList(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
         $organisationId = $currentUser->getUser()->getOrganisationId();
         $statements = $statementHandler->getStatementsOfProcedureAndOrganisation(
@@ -149,7 +149,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
-    public function newManualStatementAction(
+    public function newManualStatement(
         CurrentUserService $currentUser,
         FileUploadService $fileUploadService,
         Request $request,
@@ -222,7 +222,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
-    public function viewSingleStatementAction(
+    public function viewSingleStatement(
         Breadcrumb $breadcrumb,
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
@@ -267,7 +267,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
-    public function viewStatementClusterSingleStatementAction(StatementHandler $statementHandler, string $statementId): Response
+    public function viewStatementClusterSingleStatement(StatementHandler $statementHandler, string $statementId): Response
     {
         $statement = $statementHandler->getStatement($statementId);
         $templateVars = [];
@@ -291,7 +291,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
-    public function detachStatementFromClusterAction(StatementHandler $statementHandler, string $statementId): Response
+    public function detachStatementFromCluster(StatementHandler $statementHandler, string $statementId): Response
     {
         try {
             $statementToDetach = $statementHandler->getStatement($statementId);
@@ -317,7 +317,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
-    public function resolveClusterAction(StatementHandler $statementHandler, string $headStatementId): Response
+    public function resolveCluster(StatementHandler $statementHandler, string $headStatementId): Response
     {
         try {
             $clusterToResolve = $statementHandler->getStatement($headStatementId);
@@ -340,7 +340,7 @@ class DemosPlanAssessmentController extends BaseController
      * @DplanPermissions("feature_procedure_get_base_data")
      */
     #[Route(name: 'DemosPlan_assessment_base_ajax', path: '/_ajax/assessment/{procedureId}', options: ['expose' => true])]
-    public function assessmentBaseAjaxAction(
+    public function assessmentBaseAjax(
         CurrentUserService $currentUser,
         CountyService $countyService,
         MunicipalityService $municipalityService,

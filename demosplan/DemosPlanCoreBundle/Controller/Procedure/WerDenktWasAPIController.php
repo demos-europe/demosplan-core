@@ -30,7 +30,7 @@ class WerDenktWasAPIController extends BaseController
      * @DplanPermissions("area_public_participation")
      */
     #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
-    public function procedureListGeoJSONAction(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
+    public function procedureListGeoJSON(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(
             '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',

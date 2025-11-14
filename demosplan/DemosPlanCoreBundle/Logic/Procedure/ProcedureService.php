@@ -625,6 +625,19 @@ class ProcedureService implements ProcedureServiceInterface
 
             $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
+            // Add master templates for the user's organization when fetching templates
+            if ($template && null !== $user->getOrganisationId()) {
+                $masterTemplates = $this->getMasterTemplatesForUser($user);
+                // Merge and deduplicate procedures by their ID to prevent duplicates
+                $allProcedures = array_merge($procedureList, $masterTemplates);
+                $uniqueProcedures = [];
+                foreach ($allProcedures as $procedure) {
+                    $uniqueProcedures[$procedure->getId()] = $procedure;
+                }
+                // Re-index array to maintain numeric keys
+                $procedureList = array_values($uniqueProcedures);
+            }
+
             if ($toLegacy) {
                 $procedureList = \collect($procedureList)->map($this->procedureToLegacyConverter->convertToLegacy(...))->all();
             }
@@ -634,6 +647,26 @@ class ProcedureService implements ProcedureServiceInterface
             $this->logger->warning('Fehler beim Abruf der ProcedureAdminList: ', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Get master templates that belong to the user's organization.
+     * Master templates have masterTemplate = true and are accessible to all users in the same organization.
+     *
+     * @return array<int, Procedure>
+     */
+    private function getMasterTemplatesForUser(User $user): array
+    {
+        $organisationId = $user->getOrganisationId();
+        if (null === $organisationId) {
+            return [];
+        }
+
+        return $this->procedureRepository->findBy([
+            'orga'           => $organisationId,
+            'masterTemplate' => true,
+            'deleted'        => false,
+        ]);
     }
 
     /**

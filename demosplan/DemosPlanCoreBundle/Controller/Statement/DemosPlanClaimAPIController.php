@@ -52,7 +52,7 @@ class DemosPlanClaimAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -71,7 +71,7 @@ class DemosPlanClaimAPIController extends APIController
      * @DplanPermissions("feature_statement_assignment")
      */
     #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
-    public function updateStatementAssignmentAction(string $statementId): APIResponse
+    public function updateStatementAssignment(string $statementId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($statementId, Statement::class);
     }
@@ -80,7 +80,7 @@ class DemosPlanClaimAPIController extends APIController
      * @DplanPermissions("feature_statement_assignment")
      */
     #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
-    public function updateFragmentAssignmentAction(string $entityId): APIResponse
+    public function updateFragmentAssignment(string $entityId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($entityId, StatementFragment::class);
     }

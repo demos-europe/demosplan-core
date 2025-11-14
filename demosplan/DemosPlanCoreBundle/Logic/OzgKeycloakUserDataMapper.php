@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -68,7 +69,21 @@ class OzgKeycloakUserDataMapper
         'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
     ];
 
-    public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
+    public function __construct(
+        private readonly CustomerService $customerService,
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly GlobalConfig $globalConfig,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaService $orgaService,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
+        private readonly UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly DepartmentMapper $departmentMapper)
     {
     }
 
@@ -325,7 +340,7 @@ class OzgKeycloakUserDataMapper
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
-            'department'    => $this->getDepartmentToSetForUser($userOrga),
+            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
             'roles'         => $requestedRoles,
         ];
 
@@ -529,10 +544,9 @@ class OzgKeycloakUserDataMapper
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        $departmentToSet = $this->getDepartmentToSetForUser($orga);
-        if ($dplanUser->getDepartment() !== $departmentToSet) {
-            $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-        }
+
+        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga, $this->ozgKeycloakUserData->getCompanyDepartment());
+
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
         $violations->addAll($this->validator->validate($orga));
@@ -562,13 +576,6 @@ class OzgKeycloakUserDataMapper
         );
 
         return $dplanUser;
-    }
-
-    private function getDepartmentToSetForUser(Orga $userOrga): Department
-    {
-        return $userOrga->getDepartments()->filter(
-            static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
-        )->first() ?? $userOrga->getDepartments()->first();
     }
 
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool

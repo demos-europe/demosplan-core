@@ -352,7 +352,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $totpSecret;
+    private ?string $totpSecret = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default": false})
@@ -364,7 +364,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private ?string $authCode;
+    private ?string $authCode = null;
 
     /**
      * @ORM\Column(type="boolean", nullable=false, options={"default": false})
@@ -701,7 +701,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      */
     public function isLegacy(): bool
     {
-        return 32 === strlen($this->getPassword());
+        return 32 === strlen((string) $this->getPassword());
     }
 
     /**
@@ -1104,9 +1104,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
         $roleInCustomer = $this->getRoleInCustomers()->filter(
-            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
-                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
-            }
+            fn (UserRoleInCustomerInterface $roleInCustomer) => $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId()
         )->first();
 
         $this->roleInCustomers->removeElement($roleInCustomer);

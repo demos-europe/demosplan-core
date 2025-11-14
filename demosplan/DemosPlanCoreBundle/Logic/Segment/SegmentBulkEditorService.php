@@ -82,7 +82,7 @@ class SegmentBulkEditorService
             return null;
         }
 
-        $assigneeId = trim($assigneeId);
+        $assigneeId = trim((string) $assigneeId);
 
         if ('' === $assigneeId || '0' === $assigneeId) {
             throw new UserNotFoundException();

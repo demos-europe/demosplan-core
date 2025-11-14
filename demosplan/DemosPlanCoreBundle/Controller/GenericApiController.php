@@ -71,7 +71,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function listAction(
+    public function list(
         SearchCapableListRequest $listRequest,
         string $resourceType,
     ): APIResponse {
@@ -115,7 +115,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['PATCH']
     )]
-    public function updateAction(
+    public function update(
         EventDispatcherInterface $eventDispatcher,
         Request $request,
         ValidatorInterface $validator,
@@ -174,7 +174,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['POST']
     )]
-    public function createAction(
+    public function create(
         CreationRequest $creationRequest,
         string $resourceType,
     ): Response {
@@ -219,7 +219,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['DELETE']
     )]
-    public function deleteAction(
+    public function delete(
         DeletionRequest $deletionRequest,
         string $resourceType,
         string $resourceId,

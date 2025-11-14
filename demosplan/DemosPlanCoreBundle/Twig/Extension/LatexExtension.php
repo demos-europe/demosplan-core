@@ -102,12 +102,7 @@ class LatexExtension extends ExtensionBase
     {
         return [
             new TwigFilter(
-                'latex', function (
-                    $string,
-                    $listwidth = 7,
-                ) {
-                    return $this->latexFilter($string, $listwidth);
-                }
+                'latex', fn ($string, $listwidth = 7) => $this->latexFilter($string, $listwidth)
             ),
             new TwigFilter('nl2texnl', $this->latexNewlineFilter(...)),
             new TwigFilter('latexPrepareImage', $this->prepareImage(...)),
@@ -163,7 +158,7 @@ class LatexExtension extends ExtensionBase
             $urlPlaceholderPattern = '-+-+-+';
             foreach ($urlHits[0] as $hit) {
                 $hitRegex = sprintf('/%s(\s|$|<)/', preg_quote((string) $hit, '/'));
-                $text = preg_replace($hitRegex, $urlPlaceholderPattern.++$hitcount.'$1', $text);
+                $text = preg_replace($hitRegex, $urlPlaceholderPattern.++$hitcount.'$1', (string) $text);
 
                 // urls may contain % chars, these need to be sanitized for latex
                 $sanitizedHit = str_replace('%', '\%', (string) $hit);
@@ -184,26 +179,26 @@ class LatexExtension extends ExtensionBase
             $text = preg_replace(
                 '/<span style=\"text-decoration\: underline\;\">(.*)<\/span>/Usi',
                 '<u>\\1</u>',
-                $text
+                (string) $text
             );
 
             // Durchstreichungen behandeln
             $text = preg_replace(
                 '/<span style=\"text-decoration\: line\-through\;\">(.*)<\/span>/Usi',
                 '<del>\\1</del>',
-                $text
+                (string) $text
             );
 
             // Alle Tag-Parameter killen
             $text = preg_replace(
                 '/<(p|br|table|tr|td|th|div|ol|u|del|i|strike|ul|li|b|strong|em|span)\s.*>/Usi',
                 '<\\1>',
-                $text
+                (string) $text
             );
 
             // Alle anderen Tags beseitigen
             $text = strip_tags(
-                $text,
+                (string) $text,
                 '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
@@ -321,7 +316,7 @@ class LatexExtension extends ExtensionBase
                 $currenttable = preg_replace(
                     '/<tcs'.$tci.">(.*)<\/td>/Usi",
                     "\multicolumn{".$tci.'}{|p{'.$tci * $cellwidth.'cm}|} {\\1}',
-                    $currenttable
+                    (string) $currenttable
                 );
             }
 
@@ -329,7 +324,7 @@ class LatexExtension extends ExtensionBase
             $oneTablerowsarray = null;
             preg_match_all(
                 "/<tr>.*<\/tr>/isU",
-                $currenttable,
+                (string) $currenttable,
                 $oneTablerowsarray
             );
 
@@ -427,7 +422,7 @@ class LatexExtension extends ExtensionBase
                 $text = preg_replace(
                     '|'.$imageMatches[0][$matchKey].'|',
                     $currentImageTex,
-                    $text
+                    (string) $text
                 );
             }
         }
@@ -524,7 +519,7 @@ class LatexExtension extends ExtensionBase
         preg_match_all(
             // '/[.*]?IMAGEPLACEHOLDER-([\\a-z0-9\-&=]*)[.*]?(IMAGEPLACEHOLDEREND)?/U',
             '/[.*]?IMAGEPLACEHOLDER-([^IMAGEPLACEHOLDEREND]+)/',
-            $text,
+            (string) $text,
             $imageMatches,
             PREG_PATTERN_ORDER
         );
@@ -571,7 +566,7 @@ class LatexExtension extends ExtensionBase
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,
                     $currentImageTex,
-                    $text
+                    (string) $text
                 );
             }
         }

@@ -45,7 +45,7 @@ class Version20250723134332 extends AbstractMigration
         );
 
         foreach ($configs as $config) {
-            $data = json_decode($config['configuration'], true);
+            $data = json_decode((string) $config['configuration'], true);
             if (!isset($data['options']) || !is_array($data['options'])) {
                 continue;
             }
@@ -72,7 +72,7 @@ class Version20250723134332 extends AbstractMigration
         );
 
         foreach ($segments as $segment) {
-            $fields = json_decode($segment['custom_fields'], true);
+            $fields = json_decode((string) $segment['custom_fields'], true);
             if (!is_array($fields)) {
                 continue;
             }
@@ -109,7 +109,7 @@ class Version20250723134332 extends AbstractMigration
         );
 
         foreach ($configs as $config) {
-            $data = json_decode($config['configuration'], true);
+            $data = json_decode((string) $config['configuration'], true);
             if (!isset($data['options']) || !is_array($data['options'])) {
                 continue;
             }
@@ -137,7 +137,7 @@ class Version20250723134332 extends AbstractMigration
         );
 
         foreach ($segments as $segment) {
-            $fields = json_decode($segment['custom_fields'], true);
+            $fields = json_decode((string) $segment['custom_fields'], true);
             if (!is_array($fields)) {
                 continue;
             }

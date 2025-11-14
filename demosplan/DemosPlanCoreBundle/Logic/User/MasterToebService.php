@@ -224,6 +224,7 @@ class MasterToebService
             $addedMasterToeb = $this->masterToebRepository
                 ->add($data);
             try {
+                $data['id'] = $addedMasterToeb->getId();
                 $this->addReportAddMasterToeb($data);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in addMasterToeb() failed Message: ', [$e]);

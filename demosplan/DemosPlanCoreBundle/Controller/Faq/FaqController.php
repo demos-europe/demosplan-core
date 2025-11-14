@@ -46,7 +46,7 @@ class FaqController extends BaseController
      */
     #[Route(path: '/faq', name: 'DemosPlan_faq', options: ['expose' => true])]
     #[Route(path: '/haeufigefragen', name: 'DemosPlan_haeufigefragen')]
-    public function faqListAction(
+    public function faqList(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         FaqHandler $faqHandler,
@@ -88,7 +88,7 @@ class FaqController extends BaseController
      */
     #[Route(path: '/faq/bauleitplanung', name: 'DemosPlan_faq_public_planning', defaults: ['type' => 'oeb_bauleitplanung'])]
     #[Route(path: '/faq/projekt', name: 'DemosPlan_faq_public_project', defaults: ['type' => 'oeb_bob'])]
-    public function faqPublicListAction(
+    public function faqPublicList(
         CurrentUserService $currentUserService,
         FaqHandler $faqHandler,
         $type,
@@ -130,7 +130,7 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/verwalten', name: 'DemosPlan_faq_administration_faq', options: ['expose' => true])]
-    public function faqAdminListAction(
+    public function faqAdminList(
         Request $request,
         FaqHandler $faqHandler,
         GlobalConfig $globalConfig,
@@ -184,7 +184,7 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/{faqID}/edit', name: 'DemosPlan_faq_administration_faq_edit', options: ['expose' => true])]
-    public function faqAdminEditAction(
+    public function faqAdminEdit(
         Breadcrumb $breadcrumb,
         GlobalConfig $globalConfig,
         Request $request,
@@ -254,7 +254,7 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/neu', name: 'DemosPlan_faq_administration_faq_new', options: ['expose' => true])]
-    public function faqAdminNewAction(
+    public function faqAdminNew(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
         GlobalConfig $globalConfig,
@@ -380,7 +380,7 @@ class FaqController extends BaseController
      */
     #[Route(path: '/category/new', name: 'DemosPlan_faq_administration_category_new', options: ['expose' => true])]
     #[Route(path: '/category/{categoryId}/edit', name: 'DemosPlan_faq_administration_category_edit', options: ['expose' => true])]
-    public function faqCategoryEditAction(
+    public function faqCategoryEdit(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
         Request $request,
@@ -457,7 +457,7 @@ class FaqController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/category/{categoryId}/delete', name: 'DemosPlan_faq_administration_category_delete', options: ['expose' => true, 'action' => 'delete'])]
-    public function faqCategoryDeleteAction(FaqHandler $faqHandler, string $categoryId): Response
+    public function faqCategoryDelete(FaqHandler $faqHandler, string $categoryId): Response
     {
         $administrateFaq = 'DemosPlan_faq_administration_faq';
 

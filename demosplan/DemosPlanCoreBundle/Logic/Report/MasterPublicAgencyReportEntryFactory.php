@@ -55,14 +55,14 @@ class MasterPublicAgencyReportEntryFactory extends AbstractReportEntryFactory
 
     public function createAdditionEntry(array $data): ReportEntry
     {
+        $dataJson = Json::encode($data, JSON_UNESCAPED_UNICODE);
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_ADD);
         $entry->setUser($this->currentUserProvider->getUser());
-        $entry->setIdentifier('');
-        $entry->setIdentifierType('');
-        $entry->setMessage('');
-        $entry->setIdentifier('');
-        $entry->setIncoming(Json::encode($data, JSON_UNESCAPED_UNICODE));
+        $entry->setIdentifier($data['id'] ?? 'invalid-id');
+        $entry->setIdentifierType(ReportEntry::GROUP_ORGA);
+        $entry->setMessage($dataJson);
+        $entry->setIncoming($dataJson);
 
         return $entry;
     }

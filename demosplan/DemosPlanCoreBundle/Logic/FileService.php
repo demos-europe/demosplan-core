@@ -1182,7 +1182,7 @@ class FileService implements FileServiceInterface
     {
         if (null === $path) {
             $path = DemosPlanPath::getTemporaryPath(
-                sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
+                sprintf('%s/%s', uniqid((string) $hash, true), $hash ?? uniqid('', true))
             );
         }
         // Move the file to local directory from flysystem

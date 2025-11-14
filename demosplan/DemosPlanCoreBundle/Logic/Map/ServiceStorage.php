@@ -108,7 +108,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if ((!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
+        $isOaf = $this->isOaf($data);
+        if (!$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
             && !array_key_exists('r_xplanDefaultlayers', $data)) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
@@ -119,6 +120,25 @@ class ServiceStorage implements MapServiceStorageInterface
                     ]
                 ),
             ];
+        }
+
+        // Validate OAF URL format
+        if ($isOaf && array_key_exists('r_url', $data)) {
+            $oafUrlFormatError = $this->validateOafUrlFormat($data);
+
+            if (!empty($oafUrlFormatError)) {
+                $mandatoryErrors[] = $oafUrlFormatError;
+            }
+        }
+
+        // Validate WMS/WMTS URL contains SERVICE parameter
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data)
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
+            $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
+            if (!empty($wmsWmtsUrFormatError)) {
+                $mandatoryErrors[] = $wmsWmtsUrFormatError;
+            }
         }
 
         if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']
@@ -226,15 +246,16 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
-        if (array_key_exists('r_layerProjection', $data)) {
-            $projectionValue = $this->getProjectionAsValue($data['r_layerProjection']);
-            $gislayer['projectionLabel'] = $data['r_layerProjection'];
-            $gislayer['projectionValue'] = $projectionValue;
-        }
-
         // Legende
         if (array_key_exists('r_legend', $data) && null != $data['r_legend']) {
             $gislayer['legend'] = $data['r_legend'];
+        }
+
+        if (array_key_exists('r_layerProjection', $data)) {
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
         // Globale GIS-Layer haben kein Procedure
@@ -319,7 +340,8 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (!$isGlobalLayer && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
+        $isOaf = $this->isOaf($data);
+        if (!$isGlobalLayer && !$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -329,6 +351,25 @@ class ServiceStorage implements MapServiceStorageInterface
                     ]
                 ),
             ];
+        }
+
+        // Validate OAF URL format
+        if (!$isGlobalLayer && $isOaf && array_key_exists('r_url', $data)) {
+            $oafUrlFormatError = $this->validateOafUrlFormat($data);
+
+            if (!empty($oafUrlFormatError)) {
+                $mandatoryErrors[] = $oafUrlFormatError;
+            }
+        }
+
+        // Validate WMS/WMTS URL contains SERVICE parameter
+        $isWmsOrWmts = array_key_exists('r_serviceType', $data)
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
+        if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
+            $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
+            if (!empty($wmsWmtsUrFormatError)) {
+                $mandatoryErrors[] = $wmsWmtsUrFormatError;
+            }
         }
 
         if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'])
@@ -440,14 +481,75 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if (array_key_exists('r_layerProjection', $data)) {
-            $projectionValue = $this->getProjectionAsValue($data['r_layerProjection']);
-            $gislayer['projectionLabel'] = $data['r_layerProjection'];
-            $gislayer['projectionValue'] = $projectionValue;
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
         $this->validateGisLayer($gislayer);
 
         return $this->handler->updateGis($gislayer);
+    }
+
+    private function isOaf(array $data): bool
+    {
+        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
+    }
+
+    private function validateOafUrlFormat(array $data): array
+    {
+        $url = trim((string) $data['r_url']);
+        $lowerUrl = strtolower($url);
+        $collectionsPattern = '/collections/';
+        $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
+
+        // Check if URL contains /collections/ (case-insensitive)
+        if (false === $collectionsIndex) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
+            ];
+        }
+
+        // Check if /collections/ is not at the end (there must be content after it)
+        $afterCollections = substr($url, $collectionsIndex + strlen($collectionsPattern));
+        $afterCollectionsTrimmed = trim($afterCollections, '/ ');
+        if ('' === $afterCollectionsTrimmed) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
+            ];
+        }
+
+        return [];
+    }
+
+    private function validateWmsWmtsUrlFormat(array $data): array
+    {
+        $url = trim((string) $data['r_url']);
+        $upperUrl = strtoupper($url);
+
+        // Check if URL contains SERVICE parameter (case-insensitive)
+        if (false === strpos($upperUrl, 'SERVICE=')) {
+            return [
+                'type'    => 'error',
+                'message' => $this->translator->trans('error.map.layer.missing.service'),
+            ];
+        }
+
+        return [];
+    }
+
+    private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
+    {
+        // Determine projection value based on service type
+        if (isset($gislayer['serviceType']) && 'oaf' === strtolower($gislayer['serviceType'])) {
+            return $data['r_layerProjectionOgcUri'];
+        }
+
+        // WMS/WMTS: convert label to proj4 string
+        return $this->getProjectionAsValue($projectionLabel);
     }
 
     /**

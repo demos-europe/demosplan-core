@@ -24,7 +24,7 @@ class SegmentBulkEditController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_segment_bulk_edit_form', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/bulk-edit', options: ['expose' => true])]
-    public function showFormAction(string $procedureId): Response
+    public function showForm(string $procedureId): Response
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_bulk_edit.html.twig', [
             'procedure' => $procedureId,

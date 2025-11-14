@@ -461,7 +461,7 @@ abstract class AbstractQuery
      *
      * @param string $fieldName
      */
-    public function addFilterMust($fieldName, $value): AbstractQuery
+    public function addFilterMust($fieldName, mixed $value): AbstractQuery
     {
         $filter = new Filter($fieldName, $value);
 
@@ -485,7 +485,7 @@ abstract class AbstractQuery
      *
      * @param string $fieldName
      */
-    public function addFilterShould($fieldName, $value): AbstractQuery
+    public function addFilterShould($fieldName, mixed $value): AbstractQuery
     {
         $filter = new Filter($fieldName, $value);
 
@@ -567,7 +567,7 @@ abstract class AbstractQuery
     /**
      * Append filtervalue.
      */
-    public function addFilterMustNot(string $fieldName, $value): AbstractQuery
+    public function addFilterMustNot(string $fieldName, mixed $value): AbstractQuery
     {
         $filter = new Filter($fieldName, $value);
 

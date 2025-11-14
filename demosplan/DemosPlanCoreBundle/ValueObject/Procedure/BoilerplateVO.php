@@ -83,7 +83,7 @@ class BoilerplateVO extends ValueObject
         return $this->title;
     }
 
-    public function setTitle($title)
+    public function setTitle(mixed $title)
     {
         $this->title = $title;
     }
@@ -109,7 +109,7 @@ class BoilerplateVO extends ValueObject
         return $this->text;
     }
 
-    public function setText($text)
+    public function setText(mixed $text)
     {
         $this->text = $text;
     }

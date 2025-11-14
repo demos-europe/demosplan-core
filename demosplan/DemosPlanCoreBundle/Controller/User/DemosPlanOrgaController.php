@@ -58,7 +58,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_verify_orga_switch_or_update', path: '/organisation/verifychanges')]
-    public function verifyOrgaSwitchOrUpdateAction(AuthenticationUtils $authenticationUtils, Request $request)
+    public function verifyOrgaSwitchOrUpdate(AuthenticationUtils $authenticationUtils, Request $request)
     {
         $session = $request->getSession();
 
@@ -87,7 +87,7 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws Exception
      */
-    public function adminOrgasAction(Request $request)
+    public function adminOrgas(Request $request)
     {
         // wenn der request gefüllt ist, bearbeite ihn
         if (0 < $request->request->count()) {
@@ -111,7 +111,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_edit_view', path: '/organisation/edit/{orgaId}', methods: ['GET'])]
-    public function editOrgaViewAction(CurrentUserService $currentUser, OrgaTypeRepository $orgaTypeRepository, string $orgaId)
+    public function editOrgaView(CurrentUserService $currentUser, OrgaTypeRepository $orgaTypeRepository, string $orgaId)
     {
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
         if ($accessPreventionRedirect instanceof RedirectResponse) {
@@ -139,14 +139,14 @@ class DemosPlanOrgaController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
-    public function editOrgaSaveAction(
+    public function editOrgaSave(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
         UserHandler $userHandler,
         OrgaHandler $orgaHandler,
         string $orgaId,
-    ) {
+    ): RedirectResponse {
         $requestPost = $request->request;
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
         if ($accessPreventionRedirect instanceof RedirectResponse) {
@@ -197,7 +197,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_branding_edit', path: '/organisation/branding/edit/{orgaId}', options: ['expose' => true])]
-    public function editOrgaBrandingAction(Request $request, FileUploadService $fileUploadService, OrgaTypeRepository $orgaTypeRepository, $orgaId)
+    public function editOrgaBranding(Request $request, FileUploadService $fileUploadService, OrgaTypeRepository $orgaTypeRepository, $orgaId)
     {
         $requestPost = $request->request;
 
@@ -307,7 +307,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_list', path: '/organisation/list')]
-    public function listOrgasAction(): RedirectResponse|Response
+    public function listOrgas(): RedirectResponse|Response
     {
         $templateVars = [];
         $templateVars['proceduresDirectlinkPrefix'] = $this->generateUrl(
@@ -335,7 +335,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_switch_orga', path: '/organisation/switch')]
-    public function switchOrgaAction(
+    public function switchOrga(
         CurrentUserInterface $currentUser,
         OsiHHAuthenticator $osiHHAuthenticator,
         Request $request,
@@ -403,7 +403,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws CustomerNotFoundException
      */
     #[Route(name: 'DemosPlan_orga_register_form', path: '/organisation/register', methods: ['GET'], options: ['expose' => true])]
-    public function editOrgaRegisterAction(CustomerHandler $customerHandler): Response
+    public function editOrgaRegister(CustomerHandler $customerHandler): Response
     {
         $customer = $customerHandler->getCurrentCustomer();
 
@@ -425,7 +425,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_orga_register', path: '/organisation/register', methods: ['POST'], options: ['expose' => true])]
-    public function createOrgaRegisterAction(
+    public function createOrgaRegister(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
         RateLimiterFactory $userRegisterLimiter,

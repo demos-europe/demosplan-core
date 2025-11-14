@@ -28,7 +28,7 @@ class SegmentRpcController extends APIController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(path: '/rpc/1.0/statementListQuery/update/{queryHash}', name: 'dplan_rpc_segment_list_query_update', options: ['expose' => true], methods: ['PATCH'])]
-    public function updateSegmentListQueryAction(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
+    public function updateSegmentListQuery(CurrentProcedureService $currentProcedureService, string $queryHash, DrupalFilterParser $filterParser, HashedQueryService $filterSetService): Response
     {
         $procedureId = $currentProcedureService->getProcedureIdWithCertainty();
         /** @var array $filterArray */

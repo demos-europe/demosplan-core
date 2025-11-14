@@ -31,7 +31,7 @@ class DemosPlanElementsAPIController extends APIController
      * @DplanPermissions("area_admin")
      */
     #[Route(path: '/api/1.0/documents/{procedureId}/elements/{elementsId}', methods: ['PATCH'], name: 'dp_api_documents_elements_update', options: ['expose' => true])]
-    public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
+    public function updateElements(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
     {
         $elementsToUpdate = $elementsService->getElementObject($elementsId);
 

@@ -275,9 +275,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     {
         $rawAvailableProjections = $this->globalConfig->getMapAvailableProjections();
 
-        $availableProjections = array_map(function ($availableProjection) {
-            return $this->createAvailableProjectionVO($availableProjection);
-        }, $rawAvailableProjections);
+        $availableProjections = array_map(fn ($availableProjection) => $this->createAvailableProjectionVO($availableProjection), $rawAvailableProjections);
 
         return $availableProjections;
     }

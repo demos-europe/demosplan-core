@@ -256,12 +256,12 @@ class EntityContentChangeService
             }
 
             // ensure defined values (restored original logic):
-            $preUpdateValue = $preUpdateValue ?? '';
-            $postUpdateValue = $postUpdateValue ?? '';
-            $preUpdateIdentifier = $preUpdateIdentifier ?? $preUpdateValue;
-            $postUpdateIdentifier = $postUpdateIdentifier ?? $postUpdateValue;
-            $preUpdateIdentifiers = $preUpdateIdentifiers ?? $preUpdateValue;
-            $postUpdateIdentifiers = $postUpdateIdentifiers ?? $postUpdateValue;
+            $preUpdateValue ??= '';
+            $postUpdateValue ??= '';
+            $preUpdateIdentifier ??= $preUpdateValue;
+            $postUpdateIdentifier ??= $postUpdateValue;
+            $preUpdateIdentifiers ??= $preUpdateValue;
+            $postUpdateIdentifiers ??= $postUpdateValue;
 
             // use IDs to determine change, instead of using identifier because identifier may not be unique
             if ($preUpdateValue !== $postUpdateValue) {
