@@ -167,7 +167,7 @@ class ServiceOutput
                     $user,
                     null
                 );
-                if (is_array($statementResult->getResult()) && count($statementResult->getResult()) > 0) {
+                if (is_array($statementResult->getResult()) && [] !== $statementResult->getResult()) {
                     $sResult[$proclistcounter]['statementSubmitted'] = count($statementResult->getResult());
                 } else {
                     $sResult[$proclistcounter]['statementSubmitted'] = 0;
@@ -187,7 +187,7 @@ class ServiceOutput
      */
     public function procedureTemplateAdminListHandler(array $filter, mixed $search)
     {
-        if (0 === count($filter)) {
+        if ([] === $filter) {
             throw new InvalidArgumentException('provide at least one filter');
         }
 
@@ -420,7 +420,7 @@ class ServiceOutput
             $templateVars['procedure']['ident'],
             $templateVars['procedure']['phase']
         );
-        if (is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
+        if (is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (array_key_exists('organisation', $invitedOrga) && $invitedOrga['organisation'] instanceof Orga) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();

@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
@@ -128,7 +129,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -187,11 +188,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         // has admin consultation token list permission
-        if ($this->currentUser->hasPermission('area_admin_consultations')) {
-            return true;
-        }
-
-        return false;
+        return $this->currentUser->hasPermission('area_admin_consultations');
     }
 
     public function getQuery(): AbstractQuery
@@ -326,7 +323,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->elements
                 ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
-                    if (null === $planningDocumentCategory) {
+                    if (!$planningDocumentCategory instanceof Elements) {
                         // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
                         $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
                     }

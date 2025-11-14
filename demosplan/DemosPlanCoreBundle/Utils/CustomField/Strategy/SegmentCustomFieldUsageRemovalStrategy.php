@@ -47,7 +47,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
     private function removeCustomFieldFromSegment(Segment $segment, string $customFieldId): void
     {
         $originalCustomFields = $segment->getCustomFields();
-        if (null === $originalCustomFields) {
+        if (!$originalCustomFields instanceof CustomFieldValuesList) {
             return;
         }
         $customFields = clone $segment->getCustomFields();
@@ -73,7 +73,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
     private function removeDeletedOptionsFromSegment(Segment $segment, string $customFieldId, array $deletedOptionIds): void
     {
         $originalCustomFields = $segment->getCustomFields();
-        if (null === $originalCustomFields) {
+        if (!$originalCustomFields instanceof CustomFieldValuesList) {
             return;
         }
         $customFields = clone $originalCustomFields;

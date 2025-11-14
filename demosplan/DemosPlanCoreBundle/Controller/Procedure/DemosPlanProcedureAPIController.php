@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
@@ -312,7 +313,7 @@ class DemosPlanProcedureAPIController extends APIController
     ) {
         // @improve T14122
         $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
-        if (null === $filterSet) {
+        if (!$filterSet instanceof HashedQuery) {
             $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, $filterHash, $original);
         }
 

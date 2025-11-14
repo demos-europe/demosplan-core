@@ -54,7 +54,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             }
         }
         // wenn ja dann leite zu deren Detailansicht weiter
-        if (!empty($templateVars['releaseForVoting'])) {
+        if (isset($templateVars['releaseForVoting']) && [] !== $templateVars['releaseForVoting']) {
             // zeige das jüngste an
             $sumActiveReleases = count($templateVars['releaseForVoting']);
             $latestActiveReleaseKey = $sumActiveReleases - 1;
@@ -143,7 +143,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 // Erfolgsmeldung
                 $this->getMessageBag()->add('confirm', 'confirm.release.updated');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
             }
         }
         $releasePhases = $this->getReleasePhases();
@@ -313,7 +313,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                         ->trans('warning.phase.voting.not.possible', ['points' => 'Punkte vor Ort'])
                     );
 
-                    return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                    return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
                 }
 
                 $storageResult = $this->forumHandler->saveOfflineVotesOfUserStories($requestPost['r_offlineVotes']);
@@ -335,7 +335,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                         ['points' => 'Online Punkte']
                     );
 
-                    return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                    return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
                 }
 
                 // Überprüfe, ob Votes zurückgesetzt werden sollen
@@ -363,7 +363,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             }
         }
 
-        return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+        return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
     }
 
     /**
@@ -393,7 +393,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 // Erfolgsmeldung
                 $this->getMessageBag()->add('confirm', 'confirm.story.created');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
             }
         }
 
@@ -430,13 +430,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getLogger()->warning($e);
                 $this->getMessageBag()->add('warning', 'warning.entry.missing');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
             }
             if (true === $storageResult['status']) {
                 // Erfolgsmeldung
                 $this->getMessageBag()->add('confirm', 'confirm.story.updated');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             }
         }
 
@@ -478,13 +478,13 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             if (true === $storageResult) {
                 $this->getMessageBag()->add('confirm', 'confirm.story.deleted');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', compact('releaseId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_release_detail', ['releaseId' => $releaseId]);
             }
         } else {
             $this->getMessageBag()->add('error', 'error.delete');
         }
 
-        return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+        return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
     }
 
     /**
@@ -593,7 +593,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         if (false === $permission['new_threadEntry']) {
             $this->getMessageBag()->add('warning', 'warning.new.entry.not.possible');
 
-            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
         }
 
         if ($request->request->has('saveNewEntryForUserStory')) {
@@ -607,7 +607,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             if (true === $storageResult['status']) {
                 $this->getMessageBag()->add('confirm', 'confirm.thread.created');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             }
             // Fehlermeldungen
             if (array_key_exists('mandatoryfieldwarning', $storageResult)) {
@@ -658,7 +658,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             $this->getLogger()->warning($e);
             $this->getMessageBag()->add('warning', 'warning.entry.missing');
 
-            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
         }
 
         // Update des Beitrags
@@ -676,7 +676,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
 
                         return $this->redirectToRoute(
                             'DemosPlan_forum_development_userstory_detail',
-                            compact('storyId')
+                            ['storyId' => $storyId]
                         );
                     }
                 }
@@ -694,14 +694,14 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                     if (isset($storageResult['status']) && true === $storageResult['status']) {
                         $this->getMessageBag()->add('confirm', 'confirm.thread.updated');
 
-                        return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                        return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
                     }
                     // Falls es diese Beitrags-Id nicht mehr gibt, leite zur Liste zurück
                 } catch (Exception $e) {
                     $this->getLogger()->warning($e);
                     $this->getMessageBag()->add('warning', 'warning.entry.missing');
 
-                    return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                    return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
                 }
             }
         }
@@ -751,7 +751,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         if (isset($noEntry) || !isset($storageResult['user'])) {
             $this->getMessageBag()->add('warning', 'warning.entry.missing');
 
-            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
         }
 
         $threadEntry = $storageResult;
@@ -766,11 +766,11 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             if (true === $storageResult['status']) {
                 $this->getMessageBag()->add('confirm', 'confirm.thread.deleted');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             } else {
                 $this->getMessageBag()->add('error', 'error.delete');
 
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', compact('storyId'));
+                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             }
         }
 
@@ -778,7 +778,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
 
         return $this->redirectToRoute(
             'DemosPlan_forum_development_userstory_threadentry_edit',
-            compact('storyId', 'threadEntryId')
+            ['storyId' => $storyId, 'threadEntryId' => $threadEntryId]
         );
     }
 

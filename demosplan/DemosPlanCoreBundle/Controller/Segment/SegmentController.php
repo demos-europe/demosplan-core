@@ -16,6 +16,9 @@ use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundExcepti
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -56,7 +59,7 @@ class SegmentController extends BaseController
 
         return $this->redirectToRoute(
             'dplan_segments_list_by_query_hash',
-            compact('procedureId', 'queryHash')
+            ['procedureId' => $procedureId, 'queryHash' => $queryHash]
         );
     }
 
@@ -85,7 +88,7 @@ class SegmentController extends BaseController
         }
 
         $statement = $statementHandler->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
 
@@ -183,7 +186,7 @@ class SegmentController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -239,7 +242,7 @@ class SegmentController extends BaseController
 
                 return $this->redirectToRoute(
                     $route,
-                    compact('procedureId')
+                    ['procedureId' => $procedureId]
                 );
             } catch (AddonResourceNotFoundException) {
                 $this->getMessageBag()->add(
@@ -272,7 +275,7 @@ class SegmentController extends BaseController
 
         return $this->redirectToRoute(
             'DemosPlan_procedure_import',
-            compact('procedureId')
+            ['procedureId' => $procedureId]
         );
     }
 
@@ -287,7 +290,7 @@ class SegmentController extends BaseController
         FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
-        $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();
+        $segmentListQuery = $querySet instanceof HashedQuery ? $querySet->getStoredQuery() : null;
         if (!$segmentListQuery instanceof SegmentListQuery) {
             throw BadRequestException::unknownQueryHash($queryHash);
         }

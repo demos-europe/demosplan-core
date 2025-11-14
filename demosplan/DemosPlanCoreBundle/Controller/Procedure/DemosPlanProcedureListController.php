@@ -268,7 +268,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     public function exportProcedures(ExportService $exportService, Request $request): Response
     {
         $selectedProcedures = $this->getSelectedItems($request);
-        if (0 === count($selectedProcedures)) {
+        if ([] === $selectedProcedures) {
             $this->getMessageBag()->add('error', 'error.procedure.export.noselection');
         } else {
             return $exportService->generateProcedureExportZip($selectedProcedures, false);
@@ -607,7 +607,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     {
         try {
             $selectedProcedures = $this->getSelectedItems($request);
-            if (0 === count($selectedProcedures)) {
+            if ([] === $selectedProcedures) {
                 $this->getMessageBag()->add('error', 'error.procedure.deleted.noselection');
             } else {
                 $this->procedureService->deleteProcedure($selectedProcedures);

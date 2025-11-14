@@ -179,7 +179,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $doRedirect = null === $filterHash;
         $filterHash = $filterSet->getHash();
-        $redirectParameters = compact('procedureId', 'filterHash');
+        $redirectParameters = ['procedureId' => $procedureId, 'filterHash' => $filterHash];
 
         /*
          * Not sure if this is right. Think it's there to handle original table view.
@@ -340,7 +340,7 @@ class DemosPlanAssessmentTableController extends BaseController
          * If rParams contain filters, those win against the hash in url.
          * Doing this via redirect to same action.
          */
-        if (null === $filterSet) {
+        if (!$filterSet instanceof HashedQuery) {
             $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
             $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
 
@@ -395,7 +395,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         $doRedirect = null === $filterHash;
         $filterHash = $filterSet->getHash();
-        $redirectParameters = compact('procedureId', 'filterHash');
+        $redirectParameters = ['procedureId' => $procedureId, 'filterHash' => $filterHash];
 
         /*
          * Not sure if this is right. Think it's there to handle original table view.
@@ -675,7 +675,7 @@ class DemosPlanAssessmentTableController extends BaseController
         }
 
         // refresh elasticsearch indexes to ensure that changes are shown immediately
-        if ($request->request->has('submit_item_return_button') && null === $redirectReturn) {
+        if ($request->request->has('submit_item_return_button') && !$redirectReturn instanceof RedirectResponse) {
             $this->setElasticsearchIndexManager($this->indexManager);
             $this->refreshElasticsearchIndexes();
             $hashListAssessment = $session->get('hashList')[$procedureId]['assessment'];
@@ -694,7 +694,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // redirect to same form to avoid sending form multiple times on reload
         // also mitigate effect that changes are not visible immediately
-        if ($request->request->has('r_action') && null === $redirectReturn) {
+        if ($request->request->has('r_action') && !$redirectReturn instanceof RedirectResponse) {
             $redirectRoute = 'dm_plan_assessment_single_view';
             if ($isCluster) {
                 $redirectRoute = 'DemosPlan_cluster_view';
@@ -705,7 +705,7 @@ class DemosPlanAssessmentTableController extends BaseController
                 ['procedureId' => $procedureId, 'statement' => $statementId]
             );
         }
-        if (null !== $redirectReturn) {
+        if ($redirectReturn instanceof RedirectResponse) {
             return $redirectReturn;
         }
         // if no redirects prepare template for rendering
@@ -839,7 +839,7 @@ class DemosPlanAssessmentTableController extends BaseController
             /* @var Statement $statement */
             $statement = $statementService->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 // This should be a proper exception
                 throw new LogicException("[Controller] No statement found for id {$statementId}.");
             }
@@ -875,7 +875,7 @@ class DemosPlanAssessmentTableController extends BaseController
             /* @var Statement $statement */
             $statement = $statementService->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 // This should be a proper exception
                 throw new LogicException("[Controller] No statement found for id {$statementId}.");
             }

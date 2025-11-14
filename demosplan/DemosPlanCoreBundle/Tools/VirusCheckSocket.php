@@ -52,7 +52,7 @@ class VirusCheckSocket implements VirusCheckInterface
             return true;
         } catch (Throwable $e) {
             $this->logger->error('Error in virusCheck:', [$e]);
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 

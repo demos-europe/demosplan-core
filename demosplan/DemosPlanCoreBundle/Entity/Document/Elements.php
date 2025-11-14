@@ -621,7 +621,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
         /** @var Elements $child */
         foreach ($children as $child) {
-            $numberOfChildren = $numberOfChildren + $child->countChildrenRecursively();
+            $numberOfChildren += $child->countChildrenRecursively();
         }
 
         return $numberOfChildren;

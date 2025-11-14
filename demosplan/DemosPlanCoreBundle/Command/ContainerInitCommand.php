@@ -47,7 +47,7 @@ class ContainerInitCommand extends CoreCommand
         private readonly CustomerService $customerService,
         private readonly UserService $userService,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -169,7 +169,7 @@ EOT
                     }
 
                     $user = $this->userRepository->getFirstUserByCaseInsensitiveLogin($userLogin);
-                    if (null === $user) {
+                    if (!$user instanceof User) {
                         $user = $this->userService->createMasterUserForCustomer(
                             $userLogin,
                             $customer

@@ -48,7 +48,7 @@ class DraftsInfoController extends BaseController
         string $procedureId,
     ): RedirectResponse {
         $statement = $statementService->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
         $statement->setAssignee($currentUser->getUser());

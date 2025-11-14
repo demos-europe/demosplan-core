@@ -154,7 +154,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             return [
@@ -190,20 +190,16 @@ class ServiceStorage implements MapServiceStorageInterface
         }
         $gislayer['isMinimap'] = false;
         // Wenn die Defaultlayer genutzt werden sollen, speichere sie als Layer ab
-        if (array_key_exists('r_xplanDefaultlayers', $data)) {
-            if ('1' == $data['r_xplanDefaultlayers']) {
-                // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
-                if (0 < strlen((string) $gislayer['layers'])) {
-                    $gislayer['layers'] .= ',';
-                }
-                $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
+        if (array_key_exists('r_xplanDefaultlayers', $data) && '1' == $data['r_xplanDefaultlayers']) {
+            // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
+            if (0 < strlen((string) $gislayer['layers'])) {
+                $gislayer['layers'] .= ',';
             }
+            $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
         }
         // Wenn es ein XPlanlayer ist, speichere die Info
-        if (array_key_exists('r_xplan', $data)) {
-            if ('on' === $data['r_xplan']) {
-                $gislayer['xplan'] = true;
-            }
+        if (array_key_exists('r_xplan', $data) && 'on' === $data['r_xplan']) {
+            $gislayer['xplan'] = true;
         }
         // Eliminiere alle Leerzeichen zwischen Komma und Layername
         if (isset($gislayer['layers'])) {
@@ -239,42 +235,20 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if (array_key_exists('r_print', $data)) {
-            if ('1' == $data['r_print']) {
-                $gislayer['print'] = true;
-            } else {
-                $gislayer['print'] = false;
-            }
+            $gislayer['print'] = '1' == $data['r_print'];
         }
 
-        if (array_key_exists('r_bplan', $data)) {
-            if ('1' == $data['r_bplan']) {
-                $gislayer['bplan'] = true;
-            } else {
-                $gislayer['bplan'] = false;
-            }
-        } else {
-            $gislayer['bplan'] = false;
-        }
+        $gislayer['bplan'] = array_key_exists('r_bplan', $data) ? '1' == $data['r_bplan'] : false;
 
-        if (array_key_exists('r_scope', $data)) {
-            if ('1' == $data['r_scope']) {
-                $gislayer['scope'] = true;
-            } else {
-                $gislayer['scope'] = false;
-            }
-        } else {
-            $gislayer['scope'] = false;
-        }
+        $gislayer['scope'] = array_key_exists('r_scope', $data) ? '1' == $data['r_scope'] : false;
 
         if (array_key_exists('r_contextualHelpText', $data)) {
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
         // Legende
-        if (array_key_exists('r_legend', $data)) {
-            if (null != $data['r_legend']) {
-                $gislayer['legend'] = $data['r_legend'];
-            }
+        if (array_key_exists('r_legend', $data) && null != $data['r_legend']) {
+            $gislayer['legend'] = $data['r_legend'];
         }
 
         if (array_key_exists('r_layerProjection', $data)) {
@@ -411,7 +385,7 @@ class ServiceStorage implements MapServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             return [
@@ -487,35 +461,15 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['print'] = false;
         }
 
-        if (array_key_exists('r_bplan', $data)) {
-            if ('1' == $data['r_bplan']) {
-                $gislayer['bplan'] = true;
-            } else {
-                $gislayer['bplan'] = false;
-            }
-        } else {
-            $gislayer['bplan'] = false;
-        }
+        $gislayer['bplan'] = array_key_exists('r_bplan', $data) ? '1' == $data['r_bplan'] : false;
 
         if (array_key_exists('r_contextualHelpText', $data)) {
             $gislayer['contextualHelpText'] = $data['r_contextualHelpText'];
         }
 
-        if (array_key_exists('r_scope', $data)) {
-            if ('1' == $data['r_scope']) {
-                $gislayer['scope'] = true;
-            } else {
-                $gislayer['scope'] = false;
-            }
-        } else {
-            $gislayer['scope'] = false;
-        }
+        $gislayer['scope'] = array_key_exists('r_scope', $data) ? '1' == $data['r_scope'] : false;
 
-        if (array_key_exists('r_xplan', $data)) {
-            $gislayer['xplan'] = true;
-        } else {
-            $gislayer['xplan'] = false;
-        }
+        $gislayer['xplan'] = array_key_exists('r_xplan', $data);
 
         // Legende
         if (array_key_exists('delete_legend', $data)) {

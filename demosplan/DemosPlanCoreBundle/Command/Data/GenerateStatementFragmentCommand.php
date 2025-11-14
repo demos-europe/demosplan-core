@@ -36,7 +36,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
         ParameterBagInterface $parameterBag,
         private readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentFactory $statementFragmentFactory,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -130,7 +130,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
     {
         $count = (int) $this->getArgument('count');
         $countRange = $this->getCountRange();
-        if (!empty($countRange)) {
+        if ([] !== $countRange) {
             $count = random_int($countRange[0], $countRange[1]);
         }
         $statementId = $this->input->getOption('statement-id');

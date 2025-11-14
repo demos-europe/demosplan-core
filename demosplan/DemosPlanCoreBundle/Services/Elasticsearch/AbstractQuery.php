@@ -604,7 +604,7 @@ abstract class AbstractQuery
         if (0 === count($this->sort)) {
             $sortDefault = $this->getSortDefault();
 
-            return null === $sortDefault ? [] : [$sortDefault];
+            return $sortDefault instanceof Sort ? [$sortDefault] : [];
         }
 
         return $this->sort;
@@ -615,7 +615,7 @@ abstract class AbstractQuery
      */
     public function setSort($sorts): AbstractQuery
     {
-        $sorts = !is_array($sorts) ? [$sorts] : $sorts;
+        $sorts = is_array($sorts) ? $sorts : [$sorts];
         foreach ($sorts as $sort) {
             if (!$sort instanceof Sort) {
                 throw new InvalidArgumentException('Must be a Sort array, there is, at least one '.$sort::class.' element');
@@ -648,7 +648,7 @@ abstract class AbstractQuery
      */
     public function getSortDefault(): ?Sort
     {
-        if (0 === count($this->getScopes())) {
+        if ([] === $this->getScopes()) {
             $this->setScopes([self::SCOPE_EXTERNAL]);
         }
 

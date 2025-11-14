@@ -14,6 +14,8 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
@@ -87,7 +89,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $procedureId = $procedure;
             $statement = $statementHandler->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getMessageBag()->add('error', 'error.statement.not.found');
 
                 return $this->redirectToRoute('dplan_assessmenttable_view_table', [
@@ -533,7 +535,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
             $statement = $statementHandler->getStatement($statementId);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getMessageBag()->add('error', 'error.statement.not.found');
 
                 return $returnResponse($procedure, $statementId);
@@ -701,7 +703,7 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
             $hashList = $request->getSession()->get('hashList');
             $hash = $hashList[$procedureId]['assessment']['hash'];
             $filterSet = $filterSetService->findHashedQueryWithHash($hash);
-            if (null === $filterSet) {
+            if (!$filterSet instanceof HashedQuery) {
                 $request->request->set('filters', []);
                 $request->request->set('search_fields', []);
                 $request->request->set('search_word', '');

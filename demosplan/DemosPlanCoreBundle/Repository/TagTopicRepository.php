@@ -174,7 +174,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
         try {
             $topics = $this->findBy(['procedure' => $sourceProcedureId]);
 
-            if (0 < sizeof($topics)) {
+            if (0 < count($topics)) {
                 $newProcedure->detachAllTopics();
                 /** @var TagTopic $singletopic */
                 foreach ($topics as $singletopic) {

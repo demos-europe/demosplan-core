@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 /**
  * Custom Eventlistener
@@ -85,7 +86,7 @@ class DemosPlanResponseEventSubscriber implements EventSubscriberInterface
     {
         // unauthenticated requests do not have a token
         $existingToken = $this->tokenStorage->getToken();
-        if (null === $existingToken) {
+        if (!$existingToken instanceof TokenInterface) {
             return;
         }
 

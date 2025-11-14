@@ -41,7 +41,7 @@ class DeleteCustomerCommand extends CoreCommand
         private readonly CustomerRepository $customerRepository,
         private readonly CustomerDeleter $customerDeleter,
         private readonly QuestionHelper $helper = new QuestionHelper(),
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -95,7 +95,7 @@ class DeleteCustomerCommand extends CoreCommand
 
             return Command::FAILURE;
         }
-        if (0 < count($possiblyOrphanedOrgas)) {
+        if ([] !== $possiblyOrphanedOrgas) {
             $output->info(
                 "The Orgas with id(s) have no orga-type present for any customer\n"
                 .'- you can copy the following output if you want to delete them:'

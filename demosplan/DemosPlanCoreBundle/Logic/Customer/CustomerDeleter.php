@@ -152,7 +152,7 @@ class CustomerDeleter
             ),
             'branding_id'
         );
-        if (0 < count($brandingIdUniqueArray)) {
+        if ([] !== $brandingIdUniqueArray) {
             // get branding logo fileId
             $fileIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(
@@ -163,7 +163,7 @@ class CustomerDeleter
                 ),
                 'logo'
             );
-            if (0 < count($fileIds)) {
+            if ([] !== $fileIds) {
                 // delete logo if present
                 $this->queriesService->deleteFromTableByIdentifierArray(
                     '_files',

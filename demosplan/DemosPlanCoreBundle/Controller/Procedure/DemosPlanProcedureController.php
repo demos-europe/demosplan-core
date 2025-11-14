@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -201,10 +202,10 @@ class DemosPlanProcedureController extends BaseController
             $slugify = new Slugify();
             $slug = $slugify->slugify($slug);
             $procedure = $procedureOutput->getProcedureBySlug($slug, $currentUser->getUser());
-            if (null === $procedure) {
+            if (!$procedure instanceof Procedure) {
                 throw new NoResultException();
             }
-            $redirectRoute = true === $currentUser->getUser()->isLoggedIn()
+            $redirectRoute = $currentUser->getUser()->isLoggedIn()
                 ? $this->globalConfig->getProjectShortUrlRedirectRouteLoggedin()
                 : $this->globalConfig->getProjectShortUrlRedirectRoute();
 
@@ -374,7 +375,7 @@ class DemosPlanProcedureController extends BaseController
         try {
             $procedure = $this->procedureService->getProcedure($procedureId);
             $movedStatementData = $statementService->getMovedStatementData($procedure);
-            if (null !== $movedStatementData) {
+            if ($movedStatementData instanceof MovedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
         } catch (Exception $e) {
@@ -406,7 +407,7 @@ class DemosPlanProcedureController extends BaseController
         string $procedureId,
     ): ?array {
         $priorityInitialValues = [];
-        foreach ($statementPriorities as $key => $label) {
+        foreach (array_keys($statementPriorities) as $key) {
             // save initial zero values to be set later on as defaults
             $priorityInitialValues[$this->generateCategoryKey($key)] = 0;
         }
@@ -1167,7 +1168,7 @@ class DemosPlanProcedureController extends BaseController
 
         //        refs T6189: Only toeb, who were selected to recive the invitation mail are listed in mail-body.
         $organization = $procedure->getOrga();
-        if (0 === count($selectedOrganisations)) {
+        if ([] === $selectedOrganisations) {
             $procedureServiceOutput = $this->procedureServiceOutput;
             $toutputResult = $procedureServiceOutput->procedureMemberListHandler($procedure->getId(), null);
             $selectedOrganisations = $toutputResult['orgas'];
@@ -1301,7 +1302,7 @@ class DemosPlanProcedureController extends BaseController
                 // can be edited. To prevent both values to be displayed (which is the default behavior when
                 // values differ) the fields are synced.
                 if (false === $this->permissions->hasPermission('feature_institution_participation')
-                    && true === $this->permissions->hasPermission('area_public_participation')
+                    && $this->permissions->hasPermission('area_public_participation')
                     && isset($inData['r_externalName'])) {
                     $inData['r_name'] = $inData['r_externalName'];
                 }
@@ -1400,7 +1401,7 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['procedureCategories'] = $procedureCategoryService->getProcedureCategories();
 
             // Template auswählen
-            if (true === $isMaster) {
+            if ($isMaster) {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit_master.html.twig';
                 $title = 'procedure.master.adjustments';
             } else {
@@ -1666,7 +1667,7 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // logged in users should see their procedure startpage if participation area is not used
-        if (true === $currentUser->getUser()->isLoggedIn() && false === $this->permissions->hasPermission('area_combined_participation_area')) {
+        if ($currentUser->getUser()->isLoggedIn() && false === $this->permissions->hasPermission('area_combined_participation_area')) {
             return $this->redirectToRoute(
                 $this->globalConfig->getProcedureEntrypointRoute(),
                 ['procedure' => $procedureId]
@@ -1692,7 +1693,7 @@ class DemosPlanProcedureController extends BaseController
             try {
                 $this->permissions->checkPermission('feature_new_statement');
 
-                if (true === $currentUser->getUser()->isLoggedIn()) {
+                if ($currentUser->getUser()->isLoggedIn()) {
                     // Formulardaten einsammeln
                     $requestPost['r_uploaddocument'] = $fileUploadService->prepareFilesUpload($request, 'r_file');
 
@@ -1882,7 +1883,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['procedureCategories'] = $currentProcedure['procedureCategories'];
 
         // Soll eine bestehende Stellungnahme editiert werden?
-        if (true === $currentUser->getUser()->isLoggedIn() && $request->query->has('draftStatementId')) {
+        if ($currentUser->getUser()->isLoggedIn() && $request->query->has('draftStatementId')) {
             try {
                 $draftStatement = $draftStatementService->getDraftStatement(
                     $request->query->get('draftStatementId')
@@ -1935,12 +1936,12 @@ class DemosPlanProcedureController extends BaseController
             $this->permissions->hasPermission('area_statements_public_published_public')
             && \array_key_exists('publicStatements', $templateVars)
             && \array_key_exists('statements', $templateVars['publicStatements'])
-            && 0 < sizeof($templateVars['publicStatements']['statements'])
+            && 0 < count($templateVars['publicStatements']['statements'])
         ) {
             ++$tabCount;
 
             // Add file containers to check for published attachments in statement tab
-            foreach ($templateVars['publicStatements']['statements'] as $key => $iValue) {
+            foreach (array_keys($templateVars['publicStatements']['statements']) as $key) {
                 $id = $templateVars['publicStatements']['statements'][$key]['id'];
                 $templateVars['publicStatements']['statements'][$key]['fileContainers'] = $statementService->getFileContainersForStatement($id);
 
@@ -1966,7 +1967,7 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['procedureUiDefinition'] = $procedure->getProcedureUiDefinition();
         $templateVars['statementFormDefinition'] = $procedure->getStatementFormDefinition();
         $templateVars['statementFieldDefinitions'] = [];
-        if (null !== $procedure->getStatementFormDefinition()) {
+        if ($procedure->getStatementFormDefinition() instanceof StatementFormDefinition) {
             $templateVars['statementFieldDefinitions'] = $procedure->getStatementFormDefinition()->getFieldDefinitions()->toArray();
         }
         $templateVars['fallbackStatementReplyUrl'] = $this->globalConfig->getFallbackStatementReplyUrl(); // move this into event?
@@ -2001,7 +2002,7 @@ class DemosPlanProcedureController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/list_data_input_orga_procedures.html.twig',
-            \compact('templateVars', 'title')
+            ['templateVars' => $templateVars, 'title' => $title]
         );
     }
 
@@ -2106,11 +2107,7 @@ class DemosPlanProcedureController extends BaseController
             return $this->administrationMemberEMailAction($orgaService, $request, $procedure, $title);
         }
 
-        if (\array_key_exists('search_word', $requestPost)) {
-            $search = $requestPost['search_word'];
-        } else {
-            $search = null;
-        }
+        $search = $requestPost['search_word'] ?? null;
 
         if (\array_key_exists('delete_orga_action', $requestPost)) {
             if (!isset($requestPost['orga_selected']) || 0 === (is_countable($requestPost['orga_selected']) ? count($requestPost['orga_selected']) : 0)) {
@@ -2260,7 +2257,7 @@ class DemosPlanProcedureController extends BaseController
             $procedure,
             $templateVars['procedure']['phase']
         );
-        if (\is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
+        if (\is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (\array_key_exists('organisation', $invitedOrga)
                     && $invitedOrga['organisation'] instanceof Orga
@@ -2792,7 +2789,7 @@ class DemosPlanProcedureController extends BaseController
         array $boilerplateIds,
     ) {
         $storageResult = $procedureHandler->deleteBoilerplates($boilerplateIds);
-        if (true === $storageResult) {
+        if ($storageResult) {
             $this->getMessageBag()->add('confirm', 'confirm.selected.boilerplates.deleted');
         } else {
             $this->getMessageBag()->add('warning', 'warning.selected.boilerplates.delete');

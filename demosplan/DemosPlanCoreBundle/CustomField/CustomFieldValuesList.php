@@ -73,6 +73,6 @@ class CustomFieldValuesList
 
     public function isEmpty(): bool
     {
-        return 0 === count($this->customFieldValues);
+        return [] === $this->customFieldValues;
     }
 }

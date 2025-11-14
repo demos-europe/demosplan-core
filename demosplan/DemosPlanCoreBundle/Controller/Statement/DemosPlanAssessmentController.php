@@ -76,7 +76,7 @@ class DemosPlanAssessmentController extends BaseController
     ): Response {
         $statementToUpdate = $statementHandler->getStatement($entityId);
 
-        if (null === $statementToUpdate) {
+        if (!$statementToUpdate instanceof Statement) {
             $this->getMessageBag()->add('error', 'error.statement.assignment.assigned');
             $this->getLogger()->warning('Could not find Statement Id '.$entityId);
 
@@ -188,7 +188,7 @@ class DemosPlanAssessmentController extends BaseController
                 $isDataInput = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT);
                 $newStatement = $statementHandler->newStatement($rParams, $isDataInput);
 
-                if (null !== $headStatement) {
+                if ($headStatement instanceof Statement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
                 if ($newStatement instanceof Statement) {
@@ -255,7 +255,7 @@ class DemosPlanAssessmentController extends BaseController
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
-            compact('title', 'templateVars')
+            ['title' => $title, 'templateVars' => $templateVars]
         );
     }
 
@@ -301,7 +301,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
@@ -327,7 +327,7 @@ class DemosPlanAssessmentController extends BaseController
 
             return $this->redirectToRoute(
                 'dplan_assessmenttable_view_table',
-                \compact('procedureId')
+                ['procedureId' => $procedureId]
             );
         } catch (Exception $e) {
             return $this->handleError($e);

@@ -33,7 +33,7 @@ class SessionHandlerFactory
     // called via framework.yaml
     public function createSessionHandler(string $sessionHandler): SessionHandlerInterface
     {
-        if (empty($sessionHandler)) {
+        if ('' === $sessionHandler || '0' === $sessionHandler) {
             throw new InvalidArgumentException('SESSION_HANDLER cannot be empty');
         }
 

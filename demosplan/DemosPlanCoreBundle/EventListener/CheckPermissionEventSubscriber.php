@@ -103,7 +103,7 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
 
         // Check if there is a DplanPermissions-Attribute. If so, get the permissions
         $dplanPermissionsAttributes = $reflectionMethod->getAttributes(AttributeDplanPermissions::class);
-        if (0 < count($dplanPermissionsAttributes)) {
+        if ([] !== $dplanPermissionsAttributes) {
             $dplanPermissions = $dplanPermissionsAttributes[0]->newInstance()->getPermissions();
         }
 

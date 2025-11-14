@@ -312,7 +312,7 @@ class MasterToebService
             if (isset($data['orgaName']) && !is_null($orga) && $data['orgaName'] != $orga->getName()) {
                 $orgaUpdate['name'] = $data['orgaName'];
             }
-            if (0 < count($orgaUpdate) && !is_null($orga)) {
+            if ([] !== $orgaUpdate && !is_null($orga)) {
                 $this->serviceUser->updateOrga($orga->getIdent(), $orgaUpdate, false);
             }
 

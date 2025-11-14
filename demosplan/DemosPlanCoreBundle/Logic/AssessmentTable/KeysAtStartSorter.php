@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use TypeError;
+
 use function array_key_exists;
 
 /**
@@ -35,7 +36,7 @@ class KeysAtStartSorter implements ArraySorterInterface
      */
     public function __construct(array $keys)
     {
-        if (0 === count($keys)) {
+        if ([] === $keys) {
             throw new InvalidArgumentException('given array of keys is empty');
         }
         $this->keys = $keys;
@@ -43,7 +44,7 @@ class KeysAtStartSorter implements ArraySorterInterface
 
     public function sortArray(array $array): array
     {
-        if (0 === count($array)) {
+        if ([] === $array) {
             return $array;
         }
         $toBePlacedFirst = [];

@@ -139,7 +139,7 @@ class OdtImporter
         $nodesToRemove = $structuralNodes;
         foreach ($structuralNodes as $structuralNode) {
             $precedingHeading = $this->findPrecedingIndexHeading($structuralNode);
-            if ($precedingHeading) {
+            if ($precedingHeading instanceof DOMNode) {
                 $nodesToRemove[] = $precedingHeading;
             }
         }

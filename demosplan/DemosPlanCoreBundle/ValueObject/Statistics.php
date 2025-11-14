@@ -41,16 +41,6 @@ class Statistics extends ValueObject
 
     public function getAsTemplateVars(): array
     {
-        $templateVars = [];
-        $templateVars['procedureList'] = $this->procedures;
-        $templateVars['statementStatistic'] = $this->globalStatementStatistic;
-        $templateVars['internalPhases'] = $this->internalPhases;
-        $templateVars['externalPhases'] = $this->externalPhases;
-        $templateVars['rolesList'] = $this->roles;
-        $templateVars['orgaList'] = $this->orgas;
-        $templateVars['orgaUsersList'] = $this->usersPerOrga;
-        $templateVars['allowedRoleCodeMap'] = $this->allowedRoleCodeMap;
-
-        return $templateVars;
+        return ['procedureList' => $this->procedures, 'statementStatistic' => $this->globalStatementStatistic, 'internalPhases' => $this->internalPhases, 'externalPhases' => $this->externalPhases, 'rolesList' => $this->roles, 'orgaList' => $this->orgas, 'orgaUsersList' => $this->usersPerOrga, 'allowedRoleCodeMap' => $this->allowedRoleCodeMap];
     }
 }

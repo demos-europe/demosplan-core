@@ -114,7 +114,7 @@ class DemosPlanOrgaController extends BaseController
     public function editOrgaView(CurrentUserService $currentUser, OrgaTypeRepository $orgaTypeRepository, string $orgaId)
     {
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
-        if (null !== $accessPreventionRedirect) {
+        if ($accessPreventionRedirect instanceof RedirectResponse) {
             return $accessPreventionRedirect;
         }
 
@@ -149,7 +149,7 @@ class DemosPlanOrgaController extends BaseController
     ): RedirectResponse {
         $requestPost = $request->request;
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
-        if (null !== $accessPreventionRedirect) {
+        if ($accessPreventionRedirect instanceof RedirectResponse) {
             return $accessPreventionRedirect;
         }
 

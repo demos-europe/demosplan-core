@@ -72,7 +72,7 @@ class DemosPlanPlisController extends BaseController
         try {
             $procedureList = $plis->getLgvPlisProcedureList();
 
-            if (0 === count($procedureList)) {
+            if ([] === $procedureList) {
                 throw new Exception('Kein Verfahren gefunden');
             }
             $procedureName = '';
