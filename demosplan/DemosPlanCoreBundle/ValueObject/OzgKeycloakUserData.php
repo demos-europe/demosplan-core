@@ -138,7 +138,6 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
             ', company department: '.$this->companyDepartment.
-            ', city: '.$this->city.
             ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }
