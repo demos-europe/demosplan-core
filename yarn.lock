@@ -3173,9 +3173,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@masterportal/masterportalapi@npm:2.50.0":
-  version: 2.50.0
-  resolution: "@masterportal/masterportalapi@npm:2.50.0"
+"@masterportal/masterportalapi@npm:2.52.0":
+  version: 2.52.0
+  resolution: "@masterportal/masterportalapi@npm:2.52.0"
   dependencies:
     core-js: "npm:^3.33.1"
     dayjs: "npm:^1.11.10"
@@ -3185,8 +3185,8 @@ __metadata:
     proj4: "npm:^2.10.0"
     xml2js: "npm:^0.6.2"
   peerDependencies:
-    "@cesium/engine": ^15.0.0
-  checksum: 10c0/64eaf4775da7f606533b17fab620e5948095b2535c635e67fb60d7bc82fcfed772b2220481b6cc08779995ce8d035b4667ab2e6b3b5ce0e425a5ecd171ad8fc5
+    "@cesium/engine": ^20.0.1
+  checksum: 10c0/f4ff86693bb2b72b93da8cc505f7e5d573dcaf26fa221e23102a4d53db44f661f63bebcd75a629ff2b8e342fe3ee33b8df60b7312092d9f51abc1f8675a5c5f9
   languageName: node
   linkType: hard
 
@@ -7496,7 +7496,7 @@ __metadata:
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^9.39.1"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
-    "@masterportal/masterportalapi": "npm:2.50.0"
+    "@masterportal/masterportalapi": "npm:2.52.0"
     "@sentry/browser": "npm:^9.24.0"
     "@sentry/tracing": "npm:^7.120.3"
     "@tailwindcss/postcss": "npm:^4.1.16"
