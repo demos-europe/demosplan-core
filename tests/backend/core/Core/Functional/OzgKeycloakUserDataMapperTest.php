@@ -164,6 +164,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             ], // This provides roles
         ];
     }
+
     /**
      * Creates a mock ResourceOwner for a private person.
      */
