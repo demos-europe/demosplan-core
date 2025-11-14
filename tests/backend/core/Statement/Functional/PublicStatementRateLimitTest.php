@@ -170,7 +170,7 @@ class PublicStatementRateLimitTest extends FunctionalTestCase
     {
         $request = new Request([], [], [], [], [], [], json_encode([
             'r_externId' => 'test-procedure-id',
-            'r_text' => 'Test statement content',
+            'r_text'     => 'Test statement content',
         ]));
 
         $this->assertNotNull($request, 'Request should be constructed properly');

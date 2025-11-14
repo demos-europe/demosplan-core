@@ -49,7 +49,7 @@ class RatelimitRequestSubscriberTest extends TestCase
 
             public function __construct(
                 private readonly HeaderSanitizerService $headerSanitizer,
-                private readonly ParameterBag $parameterBag
+                private readonly ParameterBag $parameterBag,
             ) {
                 // We intentionally do NOT call the parent constructor here because RateLimiterFactory is a final class
                 // and cannot be mocked in this test context. This means that any logic in the parent constructor will
