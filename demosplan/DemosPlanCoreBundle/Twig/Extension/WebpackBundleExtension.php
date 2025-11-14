@@ -44,6 +44,14 @@ class WebpackBundleExtension extends ExtensionBase
     ];
 
     /**
+     * These bundles should not have defer attribute as they are dependencies
+     * that must be loaded synchronously for inline scripts.
+     */
+    private const NON_DEFER_BUNDLES = [
+        'jquery-3.5.1.min.js',
+    ];
+
+    /**
      * The webpack manifest.
      *
      * This is the combination of `dplan.manifest.json` and `styles.manifest.json`.
@@ -183,18 +191,37 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function renderTag($bundleSrc, bool $legacy, string $bundleName, string $dataBundle): string
     {
-        $tagTemplate = '<script src="%s" '.$this->addNonce('script').'></script>';
+        // Handle CSS files
+        if (strpos($bundleName, '.css') > 0) {
+            return sprintf(
+                '<link rel="stylesheet" href="%s" %s>',
+                $this->formatBundlePath($bundleSrc),
+                $this->addNonce('style')
+            );
+        }
 
+        // Build script tag attributes (defer + nonce)
+        $shouldDefer = !in_array($bundleName, self::NON_DEFER_BUNDLES, true);
+        $attributes = ($shouldDefer ? 'defer ' : '').$this->addNonce('script');
+
+        // Script with data-bundle attribute
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
-            $tagTemplate = '<script src="%s" data-bundle="%s" '.$this->addNonce('script').'></script>';
+
+            return sprintf(
+                '<script src="%s" data-bundle="%s" %s></script>',
+                $this->formatBundlePath($bundleSrc),
+                $dataBundle,
+                $attributes
+            );
         }
 
-        if (strpos($bundleName, '.css') > 0) {
-            $tagTemplate = '<link rel="stylesheet" href="%s" '.$this->addNonce('style').'>';
-        }
-
-        return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
+        // Regular script tag
+        return sprintf(
+            '<script src="%s" %s></script>',
+            $this->formatBundlePath($bundleSrc),
+            $attributes
+        );
     }
 
     /**
