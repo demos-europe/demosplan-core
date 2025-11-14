@@ -200,7 +200,7 @@ class ElementsService implements ElementsServiceInterface
 
         // return IDs only:
         return collect(array_merge($mapCategories, $hiddenByConfigCategories))
-            ->sort(fn ($elementA, $elementB) => strcasecmp($elementA->getTitle(), $elementB->getTitle()))
+            ->sort(fn ($elementA, $elementB) => strcasecmp((string) $elementA->getTitle(), (string) $elementB->getTitle()))
             ->map(
                 fn ($element) =>
                     /* @var Elements $element */
@@ -701,7 +701,7 @@ class ElementsService implements ElementsServiceInterface
             'search'     => $paragraphList['search'],
         ];
         unset($result['result']['search'], $paragraphList['search']);
-        $result['total'] = sizeof($paragraphList);
+        $result['total'] = count($paragraphList);
 
         return $result;
     }
@@ -895,7 +895,7 @@ class ElementsService implements ElementsServiceInterface
                 $fileString = $singleDocument->getDocument();
 
                 $newFile = $this->fileService->createCopyOfFile($fileString, $newProcedure->getId());
-                if (null !== $newFile) {
+                if ($newFile instanceof File) {
                     $singleDocument->setDocument($newFile->getFileString());
                     $this->singleDocumentRepository->updateObjects([$singleDocument]);
                 }
@@ -911,7 +911,7 @@ class ElementsService implements ElementsServiceInterface
         foreach ($newProcedure->getElements() as $element) {
             if ('' !== $element->getFile()) {
                 $newFile = $this->fileService->createCopyOfFile($element->getFile(), $newProcedure->getId());
-                if (null !== $newFile) {
+                if ($newFile instanceof File) {
                     $element->setFile($newFile->getFileString());
                 }
             }
@@ -934,7 +934,7 @@ class ElementsService implements ElementsServiceInterface
         if (isset($data['r_parent'])) {
             $parentId = $data['r_parent'];
             $parent = $this->getElementObject($parentId);
-            if (null === $parent) {
+            if (!$parent instanceof Elements) {
                 throw StatementElementNotFoundException::missingParent($parentId);
             }
             $parentsCount = $this->countParents($parent) + 1;
@@ -954,7 +954,7 @@ class ElementsService implements ElementsServiceInterface
     private function countParents(Elements $element): int
     {
         $parent = $element->getParent();
-        if (null === $parent) {
+        if (!$parent instanceof Elements) {
             return 0;
         }
 

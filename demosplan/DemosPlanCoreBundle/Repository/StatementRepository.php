@@ -163,7 +163,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             }
 
             // only if there statements left to generate a cluster, create the headStatement
-            if (0 < count($statements)) {
+            if ([] !== $statements) {
                 $headStatement = $this->addObject($headStatement);
                 $headStatement->setCluster($statements);
                 $manager->persist($headStatement);
@@ -1334,7 +1334,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         foreach ($statementArrays as $entityArray) {
             $externId = $entityArray['externId'];
             if (false === is_numeric($externId)) {
-                preg_match('/([0-9]).*/', (string) $externId, $matches);
+                preg_match('/(\d).*/', (string) $externId, $matches);
                 $externId = array_key_exists(0, $matches) ? $matches[0] : 0;
             }
             // with is_numeric we exclude external ids from segments which have a
@@ -1837,14 +1837,14 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             throw new InvalidArgumentException('Given Statement is not an OriginalStatement.');
         }
 
-        if (null !== $gdprConsentToSet && null !== $gdprConsentToSet->getStatement()) {
+        if ($gdprConsentToSet instanceof GdprConsent && null !== $gdprConsentToSet->getStatement()) {
             throw new InvalidArgumentException('Given GdprConsent is already in use.');
         }
 
         $newOriginalStatement = clone $originalToCopy;
 
         // create new gdprConsent for copied original statement
-        if (null === $gdprConsentToSet && null !== $originalToCopy->getGdprConsent()) {
+        if (!$gdprConsentToSet instanceof GdprConsent && null !== $originalToCopy->getGdprConsent()) {
             $gdprConsentToSet = clone $originalToCopy->getGdprConsent();
             $gdprConsentToSet->setStatement($newOriginalStatement);
         }

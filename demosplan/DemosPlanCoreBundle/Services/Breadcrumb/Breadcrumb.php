@@ -58,7 +58,7 @@ class Breadcrumb
         private readonly HelpService $helpService,
         RouterInterface $router,
         TranslatorInterface $translator,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -80,7 +80,7 @@ class Breadcrumb
             $this->setTitleByPageTitleKey($titleKey);
         }
 
-        if (null === $user) {
+        if (!$user instanceof User) {
             return '';
         }
 
@@ -88,11 +88,9 @@ class Breadcrumb
 
         if (null !== $procedure) {
             $userOrganisationId = $user->getOrganisationId();
-            if ($isOwner || (isset($procedure['orgaId']) && $userOrganisationId === $procedure['orgaId'])) {
-                // Fachplanergruppe der Orga bekommen die Adminansicht
-                if ($user->isPlanner()) {
-                    $this->setAdministrationMode(true);
-                }
+            // Fachplanergruppe der Orga bekommen die Adminansicht
+            if (($isOwner || isset($procedure['orgaId']) && $userOrganisationId === $procedure['orgaId']) && $user->isPlanner()) {
+                $this->setAdministrationMode(true);
             }
         }
 
@@ -104,7 +102,7 @@ class Breadcrumb
         // Wenn ein Procedure gesetzt ist, ergänze das Breadcrumb
         if (null !== $procedure) {
             // Fachplanung bekommt eine andere Ansicht als Institutionen
-            if (true === $this->isAdministrationMode()) {
+            if ($this->isAdministrationMode()) {
                 // Wenn es sich um Blaupausen handelt, dann zeig das an
                 if (true === $procedure['master']) {
                     $markup .= $this->getSnippetMarkup(
@@ -134,7 +132,7 @@ class Breadcrumb
                         ),
                     };
 
-                    if ($result) {
+                    if ('' !== $result && '0' !== $result) {
                         $markup .= $result;
                         break;
                     }
@@ -177,7 +175,7 @@ class Breadcrumb
             }
         }
         // ggf. zusätzliche Items
-        if (is_array($this->getItems()) && 0 < count($this->getItems())) {
+        if (is_array($this->getItems()) && [] !== $this->getItems()) {
             foreach ($this->getItems() as $extraItem) {
                 $markup .= $this->getSnippetMarkup($extraItem['url'], $extraItem['title'], $liCounter++);
             }

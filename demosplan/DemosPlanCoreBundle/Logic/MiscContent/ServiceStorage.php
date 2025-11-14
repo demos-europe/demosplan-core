@@ -27,7 +27,7 @@ class ServiceStorage
     public function __construct(
         private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
         MailService $service,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->service = $service;
     }
@@ -69,7 +69,7 @@ class ServiceStorage
             }
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
             $messages = collect($mandatoryErrors)->only(['message'])->toArray();
             throw new ContentMandatoryFieldsException($messages, 'Mandatory fields are missing');
@@ -90,7 +90,7 @@ class ServiceStorage
             'phone'        => '',
             'address'      => '',
         ];
-        foreach ($vars as $key => $value) {
+        foreach (array_keys($vars) as $key) {
             if (array_key_exists('r_'.$key, $request)) {
                 $vars[$key] = $request['r_'.$key];
             }

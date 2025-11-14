@@ -26,6 +26,7 @@
     <div class="flex space-inline-s">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
+        id="subscriptions_autosuggest"
         class="u-nojs-hide inline-block w-11 bg-color--white"
         height="32px"
         label="value"

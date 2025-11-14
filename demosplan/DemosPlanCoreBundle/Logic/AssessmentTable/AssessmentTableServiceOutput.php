@@ -506,11 +506,7 @@ class AssessmentTableServiceOutput
         $planningOfficerOfProcedure = in_array($orgaId, $planningOfficeIds);
         $dataInputOrgaOfProcedure = in_array($orgaId, $dataInputOrganisationIds);
 
-        if ($ownerOfProcedure || $planningOfficerOfProcedure || $dataInputOrgaOfProcedure) {
-            return true;
-        }
-
-        return false;
+        return $ownerOfProcedure || $planningOfficerOfProcedure || $dataInputOrgaOfProcedure;
     }
 
     public function replaceDataOfEsStatementFields(array $statement): array
@@ -1006,7 +1002,7 @@ class AssessmentTableServiceOutput
         $statements = $table->getStatements();
         $totalResults = $table->getTotal();
 
-        if (null === $viewMode) {
+        if (!$viewMode instanceof AssessmentTableViewMode) {
             $statements = $this->statementService->addSourceStatementAttachments($statements);
         }
 
@@ -1096,19 +1092,17 @@ class AssessmentTableServiceOutput
         // was moved?
         if (array_key_exists('formerExternId', $statementArray) && false === is_null($statementArray['formerExternId'])) {
             $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$statementArray['formerExternId'].' '.$this->translator->trans('from').' '.$statementArray['movedFromProcedureName'].')';
-        } else {
-            if (array_key_exists('placeholderStatement', $statementArray)
-                && false === is_null($statementArray['placeholderStatement'])) {
-                // dont know, if $statementArray['placeholderStatement'] is an object or array. -> handle both cases:
-                if ($statementArray['placeholderStatement'] instanceof Statement) {
-                    $formerExternId = $statementArray['placeholderStatement']->getExternId();
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']->getProcedure()->getName();
-                } else {
-                    $formerExternId = $statementArray['placeholderStatement']['externId'];
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']['procedure']['name'];
-                }
-                $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
+        } elseif (array_key_exists('placeholderStatement', $statementArray)
+            && false === is_null($statementArray['placeholderStatement'])) {
+            // dont know, if $statementArray['placeholderStatement'] is an object or array. -> handle both cases:
+            if ($statementArray['placeholderStatement'] instanceof Statement) {
+                $formerExternId = $statementArray['placeholderStatement']->getExternId();
+                $nameOfFormerProcedure = $statementArray['placeholderStatement']->getProcedure()->getName();
+            } else {
+                $formerExternId = $statementArray['placeholderStatement']['externId'];
+                $nameOfFormerProcedure = $statementArray['placeholderStatement']['procedure']['name'];
             }
+            $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
         }
 
         // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement

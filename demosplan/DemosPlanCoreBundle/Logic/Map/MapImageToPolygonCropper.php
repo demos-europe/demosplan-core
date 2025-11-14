@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
-use Symfony\Component\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Crops a MapLayer to include a Polygon with a defined minimum margin to the image borders.
@@ -53,7 +53,7 @@ class MapImageToPolygonCropper
      */
     public function crop(
         MapLayer $layerImage,
-        Collection $features
+        Collection $features,
     ): MapLayer {
         $feature = $features->first();
 
@@ -83,7 +83,7 @@ class MapImageToPolygonCropper
             if ($mapCoordinateWidth - $cropCoordinatesLeft >= $coordMinWidth) {
                 $newLeft = $layerImage->getLeft() + $cropCoordinatesLeft;
                 // If we can crop and keep width >= min-width we update the width, keep crop size and go for the right border
-                $mapCoordinateWidth = $mapCoordinateWidth - $cropCoordinatesLeft;
+                $mapCoordinateWidth -= $cropCoordinatesLeft;
 
                 $cropCoordinatesRight = $layerImage->getRight() - $polygonRight < $marginToPolygon
                     ? 0
@@ -91,7 +91,7 @@ class MapImageToPolygonCropper
 
                 if ($mapCoordinateWidth - $cropCoordinatesRight >= $coordMinWidth) {
                     // If we can crop what we need and width >= min-width we update the width
-                    $mapCoordinateWidth = $mapCoordinateWidth - $cropCoordinatesRight;
+                    $mapCoordinateWidth -= $cropCoordinatesRight;
                     $newRight = $layerImage->getRight() - $cropCoordinatesRight;
                 } else {
                     $mapCoordinateWidth = $coordMinWidth;
@@ -112,7 +112,7 @@ class MapImageToPolygonCropper
             if ($mapCoordinateHeight - $cropCoordinatesBottom >= $coordMinHeight) {
                 $newBottom = $layerImage->getBottom() + $cropCoordinatesBottom;
                 // If we can crop and keep height >= min-height we update the height, keep crop size and go for the top border
-                $mapCoordinateHeight = $mapCoordinateHeight - $cropCoordinatesBottom;
+                $mapCoordinateHeight -= $cropCoordinatesBottom;
 
                 $cropCoordinatesTop = $layerImage->getTop() - $polygonTop < $marginToPolygon
                     ? 0
@@ -121,7 +121,7 @@ class MapImageToPolygonCropper
                 if ($mapCoordinateHeight - $cropCoordinatesTop >= $coordMinHeight) {
                     $newTop = $layerImage->getTop() - $cropCoordinatesTop;
                     // If we can crop what we need and height >= min-height we update the height
-                    $mapCoordinateHeight = $mapCoordinateHeight - $cropCoordinatesTop;
+                    $mapCoordinateHeight -= $cropCoordinatesTop;
                 } else {
                     // Otherwise we adjust the crop and set height = min-height
                     $cropCoordinatesTop = $mapCoordinateHeight - $coordMinHeight;

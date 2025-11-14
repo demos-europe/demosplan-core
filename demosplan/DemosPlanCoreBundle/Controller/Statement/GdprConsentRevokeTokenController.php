@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\GdprConsentRevokeTokenService;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class GdprConsentRevokeTokenController extends BaseController
 {
@@ -35,7 +35,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
-    public function revokeGdprConsentPostAction(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
+    public function revokeGdprConsentPost(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
         try {
             $messageBag = $this->getMessageBag();
@@ -65,7 +65,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
-    public function revokeGdprConsentGetAction(PermissionsInterface $permissions): Response
+    public function revokeGdprConsentGet(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {
             return $this->renderTemplate(

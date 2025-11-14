@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Psr\Container\ContainerInterface;
@@ -54,7 +55,7 @@ class PageTitleExtension extends ExtensionBase
         }
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null !== $currentProcedure) {
+        if ($currentProcedure instanceof Procedure) {
             $parts[] = $this->procedureExtension->getNameFunction($currentProcedure);
         }
 

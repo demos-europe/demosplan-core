@@ -27,8 +27,12 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschriftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
+    private const COMPANY_DEPARTMENT = 'Organisationseinheit';
+    private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+
     protected string $addressExtension = '';
     protected string $city = '';
+    protected string $companyDepartment = '';
     protected bool $isPrivatePerson = false;
 
     public function __construct(
@@ -61,6 +65,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->houseNumber = $userInformation[self::COMPANY_HOUSE_NUMBER] ?? '';
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
+        $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
         // Extract isPrivatePerson attribute from token
         $this->isPrivatePerson = isset($userInformation['isPrivatePerson'])
@@ -131,6 +136,8 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
+            ', city: '.$this->city.
+            ', company department: '.$this->companyDepartment.
             ', city: '.$this->city.
             ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
