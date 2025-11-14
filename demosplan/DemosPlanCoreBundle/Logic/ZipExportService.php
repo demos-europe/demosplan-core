@@ -221,7 +221,7 @@ class ZipExportService
 
     private function checkIfSavable(object $writer): void
     {
-        if (!($writer instanceof WriterInterface || $writer instanceof PDF)) {
+        if (!$writer instanceof WriterInterface && !$writer instanceof PDF) {
             throw InvalidParameterTypeException::fromTypes($writer::class, [WriterInterface::class, PDF::class]);
         }
     }

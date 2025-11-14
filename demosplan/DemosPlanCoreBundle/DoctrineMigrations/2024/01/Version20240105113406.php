@@ -35,7 +35,7 @@ class Version20240105113406 extends AbstractMigration
         try {
             // Drop the unique constraint
             $this->addSql('ALTER TABLE _procedure DROP INDEX UNIQ_D1A01D0281398E09');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Ignore if the index does not exist
         }
         $this->addSql('ALTER TABLE _procedure ADD CONSTRAINT FK_D1A01D0281398E09 FOREIGN KEY (customer) REFERENCES customer(_c_id)');
@@ -51,7 +51,7 @@ class Version20240105113406 extends AbstractMigration
         try {
             // Drop the unique constraint
             $this->addSql('ALTER TABLE _procedure DROP INDEX UNIQ_D1A01D0281398E09');
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Ignore if the index does not exist
         }
     }

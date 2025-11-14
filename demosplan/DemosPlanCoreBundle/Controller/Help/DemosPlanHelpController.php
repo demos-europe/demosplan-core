@@ -21,7 +21,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanHelpController extends BaseController
@@ -34,9 +34,9 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_list', methods: 'GET|POST', path: '/contextualHelp')]
-    public function listAction(
+    public function list(
         Request $request,
-        HelpHandler $helpHandler
+        HelpHandler $helpHandler,
     ): Response {
         $templateVars = [];
         $requestPost = $request->request->all();
@@ -73,15 +73,15 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_new', methods: 'GET', path: '/contextualHelp/new')]
-    public function newAction(
+    public function new(
         Breadcrumb $breadcrumb,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $breadcrumb->addItem(
             [
-                 'title' => $translator->trans('contextual.help'),
-                 'url'   => $this->generateUrl('dplan_contextual_help_list'),
-             ]
+                'title' => $translator->trans('contextual.help'),
+                'url'   => $this->generateUrl('dplan_contextual_help_list'),
+            ]
         );
 
         return $this->renderTemplate(
@@ -103,9 +103,9 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_create', methods: 'POST', path: '/contextualHelp/create')]
-    public function createAction(
+    public function create(
         HelpHandler $helpHandler,
-        Request $request
+        Request $request,
     ): Response {
         try {
             $helpHandler->createContextualHelp($request->request->all());
@@ -129,11 +129,11 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_edit', methods: 'GET', path: '/contextualHelp/{contextualHelpId}')]
-    public function editAction(
+    public function edit(
         Breadcrumb $breadcrumb,
         HelpHandler $helpHandler,
         TranslatorInterface $translator,
-        $contextualHelpId = null
+        $contextualHelpId = null,
     ): Response {
         try {
             $breadcrumb->addItem([
@@ -168,10 +168,10 @@ class DemosPlanHelpController extends BaseController
      * @DplanPermissions("area_admin_contextual_help_edit")
      */
     #[Route(name: 'dplan_contextual_help_update', methods: 'POST', path: '/contextualHelp/{contextualHelpId}')]
-    public function updateAction(
+    public function update(
         Request $request,
         HelpHandler $helpHandler,
-        string $contextualHelpId
+        string $contextualHelpId,
     ): Response {
         try {
             $helpHandler->updateContextualHelp($request->request->all());

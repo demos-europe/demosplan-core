@@ -18,7 +18,7 @@ const chunkSplitting = {
     core: {
       name: 'core',
       chunks: 'all',
-      minChunks: 40,
+      minChunks: 10,
       enforce: true,
       test: /[\\/]node_modules[\\/]|[\\/]demosplan[\\/]DemosPlanCoreBundle[\\/]Resources[\\/]client[\\/]js[\\/](InitVue)\.js/,
       priority: 2,

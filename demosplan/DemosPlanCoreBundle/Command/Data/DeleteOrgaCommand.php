@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,16 +24,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.')]
 class DeleteOrgaCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:organisation:delete';
-    protected static $defaultDescription = 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly OrgaDeleter $orgaDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -67,7 +66,7 @@ class DeleteOrgaCommand extends CoreCommand
         $isDryRun = (bool) $input->getOption('dry-run');
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
         $orgaIds = $input->getArgument('orgaIds');
-        $orgaIds = explode(',', $orgaIds);
+        $orgaIds = explode(',', (string) $orgaIds);
         try {
             $retrievedOrgaIds = array_column(
                 $this->queriesService->fetchFromTableByParameter(['_o_id'], '_orga', '_o_id', $orgaIds),
@@ -80,12 +79,12 @@ class DeleteOrgaCommand extends CoreCommand
         }
 
         $missedIdsArray = array_diff($orgaIds, $retrievedOrgaIds);
-        if (0 !== count($missedIdsArray)) {
+        if ([] !== $missedIdsArray) {
             $missedIdsString = implode(' ', $missedIdsArray);
             $output->warning("Matching organisation(s) not found for id(s) $missedIdsString");
         }
 
-        if (0 === count($retrievedOrgaIds)) {
+        if ([] === $retrievedOrgaIds) {
             $output->info('no organisation(s) found to delete');
 
             return Command::FAILURE;

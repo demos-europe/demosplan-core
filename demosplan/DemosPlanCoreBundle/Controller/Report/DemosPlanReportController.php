@@ -21,10 +21,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use Exception;
 use PhpOffice\PhpWord\Settings;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Seitenausgabe Protokolldaten.
@@ -43,7 +42,7 @@ class DemosPlanReportController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
-    public function viewReportAction(Request $request, $procedureId)
+    public function viewReport($procedureId)
     {
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanReport/list.html.twig',
@@ -67,7 +66,7 @@ class DemosPlanReportController extends BaseController
         methods: ['GET'],
         options: ['expose' => true]
     )]
-    public function exportProcedureReportAction(
+    public function exportProcedureReport(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,
         NameGenerator $nameGenerator,

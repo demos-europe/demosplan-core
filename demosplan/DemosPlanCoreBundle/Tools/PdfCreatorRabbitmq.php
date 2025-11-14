@@ -106,7 +106,7 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
                 'Could not create PDF ',
                 [$e]
             );
-            throw new Exception('Could not create PDF ');
+            throw new Exception('Could not create PDF ', $e->getCode(), $e);
         }
     }
 
