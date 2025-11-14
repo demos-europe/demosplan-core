@@ -147,7 +147,7 @@ class FlashMessageHandlerTest extends UnitTestCase
         $messages = [
             ['type' => 'success', 'message' => 'Valid message'],
             ['message' => 'Missing type'],
-            ['type' => 'error', 'message' => 'Another valid message'],
+            ['type'    => 'error', 'message' => 'Another valid message'],
         ];
 
         // Expect warning to be logged once (for invalid message)
