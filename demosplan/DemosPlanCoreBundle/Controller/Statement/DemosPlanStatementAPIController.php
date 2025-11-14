@@ -646,7 +646,7 @@ class DemosPlanStatementAPIController extends APIController
                         $this->messageBag->add('error', $violation->getMessage());
                     }
 
-                    return $this->handleApiError(new InvalidDataException());
+                    return $this->handleApiError(new InvalidDataException('Validation failed for statement bulk edit'));
                 } catch (Exception $e) {
                     $this->messageBag->addChoice(
                         'error',
@@ -663,7 +663,7 @@ class DemosPlanStatementAPIController extends APIController
                 }
             }
 
-            return $this->handleApiError(new InvalidDataException());
+            return $this->handleApiError(new InvalidDataException('Invalid data for statement bulk edit'));
         } catch (Exception $e) {
             $this->messageBag->add('error', 'bulk.edit.assign.failure');
 
