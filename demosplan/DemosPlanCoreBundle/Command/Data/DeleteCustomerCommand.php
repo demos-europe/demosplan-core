@@ -94,7 +94,7 @@ class DeleteCustomerCommand extends CoreCommand
 
             return Command::FAILURE;
         }
-        if (0 < count($possiblyOrphanedOrgas)) {
+        if ([] !== $possiblyOrphanedOrgas) {
             $output->info(
                 "The Orgas with id(s) have no orga-type present for any customer\n"
                 .'- you can copy the following output if you want to delete them:'

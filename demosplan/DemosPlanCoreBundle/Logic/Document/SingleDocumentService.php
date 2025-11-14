@@ -85,11 +85,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -142,11 +138,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (is_null($search)) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = is_null($search) ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -182,11 +174,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -354,7 +342,7 @@ class SingleDocumentService implements SingleDocumentServiceInterface
         ];
 
         unset($result['result']['search'], $singleDocument['search']);
-        $result['total'] = sizeof($singleDocument);
+        $result['total'] = count($singleDocument);
 
         return $result;
     }

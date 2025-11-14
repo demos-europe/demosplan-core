@@ -44,7 +44,7 @@ class AddonBuildFrontendCommand extends CoreCommand
 
         if (null === $addonName) {
             $enabledAddons = $this->registry->getEnabledAddons();
-            if (0 === count($enabledAddons)) {
+            if ([] === $enabledAddons) {
                 $output->warning('No addons enabled, nothing to do.');
 
                 return self::SUCCESS;

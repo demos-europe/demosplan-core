@@ -260,9 +260,9 @@ class DocxExporter
                 case self::EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY:
                     $relevantFragmentIds = $this->getSelectedFragmentIdsOfStatements($incomingStatements);
                     // 'items' may contain IDs of statements and/or fragments, get the fragment ones only
-                    $selections = array_filter($requestPost['items'], fn (string $id) => null === $this->statementHandler->getStatement($id));
+                    $selections = array_filter($requestPost['items'], fn (string $id) => !$this->statementHandler->getStatement($id) instanceof Statement);
                     // if specific fragments were selected use these only
-                    if (0 !== count((array) $selections)) {
+                    if ([] !== (array) $selections) {
                         // create a mapping from ID to ID
                         $selections = array_combine($selections, $selections);
                         // filter out non-selected items
@@ -725,7 +725,7 @@ class DocxExporter
 
         $isCluster = false;
         if (isset($item['cluster'])) {
-            $isCluster = is_array($item['cluster']) && 0 < count($item['cluster']);
+            $isCluster = is_array($item['cluster']) && [] !== $item['cluster'];
         } elseif (isset($item['isClusterStatement'])) {
             $isCluster = $item['isClusterStatement'];
         }
@@ -791,7 +791,7 @@ class DocxExporter
         );
 
         // cluster
-        if (isset($item['cluster']) && is_array($item['cluster']) && 0 < count($item['cluster'])) {
+        if (isset($item['cluster']) && is_array($item['cluster']) && [] !== $item['cluster']) {
             $clusteredStatementMetaData = '('.$translator->trans('id.plural').': ';
             $clusteredStatementMetaData .= implode(', ', array_column($item['cluster'], 'externId'));
             $clusteredStatementMetaData .= ')';
@@ -887,19 +887,17 @@ class DocxExporter
         // was moved?
         if (array_key_exists('formerExternId', $statementArray) && false === is_null($statementArray['formerExternId'])) {
             $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$statementArray['formerExternId'].' '.$this->translator->trans('from').' '.$statementArray['movedFromProcedureName'].')';
-        } else {
-            if (array_key_exists('placeholderStatement', $statementArray)
-                && false === is_null($statementArray['placeholderStatement'])) {
-                // dont know, if $statementArray['placeholderStatement'] is an object or array. -> handle both cases:
-                if ($statementArray['placeholderStatement'] instanceof Statement) {
-                    $formerExternId = $statementArray['placeholderStatement']->getExternId();
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']->getProcedure()->getName();
-                } else {
-                    $formerExternId = $statementArray['placeholderStatement']['externId'];
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']['procedure']['name'];
-                }
-                $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
+        } elseif (array_key_exists('placeholderStatement', $statementArray)
+            && false === is_null($statementArray['placeholderStatement'])) {
+            // dont know, if $statementArray['placeholderStatement'] is an object or array. -> handle both cases:
+            if ($statementArray['placeholderStatement'] instanceof Statement) {
+                $formerExternId = $statementArray['placeholderStatement']->getExternId();
+                $nameOfFormerProcedure = $statementArray['placeholderStatement']->getProcedure()->getName();
+            } else {
+                $formerExternId = $statementArray['placeholderStatement']['externId'];
+                $nameOfFormerProcedure = $statementArray['placeholderStatement']['procedure']['name'];
             }
+            $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
         }
 
         // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
@@ -971,7 +969,7 @@ class DocxExporter
             return '';
         }
         try {
-            $text = self::replaceTags($text);
+            $text = $this->replaceTags($text);
             // remove STX (start of text) EOT (end of text) special chars
             $text = str_replace([chr(2), chr(3)], '', $text);
 
@@ -994,7 +992,7 @@ class DocxExporter
         return '';
     }
 
-    private static function replaceTags(string $text): string
+    private function replaceTags(string $text): string
     {
         $replacements = [
             // phpword breaks when self closing tags are not closed
@@ -1170,21 +1168,21 @@ class DocxExporter
         $result = [];
         $meta = $statement->getMeta();
 
-        if ('' != $meta->getOrgaName()) {
+        if ('' !== $meta->getOrgaName()) {
             $result['orgaName'] = $this->translator->trans('invitable_institution')
                 .': '.$meta->getOrgaName();
         } else {
             $result['orgaName'] = $this->translator->trans('invitable_institution').': '.
                 $this->translator->trans('notgiven');
         }
-        if ('' != $meta->getOrgaDepartmentName()) {
+        if ('' !== $meta->getOrgaDepartmentName()) {
             $result['orgaDepartment'] = $this->translator->trans('department')
                 .': '.$meta->getOrgaDepartmentName();
         } else {
             $result['orgaDepartment'] = $this->translator->trans('department')
                 .': '.$this->translator->trans('notgiven');
         }
-        if ('' != $meta->getSubmitName()) {
+        if ('' !== $meta->getSubmitName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getSubmitName();
         } else {
@@ -1602,14 +1600,14 @@ class DocxExporter
         $result = [];
         $meta = $statement->getMeta();
 
-        if ('' != $meta->getOrgaName()) {
+        if ('' !== $meta->getOrgaName()) {
             $result['orgaName'] = $this->translator->trans('submitted.author')
                 .': '.$meta->getOrgaName();
         }
-        if ('' != $meta->getSubmitName()) {
+        if ('' !== $meta->getSubmitName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getSubmitName();
-        } elseif ('' != $meta->getAuthorName()) {
+        } elseif ('' !== $meta->getAuthorName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getAuthorName();
         } else {
@@ -1776,8 +1774,8 @@ class DocxExporter
 
             // resize Image
             if (0 != $factor) {
-                $width = $width / $factor;
-                $height = $height / $factor;
+                $width /= $factor;
+                $height /= $factor;
             }
             $this->getLogger()->info('Docx Image resize to width: '.$width.' and height: '.$height);
         }

@@ -65,7 +65,7 @@ class AddonUninstallCommand extends CoreCommand
         $addonsInfos = $this->registry->getAddonInfos();
         $all = $input->getOption('all');
 
-        if (empty($addonsInfos)) {
+        if ([] === $addonsInfos) {
             $output->info('No addons installed, nothing to uninstall');
 
             return self::SUCCESS;
@@ -141,6 +141,8 @@ class AddonUninstallCommand extends CoreCommand
 
             return self::FAILURE;
         }
+
+        return null;
     }
 
     /**

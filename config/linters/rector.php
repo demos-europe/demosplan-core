@@ -18,6 +18,7 @@ use Rector\Set\ValueObject\LevelSetList;
 use Rector\Set\ValueObject\SetList;
 use Rector\Symfony\Set\SensiolabsSetList;
 use Rector\Symfony\Set\SymfonySetList;
+use Rector\Symfony\Set\TwigSetList;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -27,7 +28,7 @@ return RectorConfig::configure()
         SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
         // LevelSetList::UP_TO_PHP_81,
-        // TwigLevelSetList::UP_TO_TWIG_240,
+        // TwigSetList::TWIG_UNDERSCORE_TO_NAMESPACE,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,

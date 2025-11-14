@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use Stringable;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
@@ -26,8 +27,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getPostalCode()
  * @method string getStreet()
  * @method string getHouseNumber()
+ * @method string getCompanyDepartment()
  */
-class CommonUserData extends ValueObject
+class CommonUserData extends ValueObject implements Stringable
 {
     protected string $firstName = '';
     protected string $lastName = '';

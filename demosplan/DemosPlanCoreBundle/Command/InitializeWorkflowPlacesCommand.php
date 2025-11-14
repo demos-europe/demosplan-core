@@ -103,7 +103,7 @@ EOT
             // Find procedures without workflow places
             $proceduresWithoutPlaces = $this->findProceduresWithoutPlaces($procedureId);
 
-            if (empty($proceduresWithoutPlaces)) {
+            if ([] === $proceduresWithoutPlaces) {
                 if ($procedureId) {
                     $io->success("Procedure {$procedureId} already has workflow places or doesn't exist.");
                 } else {

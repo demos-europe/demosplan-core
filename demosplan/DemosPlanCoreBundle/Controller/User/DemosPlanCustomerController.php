@@ -42,7 +42,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/einstellungen/plattform', methods: ['GET'], name: 'dplan_user_customer_showSettingsPage', options: ['expose' => true])]
-    public function showSettingsPageAction(
+    public function showSettingsPage(
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
@@ -90,7 +90,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/einstellungen/plattform', methods: ['POST'], name: 'DemosPlan_user_setting_page_post', options: ['expose' => true])]
-    public function editSettingsAction(
+    public function editSettings(
         CustomerHandler $customerHandler,
         Request $request,
         FileUploadService $fileUploadService,
@@ -130,7 +130,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users', options: ['expose' => true])]
-    public function sendMailToAllCustomersAction(
+    public function sendMailToAllCustomers(
         CustomerHandler $customerHandler,
         HTMLSanitizer $HTMLSanitizer,
         MailService $mailService,

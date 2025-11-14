@@ -35,7 +35,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * Then the combination of ABC is a change instance.
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
-    public function getEntityContentChangeAction(
+    public function getEntityContentChange(
         EntityContentChangeService $contentChangeService,
         string $entityContentChangeId,
     ): APIResponse {
@@ -53,12 +53,12 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * @return APIResponse|JsonResponse
      */
     #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', methods: ['GET'], options: ['expose' => true])]
-    public function getStatementFragmentHistoryAction(
+    public function getStatementFragmentHistory(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,
         StatementFragmentService $statementFragmentService,
         string $statementFragmentId,
-        string $procedureId)
+        string $procedureId): APIResponse
     {
         $statementFragment = $statementFragmentService->getStatementFragment($statementFragmentId);
         if (null === $statementFragment) {
@@ -82,7 +82,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * @DplanPermissions("feature_segment_content_changes_view")
      */
     #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
-    public function getSegmentContentChangeAction(
+    public function getSegmentContentChange(
         EntityContentChangeService $contentChangeService,
         string $entityContentChangeId,
     ): APIResponse {

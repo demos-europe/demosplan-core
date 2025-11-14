@@ -173,6 +173,20 @@ function runWebpack (mode) {
  * @param {Object} stats Webpack Stats object
  */
 function showErrorMessage (err, stats) {
+  // Handle case where stats is undefined (early webpack failure)
+  if (!stats) {
+    if (err) {
+      log(chalk.red('Build failed'))
+      log(chalk.red(err.stack || err))
+      if (err.details) {
+        log(err.details)
+      }
+    } else {
+      log(chalk.red('Build failed: Unknown error (no stats or error information available)'))
+    }
+    return
+  }
+
   const info = stats.toJson()
 
   if (err || stats.hasErrors() || stats.hasWarnings()) {
@@ -204,7 +218,7 @@ function showErrorMessage (err, stats) {
  * @param {Array} messageList Array of webpack stats messages to print
  * @param {chalk.Chalk} colorFunction Chalk color function
  */
-function printStatsMessageList(messageList, colorFunction) {
+function printStatsMessageList (messageList, colorFunction) {
   messageList.forEach(message => {
     log(colorFunction(message.message))
   })
@@ -225,7 +239,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
 }
 
 function showWebpackStatisticsMessage (options, stats) {
-  if (options.stats) {
+  if (options.stats && stats) {
     const webpackStatisticsOptions = {
       chunks: false,
     }

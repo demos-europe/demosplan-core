@@ -81,12 +81,12 @@ class DeleteProcedureCommand extends CoreCommand
         }
 
         $missedIdsArray = array_diff($procedureIds, $retrievedProceduresIds);
-        if (0 !== count($missedIdsArray)) {
+        if ([] !== $missedIdsArray) {
             $missedIdsString = implode(' ', $missedIdsArray);
             $output->warning("Matching procedure(s) not found for id(s) $missedIdsString");
         }
 
-        if (0 === count($retrievedProceduresIds)) {
+        if ([] === $retrievedProceduresIds) {
             $output->info('no procedure(s) found to delete');
 
             return Command::FAILURE;

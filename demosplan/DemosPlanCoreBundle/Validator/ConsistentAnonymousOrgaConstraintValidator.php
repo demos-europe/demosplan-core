@@ -27,7 +27,7 @@ class ConsistentAnonymousOrgaConstraintValidator extends ConstraintValidator
 
     protected function validateTyped(?Statement $statement, ConsistentAnonymousOrgaConstraint $constraint): void
     {
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return;
         }
 

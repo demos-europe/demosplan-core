@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -44,13 +46,13 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
         try {
             // Validate and fetch user
             $user = $this->validateAndGetUser($userId, $io);
-            if (null === $user) {
+            if (!$user instanceof UserInterface) {
                 return Command::FAILURE;
             }
 
             // Validate and fetch role
             $role = $this->validateAndGetRole($user, $roleCode, $io);
-            if (null === $role) {
+            if (!$role instanceof RoleInterface) {
                 return Command::FAILURE;
             }
 

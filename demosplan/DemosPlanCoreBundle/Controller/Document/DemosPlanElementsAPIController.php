@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -30,11 +31,11 @@ class DemosPlanElementsAPIController extends APIController
      * @DplanPermissions("area_admin")
      */
     #[Route(path: '/api/1.0/documents/{procedureId}/elements/{elementsId}', methods: ['PATCH'], name: 'dp_api_documents_elements_update', options: ['expose' => true])]
-    public function updateElementsAction(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
+    public function updateElements(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
     {
         $elementsToUpdate = $elementsService->getElementObject($elementsId);
 
-        if (null === $elementsToUpdate) {
+        if (!$elementsToUpdate instanceof Elements) {
             return $this->renderError(Response::HTTP_NOT_FOUND);
         }
 

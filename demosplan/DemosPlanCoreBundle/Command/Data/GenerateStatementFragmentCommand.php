@@ -129,7 +129,7 @@ class GenerateStatementFragmentCommand extends DataProviderCommand
     {
         $count = (int) $this->getArgument('count');
         $countRange = $this->getCountRange();
-        if (!empty($countRange)) {
+        if ([] !== $countRange) {
             $count = random_int($countRange[0], $countRange[1]);
         }
         $statementId = $this->input->getOption('statement-id');

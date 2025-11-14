@@ -28,7 +28,7 @@ class ProcedureStatisticsRpcController extends APIController
      * @return APIResponse|Response
      */
     #[Route(path: '/rpc/1.0/ProcedureStatistics/get/{procedureId}', name: 'dplan_rpc_procedure_segmentation_statistics_segmentations_get', methods: ['GET'], options: ['expose' => true])]
-    public function segmentationsGetAction(
+    public function segmentationsGet(
         StatementService $statementService,
         ProcedureService $procedureService,
         string $procedureId,

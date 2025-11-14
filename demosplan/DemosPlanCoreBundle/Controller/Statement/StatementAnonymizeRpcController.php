@@ -32,7 +32,7 @@ class StatementAnonymizeRpcController extends RpcController
      * @return RedirectResponse|Response
      */
     #[Route(path: '/rpc/1.0/statement/anonymize', name: 'dplan_rpc_statement_anonymize', options: ['expose' => true])]
-    public function statementAnonymizeRpcAction(
+    public function statementAnonymizeRpc(
         Request $request,
         StatementAnonymizeHandler $statementAnonymizeHandler,
         StatementHandler $statementHandler,

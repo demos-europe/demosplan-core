@@ -76,7 +76,7 @@ class CustomFieldUpdater
         // Find which options are being deleted
         $deletedOptionIds = $this->findDeletedOptionIds($currentOptions, $newOptions);
 
-        if (!empty($deletedOptionIds)) {
+        if ([] !== $deletedOptionIds) {
             $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($targetEntityClass);
             $entityStrategy->removeOptionUsages($customField->getId(), $deletedOptionIds);
         }

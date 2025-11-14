@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\GetPropertiesEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\EventConcern;
@@ -58,7 +59,7 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
         private readonly PropertyBuilderFactory $propertyBuilderFactory,
         private readonly StatementResourceType $statementResourceType,
         private readonly TokenFactory $tokenFactory,
-        protected TranslatorInterface $translator
+        protected TranslatorInterface $translator,
     ) {
     }
 
@@ -183,14 +184,14 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
 
         // No procedure context, then no synchronized property
         $currentProcedure = $this->currentProcedureProvider->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return;
         }
 
         // Only a source procedure coupled to another one is allowed to know about the
         // synchronized property
         $token = $this->tokenRepository->getTokenForCoupledProcedure($currentProcedure);
-        if (null === $token) {
+        if (!$token instanceof ProcedureCoupleToken) {
             return;
         }
 

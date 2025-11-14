@@ -55,7 +55,7 @@ class StatementExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterCsvAction(
+    public function exportByStatementsFilterCsv(
         JsonApiActionService $jsonApiActionService,
         OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
@@ -97,12 +97,12 @@ class StatementExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterDocxAction(
+    public function exportByStatementsFilterDocx(
         JsonApiActionService $jsonApiActionService,
         OriginalStatementExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
         CurrentProcedureService $currentProcedureService,
-    ) {
+    ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(

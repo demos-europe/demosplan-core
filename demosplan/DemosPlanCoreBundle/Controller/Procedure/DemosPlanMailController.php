@@ -35,7 +35,7 @@ class DemosPlanMailController extends BaseController
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_view', path: '/verfahren/{procedureId}/mail', methods: ['HEAD', 'GET'])]
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_send', path: '/verfahren/{procedureId}/mail', methods: ['POST'])]
-    public function sendAllSubmittersAction(
+    public function sendAllSubmitters(
         CurrentUserService $currentUser,
         FormFactoryInterface $formFactory,
         Request $request,
@@ -148,7 +148,7 @@ class DemosPlanMailController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_view', path: '/verfahren/{procedureId}/mailconfirm', methods: ['HEAD', 'GET'])]
-    public function sendAllSubmittersConfirmViewAction(Request $request, SubmitterService $submitterService, $procedureId)
+    public function sendAllSubmittersConfirmView(Request $request, SubmitterService $submitterService, $procedureId)
     {
         // @improve T14122
         $preparationMail = $this->getUnserializedFromSession($procedureId.'_preparationMail', $request);
@@ -191,12 +191,12 @@ class DemosPlanMailController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_send', path: '/verfahren/{procedureId}/mailconfirm', methods: ['POST'])]
-    public function sendAllSubmittersConfirmSendAction(
+    public function sendAllSubmittersConfirmSend(
         CurrentUserService $currentUser,
         Request $request,
         SubmitterService $submitterService,
         $procedureId,
-    ) {
+    ): RedirectResponse {
         // @improve T14122
         /** @var SubmitterService $submitterService */
         $mailTextSessionKey = $procedureId.'_preparationMail';

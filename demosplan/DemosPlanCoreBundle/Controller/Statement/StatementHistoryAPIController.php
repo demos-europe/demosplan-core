@@ -36,7 +36,7 @@ class StatementHistoryAPIController extends APIController
     {
         $statement = $statementHandler->getStatement($statementId);
 
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             $this->messageBag->add('error', 'error.statement.not.found');
             throw StatementNotFoundException::createFromId($statementId);
         }

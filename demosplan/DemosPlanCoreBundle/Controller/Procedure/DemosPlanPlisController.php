@@ -33,7 +33,7 @@ class DemosPlanPlisController extends BaseController
      * @return Response
      */
     #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
-    public function getLgvPlisPlanningcauseAction(Plis $procedureHandlerBobhh, $uuid)
+    public function getLgvPlisPlanningcause(Plis $procedureHandlerBobhh, $uuid)
     {
         try {
             $procedure = $procedureHandlerBobhh->getLgvPlisPlanningcause($uuid);
@@ -65,16 +65,14 @@ class DemosPlanPlisController extends BaseController
      * @DplanPermissions("feature_use_plis")
      *
      * @param string $uuid Procedure Identifier
-     *
-     * @return JsonResponse
      */
     #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
-    public function getLgvPlisProcedureNameJsonAction(Plis $plis, $uuid)
+    public function getLgvPlisProcedureNameJson(Plis $plis, $uuid): JsonResponse
     {
         try {
             $procedureList = $plis->getLgvPlisProcedureList();
 
-            if (0 === count($procedureList)) {
+            if ([] === $procedureList) {
                 throw new Exception('Kein Verfahren gefunden');
             }
             $procedureName = '';
