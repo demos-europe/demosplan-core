@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 - implement option to import additional submitters via statement ID in statement imports via xlsx
+- adjust example statement import xlsx files
+
 ## v4.3.3 (2025-11-04)
 - smart pagination for segment navigation
 
