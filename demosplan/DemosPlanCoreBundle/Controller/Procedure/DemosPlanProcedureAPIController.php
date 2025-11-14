@@ -84,7 +84,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function list(Request $request): APIResponse
     {
         $rawData = $this->forward(
-            'demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',
+            'demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjax',
             $request->query->all()
         );
         $data = Json::decodeToArray($rawData->getContent());

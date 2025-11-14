@@ -33,7 +33,7 @@ class WerDenktWasAPIController extends BaseController
     public function procedureListGeoJSON(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(
-            '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',
+            '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjax',
         );
 
         if (!$searchProceduresResponse instanceof JsonResponse) {

@@ -94,7 +94,7 @@ class EntrypointController extends BaseController
 
         // redirect to public index on session failures
         if (!$user instanceof User) {
-            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
+            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::index');
         }
 
         $entrypointRoute = $this->entryPointDecider->determineEntryPointForUser($user);

@@ -2102,9 +2102,9 @@ class DemosPlanProcedureController extends BaseController
         $requestPost = $request->request->all();
         $title = 'procedure.public.agency.administration';
 
-        // todo: this is a workaround to get selected organisations into administrationMemberEMailAction()
+        // todo: this is a workaround to get selected organisations into administrationMemberEMail()
         if (\array_key_exists('email_orga_action', $requestPost)) {
-            return $this->administrationMemberEMailAction($orgaService, $request, $procedure, $title);
+            return $this->administrationMemberEMail($orgaService, $request, $procedure, $title);
         }
 
         $search = $requestPost['search_word'] ?? null;
