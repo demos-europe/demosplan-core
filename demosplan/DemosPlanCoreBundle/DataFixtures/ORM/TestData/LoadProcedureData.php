@@ -173,6 +173,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->persist($procedureSettings);
 
         $procedure2 = new Procedure();
+        $exportFieldsConfiguration = new ExportFieldsConfiguration($procedure2);
         $procedure2
             ->setName('Procedure number two')
             ->setOrga($this->testOrgaFP)
@@ -184,13 +185,12 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPhase('configuration')
             ->setPublicParticipationPhase('configuration')
             ->setMaster(false)
-            ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure2))
             ->addSlug(new Slug('procedure2Slug'));
 
         $manager->persist($procedure2);
 
         $this->setReference(self::TEST_PROCEDURE_2, $procedure2);
-        $this->setReference('defaultExportFieldsConfiguration', $procedure2->getDefaultExportFieldsConfiguration());
+        $this->setReference('defaultExportFieldsConfiguration', $exportFieldsConfiguration);
 
         $archivedProcedure = new Procedure();
         $archivedProcedure->setName('ArchivedProcedure')
