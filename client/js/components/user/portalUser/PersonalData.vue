@@ -60,11 +60,13 @@
     <input
       type="hidden"
       name="email"
-      :value="user.email">
+      :value="user.email"
+    >
     <input
       type="hidden"
       name="lastname"
-      :value="user.lastName">
+      :value="user.lastName"
+    >
 
     <template v-if="hasPermission('feature_send_assigned_task_notification_email_setting')">
       <dp-checkbox
@@ -76,7 +78,8 @@
           text: Translator.trans('email.daily.subscribe')
         }"
         name="assignedTaskNotification"
-        value-to-send="on" />
+        value-to-send="on"
+      />
       <p>
         {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
       </p>
@@ -100,18 +103,18 @@ const userProperties = [
   'lastName',
   'firstName',
   'userName',
-  'email'
+  'email',
 ]
 
 export default {
   name: 'PersonalData',
 
   components: {
-    DpCheckbox
+    DpCheckbox,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
@@ -122,12 +125,12 @@ export default {
     hasIdentityProvider: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     isDailyDigestEnabled: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     user: {
@@ -135,24 +138,24 @@ export default {
       required: true,
       validator: (prop) => {
         return Object.keys(prop).every(key => userProperties.includes(key))
-      }
-    }
+      },
+    },
   },
 
   data () {
     return {
       isDailyDigestChecked: this.isDailyDigestEnabled,
-      userData: this.setUserData()
+      userData: this.setUserData(),
     }
   },
 
   computed: {
     explanation () {
-      const transkey = hasPermission('feature_statement_gdpr_consent_may_revoke')
-        ? 'statements.yours.list.description.short.gdpr_consent_may_revoke'
-        : 'statements.yours.list.description.short'
+      const transkey = hasPermission('feature_statement_gdpr_consent_may_revoke') ?
+        'statements.yours.list.description.short.gdpr_consent_may_revoke' :
+        'statements.yours.list.description.short'
       return Translator.trans(transkey, { href: Routing.generate('DemosPlan_user_statements') })
-    }
+    },
   },
 
   methods: {
@@ -170,7 +173,7 @@ export default {
       }
 
       return user
-    }
-  }
+    },
+  },
 }
 </script>

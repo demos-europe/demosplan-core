@@ -20,11 +20,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class StatementAttachmentService extends CoreService
+class StatementAttachmentService
 {
     public function __construct(
         private readonly StatementAttachmentRepository $attachmentRepository,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
     }
 

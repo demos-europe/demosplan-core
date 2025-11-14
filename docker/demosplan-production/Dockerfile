@@ -29,6 +29,7 @@ RUN mkdir -p /opt/uploads && \
     mkdir /opt/config && \
     mkdir /srv/www/vendor && \
     mkdir -p /srv/www/client/js/generated && \
+    mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /opt/uploads && \
     chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
@@ -68,10 +69,12 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
+    mkdir -p /srv/www/client/css/generated && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
+    chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
@@ -135,6 +138,9 @@ COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
     rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    # ensure tmp directory exists and is writable for Symfony XML schema validation \
+    mkdir -p /srv/www/tmp && \
+    chown -R www-data:www-data /srv/www/tmp && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \

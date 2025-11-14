@@ -24,6 +24,8 @@ use Tests\Base\FunctionalTestCase;
  */
 class AzureLogoutIntegrationTest extends FunctionalTestCase
 {
+    private const LOGOUT_URL = '/user/logout';
+
     /** @var KernelBrowser */
     private $client;
 
@@ -57,13 +59,14 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
         $azureLogoutRoute = 'https://login.microsoftonline.com/tenant/oauth2/v2.0/logout?post_logout_redirect_uri=https://example.com/connect/azure/logout';
 
         // Use reflection to set the parameter (since ParameterBag is usually immutable)
+        // @SuppressWarnings(php:S3011) - Reflection is required for testing ParameterBag
         $reflection = new ReflectionClass($parameterBag);
         if ($reflection->hasProperty('parameters')) {
             $property = $reflection->getProperty('parameters');
-            $property->setAccessible(true);
+            $property->setAccessible(true); // @SuppressWarnings(php:S3011)
             $parameters = $property->getValue($parameterBag);
             $parameters['oauth_azure_logout_route'] = $azureLogoutRoute;
-            $property->setValue($parameterBag, $parameters);
+            $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
         }
 
         try {
@@ -71,7 +74,7 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             $this->logIn($this->azureUser);
 
             // Attempt logout
-            $this->client->request('GET', '/user/logout');
+            $this->client->request('GET', self::LOGOUT_URL);
 
             // Should redirect (either to Azure or to final destination)
             $response = $this->client->getResponse();
@@ -85,10 +88,10 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             // Restore original parameter value
             if ($reflection->hasProperty('parameters')) {
                 $property = $reflection->getProperty('parameters');
-                $property->setAccessible(true);
+                $property->setAccessible(true); // @SuppressWarnings(php:S3011)
                 $parameters = $property->getValue($parameterBag);
                 $parameters['oauth_azure_logout_route'] = $originalValue;
-                $property->setValue($parameterBag, $parameters);
+                $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
             }
         }
     }
@@ -103,13 +106,14 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
         $azureLogoutRoute = 'https://login.microsoftonline.com/tenant/oauth2/v2.0/logout?post_logout_redirect_uri=https://example.com/connect/azure/logout';
 
         // Use reflection to set the parameter
+        // @SuppressWarnings(php:S3011) - Reflection is required for testing ParameterBag
         $reflection = new ReflectionClass($parameterBag);
         if ($reflection->hasProperty('parameters')) {
             $property = $reflection->getProperty('parameters');
-            $property->setAccessible(true);
+            $property->setAccessible(true); // @SuppressWarnings(php:S3011)
             $parameters = $property->getValue($parameterBag);
             $parameters['oauth_azure_logout_route'] = $azureLogoutRoute;
-            $property->setValue($parameterBag, $parameters);
+            $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
         }
 
         try {
@@ -117,7 +121,7 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             $this->logIn($this->regularUser);
 
             // Attempt logout
-            $this->client->request('GET', '/user/logout');
+            $this->client->request('GET', self::LOGOUT_URL);
 
             // Should redirect to regular logout destination (not Azure)
             $response = $this->client->getResponse();
@@ -132,10 +136,10 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             // Restore original parameter value
             if ($reflection->hasProperty('parameters')) {
                 $property = $reflection->getProperty('parameters');
-                $property->setAccessible(true);
+                $property->setAccessible(true); // @SuppressWarnings(php:S3011)
                 $parameters = $property->getValue($parameterBag);
                 $parameters['oauth_azure_logout_route'] = $originalValue;
-                $property->setValue($parameterBag, $parameters);
+                $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
             }
         }
     }
@@ -149,7 +153,7 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FOUND);
 
         $location = $this->client->getResponse()->headers->get('Location');
-        self::assertStringContainsString('/user/logout', $location);
+        self::assertStringContainsString(self::LOGOUT_URL, $location);
     }
 
     public function testLogoutWithoutAzureConfigurationWorksNormally(): void
@@ -161,13 +165,14 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
         $originalValue = $parameterBag->get('oauth_azure_logout_route');
 
         // Use reflection to ensure parameter is empty
+        // @SuppressWarnings(php:S3011) - Reflection is required for testing ParameterBag
         $reflection = new ReflectionClass($parameterBag);
         if ($reflection->hasProperty('parameters')) {
             $property = $reflection->getProperty('parameters');
-            $property->setAccessible(true);
+            $property->setAccessible(true); // @SuppressWarnings(php:S3011)
             $parameters = $property->getValue($parameterBag);
             $parameters['oauth_azure_logout_route'] = '';
-            $property->setValue($parameterBag, $parameters);
+            $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
         }
 
         try {
@@ -175,7 +180,7 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             $this->logIn($this->azureUser);
 
             // Attempt logout
-            $this->client->request('GET', '/user/logout');
+            $this->client->request('GET', self::LOGOUT_URL);
 
             // Should redirect to regular destination (not fail)
             $response = $this->client->getResponse();
@@ -187,10 +192,10 @@ class AzureLogoutIntegrationTest extends FunctionalTestCase
             // Restore original parameter value
             if ($reflection->hasProperty('parameters')) {
                 $property = $reflection->getProperty('parameters');
-                $property->setAccessible(true);
+                $property->setAccessible(true); // @SuppressWarnings(php:S3011)
                 $parameters = $property->getValue($parameterBag);
                 $parameters['oauth_azure_logout_route'] = $originalValue;
-                $property->setValue($parameterBag, $parameters);
+                $property->setValue($parameterBag, $parameters); // @SuppressWarnings(php:S3011)
             }
         }
     }

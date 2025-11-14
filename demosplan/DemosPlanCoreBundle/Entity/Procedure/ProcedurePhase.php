@@ -101,6 +101,11 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     protected ?DateTime $designatedSwitchDate = null;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected ?int $designatedSwitchDateTimestamp = null;
+
+    /**
      * OnDelete set NULL at this site, will set the userID to null in case of the user will be deleted.
      * Doing this by a doctrine relation is not simply possible because,
      * the user has no defined relation in its class.
@@ -235,6 +240,16 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->designatedSwitchDate = $designatedSwitchDate;
     }
 
+    public function getDesignatedSwitchDateTimestamp(): ?int
+    {
+        return $this->designatedSwitchDateTimestamp;
+    }
+
+    public function setDesignatedSwitchDateTimestamp(?int $designatedSwitchDateTimestamp): void
+    {
+        $this->designatedSwitchDateTimestamp = $designatedSwitchDateTimestamp;
+    }
+
     public function getDesignatedPhaseChangeUser(): ?UserInterface
     {
         return $this->designatedPhaseChangeUser;
@@ -272,6 +287,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
         $this->name = $sourcePhase->name;
         $this->designatedEndDate = $sourcePhase->designatedEndDate;
         $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
+        $this->designatedSwitchDateTimestamp = $sourcePhase->designatedSwitchDateTimestamp;
         $this->designatedPhase = $sourcePhase->designatedPhase;
         $this->permissionSet = $sourcePhase->permissionSet;
         $this->startDate = $sourcePhase->getStartDate();

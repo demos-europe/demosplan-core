@@ -756,11 +756,23 @@ class ElementsServiceTest extends FunctionalTestCase
     public function testReportOnUpdateArrayElement(): void
     {
         $testElement = ElementsFactory::createOne();
+
+        // Ensure element has a unique title that won't match hidden element patterns
+        $uniqueTitle = 'test_element_'.uniqid('', true);
+        $testElement->setTitle($uniqueTitle);
+        $this->getEntityManager()->flush();
+
         $updatedElement = $this->sut->updateElementArray([
             'ident'             => $testElement->getId(),
-            'title'             => 'my updated element',
+            'title'             => 'my_updated_element_'.uniqid('', true),
             'text'              => 'a updated unique and nice text',
         ]);
+
+        static::assertArrayHasKey('ident', $updatedElement,
+            'updateElementArray should return an array with ident key. Returned: '.json_encode($updatedElement));
+        static::assertNotNull($updatedElement['ident'],
+            'updateElementArray should return a non-null ident. Returned ident: '.var_export($updatedElement['ident'] ?? 'KEY_MISSING', true));
+
         $updatedElement = $this->find(Elements::class, $updatedElement['id']);
 
         $relatedReports = $this->getEntries(ReportEntry::class,

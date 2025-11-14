@@ -5,6 +5,57 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.16.0 (2025-09-30)
+- Allow project specific CSS
+- allow sessions to be stored in redis
+
+-  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+
+- Turn projects into yarn workspaces
+
+### Features
+- Add possibility to delete custom fields and their options
+
+## v4.15.0 (2025-09-15)
+## v4.14.0 (2025-09-15)
+- Add html paragraph import from odt files
+
+## v4.12.0 (2025-09-10)
+- Add ODT export functionality for assessment tables
+- Add checkbox in procedure settings to expand procedure description in public view on page load
+- Use external Geocoder API as service for address auto-suggestions
+- Update demosplan-addon from v0.59 to v0.60
+
+## v4.11.0 (2025-08-27)
+- Allow to edit custom field type singleSelect
+- Mark outdated map layers in the map settings
+
+## v4.10.1 (2025-08-13)
+- Display Keycloak logout countdown warning in the header and logout automatically
+
+## v4.10.0 (2025-07-30)
+## v4.9.1 (2025-08-07)
+- Fix time based procedure phase switch
+
+## v4.9.0 (2025-07-30)
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements
+- Migrate to Tailwind CSS v4
+
+## v4.7.0 (2025-07-18)
+## v4.6.0 (2025-07-18)
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+- Add configurable feedback control for public participation statements 
+
+
+## v4.5.0 (2025-06-25)
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+
+## v4.4.0 (2025-06-13)
+
 ## v4.3.1-ewm (2025-09-25)
 - allow sessions to be stored in redis
 

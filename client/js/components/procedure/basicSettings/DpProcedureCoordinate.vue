@@ -17,45 +17,52 @@
 <template>
   <div>
     <dp-ol-map
-      :procedure-id="procedureId"
       ref="map"
+      :procedure-id="procedureId"
       :map-options="mapOptions"
       :small="small"
       :is-valid="requiredMapIsValid"
-      :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }">
+      :options="{initCenter: isValidProcedureCoordinate(procedureCoordinate), autoSuggest: { enabled: useOpengeodb }, scaleSelect: small === false, initialExtent: initExtent }"
+    >
       <template
+        v-if="editable"
         v-slot:controls
-        v-if="editable">
+      >
         <dp-procedure-coordinate-input
           v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
           :coordinate="coordinate"
-          @input="updateFeatures" />
+          @input="updateFeatures"
+        />
 
         <procedure-coordinate-geolocation
           v-if="hasPermission('feature_procedures_located_by_maintenance_service')"
           :coordinate="coordinate"
-          :location="procedureLocation" />
+          :location="procedureLocation"
+        />
 
         <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
             target="layer:procedureCoordinateDrawer"
             :active="isDrawingActive"
-            @tool:setPoint="checkProcedureValidation"
-            @tool:activated="setDrawingActive" />
+            @tool:set-point="checkProcedureValidation"
+            @tool:activated="setDrawingActive"
+          />
           <dp-ol-map-drag-zoom
-            :class="prefixClass('u-mb-0_5')"
             ref="dragzoom"
-            @tool:activated="newValue => isDrawingActive = !newValue" />
+            :class="prefixClass('u-mb-0_5')"
+            @tool:activated="newValue => isDrawingActive = !newValue"
+          />
         </div>
       </template>
 
       <dp-ol-map-layer-vector
-        :features="featuresFromCoordinate"
         ref="procedureCoordinateDrawer"
+        :features="featuresFromCoordinate"
         name="procedureCoordinateDrawer"
-        @layer:features:changed="updateProcedureCoordinate" />
+        @layer-features:changed="updateProcedureCoordinate"
+      />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.
@@ -63,11 +70,12 @@
          other form elements (that do not share the vue context) also need to be validated. -->
     <template v-if="hasPermission('feature_procedure_require_location')">
       <input
-        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         v-model="currentProcedureCoordinate"
+        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         name="r_coordinate"
         required
-        type="hidden">
+        type="hidden"
+      >
       <span :class="prefixClass('validation-hint')">
         {{ Translator.trans('statement.map.draw.no_drawing_warning') }}
       </span>
@@ -78,7 +86,8 @@
       v-else
       v-model="currentProcedureCoordinate"
       name="r_coordinate"
-      type="hidden">
+      type="hidden"
+    >
   </div>
 </template>
 
@@ -100,7 +109,7 @@ export default {
     DpOlMapDrawPoint,
     DpOlMapLayerVector,
     DpProcedureCoordinateInput,
-    ProcedureCoordinateGeolocation
+    ProcedureCoordinateGeolocation,
   },
 
   mixins: [prefixClassMixin],
@@ -109,51 +118,51 @@ export default {
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureCoordinate: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureLocation: {
       required: false,
       type: Object,
-      default: () => { return {} }
+      default: () => { return {} },
     },
 
     mapOptions: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initExtent: {
       required: false,
       type: Array,
-      default: () => { return [] }
+      default: () => { return [] },
     },
 
     // Bobhh does not use the opengeodb; but there is no permission for that atm.
     useOpengeodb: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     editable: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     small: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -161,7 +170,7 @@ export default {
       currentProcedureCoordinate: '',
       isDrawingActive: true,
       coordinate: [],
-      requiredMapIsValid: true
+      requiredMapIsValid: true,
     }
   },
 
@@ -173,13 +182,13 @@ export default {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: this.coordinate
-          }
+            coordinates: this.coordinate,
+          },
         }
       } else {
         return {}
       }
-    }
+    },
   },
 
   methods: {
@@ -235,7 +244,7 @@ export default {
       if (newValue === true) {
         this.$refs.dragzoom.deactivateTool()
       }
-    }
+    },
   },
 
   mounted () {
@@ -268,6 +277,6 @@ export default {
     document.addEventListener('customValidationFailed', () => {
       this.setProcedureCoordinateValidState()
     })
-  }
+  },
 }
 </script>

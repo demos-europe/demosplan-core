@@ -10,18 +10,22 @@
 <template>
   <dp-loading
     v-if="isFirstLoad"
-    class="u-mt-2" />
+    class="u-mt-2"
+  />
 
   <div v-else>
     <div
+      v-if="hasPermission('feature_export_protocol')"
       class="float-right u-mt-0_25"
-      v-if="hasPermission('feature_export_protocol')">
+    >
       <a
         data-cy="exportTriggerPdf"
-        :href="Routing.generate('dplan_export_report', { procedureId })">
+        :href="Routing.generate('dplan_export_report', { procedureId })"
+      >
         <i
           class="fa fa-share-square"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export.trigger.pdf') }}
       </a>
     </div>
@@ -35,7 +39,8 @@
       :current-page="generalCurrentPage"
       :total-pages="generalTotalPages"
       :is-loading="generalLoading"
-      @page-change="handlePageChange('general', $event)" />
+      @page-change="handlePageChange('general', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_public_phase')"
@@ -46,7 +51,8 @@
       :current-page="publicPhaseCurrentPage"
       :total-pages="publicPhaseTotalPages"
       :is-loading="publicPhaseLoading"
-      @page-change="handlePageChange('publicPhase', $event)" />
+      @page-change="handlePageChange('publicPhase', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_invitations')"
@@ -57,7 +63,8 @@
       :current-page="invitationsCurrentPage"
       :total-pages="invitationsTotalPages"
       :is-loading="invitationsLoading"
-      @page-change="handlePageChange('invitations', $event)" />
+      @page-change="handlePageChange('invitations', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_register_invitations')"
@@ -68,7 +75,8 @@
       :current-page="registerInvitationsCurrentPage"
       :total-pages="registerInvitationsTotalPages"
       :is-loading="registerInvitationsLoading"
-      @page-change="handlePageChange('registerInvitations', $event)" />
+      @page-change="handlePageChange('registerInvitations', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_final_mails')"
@@ -79,7 +87,8 @@
       :current-page="finalMailsCurrentPage"
       :total-pages="finalMailsTotalPages"
       :is-loading="finalMailsLoading"
-      @page-change="handlePageChange('finalMails', $event)" />
+      @page-change="handlePageChange('finalMails', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_statements')"
@@ -90,7 +99,8 @@
       :current-page="statementsCurrentPage"
       :total-pages="statementsTotalPages"
       :is-loading="statementsLoading"
-      @page-change="handlePageChange('statements', $event)" />
+      @page-change="handlePageChange('statements', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_elements')"
@@ -101,7 +111,8 @@
       :current-page="elementsCurrentPage"
       :total-pages="elementsTotalPages"
       :is-loading="elementsLoading"
-      @page-change="handlePageChange('elements', $event)" />
+      @page-change="handlePageChange('elements', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_single_documents')"
@@ -112,7 +123,8 @@
       :current-page="singleDocumentsCurrentPage"
       :total-pages="singleDocumentsTotalPages"
       :is-loading="singleDocumentsLoading"
-      @page-change="handlePageChange('singleDocuments', $event)" />
+      @page-change="handlePageChange('singleDocuments', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_paragraphs')"
@@ -123,7 +135,8 @@
       :current-page="paragraphsCurrentPage"
       :total-pages="paragraphsTotalPages"
       :is-loading="paragraphsLoading"
-      @page-change="handlePageChange('paragraphs', $event)" />
+      @page-change="handlePageChange('paragraphs', $event)"
+    />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_drawings')"
@@ -134,7 +147,8 @@
       :current-page="drawingsCurrentPage"
       :total-pages="drawingsTotalPages"
       :is-loading="drawingsLoading"
-      @page-change="handlePageChange('drawings', $event)" />
+      @page-change="handlePageChange('drawings', $event)"
+    />
   </div>
 </template>
 
@@ -149,19 +163,19 @@ export default {
 
   components: {
     DpLoading,
-    DpReportGroup
+    DpReportGroup,
   },
 
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
-      isFirstLoad: true
+      isFirstLoad: true,
     }
   },
 
@@ -170,62 +184,62 @@ export default {
       generalItems: 'items',
       generalCurrentPage: 'currentPage',
       generalTotalPages: 'totalPages',
-      generalLoading: 'loading'
+      generalLoading: 'loading',
     }),
     ...mapState('report/publicPhase', {
       publicPhaseItems: 'items',
       publicPhaseCurrentPage: 'currentPage',
       publicPhaseTotalPages: 'totalPages',
-      publicPhaseLoading: 'loading'
+      publicPhaseLoading: 'loading',
     }),
     ...mapState('report/invitations', {
       invitationsItems: 'items',
       invitationsCurrentPage: 'currentPage',
       invitationsTotalPages: 'totalPages',
-      invitationsLoading: 'loading'
+      invitationsLoading: 'loading',
     }),
     ...mapState('report/registerInvitations', {
       registerInvitationsItems: 'items',
       registerInvitationsCurrentPage: 'currentPage',
       registerInvitationsTotalPages: 'totalPages',
-      registerInvitationsLoading: 'loading'
+      registerInvitationsLoading: 'loading',
     }),
     ...mapState('report/finalMails', {
       finalMailsItems: 'items',
       finalMailsCurrentPage: 'currentPage',
       finalMailsTotalPages: 'totalPages',
-      finalMailsLoading: 'loading'
+      finalMailsLoading: 'loading',
     }),
     ...mapState('report/statements', {
       statementsItems: 'items',
       statementsCurrentPage: 'currentPage',
       statementsTotalPages: 'totalPages',
-      statementsLoading: 'loading'
+      statementsLoading: 'loading',
     }),
     ...mapState('report/elements', {
       elementsItems: 'items',
       elementsCurrentPage: 'currentPage',
       elementsTotalPages: 'totalPages',
-      elementsLoading: 'loading'
+      elementsLoading: 'loading',
     }),
     ...mapState('report/singleDocuments', {
       singleDocumentsItems: 'items',
       singleDocumentsCurrentPage: 'currentPage',
       singleDocumentsTotalPages: 'totalPages',
-      singleDocumentsLoading: 'loading'
+      singleDocumentsLoading: 'loading',
     }),
     ...mapState('report/paragraphs', {
       paragraphsItems: 'items',
       paragraphsCurrentPage: 'currentPage',
       paragraphsTotalPages: 'totalPages',
-      paragraphsLoading: 'loading'
+      paragraphsLoading: 'loading',
     }),
     ...mapState('report/drawings', {
       drawingsItems: 'items',
       drawingsCurrentPage: 'currentPage',
       drawingsTotalPages: 'totalPages',
-      drawingsLoading: 'loading'
-    })
+      drawingsLoading: 'loading',
+    }),
   },
 
   methods: {
@@ -239,7 +253,7 @@ export default {
       listElements: 'report/elements/list',
       listSingleDocuments: 'report/singleDocuments/list',
       listParagraphs: 'report/paragraphs/list',
-      listDrawings: 'report/drawings/list'
+      listDrawings: 'report/drawings/list',
     }),
 
     handlePageChange (group, page) {
@@ -248,15 +262,15 @@ export default {
       return this[actionName]({
         procedureId: this.procedureId,
         page: {
-          number: page
-        }
+          number: page,
+        },
       })
         .then(() => {
           if (!this.isFirstLoad) {
             scrollTo('#report__' + group)
           }
         })
-    }
+    },
   },
 
   mounted () {
@@ -270,7 +284,7 @@ export default {
       'elements',
       'single_documents',
       'paragraphs',
-      'drawings'
+      'drawings',
     ]
       .filter(groupName => {
         /*
@@ -290,6 +304,6 @@ export default {
       .map(groupName => {
         return this.handlePageChange(groupName, 1)
       })).then(() => { this.isFirstLoad = false })
-  }
+  },
 }
 </script>

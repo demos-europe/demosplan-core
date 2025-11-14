@@ -2,40 +2,47 @@
   <div data-dp-validate="createCustomFieldForm">
     <div
       v-if="!isOpen"
-      class="text-right mb-4">
+      class="text-right mb-4"
+    >
       <dp-button
         data-cy="customFields:addField"
+        :text="Translator.trans('add')"
         @click="open"
-        :text="Translator.trans('add')" />
+      />
     </div>
 
     <div
       v-if="isOpen"
-      class="relative mb-4">
+      class="relative mb-4"
+    >
       <dp-loading
         v-if="isLoading"
-        overlay />
+        overlay
+      />
       <div
-        class="border rounded space-stack-m space-inset-m">
+        class="border rounded-sm space-stack-m space-inset-m"
+      >
         <dp-input
           id="newFieldName"
+          v-model="customField.name"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldName"
-          v-model="customField.name"
           :label="{
             text: Translator.trans('name')
           }"
           maxlength="250"
-          required />
+          required
+        />
         <dp-input
           id="newFieldDescription"
+          v-model="customField.description"
           class="w-[calc(100%-26px)]"
           data-cy="customFields:newFieldDescription"
-          v-model="customField.description"
           :label="{
             text: Translator.trans('description')
           }"
-          maxlength="250" />
+          maxlength="250"
+        />
 
         <slot />
 
@@ -45,7 +52,8 @@
           primary
           secondary
           @primary-action="dpValidateAction('createCustomFieldForm', () => handleSave(), false)"
-          @secondary-action="handleAbort" />
+          @secondary-action="handleAbort"
+        />
       </div>
     </div>
   </div>
@@ -57,7 +65,7 @@ import {
   DpButtonRow,
   DpInput,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -67,7 +75,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -75,28 +83,28 @@ export default {
   props: {
     handleSuccess: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     isLoading: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: [
     'abort',
     'open',
-    'save'
+    'save',
   ],
 
   data () {
     return {
       customField: {
         name: '',
-        description: ''
+        description: '',
       },
-      isOpen: false
+      isOpen: false,
     }
   },
 
@@ -107,8 +115,8 @@ export default {
           this.onSuccess()
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
 
   methods: {
@@ -138,7 +146,7 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
-    }
-  }
+    },
+  },
 }
 </script>

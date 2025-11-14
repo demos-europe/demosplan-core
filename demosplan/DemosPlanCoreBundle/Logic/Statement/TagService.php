@@ -10,7 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -19,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
@@ -28,9 +31,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class TagService extends CoreService
+class TagService implements TagServiceInterface
 {
     public function __construct(
         private readonly BoilerplateRepository $boilerplateRepository,
@@ -38,6 +42,7 @@ class TagService extends CoreService
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -83,7 +88,7 @@ class TagService extends CoreService
      *
      * @throws DuplicatedTagTitleException
      */
-    public function createTag(string $title, TagTopic $topic, bool $persistAndFlush = true): Tag
+    public function createTag(string $title, TagTopicInterface $topic, bool $persistAndFlush = true): TagInterface
     {
         $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
@@ -111,7 +116,7 @@ class TagService extends CoreService
      * @throws DuplicatedTagTopicTitleException
      * @throws Exception
      */
-    public function createTagTopic($title, Procedure $procedure, bool $persistAndFlush = true): TagTopic
+    public function createTagTopic($title, ProcedureInterface $procedure, bool $persistAndFlush = true): TagTopic
     {
         $this->assertTitleNotDuplicated($title, $procedure);
         $toCreate = new TagTopic($title, $procedure);
@@ -128,7 +133,7 @@ class TagService extends CoreService
      *
      * @throws DuplicatedTagTopicTitleException
      */
-    public function assertTitleNotDuplicated($title, Procedure $procedure): void
+    public function assertTitleNotDuplicated($title, ProcedureInterface $procedure): void
     {
         $titleCount = $this->tagTopicRepository->count(['procedure' => $procedure, 'title' => $title]);
         if (0 !== $titleCount) {
@@ -254,7 +259,7 @@ class TagService extends CoreService
     /**
      * @return array<int,TagTopic>
      */
-    public function getTagTopicsByTitle(Procedure $procedure, string $tagTopicTitle): array
+    public function getTagTopicsByTitle(ProcedureInterface $procedure, string $tagTopicTitle): array
     {
         return $this->tagTopicRepository->findBy([
             'procedure' => $procedure->getId(),

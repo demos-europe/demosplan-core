@@ -381,7 +381,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Logout via security system.
      */
-    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout')]
+    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout', options: ['expose' => true])]
     public function logoutAction(): void
     {
         // special cases are handled by the LogoutSubscriber

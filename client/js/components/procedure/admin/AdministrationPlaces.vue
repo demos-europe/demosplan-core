@@ -14,53 +14,62 @@
       dismissible
       :dismissible-key="helpTextDismissibleKey"
       :message="helpText"
-      type="info" />
+      type="info"
+    />
     <div
       v-if="!addNewPlace"
-      class="text-right">
+      class="text-right"
+    >
       <dp-button
         data-cy="places:addPlace"
+        :text="Translator.trans('places.addPlace')"
         @click="addNewPlace = true"
-        :text="Translator.trans('places.addPlace')" />
+      />
     </div>
     <div
       v-if="addNewPlace"
       class="relative"
-      data-dp-validate="addNewPlaceForm">
+      data-dp-validate="addNewPlaceForm"
+    >
       <dp-loading
         v-if="isLoading"
-        overlay />
-      <div class="border rounded space-stack-m space-inset-m">
+        overlay
+      />
+      <div class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newPlaceName"
-          data-cy="places:newPlaceName"
           v-model="newPlace.name"
+          data-cy="places:newPlaceName"
           :label="{
             text: Translator.trans('name')
           }"
           maxlength="250"
-          required />
+          required
+        />
         <dp-input
           id="newPlaceDescription"
-          data-cy="places:newPlaceDescription"
           v-model="newPlace.description"
+          data-cy="places:newPlaceDescription"
           :label="{
             text: Translator.trans('description')
           }"
-          maxlength="250" />
+          maxlength="250"
+        />
         <dp-checkbox
           id="newPlaceSolved"
           v-model="newPlace.solved"
           :label="{
             text: Translator.trans('completed')
-          }" />
+          }"
+        />
         <dp-button-row
           :busy="isLoading"
           data-cy="addNewPlace"
           primary
           secondary
           @primary-action="dpValidateAction('addNewPlaceForm', () => saveNewPlace(newPlace), false)"
-          @secondary-action="addNewPlace = false" />
+          @secondary-action="addNewPlace = false"
+        />
       </div>
     </div>
     <dp-data-table
@@ -71,43 +80,50 @@
       :header-fields="headerFields"
       is-draggable
       :items="places"
+      track-by="id"
       @changed-order="changeManualsort"
-      track-by="id">
+    >
       <template v-slot:header-solved="headerData">
         {{ headerData.label }}
         <dp-contextual-help
           class="float-right u-mt-0_125"
-          :text="Translator.trans('statement.solved.hint')" />
+          :text="Translator.trans('statement.solved.hint')"
+        />
       </template>
       <template v-slot:name="rowData">
         <div
           v-if="!rowData.edit"
-          v-text="rowData.name" />
+          v-text="rowData.name"
+        />
         <dp-input
           v-else
           id="editPlaceName"
+          v-model="newRowData.name"
           data-cy="places:editPlaceName"
           maxlength="250"
           required
-          v-model="newRowData.name" />
+        />
       </template>
       <template v-slot:description="rowData">
         <div
           v-if="!rowData.edit"
-          v-text="rowData.description" />
+          v-text="rowData.description"
+        />
         <dp-input
           v-else
           id="editPlaceDescription"
+          v-model="newRowData.description"
           data-cy="places:editPlaceDescription"
           maxlength="250"
-          v-model="newRowData.description" />
+        />
       </template>
       <template v-slot:solved="rowData">
         <dp-checkbox
-          :disabled="!rowData.edit"
           id="editPlaceSolved"
+          :disabled="!rowData.edit"
           :checked="rowData.edit ? newRowData.solved : rowData.solved"
-          @change="checked => newRowData.solved = checked" />
+          @change="checked => newRowData.solved = checked"
+        />
       </template>
       <template v-slot:flyout="rowData">
         <div class="float-right">
@@ -116,29 +132,35 @@
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
             data-cy="places:editPlace"
-            @click="editPlace(rowData)">
+            @click="editPlace(rowData)"
+          >
             <i
               class="fa fa-pencil"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
           </button>
           <template v-else>
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="places:saveEdit"
-              @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)">
+              @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)"
+            >
               <dp-icon
                 icon="check"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
             <button
               class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
+              :aria-label="Translator.trans('abort')"
               @click="abort(rowData)"
-              :aria-label="Translator.trans('abort')">
+            >
               <dp-icon
                 icon="xmark"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </template>
         </div>
@@ -150,7 +172,6 @@
 
 <script>
 import {
-  checkResponse,
   dpApi,
   DpButton,
   DpButtonRow,
@@ -162,7 +183,7 @@ import {
   DpInput,
   DpLoading,
   dpRpc,
-  dpValidateMixin
+  dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -177,7 +198,7 @@ export default {
     DpIcon,
     DpInlineNotification,
     DpInput,
-    DpLoading
+    DpLoading,
   },
 
   mixins: [dpValidateMixin],
@@ -185,7 +206,7 @@ export default {
   props: {
     currentUserId: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -194,7 +215,7 @@ export default {
      */
     isProcedureTemplate: {
       type: Boolean,
-      required: true
+      required: true,
     },
 
     /**
@@ -202,8 +223,8 @@ export default {
      */
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -211,7 +232,7 @@ export default {
       headerFields: [
         { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12' },
         { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' },
-        { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' }
+        { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' },
       ],
       initialRowData: {},
       isInitiallyLoading: false,
@@ -219,7 +240,7 @@ export default {
       addNewPlace: false,
       newPlace: {},
       newRowData: {},
-      places: []
+      places: [],
     }
   },
 
@@ -231,7 +252,7 @@ export default {
 
     helpTextDismissibleKey () {
       return `${this.currentUserId}:procedure${this.isProcedureTemplate && 'Template'}AdministrationPlacesHint`
-    }
+    },
   },
 
   methods: {
@@ -283,13 +304,13 @@ export default {
           Place: [
             'name',
             'description',
-            'solved'
-          ].join()
+            'solved',
+          ].join(),
         },
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       }))
-        .then(response => {
-          const places = response.data.data
+        .then(({ data }) => {
+          const places = data.data
 
           places.forEach((place) => {
             this.places.push({
@@ -297,7 +318,7 @@ export default {
               name: place.attributes.name,
               description: place.attributes.description,
               edit: false,
-              solved: place.attributes.solved || false
+              solved: place.attributes.solved || false,
             })
           })
         })
@@ -340,8 +361,8 @@ export default {
         attributes: {
           name: this.newPlace.name,
           description: this.newPlace.description,
-          solved: this.newPlace.solved
-        }
+          solved: this.newPlace.solved,
+        },
       }
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
         .then(response => {
@@ -354,7 +375,7 @@ export default {
             description: this.newPlace.description,
             edit: false,
             solved: this.newPlace.solved,
-            sortIndex: this.places.length
+            sortIndex: this.places.length,
           }
           this.places.push(dataToUpdate)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
@@ -392,21 +413,19 @@ export default {
           attributes: {
             name: this.newRowData.name,
             description: this.newRowData.description,
-            solved: this.newRowData.solved
-          }
-        }
+            solved: this.newRowData.solved,
+          },
+        },
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
-        .then(checkResponse)
-        .catch((err) => console.error(err))
-        .finally(response => {
-          if (response?.errors?.length > 0) {
-            return
-          }
+        .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
           this.setEditMode(rowData.id, false)
           this.updatePlaceData(rowData.id)
+        })
+        .catch(err => {
+          console.error(err)
         })
     },
 
@@ -415,17 +434,17 @@ export default {
         'workflowPlacesOfProcedure.reorder',
         {
           workflowPlaceId: id,
-          newWorkflowPlaceIndex: newIndex
+          newWorkflowPlaceIndex: newIndex,
         },
-        this.procedureId
+        this.procedureId,
       ).then(() => {
         dplan.notify.confirm(Translator.trans('confirm.saved'))
       })
-    }
+    },
   },
 
   mounted () {
     this.fetchPlaces()
-  }
+  },
 }
 </script>

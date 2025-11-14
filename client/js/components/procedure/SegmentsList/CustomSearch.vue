@@ -14,58 +14,68 @@
         data-cy="customSearch:currentSearchTerm"
         :placeholder="Translator.trans('searchterm')"
         @search="term => handleSearch(term)"
-        @reset="$emit('reset')">
+        @reset="$emit('reset')"
+      >
         <dp-flyout
           align="left"
           data-cy="customSearch:searchCustomLimitFields"
-          class="top-px right-0 absolute"
-          :has-menu="false"
-          :padded="false">
+          class="top-0.5 right-0"
+          position="absolute"
+          :padded="false"
+        >
           <template v-slot:trigger>
             <dp-icon
               :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
-              icon="settings" />
+              icon="settings"
+            />
           </template>
           <!-- Checkboxes to specify in which fields to search -->
           <div class="space-stack-s space-inset-s w-14">
             <div class="flex">
               <span
                 class="weight--bold"
-                v-text="Translator.trans('search.custom.limit_fields')" />
+                v-text="Translator.trans('search.custom.limit_fields')"
+              />
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
+                @click="toggleAllFields(selectedFields.length < fields.length)"
                 v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.length < fields.length)" />
+              />
             </div>
             <div
+              v-if="isLoading === false"
               class="o-list--col-3"
-              v-if="isLoading === false">
+            >
               <dp-checkbox
                 v-for="({label, value}, i) in fields"
-                :data-cy="'customSearch:' + value"
                 :id="value"
                 :key="i"
+                :data-cy="'customSearch:' + value"
                 :checked="selectedFields.includes(value)"
                 :label="{
                   text: Translator.trans(label)
                 }"
-                @change="handleChange(value, !selectedFields.includes(value))" />
+                @change="handleChange(value, !selectedFields.includes(value))"
+              />
             </div>
             <div
               class="font-size-small"
-              v-text="Translator.trans('search.custom.explanation')" />
+              v-text="Translator.trans('search.custom.explanation')"
+            />
           </div>
           <hr class="border--top u-m-0">
           <!-- Explanation of search options and special characters -->
           <div
             class="space-stack-xs space-inset-s w-14 overflow-y-auto"
-            :style="maxHeight">
+            :style="maxHeight"
+          >
             <dp-details
               v-for="explanation in explanations"
               :key="explanation.title"
               :summary="explanation.title"
-              :data-cy="explanation.dataCy">
+              :data-cy="explanation.dataCy"
+            >
               <span v-html="explanation.description" />
             </dp-details>
           </div>
@@ -77,14 +87,13 @@
 
 <script>
 import {
-  checkResponse,
   DpCheckbox,
   DpDetails,
   DpFlyout,
   DpIcon,
   dpRpc,
   DpSearchField,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
 
@@ -96,7 +105,7 @@ export default {
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpSearchField
+    DpSearchField,
   },
 
   props: {
@@ -111,7 +120,7 @@ export default {
         return ['entity', 'function', 'accessGroup'].every((prop) => {
           return hasOwnProp(obj, prop) && obj[prop] !== ''
         })
-      }
+      },
     },
 
     /**
@@ -119,7 +128,7 @@ export default {
      */
     id: {
       type: String,
-      required: true
+      required: true,
     },
 
     /**
@@ -129,20 +138,20 @@ export default {
     localStorageKey: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     searchTerm: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: [
     'changeFields',
     'reset',
-    'search'
+    'search',
   ],
 
   data () {
@@ -154,23 +163,23 @@ export default {
         {
           title: Translator.trans('search.options'),
           dataCy: 'searchOptions',
-          description: Translator.trans('search.options.description')
+          description: Translator.trans('search.options.description'),
         },
         {
           title: Translator.trans('search.special.characters'),
           dataCy: 'searchSpecialCharacters',
-          description: Translator.trans('search.special.characters.description')
-        }
+          description: Translator.trans('search.special.characters.description'),
+        },
       ],
       maxHeight: null,
-      selectedFields: []
+      selectedFields: [],
     }
   },
 
   computed: {
     storeSelection () {
       return this.localStorageKey !== ''
-    }
+    },
   },
 
   methods: {
@@ -204,14 +213,13 @@ export default {
      */
     setFields () {
       dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
-        .then(checkResponse)
-        .then((response) => {
-          const fields = response[0].result
+        .then(response => {
+          const fields = response.data[0].result
           // The response has to be transformed as the rpc sends the ids as keys.
           this.fields = Object.keys(fields).map((field) => {
             return {
               label: fields[field],
-              value: field
+              value: field,
             }
           })
           this.isLoading = false
@@ -242,7 +250,7 @@ export default {
         set.delete(field)
         this.selectedFields = [...set]
       }
-    }
+    },
   },
 
   mounted () {
@@ -252,6 +260,6 @@ export default {
 
     // Emit selection in case there was something stored (if storage is enabled).
     this.storeSelection && this.$emit('changeFields', this.selectedFields)
-  }
+  },
 }
 </script>

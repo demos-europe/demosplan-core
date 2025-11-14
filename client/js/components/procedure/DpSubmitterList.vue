@@ -15,10 +15,12 @@
 
     <div class="flex items-center u-pv-0_5">
       <a
-        :href="exportSubmitterList">
+        :href="exportSubmitterList"
+      >
         <i
           class="fa fa-download"
-          aria-hidden="true" />
+          aria-hidden="true"
+        />
         {{ Translator.trans('export') }}
       </a>
 
@@ -27,23 +29,26 @@
         data-cy="submitterList:selectableColumns"
         :initial-selection="currentSelection"
         :selectable-columns="selectableColumns"
-        @selection-changed="setCurrentSelection"
         use-local-storage
-        local-storage-key="submitterList" />
+        local-storage-key="submitterList"
+        @selection-changed="setCurrentSelection"
+      />
     </div>
 
     <dp-loading v-if="isLoading" />
     <template v-else>
       <dp-data-table
-        class="overflow-x-auto"
         v-if="items.length"
+        class="overflow-x-auto"
         :header-fields="headerFields"
         :items="items"
-        track-by="id">
+        track-by="id"
+      >
         <template v-slot:statement="rowData">
           <a
             :href="SubmitterListItem(rowData)"
-            data-cy="SubmitterListItem">
+            data-cy="SubmitterListItem"
+          >
             {{ rowData.statement }}
           </a>
         </template>
@@ -59,12 +64,14 @@
         </template>
         <template v-slot:internId="{ internId }">
           <div
-            class="o-hellip__wrapper">
+            class="o-hellip__wrapper"
+          >
             <div
-              v-text="internId"
-              class="o-hellip--nowrap text-right"
               v-tooltip="internId"
-              dir="rtl" />
+              class="o-hellip--nowrap text-right"
+              dir="rtl"
+              v-text="internId"
+            />
           </div>
         </template>
       </dp-data-table>
@@ -87,7 +94,7 @@ export default {
   components: {
     DpColumnSelector,
     DpDataTable,
-    DpLoading
+    DpLoading,
   },
 
   directives: { cleanhtml: CleanHtml },
@@ -95,8 +102,8 @@ export default {
   props: {
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -109,18 +116,18 @@ export default {
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
-        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') }
+        { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') },
       ],
       isLoading: false,
       items: [],
-      currentSelection: ['name', 'organisationAndDepartment', 'statement']
+      currentSelection: ['name', 'organisationAndDepartment', 'statement'],
     }
   },
 
   computed: {
     exportSubmitterList () {
       return Routing.generate('dplan_admin_procedure_submitter_export', {
-        procedureId: this.procedureId
+        procedureId: this.procedureId,
       })
     },
     selectableColumns () {
@@ -128,7 +135,7 @@ export default {
     },
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
-    }
+    },
   },
 
   methods: {
@@ -140,9 +147,9 @@ export default {
             procedureId: {
               condition: {
                 path: 'procedure.id',
-                value: this.procedureId
-              }
-            }
+                value: this.procedureId,
+              },
+            },
           },
           fields: {
             Statement: [
@@ -159,10 +166,10 @@ export default {
               'isSubmittedByCitizen',
               'memo',
               'submitName',
-              'submitterEmailAddress'
-            ].join()
-          }
-        }
+              'submitterEmailAddress',
+            ].join(),
+          },
+        },
       )
 
       this.items = [...response.data.data]
@@ -195,7 +202,7 @@ export default {
         isSubmittedByCitizen,
         memo,
         submitterEmailAddress: email,
-        submitName
+        submitName,
       } = resourceObj.attributes
 
       return {
@@ -208,7 +215,7 @@ export default {
         organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
         postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
         statement: externId,
-        street: this.handleOrgaStreet(street, houseNumber)
+        street: this.handleOrgaStreet(street, houseNumber),
       }
     },
 
@@ -242,10 +249,10 @@ export default {
 
     SubmitterListItem (rowData) {
       return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
-    }
+    },
   },
   mounted () {
     this.fetchStatements()
-  }
+  },
 }
 </script>

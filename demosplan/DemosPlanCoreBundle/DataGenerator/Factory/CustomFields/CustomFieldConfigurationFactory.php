@@ -57,14 +57,19 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
     public function asRadioButton(
         string $name = 'Color',
         string $description = 'Select a Color',
-        array $options = ['blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
+        array $options = [
+            'blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
     ): self {
+        $customFieldOptions = collect($options)
+            ->map(fn (string $label) => CustomFieldOptionFactory::fromLabel($label)->create())
+            ->toArray();
+
         return $this->with([
             'configuration' => RadioButtonFieldFactory::new([
                 'name'              => $name,
                 'description'       => $description,
                 'fieldType'         => 'singleSelect',
-                'options'           => $options,
+                'options'           => $customFieldOptions,
             ]),
         ]);
     }
@@ -74,6 +79,13 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         return $this->with([
             'sourceEntityClass' => 'PROCEDURE',
             'sourceEntityId'    => $procedure->getId(),
+        ]);
+    }
+
+    public function withRelatedTargetEntity(string $entityClass): self
+    {
+        return $this->with([
+            'targetEntityClass' => $entityClass,
         ]);
     }
 }

@@ -63,9 +63,7 @@ class StatementArrayConverter
             $segmentOrStatement->isSubmittedByCitizen()
         );
 
-        if ($segmentOrStatement instanceof Statement) {
-            $exportData['fileNames'] = $segmentOrStatement->getFileNames();
-        }
+        $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
@@ -83,7 +81,7 @@ class StatementArrayConverter
             $exportData['meta']['authoredDate'] = $parentStatement->getAuthoredDateString();
             $exportData['dName'] = $parentStatement->getDName();
             $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
-            $exportData['fileNames'] = $parentStatement->getFileNames();
+            $exportData['fileNames'] = $this->getFileNamesWithOriginal($parentStatement);
             $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
         }
 
@@ -100,5 +98,23 @@ class StatementArrayConverter
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
 
         return $exportData;
+    }
+
+    /**
+     * Retrieves file names associated with the statement, including the original file if it exists.
+     *
+     * @param StatementInterface $statement The statement from which to retrieve file names
+     *
+     * @return array<string> An array of file names, including the original file if available
+     */
+    private function getFileNamesWithOriginal(StatementInterface $statement): array
+    {
+        $fileNames = $statement->getFileNames();
+        $originalFile = $statement->getOriginalFile();
+        if (null !== $originalFile) {
+            $fileNames[] = $originalFile->getFilename();
+        }
+
+        return $fileNames;
     }
 }

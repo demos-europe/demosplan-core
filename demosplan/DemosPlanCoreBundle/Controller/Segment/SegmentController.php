@@ -203,7 +203,7 @@ class SegmentController extends BaseController
             } catch (AddonResourceNotFoundException) {
                 $this->getMessageBag()->add(
                     'error',
-                    'error.split_statement.no_place',
+                    'error.import_segment.no_place',
                     [],
                     'messages',
                     'DemosPlan_procedure_places_list',
@@ -213,7 +213,13 @@ class SegmentController extends BaseController
             } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',
                     ['%fileName%' => $fileName]);
-            } catch (Exception) {
+            } catch (Exception $e) {
+                $this->logger->error('Unexpected error during document import', [
+                    'fileName'  => $fileName,
+                    'exception' => $e,
+                    'trace'     => $e->getTraceAsString(),
+                ]);
+
                 $this->getMessageBag()->add(
                     'error',
                     'statements.import.error.document.unexpected',
