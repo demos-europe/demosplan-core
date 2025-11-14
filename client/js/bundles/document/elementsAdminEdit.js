@@ -11,13 +11,24 @@
  * This is the entry point for elements_admin_edit.html.twig
  */
 
-import { DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
-import DpElementAdminEdit from '@DpJs/components/document/DpElementAdminEdit'
+import {
+  DpDataTable,
+  DpDatetimePicker,
+  DpEditor,
+  DpMultiselect,
+  DpUploadFiles,
+  dpValidate,
+} from '@demos-europe/demosplan-ui'
+import ElementAdminEdit from '@DpJs/components/document/ElementAdminEdit'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  DpElementAdminEdit,
+  DpDataTable,
+  DpDatetimePicker,
+  DpEditor,
+  DpMultiselect,
   DpUploadFiles,
+  ElementAdminEdit,
 }
 
 initialize(components).then(() => {
