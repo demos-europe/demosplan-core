@@ -11,14 +11,32 @@
  * This is the entrypoint for administration_edit_master.html.twig
  */
 
-import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
-import DpMasterBasicSettings from '@DpJs/components/procedure/basicSettings/DpMasterBasicSettings'
-import { dpValidate } from '@demos-europe/demosplan-ui'
+import {
+  DpCheckbox,
+  DpContextualHelp,
+  DpEditor,
+  DpInput,
+  DpMultiselect,
+  DpTextArea,
+  DpUploadFiles,
+  dpValidate,
+} from '@demos-europe/demosplan-ui'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import { initialize } from '@DpJs/InitVue'
+import ProcedureTemplateBasicSettings from '@DpJs/components/procedure/basicSettings/ProcedureTemplateBasicSettings'
 
-const components = { DpMasterBasicSettings }
+const components = {
+  DpCheckbox,
+  DpContextualHelp,
+  DpEditor,
+  DpEmailList,
+  DpInput,
+  DpMultiselect,
+  DpTextArea,
+  DpUploadFiles,
+  ProcedureTemplateBasicSettings,
+}
 
 initialize(components).then(() => {
-  AdministrationMaster()
   dpValidate()
 })

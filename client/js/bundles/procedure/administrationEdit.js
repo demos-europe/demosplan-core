@@ -19,7 +19,6 @@ import {
   dpValidate,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import { defineAsyncComponent } from 'vue'
 import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
@@ -90,7 +89,6 @@ const components = {
 initialize(components).then(() => {
   UrlPreview()
   DPWizard()
-  AdministrationMaster()
   dpValidate()
 
   document.addEventListener('customValidationPassed', (event) => {
