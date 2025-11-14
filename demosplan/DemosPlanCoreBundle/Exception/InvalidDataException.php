@@ -20,12 +20,13 @@ class InvalidDataException extends DemosException
     /**
      * Stores the HTTP request that triggered this invalid data exception.
      * Used for context tracking and debugging purposes.
+     * May be null when exception occurs outside HTTP request context.
      */
-    private Request $request;
+    private ?Request $request = null;
 
     public function __construct(
         string $message,
-        Request $request,
+        ?Request $request = null,
         int $statusCode = Response::HTTP_BAD_REQUEST,
     ) {
         // DemosException expects ($userMsg, $logMsg, $code)
@@ -34,7 +35,7 @@ class InvalidDataException extends DemosException
         $this->request = $request;
     }
 
-    public function getRequest(): Request
+    public function getRequest(): ?Request
     {
         return $this->request;
     }
