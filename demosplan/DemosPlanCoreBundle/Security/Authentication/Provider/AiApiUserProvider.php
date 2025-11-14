@@ -51,7 +51,8 @@ class AiApiUserProvider implements UserProviderInterface
 
     public function supportsClass(string $class): bool
     {
-        return AiApiUser::class === $class;
+        // Support AiApiUser class including Doctrine proxies
+        return is_a($class, AiApiUser::class, true);
     }
 
     private function getApiUser(): UserInterface
