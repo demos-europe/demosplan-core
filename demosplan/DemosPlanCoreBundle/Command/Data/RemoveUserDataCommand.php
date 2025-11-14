@@ -42,6 +42,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -54,12 +55,9 @@ use function strlen;
 /**
  * dplan:data:remove-user-data.
  */
+#[AsCommand(name: 'dplan:data:remove-user-data', description: 'Deletes sensitive/personal data from DB.')]
 class RemoveUserDataCommand extends CoreCommand
 {
-    // lazy load command
-    protected static $defaultName = 'dplan:data:remove-user-data';
-    protected static $defaultDescription = 'Deletes sensitive/personal data from DB.';
-
     /** @var UserService */
     protected $userService;
 

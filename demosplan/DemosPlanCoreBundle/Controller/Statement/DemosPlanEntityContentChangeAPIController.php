@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTran
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class DemosPlanEntityContentChangeAPIController extends APIController

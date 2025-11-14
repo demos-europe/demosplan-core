@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CacheClearCommand;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,11 +24,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:addon:autoinstall', description: 'Installs any addons defined in project configuration addons.yaml')]
 class AddonAutoinstallCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:autoinstall';
-    protected static $defaultDescription = 'Installs any addons defined in project configuration addons.yaml';
-
     public function __construct(
         private readonly AddonInstallFromZipCommand $addonInstallCommand,
         private readonly AddonUninstallCommand $addonUninstallCommand,

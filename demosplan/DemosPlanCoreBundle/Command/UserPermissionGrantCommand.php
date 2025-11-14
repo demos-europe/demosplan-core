@@ -16,18 +16,18 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'dplan:user:permission:grant', description: 'Grant a specific permission to a user')]
 class UserPermissionGrantCommand extends UserPermissionBaseCommand
 {
     protected function configure(): void
     {
         $this
-            ->setName('dplan:user:permission:grant')
-            ->setDescription('Grant a specific permission to a user')
             ->setHelp('This command allows you to grant a specific permission to a user beyond their role-based permissions.');
 
         $this->addCommonArguments();

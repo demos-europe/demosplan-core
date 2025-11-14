@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:user:permission:list', description: 'List all user-specific permissions for a user')]
 class UserPermissionListCommand extends CoreCommand
 {
     public function __construct(
@@ -39,8 +41,6 @@ class UserPermissionListCommand extends CoreCommand
     protected function configure(): void
     {
         $this
-            ->setName('dplan:user:permission:list')
-            ->setDescription('List all user-specific permissions for a user')
             ->setHelp('This command lists all user-specific permissions that have been granted to a specific user.')
             ->addArgument('user-id', InputArgument::REQUIRED, 'User ID (UUID)')
             ->addOption(

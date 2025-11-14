@@ -30,7 +30,7 @@ use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Webmozart\Assert\Assert;
 
 class DemosPlanReportAPIController extends APIController

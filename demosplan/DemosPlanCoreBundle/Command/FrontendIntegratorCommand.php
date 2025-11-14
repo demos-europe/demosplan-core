@@ -28,6 +28,7 @@ use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use EDT\JsonApi\Manager;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -45,14 +46,12 @@ use function str_replace;
  * This command fetches all required data and runs necessary sub commands to feed
  * the frontend toolchain with required information.
  */
+#[AsCommand(name: 'dplan:frontend:integrator', description: 'This command outputs a bunch of data needed by the FE tooling')]
 class FrontendIntegratorCommand extends CoreCommand
 {
     private const OPEN_API_JSON_FILE = 'client/js/generated/openApi.json';
 
     private const RESOURCE_TYPES_FILE = 'client/js/generated/ResourceTypes.js';
-
-    protected static $defaultName = 'dplan:frontend:integrator';
-    protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,

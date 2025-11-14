@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,11 +28,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Initialize default workflow places for procedures that don't have any places.
  */
+#[AsCommand(name: 'dplan:workflow:init-places', description: 'Add default workflow places to procedures that have none')]
 class InitializeWorkflowPlacesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:workflow:init-places';
-    protected static $defaultDescription = 'Add default workflow places to procedures that have none';
-
     /**
      * Default places that will be created (same as in LoadWorkflowPlaceData fixture).
      */

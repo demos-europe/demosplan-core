@@ -24,14 +24,14 @@ use Rector\ValueObject\PhpVersion;
 return RectorConfig::configure()
     ->withSets([
         // Define what rule sets will be applied
-        // SetList::CODE_QUALITY,
-        // SymfonySetList::SYMFONY_64,
+        SetList::CODE_QUALITY,
+        SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
         // LevelSetList::UP_TO_PHP_81,
         // TwigSetList::TWIG_UNDERSCORE_TO_NAMESPACE,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // SensiolabsSetList::ANNOTATIONS_TO_ATTRIBUTES,
-        SymfonySetList::SYMFONY_CODE_QUALITY,
+        // SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
         // DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         // PHPUnitLevelSetList::UP_TO_PHPUNIT_90,
         // DoctrineSetList::DOCTRINE_DBAL_40,

@@ -20,7 +20,7 @@ use EDT\JsonApi\ApiDocumentation\ListActionConfig;
 use EDT\JsonApi\ApiDocumentation\OpenApiWording;
 use EDT\JsonApi\Manager;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

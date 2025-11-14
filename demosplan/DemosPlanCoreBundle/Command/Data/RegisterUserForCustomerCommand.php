@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,10 +31,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:data:register-user-for-customer', description: 'Registers an existing user to an existing customer')]
 class RegisterUserForCustomerCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:register-user-for-customer';
-    protected static $defaultDescription = 'Registers an existing user to an existing customer';
     /**
      * @var QuestionHelper
      */

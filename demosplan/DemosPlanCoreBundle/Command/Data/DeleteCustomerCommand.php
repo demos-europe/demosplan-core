@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,11 +29,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 use function is_string;
 
+#[AsCommand(name: 'dplan:customer:delete', description: 'Deletes a customer including all related content like procedure, orgaTypes, statements, tags, News, etc.')]
 class DeleteCustomerCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:customer:delete';
-    protected static $defaultDescription =
-        'Deletes a customer including all related content like procedure, orgaTypes, statements, tags, News, etc.';
     public const OPTION_DRY_RUN = 'dry-run';
     public const OPTION_WITHOUT_ES_REPOPULATE = 'without-repopulate';
 
@@ -65,7 +64,7 @@ class DeleteCustomerCommand extends CoreCommand
         );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output = new SymfonyStyle($input, $output);
         $isDryRun = $input->getOption(self::OPTION_DRY_RUN);

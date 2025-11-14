@@ -16,18 +16,18 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'dplan:user:permission:revoke', description: 'Revoke a specific permission from a user')]
 class UserPermissionRevokeCommand extends UserPermissionBaseCommand
 {
     protected function configure(): void
     {
         $this
-            ->setName('dplan:user:permission:revoke')
-            ->setDescription('Revoke a specific permission from a user')
             ->setHelp('This command allows you to revoke a user-specific permission from a user.');
 
         $this->addCommonArguments();
