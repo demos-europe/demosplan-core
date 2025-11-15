@@ -71,6 +71,7 @@ class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $isObscure,
+        bool $excludeStatementText = false,
     ): WriterInterface {
         $isCensored = $this->needsToBeCensored(
             $statement,
@@ -85,7 +86,7 @@ class SegmentsExporter
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
+        $this->addSegments($section, $statement, $tableHeaders, $isObscure, $excludeStatementText);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -242,12 +243,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false, bool $excludeStatementText = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure, $excludeStatementText);
         }
     }
 
@@ -275,13 +276,13 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure, bool $excludeStatementText = false): void
     {
-        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders, $excludeStatementText);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure, $excludeStatementText);
         }
         $this->imageManager->addImages($section);
     }
@@ -298,7 +299,7 @@ class SegmentsExporter
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
     }
 
-    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders, bool $excludeStatementText = false): Table
     {
         $table = $section->addTable($this->styles['segmentsTable']);
         $headerRow = $table->addRow(
@@ -314,15 +315,21 @@ class SegmentsExporter
             ),
             $this->styles['segmentsTableHeaderCellID']
         );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
+        if (!$excludeStatementText) {
+            $this->addSegmentCell(
+                $headerRow,
+                htmlspecialchars(
+                    $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                    ENT_NOQUOTES,
+                    'UTF-8'
+                ),
+                $this->styles['segmentsTableHeaderCell']
+            );
+        }
+        // Use wider column style for recommendation when statement text is excluded
+        $recommendationStyle = $excludeStatementText
+            ? $this->styles['segmentsTableHeaderCellWide']
+            : $this->styles['segmentsTableHeaderCell'];
         $this->addSegmentCell(
             $headerRow,
             htmlspecialchars(
@@ -330,13 +337,13 @@ class SegmentsExporter
                 ENT_NOQUOTES,
                 'UTF-8'
             ),
-            $this->styles['segmentsTableHeaderCell']
+            $recommendationStyle
         );
 
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure, bool $excludeStatementText = false): void
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
@@ -346,15 +353,21 @@ class SegmentsExporter
             $segment->getExternId(),
             $this->styles['segmentsTableBodyCellID']
         );
-        $this->addSegmentHtmlCell(
-            $textRow,
-            $convertedSegment->getText(),
-            $this->styles['segmentsTableBodyCell']
-        );
+        if (!$excludeStatementText) {
+            $this->addSegmentHtmlCell(
+                $textRow,
+                $convertedSegment->getText(),
+                $this->styles['segmentsTableBodyCell']
+            );
+        }
+        // Use wider column style for recommendation when statement text is excluded
+        $recommendationStyle = $excludeStatementText
+            ? $this->styles['segmentsTableBodyCellWide']
+            : $this->styles['segmentsTableBodyCell'];
         $this->addSegmentHtmlCell(
             $textRow,
             $convertedSegment->getRecommendationText(),
-            $this->styles['segmentsTableBodyCell']
+            $recommendationStyle
         );
     }
 
