@@ -20,9 +20,9 @@
       :preserve-search="true"
       selection-controls
       track-by="title"
-      :use-internal-search="false"
+      :use-default-search="false"
       @input="updateSelected"
-      @search-change="updateSearchChange"
+      @search-change="updateSearchValue"
     >
       <template v-slot:option="{ props }">
         <input
@@ -138,7 +138,7 @@ export default {
       'updateCurrentTags',
     ]),
 
-    updateSearchChange (value) {
+    updateSearchValue (value) {
       this.search = value.toLowerCase()
     },
 
