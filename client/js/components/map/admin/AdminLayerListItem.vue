@@ -372,7 +372,7 @@ export default {
        *
        */
       const toggleMyIconInSameGroup = (this.isLinkedWithCurrentlyHovered && this.showCurrentIconState)
-      const toggleMyIconWithoutGroup = (this.showCurrentIconState && this.visibilityGroupIdOfHoveredLayer === '')
+      const toggleMyIconWithoutGroup = (this.showCurrentIconState && !this.visibilityGroupIdOfHoveredLayer)
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
@@ -494,7 +494,7 @@ export default {
     },
 
     hasGroupId () {
-      return this.layer.attributes.visibilityGroupId !== ''
+      return !!this.layer.attributes.visibilityGroupId
     },
 
     /**
@@ -618,7 +618,7 @@ export default {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
 
-      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId || this.layer.attributes.visibilityGroupId !== '') {
+      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId || !!this.layer.attributes.visibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
 
@@ -635,7 +635,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '')
+      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
@@ -643,7 +643,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyHovered () {
-      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && this.layer.attributes.visibilityGroupId !== '' && this.hoverLayerId !== this.layer.id)
+      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && !!this.layer.attributes.visibilityGroupId && this.hoverLayerId !== this.layer.id)
     },
 
     /**
@@ -940,19 +940,19 @@ export default {
        * so we set the clicked one as active instead
        * base-layer can't be grouped at all
        */
-      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? '' : this.activeLayer.attributes.visibilityGroupId
+      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? null : this.activeLayer.attributes.visibilityGroupId
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
         this.layerType === 'base' ||
         this.isActive ||
-        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) ||
         this.hasSettingsThatPreventGrouping ||
         this.isLoading) {
         return false
       }
 
-      if (newVisibilityGroupId === '' || typeof newVisibilityGroupId === 'undefined') {
+      if (!newVisibilityGroupId || typeof newVisibilityGroupId === 'undefined') {
         // If the active Layer has no visibilitygroupId, create one and attach it to the active and the clicked Layer
         newVisibilityGroupId = uuid()
         this.setAttributeForLayer({
