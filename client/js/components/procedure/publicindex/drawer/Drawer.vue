@@ -102,11 +102,10 @@ export default {
     },
 
     screenReaderAnnouncement () {
-      if (this.currentView !== 'DpDetailView') {
-        return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
-      } else {
+      if (this.currentView === 'DpDetailView') {
         return ''
       }
+      return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
     },
   },
 
