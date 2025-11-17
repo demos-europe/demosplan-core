@@ -537,7 +537,8 @@
                             required
                             :toolbar-items="{
                                 mark: true,
-                                strikethrough: true
+                                strikethrough: true,
+                                obscure: hasPermission('feature_obscure_text')
                             }"
                             procedure-id="{{ templateVars.table.procedure.ident }}">
                         </dp-editor>
