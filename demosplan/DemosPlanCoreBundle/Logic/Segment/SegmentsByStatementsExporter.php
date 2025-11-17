@@ -241,6 +241,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
+
+        if ($this->currentUser->hasPermission('feature_segments_export_tags')) {
+            $this->addSegmentCell(
+                $textRow,
+                $this->getSegmentTagsText($segment),
+                $this->styles['segmentsTableBodyCellTags']
+            );
+        }
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -260,25 +268,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             ],
         ];
 
+        if ($this->currentUser->hasPermission('feature_segments_export_tags')) {
+            $headerConfigs[] = [
+                'text'  => $tableHeaders['col4'] ?? $this->translator->trans('segments.export.tags'),
+                'style' => $this->styles['segmentsTableHeaderCellTags'],
+            ];
+        }
+
         return $this->createTableWithHeader($section, $headerConfigs);
-    }
-
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
-    {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
-
-        return $segments;
-    }
-
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
-    {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    protected function addNoSegmentsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
     /**
