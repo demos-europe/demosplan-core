@@ -27,7 +27,7 @@ class StyleInitializer
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly DocumentWriterSelector $writerSelector
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
     }
 
