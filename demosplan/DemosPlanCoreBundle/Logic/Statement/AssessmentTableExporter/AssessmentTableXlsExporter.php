@@ -262,8 +262,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
-        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'feature_statements_tag', 'tag');
-        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'feature_statements_tag', 'tag.category');
+        $this->addColumnDefinition($columnsDefinition, 'tagNames', 'feature_segments_export_tags', 'tag');
+        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'feature_segments_export_tags', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
