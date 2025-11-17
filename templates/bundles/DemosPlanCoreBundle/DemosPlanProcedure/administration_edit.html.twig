@@ -1134,14 +1134,22 @@
                                 </div>
                             {% endif %}
 
+                            {% set userOrgaId = currentUser.organisationId|default('') %}
+                            {% set userMeinBerlinOrgId = currentUser.meinBerlinOrgId|default('') %}
+
+                            {% set districtAddonProps = {
+                            relationshipId: proceduresettings.id,
+                            relationshipKey: 'procedure',
+                            isInput: false,
+                            userOrgaId: userOrgaId,
+                            userMeinBerlinOrgId: userMeinBerlinOrgId
+                            } %}
+
                             <addon-wrapper
                                 class="mb-4"
                                 hook-name="addon.additional.field"
-                                :addon-props="{
-                                    relationshipId: '{{ proceduresettings.id }}',
-                                    relationshipKey: 'procedure',
-                                    isInput: true
-                                }"
+                                :addon-props="JSON.parse('{{ districtAddonProps|json_encode|e('js', 'utf-8') }}')"
+                                @selected="updateAddonPayload"
                                 @blur="updateAddonPayload">
                             </addon-wrapper>
 
