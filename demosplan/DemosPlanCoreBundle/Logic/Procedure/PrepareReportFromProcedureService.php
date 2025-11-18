@@ -157,7 +157,7 @@ class PrepareReportFromProcedureService
      *
      * @throws Exception
      */
-    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure)
+    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure, bool $isSystem = false): void
     {
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
@@ -274,7 +274,7 @@ class PrepareReportFromProcedureService
             $sourceProcedure,
             $destinationProcedure,
             $this->getUserForReportEntry(),
-            false
+            $isSystem
         );
         if (null !== $phaseChangeEntry) {
             $this->reportService->persistAndFlushReportEntries($phaseChangeEntry);
