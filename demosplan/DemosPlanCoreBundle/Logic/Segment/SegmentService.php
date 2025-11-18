@@ -23,13 +23,9 @@ use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use Doctrine\Persistence\ManagerRegistry;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class SegmentService implements SegmentServiceInterface
 {
