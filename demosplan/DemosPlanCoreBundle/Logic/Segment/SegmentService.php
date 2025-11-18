@@ -27,8 +27,11 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Stopwatch\Stopwatch;
 
-class SegmentService extends CoreService implements SegmentServiceInterface
+class SegmentService implements SegmentServiceInterface
 {
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
