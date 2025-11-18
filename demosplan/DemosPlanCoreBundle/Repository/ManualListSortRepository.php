@@ -59,7 +59,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
     public function getManualListSort($procedure, $context, $namespace, $customer = null)
     {
         $result = $this->findBy(['pId' => $procedure, 'context' => $context, 'namespace' => $namespace, 'customer' => $customer]);
-        if (0 < sizeof($result)) {
+        if (0 < count($result)) {
             return $result[0];
         }
 
@@ -127,7 +127,7 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
         $sort->setCustomer($customer);
 
         $manualListSorts = $this->findBy(['pId' => $procedureId, 'context' => $context, 'namespace' => $namespace, 'customer' => $customer]);
-        if (0 < sizeof($manualListSorts)) {
+        if (0 < count($manualListSorts)) {
             $sort = $manualListSorts[0];
         }
 

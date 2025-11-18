@@ -18,7 +18,7 @@ use League\Csv\MapIterator;
 
 class ExcelImporterHandleImportedTagsRecordsEvent extends DPlanEvent implements ExcelImporterHandleImportedTagsRecordsEventInterface
 {
-    public function __construct(private $records, private array $columnTitles, private $tags = [])
+    public function __construct(private $records, private readonly array $columnTitles, private $tags = [])
     {
     }
 

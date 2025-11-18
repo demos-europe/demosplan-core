@@ -570,28 +570,45 @@ export default {
       return this.transWithFallback(field, label)
     },
 
-    //  @TODO #move-to-lib
     transWithFallback (fallback, key) {
       return Translator.trans(key || fallback)
     },
 
-  },
+    /**
+     * Initialize the current role based on request or initSubmitter prop
+     */
+    initializeRole () {
+      if (this.request.role === '' && hasOwnProp(this.initSubmitter, 'role')) {
+        this.currentRole = this.initSubmitter.role
+      } else if (this.request.role !== '') {
+        this.currentRole = this.request.role
+      }
 
-  mounted () {
-    //  Set currently selected role to request value only if set
-    this.currentRole = this.request.role !== '' ? this.request.role : (hasOwnProp(this.initSubmitter, 'role') ? this.initSubmitter.role : this.currentRole)
-    setTimeout(() => {
+      this.$emit('role:changed', this.currentRole)
+    },
+
+    /**
+     * Prefill submitter data from request or initSubmitter prop
+     */
+    prefillSubmitterData () {
       const hasRequest = Object.values(this.request).join('') !== ''
       const hasInitSubmitter = Object.values(this.initSubmitter).length > 0
 
       if (hasRequest) {
         this.submitterData = { ...this.request }
       } else if (hasInitSubmitter) {
-        const init = JSON.parse(JSON.stringify(this.initSubmitter))
+        const init = structuredClone(this.initSubmitter)
         delete init.role
         this.submitterData = init
       }
-    }, 0)
+    },
+
+  },
+
+  mounted () {
+    this.initializeRole()
+
+    setTimeout(() => this.prefillSubmitterData(), 0)
   },
 }
 </script>

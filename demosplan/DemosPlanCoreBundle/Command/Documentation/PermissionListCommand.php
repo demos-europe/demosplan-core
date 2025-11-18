@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -28,11 +29,9 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
+#[AsCommand(name: 'documentation:generate:permission-list', description: 'Update the permissions information in dplandocs')]
 class PermissionListCommand extends CoreCommand
 {
-    protected static $defaultName = 'documentation:generate:permission-list';
-    protected static $defaultDescription = 'Update the permissions information in dplandocs';
-
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $loaderOutput = new NullOutput();

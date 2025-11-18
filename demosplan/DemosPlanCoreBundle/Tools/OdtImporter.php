@@ -139,7 +139,7 @@ class OdtImporter
         $nodesToRemove = $structuralNodes;
         foreach ($structuralNodes as $structuralNode) {
             $precedingHeading = $this->findPrecedingIndexHeading($structuralNode);
-            if ($precedingHeading) {
+            if ($precedingHeading instanceof DOMNode) {
                 $nodesToRemove[] = $precedingHeading;
             }
         }
@@ -162,7 +162,7 @@ class OdtImporter
         $precedingSibling = $structuralNode->previousSibling;
 
         // Skip whitespace nodes
-        while ($precedingSibling && XML_TEXT_NODE === $precedingSibling->nodeType && '' === trim($precedingSibling->nodeValue)) {
+        while ($precedingSibling && XML_TEXT_NODE === $precedingSibling->nodeType && '' === trim((string) $precedingSibling->nodeValue)) {
             $precedingSibling = $precedingSibling->previousSibling;
         }
 

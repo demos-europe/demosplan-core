@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,19 +24,16 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 /**
  * dplan:data:modify-user.
  */
+#[AsCommand(name: 'dplan:data:modify-user', description: 'Reset passwords of users for each allowed role to allow login.')]
 class ModifyUserCommand extends CoreCommand
 {
-    // lazy load command
-    protected static $defaultName = 'dplan:data:modify-user';
-    protected static $defaultDescription = 'Reset passwords of users for each allowed role to allow login.';
-
     /** @var UserService */
     protected $userService;
 
     /** @var string */
     protected $standardPassword;
 
-    public function __construct(ParameterBagInterface $parameterBag, UserService $userService, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, UserService $userService, ?string $name = null)
     {
         $this->userService = $userService;
         parent::__construct($parameterBag, $name);

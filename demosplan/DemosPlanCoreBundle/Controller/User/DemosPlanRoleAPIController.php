@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RoleResourceType;
 use Exception;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanRoleAPIController extends APIController
 {
@@ -26,7 +26,7 @@ class DemosPlanRoleAPIController extends APIController
      * @DplanPermissions("area_manage_users")
      */
     #[Route(path: '/api/1.0/role', methods: ['GET'], name: 'dplan_api_role_list', options: ['expose' => true])]
-    public function listAction(RoleService $roleService, OrgaService $orgaService, CurrentUserInterface $currentUser): APIResponse
+    public function list(RoleService $roleService, OrgaService $orgaService, CurrentUserInterface $currentUser): APIResponse
     {
         try {
             $user = $currentUser->getUser();

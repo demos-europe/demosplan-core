@@ -13,13 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
 
 class FlashMessageHandler
 {
-    public function __construct(private readonly MessageBagInterface $messageBag, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     /**
@@ -29,15 +33,29 @@ class FlashMessageHandler
      */
     public function setFlashMessages($messages): void
     {
-        if (!is_array($messages) || 0 === count($messages)) {
+        if (!is_array($messages) || [] === $messages) {
             return;
         }
 
         collect($messages)->each(
             function ($message) {
+                if (!$this->isValidMessage($message)) {
+                    $this->logger->warning('MessageBag message data invalid', [
+                        'message' => $message,
+                        'trace'   => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3),
+                    ]);
+
+                    return;
+                }
                 $this->messageBag->add($message['type'], $message['message']);
             }
         );
+    }
+
+    private function isValidMessage(mixed $message): bool
+    {
+        return is_array($message)
+            && isset($message['type'], $message['message']);
     }
 
     public function createFlashMessage(string $type, array $data): string

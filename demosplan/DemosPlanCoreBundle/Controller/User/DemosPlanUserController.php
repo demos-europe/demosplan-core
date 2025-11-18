@@ -48,11 +48,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -72,7 +73,7 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_complete_data', path: '/willkommen')]
-    public function newUserCompleteDataAction(
+    public function newUserCompleteData(
         MailService $mailService,
         OrgaService $orgaService,
         Request $request,
@@ -130,14 +131,7 @@ class DemosPlanUserController extends BaseController
             $currentUser = $this->currentUser->getUser();
 
             if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
-                $data = [
-                    'email'            => $currentUser->getEmail(), // Pflichtfeld beim Update
-                    'firstname'        => $currentUser->getFirstname(), // Pflichtfeld beim Update
-                    'lastname'         => $currentUser->getLastname(), // Pflichtfeld beim Update
-                    'newUser'          => false,
-                    'profileCompleted' => true,
-                    'access_confirmed' => true,
-                ];
+                $data = $this->createUserProfileCompletionData($currentUser);
 
                 $updatedUser = null;
                 try {
@@ -178,12 +172,34 @@ class DemosPlanUserController extends BaseController
             $isSachbearbeiterOnly = false;
         }
 
-        // Schicke die nicht zuständigen Mitarbeiter auf die öffentlichen Seiten
+        // Allow Sachbearbeiter to proceed with warning instead of logging out
         if ($isSachbearbeiterOnly) {
-            $this->getLogger()->info('Welcomepage logout and redirect to home');
-            $request->getSession()->invalidate();
+            $this->getLogger()->info('Welcomepage Sachbearbeiter with missing orgadata, allowing login with warning');
 
-            return $this->redirectToRoute('core_home', ['status' => 'missingOrgadata']);
+            $currentUser = $this->currentUser->getUser();
+            if (User::ANONYMOUS_USER_ID !== $currentUser->getId()) {
+                $data = $this->createUserProfileCompletionData($currentUser);
+
+                try {
+                    $updatedUser = $userHandler->updateUser($currentUser->getId(), $data);
+                    if ($updatedUser instanceof User) {
+                        $this->messageBag->add('warning', 'warning.organisation.email2.missing');
+                        $this->getLogger()->info('Welcomepage redirect to logged in home with email2 warning');
+
+                        return $this->redirectToRoute('core_home_loggedin');
+                    }
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Update user failed with exception', [$e]);
+                }
+
+                // Fallback: if update failed, logout to avoid issues
+                $this->getLogger()->warning('Update user failed, perform logout');
+                $this->messageBag->add('warning', 'warning.login.welcomepage.failed');
+
+                return $this->redirectToRoute('DemosPlan_user_logout');
+            }
+
+            return $this->redirectToRoute('core_home_loggedin');
         }
 
         // verarbeite die Nutzereingaben
@@ -283,7 +299,7 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_orga_toeblist_changes', path: '/organisations/visibilitylog')]
-    public function showInvitableInstitutionVisibilityChangesAction(UserService $userService)
+    public function showInvitableInstitutionVisibilityChanges(UserService $userService)
     {
         $templateVars = [];
         $templateVars['reportEntries'] = $userService->getInvitableInstitutionShowlistChanges();
@@ -299,11 +315,9 @@ class DemosPlanUserController extends BaseController
 
     /**
      * @DplanPermissions("feature_plain_language")
-     *
-     * @return RedirectResponse
      */
     #[Route(name: 'DemosPlan_switch_language', path: '/language')]
-    public function switchLanguageAction(EventDispatcherPostInterface $eventDispatcherPost, Request $request)
+    public function switchLanguage(EventDispatcherPostInterface $eventDispatcherPost, Request $request): RedirectResponse
     {
         // change url:
         $event = new LanguageSwitchRequestEvent($request);
@@ -332,10 +346,9 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_user_portal', path: '/portal/user')]
-    public function portalUserAction(
+    public function portalUser(
         CurrentUserService $currentUser,
         ContentService $contentService,
-        Request $request,
         UserHandler $userHandler,
         string $title = 'user.profile',
     ) {
@@ -376,7 +389,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_add', path: '/user/add')]
-    public function addUserAction(Request $request, UserHandler $userHandler): RedirectResponse
+    public function addUser(Request $request, UserHandler $userHandler): RedirectResponse
     {
         try {
             if ($request->isMethod('POST')) {
@@ -407,14 +420,14 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_register', path: '/user/register', methods: ['POST'], options: ['expose' => true])]
-    public function registerCitizenAction(
+    public function registerCitizen(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
         RateLimiterFactory $userRegisterLimiter,
         Request $request,
         TranslatorInterface $translator,
         UserHandler $userHandler,
-    ) {
+    ): RedirectResponse {
         try {
             // check Honeypotfields
 
@@ -475,7 +488,7 @@ class DemosPlanUserController extends BaseController
             $this->logger->warning('Registration failed, email address in use', ['emailAddress' => $emailAddress]);
         } catch (ViolationsException $e) {
             $violations = $e->getViolations();
-            if (null !== $violations) {
+            if ($violations instanceof ConstraintViolationListInterface) {
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($violations as $violation) {
                     $this->getMessageBag()->add('error', $violation->getMessage());
@@ -499,7 +512,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
-    public function showRegisterCitizenFormAction()
+    public function showRegisterCitizenForm()
     {
         $title = 'user.register';
 
@@ -519,7 +532,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_edit', path: '/user/edit')]
-    public function editUserAction(CurrentUserService $currentUser, ContentService $contentService, MailService $mailService, Request $request, UserHandler $userHandler)
+    public function editUser(CurrentUserService $currentUser, ContentService $contentService, MailService $mailService, Request $request, UserHandler $userHandler): RedirectResponse
     {
         try {
             $userBefore = $currentUser->getUser();
@@ -572,7 +585,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_create_addresses_entry', path: '/organisation/adressen/erstellen/{organisationId}', methods: ['POST'])]
-    public function createAddressBookEntryAction(
+    public function createAddressBookEntry(
         AddressBookEntryService $addressBookEntryService,
         OrgaService $orgaService,
         Request $request,
@@ -640,7 +653,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_delete_email_addresses_entry', path: '/organisation/adressen/loeschen/{organisationId}', methods: ['POST'])]
-    public function deleteAddressBookEntriesAction(AddressBookEntryService $addressBookEntryService, Request $request, $organisationId)
+    public function deleteAddressBookEntries(AddressBookEntryService $addressBookEntryService, Request $request, $organisationId)
     {
         $checkResult = $this->checkUserOrganisation($organisationId, 'DemosPlan_get_address_book_entries');
         if ($request instanceof RedirectResponse) {
@@ -681,7 +694,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_user_statements', path: '/portal/user/statements', options: ['expose' => true])]
-    public function statementListAction(CurrentUserService $currentUser, StatementService $statementService)
+    public function statementList(CurrentUserService $currentUser, StatementService $statementService)
     {
         $templateVars = [];
         $user = $currentUser->getUser();
@@ -708,7 +721,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_revoke_statement', path: '/portal/user/statement/{statementId}/revoke')]
-    public function revokeGDPRConsentForStatementAction(
+    public function revokeGDPRConsentForStatement(
         CurrentUserService $currentUser,
         StatementAnonymizeService $statementAnonymizeService,
         StatementService $statementService,
@@ -801,7 +814,7 @@ class DemosPlanUserController extends BaseController
      * @param string $assertedOrganisationId
      * @param string $redirectRoute
      *
-     * @return RedirectResponse|void
+     * @return RedirectResponse|null
      */
     protected function checkUserOrganisation($assertedOrganisationId, $redirectRoute)
     {
@@ -809,5 +822,26 @@ class DemosPlanUserController extends BaseController
         if (($currentUser instanceof User) && $currentUser->getOrganisationId() !== $assertedOrganisationId) {
             return $this->redirectToRoute($redirectRoute, ['organisationId' => $currentUser->getOrganisationId()]);
         }
+
+        return null;
+    }
+
+    /**
+     * Creates data array for marking user profile as completed.
+     *
+     * @param User $user The user to create profile completion data for
+     *
+     * @return array<string, mixed> Data array for user profile completion
+     */
+    private function createUserProfileCompletionData(User $user): array
+    {
+        return [
+            'email'            => $user->getEmail(),
+            'firstname'        => $user->getFirstname(),
+            'lastname'         => $user->getLastname(),
+            'newUser'          => false,
+            'profileCompleted' => true,
+            'access_confirmed' => true,
+        ];
     }
 }

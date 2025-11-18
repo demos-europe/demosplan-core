@@ -30,10 +30,11 @@ use EDT\JsonApi\Requests\GetRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use League\Fractal\Resource\Item;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
 
@@ -70,7 +71,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function listAction(
+    public function list(
         SearchCapableListRequest $listRequest,
         string $resourceType,
     ): APIResponse {
@@ -114,7 +115,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['PATCH']
     )]
-    public function updateAction(
+    public function update(
         EventDispatcherInterface $eventDispatcher,
         Request $request,
         ValidatorInterface $validator,
@@ -149,9 +150,9 @@ class GenericApiController extends APIController
         $item = $updateRequest->updateResource($type, $resourceId);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item);
+        return $item instanceof Item
+            ? $this->renderResource($item)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -173,7 +174,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['POST']
     )]
-    public function createAction(
+    public function create(
         CreationRequest $creationRequest,
         string $resourceType,
     ): Response {
@@ -194,9 +195,9 @@ class GenericApiController extends APIController
         $item = $creationRequest->createResource($type);
 
         // create response
-        return null === $item
-            ? $this->createEmptyResponse()
-            : $this->renderResource($item, Response::HTTP_CREATED);
+        return $item instanceof Item
+            ? $this->renderResource($item, Response::HTTP_CREATED)
+            : $this->createEmptyResponse();
     }
 
     /**
@@ -218,7 +219,7 @@ class GenericApiController extends APIController
         options: ['expose' => true],
         methods: ['DELETE']
     )]
-    public function deleteAction(
+    public function delete(
         DeletionRequest $deletionRequest,
         string $resourceType,
         string $resourceId,

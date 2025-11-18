@@ -1758,7 +1758,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
-        if (empty($externalLinks)) {
+        if ([] === $externalLinks) {
             // Validation not needed
             return $externalLinks;
         }
