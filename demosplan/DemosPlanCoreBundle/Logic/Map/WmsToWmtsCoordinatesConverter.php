@@ -112,7 +112,7 @@ class WmsToWmtsCoordinatesConverter
             $wmtsLayer
         );
         $imageContent = $this->urlFileReader->getFileContents($wmsUrl);
-        $newWmsImage = $this->imageManager->make($imageContent);
+        $newWmsImage = $this->imageManager->read($imageContent);
         $newWmsLayer = new MapLayer(
             new CoordinatesViewport(
                 $wmtsLayer->getLeft(),

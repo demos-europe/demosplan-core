@@ -1327,7 +1327,12 @@ services:
 
     demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
 
-    Intervention\Image\ImageManager: ~
+    Intervention\Image\Drivers\Gd\Driver: ~
+
+    Intervention\Image\ImageManager:
+        arguments:
+            $driver: '@Intervention\Image\Drivers\Gd\Driver'
+
 
     Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
 
