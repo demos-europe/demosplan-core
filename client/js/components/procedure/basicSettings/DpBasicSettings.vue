@@ -17,6 +17,8 @@
       :select-all-auth-users="selectAllAuthUsers"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
+      :handle-pictogram-validated="handlePictogramValidated"
+      :handle-pictogram-deleted="handlePictogramDeleted"
       :submit="submit"
     />
   </div>
@@ -173,6 +175,8 @@ export default {
         value: '',
       },
       isLoadingPlisData: false,
+      validatedPictogram: null,
+      pictogramDeleted: false,
     }
   },
 
@@ -241,6 +245,28 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    /**
+     * Handle pictogram validation event from Berlin addon
+     * @param {Object} payload - Contains {valid: boolean, file: File}
+     */
+    handlePictogramValidated (payload) {
+      if (payload.valid && payload.file) {
+        this.validatedPictogram = payload.file
+        console.log('[DpBasicSettings] Pictogram validated:', payload.file.name)
+      } else {
+        this.validatedPictogram = null
+      }
+    },
+
+    /**
+     * Handle pictogram deletion event from Berlin addon
+     */
+    handlePictogramDeleted () {
+      this.pictogramDeleted = true
+      this.validatedPictogram = null
+      console.log('[DpBasicSettings] Pictogram marked for deletion')
     },
   },
 }

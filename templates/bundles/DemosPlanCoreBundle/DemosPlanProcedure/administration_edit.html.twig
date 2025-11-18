@@ -120,6 +120,8 @@
             selectAllAuthUsers,
             unselectAllAuthUsers,
             updateAddonPayload,
+            handlePictogramValidated,
+            handlePictogramDeleted,
             submit
           }">
 
@@ -1143,6 +1145,23 @@
                                     isInput: true
                                 }"
                                 @blur="updateAddonPayload">
+                            </addon-wrapper>
+
+                            {% set pictogramAddonProps = {
+                                currentPictogram: proceduresettings.settings.pictogram|default(''),
+                                pictogramHash: proceduresettings.settings.pictogram ? proceduresettings.settings.pictogram|getFile('hash') : '',
+                                pictogramName: proceduresettings.settings.pictogram ? proceduresettings.settings.pictogram|getFile('name') : '',
+                                pictogramAltText: proceduresettings.pictogramAltText|default(''),
+                                procedureId: procedure,
+                                isMeinBerlinActive: false,
+                                required: false
+                            } %}
+
+                            <addon-wrapper
+                                hook-name="addon.procedure.pictogram.meinberlin"
+                                :addon-props="JSON.parse('{{ pictogramAddonProps|json_encode|e('js', 'utf-8') }}')"
+                                @pictogram:validated="handlePictogramValidated($event)"
+                                @pictogram:deleted="handlePictogramDeleted()">
                             </addon-wrapper>
 
                             {% if hasPermission('feature_short_url') %}
