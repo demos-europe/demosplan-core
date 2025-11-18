@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
+use Psr\Log\LoggerInterface;
 
 /**
  * Parses the pagination array from a JsonApi Request and
@@ -21,11 +22,17 @@ use demosplan\DemosPlanCoreBundle\ValueObject\APIPagination;
 class JsonApiPaginationParser
 {
     final public const DEFAULT_PAGE_SIZE = 10;
+    final public const MAX_PAGE_SIZE = 1000;
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
+    }
 
     public function parseApiPaginationProfile(
         array $profile,
         string $sortString,
-        int $defaultSize = self::DEFAULT_PAGE_SIZE
+        int $defaultSize = self::DEFAULT_PAGE_SIZE,
     ): APIPagination {
         if (0 >= $defaultSize) {
             $defaultSize = self::DEFAULT_PAGE_SIZE;
@@ -47,6 +54,16 @@ class JsonApiPaginationParser
         if (array_key_exists($key, $profile) && is_string($profile[$key])) { // check type before using intval
             $intValue = (int) $profile[$key];
             if (0 < $intValue) {
+                // Enforce maximum page size limit for security
+                if ('size' === $key && $intValue > self::MAX_PAGE_SIZE) {
+                    $this->logger->warning('JsonAPI: Large page size requested ({requested}), limited to {max}', [
+                        'requested' => $intValue,
+                        'max'       => self::MAX_PAGE_SIZE,
+                    ]);
+
+                    return self::MAX_PAGE_SIZE;
+                }
+
                 return $intValue;
             }
         }
