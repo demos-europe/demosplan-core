@@ -1158,7 +1158,7 @@
                             } %}
 
                             <addon-wrapper
-                                hook-name="addon.procedure.pictogram.meinberlin"
+                                hook-name="addon.procedure.pictogram"
                                 :addon-props="JSON.parse('{{ pictogramAddonProps|json_encode|e('js', 'utf-8') }}')"
                                 @pictogram:validated="handlePictogramValidated($event)"
                                 @pictogram:deleted="handlePictogramDeleted()">
