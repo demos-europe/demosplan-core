@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
  */
 class MapImageToCoordinatesCropper
 {
-
     /**
      * Crops the received MapLayer to the size and coordinates defined in $minLayerCoordinates.
      *

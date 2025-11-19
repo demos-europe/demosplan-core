@@ -23,7 +23,6 @@ use Exception;
  */
 class MapLayerMerger
 {
-
     /**
      * Given an array with MapLayer objects returns a new one resulting from merging the
      * image and with the coordinates fitting such image.
@@ -102,7 +101,6 @@ class MapLayerMerger
             $newImage,
             'merged'
         );
-
     }
 
     /**
