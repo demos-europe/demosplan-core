@@ -24,7 +24,7 @@
       :customLayerGroupName.prop="Translator.trans('gislayer')"
       :customLayerList.prop="customLayerList"
       :fitToExtent.prop="transformedInitialExtent"
-      :geltungsbereich.prop="transformedTerritory"
+      :geltungsbereich.prop="finalTerritoryValue"
       :geojson="drawing"
       :layerConfig.prop="layerConfig"
       :portalConfig.prop="portalConfig"
@@ -352,6 +352,14 @@ const transformedInitialExtent = ref([])
 const transformedTerritory = reactive({
   type: 'FeatureCollection',
   features: [],
+})
+
+const finalTerritoryValue = computed(() => {
+  if (transformedTerritory.features.length === 0) {
+    return undefined
+  }
+
+  return transformedTerritory
 })
 
 const transformInitialExtent = () => {
