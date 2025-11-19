@@ -62,7 +62,6 @@ class MapImageToCoordinatesCropper
             $image,
             ''
         );
-        $this->filesystem->remove($mapLayer->getImage()->basePath());
 
         return $layerImage;
     }

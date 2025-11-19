@@ -152,7 +152,6 @@ class MapImageToPolygonCropper
             $image,
             'cropped'
         );
-        $this->filesystem->remove($layerImage->getImage()->basePath());
 
         return $croppedLayerImage;
     }

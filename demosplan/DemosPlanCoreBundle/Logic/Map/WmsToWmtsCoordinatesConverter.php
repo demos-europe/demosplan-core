@@ -124,7 +124,6 @@ class WmsToWmtsCoordinatesConverter
             '',
             $wmsUrl
         );
-        $this->fileSystem->remove($wmsLayer->getImage()->basePath());
 
         return $newWmsLayer;
     }

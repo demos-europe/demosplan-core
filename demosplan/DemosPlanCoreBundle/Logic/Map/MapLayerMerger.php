@@ -76,9 +76,6 @@ class MapLayerMerger
             $topOffset
         );
 
-        $this->fileSystem->remove($fgLayerImage->getImage()->basePath());
-        $this->fileSystem->remove($bgLayerImage->getImage()->basePath());
-
         if ([] === $layerImages) {
             return $bgLayerImage;
         }
@@ -109,8 +106,6 @@ class MapLayerMerger
             $newImage,
             'merged'
         );
-
-        $this->fileSystem->remove($bgLayerImage->getImage()->basePath());
 
         return $newBgLayerImage;
     }
@@ -162,7 +157,6 @@ class MapLayerMerger
             $newResizedImage,
             $bigLayerImage->getTitle()
         );
-        $this->fileSystem->remove($bigLayerImage->getImage()->basePath());
 
         if ($layerImage1->getTitle() === $adaptedLayerImage->getTitle()) {
             return [$adaptedLayerImage, $smallLayerImage];
