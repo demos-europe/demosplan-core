@@ -78,7 +78,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
          *
          * @ORM\Column(type="string", length=36, options={"fixed":true})
          */
-        private ?string $id = null
+        private ?string $id = null,
     ) {
     }
 
