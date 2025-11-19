@@ -145,6 +145,7 @@
     "wrep/daemonizable-command": "^4.0"
   },
   "require-dev": {
+    "cyclonedx/cyclonedx-php-composer": "^6.0",
     "escapestudios/symfony2-coding-standard": "^3.4",
     "friendsofphp/php-cs-fixer": "^v3.0",
     "goetas-webservices/xsd2php": "^0.4",
@@ -224,7 +225,8 @@
       "demos-europe/demosplan-addon-installer": true,
       "bamarni/composer-bin-plugin": true,
       "php-http/discovery": false,
-      "endroid/installer": true
+      "endroid/installer": true,
+      "cyclonedx/cyclonedx-php-composer": true
     },
     "platform": {
       "php": "8.1.12"
