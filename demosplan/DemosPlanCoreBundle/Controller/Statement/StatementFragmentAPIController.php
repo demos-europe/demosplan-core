@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
+use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -22,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFragmentResourceType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Handles changes to {@link StatementFragment} resources.
@@ -35,7 +36,7 @@ class StatementFragmentAPIController extends APIController
      * @return JsonResponse
      */
     #[Route(path: '/api/1.0/statement-fragment/{statementFragmentId}/edit', methods: ['PATCH'], name: 'dplan_api_statement_fragment_edit', options: ['expose' => true])]
-    public function updateAction(PermissionsInterface $permissions, Request $request, StatementHandler $statementHandler, string $statementFragmentId)
+    public function update(PermissionsInterface $permissions, Request $request, StatementHandler $statementHandler, string $statementFragmentId): APIResponse
     {
         if (!($this->requestData instanceof TopLevel)) {
             throw BadRequestException::normalizerFailed();

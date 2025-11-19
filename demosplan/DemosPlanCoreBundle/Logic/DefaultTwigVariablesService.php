@@ -195,9 +195,7 @@ class DefaultTwigVariablesService
 
         // In case of current user has no permission to see restricted external links, execute filtering
         if (!$this->currentUser->hasPermission('feature_list_restricted_external_links')) {
-            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
-                return !isset($link['restricted']) || !$link['restricted'];
-            });
+            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), fn ($link) => !isset($link['restricted']) || !$link['restricted']);
         }
 
         return array_map(fn (array $data) => $data['url'], $externalLinks);
@@ -206,7 +204,7 @@ class DefaultTwigVariablesService
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');
-        if (\is_null($languageKey) || 0 === strlen((string) $languageKey)) {
+        if (\is_null($languageKey) || '' === (string) $languageKey) {
             $languageKey = $this->defaultLocale;
         }
 

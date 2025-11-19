@@ -26,7 +26,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -55,7 +55,7 @@ class EntrypointController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/loggedin', name: 'core_home_loggedin')]
-    public function loggedInIndexEntrypointAction(Request $request): Response
+    public function loggedInIndexEntrypoint(Request $request): Response
     {
         // check whether user tried to call route before login
         if (!$this->isAlreadyRedirected($request) && $request->cookies->has(PreviousRouteCookie::NAME)) {
@@ -94,7 +94,7 @@ class EntrypointController extends BaseController
 
         // redirect to public index on session failures
         if (!$user instanceof User) {
-            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
+            return $this->forward('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::index');
         }
 
         $entrypointRoute = $this->entryPointDecider->determineEntryPointForUser($user);
@@ -135,10 +135,10 @@ class EntrypointController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/', name: 'core_home', options: ['expose' => true])]
-    public function indexAction(
+    public function index(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         if ($this->currentUserService->hasPermission('area_public_participation')) {
             return $this->renderPublicIndexList(
@@ -202,7 +202,7 @@ class EntrypointController extends BaseController
     protected function renderPublicIndexList(
         ContentService $contentService,
         PublicIndexProcedureLister $procedureLister,
-        Request $request
+        Request $request,
     ) {
         $templateVars = $procedureLister->getPublicIndexProcedureList($request);
         $templateVars = $procedureLister->reformatPhases(

@@ -75,7 +75,7 @@ class EntryPointDecider implements EntryPointDeciderInterface
         // DO NOT LIGHTLY MOVE CASES IN THIS SWITCH AS THE ORDER IN WHICH THE CASES ARE CHECKED IS IMPORTANT
         switch (true) {
             case $user->hasRole(Role::GUEST):
-                $entrypointRoute->setController('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
+                $entrypointRoute->setController('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::index');
                 $entrypointRoute->setDoRedirect(false);
                 $this->logger->info('Entrypoint guest');
                 break;
@@ -115,7 +115,7 @@ class EntryPointDecider implements EntryPointDeciderInterface
                 break;
 
             case $user->isCitizen() || $user->isPublicAgency():
-                $entrypointRoute->setController('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::indexAction');
+                $entrypointRoute->setController('demosplan\DemosPlanCoreBundle\Controller\Platform\EntrypointController::index');
                 $entrypointRoute->setDoRedirect(false);
                 $this->logger->info('Entrypoint public user');
                 break;

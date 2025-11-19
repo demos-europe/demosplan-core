@@ -62,14 +62,16 @@ use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Base class for functional tests.
+ *
+ * @property object $sut System under test (defined by child test classes with specific types)
+ */
 class FunctionalTestCase extends WebTestCase
 {
     use Factories;
     use MonoKernelTrait;
     // use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
-
-    /** @var object System under Test */
-    protected $sut;
 
     /** @var AbstractDatabaseTool */
     protected $databaseTool;

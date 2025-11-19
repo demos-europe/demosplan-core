@@ -22,6 +22,11 @@ use Tests\Base\FunctionalTestCase;
 
 class EntityHelperTest extends FunctionalTestCase
 {
+    /**
+     * @var EntityHelper
+     */
+    protected $sut;
+
     protected function setUp(): void
     {
         parent::setUp();

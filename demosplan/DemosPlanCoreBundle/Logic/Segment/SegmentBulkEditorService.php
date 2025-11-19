@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -81,15 +82,15 @@ class SegmentBulkEditorService
             return null;
         }
 
-        $assigneeId = trim($assigneeId);
+        $assigneeId = trim((string) $assigneeId);
 
-        if (!$assigneeId) {
+        if ('' === $assigneeId || '0' === $assigneeId) {
             throw new UserNotFoundException();
         }
 
         $user = $this->userHandler->getSingleUser($assigneeId);
 
-        if (!$user) {
+        if (!$user instanceof UserInterface) {
             throw new UserNotFoundException();
         }
 

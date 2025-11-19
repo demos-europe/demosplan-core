@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -64,7 +65,7 @@ class GdprConsentRevokeTokenService
         $gdprConsentRevokeToken = $this->gdprConsentRevokeTokenRepository->getGdprConsentRevokeTokenByTokenValue($tokenValue);
         $tokenEmailAddress = $gdprConsentRevokeToken->getEmailAddress();
 
-        if (null === $tokenEmailAddress) {
+        if (!$tokenEmailAddress instanceof EmailAddress) {
             throw GdprConsentRevokeTokenAlreadyUsedException::createFromTokenValue($tokenValue);
         }
 

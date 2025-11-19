@@ -305,11 +305,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         /** @var OrgaStatusInCustomerInterface $customerOrgaTypes */
         foreach ($this->getOrgaStatuses() as $customerOrgaTypes) {
             $orga = $customerOrgaTypes->getOrga();
-            if (!$orgas->contains($orga)) {
-                // filter by status
-                if ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true)) {
-                    $orgas->add($orga);
-                }
+            // filter by status
+            if (!$orgas->contains($orga) && ([] === $statuses || in_array($customerOrgaTypes->getStatus(), $statuses, true))) {
+                $orgas->add($orga);
             }
         }
 

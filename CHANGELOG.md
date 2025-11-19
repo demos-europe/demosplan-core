@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
 ## v4.21.0 (2025-10-22)
@@ -66,6 +67,10 @@
 - Allow filtering of institution tags in DpAddOrganizationList
 
 ## v4.4.0 (2025-06-13)
+
+## 4.3.4 (2025-11-14)
+- implement option to import additional submitters via statement ID in statement imports via xlsx
+- adjust example statement import xlsx files
 
 ## v4.3.3 (2025-11-04)
 - smart pagination for segment navigation

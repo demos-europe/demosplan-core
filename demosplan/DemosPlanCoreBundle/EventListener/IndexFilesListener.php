@@ -35,7 +35,7 @@ class IndexFilesListener implements EventSubscriberInterface
         // needs to be fetched from file service as $statement does not have
         // newest reference if just uploaded a new file
         $files = $this->fileService->getEntityFileString(Statement::class, $statement->getId(), 'file');
-        if (count($files) > 0) {
+        if ([] !== $files) {
             $document->set('files', $files);
         }
     }

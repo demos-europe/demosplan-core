@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,11 +29,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * sf doctrine:migrate:migrate && sf doctrine:migrate:migrate -C /vendor/demosplan/DemosPlanCoreBundle/Resources/config/project_migrations.yml
  */
+#[AsCommand(name: 'dplan:migrate', description: 'Run core and project migrations in correct order')]
 class MigrateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:migrate';
-    protected static $defaultDescription = 'Run core and project migrations in correct order';
-
     public function configure(): void
     {
         $this->addOption('db', null, InputOption::VALUE_REQUIRED, 'Use Database configuration');
