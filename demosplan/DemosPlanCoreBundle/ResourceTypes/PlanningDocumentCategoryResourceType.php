@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -100,7 +102,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -170,7 +172,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
                 $fileInfoArray = $this->fileService->getInfoArrayFromFileString($element->getFile());
                 if (isset($fileInfoArray['hash'])) {
                     $file = $this->fileService->get($fileInfoArray['hash']);
-                    if (null !== $file) {
+                    if ($file instanceof File) {
                         $filePathWithHash = $file->getFilePathWithHash();
                     }
                 }

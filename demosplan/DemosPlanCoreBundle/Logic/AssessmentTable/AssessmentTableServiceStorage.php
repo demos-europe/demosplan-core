@@ -371,11 +371,8 @@ class AssessmentTableServiceStorage
     {
         $submit = new DateTime();
         $date = $submit->createFromFormat('d.m.Y', $string);
-        if ($date instanceof DateTime) {
-            return true;
-        }
 
-        return false;
+        return $date instanceof DateTime;
     }
 
     /**
@@ -575,7 +572,7 @@ class AssessmentTableServiceStorage
         $successful = 0;
         $unsuccessful = 0;
 
-        if (0 === count($items)) {
+        if ([] === $items) {
             $this->getMessageBag()->add('warning', 'warning.entries.no.selected');
 
             return;

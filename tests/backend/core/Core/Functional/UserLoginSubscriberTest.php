@@ -40,6 +40,11 @@ class UserLoginSubscriberTest extends FunctionalTestCase
      */
     protected $userService;
 
+    /**
+     * @var UserLoginSubscriber
+     */
+    protected $sut;
+
     public function setUp(): void
     {
         parent::setUp();

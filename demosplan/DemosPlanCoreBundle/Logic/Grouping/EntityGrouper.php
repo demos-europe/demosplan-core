@@ -130,7 +130,7 @@ abstract class EntityGrouper
     public function sortGroups(array $entityGroups, array $sorters): array
     {
         // if no sorters were given (or are left), then return the unsorted array
-        if (0 === count($sorters)) {
+        if ([] === $sorters) {
             return $entityGroups;
         }
         // if there is a non-null sorter, use it on the current layer
@@ -160,7 +160,7 @@ abstract class EntityGrouper
      */
     public function fillEntitiesIntoGroupStructure(array $entities, array $groupingFields, EntityGroupInterface $group, array $stopGroupingForKeys = []): void
     {
-        foreach ($entities as $entityKey => $entity) {
+        foreach (array_keys($entities) as $entityKey) {
             $this->fillEntityIntoGroupStructure(
                 $group,
                 $entities[$entityKey],
@@ -204,9 +204,9 @@ abstract class EntityGrouper
         EntityGroupInterface $group,
         CoreEntity&EntityInterface $entity,
         array $entityFieldsToUse,
-        array $stopGroupingForKeys = []
+        array $stopGroupingForKeys = [],
     ): int {
-        if (0 === count($entityFieldsToUse)) {
+        if ([] === $entityFieldsToUse) {
             // if we do not have any fields to use as keys from the entity
             // then we just add the entity to the given array
             $group->setEntry($entity->getId(), $entity);
@@ -230,7 +230,7 @@ abstract class EntityGrouper
                 $groupKey = self::MISSING_GROUP_KEY;
                 $stopDividingSubgroup = in_array($groupKey, $nonDividableGroupKeys, true);
                 $subgroup = $group->getSubgroup($groupKey);
-                if (null === $subgroup) {
+                if (!$subgroup instanceof EntityGroupInterface) {
                     $subgroup = $this->createEntityGroupInstance($missingTitle);
                     $group->setSubgroup($groupKey, $subgroup);
                 }
@@ -247,7 +247,7 @@ abstract class EntityGrouper
                     $groupKey = $v->getId();
                     $stopDividingSubgroup = in_array($groupKey, $nonDividableGroupKeys, true);
                     $subgroup = $group->getSubgroup($groupKey);
-                    if (null === $subgroup) {
+                    if (!$subgroup instanceof EntityGroupInterface) {
                         $groupTitle = $v->getTitle();
                         $subgroup = $this->createEntityGroupInstance($groupTitle);
                         $group->setSubgroup($groupKey, $subgroup);
@@ -269,7 +269,7 @@ abstract class EntityGrouper
         $groupKey = null === $entityValue || '' === $entityValue ? self::MISSING_GROUP_KEY : (string) $entityValue;
         $stopDividingSubgroup = in_array($groupKey, $nonDividableGroupKeys, true);
         $subgroup = $group->getSubgroup($groupKey);
-        if (null === $subgroup) {
+        if (!$subgroup instanceof EntityGroupInterface) {
             $groupTitle = self::MISSING_GROUP_KEY === $groupKey ? $missingTitle : (string) $entity->$groupTitleKey();
             $subgroup = $this->createEntityGroupInstance($groupTitle);
             $group->setSubgroup($groupKey, $subgroup);

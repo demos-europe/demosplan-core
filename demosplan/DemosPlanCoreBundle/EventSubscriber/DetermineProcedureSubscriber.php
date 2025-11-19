@@ -29,7 +29,7 @@ class DetermineProcedureSubscriber implements EventSubscriberInterface
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
-        private readonly ProcedureService $procedureService
+        private readonly ProcedureService $procedureService,
     ) {
     }
 
@@ -78,7 +78,7 @@ class DetermineProcedureSubscriber implements EventSubscriberInterface
         if ((null !== $urlProcedureId && '' !== $urlProcedureId)
             && (null !== $headerProcedureId && '' !== $headerProcedureId)
             && $urlProcedureId !== $headerProcedureId) {
-            $compact = compact('urlProcedureId', 'headerProcedureId');
+            $compact = ['urlProcedureId' => $urlProcedureId, 'headerProcedureId' => $headerProcedureId];
             $this->logger->info('procedure ID mismatch', [$compact, debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 5)]);
         }
 

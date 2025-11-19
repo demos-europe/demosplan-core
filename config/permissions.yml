@@ -1818,6 +1818,7 @@ feature_public_consultation:
     label: 'This features enables public consultation in general globally'
     loginRequired: false
 feature_public_index_map:
+    description: 'Shows map on the public index page and makes it possible to search and filter procedures that are shown on the map.'
     expose: true
     label: 'Hat public index eine Karte?'
     loginRequired: false
@@ -1830,11 +1831,6 @@ feature_public_index_map_fit_bounds:
     label: 'Improved default behavior of old public index map'
     loginRequired: false
     parent: feature_public_index_map
-feature_reply_statement:
-    description: 'This will be displayed as link in public area. In case the url is not an empty string, the statement will be marked as answered. Feature created for a specific project, to enable the user to jump directly from statement to the answer.'
-    expose: false
-    label: 'Enables setting a statement as replied, by defining a url/link to the answer of the statement.'
-    loginRequired: false
 feature_require_locality_confirmation:
     description: |-
         When an already safed draft statement is submitted as actual statement an additional

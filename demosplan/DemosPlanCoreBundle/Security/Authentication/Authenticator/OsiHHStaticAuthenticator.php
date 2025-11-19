@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperDataportGatewayHHStatic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Http\SecurityRequestAttributes;
 
 final class OsiHHStaticAuthenticator extends OsiAuthenticator
 {
@@ -34,7 +34,7 @@ final class OsiHHStaticAuthenticator extends OsiAuthenticator
     protected function getCredentials(Request $request): Credentials
     {
         $osiToken = $request->query->get('TokenTest');
-        $request->getSession()->set(Security::LAST_USERNAME, $osiToken);
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $osiToken);
         $credentialsVO = new Credentials();
         $credentialsVO->setToken($osiToken);
         $credentialsVO->lock();
