@@ -47,7 +47,7 @@ class MapLayer extends ValueObject
         CoordinatesViewport $viewport,
         Image $image,
         string $title,
-        string $url = ''
+        string $url = '',
     ) {
         $this->viewport = $viewport;
         $this->image = $image;
