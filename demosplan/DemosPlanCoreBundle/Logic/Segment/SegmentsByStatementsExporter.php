@@ -242,7 +242,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $this->styles['segmentsTableBodyCell']
         );
 
-        if ($this->currentUser->hasPermission('feature_segments_export_tags')) {
+        if ($this->currentUser->hasPermission('field_statement_tags_and_topics_export')) {
             $this->addSegmentCell(
                 $textRow,
                 $this->getSegmentTagsText($segment),
@@ -268,7 +268,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             ],
         ];
 
-        if ($this->currentUser->hasPermission('feature_segments_export_tags')) {
+        if ($this->currentUser->hasPermission('field_statement_tags_and_topics_export')) {
             $headerConfigs[] = [
                 'text'  => $tableHeaders['col4'] ?? $this->translator->trans('segments.export.tags'),
                 'style' => $this->styles['segmentsTableHeaderCellTags'],

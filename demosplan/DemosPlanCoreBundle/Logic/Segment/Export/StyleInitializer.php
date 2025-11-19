@@ -74,7 +74,7 @@ class StyleInitializer
     private function initializeSegmentStyles(int $smallColumnWidth, int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $includeTagsColumn = $this->currentUser->hasPermission('feature_segments_export_tags');
+        $includeTagsColumn = $this->currentUser->hasPermission('field_statement_tags_and_topics_export');
 
         // Adjust column widths based on whether tags column is included
         if ($includeTagsColumn) {

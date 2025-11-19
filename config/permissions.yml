@@ -1931,14 +1931,6 @@ feature_segments_of_statement_list:
     expose: false
     label: 'Allows access to a view showing the segments of a specific statement.'
     loginRequired: true
-feature_segments_export_tags:
-    description: |-
-        Enable export of tags in segment docx export with 4-column layout.
-        Without this permission, the traditional 3-column layout is used.
-    enabled: false
-    expose: false
-    label: 'Export segment tags in docx export'
-    loginRequired: true
 feature_send_assigned_task_notification_email:
     description: |-
         Creates e-mails for users with a summary of all segments assigned to them in the last 24 hours for a given customer.
