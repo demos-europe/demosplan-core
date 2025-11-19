@@ -384,7 +384,8 @@ export default {
 
     saveSegment (segmentId) {
       if (!this.segments[segmentId].attributes.text) {
-        this.reset(segmentId)
+        this.$refs[`editField_${segmentId}`][0].loading = false
+
         return dplan.notify.error(Translator.trans('error.segment.empty.text'))
       }
 
