@@ -18,11 +18,10 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
 use Intervention\Image\ImageManager;
-use Symfony\Component\Filesystem\Filesystem;
 
 class WmsToWmtsCoordinatesConverter
 {
-    public function __construct(private readonly Filesystem $fileSystem, private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader)
+    public function __construct(private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader)
     {
     }
 
@@ -113,7 +112,7 @@ class WmsToWmtsCoordinatesConverter
         );
         $imageContent = $this->urlFileReader->getFileContents($wmsUrl);
         $newWmsImage = $this->imageManager->read($imageContent);
-        $newWmsLayer = new MapLayer(
+        return new MapLayer(
             new CoordinatesViewport(
                 $wmtsLayer->getLeft(),
                 $wmtsLayer->getBottom(),
@@ -125,7 +124,6 @@ class WmsToWmtsCoordinatesConverter
             $wmsUrl
         );
 
-        return $newWmsLayer;
     }
 
     /**

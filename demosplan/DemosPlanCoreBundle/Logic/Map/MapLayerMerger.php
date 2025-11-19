@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use Exception;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Given an array with MapLayer objects returns a new one resulting from merging the
@@ -24,9 +23,6 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class MapLayerMerger
 {
-    public function __construct(private readonly Filesystem $fileSystem)
-    {
-    }
 
     /**
      * Given an array with MapLayer objects returns a new one resulting from merging the
@@ -101,13 +97,12 @@ class MapLayerMerger
             $topOffset
         );
 
-        $newBgLayerImage = new MapLayer(
+        return new MapLayer(
             $bgLayerImage->getViewport(),
             $newImage,
             'merged'
         );
 
-        return $newBgLayerImage;
     }
 
     /**
