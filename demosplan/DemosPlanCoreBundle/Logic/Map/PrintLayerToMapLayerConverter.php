@@ -72,14 +72,13 @@ class PrintLayerToMapLayerConverter
             $xPosition = $col * $tile->getWidthInPixels();
             $yPosition = $row * $tile->getWidthInPixels();
 
-            $mergeImage->insert(
+            $mergeImage->place(
                 $tile->getImage(),
                 'top-left',
                 $xPosition,
                 $yPosition
             );
 
-            $this->filesystem->remove($tile->getImage()->basePath());
             ++$row;
         }
 
