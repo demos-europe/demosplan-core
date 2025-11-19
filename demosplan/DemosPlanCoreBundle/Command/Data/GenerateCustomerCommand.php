@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntryAlreadyExistsException;
+use demosplan\DemosPlanCoreBundle\Logic\Installation\InstallationService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
@@ -46,6 +47,8 @@ class GenerateCustomerCommand extends CoreCommand
     private const OPTION_NAME = 'name';
     private const OPTION_SUBDOMAIN = 'subdomain';
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
+    private const OPTION_ENABLE_PROCEDURE_CREATION = 'enable-procedure-creation';
+    private const OPTION_DISABLE_PROCEDURE_CREATION = 'disable-procedure-creation';
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
 
@@ -67,6 +70,7 @@ class GenerateCustomerCommand extends CoreCommand
     public function __construct(
         private readonly CustomerService $customerService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly InstallationService $installationService,
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserService $userService,
@@ -102,6 +106,18 @@ class GenerateCustomerCommand extends CoreCommand
             'The Map parameters of the customer to be created.
              If omitted or value !== "default" it will be asked interactively.'
         );
+        $this->addOption(
+            self::OPTION_ENABLE_PROCEDURE_CREATION,
+            null,
+            InputOption::VALUE_NONE,
+            'Enable procedure creation permission for planning agencies (overrides AUTO_ENABLE_PROCEDURE_CREATION env var)'
+        );
+        $this->addOption(
+            self::OPTION_DISABLE_PROCEDURE_CREATION,
+            null,
+            InputOption::VALUE_NONE,
+            'Disable procedure creation permission for planning agencies (overrides AUTO_ENABLE_PROCEDURE_CREATION env var)'
+        );
     }
 
     /**
@@ -130,6 +146,38 @@ class GenerateCustomerCommand extends CoreCommand
             $customer->setMapAttribution($mapParams[2]);
 
             $this->registerDefaultUsers($customer);
+
+            // Handle procedure creation permission based on command options or env variable
+            $enableFlag = $input->getOption(self::OPTION_ENABLE_PROCEDURE_CREATION);
+            $disableFlag = $input->getOption(self::OPTION_DISABLE_PROCEDURE_CREATION);
+            $shouldEnableProcedureCreation = $this->shouldEnableProcedureCreation($input, $output);
+
+            if ($shouldEnableProcedureCreation) {
+                // If --enable-procedure-creation flag is set, force enable regardless of env variable
+                $force = (bool) $enableFlag;
+                $updatedOrgas = $this->installationService->enableProcedureCreationIfConfigured(
+                    $customer,
+                    null,
+                    false,
+                    $force
+                );
+                if (!empty($updatedOrgas)) {
+                    $output->writeln(
+                        sprintf(
+                            "Enabled procedure creation permission for %d organization(s): %s",
+                            count($updatedOrgas),
+                            implode(', ', $updatedOrgas)
+                        ),
+                        OutputInterface::VERBOSITY_NORMAL
+                    );
+                }
+            } else {
+                $output->writeln(
+                    'Skipping procedure creation permission setup (disabled via flag or configuration)',
+                    OutputInterface::VERBOSITY_VERBOSE
+                );
+            }
+
             $this->entityManager->flush();
 
             $output->writeln(
@@ -324,5 +372,66 @@ class GenerateCustomerCommand extends CoreCommand
         Assert::string($value, 'the value should be a string');
 
         return $value;
+    }
+
+    /**
+     * Determine if procedure creation permission should be enabled for this customer.
+     *
+     * Priority:
+     * 1. If --enable-procedure-creation flag is set, return true
+     * 2. If --disable-procedure-creation flag is set, return false
+     * 3. Otherwise, use the AUTO_ENABLE_PROCEDURE_CREATION env variable value
+     *
+     * @param InputInterface  $input
+     * @param OutputInterface $output
+     *
+     * @return bool
+     */
+    private function shouldEnableProcedureCreation(InputInterface $input, OutputInterface $output): bool
+    {
+        $enableFlag = $input->getOption(self::OPTION_ENABLE_PROCEDURE_CREATION);
+        $disableFlag = $input->getOption(self::OPTION_DISABLE_PROCEDURE_CREATION);
+
+        // Check for conflicting flags
+        if ($enableFlag && $disableFlag) {
+            $output->writeln(
+                '<error>Warning: Both --enable-procedure-creation and --disable-procedure-creation flags are set. Using --enable-procedure-creation.</error>',
+                OutputInterface::VERBOSITY_NORMAL
+            );
+
+            return true;
+        }
+
+        // Explicit enable flag
+        if ($enableFlag) {
+            $output->writeln(
+                '<info>Procedure creation permission will be enabled (via --enable-procedure-creation flag)</info>',
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+
+            return true;
+        }
+
+        // Explicit disable flag
+        if ($disableFlag) {
+            $output->writeln(
+                '<info>Procedure creation permission will NOT be enabled (via --disable-procedure-creation flag)</info>',
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+
+            return false;
+        }
+
+        // Default to environment variable configuration
+        $autoEnable = $this->installationService->isProcedureCreationAutoEnableConfigured();
+        $output->writeln(
+            sprintf(
+                '<info>Procedure creation permission will %s (based on AUTO_ENABLE_PROCEDURE_CREATION env var)</info>',
+                $autoEnable ? 'be enabled' : 'NOT be enabled'
+            ),
+            OutputInterface::VERBOSITY_VERBOSE
+        );
+
+        return $autoEnable;
     }
 }
