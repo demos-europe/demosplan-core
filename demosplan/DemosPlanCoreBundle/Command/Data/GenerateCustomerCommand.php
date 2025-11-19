@@ -164,7 +164,7 @@ class GenerateCustomerCommand extends CoreCommand
                 if (!empty($updatedOrgas)) {
                     $output->writeln(
                         sprintf(
-                            "Enabled procedure creation permission for %d organization(s): %s",
+                            'Enabled procedure creation permission for %d organization(s): %s',
                             count($updatedOrgas),
                             implode(', ', $updatedOrgas)
                         ),
@@ -381,11 +381,6 @@ class GenerateCustomerCommand extends CoreCommand
      * 1. If --enable-procedure-creation flag is set, return true
      * 2. If --disable-procedure-creation flag is set, return false
      * 3. Otherwise, use the AUTO_ENABLE_PROCEDURE_CREATION env variable value
-     *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
-     * @return bool
      */
     private function shouldEnableProcedureCreation(InputInterface $input, OutputInterface $output): bool
     {

@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use Exception;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
@@ -35,7 +36,7 @@ class InstallationService extends CoreService
     public function __construct(
         private readonly AccessControlService $accessControlService,
         private readonly RoleHandler $roleHandler,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
     ) {
     }
 
@@ -51,10 +52,10 @@ class InstallationService extends CoreService
      * - When a new customer is created
      * - Manually via a command if needed
      *
-     * @param CustomerInterface $customer      The customer for which to enable the permission
-     * @param string|null       $roleCode      Optional role code (default: RMOPSA)
-     * @param bool              $dryRun        If true, only simulate without making actual changes
-     * @param bool              $force         If true, enable permission regardless of env variable configuration
+     * @param CustomerInterface $customer The customer for which to enable the permission
+     * @param string|null       $roleCode Optional role code (default: RMOPSA)
+     * @param bool              $dryRun   If true, only simulate without making actual changes
+     * @param bool              $force    If true, enable permission regardless of env variable configuration
      *
      * @return array Array of organization names that were updated
      */
@@ -62,7 +63,7 @@ class InstallationService extends CoreService
         CustomerInterface $customer,
         ?string $roleCode = null,
         bool $dryRun = false,
-        bool $force = false
+        bool $force = false,
     ): array {
         // Check if auto-enable is configured (unless forced)
         $autoEnable = $this->parameterBag->get('auto_enable_procedure_creation');
@@ -97,10 +98,10 @@ class InstallationService extends CoreService
         $this->logger->info(
             'Auto-enabling procedure creation permission for customer',
             [
-                'customer' => $customer->getName(),
-                'role' => $roleCode,
+                'customer'   => $customer->getName(),
+                'role'       => $roleCode,
                 'permission' => AccessControlService::CREATE_PROCEDURES_PERMISSION,
-                'dryRun' => $dryRun,
+                'dryRun'     => $dryRun,
             ]
         );
 
@@ -113,24 +114,24 @@ class InstallationService extends CoreService
                 $dryRun
             );
 
-            $orgaNames = array_map(fn($orga) => $orga->getName(), $updatedOrgas);
+            $orgaNames = array_map(fn ($orga) => $orga->getName(), $updatedOrgas);
 
             $this->logger->info(
                 'Successfully enabled procedure creation permission',
                 [
-                    'customer' => $customer->getName(),
+                    'customer'             => $customer->getName(),
                     'updatedOrganizations' => $orgaNames,
-                    'count' => count($updatedOrgas),
+                    'count'                => count($updatedOrgas),
                 ]
             );
 
             return $orgaNames;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error(
                 'Failed to enable procedure creation permission',
                 [
-                    'customer' => $customer->getName(),
-                    'role' => $roleCode,
+                    'customer'  => $customer->getName(),
+                    'role'      => $roleCode,
                     'exception' => $e->getMessage(),
                 ]
             );
