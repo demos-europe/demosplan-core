@@ -207,9 +207,10 @@
 .btn {
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
-        background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px rgba($dp-color-interactive-default, 0.5);
+        background-color: $dp-color-white !important;
+        box-shadow: 0 0 0 2px color-mix(in srgb, $dp-color-interactive-default 50%, transparent) !important;
         border-color: transparent !important;
+        color: $dp-color-highlight !important;
     }
 
     outline: 0 transparent !important;
