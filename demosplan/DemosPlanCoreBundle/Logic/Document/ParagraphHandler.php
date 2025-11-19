@@ -26,7 +26,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         protected readonly ParagraphRepository $paragraphRepository,
         private readonly FlashMessageHandler $flashMessageHandler,
         MessageBag $messageBag,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
     }
@@ -71,7 +71,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
 
             return [
@@ -88,11 +88,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         }
 
         if (array_key_exists('r_visible', $data)) {
-            if ('1' === $data['r_visible']) {
-                $document['visible'] = true;
-            } else {
-                $document['visible'] = false;
-            }
+            $document['visible'] = '1' === $data['r_visible'];
         }
 
         if (array_key_exists('r_elementId', $data)) {

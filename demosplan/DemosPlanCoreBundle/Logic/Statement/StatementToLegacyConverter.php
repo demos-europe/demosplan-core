@@ -45,7 +45,7 @@ class StatementToLegacyConverter
      */
     public function convert(?Statement $statement): ?array
     {
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return null;
         }
 

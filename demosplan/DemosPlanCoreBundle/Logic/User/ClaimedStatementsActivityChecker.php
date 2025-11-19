@@ -16,13 +16,8 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 
 class ClaimedStatementsActivityChecker implements UserActivityInterface
 {
-    private StatementRepository $statementRepository;
-    private int $dayThreshold;
-
-    public function __construct(StatementRepository $statementRepository, int $dayThreshold = 180)
+    public function __construct(private readonly StatementRepository $statementRepository, private int $dayThreshold = 180)
     {
-        $this->statementRepository = $statementRepository;
-        $this->dayThreshold = $dayThreshold;
     }
 
     public function isUserActive(UserInterface $user): bool

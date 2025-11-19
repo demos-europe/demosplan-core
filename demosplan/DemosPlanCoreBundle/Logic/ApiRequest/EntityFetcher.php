@@ -40,7 +40,7 @@ class EntityFetcher
         private readonly ConditionEvaluator $conditionEvaluator,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly EntityManager $entityManager,
-        private readonly Sorter $sorter
+        private readonly Sorter $sorter,
     ) {
         $this->joinFinder = new JoinFinder($this->entityManager->getMetadataFactory());
     }
@@ -62,7 +62,7 @@ class EntityFetcher
      * @throws PaginationException
      * @throws SortException
      */
-    public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function listPrefilteredEntitiesUnrestricted(array $dataObjects, array $conditions, array $sortMethods = [], int $offset = 0, ?int $limit = null): array
     {
         $entityProvider = new PrefilledEntityProvider($this->conditionEvaluator, $this->sorter, $dataObjects);
 
@@ -80,7 +80,7 @@ class EntityFetcher
     /**
      * @deprecated use {@link FluentRepository::getEntities()} instead
      */
-    public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, int $limit = null): array
+    public function listEntitiesUnrestricted(string $entityClass, array $conditions, array $sortMethods = [], int $offset = 0, ?int $limit = null): array
     {
         $entityProvider = $this->createOrmEntityProvider($entityClass);
         $entities = $entityProvider->getEntities($conditions, $sortMethods, new OffsetPagination($offset, $limit ?? PHP_INT_MAX));
@@ -127,7 +127,7 @@ class EntityFetcher
 
         $matches = $this->listPrefilteredEntitiesUnrestricted([$object], $conditions);
 
-        return 0 !== count($matches);
+        return [] !== $matches;
     }
 
     /**

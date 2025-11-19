@@ -36,7 +36,7 @@ class UserAccessControlRepository extends CoreRepository
         array $roles,
     ): array {
         // If roles are strings (role names), convert them to Role entities
-        if (!empty($roles) && is_string($roles[0])) {
+        if ([] !== $roles && is_string($roles[0])) {
             $roleEntities = $this->getEntityManager()
                 ->getRepository(Role::class)
                 ->createQueryBuilder('r')
@@ -81,14 +81,15 @@ class UserAccessControlRepository extends CoreRepository
         ?RoleInterface $role = null,
     ): bool {
         $conditions = [
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'permission'   => $permission,
         ];
         if ($role instanceof RoleInterface) {
             $conditions['role'] = $role;
         }
+
         return null !== $this->findOneBy($conditions);
     }
 }

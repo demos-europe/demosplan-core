@@ -67,16 +67,10 @@ final class UserAccessControlFactory extends PersistentProxyObjectFactory
     {
         return [
             'user'         => UserFactory::new(),
-            'organisation' => function (array $attributes) {
-                return $attributes['user']->getOrganisation();
-            },
-            'customer' => function (array $attributes) {
-                return $attributes['organisation']->getMainCustomer();
-            },
-            'role' => function (array $attributes) {
-                return $attributes['user']->getDplanRoles()->first();
-            },
-            'permission' => self::faker()->randomElement([
+            'organisation' => fn (array $attributes) => $attributes['user']->getOrganisation(),
+            'customer'     => fn (array $attributes) => $attributes['organisation']->getMainCustomer(),
+            'role'         => fn (array $attributes) => $attributes['user']->getDplanRoles()->first(),
+            'permission'   => self::faker()->randomElement([
                 'feature_statement_bulk_edit',
                 'feature_procedure_planning_area_match',
                 'area_admin_assessmenttable',
@@ -103,12 +97,8 @@ final class UserAccessControlFactory extends PersistentProxyObjectFactory
     {
         return $this->with([
             'user'         => $user,
-            'organisation' => function () use ($user) {
-                return $user->getOrganisation();
-            },
-            'customer' => function () use ($user) {
-                return $user->getOrganisation()->getCustomer();
-            },
+            'organisation' => fn () => $user->getOrganisation(),
+            'customer'     => fn () => $user->getOrganisation()->getCustomer(),
         ]);
     }
 

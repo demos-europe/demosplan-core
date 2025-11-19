@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
@@ -53,7 +53,7 @@ class MaintenanceController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/servicemode', name: 'core_service_mode')]
-    public function serviceModeAction(GlobalConfigInterface $globalConfig)
+    public function serviceMode(GlobalConfigInterface $globalConfig)
     {
         /** @var GlobalConfig $globalConfig */
         if (false === $globalConfig->getPlatformServiceMode()) {
@@ -77,7 +77,7 @@ class MaintenanceController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/_heartbeat', name: 'core_server_heartbeat')]
-    public function heartbeatAction(): Response
+    public function heartbeat(): Response
     {
         return new Response('OK');
     }
@@ -95,7 +95,7 @@ class MaintenanceController extends BaseController
      * @throws Throwable
      */
     #[Route(path: '/maintenance/{key}', name: 'core_maintenance')]
-    public function maintenanceTasksAction(
+    public function maintenanceTasks(
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,

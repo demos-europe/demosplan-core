@@ -485,7 +485,7 @@ class StatementService implements StatementServiceInterface
 
     public function addFilesToStatementObject(array $fileStrings, Statement $statement): ?Statement
     {
-        if (0 === count($fileStrings)) {
+        if ([] === $fileStrings) {
             return $statement;
         }
 
@@ -872,11 +872,11 @@ class StatementService implements StatementServiceInterface
         try {
             $entries = [];
             $accessMap = $this->generateAccessMap();
-            if (0 !== count($accessMap) && 0 < sizeof($statements)) {
+            if ([] !== $accessMap && 0 < count($statements)) {
                 foreach ($statements as $statement) {
                     $publicStatement = $statement instanceof Statement ? $statement->getPublicStatement() : $statement['publicStatement'];
                     $statementId = $statement instanceof Statement ? $statement->getId() : $statement['id'];
-                    if (0 < count($accessMap) && 0 === \strcmp((string) $publicStatement, (string) Statement::EXTERNAL)) {
+                    if ([] !== $accessMap && 0 === \strcmp((string) $publicStatement, (string) Statement::EXTERNAL)) {
                         $entries[] = new StatementViewed($procedureId, $accessMap, $statementId);
                     }
                 }
@@ -1027,7 +1027,7 @@ class StatementService implements StatementServiceInterface
         $assessmentTableQuery = $filterSet->getStoredQuery();
 
         // Get sorting from filterSet
-        if (\is_array($assessmentTableQuery->getSorting()) && 0 < count($assessmentTableQuery->getSorting())) {
+        if (\is_array($assessmentTableQuery->getSorting()) && [] !== $assessmentTableQuery->getSorting()) {
             $rParams['sort'] = $assessmentTableQuery->getSorting();
         }
 
@@ -1119,7 +1119,7 @@ class StatementService implements StatementServiceInterface
             }
 
             // check if statement to update is existing
-            if (null === $currentStatementObject) {
+            if (!$currentStatementObject instanceof Statement) {
                 throw new InvalidArgumentException('Statement not found');
             }
 
@@ -1150,7 +1150,6 @@ class StatementService implements StatementServiceInterface
                 $this->addMessageLockedByAssignment($currentStatementObject);
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
-
 
             // is a original statement?
             $lockedByOriginal = false;
@@ -1270,7 +1269,6 @@ class StatementService implements StatementServiceInterface
         return $fileHashToFileContainerMapping;
     }
 
-
     /**
      * Determines if the given statement is "locked" because of assigned to another user.
      *
@@ -1304,11 +1302,7 @@ class StatementService implements StatementServiceInterface
             return false;
         }
 
-        if ($this->isStatementAssignedToCurrentUser($statement)) {
-            return false;
-        }
-
-        return true;
+        return !$this->isStatementAssignedToCurrentUser($statement);
     }
 
     /**
@@ -1395,7 +1389,7 @@ class StatementService implements StatementServiceInterface
         if (\is_array($statement)) {
             $statementId = $this->entityHelper->extractId($statement);
             $statement = $this->getStatement($statementId);
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 return false;
             }
         }
@@ -1513,7 +1507,7 @@ class StatementService implements StatementServiceInterface
     {
         $statement = $this->getStatement($statementId);
 
-        return null === $statement ? null : $statement->getAssignee();
+        return $statement instanceof Statement ? $statement->getAssignee() : null;
     }
 
     /**
@@ -1559,7 +1553,7 @@ class StatementService implements StatementServiceInterface
             return [];
         }
         try {
-            if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
+            if ([] !== $accessMap && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                 try {
                     $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                 } catch (Exception $e) {
@@ -1594,7 +1588,7 @@ class StatementService implements StatementServiceInterface
 
             try {
                 $accessMap = $this->generateAccessMap();
-                if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
+                if ([] !== $accessMap && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                     try {
                         $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                     } catch (Exception $e) {
@@ -1832,7 +1826,7 @@ class StatementService implements StatementServiceInterface
     public function getSegmentableStatement(string $procedureId, User $user): ?Statement
     {
         $resumableStatement = $this->statementRepository->getFirstClaimedSegmentableStatement($procedureId, $user);
-        if (null !== $resumableStatement) {
+        if ($resumableStatement instanceof Statement) {
             return $resumableStatement;
         }
 
@@ -1898,7 +1892,7 @@ class StatementService implements StatementServiceInterface
 
         // remove items for statements that were returned by the ES but meanwhile deleted
         // in the database
-        return array_filter($statementsByIds, static fn (?Statement $statement) => null !== $statement);
+        return array_filter($statementsByIds, static fn (?Statement $statement) => $statement instanceof Statement);
     }
 
     protected function getPriorityAreaService(): PriorityAreaService
@@ -1975,6 +1969,8 @@ class StatementService implements StatementServiceInterface
         } catch (Exception $e) {
             $this->logger->error('Check statement for manual failed:', [$e]);
         }
+
+        return null;
     }
 
     /**
@@ -2255,9 +2251,9 @@ class StatementService implements StatementServiceInterface
         return \collect($rParams)->filter(
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
-                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && 0 < count($value)));
+                    return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
                 } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && 0 < count($value)));
+                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
             }
         )->mapWithKeys(
@@ -2277,7 +2273,7 @@ class StatementService implements StatementServiceInterface
      */
     public function collectFilters(array $rParams): array
     {
-        return \collect($rParams)->filter(static fn ($value, string $key) => \is_array($value) && str_contains($key, 'filter_') && 0 < count($value))->mapWithKeys(static function (array $value, string $key) {
+        return \collect($rParams)->filter(static fn ($value, string $key) => \is_array($value) && str_contains($key, 'filter_') && [] !== $value)->mapWithKeys(static function (array $value, string $key) {
             $filterKey = str_replace('filter_', '', $key);
 
             return [$filterKey => $value];
@@ -2452,7 +2448,7 @@ class StatementService implements StatementServiceInterface
                 $statements[] = $statementAttribute->getStatement();
             }
         }
-        if (0 < count($statements)) {
+        if ([] !== $statements) {
             $this->statementGeoService->saveStatementGeoData($statements);
         }
 
@@ -3240,13 +3236,13 @@ class StatementService implements StatementServiceInterface
     private function getSorting(array $rParams): array
     {
         $sort = $this->maybeAddSort($rParams, []);
-        if (!empty($sort) && \array_key_exists('sort', $sort) && '' !== $sort['sort']) {
+        if ([] !== $sort && \array_key_exists('sort', $sort) && '' !== $sort['sort']) {
             return $sort['sort'];
         }
 
         $sort = $this->getSortingJsonFormat($rParams);
 
-        return null === $sort ? [] : $sort->toArray();
+        return $sort instanceof ToBy ? $sort->toArray() : [];
     }
 
     /**
@@ -3340,11 +3336,9 @@ class StatementService implements StatementServiceInterface
         if (0 === count($segments)) {
             return self::STATEMENT_STATUS_NEW;
         }
-        $filterSegment = $segments->filter(static function ($segment) {
+        $filterSegment = $segments->filter(static fn ($segment) =>
             /* @var Segment $segment */
-
-            return $segment->getPlace()->getSolved();
-        });
+            $segment->getPlace()->getSolved());
         if (count($filterSegment) === count($segments)) {
             return self::STATEMENT_STATUS_COMPLETED;
         }

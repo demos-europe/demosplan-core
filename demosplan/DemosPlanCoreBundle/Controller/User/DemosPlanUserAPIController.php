@@ -53,7 +53,7 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanUserAPIController extends APIController
@@ -127,7 +127,7 @@ class DemosPlanUserAPIController extends APIController
      * @throws MessageBagException
      */
     #[Route(path: '/api/1.0/user', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
-    public function listAction(
+    public function list(
         AdministratableUserResourceType $userType,
         DrupalFilterParser $filterParser,
         JsonApiActionService $jsonApiActionService,
@@ -189,7 +189,7 @@ class DemosPlanUserAPIController extends APIController
      * @deprecated Use `/api/2.0/User` instead ({@link GenericApiController::createAction()})
      */
     #[Route(path: '/api/1.0/user', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
-    public function createAction(UserHandler $userHandler): APIResponse
+    public function create(UserHandler $userHandler): APIResponse
     {
         try {
             if (!($this->requestData instanceof TopLevel)) {
@@ -243,7 +243,7 @@ class DemosPlanUserAPIController extends APIController
      * @return APIResponse|EmptyResponse
      */
     #[Route(path: '/api/1.0/user/{id}', methods: ['DELETE'], name: 'dplan_api_user_delete', options: ['expose' => true])]
-    public function deleteAction(string $id): Response
+    public function delete(string $id): Response
     {
         $this->userService->wipeUser($id);
 
@@ -254,7 +254,7 @@ class DemosPlanUserAPIController extends APIController
      * @DplanPermissions("feature_user_edit")
      */
     #[Route(path: '/api/1.0/user/{id}', methods: ['PATCH'], name: 'dplan_api_user_update', options: ['expose' => true])]
-    public function updateAction(string $id, UserHandler $userHandler): APIResponse
+    public function update(string $id, UserHandler $userHandler): APIResponse
     {
         if (!($this->requestData instanceof TopLevel)) {
             throw BadRequestException::normalizerFailed();

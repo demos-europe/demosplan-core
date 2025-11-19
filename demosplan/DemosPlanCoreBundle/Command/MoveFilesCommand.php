@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,12 +21,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:files:move', description: 'Move files from one flysystem storage to another. Supports "local" and "s3" storage')]
 class MoveFilesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:files:move';
-
-    protected static $defaultDescription = 'Move files from one flysystem storage to another. Supports "local" and "s3" storage';
-
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly FilesystemOperator $s3Storage,

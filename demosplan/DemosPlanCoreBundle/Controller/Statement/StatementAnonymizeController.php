@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StatementAnonymizeController extends BaseController
 {
@@ -32,11 +32,11 @@ class StatementAnonymizeController extends BaseController
      * @DplanPermissions("area_statement_anonymize")
      */
     #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]
-    public function statementAnonymizeAction(
+    public function statementAnonymize(
         AssessmentHandler $assessmentHandler,
         StatementHandler $statementHandler,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): Response {
         $statement = $statementHandler->getStatement($statementId);
 

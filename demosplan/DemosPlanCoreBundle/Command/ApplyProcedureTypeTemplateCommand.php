@@ -31,13 +31,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'dplan:procedure-type:apply-template',
-    description: 'Apply predefined configuration templates to procedure types'
-)]
+#[AsCommand(name: 'dplan:procedure-type:apply-template', description: 'Apply predefined configuration templates to procedure types')]
 class ApplyProcedureTypeTemplateCommand extends Command
 {
-    protected static $defaultName = 'dplan:procedure-type:apply-template';
     private const TEMPLATE_CONFIGURATIONS = [
         'ewm' => [
             'name'        => 'Einwendungsmanagement',
@@ -98,7 +94,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $config = self::TEMPLATE_CONFIGURATIONS[$templateId];
         $procedureType = $this->selectProcedureTypeInteractively($templateId, $config, $io);
 
-        if (null === $procedureType) {
+        if (!$procedureType instanceof ProcedureType) {
             return Command::FAILURE;
         }
 
@@ -116,7 +112,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         $this->displayProcedureTypeInfo($procedureType, $io);
         $changes = $this->analyzeFieldChanges($procedureType, $config['fields'], $io);
 
-        if (empty($changes)) {
+        if ([] === $changes) {
             $io->success('No field changes needed. Configuration is already up to date.');
 
             return Command::SUCCESS;
@@ -144,7 +140,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
 
     private function displayProcedureTypesTable(array $procedureTypes, SymfonyStyle $io): void
     {
-        if (empty($procedureTypes)) {
+        if ([] === $procedureTypes) {
             $io->info('No procedure types found in the database.');
 
             return;
@@ -193,7 +189,7 @@ class ApplyProcedureTypeTemplateCommand extends Command
         foreach ($fieldConfigs as $fieldName => $desiredConfig) {
             $fieldDefinition = $this->findFieldDefinition($formDefinition, $fieldName);
 
-            if (null === $fieldDefinition) {
+            if (!$fieldDefinition instanceof StatementFieldDefinition) {
                 $changes[$fieldName] = $this->analyzeFieldCreation($fieldName, $desiredConfig, $io);
                 continue;
             }

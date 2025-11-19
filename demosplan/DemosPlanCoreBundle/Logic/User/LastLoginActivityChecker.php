@@ -11,22 +11,20 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DateTimeImmutable;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 
 class LastLoginActivityChecker implements UserActivityInterface
 {
-    private int $dayThreshold;
-
-    public function __construct(int $dayThreshold = 180)
+    public function __construct(private int $dayThreshold = 180)
     {
-        $this->dayThreshold = $dayThreshold;
     }
 
     public function isUserActive(UserInterface $user): bool
     {
         $lastLogin = $user->getLastLogin();
 
-        if (null === $lastLogin) {
+        if (!$lastLogin instanceof DateTimeInterface) {
             // User has never logged in - check other indicators of user activity
             return $this->hasUserEverBeenActive($user);
         }
@@ -57,12 +55,8 @@ class LastLoginActivityChecker implements UserActivityInterface
         $createdDate = $user->getCreatedDate();
         $modifiedDate = $user->getModifiedDate();
 
-        if ($createdDate && $modifiedDate && $createdDate != $modifiedDate) {
-            return true;
-        }
-
         // User appears to be completely inactive - never logged in and no signs of activity
-        return false;
+        return $createdDate && $modifiedDate && $createdDate != $modifiedDate;
     }
 
     public function getActivityDescription(): string

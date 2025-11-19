@@ -15,8 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AzureController extends AbstractController
 {
@@ -24,7 +23,7 @@ class AzureController extends AbstractController
      * Link to this controller to start the Azure OAuth "connect" process.
      */
     #[Route(path: '/connect/azure', name: 'connect_azure_start', options: ['expose' => true])]
-    public function connectAction(ClientRegistry $clientRegistry): RedirectResponse
+    public function connect(ClientRegistry $clientRegistry): RedirectResponse
     {
         // Will redirect to Azure AD OAuth endpoint
         return $clientRegistry
@@ -38,7 +37,7 @@ class AzureController extends AbstractController
      * in config/packages/knpu_oauth2_client.yaml.
      */
     #[Route(path: '/connect/azure/check', name: 'connect_azure_check')]
-    public function connectCheckAction(Request $request, ClientRegistry $clientRegistry): void
+    public function connectCheck(ClientRegistry $clientRegistry): void
     {
         // ** if you want to *authenticate* the user, then
         // leave this method blank and create an authenticator
@@ -50,7 +49,7 @@ class AzureController extends AbstractController
      * Azure AD will redirect here after logout, then we redirect to our standard logout.
      */
     #[Route(path: '/connect/azure/logout', name: 'connect_azure_logout', options: ['expose' => true])]
-    public function logoutAction(): RedirectResponse
+    public function logout(): RedirectResponse
     {
         // Redirect to standard DemosPlan logout route
         // The LogoutSubscriber will handle the actual logout process

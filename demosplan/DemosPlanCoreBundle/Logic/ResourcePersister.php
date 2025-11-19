@@ -64,7 +64,7 @@ class ResourcePersister
      */
     public function persistResourceChanges(array $resourceChanges): void
     {
-        if (0 === count($resourceChanges)) {
+        if ([] === $resourceChanges) {
             return;
         }
         /** @var ResourceChange $firstResourceChange */
