@@ -383,6 +383,11 @@ export default {
     },
 
     saveSegment (segmentId) {
+      if (!this.segments[segmentId].attributes.text) {
+        this.reset(segmentId)
+        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+      }
+
       // Use the transformed text if available
       const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
 
