@@ -35,7 +35,7 @@ class MapImageToCoordinatesCropper
      */
     public function crop(
         MapLayer $mapLayer,
-        array $minLayerCoordinates
+        array $minLayerCoordinates,
     ): MapLayer {
         $coordHeight = $minLayerCoordinates['top'] - $minLayerCoordinates['bottom'];
         $pixelHeight = (int) ($coordHeight / $mapLayer->getCpp());
