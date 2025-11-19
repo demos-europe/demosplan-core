@@ -895,7 +895,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * @var bool
      *
-     * @ORM\Column(name="manual", type="boolean", nullable = false, options={"default":false})
+     * @ORM\Column(name="`manual`", type="boolean", nullable = false, options={"default":false})
      */
     protected $manual = false;
 
