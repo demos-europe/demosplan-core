@@ -380,8 +380,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
      */
     protected function validateMapExtentContainsBoundingBox(ProcedureSettings $procedureSettings): void
     {
-        $mapExtent = $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true);
-        $boundingBox = $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true);
+        $mapExtent = $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true);
+        $boundingBox = $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true);
 
         $this->mapExtentValidator->validateExtentContainsBoundingBox($mapExtent, $boundingBox);
     }

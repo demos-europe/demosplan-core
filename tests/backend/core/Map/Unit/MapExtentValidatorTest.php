@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Map\Unit;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapExtentValidator;
+use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
 
 class MapExtentValidatorTest extends UnitTestCase
@@ -24,7 +26,11 @@ class MapExtentValidatorTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->validator = new MapExtentValidator();
+
+        $messageBag = $this->createMock(MessageBagInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $this->validator = new MapExtentValidator($messageBag, $logger);
     }
 
     public function testValidExtentContainsBoundingBox(): void
