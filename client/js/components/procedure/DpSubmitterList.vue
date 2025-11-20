@@ -62,6 +62,14 @@
             <span v-cleanhtml="rowData.postalCodeAndCity" />
           </div>
         </template>
+        <template v-slot:similarSubmitters="rowData">
+          <a
+            :href="openSimilarSubmitters(rowData)"
+            data-cy="SubmitterListItem"
+          >
+            {{ rowData.similarSubmittersCount }}
+          </a>
+        </template>
         <template v-slot:internId="{ internId }">
           <div
             class="o-hellip__wrapper"
@@ -87,6 +95,7 @@
 
 <script>
 import { CleanHtml, dpApi, DpColumnSelector, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import {mapActions, mapState} from 'vuex'
 
 export default {
   name: 'DpSubmitterList',
@@ -115,16 +124,21 @@ export default {
         { field: 'postalCodeAndCity', label: Translator.trans('postalcode') + ' / ' + Translator.trans('city') },
         { field: 'organisationAndDepartment', label: Translator.trans('organisation') + ' / ' + Translator.trans('department') },
         { field: 'memo', label: Translator.trans('memo') },
+        { field: 'similarSubmitters', label: Translator.trans('statement.similarSubmitters') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'statement', label: Translator.trans('id'), tooltip: Translator.trans('id.statement.long') },
       ],
       isLoading: false,
-      items: [],
+      //items: [],
       currentSelection: ['name', 'organisationAndDepartment', 'statement'],
     }
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items',
+    }),
+
     exportSubmitterList () {
       return Routing.generate('dplan_admin_procedure_submitter_export', {
         procedureId: this.procedureId,
@@ -136,50 +150,68 @@ export default {
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
-  },
 
-  methods: {
-    async fetchStatements () {
-      this.isLoading = true
-      const response = await dpApi.get(Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-        {
-          filter: {
-            procedureId: {
-              condition: {
-                path: 'procedure.id',
-                value: this.procedureId,
-              },
-            },
-          },
-          fields: {
-            Statement: [
-              'authorName',
-              'externId',
-              'internId',
-              'initialOrganisationCity',
-              'initialOrganisationDepartmentName',
-              'initialOrganisationName',
-              'initialOrganisationPostalCode',
-              'initialOrganisationHouseNumber',
-              'initialOrganisationStreet',
-              'isCitizen',
-              'isSubmittedByCitizen',
-              'memo',
-              'submitName',
-              'submitterEmailAddress',
-            ].join(),
-          },
-        },
-      )
-
-      this.items = [...response.data.data]
+    items () {
+      return Object.values(this.statements)
         .map(statement => {
-          return this.handleEmptyAttrs(statement)
-        })
+        return this.handleEmptyAttrs(statement)
+      })
         .sort((a, b) => {
           return (a.isCitizen === b.isCitizen) ? 0 : a.isCitizen ? 1 : -1
         })
-      this.isLoading = false
+    }
+  },
+
+  methods: {
+    ...mapActions('Statement', {
+      statementList: 'list',
+    }),
+
+    fetchStatements () {
+      const allFields = {
+        Statement: [
+          'authorName',
+          'externId',
+          'internId',
+          'initialOrganisationCity',
+          'initialOrganisationDepartmentName',
+          'initialOrganisationName',
+          'initialOrganisationPostalCode',
+          'initialOrganisationHouseNumber',
+          'initialOrganisationStreet',
+          'isCitizen',
+          'isSubmittedByCitizen',
+          'memo',
+          'submitName',
+          'submitterEmailAddress',
+          'similarStatementSubmitters'
+        ].join()
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        allFields.SimilarStatementSubmitter = [
+          'emailAddress',
+          'fullName',
+        ].join()
+      }
+
+      this.isLoading = true
+
+      this.statementList({
+        filter: {
+          procedureId: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        fields: allFields,
+        include: ['similarStatementSubmitters'].join()
+      })
+        .then(() => {
+        this.isLoading = false
+      })
     },
 
     /**
@@ -216,6 +248,7 @@ export default {
         postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
         statement: externId,
         street: this.handleOrgaStreet(street, houseNumber),
+        similarSubmittersCount: resourceObj.relationships.similarStatementSubmitters.data.length || '-'
       }
     },
 
@@ -249,6 +282,15 @@ export default {
 
     SubmitterListItem (rowData) {
       return Routing.generate('dplan_statement_segments_list', { statementId: rowData.id, procedureId: this.procedureId })
+    },
+
+    openSimilarSubmitters (rowData) {
+      return Routing.generate('dplan_statement_segments_list',
+        {
+          statementId: rowData.id,
+          procedureId: this.procedureId,
+          action: 'editText',
+        }) + `#${Translator.trans('submitters')}`
     },
   },
   mounted () {
