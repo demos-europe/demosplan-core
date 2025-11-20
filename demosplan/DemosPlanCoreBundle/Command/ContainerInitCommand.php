@@ -23,6 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -204,10 +205,19 @@ EOT
     {
         $output->writeln('populate ES');
         try {
-            Batch::create($this->getApplication(), $output)
+            $batch = Batch::create($this->getApplication(), $output)
                 ->add('fos:elastica:reset -e prod --no-debug')
-                ->add('fos:elastica:populate -e prod --no-debug')
-                ->run();
+                ->add('fos:elastica:populate -e prod --no-debug');
+
+            $batch->run();
+            $allExitCodes = $batch->getAllReturnCodes();
+
+            // Check if ANY command failed
+            if (in_array(Command::FAILURE, $allExitCodes)) {
+                throw new RuntimeException('Elasticsearch initialization failed');
+            }
+
+
         } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during elasticsearch populate: {$exception->getMessage()}",
