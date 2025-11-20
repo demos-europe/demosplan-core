@@ -216,8 +216,6 @@ EOT
             if (in_array(Command::FAILURE, $allExitCodes)) {
                 throw new RuntimeException('Elasticsearch initialization failed');
             }
-
-
         } catch (Exception $exception) {
             $output->writeln(
                 "Something went wrong during elasticsearch populate: {$exception->getMessage()}",
