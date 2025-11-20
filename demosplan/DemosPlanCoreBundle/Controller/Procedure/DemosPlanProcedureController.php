@@ -1452,8 +1452,7 @@ class DemosPlanProcedureController extends BaseController
             }
 
             $templateVars['isCustomerMasterBlueprint'] = $procedureObject->isCustomerMasterBlueprint();
-            $templateVars['isCustomerMasterBlueprintExisting'] =
-                $procedureService->isCustomerMasterBlueprintExisting($customerService->getCurrentCustomer()->getId());
+            $templateVars['customerMasterBlueprint'] = $customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
 
             $templateVars['sourceProcedureCoupleToken'] = $coupleTokenService->getTokenForSourceProcedure($procedureObject);
             $templateVars['targetProcedureCoupleToken'] = $coupleTokenService->getTokenForTargetProcedure($procedureObject);
