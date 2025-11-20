@@ -58,10 +58,17 @@ class InitDbCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         if ($input->getOption('create-database')) {
-            Batch::create($this->getApplication(), $output)
+            $batch = Batch::create($this->getApplication(), $output)
                 ->add('doctrine:database:drop -n --force')
-                ->add('doctrine:database:create -n')
-                ->run();
+                ->add('doctrine:database:create -n');
+
+            $batch->run();
+
+            // Check if ANY command failed
+            if (true === $batch->atLeastOneActionFailed()) {
+                return Command::FAILURE;
+            }
+
         }
 
         $schemaSuccess = Batch::create($this->getApplication(), $output)
