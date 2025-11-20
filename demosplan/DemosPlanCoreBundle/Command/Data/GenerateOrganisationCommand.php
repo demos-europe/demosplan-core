@@ -90,7 +90,7 @@ class GenerateOrganisationCommand extends DataProviderCommand
         private readonly CustomerHandler $customerHandler,
         private readonly InstallationService $installationService,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->em = $registry->getManager();

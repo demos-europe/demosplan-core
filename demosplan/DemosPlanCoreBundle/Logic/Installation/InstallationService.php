@@ -164,10 +164,10 @@ class InstallationService extends CoreService
      * This method stores a "permission intent" that will be automatically applied
      * to organizations of the specified type when they are created for this customer.
      *
-     * @param CustomerInterface $customer   The customer for which to queue the permission
-     * @param string            $permission The permission name (e.g., 'feature_admin_new_procedure')
-     * @param string            $roleCode   The role code (e.g., 'RMOPSA')
-     * @param string            $orgaType   The organization type (e.g., 'PLANNING_AGENCY', 'PUBLIC_AGENCY')
+     * @param CustomerInterface $customer    The customer for which to queue the permission
+     * @param string            $permission  The permission name (e.g., 'feature_admin_new_procedure')
+     * @param string            $roleCode    The role code (e.g., 'RMOPSA')
+     * @param string            $orgaType    The organization type (e.g., 'PLANNING_AGENCY', 'PUBLIC_AGENCY')
      * @param string|null       $description Optional description of why this permission is queued
      * @param bool              $autoDelete  If true, delete pending permission after first application
      *
@@ -179,7 +179,7 @@ class InstallationService extends CoreService
         string $roleCode = 'RMOPSA',
         string $orgaType = OrgaType::PLANNING_AGENCY,
         ?string $description = null,
-        bool $autoDelete = false
+        bool $autoDelete = false,
     ): PendingPermission {
         // Check if this pending permission already exists
         if ($this->pendingPermissionRepository->exists($customer, $permission, $roleCode, $orgaType)) {
@@ -230,14 +230,14 @@ class InstallationService extends CoreService
     /**
      * Queue multiple pending permissions at once.
      *
-     * @param CustomerInterface        $customer    The customer for which to queue permissions
+     * @param CustomerInterface                                                                                                  $customer    The customer for which to queue permissions
      * @param array<int, array{permission: string, roleCode: string, orgaType: string, description?: string, autoDelete?: bool}> $permissions Array of permission configurations
      *
      * @return array<int, PendingPermission> Array of created pending permissions
      */
     public function queueMultiplePendingPermissions(
         CustomerInterface $customer,
-        array $permissions
+        array $permissions,
     ): array {
         $queuedPermissions = [];
 
@@ -268,7 +268,7 @@ class InstallationService extends CoreService
      */
     public function applyPendingPermissions(
         OrgaInterface $organization,
-        CustomerInterface $customer
+        CustomerInterface $customer,
     ): array {
         $orgaTypes = $organization->getTypes($customer->getSubdomain(), true);
         $appliedPermissions = [];

@@ -33,6 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="pending_permission",
  *     indexes={
+ *
  *         @ORM\Index(name="idx_pp_customer", columns={"_pp_customer_id"}),
  *         @ORM\Index(name="idx_pp_orga_type", columns={"_pp_orga_type"}),
  *         @ORM\Index(name="idx_pp_customer_orga_type", columns={"_pp_customer_id", "_pp_orga_type"})

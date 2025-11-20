@@ -65,7 +65,7 @@ class PendingPermissionRepository extends CoreRepository
         CustomerInterface $customer,
         string $permission,
         string $roleCode,
-        string $orgaType
+        string $orgaType,
     ): bool {
         try {
             $count = $this->createQueryBuilder('pp')
@@ -114,7 +114,7 @@ class PendingPermissionRepository extends CoreRepository
      */
     public function deleteAutoDeleteByCustomerAndOrgaType(
         CustomerInterface $customer,
-        string $orgaType
+        string $orgaType,
     ): int {
         return $this->createQueryBuilder('pp')
             ->delete()
@@ -142,7 +142,7 @@ class PendingPermissionRepository extends CoreRepository
         CustomerInterface $customer,
         string $permission,
         string $roleCode,
-        string $orgaType
+        string $orgaType,
     ): int {
         return $this->createQueryBuilder('pp')
             ->delete()

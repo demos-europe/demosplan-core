@@ -354,7 +354,7 @@ class GenerateCustomerCommand extends CoreCommand
     private function processQueuePermissionOptions(
         InputInterface $input,
         OutputInterface $output,
-        CustomerInterface $customer
+        CustomerInterface $customer,
     ): int {
         $queuePermissions = $input->getOption(self::OPTION_QUEUE_PERMISSION);
 
