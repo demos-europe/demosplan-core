@@ -70,9 +70,13 @@ class InitDbCommand extends CoreCommand
             }
         }
 
-        $schemaSuccess = Batch::create($this->getApplication(), $output)
+        $schemaExitCode = Batch::create($this->getApplication(), $output)
             ->add('doctrine:schema:create -n')
             ->run();
+
+        // Convert exit code to boolean (0 = success = true, non-zero = failure = false)
+        $schemaSuccess = ($schemaExitCode === Command::SUCCESS);
+
 
         $sessionsTableSuccess = true;
         try {
@@ -92,10 +96,12 @@ class InitDbCommand extends CoreCommand
         if (null !== $fixtureGroup) {
             $application = $this->getApplication();
             $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
-            $fixtureSuccess = $application->run($input, $output);
+            $fixtureExitCode = $application->run($input, $output);
+            $fixtureSuccess = ($fixtureExitCode === Command::SUCCESS);
             // set project migrations as migrated
             $input = new StringInput('doctrine:migrations:version --add --all --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
-            $projectMigrationsSuccess = $application->run($input, $output);
+            $projectMigrationsExitCode = $application->run($input, $output);
+            $projectMigrationsSuccess = ($projectMigrationsExitCode === Command::SUCCESS);
         }
 
         return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess && $projectMigrationsSuccess) ? Command::SUCCESS : Command::FAILURE;
