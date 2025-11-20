@@ -75,8 +75,7 @@ class InitDbCommand extends CoreCommand
             ->run();
 
         // Convert exit code to boolean (0 = success = true, non-zero = failure = false)
-        $schemaSuccess = ($schemaExitCode === Command::SUCCESS);
-
+        $schemaSuccess = (Command::SUCCESS === $schemaExitCode);
 
         $sessionsTableSuccess = true;
         try {
@@ -97,11 +96,11 @@ class InitDbCommand extends CoreCommand
             $application = $this->getApplication();
             $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
             $fixtureExitCode = $application->run($input, $output);
-            $fixtureSuccess = ($fixtureExitCode === Command::SUCCESS);
+            $fixtureSuccess = (Command::SUCCESS === $fixtureExitCode);
             // set project migrations as migrated
             $input = new StringInput('doctrine:migrations:version --add --all --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
             $projectMigrationsExitCode = $application->run($input, $output);
-            $projectMigrationsSuccess = ($projectMigrationsExitCode === Command::SUCCESS);
+            $projectMigrationsSuccess = (Command::SUCCESS === $projectMigrationsExitCode);
         }
 
         return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess && $projectMigrationsSuccess) ? Command::SUCCESS : Command::FAILURE;
