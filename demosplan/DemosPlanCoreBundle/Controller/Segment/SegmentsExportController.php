@@ -178,6 +178,9 @@ class SegmentsExportController extends BaseController
         StatementResourceType $statementResourceType,
         string $procedureId,
     ): StreamedResponse {
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $exportFieldsConfiguration = $procedure->getDefaultExportFieldsConfiguration();
+
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(
@@ -187,8 +190,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            static function () use ($statementEntities, $exporter, $exportFieldsConfiguration) {
+                $exportedDoc = $exporter->exportAllXlsx($exportFieldsConfiguration, ...$statementEntities);
                 $exportedDoc->save('php://output');
             }
         );
@@ -200,7 +203,6 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
             $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
         );
