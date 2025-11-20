@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -87,6 +88,10 @@ class MigrateCommand extends CoreCommand
             }
         );
 
-        return $batch->run();
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        return in_array(Command::FAILURE, $allExitCodes) ? Command::FAILURE : Command::SUCCESS;
     }
 }
