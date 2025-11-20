@@ -618,7 +618,7 @@ export default {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
 
-      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId) {
+      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
 
@@ -635,7 +635,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId)
+      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
@@ -643,7 +643,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyHovered () {
-      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && this.layer.attributes.visibilityGroupId && this.hoverLayerId !== this.layer.id)
+      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && !!this.layer.attributes.visibilityGroupId && this.hoverLayerId !== this.layer.id)
     },
 
     /**
@@ -946,7 +946,7 @@ export default {
       if (typeof this.activeLayer.id === 'undefined' ||
         this.layerType === 'base' ||
         this.isActive ||
-        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId) ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) ||
         this.hasSettingsThatPreventGrouping ||
         this.isLoading) {
         return false
