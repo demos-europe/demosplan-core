@@ -167,19 +167,21 @@ class AddonInstallFromZipCommand extends CoreCommand
         try {
             // The '-a' flag for the composer update is strictly necessary as it generates the authorative
             // classmap with all classes which we then use for our own extended autoloading.
-            $composerReturn = Batch::create($this->getApplication(), $output)
+            $batch = Batch::create($this->getApplication(), $output)
                 ->addShell(['composer', 'clearcache'])
                 ->addShell(['composer', 'dump-autoload'])
-                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
-                ->run();
+                ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest']);
+            $batch->run();
+            $allExitCodes = $batch->getAllReturnCodes();
+
+            // Check if ANY command failed
+            if (in_array(Command::FAILURE, $allExitCodes)) {
+                $output->error('Composer commands failed! This is most likely due to a conflict in dependency versions. Please check manually!');
+
+                return Command::FAILURE;
+            }
         } catch (Exception $e) {
             $output->error($e->getMessage());
-
-            return Command::FAILURE;
-        }
-
-        if (0 !== $composerReturn) {
-            $output->error('Composer commands failed! This is most likely due to a conflict in dependency versions. Please check manually!');
 
             return Command::FAILURE;
         }

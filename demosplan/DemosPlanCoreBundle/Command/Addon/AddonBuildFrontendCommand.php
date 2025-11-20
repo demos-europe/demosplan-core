@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -60,11 +61,14 @@ class AddonBuildFrontendCommand extends CoreCommand
         $addonInfo = $this->registry[$addonName];
 
         $addonPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath());
-        $consoleReturn = Batch::create($this->getApplication(), $output)
+        $batch = Batch::create($this->getApplication(), $output)
             ->addShell(['yarn', 'install', '--immutable'], $addonPath)
-            ->addShell(['yarn', $env], $addonPath)
-            ->run();
+            ->addShell(['yarn', $env], $addonPath);
 
-        return 0 === $consoleReturn ? self::SUCCESS : self::FAILURE;
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        return in_array(Command::FAILURE, $allExitCodes) ? Command::FAILURE : Command::SUCCESS;
     }
 }

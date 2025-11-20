@@ -109,6 +109,14 @@ class PermissionFixCommand extends CoreCommand
         }
 
         $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        if (in_array(Command::FAILURE, $allExitCodes)) {
+            $output->error('Some permission fix commands failed. Check the output above for details.');
+
+            return Command::FAILURE;
+        }
 
         $output->success('I did my best, hopefully it worked.');
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fe91b89eb71ad5cdfada68961e9f25ec",
+    "content-hash": "70d2afff67c83b0440344249e535a133",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -3676,26 +3676,27 @@
         },
         {
             "name": "efrane/console-additions",
-            "version": "v0.6.2",
+            "version": "v0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eFrane/ConsoleAdditions.git",
-                "reference": "37eed6cba30791c9dbf926ed99aaf0d01b181098"
+                "reference": "80e2eb9ff799c6608dd8b66216daafeb153db0ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eFrane/ConsoleAdditions/zipball/37eed6cba30791c9dbf926ed99aaf0d01b181098",
-                "reference": "37eed6cba30791c9dbf926ed99aaf0d01b181098",
+                "url": "https://api.github.com/repos/eFrane/ConsoleAdditions/zipball/80e2eb9ff799c6608dd8b66216daafeb153db0ed",
+                "reference": "80e2eb9ff799c6608dd8b66216daafeb153db0ed",
                 "shasum": ""
             },
             "require": {
-                "symfony/console": ">=3.4||^5.0"
+                "php": ">=8.0,<9",
+                "symfony/console": "^6.0"
             },
             "require-dev": {
-                "league/flysystem": "^1.0 || ^2.0",
-                "phpstan/phpstan": "^0.11.16 || ^0.12.0",
-                "phpunit/phpunit": "^6.4 || ^8.0 || ^9.0",
-                "symfony/process": ">=3.4||^5.0"
+                "league/flysystem": "^2.0 || ^3.0",
+                "phpstan/phpstan": "^1.0.0",
+                "phpunit/phpunit": "^9.0",
+                "symfony/process": "^6.0"
             },
             "suggest": {
                 "league/flysystem": "To use the FlysystemFileOutput",
@@ -3728,7 +3729,7 @@
             ],
             "support": {
                 "issues": "https://github.com/eFrane/ConsoleAdditions/issues",
-                "source": "https://github.com/eFrane/ConsoleAdditions/tree/v0.6.2"
+                "source": "https://github.com/eFrane/ConsoleAdditions/tree/v0.8.0"
             },
             "funding": [
                 {
@@ -3736,7 +3737,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-04-10T20:57:04+00:00"
+            "time": "2023-05-14T09:47:41+00:00"
         },
         {
             "name": "efrane/tus-bundle",

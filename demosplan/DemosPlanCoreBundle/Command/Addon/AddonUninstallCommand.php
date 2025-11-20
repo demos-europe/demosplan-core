@@ -26,6 +26,7 @@ use Exception;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -196,14 +197,18 @@ class AddonUninstallCommand extends CoreCommand
 
     private function removeComposerPackage(AddonInfo $addonInfo, SymfonyStyle $output): void
     {
-        $batchReturn = Batch::create($this->getApplication(), $output)
+        $batch = Batch::create($this->getApplication(), $output)
             ->addShell(['composer', 'remove', $addonInfo->getName(), '--working-dir=addons'])
-            ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest'])
-            ->run();
+            ->addShell(['composer', 'bin', 'addons', 'update', '-a', '-o', '--prefer-lowest']);
 
-        if (0 !== $batchReturn) {
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        if (in_array(Command::FAILURE, $allExitCodes)) {
             throw new RuntimeException('Composer remove failed');
         }
+
         $output->info('composer package removed successfully.');
     }
 

@@ -58,15 +58,24 @@ class InitDbCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         if ($input->getOption('create-database')) {
-            Batch::create($this->getApplication(), $output)
+            $batch = Batch::create($this->getApplication(), $output)
                 ->add('doctrine:database:drop -n --force')
-                ->add('doctrine:database:create -n')
-                ->run();
+                ->add('doctrine:database:create -n');
+
+            $batch->run();
+
+            // Check if ANY command failed
+            if (true === $batch->atLeastOneActionFailed()) {
+                return Command::FAILURE;
+            }
         }
 
-        $schemaSuccess = Batch::create($this->getApplication(), $output)
+        $schemaExitCode = Batch::create($this->getApplication(), $output)
             ->add('doctrine:schema:create -n')
             ->run();
+
+        // Convert exit code to boolean (0 = success = true, non-zero = failure = false)
+        $schemaSuccess = (Command::SUCCESS === $schemaExitCode);
 
         $sessionsTableSuccess = true;
         try {
@@ -86,10 +95,12 @@ class InitDbCommand extends CoreCommand
         if (null !== $fixtureGroup) {
             $application = $this->getApplication();
             $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
-            $fixtureSuccess = $application->run($input, $output);
+            $fixtureExitCode = $application->run($input, $output);
+            $fixtureSuccess = (Command::SUCCESS === $fixtureExitCode);
             // set project migrations as migrated
             $input = new StringInput('doctrine:migrations:version --add --all --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
-            $projectMigrationsSuccess = $application->run($input, $output);
+            $projectMigrationsExitCode = $application->run($input, $output);
+            $projectMigrationsSuccess = (Command::SUCCESS === $projectMigrationsExitCode);
         }
 
         return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess && $projectMigrationsSuccess) ? Command::SUCCESS : Command::FAILURE;
