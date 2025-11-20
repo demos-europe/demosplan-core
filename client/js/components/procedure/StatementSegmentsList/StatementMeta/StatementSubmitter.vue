@@ -170,7 +170,6 @@ All rights reserved
 
     <similar-statement-submitters
       v-if="hasPermission('feature_similar_statement_submitter')"
-      :id="Translator.trans('submitters')"
       :editable="editable"
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
@@ -291,21 +290,6 @@ export default {
   },
 
   methods: {
-    checkHashAndScrollTo () {
-      const hash = window.location.hash
-      if (hash === `#${Translator.trans('submitters')}`) {
-        this.$nextTick(() => {
-          const element = document.getElementById(Translator.trans('submitters'))
-          if (element) {
-            element.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            })
-          }
-        })
-      }
-    },
-
     getDisplayValue (value) {
       const isDisabled = !this.editable || !this.isStatementManual
 
@@ -363,10 +347,6 @@ export default {
 
   created () {
     this.setInitValues()
-  },
-
-  mounted () {
-    this.checkHashAndScrollTo()
   },
 }
 </script>

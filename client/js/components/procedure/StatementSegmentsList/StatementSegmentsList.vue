@@ -648,16 +648,8 @@ export default {
         action = action.split('?')[0]
       }
 
-      const actionMapping = {
-        'bearbeiten': 'editText',
-        'erwiderung': 'addRecommendation',
-        'editText': 'editText',
-        'addRecommendation': 'addRecommendation'
-      }
-
-      const mappedAction = actionMapping[action] || action
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
-      this.currentAction = mappedAction || defaultAction
+      this.currentAction = action || defaultAction
     },
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
