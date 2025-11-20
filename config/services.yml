@@ -109,6 +109,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\InitializeServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\InitializeService'
 
+    demosplan\DemosPlanCoreBundle\Logic\Installation\InstallationService: ~
 
     DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler

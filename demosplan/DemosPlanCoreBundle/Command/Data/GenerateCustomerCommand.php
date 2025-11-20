@@ -47,8 +47,7 @@ class GenerateCustomerCommand extends CoreCommand
     private const OPTION_NAME = 'name';
     private const OPTION_SUBDOMAIN = 'subdomain';
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
-    private const OPTION_ENABLE_PROCEDURE_CREATION = 'enable-procedure-creation';
-    private const OPTION_DISABLE_PROCEDURE_CREATION = 'disable-procedure-creation';
+    private const OPTION_QUEUE_PERMISSION = 'queue-permission';
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
 
@@ -107,16 +106,10 @@ class GenerateCustomerCommand extends CoreCommand
              If omitted or value !== "default" it will be asked interactively.'
         );
         $this->addOption(
-            self::OPTION_ENABLE_PROCEDURE_CREATION,
+            self::OPTION_QUEUE_PERMISSION,
             null,
-            InputOption::VALUE_NONE,
-            'Enable procedure creation permission for planning agencies (overrides AUTO_ENABLE_PROCEDURE_CREATION env var)'
-        );
-        $this->addOption(
-            self::OPTION_DISABLE_PROCEDURE_CREATION,
-            null,
-            InputOption::VALUE_NONE,
-            'Disable procedure creation permission for planning agencies (overrides AUTO_ENABLE_PROCEDURE_CREATION env var)'
+            InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+            'Queue permission(s) to be applied when organizations are created. Format: "permission:orgaType:roleCode" (e.g., "feature_admin_new_procedure:PLANNING_AGENCY:RMOPSA"). Can be used multiple times.'
         );
     }
 
@@ -147,36 +140,8 @@ class GenerateCustomerCommand extends CoreCommand
 
             $this->registerDefaultUsers($customer);
 
-            // Handle procedure creation permission based on command options or env variable
-            $enableFlag = $input->getOption(self::OPTION_ENABLE_PROCEDURE_CREATION);
-            $disableFlag = $input->getOption(self::OPTION_DISABLE_PROCEDURE_CREATION);
-            $shouldEnableProcedureCreation = $this->shouldEnableProcedureCreation($input, $output);
-
-            if ($shouldEnableProcedureCreation) {
-                // If --enable-procedure-creation flag is set, force enable regardless of env variable
-                $force = (bool) $enableFlag;
-                $updatedOrgas = $this->installationService->enableProcedureCreationIfConfigured(
-                    $customer,
-                    null,
-                    false,
-                    $force
-                );
-                if (!empty($updatedOrgas)) {
-                    $output->writeln(
-                        sprintf(
-                            'Enabled procedure creation permission for %d organization(s): %s',
-                            count($updatedOrgas),
-                            implode(', ', $updatedOrgas)
-                        ),
-                        OutputInterface::VERBOSITY_NORMAL
-                    );
-                }
-            } else {
-                $output->writeln(
-                    'Skipping procedure creation permission setup (disabled via flag or configuration)',
-                    OutputInterface::VERBOSITY_VERBOSE
-                );
-            }
+            // Queue permissions if --queue-permission flags are provided
+            $queuedPermissions = $this->processQueuePermissionOptions($input, $output, $customer);
 
             $this->entityManager->flush();
 
@@ -375,58 +340,129 @@ class GenerateCustomerCommand extends CoreCommand
     }
 
     /**
-     * Determine if procedure creation permission should be enabled for this customer.
+     * Process --queue-permission options and queue pending permissions.
      *
-     * Priority:
-     * 1. If --enable-procedure-creation flag is set, return true
-     * 2. If --disable-procedure-creation flag is set, return false
-     * 3. Otherwise, use the AUTO_ENABLE_PROCEDURE_CREATION env variable value
+     * Parses permission strings in format "permission:orgaType:roleCode" and queues them
+     * to be applied when matching organizations are created.
+     *
+     * @param InputInterface    $input    Command input
+     * @param OutputInterface   $output   Command output
+     * @param CustomerInterface $customer The customer to queue permissions for
+     *
+     * @return int Number of permissions successfully queued
      */
-    private function shouldEnableProcedureCreation(InputInterface $input, OutputInterface $output): bool
-    {
-        $enableFlag = $input->getOption(self::OPTION_ENABLE_PROCEDURE_CREATION);
-        $disableFlag = $input->getOption(self::OPTION_DISABLE_PROCEDURE_CREATION);
+    private function processQueuePermissionOptions(
+        InputInterface $input,
+        OutputInterface $output,
+        CustomerInterface $customer
+    ): int {
+        $queuePermissions = $input->getOption(self::OPTION_QUEUE_PERMISSION);
 
-        // Check for conflicting flags
-        if ($enableFlag && $disableFlag) {
+        if (empty($queuePermissions)) {
             $output->writeln(
-                '<error>Warning: Both --enable-procedure-creation and --disable-procedure-creation flags are set. Using --enable-procedure-creation.</error>',
+                'No permissions queued (use --queue-permission to queue permissions for future organizations)',
+                OutputInterface::VERBOSITY_VERBOSE
+            );
+
+            return 0;
+        }
+
+        $queuedCount = 0;
+        $failedCount = 0;
+
+        foreach ($queuePermissions as $permissionString) {
+            $parsed = $this->parsePermissionString($permissionString);
+
+            if (null === $parsed) {
+                $output->writeln(
+                    sprintf(
+                        '<error>Invalid permission format: "%s". Expected format: "permission:orgaType:roleCode"</error>',
+                        $permissionString
+                    ),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+                ++$failedCount;
+                continue;
+            }
+
+            try {
+                $this->installationService->queuePendingPermission(
+                    $customer,
+                    $parsed['permission'],
+                    $parsed['roleCode'],
+                    $parsed['orgaType']
+                );
+
+                $output->writeln(
+                    sprintf(
+                        '<info>Queued permission: %s for %s (%s)</info>',
+                        $parsed['permission'],
+                        $parsed['orgaType'],
+                        $parsed['roleCode']
+                    ),
+                    OutputInterface::VERBOSITY_VERBOSE
+                );
+
+                ++$queuedCount;
+            } catch (Exception $e) {
+                $output->writeln(
+                    sprintf(
+                        '<error>Failed to queue permission "%s": %s</error>',
+                        $permissionString,
+                        $e->getMessage()
+                    ),
+                    OutputInterface::VERBOSITY_NORMAL
+                );
+                ++$failedCount;
+            }
+        }
+
+        if ($queuedCount > 0) {
+            $output->writeln(
+                sprintf(
+                    '<info>Successfully queued %d permission(s) to be applied when organizations are created.</info>',
+                    $queuedCount
+                ),
                 OutputInterface::VERBOSITY_NORMAL
             );
-
-            return true;
         }
 
-        // Explicit enable flag
-        if ($enableFlag) {
+        if ($failedCount > 0) {
             $output->writeln(
-                '<info>Procedure creation permission will be enabled (via --enable-procedure-creation flag)</info>',
-                OutputInterface::VERBOSITY_VERBOSE
+                sprintf('<error>Failed to queue %d permission(s)</error>', $failedCount),
+                OutputInterface::VERBOSITY_NORMAL
             );
-
-            return true;
         }
 
-        // Explicit disable flag
-        if ($disableFlag) {
-            $output->writeln(
-                '<info>Procedure creation permission will NOT be enabled (via --disable-procedure-creation flag)</info>',
-                OutputInterface::VERBOSITY_VERBOSE
-            );
+        return $queuedCount;
+    }
 
-            return false;
+    /**
+     * Parse a permission string in format "permission:orgaType:roleCode".
+     *
+     * @param string $permissionString The permission string to parse
+     *
+     * @return array{permission: string, orgaType: string, roleCode: string}|null Parsed components or null if invalid
+     */
+    private function parsePermissionString(string $permissionString): ?array
+    {
+        $parts = explode(':', $permissionString);
+
+        if (3 !== count($parts)) {
+            return null;
         }
 
-        // Default to environment variable configuration
-        $autoEnable = $this->installationService->isProcedureCreationAutoEnableConfigured();
-        $output->writeln(
-            sprintf(
-                '<info>Procedure creation permission will %s (based on AUTO_ENABLE_PROCEDURE_CREATION env var)</info>',
-                $autoEnable ? 'be enabled' : 'NOT be enabled'
-            ),
-            OutputInterface::VERBOSITY_VERBOSE
-        );
+        [$permission, $orgaType, $roleCode] = $parts;
 
-        return $autoEnable;
+        // Validate all parts are non-empty
+        if (empty(trim($permission)) || empty(trim($orgaType)) || empty(trim($roleCode))) {
+            return null;
+        }
+
+        return [
+            'permission' => trim($permission),
+            'orgaType'   => trim($orgaType),
+            'roleCode'   => trim($roleCode),
+        ];
     }
 }
