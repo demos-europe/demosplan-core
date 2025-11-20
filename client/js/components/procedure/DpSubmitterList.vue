@@ -289,7 +289,7 @@ export default {
         {
           statementId: rowData.id,
           procedureId: this.procedureId,
-          action: 'editText',
+          action: 'bearbeiten',
         }) + `#${Translator.trans('submitters')}`
     },
   },
