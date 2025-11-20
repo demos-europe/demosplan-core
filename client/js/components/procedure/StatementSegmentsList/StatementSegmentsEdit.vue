@@ -35,15 +35,9 @@
         v-for="segment in segments"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
-        @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null"
+        class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
-        <div
-          class="inline-block"
-          style="width: 5%"
-        >
+        <div class="inline-block w-[5%]">
           <dp-claim
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
@@ -56,10 +50,7 @@
             @click="() => toggleClaimSegment(segment)"
           />
         </div><!--
-     --><div
-          class="inline-block break-words"
-          style="width: 95%"
-        >
+     --><div class="inline-block break-words w-[95%]">
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -80,7 +71,7 @@
             </template>
             <template v-slot:edit>
               <dp-editor
-                class="u-mr u-pt-0_25"
+                class="mr-4 pt-1"
                 :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
                 @transform-obscure-tag="transformObscureTag"
@@ -140,7 +131,7 @@
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning"
         />
-        <p class="weight--bold">
+        <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
         <div v-cleanhtml="statement.attributes.fullText || ''" />
@@ -163,9 +154,10 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -223,7 +215,6 @@ export default {
     return {
       claimLoading: null,
       editingSegmentIds: [],
-      hoveredSegment: null,
       isLoading: false,
       obscuredText: '',
       defaultPagination: {
@@ -233,6 +224,7 @@ export default {
       },
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      segmentNavigation: null,
     }
   },
 
@@ -248,6 +240,7 @@ export default {
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
+
         try {
           const assignee = segment.rel('assignee')
           const orga = assignee ? assignee.rel('orga') : ''
@@ -258,6 +251,8 @@ export default {
             orgaName: orga ? orga.attributes.name : '',
           }
         } catch (err) {
+          console.error(err)
+
           if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
             return {
               id: this.currentUser.id,
@@ -493,6 +488,22 @@ export default {
     async fetchSegments (page = 1) {
       this.isLoading = true
 
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
+
       const statementSegmentFields = [
         'tags',
         'text',
@@ -542,9 +553,14 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        this.scrollToSegment()
-      })
+      await this.$nextTick()
+
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     handlePageChange (page) {
@@ -563,9 +579,31 @@ export default {
     },
   },
 
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination,
+    })
+  },
+
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
-      this.initPagination()
+      /**
+       * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+       * that segment is found (i.e., override pagination)
+       */
+      const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+      if (paginationOverride) {
+        this.pagination = paginationOverride
+      }
+
+      /**
+       * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+       * default to 1st page
+       */
       this.fetchSegments(this.pagination?.currentPage || 1)
     }
   },

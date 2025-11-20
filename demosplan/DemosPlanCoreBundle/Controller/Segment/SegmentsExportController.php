@@ -30,7 +30,7 @@ use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use ZipStream\ZipStream;
 
 class SegmentsExportController extends BaseController
@@ -60,7 +60,7 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportAction(
+    public function export(
         SegmentsByStatementsExporter $segmentsExporter,
         StatementHandler $statementHandler,
         FileNameGenerator $fileNameGenerator,
@@ -107,7 +107,7 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterAction(
+    public function exportByStatementsFilter(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
@@ -171,7 +171,7 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterXlsAction(
+    public function exportByStatementsFilterXls(
         FileNameGenerator $fileNameGenerator,
         JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
@@ -219,7 +219,7 @@ class SegmentsExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportPackagedStatementsAction(
+    public function exportPackagedStatements(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,

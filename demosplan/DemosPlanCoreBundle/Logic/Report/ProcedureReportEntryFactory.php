@@ -141,12 +141,21 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES);
-        if ($user instanceof User) {
+
+        // Check if the phase change was triggered by system
+        $isSystemChange = $data['createdBySystem'] ?? false;
+
+        if ($isSystemChange) {
+            // When system changes the phase, use "System" as username
+            $entry->setUserId('');
+            $entry->setUserName($this->translator->trans('user.system.name'));
+        } elseif ($user instanceof User) {
             $entry->setUser($user);
         } else {
             $entry->setUserId('');
             $entry->setUserName($user);
         }
+
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setIdentifier($procedure->getId());
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -198,7 +207,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         $entry->setIdentifier($procedureIdToCreateTheReportEntryFor);
         $entry->setMessage(Json::encode($messageData, JSON_UNESCAPED_UNICODE));
         $entry->setUser($user);
-        if (null === $user) {
+        if (!$user instanceof User) {
             $entry->setUserName($this->translator->trans('anonymized'));
         }
 

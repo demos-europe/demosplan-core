@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -157,7 +158,7 @@ class PrepareReportFromProcedureService
      *
      * @throws Exception
      */
-    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure)
+    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure, bool $isSystem = false): void
     {
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
@@ -233,7 +234,7 @@ class PrepareReportFromProcedureService
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
             $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
-            if (0 !== count($changes)) {
+            if ([] !== $changes) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());
             }
@@ -274,13 +275,13 @@ class PrepareReportFromProcedureService
             $sourceProcedure,
             $destinationProcedure,
             $this->getUserForReportEntry(),
-            false
+            $isSystem
         );
-        if (null !== $phaseChangeEntry) {
+        if ($phaseChangeEntry instanceof ReportEntry) {
             $this->reportService->persistAndFlushReportEntries($phaseChangeEntry);
         }
 
-        if (0 !== count($update)) {
+        if ([] !== $update) {
             $updateReportEntry = $this->procedureReportEntryFactory->createUpdateEntry(
                 $sourceProcedure,
                 $update
@@ -300,7 +301,7 @@ class PrepareReportFromProcedureService
         } catch (UserNotFoundException $e) {
             $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
         }
-        if (null !== $user && '' !== $user->getFullname()) {
+        if ($user instanceof UserInterface && '' !== $user->getFullname()) {
             return $user;
         }
 
@@ -322,7 +323,7 @@ class PrepareReportFromProcedureService
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
             $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
 
-            if (0 !== count($phaseChangeMessage)) {
+            if ([] !== $phaseChangeMessage) {
                 $phaseChangeMessage['createdBySystem'] = $createdBySystem;
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
@@ -348,7 +349,7 @@ class PrepareReportFromProcedureService
      */
     public function addReportsOnProcedureCouple(ProcedureCoupleToken $token, User $user): void
     {
-        if (null === $token->getTargetProcedure()) {
+        if (!$token->getTargetProcedure() instanceof Procedure) {
             throw new ProcedureNotFoundException('Target procedure must be set to generate report entries on procedure coupling');
         }
 
@@ -455,11 +456,11 @@ class PrepareReportFromProcedureService
             }
         }
 
-        if (0 !== count($elements)) {
+        if ([] !== $elements) {
             $changes['elements'] = $elements;
         }
 
-        if (0 !== count($paragraphs)) {
+        if ([] !== $paragraphs) {
             $changes['paragraphs'] = $paragraphs;
         }
 
@@ -517,7 +518,7 @@ class PrepareReportFromProcedureService
 
     private function getTimestamp(?DateTime $dateTime): ?int
     {
-        if (null === $dateTime) {
+        if (!$dateTime instanceof DateTime) {
             return null;
         }
 
@@ -559,7 +560,7 @@ class PrepareReportFromProcedureService
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 
@@ -589,7 +590,7 @@ class PrepareReportFromProcedureService
                 $documents[$document->getTitle()] = $document->getDocument();
             }
         }
-        if (0 !== count($documents)) {
+        if ([] !== $documents) {
             $elementEntry['files'] = $documents;
         }
 
@@ -598,13 +599,13 @@ class PrepareReportFromProcedureService
                 $access[] = $orga->getName();
             }
 
-            if (0 !== count($access)) {
+            if ([] !== $access) {
                 $elementEntry['access'] = $access;
             }
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 

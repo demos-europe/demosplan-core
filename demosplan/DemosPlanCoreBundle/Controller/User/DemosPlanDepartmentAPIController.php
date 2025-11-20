@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanDepartmentAPIController extends APIController
 {
@@ -26,7 +26,7 @@ class DemosPlanDepartmentAPIController extends APIController
      * @param string $organisationId
      */
     #[Route(path: '/api/1.0/{organisationId}/department', methods: ['GET'], name: 'dplan_api_department_list', options: ['expose' => true])]
-    public function listAction(ApiResourceService $apiResourceService, OrgaHandler $orgaHandler, $organisationId): APIResponse
+    public function list(ApiResourceService $apiResourceService, OrgaHandler $orgaHandler, $organisationId): APIResponse
     {
         $orga = $orgaHandler->getOrga($organisationId);
         $departments = $orga->getDepartments();

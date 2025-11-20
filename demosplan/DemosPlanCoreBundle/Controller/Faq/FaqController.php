@@ -29,7 +29,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -46,11 +46,11 @@ class FaqController extends BaseController
      */
     #[Route(path: '/faq', name: 'DemosPlan_faq', options: ['expose' => true])]
     #[Route(path: '/haeufigefragen', name: 'DemosPlan_haeufigefragen')]
-    public function faqListAction(
+    public function faqList(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         FaqHandler $faqHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ): Response {
         $categories = $faqHandler->getCustomFaqCategoriesByNamesOrCustom(FaqCategory::FAQ_CATEGORY_TYPES_MANDATORY);
         $templateVars = [
@@ -88,10 +88,10 @@ class FaqController extends BaseController
      */
     #[Route(path: '/faq/bauleitplanung', name: 'DemosPlan_faq_public_planning', defaults: ['type' => 'oeb_bauleitplanung'])]
     #[Route(path: '/faq/projekt', name: 'DemosPlan_faq_public_project', defaults: ['type' => 'oeb_bob'])]
-    public function faqPublicListAction(
+    public function faqPublicList(
         CurrentUserService $currentUserService,
         FaqHandler $faqHandler,
-        $type
+        $type,
     ) {
         $templateVars = [];
         $user = $currentUserService->getUser();
@@ -101,7 +101,7 @@ class FaqController extends BaseController
         $faqList = $faqHandler->getEnabledFaqList($faqCategory, $user);
 
         $templateCategories = [];
-        if (0 !== count($faqList)) {
+        if ([] !== $faqList) {
             $templateCategories[$categoryTypeName] = [
                 'faqlist' => $faqList,
                 'label'   => $faqList[0]->getCategory()->getTitle(),
@@ -130,11 +130,11 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/verwalten', name: 'DemosPlan_faq_administration_faq', options: ['expose' => true])]
-    public function faqAdminListAction(
+    public function faqAdminList(
         Request $request,
         FaqHandler $faqHandler,
         GlobalConfig $globalConfig,
-        string $procedure = null
+        ?string $procedure = null,
     ) {
         $requestPost = $request->request->all();
 
@@ -142,7 +142,7 @@ class FaqController extends BaseController
             try {
                 $faqId = $requestPost['faq_delete'];
                 $faqToDelete = $faqHandler->getFaq($faqId);
-                if (null === $faqToDelete) {
+                if (!$faqToDelete instanceof Faq) {
                     throw FaqNotFoundException::createFromId($faqId);
                 }
                 $faqHandler->deleteFaq($faqToDelete);
@@ -184,13 +184,13 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/{faqID}/edit', name: 'DemosPlan_faq_administration_faq_edit', options: ['expose' => true])]
-    public function faqAdminEditAction(
+    public function faqAdminEdit(
         Breadcrumb $breadcrumb,
         GlobalConfig $globalConfig,
         Request $request,
         string $faqID,
         TranslatorInterface $translator,
-        FaqHandler $faqHandler
+        FaqHandler $faqHandler,
     ) {
         $faq = $faqHandler->getFaq($faqID);
         if (!$faq instanceof Faq) {
@@ -254,13 +254,13 @@ class FaqController extends BaseController
      * @DplanPermissions("area_admin_faq")
      */
     #[Route(path: '/faq/neu', name: 'DemosPlan_faq_administration_faq_new', options: ['expose' => true])]
-    public function faqAdminNewAction(
+    public function faqAdminNew(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
         GlobalConfig $globalConfig,
         Request $request,
         TranslatorInterface $translator,
-        string $procedure = null
+        ?string $procedure = null,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -269,8 +269,8 @@ class FaqController extends BaseController
         if (!empty($requestPost['action']) && 'faqnew' === $requestPost['action']) {
             $inData = $this->prepareIncomingData($request, 'faq_new');
             // Wenn Gast ausgewählt wurde, sollen es auch gleichzeitig Bürger sehen
-            if (isset($inData['r_group_code']) &&
-                in_array(Role::GGUEST, $inData['r_group_code'], true)
+            if (isset($inData['r_group_code'])
+                && in_array(Role::GGUEST, $inData['r_group_code'], true)
             ) {
                 $inData['r_group_code'][] = Role::GCITIZ;
             }
@@ -380,18 +380,18 @@ class FaqController extends BaseController
      */
     #[Route(path: '/category/new', name: 'DemosPlan_faq_administration_category_new', options: ['expose' => true])]
     #[Route(path: '/category/{categoryId}/edit', name: 'DemosPlan_faq_administration_category_edit', options: ['expose' => true])]
-    public function faqCategoryEditAction(
+    public function faqCategoryEdit(
         Breadcrumb $breadcrumb,
         FaqHandler $faqHandler,
         Request $request,
         TranslatorInterface $translator,
         $categoryId = '',
-        $action = 'show'
+        $action = 'show',
     ) {
         $administrateFaq = 'DemosPlan_faq_administration_faq';
         $templateVars = ['category' => new FaqCategory()];
         $inData = $this->prepareIncomingData($request, $action);
-        $dataGiven = (false === empty($inData));
+        $dataGiven = ([] !== $inData);
         $isIdGiven = ('' != $categoryId);
 
         if ($dataGiven) {
@@ -457,7 +457,7 @@ class FaqController extends BaseController
      * @throws Exception
      */
     #[Route(path: '/category/{categoryId}/delete', name: 'DemosPlan_faq_administration_category_delete', options: ['expose' => true, 'action' => 'delete'])]
-    public function faqCategoryDeleteAction(FaqHandler $faqHandler, string $categoryId): Response
+    public function faqCategoryDelete(FaqHandler $faqHandler, string $categoryId): Response
     {
         $administrateFaq = 'DemosPlan_faq_administration_faq';
 

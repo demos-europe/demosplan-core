@@ -145,7 +145,7 @@ final class StatementFragmentUpdate extends ValidatableValueObject
                 throw new InvalidArgumentException("expected 'relationships' to be an array, got $relationships");
             }
 
-            if (0 === count($attributes) && 0 === count($relationships)) {
+            if ([] === $attributes && [] === $relationships) {
                 throw new InvalidArgumentException('Instances must update at least one property.');
             }
 

@@ -52,8 +52,6 @@ abstract class AssessmentTableFileExporterAbstract
      */
     protected $statementHandler;
 
-    protected DocumentWriterSelector $writerSelector;
-
     protected RequestStack $requestStack;
 
     public function __construct(
@@ -64,7 +62,7 @@ abstract class AssessmentTableFileExporterAbstract
         LoggerInterface $logger,
         RequestStack $requestStack,
         StatementHandler $statementHandler,
-        DocumentWriterSelector $writerSelector,
+        protected DocumentWriterSelector $writerSelector,
     ) {
         $this->assessmentHandler = $assessmentHandler;
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
@@ -73,7 +71,6 @@ abstract class AssessmentTableFileExporterAbstract
         $this->session = $requestStack->getSession();
         $this->translator = $translator;
         $this->statementHandler = $statementHandler;
-        $this->writerSelector = $writerSelector;
         $this->requestStack = $requestStack;
     }
 
