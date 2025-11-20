@@ -180,14 +180,11 @@ class AddonInstallFromZipCommand extends CoreCommand
 
                 return Command::FAILURE;
             }
-
-
         } catch (Exception $e) {
             $output->error($e->getMessage());
 
             return Command::FAILURE;
         }
-
 
         try {
             // If composer update went well, add the addon to the registry
