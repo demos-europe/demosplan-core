@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,10 +28,17 @@ class MigrationsCacheCommand extends CoreCommand
     {
         $env = $input->getOption('env');
 
-        return Batch::create($this->getApplication(), $output)
-            ->add("doctrine:cache:clear-metadata --env={$env}")
+        $batch = Batch::create($this->getApplication(), $output);
+        $batch->add("doctrine:cache:clear-metadata --env={$env}")
             ->add("doctrine:cache:clear-query --env={$env}")
-            ->add("doctrine:cache:clear-result --env={$env}")
-            ->run();
+            ->add("doctrine:cache:clear-result --env={$env}");
+
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        return in_array(Command::FAILURE, $allExitCodes) ? Command::FAILURE : Command::SUCCESS;
+
+
     }
 }
