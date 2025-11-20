@@ -68,7 +68,6 @@ class InitDbCommand extends CoreCommand
             if (true === $batch->atLeastOneActionFailed()) {
                 return Command::FAILURE;
             }
-
         }
 
         $schemaSuccess = Batch::create($this->getApplication(), $output)
