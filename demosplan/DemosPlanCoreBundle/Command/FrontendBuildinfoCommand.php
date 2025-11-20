@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
+use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -111,12 +112,19 @@ CSS;
             $routesPath = str_replace(['/', '\\'], '\\\\', $routesPath);
         }
 
-        Batch::create($this->getApplication(), $output)
+        $batch = Batch::create($this->getApplication(), $output)
             ->add(
                 'fos:js-routing:dump --format=json --pretty-print --target=%s -e prod',
                 $routesPath
             )
-            ->add('dplan:translations:dump -e prod')
-            ->run();
+            ->add('dplan:translations:dump -e prod');
+
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        if (in_array(Command::FAILURE, $allExitCodes)) {
+            throw new RuntimeException('Additional data export failed');
+        }
     }
 }

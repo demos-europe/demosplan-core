@@ -117,13 +117,20 @@ class FrontendIntegratorCommand extends CoreCommand
             $routesPath = str_replace(['/', '\\'], '\\\\', (string) $routesPath);
         }
 
-        Batch::create($this->getApplication(), $output)
+        $batch = Batch::create($this->getApplication(), $output)
             ->add(
                 'fos:js-routing:dump --format=json --pretty-print --target=%s',
                 $routesPath
             )
-            ->add('dplan:translations:dump')
-            ->run();
+            ->add('dplan:translations:dump');
+
+        $batch->run();
+        $allExitCodes = $batch->getAllReturnCodes();
+
+        // Check if ANY command failed
+        if (in_array(Command::FAILURE, $allExitCodes)) {
+            throw new Exception('Additional data export failed');
+        }
 
         if (DemosPlanKernel::ENVIRONMENT_PROD !== $this->getApplication()->getKernel()->getEnvironment()) {
             $this->updateApiCodingSupport();
