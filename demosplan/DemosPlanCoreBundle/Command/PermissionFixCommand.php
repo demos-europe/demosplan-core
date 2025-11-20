@@ -114,6 +114,7 @@ class PermissionFixCommand extends CoreCommand
         // Check if ANY command failed
         if (in_array(Command::FAILURE, $allExitCodes)) {
             $output->error('Some permission fix commands failed. Check the output above for details.');
+
             return Command::FAILURE;
         }
 
