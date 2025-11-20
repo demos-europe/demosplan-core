@@ -38,7 +38,5 @@ class MigrationsCacheCommand extends CoreCommand
 
         // Check if ANY command failed
         return in_array(Command::FAILURE, $allExitCodes) ? Command::FAILURE : Command::SUCCESS;
-
-
     }
 }
