@@ -383,7 +383,7 @@ export default {
           this.fullText = responseData.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+        if (fullUpdate && hasOwnProp(responseData, 'shortened')) {
           this.shortText = responseData.shortened
         }
 
