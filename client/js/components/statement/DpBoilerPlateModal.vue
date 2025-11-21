@@ -10,18 +10,31 @@
 <template>
   <dp-modal
     ref="boilerPlateModal"
-    content-classes="u-1-of-2"
+    :content-classes="isSegmentAvailable ? 'w-3/5' : 'w-1/2'"
   >
     <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
-    <dp-boiler-plate
-      ref="boilerplateDropdown"
-      :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
-      :boiler-plates="displayedBoilerplates"
-      group-values="boilerplates"
-      group-label="groupName"
-      :group-select="false"
-      @boilerplate-text:added="addBoilerplateText"
-    />
+    <div class="flex overflow-hidden max-h-[50vh]">
+      <div v-if="isSegmentAvailable" class="w-1/3 pr-4 overflow-hidden flex flex-col flex-none">
+        <h4>{{ Translator.trans('segment') }}</h4>
+        <div class="max-h-full overflow-y-auto overflow-x-hidden flex-1">
+          <text-content-renderer
+            class="c-styled-html"
+            :text="segments[segmentId].attributes.text"
+          />
+        </div>
+      </div>
+      <div :class="isSegmentAvailable ? 'max-h-full overflow-y-auto overflow-x-hidden flex-auto' : 'w-full'">
+        <dp-boiler-plate
+          ref="boilerplateDropdown"
+          :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
+          :boiler-plates="displayedBoilerplates"
+          group-values="boilerplates"
+          group-label="groupName"
+          :group-select="false"
+          @boilerplate-text:added="addBoilerplateText"
+        />
+      </div>
+    </div>
     <div class="flex items-center u-mt">
       <a
         class="weight--bold font-size-small"
@@ -46,6 +59,7 @@
 import { DpButtonRow, DpModal } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'DpBoilerPlateModal',
@@ -54,6 +68,7 @@ export default {
     DpBoilerPlate,
     DpButtonRow,
     DpModal,
+    TextContentRenderer,
   },
 
   props: {
