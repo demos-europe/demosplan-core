@@ -77,6 +77,12 @@ export default {
       type: String,
       default: '',
     },
+
+    segmentId: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   emits: [
