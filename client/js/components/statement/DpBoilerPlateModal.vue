@@ -131,6 +131,10 @@ export default {
       }
       return boilerplateString
     },
+
+    isSegmentAvailable () {
+      return this.segmentId && this.segments[this.segmentId]
+    },
   },
 
   methods: {
