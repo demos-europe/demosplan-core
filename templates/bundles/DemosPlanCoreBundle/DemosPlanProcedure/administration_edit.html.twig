@@ -647,44 +647,7 @@
                                 class="o-wizard__content"
                             >
                                 <div class="o-wizard__main">
-
-                                    {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
-                                        {% block location %}
-                                            <div class="u-mb">
-                                                <div class="inline-block weight--bold u-mb-0">
-                                                    {{ "public.participation.relation"|trans }}
-                                                </div>
-                                                {# different wording if autocomplete via openGeoDb is enabled #}
-                                                {% if useOpenGeoDb == true %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans ~ 'text.procedure.edit.external.location_name.autocomplete'|trans %}
-                                                {% else %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans %}
-                                                {% endif %}
-                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                    helpText: location_name_trans_help,
-                                                    cssClasses:'mb-1',
-                                                    showPlainHint: true
-                                                } %}
-                                                <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
-                                                    {{ "postalcode"|trans }}
-                                                    {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
-                                                    <input
-                                                        class="o-form__control-input w-full js__locationName"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationPostCode">
-                                                </label><!--
-                                             --><label class="layout__item u-5-of-6 u-mb-0">
-                                                    {{ "public.participation.location"|trans }}
-                                                    <input
-                                                        class="o-form__control-input w-full"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationName">
-                                                </label>
-                                            </div>
-                                        {% endblock location %}
-                                    {% endif %}
+                                    {% block location %}{% endblock location %}
 
                                     <div class="u-mb">
                                         <div class="inline-block weight--bold u-mb-0">
