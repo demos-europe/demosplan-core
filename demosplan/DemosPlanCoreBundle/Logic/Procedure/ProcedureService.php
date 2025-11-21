@@ -1079,7 +1079,7 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function updateProcedure($data, bool $createReports = true)
+    public function updateProcedure($data, bool $createReports = true, $isSystem = false)
     {
         try {
             $data['ident'] ??= $data['id'];
@@ -1117,6 +1117,7 @@ class ProcedureService implements ProcedureServiceInterface
                 $this->prepareReportFromProcedureService->createReportEntry(
                     $sourceProcedure,
                     $destinationProcedure,
+                    $isSystem
                 );
             }
 

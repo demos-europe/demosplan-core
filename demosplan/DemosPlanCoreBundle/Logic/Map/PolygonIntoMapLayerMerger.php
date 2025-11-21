@@ -44,7 +44,7 @@ class PolygonIntoMapLayerMerger
      */
     public function merge(Collection $geo, MapLayer $mapLayer): GdImage
     {
-        $image = $mapLayer->getImage()->getCore();
+        $image = $mapLayer->getImage()->core()->native();
         $image = $this->assertGdImage($image);
         $this->viewport->bottom = $mapLayer->getBottom();
         $this->viewport->left = $mapLayer->getLeft();
