@@ -100,7 +100,12 @@ export default {
 
   computed: {
     ...mapState('Boilerplates', ['getBoilerplatesRequestFired', 'moduleRegistered']),
+
     ...mapGetters('Boilerplates', ['getGroupedBoilerplates']),
+
+    ...mapState('StatementSegment', {
+      segments: 'items',
+    }),
 
     displayedBoilerplates () {
       const displayed = JSON.parse(JSON.stringify(this.getGroupedBoilerplates))
