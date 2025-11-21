@@ -46,7 +46,7 @@ class PrintLayerToMapLayerConverter
      */
     private function mergePrintLayerTileImages(PrintLayer $printLayer): Image
     {
-        $placeholderImage = $this->imageManager->canvas(
+        $placeholderImage = $this->imageManager->create(
             $printLayer->getWidthInPixels(),
             $printLayer->getHeightInPixels()
         );
@@ -72,14 +72,13 @@ class PrintLayerToMapLayerConverter
             $xPosition = $col * $tile->getWidthInPixels();
             $yPosition = $row * $tile->getWidthInPixels();
 
-            $mergeImage->insert(
+            $mergeImage->place(
                 $tile->getImage(),
                 'top-left',
                 $xPosition,
                 $yPosition
             );
 
-            $this->filesystem->remove($tile->getImage()->basePath());
             ++$row;
         }
 

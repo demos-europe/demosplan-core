@@ -5,6 +5,7 @@ cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/composer: MIT
 composer/package-versions-deprecated: MIT
+cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
@@ -136,4 +137,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 18.11.2025 07:03
+As of 19.11.2025 07:03
