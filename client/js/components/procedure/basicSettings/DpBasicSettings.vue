@@ -36,6 +36,12 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    agenciesOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     authorizedUsersOptions: {
       type: Array,
       required: false,

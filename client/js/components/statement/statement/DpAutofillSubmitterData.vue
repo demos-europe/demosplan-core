@@ -504,8 +504,8 @@ export default {
       }
 
       /*
-       * Because the submitter of a manual statement may requested feedack, we have to show the eMail-field
-       * even if its not visible in the public view
+       * Because the submitter of a manual statement may have requested feedback, we have to show the eMail-field
+       * even if it's not visible in the public view
        */
       const definitions = this.formDefinitions
       if (idx === '0' && this.formDefinitions.phoneOrEmail.enabled === false && this.formDefinitions.emailAddress.enabled === false) {
@@ -531,7 +531,7 @@ export default {
             },
             name: curr.name,
             pattern: curr.pattern || '',
-            value: this.submitterData[curr.field],
+            'model-value': this.submitterData[curr.field],
             required: isRequiredInFormDefinition,
             type: curr.type,
             width: curr.width,
