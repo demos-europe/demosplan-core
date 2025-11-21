@@ -8,9 +8,9 @@
 </license>
 
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <!-- Select boilerplate -->
-    <div class="u-pb-0_25">
+    <div class="u-pb-0_25 flex-shrink-0">
       <label class="u-mb-0_5">
         <dp-contextual-help
           class="float-right u-mt-0_125"
@@ -38,18 +38,20 @@
       </dp-multiselect>
     </div>
     <!-- Preview of boilerplate text -->
-    <div>
+    <div class="flex flex-col flex-1 min-h-0">
       <label
         for="previewField"
-        class="u-mb-0_25 u-mt-0_5"
+        class="u-mb-0_25 u-mt-0_5 flex-shrink-0"
       >
         Vorschau:
       </label>
-      <div
-        id="previewField"
-        v-cleanhtml="previewValue"
-        class="u-p-0_5 border rounded-lg min-h-11 c-styled-html"
-      />
+      <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
+        <div
+          id="previewField"
+          v-cleanhtml="previewValue"
+          class="u-p-0_5 c-styled-html"
+        />
+      </div>
     </div>
   </div>
 </template>
