@@ -29,10 +29,12 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+    private const IS_PRIVATE_PERSON = 'isPrivatePerson';
 
     protected string $addressExtension = '';
     protected string $city = '';
     protected string $companyDepartment = '';
+    protected bool $isPrivatePerson = false;
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -66,6 +68,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
         $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
+        // Extract isPrivatePerson attribute from token
+        $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
+            && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
+
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
@@ -97,6 +103,34 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
     }
 
+    public function isPrivatePerson(): bool
+    {
+        return $this->isPrivatePerson;
+    }
+
+    /**
+     * Override parent method to make roles optional when isPrivatePerson is true.
+     *
+     * For private persons authenticated via the isPrivatePerson token attribute,
+     * roles are assigned automatically (CITIZEN role), so the customerRoleRelations
+     * array may be empty during token validation. This method validates all common
+     * mandatory fields but skips the role requirement for private persons.
+     *
+     * For organization users, standard validation including role check is performed.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        if ($this->isPrivatePerson) {
+            // For private persons, validate only common fields (not roles)
+            // Roles will be assigned automatically based on isPrivatePerson flag
+            $missingMandatoryValues = $this->checkCommonMandatoryValues();
+            $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
+        } else {
+            // Organization users: use standard validation including role check
+            parent::checkMandatoryValuesExist();
+        }
+    }
+
     public function __toString(): string
     {
         $parentString = parent::__toString();
@@ -104,6 +138,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
-            ', company department: '.$this->companyDepartment;
+            ', company department: '.$this->companyDepartment.
+            ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -126,12 +127,19 @@ class OzgKeycloakUserDataMapper
         // try to find an existing Organisation that matches the given data (preferably gwId or otherwise name)
         $existingOrga = $this->tryLookupOrgaByGwId();
 
-        // At this point we handle users that have the role CITIZEN within their requested roles.
+        // At this point we handle users that are private persons (citizens).
+        // Check the isPrivatePerson attribute from the token first, then fall back to role-based detection.
         // Or the desired Orga ist the CITIZEN orga.
         // CITIZEN are special as they have to be put in their specific organisation
-        if ($this->isUserCitizen($requestedRoles)
-            || ($existingOrga instanceof Orga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId())
-        ) {
+        $isPrivatePersonByAttribute = $this->ozgKeycloakUserData->isPrivatePerson();
+        $isPrivatePersonByRole = $this->isUserCitizen($requestedRoles);
+        $isPrivatePersonByOrga = $existingOrga instanceof Orga && UserInterface::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
+
+        if ($isPrivatePersonByAttribute) {
+            $this->logger->info('User identified as private person via isPrivatePerson token attribute');
+        }
+
+        if ($isPrivatePersonByAttribute || $isPrivatePersonByRole || $isPrivatePersonByOrga) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
             if ($existingUser instanceof User && !$this->isCurrentlyInCitizenOrga($existingUser)) {
@@ -407,38 +415,98 @@ class OzgKeycloakUserDataMapper
      */
     private function mapUserRoleData(): array
     {
+        // Special handling for private persons - automatically assign CITIZEN role
+        if ($this->ozgKeycloakUserData->isPrivatePerson()) {
+            return $this->getCitizenRoleForPrivatePerson();
+        }
+
+        return $this->mapGroupBasedRoles();
+    }
+
+    /**
+     * Get CITIZEN role for private persons.
+     *
+     * @return array<int, Role>
+     *
+     * @throws AuthenticationCredentialsNotFoundException
+     */
+    private function getCitizenRoleForPrivatePerson(): array
+    {
+        $this->logger->info('Private person detected - automatically assigning CITIZEN role');
+        $citizenRole = $this->roleRepository->findOneBy(['code' => Role::CITIZEN]);
+        if (null === $citizenRole) {
+            throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
+        }
+
+        return [$citizenRole];
+    }
+
+    /**
+     * Map roles based on group information from token.
+     *
+     * @return array<int, Role>
+     *
+     * @throws AuthenticationCredentialsNotFoundException
+     */
+    private function mapGroupBasedRoles(): array
+    {
         $rolesOfCustomer = $this->ozgKeycloakUserData->getCustomerRoleRelations();
         $customer = $this->customerService->getCurrentCustomer();
-        $recognizedRoleCodes = [];
-        $unIdentifiedRoles = [];
-        // If we received partially recognizable roles - we try to ignore the garbage data...
-        // ['Fachplanung-Administration', 'Sachplanung-Fachbearbeitung', ''] counts as ['Fachplanung-Administration']
-        if (array_key_exists($customer->getSubdomain(), $rolesOfCustomer)) {
-            foreach ($rolesOfCustomer[$customer->getSubdomain()] as $roleName) {
-                if (null === $roleName || '' === $roleName) {
-                    continue;
-                }
-                $this->logger->info('Role found for subdomain '.$customer->getSubdomain().': '.$roleName);
-                if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
-                    $this->logger->info('Role recognized: '.$roleName);
-                    $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
-                } else {
-                    $this->logger->info('Role not recognized: '.$roleName);
-                    $unIdentifiedRoles[] = $roleName;
-                }
-            }
-        }
+
+        [$recognizedRoleCodes, $unIdentifiedRoles] = $this->extractRoleCodesFromGroups(
+            $rolesOfCustomer,
+            $customer->getSubdomain()
+        );
+
         if ([] !== $unIdentifiedRoles) {
             $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
+
         $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
+
         if ([] === $requestedRoles) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
+
         $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
 
         return $requestedRoles;
+    }
+
+    /**
+     * Extract role codes from customer groups.
+     *
+     * @param array<string, array<int, string>> $rolesOfCustomer
+     *
+     * @return array{0: array<int, string>, 1: array<int, string>} [recognizedRoleCodes, unIdentifiedRoles]
+     */
+    private function extractRoleCodesFromGroups(array $rolesOfCustomer, string $subdomain): array
+    {
+        $recognizedRoleCodes = [];
+        $unIdentifiedRoles = [];
+
+        if (!array_key_exists($subdomain, $rolesOfCustomer)) {
+            return [$recognizedRoleCodes, $unIdentifiedRoles];
+        }
+
+        foreach ($rolesOfCustomer[$subdomain] as $roleName) {
+            if (null === $roleName || '' === $roleName) {
+                continue;
+            }
+
+            $this->logger->info("Role found for subdomain {$subdomain}: {$roleName}");
+
+            if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
+                $this->logger->info("Role recognized: {$roleName}");
+                $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
+            } else {
+                $this->logger->info("Role not recognized: {$roleName}");
+                $unIdentifiedRoles[] = $roleName;
+            }
+        }
+
+        return [$recognizedRoleCodes, $unIdentifiedRoles];
     }
 
     /**
