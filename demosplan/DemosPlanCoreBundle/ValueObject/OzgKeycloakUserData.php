@@ -110,23 +110,23 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 
     /**
      * Override parent method to make roles optional when isPrivatePerson is true.
-     * For private persons, roles will be assigned automatically to CITIZEN role,
-     * so empty customerRoleRelations is acceptable.
+     *
+     * For private persons authenticated via the isPrivatePerson token attribute,
+     * roles are assigned automatically (CITIZEN role), so the customerRoleRelations
+     * array may be empty during token validation. This method validates all common
+     * mandatory fields but skips the role requirement for private persons.
+     *
+     * For organization users, standard validation including role check is performed.
      */
     public function checkMandatoryValuesExist(): void
     {
-        // For private persons, temporarily set a dummy role to pass parent validation
         if ($this->isPrivatePerson) {
-            $originalRoles = $this->customerRoleRelations;
-            $this->customerRoleRelations = ['temp' => ['CITIZEN']];
-
-            try {
-                parent::checkMandatoryValuesExist();
-            } finally {
-                $this->customerRoleRelations = $originalRoles;
-            }
+            // For private persons, validate only common fields (not roles)
+            // Roles will be assigned automatically based on isPrivatePerson flag
+            $missingMandatoryValues = $this->checkCommonMandatoryValues();
+            $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
         } else {
-            // Non-private persons use standard validation
+            // Organization users: use standard validation including role check
             parent::checkMandatoryValuesExist();
         }
     }
