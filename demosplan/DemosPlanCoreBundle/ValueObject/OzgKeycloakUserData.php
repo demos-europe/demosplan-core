@@ -29,6 +29,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     private const COMPANY_DEPARTMENT = 'Organisationseinheit';
     private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+    private const IS_PRIVATE_PERSON = 'isPrivatePerson';
 
     protected string $addressExtension = '';
     protected string $city = '';
@@ -68,8 +69,8 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
         // Extract isPrivatePerson attribute from token
-        $this->isPrivatePerson = isset($userInformation['isPrivatePerson'])
-            && ('true' === $userInformation['isPrivatePerson'] || true === $userInformation['isPrivatePerson']);
+        $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
+            && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
 
         $this->lock();
         $this->checkMandatoryValuesExist();
