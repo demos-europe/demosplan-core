@@ -16,6 +16,7 @@ use Cocur\Slugify\Slugify;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
@@ -44,7 +45,7 @@ abstract class SegmentsExporter
     protected array $styles;
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
+        protected readonly CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected Slugify $slugify,
@@ -258,6 +259,24 @@ abstract class SegmentsExporter
         );
     }
 
+    protected function addNoSegmentsMessage(Section $section): void
+    {
+        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
+        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
+    }
+
+    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    {
+        uasort($segments, [$this, 'compareOrderInProcedure']);
+
+        return $segments;
+    }
+
+    protected function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    {
+        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
+    }
+
     protected function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
         // remove STX (start of text) EOT (end of text) special chars
@@ -415,5 +434,21 @@ abstract class SegmentsExporter
         }
 
         return $table;
+    }
+
+    protected function getSegmentTagsText(Segment $segment): string
+    {
+        $tags = $segment->getTags();
+
+        if ($tags->isEmpty()) {
+            return $this->translator->trans('segments.export.tags.none');
+        }
+
+        $tagTitles = [];
+        foreach ($tags as $tag) {
+            $tagTitles[] = $tag->getTitle();
+        }
+
+        return implode(', ', $tagTitles);
     }
 }
