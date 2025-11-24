@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use PhpOffice\PhpWord\Shared\Converter;
@@ -26,7 +25,6 @@ class StyleInitializer
     private array $styles;
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
         private readonly DocumentWriterSelector $writerSelector,
     ) {
     }
@@ -74,15 +72,6 @@ class StyleInitializer
     private function initializeSegmentStyles(int $smallColumnWidth, int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $includeTagsColumn = $this->currentUser->hasPermission('field_statement_tags_and_topics_export');
-
-        // Adjust column widths based on whether tags column is included
-        if ($includeTagsColumn) {
-            // 4-column layout: ID (1550) + Statement (5200) + Recommendation (5200) + Tags (3450) = 15,400
-            $wideColumnWidth = 5200;
-            $smallColumnWidth = 1550;
-            $tagsColumnWidth = 3450;
-        }
 
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
         $headerCellStyle = $this->writerSelector->getCellStyleForFormat($headerCellStyle);
@@ -120,20 +109,6 @@ class StyleInitializer
             $bodyCellStyle,
             $bodyParagraphStyle
         );
-
-        if ($includeTagsColumn) {
-            $this->styles['segmentsTableHeaderCellTags'] = new CellExportStyle(
-                $tagsColumnWidth,
-                $headerCellStyle,
-                $headerPargraphStyle,
-                $headerFontStyle
-            );
-            $this->styles['segmentsTableBodyCellTags'] = new CellExportStyle(
-                $tagsColumnWidth,
-                $bodyCellStyle,
-                $bodyParagraphStyle
-            );
-        }
     }
 
     private function initializeFooterStyles(): void

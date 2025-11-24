@@ -435,20 +435,4 @@ abstract class SegmentsExporter
 
         return $table;
     }
-
-    protected function getSegmentTagsText(Segment $segment): string
-    {
-        $tags = $segment->getTags();
-
-        if ($tags->isEmpty()) {
-            return $this->translator->trans('segments.export.tags.none');
-        }
-
-        $tagTitles = [];
-        foreach ($tags as $tag) {
-            $tagTitles[] = $tag->getTitle();
-        }
-
-        return implode(', ', $tagTitles);
-    }
 }

@@ -241,14 +241,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $convertedSegment->getRecommendationText(),
             $this->styles['segmentsTableBodyCell']
         );
-
-        if ($this->currentUser->hasPermission('field_statement_tags_and_topics_export')) {
-            $this->addSegmentCell(
-                $textRow,
-                $this->getSegmentTagsText($segment),
-                $this->styles['segmentsTableBodyCellTags']
-            );
-        }
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -267,13 +259,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
                 'style' => $this->styles['segmentsTableHeaderCell'],
             ],
         ];
-
-        if ($this->currentUser->hasPermission('field_statement_tags_and_topics_export')) {
-            $headerConfigs[] = [
-                'text'  => $tableHeaders['col4'] ?? $this->translator->trans('segments.export.tags'),
-                'style' => $this->styles['segmentsTableHeaderCellTags'],
-            ];
-        }
 
         return $this->createTableWithHeader($section, $headerConfigs);
     }
