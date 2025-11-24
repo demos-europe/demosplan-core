@@ -11,14 +11,13 @@
   <div class="flex flex-col h-full">
     <!-- Select boilerplate -->
     <div class="u-pb-0_25 flex-shrink-0">
-      <label class="u-mb-0_5">
-        <dp-contextual-help
-          class="float-right u-mt-0_125"
-          :tooltip-options="tooltipOptions"
-        />
-        {{ title }}
-      </label>
+      <dp-label
+        for="boilerplateSelect"
+        :text="title"
+        :tooltip="tooltipOptions.content"
+      />
       <dp-multiselect
+        id="boilerplateSelect"
         v-model="selectedBoilerPlate"
         class="inline-block"
         :group-label="groupLabel"
@@ -39,12 +38,9 @@
     </div>
     <!-- Preview of boilerplate text -->
     <div class="flex flex-col flex-1 min-h-0">
-      <label
-        for="previewField"
-        class="u-mb-0_25 u-mt-0_5 flex-shrink-0"
-      >
+      <h4 class="u-mb-0_25 u-mt-0_5 flex-shrink-0">
         Vorschau:
-      </label>
+      </h4>
       <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
         <div
           id="previewField"
@@ -57,12 +53,12 @@
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpLabel, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
-    DpContextualHelp,
+    DpLabel,
     DpMultiselect,
   },
 

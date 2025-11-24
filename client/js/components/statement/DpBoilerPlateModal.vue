@@ -14,7 +14,10 @@
   >
     <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
     <div class="flex overflow-hidden max-h-[50vh]">
-      <div v-if="isSegmentAvailable" class="w-1/3 pr-4 overflow-hidden flex flex-col flex-none">
+      <div
+        v-if="isSegmentAvailable"
+        class="w-1/3 pr-4 overflow-hidden flex flex-col flex-none"
+      >
         <h4>{{ Translator.trans('segment') }}</h4>
         <div class="max-h-full overflow-y-auto overflow-x-hidden flex-1">
           <text-content-renderer
