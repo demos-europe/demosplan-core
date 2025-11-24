@@ -49,6 +49,7 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :procedure-id="procedureId"
         @export="showHintAndDoExport"
       />
       <div

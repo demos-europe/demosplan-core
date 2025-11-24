@@ -145,6 +145,24 @@
         </fieldset>
       </fieldset>
 
+      <filter-flyout
+        ref="filterFlyout"
+        :style="dropdownStyle"
+        :key="`filter_${filter.labelTranslationKey}`"
+        :additional-query-params="{ searchPhrase: searchTerm }"
+        :category="{ id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }"
+        class="dropdown inline-block first:mr-1"
+        :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
+        :operator="filter.comparisonOperator"
+        :path="filter.rootPath"
+        :show-count="{
+                groupedOptions: true,
+                ungroupedOptions: true
+              }"
+        @filter-apply="sendFilterQuery"
+        @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
+      />
+
       <dp-button-row
         class="text-right mt-auto"
         data-cy="exportModal"
@@ -168,13 +186,18 @@ import {
   DpInput,
   DpModal,
   DpRadio,
-  sessionStorageMixin,
+  dpRpc,
+  hasOwnProp,
+  sessionStorageMixin
 } from '@demos-europe/demosplan-ui'
+import FilterFlyout from '../procedure/SegmentsList/FilterFlyout.vue'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'StatementExportModal',
 
   components: {
+    FilterFlyout,
     DpButton,
     DpButtonRow,
     DpCheckbox,
@@ -192,6 +215,11 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    procedureId: {
+      required: true,
+      type: String,
+    },
   },
 
   emits: [
@@ -200,6 +228,17 @@ export default {
 
   data () {
     return {
+      searchTerm: '',
+      filter: {
+        comparisonOperator: "ARRAY_CONTAINS_VALUE",
+        grouping: {
+          labelTranslationKey: 'topic',
+          targetPath: 'tags.topic.label'
+        },
+        labelTranslationKey: 'tags',
+        rootPath: 'tags',
+        selected: false
+      },
       active: 'docx_normal',
       docxColumns: {
         col1: {
@@ -279,6 +318,158 @@ export default {
   },
 
   methods: {
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    sendFilterQuery () {
+      console.log('sendFilterQuery')
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    sendFilterOptionsRequest (params) {
+      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        path,
+      }
+
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
+      }
+
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
+
+          if (result) {
+            const groupedOptions = []
+            const ungroupedOptions = []
+
+            result.included?.forEach(resource => {
+              const filter = result.data.find(type => type.attributes.path === path)
+              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
+              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
+              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
+              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+
+              if (resourceIsGroup && groupBelongsToFilterType) {
+                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+                const filterOptions = filterOptionsIds.map(id => {
+                  const option = result.included.find(item => item.id === id)
+
+                  if (option) {
+                    const { attributes, id } = option
+                    const { count, description, label, selected } = attributes
+
+                    return {
+                      count,
+                      description,
+                      id,
+                      label,
+                      selected,
+                    }
+                  }
+
+                  return null
+                }).filter(option => option !== null)
+
+                if (filterOptions.length > 0) {
+                  const { id, attributes } = resource
+                  const { label } = attributes
+                  const group = {
+                    id,
+                    label,
+                    options: filterOptions,
+                  }
+
+                  groupedOptions.push(group)
+                }
+              }
+
+              // Ungrouped filter options
+              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+                const { id, attributes } = resource
+                const { count, description, label, selected } = attributes
+
+                ungroupedOptions.push({
+                  id,
+                  count,
+                  description,
+                  label,
+                  selected,
+                  ungrouped: true,
+                })
+              }
+            })
+
+            // Needs to be added to ungroupedOptions
+            if (result.data[0].attributes.path === 'assignee') {
+              ungroupedOptions.push({
+                id: 'unassigned',
+                count: result.data[0].attributes.missingResourcesSum,
+                label: Translator.trans('not.assigned'),
+                ungrouped: true,
+                selected: result.meta.unassigned_selected,
+              })
+            }
+
+            if (isInitialWithQuery && this.queryIds.length > 0) {
+              const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+              const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+                const item = allOptions.find(item => item.id === queryId)
+                return item ? item.id : null
+              })
+
+              this.setInitialFlyoutFilterIds({
+                categoryId: category.id,
+                filterIds: currentFlyoutFilterIds,
+              })
+            }
+
+            this.setGroupedFilterOptions({
+              categoryId: category.id,
+              groupedOptions,
+            })
+
+            this.setUngroupedFilterOptions({
+              categoryId: category.id,
+              options: ungroupedOptions,
+            })
+
+            this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+            if (this.getIsExpandedByCategoryId(category.id)) {
+              document.getElementById(`searchField_${path}`).focus()
+            }
+          }
+        })
+    },
+
     closeModal () {
       this.$refs.exportModalInner.toggle()
     },
