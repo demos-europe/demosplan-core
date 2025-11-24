@@ -12,17 +12,19 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Segment\SegmentsExportController;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -44,9 +46,12 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         parent::setUp();
 
         // Manually instantiate the controller with required dependencies
+        /** @var NameGenerator $nameGenerator */
         $nameGenerator = $this->getContainer()->get(\demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator::class);
+        /** @var ProcedureHandler $procedureHandler */
         $procedureHandler = $this->getContainer()->get(\demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler::class);
-        $requestStack = $this->getContainer()->get('request_stack');
+        /** @var RequestStack $requestStack */
+        $requestStack = $this->getContainer()->get(RequestStack::class);
 
         $this->sut = new SegmentsExportController(
             $nameGenerator,
@@ -71,16 +76,22 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
         $statement3 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real());
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real());
         $this->getEntityManager()->flush();
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()]);
-        $segment2->_real()->addTag($this->tag2->_real());
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+            ->_real();
+        $segment2->addTag($this->tag2->_real());
         $this->getEntityManager()->flush();
 
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()]);
-        $segment3->_real()->addTag($this->tag3->_real());
+        /** @var SegmentInterface $segment3 */
+        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()])
+            ->_real();
+        $segment3->addTag($this->tag3->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real(), $statement2->_real(), $statement3->_real()];
@@ -101,12 +112,16 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement1 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real());
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real());
         $this->getEntityManager()->flush();
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()]);
-        $segment2->_real()->addTag($this->tag2->_real());
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+            ->_real();
+        $segment2->addTag($this->tag2->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real(), $statement2->_real()];
@@ -127,16 +142,22 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
         $statement3 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real()); // Topic 1
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real()); // Topic 1
         $this->getEntityManager()->flush();
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()]);
-        $segment2->_real()->addTag($this->tag2->_real()); // Topic 1
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+            ->_real();
+        $segment2->addTag($this->tag2->_real()); // Topic 1
         $this->getEntityManager()->flush();
 
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()]);
-        $segment3->_real()->addTag($this->tag3->_real()); // Topic 2
+        /** @var SegmentInterface $segment3 */
+        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()])
+            ->_real();
+        $segment3->addTag($this->tag3->_real()); // Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real(), $statement2->_real(), $statement3->_real()];
@@ -158,12 +179,16 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement1 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real()); // Topic 1
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real()); // Topic 1
         $this->getEntityManager()->flush();
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()]);
-        $segment2->_real()->addTag($this->tag3->_real()); // Topic 2
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+            ->_real();
+        $segment2->addTag($this->tag3->_real()); // Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real(), $statement2->_real()];
@@ -185,16 +210,22 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
         $statement3 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real()); // Important, Topic 1
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real()); // Important, Topic 1
         $this->getEntityManager()->flush();
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()]);
-        $segment2->_real()->addTag($this->tag2->_real()); // Urgent, Topic 1
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+            ->_real();
+        $segment2->addTag($this->tag2->_real()); // Urgent, Topic 1
         $this->getEntityManager()->flush();
 
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()]);
-        $segment3->_real()->addTag($this->tag3->_real()); // Review, Topic 2
+        /** @var SegmentInterface $segment3 */
+        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement3->_real()])
+            ->_real();
+        $segment3->addTag($this->tag3->_real()); // Review, Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real(), $statement2->_real(), $statement3->_real()];
@@ -235,8 +266,10 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne();
         $statement1 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real());
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real()];
@@ -255,11 +288,15 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne();
         $statement1 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real());
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real());
 
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment2->_real()->addTag($this->tag2->_real());
+        /** @var SegmentInterface $segment2 */
+        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment2->addTag($this->tag2->_real());
 
         $this->getEntityManager()->flush();
 
@@ -280,9 +317,11 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $procedure = ProcedureFactory::createOne();
         $statement1 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()]);
-        $segment1->_real()->addTag($this->tag1->_real());
-        $segment1->_real()->addTag($this->tag2->_real());
+        /** @var SegmentInterface $segment1 */
+        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+            ->_real();
+        $segment1->addTag($this->tag1->_real());
+        $segment1->addTag($this->tag2->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$statement1->_real()];
