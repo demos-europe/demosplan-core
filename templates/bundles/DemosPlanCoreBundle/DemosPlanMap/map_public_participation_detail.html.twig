@@ -83,7 +83,7 @@
                              :class="activeActionBoxTab === 'talk' ? prefixClass('is-visible-actionbox') : ''"
                              data-statement-state-started>
 
-                            <a
+                            <button
                                 href="#publicStatementForm"
                                 id="statementModalButton"
                                 @click.stop.prevent="toggleStatementModal({})"
@@ -91,7 +91,6 @@
                                 data-cy="publicStatementButton"
                                 aria-controls="statementModal"
                                 aria-describedby="statementActionDescriptionMap"
-                                role="button"
                             >
                                 <template v-if="activeStatement">
                                     {{ 'statement.participate.resume'|trans }}
@@ -99,7 +98,7 @@
                                 <template v-else>
                                     {{ 'statement.participate'|trans }}
                                 </template>
-                            </a>
+                            </button>
                             <p v-if="activeStatement === false" class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.hint'|trans|wysiwyg }}</p>
                             <p class="{{ 'c-actionbox__hint'|prefixClass }}">{{ 'statement.participate.resume.hint'|trans }}</p>
                         </div>
