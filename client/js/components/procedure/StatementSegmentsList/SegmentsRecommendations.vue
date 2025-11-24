@@ -102,10 +102,10 @@
 <script>
 import { dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import StatementSegment from './StatementSegment'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -192,7 +192,7 @@ export default {
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
         if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
-          if (window.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+          if (globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
               .then(err => {
                 if (typeof err === 'undefined') {
@@ -365,28 +365,28 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        const queryParams = new URLSearchParams(window.location.search)
-        const segmentId = queryParams.get('segment') || ''
+      await this.$nextTick()
 
-        if (segmentId) {
-          scrollTo('#segment_' + segmentId, { offset: -110 })
-          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+      const queryParams = new URLSearchParams(globalThis.location.search)
+      const segmentId = queryParams.get('segment') || ''
 
-          if (segmentComponent) {
-            segmentComponent.isCollapsed = false
-          }
+      if (segmentId) {
+        scrollTo('#segment_' + segmentId, { offset: -110 })
+        const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
 
-          // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
-          if (shouldRemoveSegmentParam) {
-            this.segmentNavigation.removeSegmentParameter()
-          }
+        if (segmentComponent) {
+          segmentComponent.isCollapsed = false
         }
-      })
+
+        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+        if (shouldRemoveSegmentParam) {
+          this.segmentNavigation.removeSegmentParameter()
+        }
+      }
     },
 
     goToSplitStatementView () {
-      window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: this.statementId, procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: this.statementId, procedureId: this.procedureId })
     },
 
     toggleAll () {
@@ -420,7 +420,7 @@ export default {
       statementId: this.statementId,
       storageKey: this.storageKeyPagination,
       currentPerPage: this.pagination?.perPage,
-      defaultPagination: this.defaultPagination
+      defaultPagination: this.defaultPagination,
     })
   },
 
@@ -428,7 +428,7 @@ export default {
     /**
      * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
      * that segment is found (i.e., override pagination)
-      */
+     */
     const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
 
     if (paginationOverride) {

@@ -311,6 +311,19 @@ class SecurityValidationListenerTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
+    public function testTusUploadWithBinaryDataIsAllowed(): void
+    {
+        // TUS uploads contain binary file data with legitimate null bytes
+        $binaryData = "binary\0file\0data\0with\0null\0bytes";
+        $request = Request::create('/_tus/upload/54f3f6b6-e74a-443c-8fa9-3ad92ab3a5b3', 'PATCH', [], [], [], [], $binaryData);
+        $event = $this->createRequestEvent($request);
+
+        // Should not throw because TUS endpoints are skipped
+        $this->sut->onKernelRequest($event);
+
+        $this->addToAssertionCount(1);
+    }
+
     public function testSubRequestsAreSkipped(): void
     {
         // Sub-requests should be skipped entirely

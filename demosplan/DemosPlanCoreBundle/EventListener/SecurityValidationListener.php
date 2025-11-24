@@ -113,8 +113,9 @@ class SecurityValidationListener implements EventSubscriberInterface
     {
         $path = $request->getPathInfo();
 
-        // Skip validation for static assets
-        return (bool) preg_match('~^/(css|js|images|fonts)/~', $path);
+        // Skip validation for static assets and binary upload endpoints
+        // TUS uploads contain binary data with legitimate null bytes
+        return (bool) preg_match('~^/(css|js|images|fonts|_tus)/~', $path);
     }
 
     /**
