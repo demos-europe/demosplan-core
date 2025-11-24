@@ -232,7 +232,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
         // Act: Filter by tag ID OR topic title (should match statement1 and statement3)
         $tagsFilter = [
-            'tagIds' => [$this->tag1->getId()], // statement1
+            'tagIds'         => [$this->tag1->getId()], // statement1
             'tagTopicTitles' => ['Topic 2'], // statement3
         ];
         $filtered = $this->invokePrivateMethod('filterStatementsByTags', [$statements, $tagsFilter]);
@@ -339,8 +339,6 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
      * Helper method to invoke private methods for testing.
      *
      * @param array<int, mixed> $args
-     *
-     * @return mixed
      */
     private function invokePrivateMethod(string $methodName, array $args = [])
     {
