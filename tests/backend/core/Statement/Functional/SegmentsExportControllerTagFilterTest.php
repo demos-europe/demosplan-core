@@ -47,9 +47,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
         // Manually instantiate the controller with required dependencies
         /** @var NameGenerator $nameGenerator */
-        $nameGenerator = $this->getContainer()->get(\demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator::class);
+        $nameGenerator = $this->getContainer()->get(NameGenerator::class);
         /** @var ProcedureHandler $procedureHandler */
-        $procedureHandler = $this->getContainer()->get(\demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler::class);
+        $procedureHandler = $this->getContainer()->get(ProcedureHandler::class);
         /** @var RequestStack $requestStack */
         $requestStack = $this->getContainer()->get(RequestStack::class);
 
