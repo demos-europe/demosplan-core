@@ -3,7 +3,7 @@ FROM demosdeutschland/demosplan-base:latest AS base
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
-ENV PROJECT_PREFIX=$PROJECT_NAME \
+ENV PROJECT_PREFIX="$PROJECT_NAME" \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
     TZ=Europe/Berlin
@@ -33,9 +33,9 @@ RUN mkdir -p /opt/uploads && \
     chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
     chown -R www-data:www-data /srv/www && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/app/config && \
 # asset build only needs the parameters.yml without content
-    echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
+    echo "parameters:" > /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml
 
 # =============================================================================
 # Stage: Dependencies - Only composer splits on BUILD_MODE, yarn is shared
@@ -74,21 +74,21 @@ RUN --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
 FROM dependencies-dev AS build-dev
 
 ARG PROJECT_NAME
-ENV PROJECT_PREFIX=$PROJECT_NAME
+ENV PROJECT_PREFIX="$PROJECT_NAME"
 
 USER root
 COPY . /srv/www
 
 # set permissions needed during build
-RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
+RUN mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/js && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/fonts && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/images && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
     mkdir -p /srv/www/client/css/generated && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/projects/"$PROJECT_NAME"/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
@@ -96,15 +96,15 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
-COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
+COPY parameters_build.yml /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml
 
 USER www-data
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
-    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e dev --no-debug || true && \
-    ./fe build $PROJECT_NAME && \
+    ACTIVE_PROJECT="$PROJECT_NAME" bin/console dplan:addon:autoinstall -e dev --no-debug || true && \
+    ./fe build "$PROJECT_NAME" && \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
@@ -112,41 +112,41 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
 
 USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
-COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
+COPY projects/"$PROJECT_NAME"/app/config/parameters_docker.yml /opt/config/parameters.yml
 
-RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
-    ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
+RUN rm /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml && \
+    ln -s /opt/config/parameters.yml /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml && \
     touch /opt/config/.env.local && \
     ln -s /opt/config/.env.local /srv/www/.env.local && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
-    chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/uploads/files && \
+    chmod -R 775 /srv/www/projects/"$PROJECT_NAME"/web/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R root:root /srv/www/projects/"$PROJECT_NAME"/web && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    chown -R www-data /srv/www/projects/"$PROJECT_NAME"/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
 FROM dependencies-prod AS build-prod
 
 ARG PROJECT_NAME
-ENV PROJECT_PREFIX=$PROJECT_NAME
+ENV PROJECT_PREFIX="$PROJECT_NAME"
 
 USER root
 COPY . /srv/www
 
 # Remove app_dev.php in production mode
-RUN rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php
+RUN rm -f /srv/www/projects/"$PROJECT_NAME"/web/app_dev.php
 
 # set permissions needed during build
-RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
+RUN mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/js && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/fonts && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/images && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
     mkdir -p /srv/www/client/css/generated && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/projects/"$PROJECT_NAME"/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
@@ -154,15 +154,15 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
-COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
+COPY parameters_build.yml /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml
 
 USER www-data
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
-    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
-    ./fe build $PROJECT_NAME --prod && \
+    ACTIVE_PROJECT="$PROJECT_NAME" bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
+    ./fe build "$PROJECT_NAME" --prod && \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
@@ -170,18 +170,18 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
 
 USER root
 RUN mv /tmp/doctrine.yaml /srv/www/config/packages/doctrine.yaml
-COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/parameters.yml
+COPY projects/"$PROJECT_NAME"/app/config/parameters_docker.yml /opt/config/parameters.yml
 
-RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
-    ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
+RUN rm /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml && \
+    ln -s /opt/config/parameters.yml /srv/www/projects/"$PROJECT_NAME"/app/config/parameters.yml && \
     touch /opt/config/.env.local && \
     ln -s /opt/config/.env.local /srv/www/.env.local && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
-    chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    mkdir -p /srv/www/projects/"$PROJECT_NAME"/web/uploads/files && \
+    chmod -R 775 /srv/www/projects/"$PROJECT_NAME"/web/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R root:root /srv/www/projects/"$PROJECT_NAME"/web && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    chown -R www-data /srv/www/projects/"$PROJECT_NAME"/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
 # =============================================================================
@@ -190,7 +190,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
 FROM demosdeutschland/demosplan-base:latest AS fpm-base
 
 ARG PROJECT_NAME
-ENV PROJECT_PREFIX=$PROJECT_NAME \
+ENV PROJECT_PREFIX="$PROJECT_NAME" \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
     TZ=Europe/Berlin
@@ -214,7 +214,7 @@ COPY --from=build-dev /opt/config/parameters.yml /opt/config/parameters.yml
 
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
-    rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    rm -rf /srv/www/projects/"$PROJECT_NAME"/{files,fonts,images,js,video,img,pdf} && \
     mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /srv/www/tmp && \
     touch /srv/www/var/certs/ca.crt && \
@@ -233,7 +233,7 @@ COPY --from=build-prod /opt/config/parameters.yml /opt/config/parameters.yml
 
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
-    rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    rm -rf /srv/www/projects/"$PROJECT_NAME"/{files,fonts,images,js,video,img,pdf} && \
     mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /srv/www/tmp && \
     touch /srv/www/var/certs/ca.crt && \
@@ -254,7 +254,7 @@ ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
 COPY nginx.conf.template-dev /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
-COPY --from=build-dev /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=build-dev /srv/www/projects/"$PROJECT_NAME"/web /srv/www/projects/"$PROJECT_NAME"/web
 
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
 
@@ -266,7 +266,7 @@ ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
-COPY --from=build-prod /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=build-prod /srv/www/projects/"$PROJECT_NAME"/web /srv/www/projects/"$PROJECT_NAME"/web
 
 RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
 

@@ -38,7 +38,7 @@ esac
 printf "Building %s with mode=%s (targets: %s)\n" "$FOLDER" "$MODE" "$TARGETS"
 
 # Prepare build context once
-if [ -d $CONTEXT_DIR ]; then
+if [[ -d $CONTEXT_DIR ]]; then
     rm -rf $CONTEXT_DIR
 fi
 
@@ -51,7 +51,7 @@ cp -r "$FOLDER"/.dockerignore $CONTEXT_DIR
 
 # Build all requested targets
 for target in $TARGETS; do
-    if [ "$target" = "dev" ]; then
+    if [[ "$target" = "dev" ]]; then
         tag_version="${VERSION}-dev"
     else
         tag_version="${VERSION}"
@@ -93,7 +93,7 @@ rm -rf $CONTEXT_DIR
 if [[ $PUSH_IMAGES == "push" ]]; then
     printf "\n=== Pushing images ===\n"
     for target in $TARGETS; do
-        if [ "$target" = "dev" ]; then
+        if [[ "$target" = "dev" ]]; then
             tag_version="${VERSION}-dev"
         else
             tag_version="${VERSION}"
