@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
@@ -116,7 +117,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $this->sut->updateCustomField($entityId, $attributes);
     }
 
-    public function updateCustomFieldDataProvider(): array
+    public static function updateCustomFieldDataProvider(): array
     {
         return [
             'emptyOptionLabels' => [
@@ -250,6 +251,7 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $repository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
         $customFieldAfterDeletion = $repository->find($customFieldId);
         self::assertNotNull($customFieldAfterDeletion, 'Custom field configuration should still exist');
+        self::assertInstanceOf(CustomFieldConfiguration::class, $customFieldAfterDeletion);
 
         // Assert that only Option2 and Option4 remain in the configuration
         $remainingOptions = $customFieldAfterDeletion->getConfiguration()->getOptions();

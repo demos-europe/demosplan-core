@@ -135,7 +135,7 @@ class GeoJsonToFeaturesConverter
                 $viewport,
                 $this->getTileSize($tile),
                 $tile->url,
-                $this->imageManager->make($imageContent)
+                $this->imageManager->read($imageContent)
             );
             $result->add($printLayerTile);
         }

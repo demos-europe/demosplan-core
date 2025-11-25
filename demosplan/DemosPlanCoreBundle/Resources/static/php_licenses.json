@@ -35,6 +35,11 @@
         "website": "https://github.com/composer/package-versions-deprecated"
     },
     {
+        "license": "Apache-2.0",
+        "package": "cyclonedx/cyclonedx-php-composer",
+        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
+    },
+    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"

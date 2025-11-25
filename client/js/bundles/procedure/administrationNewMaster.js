@@ -11,7 +11,6 @@
  * This is the entrypoint for administration_new_master.html.twig
  */
 
-import AdministrationMaster from '@DpJs/lib/procedure/AdministrationMaster'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
@@ -20,8 +19,6 @@ import NewBlueprintForm from '@DpJs/components/procedure/admin/NewBlueprintForm'
 const components = { DpEmailList, NewBlueprintForm }
 
 initialize(components).then(() => {
-  AdministrationMaster()
-
   // To Disable Save Button after Form Validate
   dpValidate()
   const saveButton = document.getElementById('saveButton')
