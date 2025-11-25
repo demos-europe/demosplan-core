@@ -253,6 +253,7 @@
                 })"
                 data-cy="segmentsList:edit"
                 rel="noopener"
+                @click="storeFilterInCache"
               >
                 {{ Translator.trans('edit') }}
               </a>
@@ -266,6 +267,7 @@
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
                 rel="noopener"
+                @click="storeFilterInCache"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
@@ -981,6 +983,13 @@ export default {
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
     storeAllSegments (allSegments) {
       lscache.set(this.lsKey.allSegments, allSegments)
+    },
+
+    storeFilterInCache () {
+      // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
+      lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
+
+      window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
     storeToggledSegments () {
