@@ -22,7 +22,7 @@
         <div class="max-h-full overflow-y-auto overflow-x-hidden flex-1">
           <text-content-renderer
             class="c-styled-html"
-            :text="segments[segmentId].attributes.text"
+            :text="segments[previewSegmentId].attributes.text"
           />
         </div>
       </div>
@@ -96,7 +96,7 @@ export default {
       default: '',
     },
 
-    segmentId: {
+    previewSegmentId: {
       required: false,
       type: String,
       default: '',
@@ -151,7 +151,7 @@ export default {
     },
 
     isSegmentAvailable () {
-      return this.segmentId && this.segments[this.segmentId]
+      return this.previewSegmentId && this.segments[this.previewSegmentId]
     },
   },
 
