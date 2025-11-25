@@ -38,7 +38,7 @@
         />
       </div>
     </div>
-    <div class="flex items-center u-mt">
+    <div class="flex items-center mt-4">
       <a
         class="weight--bold font-size-small"
         :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })"

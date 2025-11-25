@@ -10,8 +10,9 @@
 <template>
   <div class="flex flex-col h-full">
     <!-- Select boilerplate -->
-    <div class="u-pb-0_25 flex-shrink-0">
+    <div class="pb-1 mb-2 flex-shrink-0">
       <dp-label
+        class="mb-2"
         for="boilerplateSelect"
         :text="title"
         :tooltip="tooltipOptions.content"
@@ -38,14 +39,14 @@
     </div>
     <!-- Preview of boilerplate text -->
     <div class="flex flex-col flex-1 min-h-0">
-      <h4 class="u-mb-0_25 u-mt-0_5 flex-shrink-0">
+      <h4 class="mb-2 flex-shrink-0">
         Vorschau:
       </h4>
       <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
         <div
           id="previewField"
           v-cleanhtml="previewValue"
-          class="u-p-0_5 c-styled-html"
+          class="p-2 c-styled-html"
         />
       </div>
     </div>
