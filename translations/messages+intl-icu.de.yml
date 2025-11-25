@@ -204,6 +204,7 @@ aria.collapse_filters: "Filterauswahlbox minimieren"
 aria.collapse_generic: "{element} ein/ausklappen"
 aria.expand: "Element ausklappen"
 aria.expand.all: "Alle Elemente ausklappen"
+aria.navigate.statement.details: "Zur Detailansicht der Stellungnahme {name} navigieren"
 aria.select.all: "Alle Elemente auswählen"
 aria.toggle: "Element ein-/ausklappen"
 aria.unselect: "Auswahl für Element aufheben"
@@ -3618,6 +3619,7 @@ statement.submission.default: "Standard-Stellungnahmeprozess"
 statement.submission.shorthand: "Verkürzter Stellungnahmeprozess"
 statement.submission.type: "Stellungnahmeabgabeprozess"
 statement.submit.now: "Stellungnahme jetzt absenden"
+statement.similarSubmitters: "Weitere Einreichende"
 statement.sum: |
     {count, plural,
         =0 {Keine Stellungnahme}
