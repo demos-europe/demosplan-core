@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -55,6 +56,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         private readonly TagService $tagService,
         private readonly TranslatorInterface $translator,
         private readonly UserService $userService,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -102,8 +104,10 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
             $segment = new Segment();
-            $segment->setParentStatementOfSegment($statement);
+            // this persist is necessary when forcing a special id as otherwise doctrine will generate its own for unknown objects
+            $this->entityManager->persist($segment);
             $segment->setId($draft['id']);
+            $segment->setParentStatementOfSegment($statement);
             $segment->setText($draft['text']);
             $externId = $statement->getExternId().'-'.$counter;
             $segment->setExternId($externId);
