@@ -986,7 +986,7 @@ export default {
     },
 
     storeFilterInCache () {
-      // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
+      // Persist currentQueryHash to load the filtered SegmentsList after returning to segments list
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
 
       globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
