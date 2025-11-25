@@ -152,6 +152,7 @@
               boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
+              :preview-segment-id="segment.id"
               @insert="text => modalProps.handleInsertText(text)"
             />
             <dp-modal
