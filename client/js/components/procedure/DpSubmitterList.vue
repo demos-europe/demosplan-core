@@ -155,7 +155,7 @@ export default {
     items () {
       return Object.values(this.statements)
         .map(statement => this.handleEmptyAttrs(statement))
-        .sort((a, b) => (a.isCitizen === b.isCitizen) ? 0 : a.isCitizen ? 1 : -1)
+        .sort((a, b) => Number(a.isCitizen) - Number(b.isCitizen))
     },
 
     selectableColumns () {

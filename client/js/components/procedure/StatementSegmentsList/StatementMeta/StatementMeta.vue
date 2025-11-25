@@ -378,7 +378,7 @@ export default {
     },
 
     scrollToItemFromHash () {
-      const hash = window.location.hash.slice(1)
+      const hash = globalThis.location.hash.slice(1)
 
       if (hash) {
         this.setActiveItem(hash)
