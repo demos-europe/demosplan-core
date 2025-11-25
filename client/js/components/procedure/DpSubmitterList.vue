@@ -78,7 +78,11 @@
         </template>
 
         <template v-slot:similarSubmitters="rowData">
+          <span v-if="rowData.similarSubmittersCount === '-'">
+            {{ rowData.similarSubmittersCount }}
+          </span>
           <a
+            v-else
             :href="getSimilarSubmittersUrl(rowData)"
             :aria-label="Translator.trans('aria.navigate.statement.details', { name: rowData.statement })"
             data-cy="submitterList:navigate:similarSubmitters"
