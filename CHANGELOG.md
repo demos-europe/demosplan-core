@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add similar submitters to the Submitter List
+
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
