@@ -189,20 +189,29 @@
         @save-statement="saveStatement"
       />
     </div>
+    <dp-button
+      class="mt-4"
+      color="primary"
+      :href="sanitizedReturnLink"
+      :text="Translator.trans('back.to.segments.list')"
+    />
   </div>
 </template>
 
 <script>
 import {
   dpApi,
+  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
+import { sanitizeUrl } from '@braintree/sanitize-url'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import lscache from 'lscache'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
@@ -217,6 +226,7 @@ export default {
   name: 'StatementSegmentsList',
 
   components: {
+    DpButton,
     DpClaim,
     DpFlyout,
     DpSlidebar,
@@ -329,6 +339,7 @@ export default {
       currentAction: 'addRecommendation',
       isLoading: false,
       procedureMapSettings: {},
+      returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
@@ -467,6 +478,10 @@ export default {
           id: originalAttachment.id,
         } :
         {}
+    },
+
+    sanitizedReturnLink () {
+      return sanitizeUrl(this.returnLink)
     },
 
     statement () {
@@ -652,6 +667,19 @@ export default {
       this.currentAction = action || defaultAction
     },
 
+    setReturnLink () {
+      const currentQueryHash =
+        lscache.get(`${this.procedure.id}:segments:currentQueryHash`)
+
+      if (currentQueryHash) {
+        this.returnLink =
+          Routing.generate('dplan_segments_list_by_query_hash', {
+            procedureId: this.procedure.id,
+            queryHash: currentQueryHash,
+          })
+      }
+    },
+
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
       const parameters = {
         procedureId: this.procedure.id,
@@ -757,6 +785,7 @@ export default {
 
   mounted () {
     this.getStatement()
+    this.setReturnLink()
     if (hasPermission('field_segments_custom_fields')) {
       this.fetchCustomFields()
     }
