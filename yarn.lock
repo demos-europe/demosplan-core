@@ -7586,7 +7586,7 @@ __metadata:
     postcss-loader: "npm:^8.2.0"
     postcss-prefix-selector: "npm:^2.1.1"
     postcss-preset-env: "npm:^10.4.0"
-    proj4: "npm:^2.19.10"
+    proj4: "npm:^2.20.2"
     qs: "npm:^6.14.0"
     raf: "npm:^3.4.1"
     regenerator-runtime: "npm:^0.14.1"
@@ -12994,13 +12994,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proj4@npm:^2.19.10":
-  version: 2.19.10
-  resolution: "proj4@npm:2.19.10"
+"proj4@npm:^2.20.2":
+  version: 2.20.2
+  resolution: "proj4@npm:2.20.2"
   dependencies:
     mgrs: "npm:1.0.0"
     wkt-parser: "npm:^1.5.1"
-  checksum: 10c0/75891dc138f5c2d5647a963a5f6196280d56f7fd89a959870c69a0527580ffae2c37a02dcba0a67ba842af717adc6f5d6b75e1f778a81abdc016f472fc9c5f97
+  checksum: 10c0/7b65fcb12a896a110779f6a0e28e947c4c208ccb4a2e381052f1b7c8bad5306d4315a1dac7b4d6316687a48cfbce63d6ff6017c9946c5ef12f440cbf67d8f0e5
   languageName: node
   linkType: hard
 
