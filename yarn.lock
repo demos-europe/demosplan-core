@@ -7655,7 +7655,7 @@ __metadata:
     eslint-plugin-jest: "npm:^29.2.1"
     eslint-plugin-jquery: "npm:^1.5.1"
     eslint-plugin-n: "npm:^17.23.1"
-    eslint-plugin-vue: "npm:^10.5.1"
+    eslint-plugin-vue: "npm:^10.6.0"
     eslint-plugin-vuejs-accessibility: "npm:^2.4.1"
     font-awesome: "npm:^4.7.0"
     fs: "npm:0.0.1-security"
@@ -8369,14 +8369,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-vue@npm:^10.5.1":
-  version: 10.5.1
-  resolution: "eslint-plugin-vue@npm:10.5.1"
+"eslint-plugin-vue@npm:^10.6.0":
+  version: 10.6.0
+  resolution: "eslint-plugin-vue@npm:10.6.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.4.0"
     natural-compare: "npm:^1.4.0"
     nth-check: "npm:^2.1.1"
-    postcss-selector-parser: "npm:^6.0.15"
+    postcss-selector-parser: "npm:^7.1.0"
     semver: "npm:^7.6.3"
     xml-name-validator: "npm:^4.0.0"
   peerDependencies:
@@ -8389,7 +8389,7 @@ __metadata:
       optional: true
     "@typescript-eslint/parser":
       optional: true
-  checksum: 10c0/002ebf22465ca2f6b0d0725012ae6db65a256d8f22cdddc10c79e5efb030e4bc38b461466289f05eb176796ca9466d29af4d4c7450e3d741c49f04e238433cb8
+  checksum: 10c0/78fa8d69dbd65f6166a990f45f562b81d555bad5902437fbc3026ef2e90c76888e22e054eff592476a7e685e551a1d2aef49798ec74109ca98f1331c193bc7bd
   languageName: node
   linkType: hard
 
@@ -12961,7 +12961,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.15, postcss-selector-parser@npm:^6.1.2":
+"postcss-selector-parser@npm:^6.1.2":
   version: 6.1.2
   resolution: "postcss-selector-parser@npm:6.1.2"
   dependencies:
