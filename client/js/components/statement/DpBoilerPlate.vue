@@ -40,7 +40,7 @@
     <!-- Preview of boilerplate text -->
     <div class="flex flex-col flex-1 min-h-0">
       <h4 class="mb-2 flex-shrink-0">
-        Vorschau:
+        {{ Translator.trans('preview') }}
       </h4>
       <div class="border rounded-lg flex-1 min-h-11 overflow-auto">
         <div
