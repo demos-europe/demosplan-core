@@ -795,31 +795,95 @@ class ProcedureService implements ProcedureServiceInterface
 
         $usersOfOrganisation = $userOrga->getUsers();
 
-        // remove current user, to avoid unselecting yourself:
-        if ($excludeUser) {
-            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
-        }
-        // planning offices needs to get all Orga members that are planners
-        if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
-            return $usersOfOrganisation->filter(static fn (User $user): bool => $user->isPlanner());
+        // DEBUG: Log initial user count
+        $planningOfficeIds = $procedure->getPlanningOfficesIds();
+        $this->logger->info('getAuthorizedUsers DEBUG', [
+            'procedureId' => $procedureId,
+            'currentUserId' => $user->getId(),
+            'orgaId' => $userOrga->getId(),
+            'orgaName' => $userOrga->getName(),
+            'initialUserCount' => $usersOfOrganisation->count(),
+            'excludeUser' => $excludeUser,
+            'excludeProcedureAuthorizedUsers' => $excludeProcedureAuthorizedUsers,
+            'planningOfficeIds' => $planningOfficeIds,
+            'isUserOrgaPlanningOffice' => \in_array($userOrga->getId(), $planningOfficeIds, true),
+        ]);
+
+        // Also include users from all planning offices associated with this procedure
+        if (!empty($planningOfficeIds)) {
+            foreach ($planningOfficeIds as $planningOfficeId) {
+                try {
+                    $planningOffice = $this->orgaService->getOrga($planningOfficeId);
+                    if ($planningOffice instanceof Orga) {
+                        $planningOfficeUsers = $planningOffice->getUsers();
+                        // Filter to only include planners from planning offices
+                        $filteredPlanningOfficeUsers = $planningOfficeUsers->filter(
+                            static fn (User $u): bool => $u->isPlanner()
+                        );
+                        // Merge with existing users collection
+                        foreach ($filteredPlanningOfficeUsers as $planningOfficeUser) {
+                            if (!$usersOfOrganisation->contains($planningOfficeUser)) {
+                                $usersOfOrganisation->add($planningOfficeUser);
+                            }
+                        }
+                        $this->logger->info('getAuthorizedUsers DEBUG - added planning office users', [
+                            'planningOfficeId' => $planningOfficeId,
+                            'planningOfficeName' => $planningOffice->getName(),
+                            'addedUserCount' => $filteredPlanningOfficeUsers->count(),
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    $this->logger->error('getAuthorizedUsers - failed to load planning office', [
+                        'planningOfficeId' => $planningOfficeId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+            $this->logger->info('getAuthorizedUsers DEBUG - after adding all planning office users', [
+                'totalUserCount' => $usersOfOrganisation->count(),
+            ]);
         }
 
         // T8901: filter users with false roles:
+        // Include planning agencies, hearing authorities, and planners (e.g., from planning offices)
+        $beforeRoleFilter = $usersOfOrganisation->count();
         $usersOfOrganisation = $usersOfOrganisation->filter(
-            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
+            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority() || $user->isPlanner()
         );
+        $this->logger->info('getAuthorizedUsers DEBUG - after role filter', [
+            'beforeFilter' => $beforeRoleFilter,
+            'afterFilter' => $usersOfOrganisation->count(),
+        ]);
 
-        // filter users who may not administer this Procedure
-        // aka "authorized users" in terms of procedure entity
-
-        // planunngsbüros shoul be authorized, but may not in case of permission is disabled.
-        // cover this by checking for flag AND for permission (to check)
-        if ($excludeProcedureAuthorizedUsers && $this->globalConfig->hasProcedureUserRestrictedAccess()) {
-            $authorizedUserIds = $procedure->getAuthorizedUserIds();
-            $usersOfOrganisation = $usersOfOrganisation->filter(
-                static fn (User $user): bool => \in_array($user->getId(), $authorizedUserIds)
-            );
+        // Add explicitly authorized users from the procedure
+        // These are users that were manually added in DpBasicSettings
+        $procedureAuthorizedUsers = $procedure->getAuthorizedUsers();
+        if ($procedureAuthorizedUsers->count() > 0) {
+            foreach ($procedureAuthorizedUsers as $authorizedUser) {
+                if (!$usersOfOrganisation->contains($authorizedUser)) {
+                    $usersOfOrganisation->add($authorizedUser);
+                }
+            }
+            $this->logger->info('getAuthorizedUsers DEBUG - after adding procedure authorized users', [
+                'addedCount' => $procedureAuthorizedUsers->count(),
+                'totalUserCount' => $usersOfOrganisation->count(),
+                'authorizedUserNames' => $procedureAuthorizedUsers->map(fn($u) => $u->getName())->toArray(),
+            ]);
         }
+
+        // remove current user, to avoid unselecting yourself:
+        if ($excludeUser) {
+            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
+            $this->logger->info('getAuthorizedUsers DEBUG - after excludeUser', [
+                'userCount' => $usersOfOrganisation->count(),
+            ]);
+        }
+
+        $this->logger->info('getAuthorizedUsers DEBUG - FINAL RESULT', [
+            'finalUserCount' => $usersOfOrganisation->count(),
+            'userIds' => $usersOfOrganisation->map(fn($u) => $u->getId())->toArray(),
+            'userNames' => $usersOfOrganisation->map(fn($u) => $u->getName())->toArray(),
+        ]);
 
         return $usersOfOrganisation;
     }

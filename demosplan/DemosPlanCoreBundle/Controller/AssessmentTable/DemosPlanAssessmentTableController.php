@@ -258,7 +258,10 @@ class DemosPlanAssessmentTableController extends BaseController
             'statementFragmentAgencies'       => $statementHandler->getAgencyData(),
             'assessmentExportOptions'         => $exportOptions->get('assessment_table'),
             'authorizedUsersOfMyOrganization' => $procedureService->getAuthorizedUsers(
-                $procedureId
+                $procedureId,
+                null,
+                false,
+                false
             ),
             'accessibleProcedureIds'          => $accessibleProcedureIds,
             'defaultToggleView'               => $this->globalConfig->getAssessmentTableDefaultToggleView(),
@@ -475,7 +478,10 @@ class DemosPlanAssessmentTableController extends BaseController
             'statementFragmentAgencies'       => $statementHandler->getAgencyData(),
             'assessmentExportOptions'         => $exportOptions->get('original_statements'),
             'authorizedUsersOfMyOrganization' => $procedureService->getAuthorizedUsers(
-                $procedureId
+                $procedureId,
+                null,
+                false,
+                false
             ),
             'accessibleProcedureIds'          => $accessibleProcedureIds,
             'defaultToggleView'               => $this->globalConfig->getAssessmentTableDefaultToggleView(),
@@ -981,7 +987,10 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
-            $procedureId
+            $procedureId,
+            null,
+            false,
+            false
         );
 
         $statementBulkEditForm = $this->getForm(
@@ -1018,7 +1027,10 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
-            $procedureId
+            $procedureId,
+            null,
+            false,
+            false
         );
 
         return $this->renderTemplate(
