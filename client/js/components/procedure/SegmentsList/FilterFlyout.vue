@@ -269,7 +269,6 @@ export default {
   emits: [
     'filterApply',
     'filterOptions:request',
-    'filterReset'
   ],
 
   data () {
@@ -452,7 +451,6 @@ export default {
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
-      //this.$emit('filterReset')
     },
 
     handleOpen () {
@@ -471,7 +469,7 @@ export default {
         filter: this.getFilterQuery,
         isInitialWithQuery,
         path: this.path,
-        tagIds: this.currentQuery,
+        currentQuery: this.currentQuery,
       })
     },
 

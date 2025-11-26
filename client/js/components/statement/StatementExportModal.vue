@@ -159,8 +159,7 @@
           groupedOptions: true,
           ungroupedOptions: true
         }"
-        @filter-apply="sendFilterQuery"
-        @filter-reset="resetFilter"
+        @filter-apply="getFilterValues"
         @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
       />
 
@@ -327,21 +326,10 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
-    sendFilterQuery (filter) {
-      console.log('sendFilterQuery', filter)
-      Object.values(filter).forEach(el => {
-        if (el.condition.path === 'tags') {
-          this.selectedTags.push(el.condition.value)
-        }
-      })
-
-      console.log('selectedTags', this.selectedTags)
-
-    },
-
-    resetFilter () {
-      console.log('CLOSE')
-      this.selectedTags = []
+    getFilterValues (filter) {
+      this.selectedTagIds = Object.values(filter)
+        .filter(el => el?.condition?.path === 'tags')
+        .map(el => el.condition.value)
     },
 
     /**
@@ -355,140 +343,147 @@ export default {
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      console.log('sendFilterOptionsRequest', params)
-      const { additionalQueryParams, category, filter, isInitialWithQuery, path, tagIds } = params
-      if (!tagIds.length) {
-        const requestParams = {
-          ...additionalQueryParams,
-          filter: {
-            ...filter,
-            sameProcedure: {
-              condition: {
-                path: 'parentStatement.procedure.id',
-                value: this.procedureId,
-              },
+      const {
+        additionalQueryParams,
+        category,
+        filter,
+        isInitialWithQuery,
+        path,
+        currentQuery,
+      } = params
+
+      if (currentQuery && currentQuery.length > 0) {
+        return
+      }
+
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
             },
           },
-          path,
-        }
+        },
+        path,
+      }
 
-        // We have to set the searchPhrase to null if its empty to satisfy the backend
-        if (requestParams.searchPhrase === '') {
-          requestParams.searchPhrase = null
-        }
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
+      }
 
-        dpRpc('segments.facets.list', requestParams, 'filterList')
-          .then(({ data }) => {
-            const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
 
-            if (result) {
-              const groupedOptions = []
-              const ungroupedOptions = []
+          if (!result) {
+            return
+          }
 
-              result.included?.forEach(resource => {
-                const filter = result.data.find(type => type.attributes.path === path)
-                const resourceIsGroup = resource.type === 'AggregationFilterGroup'
-                const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-                const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
-                const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
-                const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-                const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+          const groupedOptions = []
+          const ungroupedOptions = []
 
-                if (resourceIsGroup && groupBelongsToFilterType) {
-                  const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
-                  const filterOptions = filterOptionsIds.map(id => {
-                    const option = result.included.find(item => item.id === id)
+          const buildFilterOption = option => {
+            if (!option) return null
 
-                    if (option) {
-                      const { attributes, id } = option
-                      const { count, description, label, selected } = attributes
+            const { attributes, id } = option
+            const { count, description, label, selected } = attributes
 
-                      return {
-                        count,
-                        description,
-                        id,
-                        label,
-                        selected,
-                      }
-                    }
+            return { id, count, description, label, selected }
+          }
 
-                    return null
-                  }).filter(option => option !== null)
+          result.included?.forEach(resource => {
+            const filter = result.data.find(type => type.attributes.path === path)
 
-                  if (filterOptions.length > 0) {
-                    const { id, attributes } = resource
-                    const { label } = attributes
-                    const group = {
-                      id,
-                      label,
-                      options: filterOptions,
-                    }
+            const isGroup = resource.type === 'AggregationFilterGroup'
+            const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+            const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
 
-                    groupedOptions.push(group)
-                  }
+            if (isGroup && groupBelongsToFilterType) {
+              const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
+
+              const filterOptions = filterOptionsIds
+                .map(id => buildFilterOption(result.included.find(item => item.id === id)))
+                .filter(Boolean)
+
+              if (filterOptions.length > 0) {
+                const { id, attributes } = resource
+                const { label } = attributes
+                const group = {
+                  id,
+                  label,
+                  options: filterOptions,
                 }
 
-                // Ungrouped filter options
-                if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
-                  const { id, attributes } = resource
-                  const { count, description, label, selected } = attributes
+                groupedOptions.push(group)
+              }
+            }
 
-                  ungroupedOptions.push({
-                    id,
-                    count,
-                    description,
-                    label,
-                    selected,
-                    ungrouped: true,
-                  })
-                }
-              })
+            const isFilterItem = resource.type === 'AggregationFilterItem'
+            const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+            const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
 
-              // Needs to be added to ungroupedOptions
-              if (result.data[0].attributes.path === 'assignee') {
+            // Ungrouped filter options
+            if (isFilterItem && filterOptionBelongsToFilterType) {
+              const option = buildFilterOption(resource)
+
+              if (option) {
                 ungroupedOptions.push({
-                  id: 'unassigned',
-                  count: result.data[0].attributes.missingResourcesSum,
-                  label: Translator.trans('not.assigned'),
+                  ...option,
                   ungrouped: true,
-                  selected: result.meta.unassigned_selected,
                 })
-              }
-
-              if (isInitialWithQuery && this.queryIds.length > 0) {
-                const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
-
-                const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
-                  const item = allOptions.find(item => item.id === queryId)
-                  return item ? item.id : null
-                })
-
-                this.setInitialFlyoutFilterIds({
-                  categoryId: category.id,
-                  filterIds: currentFlyoutFilterIds,
-                })
-              }
-
-              this.setGroupedFilterOptions({
-                categoryId: category.id,
-                groupedOptions,
-              })
-
-              this.setUngroupedFilterOptions({
-                categoryId: category.id,
-                options: ungroupedOptions,
-              })
-
-              this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
-              if (this.getIsExpandedByCategoryId(category.id)) {
-                document.getElementById(`searchField_${path}`).focus()
               }
             }
           })
-      }
+
+          // Needs to be added to ungroupedOptions
+          if (result.data[0].attributes.path === 'assignee') {
+            ungroupedOptions.push({
+              id: 'unassigned',
+              count: result.data[0].attributes.missingResourcesSum,
+              label: Translator.trans('not.assigned'),
+              ungrouped: true,
+              selected: result.meta.unassigned_selected,
+            })
+          }
+
+          if (isInitialWithQuery && this.queryIds.length > 0) {
+            const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+            const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+              const item = allOptions.find(item => item.id === queryId)
+              return item ? item.id : null
+            })
+
+            this.setInitialFlyoutFilterIds({
+              categoryId: category.id,
+              filterIds: currentFlyoutFilterIds,
+            })
+          }
+
+          this.setGroupedFilterOptions({
+            categoryId: category.id,
+            groupedOptions,
+          })
+
+          this.setUngroupedFilterOptions({
+            categoryId: category.id,
+            options: ungroupedOptions,
+          })
+
+          this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+          if (this.getIsExpandedByCategoryId(category.id)) {
+            document.getElementById(`searchField_${path}`).focus()
+          }
+      })
     },
 
     closeModal () {
+      this.selectedTagIds = []
+      this.$refs.filterFlyout.reset()
       this.$refs.exportModalInner.toggle()
     },
 
@@ -509,8 +504,6 @@ export default {
         }
       })
 
-      console.log('this.selectedTags: ', this.selectedTags)
-
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
@@ -519,7 +512,7 @@ export default {
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
         isObscured: this.isObscure,
-        filterTagIds: this.selectedTags
+        tagFilterIds: this.selectedTagIds
       })
       this.closeModal()
     },
