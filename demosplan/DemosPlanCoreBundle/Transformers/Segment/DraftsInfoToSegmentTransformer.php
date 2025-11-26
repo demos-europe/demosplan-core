@@ -100,12 +100,16 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         // The segments are received potentially unsorted. Hence sort them by their position
         // in the text so their $externId is set in the correct order afterwards.
         usort($draftsList, static fn (array $draft1, array $draft2) => $draft1['charEnd'] < $draft2['charEnd'] ? -1 : 1);
+
+        // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
+        $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
+        $originalIdGenerator = $segmentMetadata->idGenerator;
+        $segmentMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($draftsList as $draft) {
             $segment = new Segment();
-            // this persist is necessary when forcing a special id as otherwise doctrine will generate its own for unknown objects
-            $this->entityManager->persist($segment);
             $segment->setId($draft['id']);
             $segment->setParentStatementOfSegment($statement);
             $segment->setText($draft['text']);
@@ -114,18 +118,34 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setOrderInProcedure($internId);
             $segment->setPhase('analysis');
             $segment->setProcedure($statement->getProcedure());
-            $tags = $this->getTags($draft['tags'], $procedure);
-            $segment->setTags($tags);
+
+            /** @var Segment $segment */
             $segment = $this->statementService->setPublicVerified(
                 $segment,
                 Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED
             );
             $segment = $this->setAssigneeIfGiven($segment, $draft);
             $segment = $this->setPlace($segment, $draft);
+
+            $this->entityManager->persist($segment);
+
             $segments[] = $segment;
             ++$counter;
             ++$internId;
         }
+
+        // Restore the original ID generator (done with manually-assigned segment IDs)
+        $segmentMetadata->setIdGenerator($originalIdGenerator);
+
+        // Set tags (junction table entries will be flushed by controller)
+        array_map(
+            function (Segment $segment, array $draft) use ($procedure): void {
+                $tags = $this->getTags($draft['tags'], $procedure);
+                $segment->setTags($tags);
+            },
+            $segments,
+            $draftsList
+        );
 
         return $segments;
     }
