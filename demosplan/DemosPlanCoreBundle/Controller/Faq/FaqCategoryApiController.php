@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class FaqCategoryApiController extends APIController
 {
-    #[DplanPermissions("area_admin_faq")]
+    #[DplanPermissions('area_admin_faq')]
     #[Route(path: '/api/1.0/FaqCategory', methods: ['GET'], name: 'dp_api_faq_category_list', options: ['expose' => true])]
     public function list(FaqHandler $faqHandler): APIResponse
     {

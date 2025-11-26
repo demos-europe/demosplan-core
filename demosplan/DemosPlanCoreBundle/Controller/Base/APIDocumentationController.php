@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class APIDocumentationController extends BaseController
 {
-    #[DplanPermissions("area_demosplan")]
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/api', methods: ['GET', 'HEAD'])]
     public function index(): Response
     {
@@ -40,7 +40,7 @@ class APIDocumentationController extends BaseController
     /**
      * @throws TypeErrorException
      */
-    #[DplanPermissions("area_demosplan")]
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
     public function openapi(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
     {

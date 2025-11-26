@@ -23,7 +23,7 @@ class DemosPlanElementsBulkEditController extends BaseController
     /**
      * @throws Exception
      */
-    #[DplanPermissions("feature_admin_element_edit")]
+    #[DplanPermissions('feature_admin_element_edit')]
     #[Route(name: 'dplan_elements_bulk_edit', methods: 'GET', path: '/verfahren/{procedureId}/planunterlagen/kategorien-bearbeiten', options: ['expose' => true])]
     public function showForm(string $procedureId): Response
     {

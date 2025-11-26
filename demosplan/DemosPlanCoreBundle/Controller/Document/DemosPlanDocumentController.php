@@ -100,7 +100,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_paragraphed_document")]
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_element', path: '/verfahren/{procedure}/verwalten/element/{elementId}')]
     public function paragraphAdminSave(
         DocumentHandler $documentHandler,
@@ -264,7 +264,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_paragraphed_document")]
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_paragraph_edit', path: '/verfahren/{procedure}/verwalten/paragraph/{documentID}')]
     public function paragraphAdminEdit(
         Breadcrumb $breadcrumb,
@@ -365,7 +365,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_paragraphed_document")]
+    #[DplanPermissions('area_admin_paragraphed_document')]
     #[Route(name: 'DemosPlan_plandocument_administration_paragraph_new', path: '/verfahren/{procedure}/verwalten/paragraph/neu/{elementId}')]
     public function paragraphAdminNew(
         Breadcrumb $breadcrumb,
@@ -450,7 +450,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_single_document")]
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(
         name: 'DemosPlan_singledocument_administration_new',
         path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{elementId}/neu/{category}'
@@ -526,7 +526,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_single_document")]
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_singledocument_administration_edit', path: '/verfahren/{procedure}/verwalten/planunterlagen/dokument/{documentID}/edit', options: ['expose' => true])]
     public function singleDocumentAdminEdit(
         Breadcrumb $breadcrumb,
@@ -632,7 +632,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_single_document")]
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_element_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen', options: ['expose' => true])]
     public function elementAdminList(
         Breadcrumb $breadcrumb,
@@ -694,7 +694,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_single_document")]
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
     public function saveImportedElementsAdmin(
         CurrentUserInterface $currentUser,
@@ -744,7 +744,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions(["area_admin_single_document","feature_admin_element_import"])]
+    #[DplanPermissions(['area_admin_single_document', 'feature_admin_element_import'])]
     #[Route(name: 'DemosPlan_element_import', path: '/verfahren/{procedureId}/verwalten/planunterlagen/import')]
     public function elementAdminImport(
         CurrentUserInterface $currentUser,
@@ -1030,7 +1030,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_admin_single_document")]
+    #[DplanPermissions('area_admin_single_document')]
     #[Route(
         name: 'DemosPlan_elements_administration_edit',
         path: '/verfahren/{procedure}/verwalten/planunterlagen/{elementId}/edit',
@@ -1184,7 +1184,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions(["area_admin_single_document","feature_admin_element_edit"])]
+    #[DplanPermissions(['area_admin_single_document', 'feature_admin_element_edit'])]
     #[Route(name: 'DemosPlan_elements_administration_new', path: '/verfahren/{procedure}/verwalten/planunterlagen/new')]
     public function elementAdminNew(
         Breadcrumb $breadcrumb,
@@ -1259,7 +1259,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_public_participation")]
+    #[DplanPermissions('area_public_participation')]
     public function publicDocumentList(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -1304,7 +1304,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions("area_public_participation")]
+    #[DplanPermissions('area_public_participation')]
     #[Route(name: 'DemosPlan_public_plandocument_paragraph', path: '/verfahren/{procedure}/public/paragraph/{elementId}', defaults: ['category' => 'paragraph', 'type' => 'all'], options: ['expose' => true])]
     public function publicParagraphList(
         BrandingService $brandingService,
@@ -1779,7 +1779,7 @@ class DemosPlanDocumentController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[DplanPermissions("feature_element_export")]
+    #[DplanPermissions('feature_element_export')]
     #[Route(name: 'DemosPlan_document_zip_files', path: '/verfahren/{procedureId}/planunterlagen/zipfiles', options: ['expose' => true])]
     public function zipFiles(Request $request, TranslatorInterface $translator, string $procedureId)
     {

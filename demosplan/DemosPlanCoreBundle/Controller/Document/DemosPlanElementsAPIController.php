@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanElementsAPIController extends APIController
 {
-    #[DplanPermissions("area_admin")]
+    #[DplanPermissions('area_admin')]
     #[Route(path: '/api/1.0/documents/{procedureId}/elements/{elementsId}', methods: ['PATCH'], name: 'dp_api_documents_elements_update', options: ['expose' => true])]
     public function updateElements(ElementsService $elementsService, PermissionsInterface $permissions, $procedureId, string $elementsId): Response
     {
@@ -58,7 +58,7 @@ class DemosPlanElementsAPIController extends APIController
     /**
      * @return APIResponse|JsonResponse
      */
-    #[DplanPermissions("area_demosplan")]
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/api/1.0/element/{elementId}', methods: ['GET'], name: 'dp_api_elements_get', options: ['expose' => true])]
     public function getAction(
         ApiResourceService $apiResourceService,

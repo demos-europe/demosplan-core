@@ -43,7 +43,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      *
      * @throws Exception
      */
-    #[DplanPermissions(["area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"])]
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_edit', 'feature_statement_fragment_bulk_edit'])]
     #[Route(path: '/api/1.0/statement-fragment-update', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
     public function create(
         CurrentProcedureService $currentProcedureService,
