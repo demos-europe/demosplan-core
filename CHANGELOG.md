@@ -5,7 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add similar submitters to the Submitter List
+- Add segment text to the boilerplate modal, if the segment and its text is available
 - Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
+
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
