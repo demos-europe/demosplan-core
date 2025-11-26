@@ -46,10 +46,6 @@ export default () => {
 
   const elementsHiddenForBaseMap = [
     {
-      node: document.querySelector('input[name="r_user_toggle_visibility"]'),
-      defaultValue: true
-    },
-    {
       node: document.querySelector('input[name="r_opacity"]'),
       defaultValue: '100'
     }
