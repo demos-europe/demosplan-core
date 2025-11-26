@@ -420,6 +420,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_organisation_email_reviewer_admin',
                     'field_procedure_linkbox',
                     'field_procedure_pictogram',
+                    'field_procedure_pictogram_view',
                     'field_required_procedure_end_date',
                     'field_statement_county',
                     'field_statement_intern_id',
