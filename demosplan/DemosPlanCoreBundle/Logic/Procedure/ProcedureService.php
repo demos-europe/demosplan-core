@@ -796,32 +796,20 @@ class ProcedureService implements ProcedureServiceInterface
         // Initialize empty collection - we'll only add authorized users
         $usersOfOrganisation = \collect();
 
-        // Include users from all planning offices associated with this procedure
-        // This includes the current user's organization IF it is a planning office
-        $planningOfficeIds = $procedure->getPlanningOfficesIds();
-        if (!empty($planningOfficeIds)) {
-            foreach ($planningOfficeIds as $planningOfficeId) {
-                try {
-                    $planningOffice = $this->orgaService->getOrga($planningOfficeId);
-                    if ($planningOffice instanceof Orga) {
-                        $planningOfficeUsers = $planningOffice->getUsers();
-                        // Filter to only include planners from planning offices
-                        $filteredPlanningOfficeUsers = $planningOfficeUsers->filter(
-                            static fn (User $u): bool => $u->isPlanner()
-                        );
-                        // Merge with existing users collection
-                        foreach ($filteredPlanningOfficeUsers as $planningOfficeUser) {
-                            if (!$usersOfOrganisation->contains($planningOfficeUser)) {
-                                $usersOfOrganisation->add($planningOfficeUser);
-                            }
-                        }
+        // Include planners from all planning offices associated with this procedure
+        foreach ($procedure->getPlanningOfficesIds() as $planningOfficeId) {
+            try {
+                $planningOffice = $this->orgaService->getOrga($planningOfficeId);
+                foreach ($planningOffice?->getUsers()->filter(static fn (User $u): bool => $u->isPlanner()) ?? [] as $user) {
+                    if (!$usersOfOrganisation->contains($user)) {
+                        $usersOfOrganisation->add($user);
                     }
-                } catch (Exception $e) {
-                    $this->logger->error('getAuthorizedUsers - failed to load planning office', [
-                        'planningOfficeId' => $planningOfficeId,
-                        'error'            => $e->getMessage(),
-                    ]);
                 }
+            } catch (Exception $e) {
+                $this->logger->error('getAuthorizedUsers - failed to load planning office', [
+                    'planningOfficeId' => $planningOfficeId,
+                    'error'            => $e->getMessage(),
+                ]);
             }
         }
 
