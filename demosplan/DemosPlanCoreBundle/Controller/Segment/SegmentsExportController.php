@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -46,6 +47,7 @@ class SegmentsExportController extends BaseController
         private readonly NameGenerator $nameGenerator,
         private readonly ProcedureHandler $procedureHandler,
         private readonly RequestStack $requestStack,
+        private readonly StatementExportTagFilter $statementExportTagFilter,
     ) {
     }
 
@@ -127,7 +129,7 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $statementEntities = $this->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -192,7 +194,7 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $statementEntities = $this->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $response = new StreamedResponse(
             static function () use ($statementEntities, $exporter) {
@@ -257,7 +259,7 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $statements = $this->filterStatementsByTags($statements, $tagsFilter);
+        $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
 
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,
@@ -330,65 +332,5 @@ class SegmentsExportController extends BaseController
         $parameter = $this->requestStack->getCurrentRequest()->query->get($parameterName, $defaultValue);
 
         return filter_var($parameter, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    /**
-     * Filters statements based on their segments' tags.
-     *
-     * A statement is included if ANY of its segments have tags matching the filter criteria.
-     * The filter accepts:
-     * - tagIds: array of tag IDs
-     * - tagTitles: array of tag titles
-     * - tagTopicIds: array of tag topic IDs
-     * - tagTopicTitles: array of tag topic titles
-     *
-     * @param Statement[] $statements
-     *
-     * @return Statement[]
-     */
-    private function filterStatementsByTags(array $statements, array $tagsFilter): array
-    {
-        if (empty($tagsFilter)) {
-            return $statements;
-        }
-
-        $tagIds = $tagsFilter['tagIds'] ?? [];
-        $tagTitles = $tagsFilter['tagTitles'] ?? [];
-        $tagTopicIds = $tagsFilter['tagTopicIds'] ?? [];
-        $tagTopicTitles = $tagsFilter['tagTopicTitles'] ?? [];
-
-        // If no filter criteria provided, return all statements
-        if (empty($tagIds) && empty($tagTitles) && empty($tagTopicIds) && empty($tagTopicTitles)) {
-            return $statements;
-        }
-
-        return array_filter($statements, static function (Statement $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
-            // Check all segments of the statement
-            foreach ($statement->getSegmentsOfStatement() as $segment) {
-                foreach ($segment->getTags() as $tag) {
-                    // Check if tag matches any of the filter criteria
-                    if (!empty($tagIds) && in_array($tag->getId(), $tagIds, true)) {
-                        return true;
-                    }
-
-                    if (!empty($tagTitles) && in_array($tag->getTitle(), $tagTitles, true)) {
-                        return true;
-                    }
-
-                    $tagTopic = $tag->getTopic();
-                    if (null !== $tagTopic) {
-                        if (!empty($tagTopicIds) && in_array($tagTopic->getId(), $tagTopicIds, true)) {
-                            return true;
-                        }
-
-                        if (!empty($tagTopicTitles) && in_array($tagTopic->getTitle(), $tagTopicTitles, true)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
-        });
     }
 }
