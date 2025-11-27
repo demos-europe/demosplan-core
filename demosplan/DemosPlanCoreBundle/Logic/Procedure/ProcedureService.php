@@ -847,40 +847,20 @@ class ProcedureService implements ProcedureServiceInterface
         bool $excludeUser = true,
     ): Collection {
         $user ??= $this->currentUser->getUser();
-        if (!$user instanceof User) {
-            return \collect();
-        }
+        $userOrga = $user?->getOrga();
 
-        $userOrga = $user->getOrga();
         if (!$userOrga instanceof Orga) {
             return \collect();
         }
 
-        // Get all users from the current user's organization
-        $usersOfOrganisation = $userOrga->getUsers();
-
-        $this->logger->info('getAuthorizedUsersForSelection DEBUG', [
-            'currentUserId'    => $user->getId(),
-            'orgaId'           => $userOrga->getId(),
-            'orgaName'         => $userOrga->getName(),
-            'initialUserCount' => $usersOfOrganisation->count(),
-            'excludeUser'      => $excludeUser,
-        ]);
-
-        // Filter users with correct roles
-        $usersOfOrganisation = $usersOfOrganisation->filter(
+        // Get users from organization, filter by role, and optionally exclude current user
+        $usersOfOrganisation = $userOrga->getUsers()->filter(
             static fn (User $u): bool => $u->isPlanningAgency() || $u->isHearingAuthority() || $u->isPlanner()
         );
 
-        // Remove current user if requested
         if ($excludeUser) {
             $usersOfOrganisation->forget($usersOfOrganisation->search($user));
         }
-
-        $this->logger->info('getAuthorizedUsersForSelection DEBUG - FINAL', [
-            'finalUserCount' => $usersOfOrganisation->count(),
-            'userNames'      => $usersOfOrganisation->map(fn ($u) => $u->getName())->toArray(),
-        ]);
 
         return $usersOfOrganisation;
     }
