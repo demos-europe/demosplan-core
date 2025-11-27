@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Base;
 
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\Writer;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use EDT\JsonApi\ApiDocumentation\GetActionConfig;
 use EDT\JsonApi\ApiDocumentation\ListActionConfig;
 use EDT\JsonApi\ApiDocumentation\OpenApiWording;
@@ -26,9 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class APIDocumentationController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_demosplan")
-     */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/api', methods: ['GET', 'HEAD'])]
     public function index(): Response
     {
@@ -40,10 +38,9 @@ class APIDocumentationController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @throws TypeErrorException
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
     public function openapi(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
     {
