@@ -801,14 +801,14 @@ class ProcedureService implements ProcedureServiceInterface
         $isUserOrgaPlanningOffice = \in_array($userOrga->getId(), $planningOfficeIds, true);
 
         $this->logger->info('getAuthorizedUsers DEBUG', [
-            'procedureId' => $procedureId,
-            'currentUserId' => $user->getId(),
-            'orgaId' => $userOrga->getId(),
-            'orgaName' => $userOrga->getName(),
-            'excludeUser' => $excludeUser,
+            'procedureId'                     => $procedureId,
+            'currentUserId'                   => $user->getId(),
+            'orgaId'                          => $userOrga->getId(),
+            'orgaName'                        => $userOrga->getName(),
+            'excludeUser'                     => $excludeUser,
             'excludeProcedureAuthorizedUsers' => $excludeProcedureAuthorizedUsers,
-            'planningOfficeIds' => $planningOfficeIds,
-            'isUserOrgaPlanningOffice' => $isUserOrgaPlanningOffice,
+            'planningOfficeIds'               => $planningOfficeIds,
+            'isUserOrgaPlanningOffice'        => $isUserOrgaPlanningOffice,
         ]);
 
         // Include users from all planning offices associated with this procedure
@@ -830,15 +830,15 @@ class ProcedureService implements ProcedureServiceInterface
                             }
                         }
                         $this->logger->info('getAuthorizedUsers DEBUG - added planning office users', [
-                            'planningOfficeId' => $planningOfficeId,
+                            'planningOfficeId'   => $planningOfficeId,
                             'planningOfficeName' => $planningOffice->getName(),
-                            'addedUserCount' => $filteredPlanningOfficeUsers->count(),
+                            'addedUserCount'     => $filteredPlanningOfficeUsers->count(),
                         ]);
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $this->logger->error('getAuthorizedUsers - failed to load planning office', [
                         'planningOfficeId' => $planningOfficeId,
-                        'error' => $e->getMessage(),
+                        'error'            => $e->getMessage(),
                     ]);
                 }
             }
@@ -855,7 +855,7 @@ class ProcedureService implements ProcedureServiceInterface
         );
         $this->logger->info('getAuthorizedUsers DEBUG - after role filter', [
             'beforeFilter' => $beforeRoleFilter,
-            'afterFilter' => $usersOfOrganisation->count(),
+            'afterFilter'  => $usersOfOrganisation->count(),
         ]);
 
         // Add explicitly authorized users from the procedure
@@ -868,9 +868,9 @@ class ProcedureService implements ProcedureServiceInterface
                 }
             }
             $this->logger->info('getAuthorizedUsers DEBUG - after adding procedure authorized users', [
-                'addedCount' => $procedureAuthorizedUsers->count(),
-                'totalUserCount' => $usersOfOrganisation->count(),
-                'authorizedUserNames' => $procedureAuthorizedUsers->map(fn($u) => $u->getName())->toArray(),
+                'addedCount'          => $procedureAuthorizedUsers->count(),
+                'totalUserCount'      => $usersOfOrganisation->count(),
+                'authorizedUserNames' => $procedureAuthorizedUsers->map(fn ($u) => $u->getName())->toArray(),
             ]);
         }
 
@@ -884,8 +884,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         $this->logger->info('getAuthorizedUsers DEBUG - FINAL RESULT', [
             'finalUserCount' => $usersOfOrganisation->count(),
-            'userIds' => $usersOfOrganisation->map(fn($u) => $u->getId())->toArray(),
-            'userNames' => $usersOfOrganisation->map(fn($u) => $u->getName())->toArray(),
+            'userIds'        => $usersOfOrganisation->map(fn ($u) => $u->getId())->toArray(),
+            'userNames'      => $usersOfOrganisation->map(fn ($u) => $u->getName())->toArray(),
         ]);
 
         return $usersOfOrganisation;
@@ -902,7 +902,7 @@ class ProcedureService implements ProcedureServiceInterface
      */
     public function getAuthorizedUsersForSelection(
         ?User $user = null,
-        bool $excludeUser = true
+        bool $excludeUser = true,
     ): Collection {
         $user ??= $this->currentUser->getUser();
         if (!$user instanceof User) {
@@ -918,11 +918,11 @@ class ProcedureService implements ProcedureServiceInterface
         $usersOfOrganisation = $userOrga->getUsers();
 
         $this->logger->info('getAuthorizedUsersForSelection DEBUG', [
-            'currentUserId' => $user->getId(),
-            'orgaId' => $userOrga->getId(),
-            'orgaName' => $userOrga->getName(),
+            'currentUserId'    => $user->getId(),
+            'orgaId'           => $userOrga->getId(),
+            'orgaName'         => $userOrga->getName(),
             'initialUserCount' => $usersOfOrganisation->count(),
-            'excludeUser' => $excludeUser,
+            'excludeUser'      => $excludeUser,
         ]);
 
         // Filter users with correct roles
@@ -937,7 +937,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         $this->logger->info('getAuthorizedUsersForSelection DEBUG - FINAL', [
             'finalUserCount' => $usersOfOrganisation->count(),
-            'userNames' => $usersOfOrganisation->map(fn($u) => $u->getName())->toArray(),
+            'userNames'      => $usersOfOrganisation->map(fn ($u) => $u->getName())->toArray(),
         ]);
 
         return $usersOfOrganisation;
