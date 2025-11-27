@@ -258,7 +258,7 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              value="" />
+              v-model="values.internId" />
           </div>
 
           <!-- Hidden input for phase -->
@@ -533,12 +533,13 @@ export default {
       isSaving: false,
       values: {
         authoredDate: '',
+        internId: '',
         memo: '',
         quickSave: '',
         submittedDate: '',
+        submitter: submitterProperties,
         tags: [],
         text: '',
-        submitter: submitterProperties
       }
     }
   },
