@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -28,9 +28,8 @@ class StatementAnonymizeController extends BaseController
      *
      * @throws MessageBagException
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_anonymize")
      */
+    #[DplanPermissions('area_statement_anonymize')]
     #[Route(path: '/procedure/{procedureId}/statement/{statementId}/anonymize', name: 'DemosPlan_statement_anonymize_view', options: ['expose' => true])]
     public function statementAnonymize(
         AssessmentHandler $assessmentHandler,
