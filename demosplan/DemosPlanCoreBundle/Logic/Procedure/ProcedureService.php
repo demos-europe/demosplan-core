@@ -795,7 +795,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         $usersOfOrganisation = \collect();
 
-        // Include planners from all planning offices associated with this procedure
+        // Include planners from all planning offices configured in Basic Settings
+        // to show them as assignee options in the assessment table multiselect dropdown.
         foreach ($procedure->getPlanningOfficesIds() as $planningOfficeId) {
             try {
                 $planningOffice = $this->orgaService->getOrga($planningOfficeId);
@@ -812,13 +813,14 @@ class ProcedureService implements ProcedureServiceInterface
             }
         }
 
-        // Filter planning office users by role to only show valid assignee options in the assessment table multiselect dropdown.
-        // The planning offices which are chosen for this procedure are set in the procedure basic options.
+        // Filter users by role to ensure only valid roles appear in the assessment table multiselect dropdown.
+        // Exclude citizens, guests, and other roles that should not be assigned.
         $usersOfOrganisation = $usersOfOrganisation->filter(
             static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority() || $user->isPlanner()
         );
 
-        // Add authorized users from basic settings to show them as assignee options in the assessment table multiselect dropdown.
+        // Add individual authorized users configured in Basic Settings
+        // as additional assignee options in the assessment table multiselect dropdown.
         $procedureAuthorizedUsers = $procedure->getAuthorizedUsers();
         if ($procedureAuthorizedUsers->count() > 0) {
             foreach ($procedureAuthorizedUsers as $authorizedUser) {
@@ -851,7 +853,7 @@ class ProcedureService implements ProcedureServiceInterface
             return \collect();
         }
 
-        // Get the user from the org, filter by role, and exclude the current user
+        // Get all user from the org, filter by role, and exclude the current user.
         $usersOfOrganisation = $userOrga->getUsers()->filter(
             static fn (User $u): bool => $u->isPlanningAgency() || $u->isHearingAuthority() || $u->isPlanner()
         );
