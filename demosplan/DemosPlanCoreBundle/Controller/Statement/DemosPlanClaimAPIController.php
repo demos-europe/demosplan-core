@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -68,8 +68,8 @@ class DemosPlanClaimAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("feature_statement_assignment")
      */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
     public function updateStatementAssignment(string $statementId): APIResponse
     {
@@ -77,8 +77,8 @@ class DemosPlanClaimAPIController extends APIController
     }
 
     /**
-     * @DplanPermissions("feature_statement_assignment")
      */
+    #[DplanPermissions('feature_statement_assignment')]
     #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
     public function updateFragmentAssignment(string $entityId): APIResponse
     {
