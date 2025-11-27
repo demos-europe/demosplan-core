@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -28,12 +28,11 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
     /**
      * Delete a specific GisLayerCategory.
      *
-     * @DplanPermissions({"area_admin_map","feature_map_category"})
-     *
      * @return $this|JsonResponse
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
     #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
     public function layerCategoryDelete(string $layerCategoryId, MapService $mapService)
     {

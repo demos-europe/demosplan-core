@@ -200,7 +200,7 @@ area_data_protection_text:
 area_demosplan:
     description: |-
         This is a global Feature which should always be true.
-        It should be used as `@DplanPermissions` value if there
+        It should be used as `DplanPermissions` value if there
         is no more concerete permission to apply.
     label: 'Global area which is always enabled.'
     loginRequired: false
