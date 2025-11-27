@@ -156,7 +156,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $paginationData = $hashList[$procedureId][$type] ?? null;
         $rParams = array_key_exists('limit', $rParams['request'])
             ? $statementService->addPaginationToParams(1, null, $rParams)
-            : $statementService->addPaginationToParams((int) $paginationData['page'], $paginationData['r_limit'], $rParams);
+            : $statementService->addPaginationToParams((int)$paginationData['page'], $paginationData['r_limit'], $rParams);
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
@@ -258,10 +258,7 @@ class DemosPlanAssessmentTableController extends BaseController
             'statementFragmentAgencies'       => $statementHandler->getAgencyData(),
             'assessmentExportOptions'         => $exportOptions->get('assessment_table'),
             'authorizedUsersOfMyOrganization' => $procedureService->getAuthorizedUsers(
-                $procedureId,
-                null,
-                false,
-                false
+                $procedureId
             ),
             'accessibleProcedureIds'          => $accessibleProcedureIds,
             'defaultToggleView'               => $this->globalConfig->getAssessmentTableDefaultToggleView(),
@@ -375,7 +372,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $paginationData = $hashList[$procedureId][$type] ?? null;
         $rParams = array_key_exists('limit', $rParams['request'])
             ? $statementService->addPaginationToParams(1, null, $rParams)
-            : $statementService->addPaginationToParams((int) $paginationData['page'], $paginationData['r_limit'], $rParams);
+            : $statementService->addPaginationToParams((int)$paginationData['page'], $paginationData['r_limit'], $rParams);
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
