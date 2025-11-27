@@ -332,6 +332,63 @@ export default {
         .map(el => el.condition.value)
     },
 
+    buildFilterOption (option) {
+      if (!option) {
+        return null
+      }
+
+      const { attributes, id } = option
+      const { count, description, label, selected } = attributes
+
+      return { id, count, description, label, selected }
+    },
+
+    getGroupedOptions (resource, filter, result) {
+      const isGroup = resource.type === 'AggregationFilterGroup'
+      const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+      const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
+
+      if (isGroup && groupBelongsToFilterType) {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
+
+        const filterOptions = filterOptionsIds
+          .map(id => this.buildFilterOption(result.included.find(item => item.id === id)))
+          .filter(Boolean)
+
+        if (filterOptions.length === 0) {
+          return null
+        }
+
+        const { id, attributes } = resource
+        const { label } = attributes
+
+        return {
+          id,
+          label,
+          options: filterOptions,
+        }
+      }
+    },
+
+    getUngroupedOptions (resource, filter) {
+      const isFilterItem = resource.type === 'AggregationFilterItem'
+      const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+      const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
+
+      if (isFilterItem && filterOptionBelongsToFilterType) {
+        const option = this.buildFilterOption(resource)
+
+        if (!option) {
+          return null
+        }
+
+        return {
+          ...option,
+          ungrouped: true,
+        }
+      }
+    },
+
     /**
      *
      * @param params {Object}
@@ -378,64 +435,27 @@ export default {
       dpRpc('segments.facets.list', requestParams, 'filterList')
         .then(({ data }) => {
           const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
-
           if (!result) {
+            return
+          }
+
+          const filter = result.data.find(type => type.attributes.path === path)
+          if (!filter) {
             return
           }
 
           const groupedOptions = []
           const ungroupedOptions = []
 
-          const buildFilterOption = option => {
-            if (!option) return null
-
-            const { attributes, id } = option
-            const { count, description, label, selected } = attributes
-
-            return { id, count, description, label, selected }
-          }
-
           result.included?.forEach(resource => {
-            const filter = result.data.find(type => type.attributes.path === path)
-
-            const isGroup = resource.type === 'AggregationFilterGroup'
-            const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-            const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
-
-            if (isGroup && groupBelongsToFilterType) {
-              const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
-
-              const filterOptions = filterOptionsIds
-                .map(id => buildFilterOption(result.included.find(item => item.id === id)))
-                .filter(Boolean)
-
-              if (filterOptions.length > 0) {
-                const { id, attributes } = resource
-                const { label } = attributes
-                const group = {
-                  id,
-                  label,
-                  options: filterOptions,
-                }
-
-                groupedOptions.push(group)
-              }
+            const group = this.getGroupedOptions(resource, filter, result)
+            if (group) {
+              groupedOptions.push(group)
             }
 
-            const isFilterItem = resource.type === 'AggregationFilterItem'
-            const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-            const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
-
-            // Ungrouped filter options
-            if (isFilterItem && filterOptionBelongsToFilterType) {
-              const option = buildFilterOption(resource)
-
-              if (option) {
-                ungroupedOptions.push({
-                  ...option,
-                  ungrouped: true,
-                })
-              }
+            const item = this.getUngroupedOptions(resource, filter)
+            if (item) {
+              ungroupedOptions.push(item)
             }
           })
 
@@ -475,6 +495,7 @@ export default {
           })
 
           this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+
           if (this.getIsExpandedByCategoryId(category.id)) {
             document.getElementById(`searchField_${path}`).focus()
           }
