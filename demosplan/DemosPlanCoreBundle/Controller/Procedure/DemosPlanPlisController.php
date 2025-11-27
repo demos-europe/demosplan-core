@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\Plis;
 use Exception;
@@ -26,12 +26,11 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Planungsanlass zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @DplanPermissions("feature_use_plis")
-     *
      * @param string $uuid
      *
      * @return Response
      */
+    #[DplanPermissions('feature_use_plis')]
     #[Route(name: 'DemosPlan_plis_get_procedure', path: '/plis/getProcedure/{uuid}', options: ['expose' => true])]
     public function getLgvPlisPlanningcause(Plis $procedureHandlerBobhh, $uuid)
     {
@@ -62,10 +61,9 @@ class DemosPlanPlisController extends BaseController
     /**
      * Gib den Namen zu einem Verfahren aus der PLIS-Datenbank aus.
      *
-     * @DplanPermissions("feature_use_plis")
-     *
      * @param string $uuid Procedure Identifier
      */
+    #[DplanPermissions('feature_use_plis')]
     #[Route(name: 'DemosPlan_plis_get_procedure_name', path: '/plis/getProcedureName/{uuid}', options: ['expose' => true])]
     public function getLgvPlisProcedureNameJson(Plis $plis, $uuid): JsonResponse
     {
