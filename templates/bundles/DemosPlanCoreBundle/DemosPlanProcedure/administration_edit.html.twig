@@ -473,17 +473,17 @@
                                 {% endif %}
 
                                 {% if hasPermission('field_procedure_pictogram_view') and hasPermission('area_public_participation') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_pictogram">
-                                            {{ 'procedure.pictogram'|trans }}*
+                                    <div class="mb-4">
+                                        <label class="inline-block mb-0" for="r_pictogram">
+                                            {{ 'procedure.pictogram'|trans }}
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img
-                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                class="layout__item w-1/6 pl-0 mb-4"
                                                 src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
                                                 alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
-                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
+                                         --><label class="layout__item w-1/3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
                                         </label>
@@ -497,11 +497,12 @@
                                             {{  fileupload(
                                                 fieldName: "r_pictogram",
                                                 fieldLabel: '<p class="lbl__hint">'
-                                                ~ "text.procedure.edit.external.pictogram"|trans
+                                                ~ "explanation.procedure.pictogram.missing"|trans
+                                                ~ ' '
+                                                ~ "explanation.procedure.pictogram.dimensions"|trans
                                                 ~ '</p>',
                                                 type: "img",
                                                 label: "form.button.upload.file",
-                                                required: true,
                                                 multiInstance: true,
                                                 maxFileSize: 5242880
                                             )
@@ -516,8 +517,7 @@
                                             }"
                                             class="my-2"
                                             data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
-                                            required>
+                                            name="r_pictogramCopyright">
                                         </dp-input>
 
                                         <dp-input
@@ -529,8 +529,7 @@
                                             }"
                                             class="my-2"
                                             data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
-                                            required>
+                                            name="r_pictogramAltText">
                                         </dp-input>
                                     </div>
                                 {% endif %}
