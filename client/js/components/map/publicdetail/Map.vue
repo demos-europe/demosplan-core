@@ -839,7 +839,11 @@ export default {
     },
 
     doAllTheOtherExcitingStuff () {
-      this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      // Ensure map has correct dimensions before fitting to initial extent
+      this.$nextTick(() => {
+        this.map.updateSize()
+        this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      })
 
       this.map.getLayerGroup().set('name', 'Root')
 
