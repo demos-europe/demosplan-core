@@ -793,23 +793,26 @@ class ProcedureService implements ProcedureServiceInterface
             return \collect();
         }
 
-        $usersOfOrganisation = $userOrga->getUsers();
+        // Initialize empty collection - we'll only add authorized users
+        $usersOfOrganisation = \collect();
 
-        // DEBUG: Log initial user count
+        // DEBUG: Log initial state
         $planningOfficeIds = $procedure->getPlanningOfficesIds();
+        $isUserOrgaPlanningOffice = \in_array($userOrga->getId(), $planningOfficeIds, true);
+
         $this->logger->info('getAuthorizedUsers DEBUG', [
             'procedureId' => $procedureId,
             'currentUserId' => $user->getId(),
             'orgaId' => $userOrga->getId(),
             'orgaName' => $userOrga->getName(),
-            'initialUserCount' => $usersOfOrganisation->count(),
             'excludeUser' => $excludeUser,
             'excludeProcedureAuthorizedUsers' => $excludeProcedureAuthorizedUsers,
             'planningOfficeIds' => $planningOfficeIds,
-            'isUserOrgaPlanningOffice' => \in_array($userOrga->getId(), $planningOfficeIds, true),
+            'isUserOrgaPlanningOffice' => $isUserOrgaPlanningOffice,
         ]);
 
-        // Also include users from all planning offices associated with this procedure
+        // Include users from all planning offices associated with this procedure
+        // This includes the current user's organization IF it is a planning office
         if (!empty($planningOfficeIds)) {
             foreach ($planningOfficeIds as $planningOfficeId) {
                 try {
@@ -882,6 +885,58 @@ class ProcedureService implements ProcedureServiceInterface
         $this->logger->info('getAuthorizedUsers DEBUG - FINAL RESULT', [
             'finalUserCount' => $usersOfOrganisation->count(),
             'userIds' => $usersOfOrganisation->map(fn($u) => $u->getId())->toArray(),
+            'userNames' => $usersOfOrganisation->map(fn($u) => $u->getName())->toArray(),
+        ]);
+
+        return $usersOfOrganisation;
+    }
+
+    /**
+     * Get users from the current user's organization for the authorized users selection
+     * in Basic Settings. This returns ONLY users from the current user's own organization.
+     *
+     * @param User|null $user        The current user (defaults to logged-in user)
+     * @param bool      $excludeUser Whether to exclude the current user from the list
+     *
+     * @return Collection<User>
+     */
+    public function getAuthorizedUsersForSelection(
+        ?User $user = null,
+        bool $excludeUser = true
+    ): Collection {
+        $user ??= $this->currentUser->getUser();
+        if (!$user instanceof User) {
+            return \collect();
+        }
+
+        $userOrga = $user->getOrga();
+        if (!$userOrga instanceof Orga) {
+            return \collect();
+        }
+
+        // Get all users from the current user's organization
+        $usersOfOrganisation = $userOrga->getUsers();
+
+        $this->logger->info('getAuthorizedUsersForSelection DEBUG', [
+            'currentUserId' => $user->getId(),
+            'orgaId' => $userOrga->getId(),
+            'orgaName' => $userOrga->getName(),
+            'initialUserCount' => $usersOfOrganisation->count(),
+            'excludeUser' => $excludeUser,
+        ]);
+
+        // Filter users with correct roles
+        $usersOfOrganisation = $usersOfOrganisation->filter(
+            static fn (User $u): bool => $u->isPlanningAgency() || $u->isHearingAuthority() || $u->isPlanner()
+        );
+
+        // Remove current user if requested
+        if ($excludeUser) {
+            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
+        }
+
+        $this->logger->info('getAuthorizedUsersForSelection DEBUG - FINAL', [
+            'finalUserCount' => $usersOfOrganisation->count(),
             'userNames' => $usersOfOrganisation->map(fn($u) => $u->getName())->toArray(),
         ]);
 
