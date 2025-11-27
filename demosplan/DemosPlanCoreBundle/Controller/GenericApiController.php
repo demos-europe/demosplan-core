@@ -21,7 +21,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ListableResourceTypeInterf
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\UpdatableResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use EDT\JsonApi\RequestHandling\RequestConstraintFactory;
 use EDT\JsonApi\Requests\CreationRequest;
@@ -60,11 +60,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#fetching-resources Fetching Resources
      *
-     * @DplanPermissions("feature_json_api_list")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_list')]
     #[Route(
         path: '/api/2.0/{resourceType}',
         name: 'api_resource_list',
@@ -104,11 +103,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-updating Updating Resources
      *
-     * @DplanPermissions("feature_json_api_update")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_update')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_update',
@@ -163,11 +161,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-creating Creating Resources
      *
-     * @DplanPermissions("feature_json_api_create")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_create')]
     #[Route(
         path: '/api/2.0/{resourceType}',
         name: 'api_resource_create',
@@ -208,11 +205,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#crud-deleting Deleting Resources
      *
-     * @DplanPermissions("feature_json_api_delete")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_delete')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_delete',
@@ -252,11 +248,10 @@ class GenericApiController extends APIController
      *
      * @see https://jsonapi.org/format/1.1/#fetching-resources Fetching Resources
      *
-     * @DplanPermissions("feature_json_api_get")
-     *
      * @throws TypeRetrievalAccessException
      * @throws RequestException
      */
+    #[DplanPermissions('feature_json_api_get')]
     #[Route(
         path: '/api/2.0/{resourceType}/{resourceId}',
         name: 'api_resource_get',
