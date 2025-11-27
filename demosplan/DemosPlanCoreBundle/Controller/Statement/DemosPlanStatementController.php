@@ -2303,7 +2303,6 @@ class DemosPlanStatementController extends BaseController
      *
      * @throws ProcedureNotFoundException
      * @throws Exception
-     *
      */
     #[DplanPermissions('feature_statements_import_excel')]
     #[Route(name: 'DemosPlan_statement_import', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/import', options: ['expose' => true])]
