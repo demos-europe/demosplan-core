@@ -763,11 +763,13 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * Current user can assign statements & datasets to authorized user. To do that, we need a list. This gets the list.
      *
+     * Returns users from:
+     * - All planning offices registered in Basic Settings
+     * - Explicitly authorized users from procedure settings
+     *
      * @param string $procedureId
-     * @param User   $user                            User is needed as s/he ony may see
-     *                                                Members of same Organisation; if no user was given then the current user will be used
-     * @param bool   $excludeUser                     exclude given user from list?
-     * @param bool   $excludeProcedureAuthorizedUsers filter users who may not administer this Procedure
+     * @param User   $user User is needed as s/he only may see members of same organisation;
+     *                     if no user was given then the current user will be used
      *
      * @throws ORMException
      * @throws OptimisticLockException
@@ -776,8 +778,6 @@ class ProcedureService implements ProcedureServiceInterface
     public function getAuthorizedUsers(
         $procedureId,
         ?User $user = null,
-        $excludeUser = false,
-        $excludeProcedureAuthorizedUsers = true,
     ): Collection {
         if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
@@ -801,14 +801,12 @@ class ProcedureService implements ProcedureServiceInterface
         $isUserOrgaPlanningOffice = \in_array($userOrga->getId(), $planningOfficeIds, true);
 
         $this->logger->info('getAuthorizedUsers DEBUG', [
-            'procedureId'                     => $procedureId,
-            'currentUserId'                   => $user->getId(),
-            'orgaId'                          => $userOrga->getId(),
-            'orgaName'                        => $userOrga->getName(),
-            'excludeUser'                     => $excludeUser,
-            'excludeProcedureAuthorizedUsers' => $excludeProcedureAuthorizedUsers,
-            'planningOfficeIds'               => $planningOfficeIds,
-            'isUserOrgaPlanningOffice'        => $isUserOrgaPlanningOffice,
+            'procedureId'              => $procedureId,
+            'currentUserId'            => $user->getId(),
+            'orgaId'                   => $userOrga->getId(),
+            'orgaName'                 => $userOrga->getName(),
+            'planningOfficeIds'        => $planningOfficeIds,
+            'isUserOrgaPlanningOffice' => $isUserOrgaPlanningOffice,
         ]);
 
         // Include users from all planning offices associated with this procedure
@@ -871,14 +869,6 @@ class ProcedureService implements ProcedureServiceInterface
                 'addedCount'          => $procedureAuthorizedUsers->count(),
                 'totalUserCount'      => $usersOfOrganisation->count(),
                 'authorizedUserNames' => $procedureAuthorizedUsers->map(fn ($u) => $u->getName())->toArray(),
-            ]);
-        }
-
-        // remove current user, to avoid unselecting yourself:
-        if ($excludeUser) {
-            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
-            $this->logger->info('getAuthorizedUsers DEBUG - after excludeUser', [
-                'userCount' => $usersOfOrganisation->count(),
             ]);
         }
 
