@@ -27,8 +27,6 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TagTopicAPIController extends APIController
 {
-    /**
-     */
     #[DplanPermissions('feature_json_api_tag_topic_create')]
     #[Route(path: '/api/1.0/TagTopic', methods: ['POST'], name: 'dplan_api_tag_topic_create', options: ['expose' => true])]
     public function create(

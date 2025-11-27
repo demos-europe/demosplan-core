@@ -2368,7 +2368,7 @@ class DemosPlanStatementController extends BaseController
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['feature_statements_participation_import_excel'])]
+    #[DplanPermissions(permissions: ['feature_statements_participation_import_excel'])]
     #[Route(
         path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
         name: 'DemosPlan_statement_participation_import',
