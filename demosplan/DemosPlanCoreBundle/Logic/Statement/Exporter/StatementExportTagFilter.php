@@ -24,6 +24,7 @@ class StatementExportTagFilter
     private const TAG_TITLES_FILTER_KEY = 'tagTitles';
     private const TAG_TOPIC_IDS_FILTER_KEY = 'tagTopicIds';
     private const TAG_TOPIC_TITLES_FILTER_KEY = 'tagTopicTitles';
+
     /**
      * Filters statements and their segments based on tag criteria.
      *
@@ -40,7 +41,7 @@ class StatementExportTagFilter
      * Filter logic: OR-based - a segment is included if it has ANY tag matching ANY filter criterion.
      *
      * @param Statement[] $statements
-     * @param array       $tagsFilter  associative array with filter criteria
+     * @param array       $tagsFilter associative array with filter criteria
      *
      * @return Statement[] statements with filtered segment collections
      */
@@ -92,6 +93,7 @@ class StatementExportTagFilter
                                 return true;
                             }
                         }
+
                         // exclude this segment from the payload
                         return false;
                     }
