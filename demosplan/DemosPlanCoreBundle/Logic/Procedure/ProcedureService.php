@@ -768,8 +768,8 @@ class ProcedureService implements ProcedureServiceInterface
      * - Explicitly authorized users from procedure settings
      *
      * @param string $procedureId
-     * @param User   $user User is needed as s/he only may see members of same organisation;
-     *                     if no user was given then the current user will be used
+     * @param User   $user        User is needed as s/he only may see members of same organisation;
+     *                            if no user was given then the current user will be used
      *
      * @throws ORMException
      * @throws OptimisticLockException
