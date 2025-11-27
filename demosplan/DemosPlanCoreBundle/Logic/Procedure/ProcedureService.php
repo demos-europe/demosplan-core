@@ -796,21 +796,9 @@ class ProcedureService implements ProcedureServiceInterface
         // Initialize empty collection - we'll only add authorized users
         $usersOfOrganisation = \collect();
 
-        // DEBUG: Log initial state
-        $planningOfficeIds = $procedure->getPlanningOfficesIds();
-        $isUserOrgaPlanningOffice = \in_array($userOrga->getId(), $planningOfficeIds, true);
-
-        $this->logger->info('getAuthorizedUsers DEBUG', [
-            'procedureId'              => $procedureId,
-            'currentUserId'            => $user->getId(),
-            'orgaId'                   => $userOrga->getId(),
-            'orgaName'                 => $userOrga->getName(),
-            'planningOfficeIds'        => $planningOfficeIds,
-            'isUserOrgaPlanningOffice' => $isUserOrgaPlanningOffice,
-        ]);
-
         // Include users from all planning offices associated with this procedure
         // This includes the current user's organization IF it is a planning office
+        $planningOfficeIds = $procedure->getPlanningOfficesIds();
         if (!empty($planningOfficeIds)) {
             foreach ($planningOfficeIds as $planningOfficeId) {
                 try {
@@ -827,11 +815,6 @@ class ProcedureService implements ProcedureServiceInterface
                                 $usersOfOrganisation->add($planningOfficeUser);
                             }
                         }
-                        $this->logger->info('getAuthorizedUsers DEBUG - added planning office users', [
-                            'planningOfficeId'   => $planningOfficeId,
-                            'planningOfficeName' => $planningOffice->getName(),
-                            'addedUserCount'     => $filteredPlanningOfficeUsers->count(),
-                        ]);
                     }
                 } catch (Exception $e) {
                     $this->logger->error('getAuthorizedUsers - failed to load planning office', [
@@ -840,21 +823,13 @@ class ProcedureService implements ProcedureServiceInterface
                     ]);
                 }
             }
-            $this->logger->info('getAuthorizedUsers DEBUG - after adding all planning office users', [
-                'totalUserCount' => $usersOfOrganisation->count(),
-            ]);
         }
 
         // T8901: filter users with false roles:
         // Include planning agencies, hearing authorities, and planners (e.g., from planning offices)
-        $beforeRoleFilter = $usersOfOrganisation->count();
         $usersOfOrganisation = $usersOfOrganisation->filter(
             static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority() || $user->isPlanner()
         );
-        $this->logger->info('getAuthorizedUsers DEBUG - after role filter', [
-            'beforeFilter' => $beforeRoleFilter,
-            'afterFilter'  => $usersOfOrganisation->count(),
-        ]);
 
         // Add explicitly authorized users from the procedure
         // These are users that were manually added in DpBasicSettings
@@ -865,18 +840,7 @@ class ProcedureService implements ProcedureServiceInterface
                     $usersOfOrganisation->add($authorizedUser);
                 }
             }
-            $this->logger->info('getAuthorizedUsers DEBUG - after adding procedure authorized users', [
-                'addedCount'          => $procedureAuthorizedUsers->count(),
-                'totalUserCount'      => $usersOfOrganisation->count(),
-                'authorizedUserNames' => $procedureAuthorizedUsers->map(fn ($u) => $u->getName())->toArray(),
-            ]);
         }
-
-        $this->logger->info('getAuthorizedUsers DEBUG - FINAL RESULT', [
-            'finalUserCount' => $usersOfOrganisation->count(),
-            'userIds'        => $usersOfOrganisation->map(fn ($u) => $u->getId())->toArray(),
-            'userNames'      => $usersOfOrganisation->map(fn ($u) => $u->getName())->toArray(),
-        ]);
 
         return $usersOfOrganisation;
     }
