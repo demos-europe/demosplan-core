@@ -49,7 +49,6 @@ class DemosPlanProcedureTypeController extends BaseController
     public const ID_VALIDATION_BYPASS = 'n/a';
 
     /**
-     *
      * @throws QueryException
      * @throws UserNotFoundException
      */
@@ -72,7 +71,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @throws NonUniqueResultException
      * @throws QueryException
      * @throws ResourceNotFoundException
@@ -171,7 +169,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @throws NonUniqueResultException
      * @throws QueryException
      * @throws ResourceNotFoundException
@@ -222,7 +219,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
@@ -356,7 +352,6 @@ class DemosPlanProcedureTypeController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException

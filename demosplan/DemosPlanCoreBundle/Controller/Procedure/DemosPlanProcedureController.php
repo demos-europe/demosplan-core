@@ -814,7 +814,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
@@ -916,7 +915,6 @@ class DemosPlanProcedureController extends BaseController
 
     /**
      * TöB hinzufügen Liste.
-     *
      *
      * @param string $procedure
      *
@@ -1478,7 +1476,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     *
      * @param string $procedure
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_preferences'])]
@@ -2445,7 +2442,6 @@ class DemosPlanProcedureController extends BaseController
 
     /**
      * Creation and editing of places, each is either process or procedure template related.
-     *
      */
     #[DplanPermissions('area_manage_segment_places')]
     #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]

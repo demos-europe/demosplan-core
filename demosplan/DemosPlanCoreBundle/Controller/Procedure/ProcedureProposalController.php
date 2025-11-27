@@ -43,7 +43,6 @@ class ProcedureProposalController extends BaseController
      * List ProcedureProposals.
      *
      * @throws Exception
-     *
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
     #[Route(path: '/procedure_proposal_list', methods: ['GET'], name: 'dplan_procedure_proposals_list')]
@@ -64,7 +63,6 @@ class ProcedureProposalController extends BaseController
      * Get single procedure proposal by id.
      *
      * @throws Exception
-     *
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
     #[Route(path: 'proposal/{procedureProposalId}', methods: ['GET'], name: 'dplan_procedure_proposal_view')]
@@ -94,7 +92,6 @@ class ProcedureProposalController extends BaseController
      * Generate new ProcedureProposal.
      *
      * @throws Exception
-     *
      */
     #[DplanPermissions('feature_create_procedure_proposal')]
     #[Route(path: '/procedure_proposal_create', name: 'dplan_procedure_proposals_create')]

@@ -236,7 +236,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
@@ -249,7 +248,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
-     *
      * @return StreamedResponse|RedirectResponse
      *
      * @throws Exception
