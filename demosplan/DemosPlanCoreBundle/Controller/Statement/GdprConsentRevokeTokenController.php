@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenAlreadyUsedException;
@@ -30,10 +30,9 @@ class GdprConsentRevokeTokenController extends BaseController
     private const POST_PARAM_KEY_GDPR_CONSENT_REVOKE_TOKEN = 'gdprConsentRevokeToken';
 
     /**
-     * @DplanPermissions("area_gdpr_consent_revoke_page")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_gdpr_consent_revoke_page')]
     #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
     public function revokeGdprConsentPost(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
@@ -60,10 +59,9 @@ class GdprConsentRevokeTokenController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
     public function revokeGdprConsentGet(PermissionsInterface $permissions): Response
     {
