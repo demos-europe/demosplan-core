@@ -793,7 +793,6 @@ class ProcedureService implements ProcedureServiceInterface
             return \collect();
         }
 
-        // Initialize empty collection - we'll only add authorized users
         $usersOfOrganisation = \collect();
 
         // Include planners from all planning offices associated with this procedure
@@ -813,14 +812,13 @@ class ProcedureService implements ProcedureServiceInterface
             }
         }
 
-        // T8901: filter users with false roles:
-        // Include planning agencies, hearing authorities, and planners (e.g., from planning offices)
+        // Filter planning office users by role to only show valid assignee options in the assessment table multiselect dropdown.
+        // The planning offices which are chosen for this procedure are set in the procedure basic options.
         $usersOfOrganisation = $usersOfOrganisation->filter(
             static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority() || $user->isPlanner()
         );
 
-        // Add explicitly authorized users from the procedure
-        // These are users that were manually added in DpBasicSettings
+        // Add authorized users from basic settings to show them as assignee options in the assessment table multiselect dropdown.
         $procedureAuthorizedUsers = $procedure->getAuthorizedUsers();
         if ($procedureAuthorizedUsers->count() > 0) {
             foreach ($procedureAuthorizedUsers as $authorizedUser) {
@@ -834,11 +832,11 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Get users from the current user's organization for the authorized users selection
-     * in Basic Settings. This returns ONLY users from the current user's own organization.
+     * Get all user from the current user's organization for the authorized user multiselect in procedure basic settings.
+     * This returns ONLY user from the current user's own organization.
      *
-     * @param User|null $user        The current user (defaults to logged-in user)
-     * @param bool      $excludeUser Whether to exclude the current user from the list
+     * @param User|null $user        The current user
+     * @param bool      $excludeUser To exclude the current user from the list
      *
      * @return Collection<User>
      */
@@ -853,7 +851,7 @@ class ProcedureService implements ProcedureServiceInterface
             return \collect();
         }
 
-        // Get users from organization, filter by role, and optionally exclude current user
+        // Get the user from the org, filter by role, and exclude the current user
         $usersOfOrganisation = $userOrga->getUsers()->filter(
             static fn (User $u): bool => $u->isPlanningAgency() || $u->isHearingAuthority() || $u->isPlanner()
         );
