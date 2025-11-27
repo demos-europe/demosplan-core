@@ -7,6 +7,7 @@
 ## UNRELEASED
 - Add similar submitters to the Submitter List
 - Add segment text to the boilerplate modal, if the segment and its text is available
+- Add street and housenumber to xlxs import template for public, institutions and furhter submitters
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
