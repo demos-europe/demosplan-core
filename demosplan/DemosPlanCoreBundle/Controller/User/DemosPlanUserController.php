@@ -311,8 +311,6 @@ class DemosPlanUserController extends BaseController
         );
     }
 
-    /**
-     */
     #[DplanPermissions('feature_plain_language')]
     #[Route(name: 'DemosPlan_switch_language', path: '/language')]
     public function switchLanguage(EventDispatcherPostInterface $eventDispatcherPost, Request $request): RedirectResponse

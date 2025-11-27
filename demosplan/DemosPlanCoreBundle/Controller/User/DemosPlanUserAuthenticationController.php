@@ -125,7 +125,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2fa/qr-code', name: 'DemosPlan_user_qr_code')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator): QrCodeResponse
     {
         $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
@@ -140,7 +140,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2fa/enable', name: 'DemosPlan_user_2fa_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function enable2fa(
         CurrentUserInterface $currentUser,
         EntityManagerInterface $entityManager,
@@ -156,7 +156,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/enable', name: 'DemosPlan_user_2fa_email_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function enable2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser,
@@ -170,7 +170,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/send', name: 'DemosPlan_user_2fa_email_send')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function send2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser,

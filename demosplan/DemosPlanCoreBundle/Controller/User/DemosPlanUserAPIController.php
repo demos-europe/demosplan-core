@@ -246,8 +246,6 @@ class DemosPlanUserAPIController extends APIController
         return $this->createEmptyResponse();
     }
 
-    /**
-     */
     #[DplanPermissions('feature_user_edit')]
     #[Route(path: '/api/1.0/user/{id}', methods: ['PATCH'], name: 'dplan_api_user_update', options: ['expose' => true])]
     public function update(string $id, UserHandler $userHandler): APIResponse

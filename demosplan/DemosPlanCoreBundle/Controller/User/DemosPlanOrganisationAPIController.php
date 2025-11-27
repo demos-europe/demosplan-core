@@ -413,8 +413,6 @@ class DemosPlanOrganisationAPIController extends APIController
         }
     }
 
-    /**
-     */
     #[DplanPermissions('feature_orga_edit')]
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrga(
