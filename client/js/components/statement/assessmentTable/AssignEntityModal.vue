@@ -112,15 +112,6 @@ export default {
     },
   },
 
-  watch: {
-    authorisedUsers: {
-      handler (newVal) {
-        this.setInitUsers()
-      },
-      deep: true,
-    },
-  },
-
   methods: {
     ...mapMutations('AssessmentTable', [
       'setModalProperty',
@@ -177,14 +168,11 @@ export default {
   },
 
   created () {
-    console.log('AssignEntityModal created - authorisedUsers:', this.authorisedUsers)
-    console.log('AssignEntityModal created - currentUserId:', this.currentUserId)
     this.setInitUsers()
   },
 
   mounted () {
     this.$nextTick(() => {
-      console.log('AssignEntityModal mounted - users after setInitUsers:', this.users)
       this.toggleModal()
     })
   },
