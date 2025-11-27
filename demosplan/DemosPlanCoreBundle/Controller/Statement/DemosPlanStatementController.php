@@ -1409,9 +1409,7 @@ class DemosPlanStatementController extends BaseController
         }
     }
 
-    /**
-     * @DplanPermissions("area_statements")
-     */
+    #[DplanPermissions('area_statements')]
     #[Route(name: 'DemosPlan_statement_get_count_internal', path: '/rest/statement/count/{procedure}')]
     public function getStatementCountInternal(StatementHandler $statementHandler, string $procedure): JsonResponse
     {
@@ -2306,8 +2304,8 @@ class DemosPlanStatementController extends BaseController
      * @throws ProcedureNotFoundException
      * @throws Exception
      *
-     * @DplanPermissions({"feature_statements_import_excel"})
      */
+    #[DplanPermissions('feature_statements_import_excel')]
     #[Route(name: 'DemosPlan_statement_import', methods: ['POST'], path: '/verfahren/{procedureId}/stellungnahmen/import', options: ['expose' => true])]
     public function importStatements(
         FileService $fileService,
@@ -2368,7 +2366,7 @@ class DemosPlanStatementController extends BaseController
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
-    #[DplanPermissions(permissions: ['feature_statements_participation_import_excel'])]
+    #[DplanPermissions('feature_statements_participation_import_excel')]
     #[Route(
         path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
         name: 'DemosPlan_statement_participation_import',
