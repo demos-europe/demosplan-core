@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
@@ -30,12 +30,11 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * Teilnehmerliste anzeigen.
      *
-     * @DplanPermissions("area_main_view_participants")
-     *
      * @return Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_main_view_participants')]
     #[Route(name: 'DemosPlan_informationen_teilnehmende_public', path: '/informationen/teilnehmende/public')]
     #[Route(name: 'DemosPlan_informationen_teilnehmende', path: '/teilnehmende')]
     public function showParticipants(OrgaService $orgaService)
@@ -56,12 +55,11 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List users of a specific organisation.
      *
-     * @DplanPermissions("area_manage_users")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_manage_users')]
     #[Route(name: 'DemosPlan_user_list', path: '/user/list')]
     public function listUsers()
     {
@@ -76,12 +74,11 @@ class DemosPlanUserListController extends DemosPlanUserController
     /**
      * List all AddressBookEntries of specific Organisation.
      *
-     * @DplanPermissions("area_admin_orga_address_book")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_admin_orga_address_book')]
     #[Route(name: 'DemosPlan_get_address_book_entries', path: '/organisation/adressen/liste/{organisationId}', methods: ['GET'])]
     public function getAddressBookEntries(AddressBookEntryService $addressBookEntryService, Request $request, string $organisationId)
     {
@@ -105,12 +102,11 @@ class DemosPlanUserListController extends DemosPlanUserController
      * Administrate users.
      * In this case administrate means, save or delete users.
      *
-     * @DplanPermissions("area_manage_users")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_manage_users')]
     #[Route(name: 'DemosPlan_user_admin', path: '/user/admin')]
     public function adminUsers(Request $request, UserHandler $userHandler): RedirectResponse
     {
