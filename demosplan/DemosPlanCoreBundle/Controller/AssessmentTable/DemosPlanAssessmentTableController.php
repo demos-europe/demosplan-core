@@ -478,10 +478,7 @@ class DemosPlanAssessmentTableController extends BaseController
             'statementFragmentAgencies'       => $statementHandler->getAgencyData(),
             'assessmentExportOptions'         => $exportOptions->get('original_statements'),
             'authorizedUsersOfMyOrganization' => $procedureService->getAuthorizedUsers(
-                $procedureId,
-                null,
-                false,
-                false
+                $procedureId
             ),
             'accessibleProcedureIds'          => $accessibleProcedureIds,
             'defaultToggleView'               => $this->globalConfig->getAssessmentTableDefaultToggleView(),
@@ -987,10 +984,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
-            $procedureId,
-            null,
-            false,
-            false
+            $procedureId
         );
 
         $statementBulkEditForm = $this->getForm(
@@ -1027,10 +1021,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars = [];
         // get authorized users
         $templateVars['authorizedUsersOfMyOrganization'] = $this->procedureService->getAuthorizedUsers(
-            $procedureId,
-            null,
-            false,
-            false
+            $procedureId
         );
 
         return $this->renderTemplate(
