@@ -74,7 +74,7 @@ abstract class BaseController extends AbstractController
      *
      * Hier wird insbesondere der User identifiziert über den Session-Hash oder als nicht eingelogged festgelegt.
      *
-     * @deprecated Use `@DplanPermissions($context)` instead
+     * @deprecated Use `#[DplanPermissions($context)]` instead
      *
      * @param array $context Permission to test
      *
@@ -140,7 +140,7 @@ abstract class BaseController extends AbstractController
      *
      * @return RedirectResponse|Response Response
      *
-     * @deprecated use DplanPermissions({"permission"}) Annotation on controllers instead
+     * @deprecated use DplanPermissions({"permission"}) Attribute on controllers instead
      *     try/catch can be omitted, this error handling has moved to ExceptionListener
      *     and CheckPermissionListener
      *
