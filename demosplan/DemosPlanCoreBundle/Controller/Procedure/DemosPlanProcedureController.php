@@ -2456,7 +2456,7 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Creation of custom fields, each is either procedure or procedure template related.
      */
-    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[DplanPermissions('area_admin_custom_fields')]
     #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     public function showProcedureCustomFields(string $procedureId)
