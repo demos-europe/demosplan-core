@@ -101,7 +101,7 @@ class StatementExportTagFilter
                     }
                 ); // SEGMENT FILTER END
                 // meet any segments of this statement the filter criteria?
-                if (empty($filteredSegmentsList)) {
+                if ($filteredSegmentsList->isEmpty()) {
                     // if not exclude the whole statement
                     return false;
                 }
