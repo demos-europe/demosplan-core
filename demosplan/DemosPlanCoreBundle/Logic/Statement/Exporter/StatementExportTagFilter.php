@@ -93,6 +93,7 @@ class StatementExportTagFilter
                                 return true;
                             }
                         }
+
                         // exclude this segment from the payload
                         return false;
                     }
