@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -27,9 +27,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AuthorizedUsersController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_admin_consultations")
-     */
+    #[DplanPermissions('area_admin_consultations')]
     #[Route(path: '/verfahren/{procedureId}/berechtigte', name: 'dplan_admin_procedure_authorized_users', methods: ['HEAD', 'GET'])]
     public function list(string $procedureId)
     {
@@ -42,9 +40,7 @@ class AuthorizedUsersController extends BaseController
         );
     }
 
-    /**
-     * @DplanPermissions("area_admin_consultations")
-     */
+    #[DplanPermissions('area_admin_consultations')]
     #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', methods: ['HEAD', 'GET'], options: ['expose' => true])]
     public function export(
         ConsultationTokenService $consultationTokenService,
