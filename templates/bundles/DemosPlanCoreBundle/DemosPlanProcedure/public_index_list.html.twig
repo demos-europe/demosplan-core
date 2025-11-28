@@ -39,7 +39,7 @@
                     {% endblock procedureLocation %}
 
                     {# item image #}
-                    {% if hasPermission('field_procedure_pictogram') %}
+                    {% if hasPermission('field_procedure_pictogram_view') %}
                         <img
                             class="{{ 'w-full h-auto'|prefixClass }}"
                             src="{{ publicProcedure.pictogram|default ? path('core_logo', {'hash': publicProcedure.pictogram|getFile('hash')}) : asset('img/procedure-placeholder.gif') }}"

@@ -17,6 +17,7 @@ import {
   DpEditor,
   DpInlineNotification,
   DpInput,
+  DpModal,
   DpMultiselect,
   dpValidateMixin,
   sortAlphabetically,
@@ -41,6 +42,7 @@ export default {
     DpEmailList,
     DpInlineNotification,
     DpInput,
+    DpModal,
     DpMultiselect,
     DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
     DpUploadFiles: defineAsyncComponent(async () => {
@@ -146,6 +148,8 @@ export default {
 
   data () {
     return {
+      addonCheckAutoSwitchEnabled: false,
+      addonCheckAutoSwitchPhase: '',
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
         id: '',
@@ -154,6 +158,7 @@ export default {
         url: '',
         value: '',
       },
+      bypassAddonWarningModal: false,
       isLoadingPlisData: false,
       pictogramAltText: this.initPictogramAltText,
       pictogramCopyright: this.initPictogramCopyright,
@@ -173,6 +178,37 @@ export default {
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
+    },
+
+    // Needed for the addon-modal on submit
+    isAddonInterfaceActivated () {
+      return this.addonPayload.attributes?.isInterfaceActivated ?? false
+    },
+
+    isAddonLoaded () {
+      return !!window.dplan.loadedAddons['addon.additional.field']
+    },
+
+    isPublicParticipationPhaseActive () {
+      // Check current public phase
+      const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.selectedPublicPhase)
+      // Check auto-switch phase ONLY if auto-switch is enabled and it's for public phases
+      const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
+        this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
+
+      return currentPhaseIsPublic || autoSwitchPhaseIsPublic
+    },
+
+    publicParticipationPhases () {
+      return ['earlyparticipation', 'participation', 'anotherparticipation']
+    },
+
+    shouldShowInterfaceWarningModal () {
+      // Check if checkbox is not disabled
+      const checkbox = document.getElementById('addonAdditionalField-checkbox')
+      const isCheckboxDisabled = checkbox?.disabled ?? true
+
+      return this.isAddonLoaded && !this.isAddonInterfaceActivated && this.isPublicParticipationPhaseActive && !this.bypassAddonWarningModal && !isCheckboxDisabled
     },
   },
 
@@ -222,9 +258,11 @@ export default {
 
       return addonRequest
         .catch(error => {
-          /** The 'is-invalid' class would be added to the addon field in case of an error */
-          const input = document.getElementById('addonAdditionalField')
-          input.classList.add('is-invalid')
+          /** The 'is-invalid' class would be added to the addon input-field in case of an error */
+          const input = document.getElementById('addonAdditionalField-input')
+          if (input) {
+            input.classList.add('is-invalid')
+          }
 
           throw error
         })
@@ -243,7 +281,12 @@ export default {
     },
 
     submit () {
-      const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
+      if (this.shouldShowInterfaceWarningModal) {
+        this.$refs.interfaceWarningOnSubmit.toggle()
+        return
+      }
+
+      const addonExists = this.isAddonLoaded
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
@@ -267,6 +310,68 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    // Needed for the addon-modal on submit
+    activateInterface () {
+      // Close wizard items below if expanded
+      const sectionsToClose = [
+        'fieldset[data-dp-validate="nameUrlForm"]',
+        'fieldset[data-dp-validate="settingsForm"]'
+      ]
+
+      sectionsToClose.forEach(selector => {
+        const fieldset = document.querySelector(selector)
+        if (fieldset) {
+          const wizardContent = fieldset.querySelector('.o-wizard__content')
+          const isExpanded = wizardContent?.classList.contains('is-active')
+
+          if (isExpanded) {
+            const legend = fieldset.querySelector('legend')
+            if (legend) {
+              legend.click()
+            }
+          }
+        }
+      })
+
+      // Find the phaseExternalForm fieldset
+      const fieldset = document.querySelector('fieldset[data-dp-validate="phaseExternalForm"]')
+
+      if (fieldset) {
+        const wizardContent = fieldset.querySelector('.o-wizard__content')
+        const isAlreadyExpanded = wizardContent?.classList.contains('is-active')
+
+        if (!isAlreadyExpanded) {
+          const legend = fieldset.querySelector('legend')
+          if (legend) {
+            legend.click()
+          }
+        }
+      }
+
+      // Scroll to addon-wrapper
+      this.$nextTick(() => {
+        const addonWrapper = document.querySelector('addon-wrapper[hook-name="addon.additional.field"]')
+        if (addonWrapper) {
+          addonWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      })
+
+      this.$refs.interfaceWarningOnSubmit.toggle()
+    },
+
+    handleAutoSwitchPhaseUpdate (payload) {
+      if (!payload.isInternal) {
+        this.addonCheckAutoSwitchPhase = payload.phase
+        this.addonCheckAutoSwitchEnabled = payload.enabled
+      }
+    },
+
+    submitWithoutInterfaceActivation () {
+      this.$refs.interfaceWarningOnSubmit.toggle()
+      this.bypassAddonWarningModal = true
+      this.submit()
     },
   },
 
