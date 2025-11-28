@@ -33,7 +33,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Geocoder\Query\ReverseQuery;
 use Monolog\Handler\FingersCrossedHandler;
-use Monolog\Logger;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
