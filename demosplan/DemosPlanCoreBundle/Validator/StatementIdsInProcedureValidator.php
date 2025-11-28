@@ -29,7 +29,7 @@ class StatementIdsInProcedureValidator extends ConstraintValidator
      * @param StatementIdsInProcedureConstraint $constraint
      *                                                                   {@inheritdoc}
      */
-    public function validate($statementIdsInProcedure, Constraint $constraint)
+    public function validate($statementIdsInProcedure, Constraint $constraint): void
     {
         // custom constraints should ignore null and empty values to allow
         // other constraints (NotBlank, NotNull, etc.) take care of that

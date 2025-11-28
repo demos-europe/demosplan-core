@@ -20,7 +20,7 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class ConsistentAnonymousOrgaConstraintValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint)
+    public function validate($value, Constraint $constraint): void
     {
         $this->validateTyped($value, $constraint);
     }
