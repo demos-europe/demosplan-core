@@ -26,6 +26,9 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 {
+    private const TAG_TOPIC_NAME_1 = 'Topic 1';
+    private const TAG_TOPIC_NAME_2 = 'Topic 2';
+
     /**
      * @var StatementExportTagFilter
      */
@@ -45,8 +48,8 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $this->sut = new StatementExportTagFilter();
 
         // Create test tag topics and tags
-        $this->tagTopic1 = TagTopicFactory::createOne(['title' => 'Topic 1']);
-        $this->tagTopic2 = TagTopicFactory::createOne(['title' => 'Topic 2']);
+        $this->tagTopic1 = TagTopicFactory::createOne(['title' => self::TAG_TOPIC_NAME_1]);
+        $this->tagTopic2 = TagTopicFactory::createOne(['title' => self::TAG_TOPIC_NAME_2]);
 
         $this->tag1 = TagFactory::createOne(['title' => 'Important', 'topic' => $this->tagTopic1->_real()]);
         $this->tag2 = TagFactory::createOne(['title' => 'Urgent', 'topic' => $this->tagTopic1->_real()]);
@@ -188,7 +191,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statements = [$statement1->_real(), $statement2->_real()];
 
         // Act: Filter by topic title
-        $tagsFilter = ['tagTopicTitles' => ['Topic 2']];
+        $tagsFilter = ['tagTopicTitles' => [self::TAG_TOPIC_NAME_2]];
         $filtered = $this->sut->filterStatementsByTags($statements, $tagsFilter);
 
         // Assert: Only statement2 should be included with 1 segment
@@ -229,7 +232,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         // Act: Filter by tag ID OR topic title (should match statement1 and statement3)
         $tagsFilter = [
             'tagIds'         => [$this->tag1->getId()], // statement1
-            'tagTopicTitles' => ['Topic 2'], // statement3
+            'tagTopicTitles' => [self::TAG_TOPIC_NAME_2], // statement3
         ];
         $filtered = $this->sut->filterStatementsByTags($statements, $tagsFilter);
 
@@ -252,13 +255,13 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
         // Add segments to statements
         /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+        SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
             ->_real();
         /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
+        SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
             ->_real();
         /** @var SegmentInterface $segment3 */
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
+        SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
             ->_real();
         $this->getEntityManager()->flush();
 
@@ -406,7 +409,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         static::assertCount(2, $statement2->_real()->getSegmentsOfStatement());
 
         // Act: Filter by Topic 2 title
-        $tagsFilter = ['tagTopicTitles' => ['Topic 2']];
+        $tagsFilter = ['tagTopicTitles' => [self::TAG_TOPIC_NAME_2]];
         $filtered = $this->sut->filterStatementsByTags($statements, $tagsFilter);
 
         // Assert: Only statement2 should be returned with only segment2a
