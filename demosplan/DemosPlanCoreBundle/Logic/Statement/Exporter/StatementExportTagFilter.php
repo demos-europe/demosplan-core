@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
+
 use function in_array;
 
 class StatementExportTagFilter
