@@ -42,7 +42,7 @@ class DumpGraphContainerPass implements CompilerPassInterface
      */
     private const DOTFILE_META_LINES_NUMBER = 6;
 
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $parameterEnable = 'container_dumper_graphivz_enable';
         if (!$container->hasParameter($parameterEnable) || false === $container->getParameter($parameterEnable)) {
