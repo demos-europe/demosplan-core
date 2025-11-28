@@ -66,12 +66,12 @@ class StatementExportTagFilter
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
     {
-        return array_filter(
-            $statements,
-            function (StatementInterface $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles) {
+        $statementsCollection = new ArrayCollection($statements);
+
+        return $statementsCollection->filter(
+            function (StatementInterface $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
                 // filter out non-matching segments from statement
-                $filteredSegmentsList = array_filter(
-                    $statement->getSegmentsOfStatement()->toArray(),
+                $filteredSegmentsList = $statement->getSegmentsOfStatement()->filter(
                     function (SegmentInterface $segment) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles) {
                         /** @var TagInterface $tag */
                         foreach ($segment->getTags() as $tag) {
@@ -93,11 +93,10 @@ class StatementExportTagFilter
                                 return true;
                             }
                         }
-
                         // exclude this segment from the payload
                         return false;
                     }
-                );
+                ); // SEGMENT FILTER END
                 // meet any segments of this statement the filter criteria?
                 if (empty($filteredSegmentsList)) {
                     // if not exclude the whole statement
@@ -105,10 +104,10 @@ class StatementExportTagFilter
                 }
                 // set the filtered segmentList at the statement to replace the old one.
                 // this is not meant to be persisted and just build for export purposes!
-                $statement->setSegmentsOfStatement(new ArrayCollection($filteredSegmentsList));
+                $statement->setSegmentsOfStatement($filteredSegmentsList);
 
                 return true;
-            }
-        );
+            } // STATEMENT FILTER END
+        )->toArray();
     }
 }
