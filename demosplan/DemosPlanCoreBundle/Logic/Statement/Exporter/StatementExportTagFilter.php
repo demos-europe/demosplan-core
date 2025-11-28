@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
+use function in_array;
 
 class StatementExportTagFilter
 {
@@ -72,7 +73,7 @@ class StatementExportTagFilter
             function (StatementInterface $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
                 // filter out non-matching segments from statement
                 $filteredSegmentsList = $statement->getSegmentsOfStatement()->filter(
-                    function (SegmentInterface $segment) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles) {
+                    function (SegmentInterface $segment) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
                         /** @var TagInterface $tag */
                         foreach ($segment->getTags() as $tag) {
                             // Check if tag matches any of the filter criteria to include the segment
