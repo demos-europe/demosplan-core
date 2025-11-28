@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Report;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ElementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
@@ -44,10 +44,9 @@ class DemosPlanReportAPIController extends APIController
      * - int page: Set the requested page (default: 1)
      * - array|string[] category: Set the categories from the requested group (default: [])
      *
-     * @DplanPermissions("area_admin_protocol")
-     *
      * @param string $group
      */
+    #[DplanPermissions('area_admin_protocol')]
     #[Route(
         path: '/api/1.0/reports/{procedureId}/{group}',
         methods: ['GET'],

@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use Carbon\Carbon;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use proj4php\Point;
@@ -26,9 +26,7 @@ use Throwable;
 
 class WerDenktWasAPIController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_public_participation")
-     */
+    #[DplanPermissions('area_public_participation')]
     #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
     public function procedureListGeoJSON(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
     {

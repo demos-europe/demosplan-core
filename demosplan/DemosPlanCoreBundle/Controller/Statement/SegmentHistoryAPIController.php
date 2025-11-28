@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -24,9 +24,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class SegmentHistoryAPIController extends APIController
 {
-    /**
-     * @DplanPermissions("feature_segment_content_changes_view")
-     */
+    #[DplanPermissions('feature_segment_content_changes_view')]
     #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', methods: ['GET'], name: 'dplan_api_segment_history_get', options: ['expose' => true])]
     public function getAction(
         CurrentProcedureService $currentProcedureService,

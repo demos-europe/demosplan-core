@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -46,9 +46,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
 {
-    /**
-     * @DplanPermissions("area_statement_segmentation")
-     */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
     public function list(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
@@ -64,12 +62,11 @@ class SegmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_segments_of_statement_list")
-     *
      * @throws ProcedureNotFoundException
      * @throws StatementNotFoundException
      * @throws Exception
      */
+    #[DplanPermissions('feature_segments_of_statement_list')]
     #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
     public function statementSpecificList(
         CurrentUserInterface $currentUser,
@@ -131,7 +128,7 @@ class SegmentController extends BaseController
     /**
      * Get the position of a segment within its parent statement.
      */
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_segments_of_statement_list')]
+    #[DplanPermissions('feature_segments_of_statement_list')]
     #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
     public function getSegmentPosition(
         string $segmentId,
@@ -168,11 +165,10 @@ class SegmentController extends BaseController
     }
 
     /**
-     * @DplanPermissions("feature_segments_import_excel")
-     *
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
+    #[DplanPermissions('feature_segments_import_excel')]
     #[Route(name: 'dplan_segments_process_import', methods: 'POST', path: '/verfahren/{procedureId}/abschnitte/speichern', options: ['expose' => true])]
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
@@ -279,9 +275,7 @@ class SegmentController extends BaseController
         );
     }
 
-    /**
-     * @DplanPermissions("area_statement_segmentation")
-     */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
     public function listFiltered(
         string $procedureId,

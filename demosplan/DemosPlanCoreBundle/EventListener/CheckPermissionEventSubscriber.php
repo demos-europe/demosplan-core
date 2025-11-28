@@ -12,11 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
-use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
-use Doctrine\Common\Annotations\Reader;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
@@ -43,7 +41,6 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
-        private readonly Reader $reader,
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
     ) {
@@ -102,19 +99,9 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
         $dplanPermissions = [];
 
         // Check if there is a DplanPermissions-Attribute. If so, get the permissions
-        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(AttributeDplanPermissions::class);
+        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(DplanPermissions::class);
         if ([] !== $dplanPermissionsAttributes) {
             $dplanPermissions = $dplanPermissionsAttributes[0]->newInstance()->getPermissions();
-        }
-
-        // If dplanPermissions is still empty, check for annotation
-        if ([] === $dplanPermissions) {
-            /** @var AnnotationDplanPermissions $dplanPermissionsAnnotation */
-            $dplanPermissionsAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, AnnotationDplanPermissions::class);
-
-            if (null !== $dplanPermissionsAnnotation) {
-                $dplanPermissions = $dplanPermissionsAnnotation->getPermissions();
-            }
         }
 
         return $dplanPermissions;
