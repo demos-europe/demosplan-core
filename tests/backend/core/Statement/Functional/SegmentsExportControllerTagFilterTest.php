@@ -43,9 +43,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
     private Proxy|StatementInterface|null $statement1 = null;
     private Proxy|StatementInterface|null $statement2 = null;
     private Proxy|StatementInterface|null $statement3 = null;
-    private SegmentInterface|null $segment1 = null;
-    private SegmentInterface|null $segment2 = null;
-    private SegmentInterface|null $segment3 = null;
+    private ?SegmentInterface $segment1 = null;
+    private ?SegmentInterface $segment2 = null;
+    private ?SegmentInterface $segment3 = null;
 
     protected function setUp(): void
     {
