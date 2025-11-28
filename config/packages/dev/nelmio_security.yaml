@@ -1,8 +1,0 @@
-# Development-specific CSP overrides for webpack source maps
-nelmio_security:
-    csp:
-        enforce:
-            # Allow webpack:// scheme for source maps in development
-            connect-src:
-                - '*'
-                - 'webpack:'
