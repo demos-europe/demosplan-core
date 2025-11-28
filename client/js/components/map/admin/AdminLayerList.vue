@@ -385,56 +385,50 @@ export default {
       'updateState',
     ]),
 
-    updateChildren (ev) {
-      this.setChildrenFromCategory({
-        newCategoryId: ev.to.id,
-        oldCategoryId: ev.from.id,
-        movedElement: {
-          id: ev.item.id,
-          newIndex: ev.newIndex,
-          oldIndex: ev.oldIndex,
-        },
-        orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition,
+    /**
+     * Dissolves a visibility group if it has only 1 member remaining
+     *
+     * @param {string} groupId - The visibility group ID to check
+     */
+    cleanUpOrphanedVisibilityGroup (groupId) {
+      const remainingMembers = this.elementsListByAttribute({
+        type: 'visibilityGroupId',
+        value: groupId,
       })
 
-      // If there is just one order (map) -then the treeorder should match the map-order
-      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
-        this.setChildrenFromCategory({
-          newCategoryId: ev.to.id,
-          oldCategoryId: ev.from.id,
-          movedElement: {
-            id: ev.item.id,
-            newIndex: ev.newIndex,
-            oldIndex: ev.oldIndex,
-          },
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition,
+      // If only 1 member left, dissolve the group
+      if (remainingMembers.length === 1) {
+        this.setAttributeForLayer({
+          id: remainingMembers[0].id,
+          attribute: 'visibilityGroupId',
+          value: null,
         })
       }
+    },
 
-      // If dropped into a category that hides children, sync all its children
-      const newCategory = this.element({
-        id: ev.to.id,
-        type: 'GisLayerCategory',
-      })
+    saveOrder (redirect) {
+      this.isEditable = false
 
-      if (newCategory && newCategory.attributes.layerWithChildrenHidden) {
-        this.$nextTick(() => {
-          const { ungroupedLayers, affectedGroupIds } = this.syncChildrenOfCategoryThatAppearsAsLayer(ev.to.id)
+      this.saveLayers()
+        .then(() => {
+          this.isEditable = true
 
-          // Clean up orphaned visibility groups (groups with only 1 member left)
-          affectedGroupIds.forEach(groupId => {
-            this.cleanUpOrphanedVisibilityGroup(groupId)
-          })
-
-          // Notify user if any layers were removed from visibility groups
-          if (ungroupedLayers.length > 0) {
-            const layerNames = ungroupedLayers.map(layer => layer.attributes.name).join(', ')
-            dplan.notify.notify('warning', Translator.trans('gislayer.removed.from.visibility.group', { layers: layerNames }))
+          if (redirect === true) {
+            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
           }
         })
-      }
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          console.error(err)
+        })
+    },
+
+    setActiveTab (sortOrder) {
+      this.currentTab = sortOrder
+      lscache.set('layerOrderTab', sortOrder, 300)
     },
 
     /**
@@ -492,50 +486,57 @@ export default {
       return { ungroupedLayers, affectedGroupIds }
     },
 
-    /**
-     * Dissolves a visibility group if it has only 1 member remaining
-     *
-     * @param {string} groupId - The visibility group ID to check
-     */
-    cleanUpOrphanedVisibilityGroup (groupId) {
-      const remainingMembers = this.elementsListByAttribute({
-        type: 'visibilityGroupId',
-        value: groupId,
+    updateChildren (ev) {
+      this.setChildrenFromCategory({
+        newCategoryId: ev.to.id,
+        oldCategoryId: ev.from.id,
+        movedElement: {
+          id: ev.item.id,
+          newIndex: ev.newIndex,
+          oldIndex: ev.oldIndex,
+        },
+        orderType: this.currentTab,
+        parentOrder: this.parentOrderPosition,
       })
 
-      // If only 1 member left, dissolve the group
-      if (remainingMembers.length === 1) {
-        this.setAttributeForLayer({
-          id: remainingMembers[0].id,
-          attribute: 'visibilityGroupId',
-          value: null,
+      // If there is just one order (map) -then the treeorder should match the map-order
+      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
+        this.setChildrenFromCategory({
+          newCategoryId: ev.to.id,
+          oldCategoryId: ev.from.id,
+          movedElement: {
+            id: ev.item.id,
+            newIndex: ev.newIndex,
+            oldIndex: ev.oldIndex,
+          },
+          orderType: 'treeOrder',
+          parentOrder: this.parentOrderPosition,
         })
       }
-    },
 
-    saveOrder (redirect) {
-      this.isEditable = false
+      // If dropped into a category that hides children, sync all its children
+      const newCategory = this.element({
+        id: ev.to.id,
+        type: 'GisLayerCategory',
+      })
 
-      this.saveLayers()
-        .then(() => {
-          this.isEditable = true
+      if (newCategory && newCategory.attributes.layerWithChildrenHidden) {
+        this.$nextTick(() => {
+          const { ungroupedLayers, affectedGroupIds } = this.syncChildrenOfCategoryThatAppearsAsLayer(ev.to.id)
 
-          if (redirect === true) {
-            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          // Clean up orphaned visibility groups (groups with only 1 member left)
+          affectedGroupIds.forEach(groupId => {
+            this.cleanUpOrphanedVisibilityGroup(groupId)
+          })
+
+          // Notify user if any layers were removed from visibility groups
+          if (ungroupedLayers.length > 0) {
+            const layerNames = ungroupedLayers.map(layer => layer.attributes.name).join(', ')
+
+            dplan.notify.notify('warning', Translator.trans('gislayer.removed.from.visibility.group', { layers: layerNames }))
           }
         })
-        .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
-        })
-        .catch(err => {
-          dplan.notify.error(Translator.trans('error.changes.not.saved'))
-          console.error(err)
-        })
-    },
-
-    setActiveTab (sortOrder) {
-      this.currentTab = sortOrder
-      lscache.set('layerOrderTab', sortOrder, 300)
+      }
     },
   },
 
