@@ -254,13 +254,13 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $statement2 = StatementFactory::createOne(['procedure' => $procedure->_real()]);
 
         // Add segments to statements
-        /** @var SegmentInterface $segment1 */
+        /* @var SegmentInterface $segment1 */
         SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
             ->_real();
-        /** @var SegmentInterface $segment2 */
+        /* @var SegmentInterface $segment2 */
         SegmentFactory::createOne(['parentStatementOfSegment' => $statement1->_real()])
             ->_real();
-        /** @var SegmentInterface $segment3 */
+        /* @var SegmentInterface $segment3 */
         SegmentFactory::createOne(['parentStatementOfSegment' => $statement2->_real()])
             ->_real();
         $this->getEntityManager()->flush();
