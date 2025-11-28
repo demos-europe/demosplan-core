@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.3.6 (2025-11-28)
+- adjust example statement import xlxs file by adding street name and house number for public, institutions and furhter submitters
+
 ## v4.3.5 (2025-11-24)
 ## 4.3.4 (2025-11-14)
 - implement option to import additional submitters via statement ID in statement imports via xlsx
