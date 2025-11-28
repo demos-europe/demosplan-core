@@ -33,7 +33,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Geocoder\Query\ReverseQuery;
 use Monolog\Handler\FingersCrossedHandler;
-use Monolog\Logger;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
@@ -103,8 +102,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /** @var LocationService */
     protected $locationService;
 
-    /** @var Logger */
-    protected $logger;
     /**
      * @var TraceableEventDispatcher
      */
@@ -121,7 +118,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
         LocationService $locationService,
-        LoggerInterface $dplanMaintenanceLogger,
+        private readonly LoggerInterface $logger,
         MailService $mailService,
         private readonly NominatimFactory $nominatim,
         PermissionsInterface $permissions,
@@ -137,7 +134,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $this->eventDispatcher = $eventDispatcher;
         $this->globalConfig = $globalConfig;
         $this->locationService = $locationService;
-        $this->logger = $dplanMaintenanceLogger;
         $this->mailService = $mailService;
         $this->permissions = $permissions;
         $this->procedureHandler = $procedureHandler;
