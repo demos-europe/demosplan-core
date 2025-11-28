@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -44,6 +43,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
     private Proxy|StatementInterface|null $statement1 = null;
     private Proxy|StatementInterface|null $statement2 = null;
     private Proxy|StatementInterface|null $statement3 = null;
+    private SegmentInterface|null $segment1 = null;
+    private SegmentInterface|null $segment2 = null;
+    private SegmentInterface|null $segment3 = null;
 
     protected function setUp(): void
     {
@@ -65,27 +67,19 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $this->tag1 = TagFactory::createOne(['title' => 'Important', 'topic' => $this->tagTopic1->_real()]);
         $this->tag2 = TagFactory::createOne(['title' => 'Urgent', 'topic' => $this->tagTopic1->_real()]);
         $this->tag3 = TagFactory::createOne(['title' => 'Review', 'topic' => $this->tagTopic2->_real()]);
+
+        // Create basic segments for common tests (without tags - tests will add tags as needed)
+        $this->segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])->_real();
+        $this->segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])->_real();
+        $this->segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement3->_real()])->_real();
     }
 
     public function testFilterStatementsByTagIds(): void
     {
-        // Arrange: Create segments with different tags
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real());
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2->addTag($this->tag2->_real());
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment3 */
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement3->_real()])
-            ->_real();
-        $segment3->addTag($this->tag3->_real());
+        // Arrange: Add tags to segments
+        $this->segment1->addTag($this->tag1->_real());
+        $this->segment2->addTag($this->tag2->_real());
+        $this->segment3->addTag($this->tag3->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real(), $this->statement3->_real()];
@@ -103,17 +97,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsByTagTitles(): void
     {
-        // Arrange
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real());
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2->addTag($this->tag2->_real());
+        // Arrange: Add tags to segments
+        $this->segment1->addTag($this->tag1->_real());
+        $this->segment2->addTag($this->tag2->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real()];
@@ -131,23 +117,10 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsByTagTopicIds(): void
     {
-        // Arrange
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real()); // Topic 1
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2->addTag($this->tag2->_real()); // Topic 1
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment3 */
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement3->_real()])
-            ->_real();
-        $segment3->addTag($this->tag3->_real()); // Topic 2
+        // Arrange: Add tags to segments
+        $this->segment1->addTag($this->tag1->_real()); // Topic 1
+        $this->segment2->addTag($this->tag2->_real()); // Topic 1
+        $this->segment3->addTag($this->tag3->_real()); // Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real(), $this->statement3->_real()];
@@ -168,17 +141,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsByTagTopicTitles(): void
     {
-        // Arrange
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real()); // Topic 1
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2->addTag($this->tag3->_real()); // Topic 2
+        // Arrange: Add tags to segments
+        $this->segment1->addTag($this->tag1->_real()); // Topic 1
+        $this->segment2->addTag($this->tag3->_real()); // Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real()];
@@ -196,23 +161,10 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsByMultipleCriteria(): void
     {
-        // Arrange
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real()); // Important, Topic 1
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2->addTag($this->tag2->_real()); // Urgent, Topic 1
-        $this->getEntityManager()->flush();
-
-        /** @var SegmentInterface $segment3 */
-        $segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement3->_real()])
-            ->_real();
-        $segment3->addTag($this->tag3->_real()); // Review, Topic 2
+        // Arrange: Add tags to segments
+        $this->segment1->addTag($this->tag1->_real()); // Important, Topic 1
+        $this->segment2->addTag($this->tag2->_real()); // Urgent, Topic 1
+        $this->segment3->addTag($this->tag3->_real()); // Review, Topic 2
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real(), $this->statement3->_real()];
@@ -236,16 +188,8 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsWithEmptyFilter(): void
     {
-        // Arrange: Add segments to statements
-        /* @var SegmentInterface $segment1 */
-        SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        /* @var SegmentInterface $segment2 */
-        SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        /* @var SegmentInterface $segment3 */
-        SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
+        // Arrange: Add one more segment to statement1 (already has segment1 from setUp)
+        SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])->_real();
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real(), $this->statement2->_real()];
@@ -263,11 +207,8 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testFilterStatementsWithNoMatchingTags(): void
     {
-        // Arrange
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real());
+        // Arrange: Add tag to segment
+        $this->segment1->addTag($this->tag1->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real()];
@@ -283,15 +224,12 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
     public function testFilterStatementsWithMultipleSegmentsPerStatement(): void
     {
         // Arrange: Statement with multiple segments, only one has matching tag
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real());
+        $this->segment1->addTag($this->tag1->_real());
 
-        /** @var SegmentInterface $segment2 */
-        $segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
+        /** @var SegmentInterface $segment1b */
+        $segment1b = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
             ->_real();
-        $segment2->addTag($this->tag2->_real());
+        $segment1b->addTag($this->tag2->_real());
 
         $this->getEntityManager()->flush();
 
@@ -309,17 +247,14 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
         // Verify the included segment is segment1
         $includedSegment = $filteredStatement->getSegmentsOfStatement()->first();
-        static::assertSame($segment1->getId(), $includedSegment->getId());
+        static::assertSame($this->segment1->getId(), $includedSegment->getId());
     }
 
     public function testFilterStatementsWithSegmentHavingMultipleTags(): void
     {
-        // Arrange: Segment with multiple tags
-        /** @var SegmentInterface $segment1 */
-        $segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1->addTag($this->tag1->_real());
-        $segment1->addTag($this->tag2->_real());
+        // Arrange: Add multiple tags to segment
+        $this->segment1->addTag($this->tag1->_real());
+        $this->segment1->addTag($this->tag2->_real());
         $this->getEntityManager()->flush();
 
         $statements = [$this->statement1->_real()];
@@ -341,29 +276,23 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
     public function testComplexFilterWithMultipleStatementsAndSegmentsFilteredByTopicTitle(): void
     {
-        // Arrange: Create 2 statements, each with 2 segments, each segment with multiple tags
-        // Statement 1 - Segment 1a: has tag1 (Topic 1) and tag2 (Topic 1)
-        /** @var SegmentInterface $segment1a */
-        $segment1a = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
-            ->_real();
-        $segment1a->addTag($this->tag1->_real()); // Important, Topic 1
-        $segment1a->addTag($this->tag2->_real()); // Urgent, Topic 1
+        // Arrange: Use pre-created segments and create one more per statement, add tags
+        // Statement 1 - Use segment1: has tag1 (Topic 1) and tag2 (Topic 1)
+        $this->segment1->addTag($this->tag1->_real()); // Important, Topic 1
+        $this->segment1->addTag($this->tag2->_real()); // Urgent, Topic 1
 
-        // Statement 1 - Segment 1b: has tag1 (Topic 1) and tag2 (Topic 1)
+        // Statement 1 - Create segment1b: has tag1 (Topic 1) and tag2 (Topic 1)
         /** @var SegmentInterface $segment1b */
         $segment1b = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])
             ->_real();
         $segment1b->addTag($this->tag1->_real()); // Important, Topic 1
         $segment1b->addTag($this->tag2->_real()); // Urgent, Topic 1
 
-        // Statement 2 - Segment 2a: has tag1 (Topic 1) and tag3 (Topic 2)
-        /** @var SegmentInterface $segment2a */
-        $segment2a = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
-            ->_real();
-        $segment2a->addTag($this->tag1->_real()); // Important, Topic 1
-        $segment2a->addTag($this->tag3->_real()); // Review, Topic 2
+        // Statement 2 - Use segment2: has tag1 (Topic 1) and tag3 (Topic 2)
+        $this->segment2->addTag($this->tag1->_real()); // Important, Topic 1
+        $this->segment2->addTag($this->tag3->_real()); // Review, Topic 2
 
-        // Statement 2 - Segment 2b: has tag1 (Topic 1) and tag2 (Topic 1)
+        // Statement 2 - Create segment2b: has tag1 (Topic 1) and tag2 (Topic 1)
         /** @var SegmentInterface $segment2b */
         $segment2b = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])
             ->_real();
@@ -382,7 +311,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $tagsFilter = ['tagTopicTitles' => [self::TAG_TOPIC_NAME_2]];
         $filtered = $this->sut->filterStatementsByTags($statements, $tagsFilter);
 
-        // Assert: Only statement2 should be returned with only segment2a
+        // Assert: Only statement2 should be returned with only segment2 (the one with Topic 2)
         static::assertCount(1, $filtered, 'Only statement2 should match');
 
         $filteredStatement = reset($filtered);
@@ -391,7 +320,7 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
 
         // Verify the correct segment is included
         $includedSegment = $filteredStatement->getSegmentsOfStatement()->first();
-        static::assertSame($segment2a->getId(), $includedSegment->getId(), 'The included segment should be segment2a');
+        static::assertSame($this->segment2->getId(), $includedSegment->getId(), 'The included segment should be segment2');
 
         // Verify the segment has both tags (tag1 and tag3)
         static::assertCount(2, $includedSegment->getTags(), 'The segment should have 2 tags');
