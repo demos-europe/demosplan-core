@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
