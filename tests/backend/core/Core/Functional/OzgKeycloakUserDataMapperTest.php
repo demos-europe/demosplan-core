@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
