@@ -19,21 +19,21 @@ use Zenstruck\Foundry\Persistence\Proxy;
 /**
  * @extends PersistentProxyObjectFactory<CustomFieldConfiguration>
  *
- * @method        CustomFieldConfiguration|Proxy                              create(array|callable $attributes = [])
- * @method static CustomFieldConfiguration|Proxy                              createOne(array $attributes = [])
- * @method static CustomFieldConfiguration|Proxy                              find(object|array|mixed $criteria)
- * @method static CustomFieldConfiguration|Proxy                              findOrCreate(array $attributes)
- * @method static CustomFieldConfiguration|Proxy                              first(string $sortedField = 'id')
- * @method static CustomFieldConfiguration|Proxy                              last(string $sortedField = 'id')
- * @method static CustomFieldConfiguration|Proxy                              random(array $attributes = [])
- * @method static CustomFieldConfiguration|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        CustomFieldConfiguration|Proxy     create(array|callable $attributes = [])
+ * @method static CustomFieldConfiguration|Proxy     createOne(array $attributes = [])
+ * @method static CustomFieldConfiguration|Proxy     find(object|array|mixed $criteria)
+ * @method static CustomFieldConfiguration|Proxy     findOrCreate(array $attributes)
+ * @method static CustomFieldConfiguration|Proxy     first(string $sortedField = 'id')
+ * @method static CustomFieldConfiguration|Proxy     last(string $sortedField = 'id')
+ * @method static CustomFieldConfiguration|Proxy     random(array $attributes = [])
+ * @method static CustomFieldConfiguration|Proxy     randomOrCreate(array $attributes = [])
  * @method static CustomFieldConfigurationRepository repository()
- * @method static CustomFieldConfiguration[]|Proxy[]                          all()
- * @method static CustomFieldConfiguration[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static CustomFieldConfiguration[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static CustomFieldConfiguration[]|Proxy[]                          findBy(array $attributes)
- * @method static CustomFieldConfiguration[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static CustomFieldConfiguration[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static CustomFieldConfiguration[]|Proxy[] all()
+ * @method static CustomFieldConfiguration[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static CustomFieldConfiguration[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static CustomFieldConfiguration[]|Proxy[] findBy(array $attributes)
+ * @method static CustomFieldConfiguration[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static CustomFieldConfiguration[]|Proxy[] randomSet(int $number, array $attributes = [])
  */
 final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
 {
