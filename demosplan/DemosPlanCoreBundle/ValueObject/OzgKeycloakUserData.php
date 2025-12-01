@@ -109,24 +109,40 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     }
 
     /**
-     * Override parent method to make roles optional when isPrivatePerson is true.
+     * Override parent method to make roles and organization optional when isPrivatePerson is true.
      *
-     * For private persons authenticated via the isPrivatePerson token attribute,
-     * roles are assigned automatically (CITIZEN role), so the customerRoleRelations
-     * array may be empty during token validation. This method validates all common
-     * mandatory fields but skips the role requirement for private persons.
+     * For private persons authenticated via the isPrivatePerson token attribute:
+     * - Roles are assigned automatically (CITIZEN role), so customerRoleRelations may be empty
+     * - Organization attributes are optional, as they'll be assigned to the private organization
+     * - Only validates: userId, userName, emailAddress, and name (firstName/lastName)
      *
-     * For organization users, standard validation including role check is performed.
+     * For organization users, standard validation including roles and organization is performed.
      */
     public function checkMandatoryValuesExist(): void
     {
         if ($this->isPrivatePerson) {
-            // For private persons, validate only common fields (not roles)
-            // Roles will be assigned automatically based on isPrivatePerson flag
-            $missingMandatoryValues = $this->checkCommonMandatoryValues();
+            // For private persons, validate only essential fields (skip roles and organization)
+            $missingMandatoryValues = [];
+
+            if ('' === $this->userId) {
+                $missingMandatoryValues[] = 'userId';
+            }
+
+            if ('' === $this->userName) {
+                $missingMandatoryValues[] = 'userName';
+            }
+
+            if ('' === $this->emailAddress) {
+                $missingMandatoryValues[] = 'emailAddress';
+            }
+
+            if ('' === $this->firstName && '' === $this->lastName) {
+                $missingMandatoryValues[] = 'name';
+            }
+
             $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
         } else {
-            // Organization users: use standard validation including role check
+            // Organization users: use standard validation including role and organization checks
             parent::checkMandatoryValuesExist();
         }
     }

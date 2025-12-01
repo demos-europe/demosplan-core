@@ -39,15 +39,16 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'email'              => self::TEST_EMAIL,
                 'given_name'         => 'John',
                 'family_name'        => 'Doe',
-                'organisationId'     => 'PrivatpersonId',
-                'organisationName'   => 'Privatperson',
                 'sub'                => '456',
                 'preferred_username' => 'johndoe',
                 'isPrivatePerson'    => true,
-                'groups'             => [], // No groups needed for private persons
+                'groups'             => [], // No groups or org data needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);
+
+        // Verify validation passes without organization attributes
+        $this->sut->checkMandatoryValuesExist();
 
         self::assertTrue($this->sut->isPrivatePerson());
     }
@@ -60,15 +61,16 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'email'              => self::TEST_EMAIL,
                 'given_name'         => 'Jane',
                 'family_name'        => 'Smith',
-                'organisationId'     => 'PrivatpersonId',
-                'organisationName'   => 'Privatperson',
                 'sub'                => '789',
                 'preferred_username' => 'janesmith',
                 'isPrivatePerson'    => 'true',
-                'groups'             => [], // No groups needed for private persons
+                'groups'             => [], // No groups or org data needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);
+
+        // Verify validation passes without organization attributes
+        $this->sut->checkMandatoryValuesExist();
 
         self::assertTrue($this->sut->isPrivatePerson());
     }
@@ -152,15 +154,16 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
                 'email'              => self::TEST_EMAIL,
                 'given_name'         => 'Test',
                 'family_name'        => 'User',
-                'organisationId'     => 'PrivatpersonId',
-                'organisationName'   => 'Privatperson',
                 'sub'                => '999',
                 'preferred_username' => 'testuser',
                 'isPrivatePerson'    => true,
-                'groups'             => [], // No groups needed for private persons
+                'groups'             => [], // No groups or org data needed for private persons
             ]);
 
         $this->sut->fill($resourceOwner);
+
+        // Verify validation passes without organization attributes
+        $this->sut->checkMandatoryValuesExist();
 
         $stringRepresentation = (string) $this->sut;
         self::assertStringContainsString('isPrivatePerson: true', $stringRepresentation);
@@ -168,14 +171,16 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
 
     public function testUserInformationIsCorrectlyFilledFromResourceOwnerWithIsPrivatePerson(): void
     {
+        // Test backward compatibility: private persons can still include organization data
+        // even though it's not required. This ensures existing tokens continue to work.
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
             ->willReturn([
                 'email'                           => self::TEST_EMAIL,
                 'given_name'                      => 'John',
                 'family_name'                     => 'Doe',
-                'organisationId'                  => 'PrivatpersonId',
-                'organisationName'                => 'Privatperson',
+                'organisationId'                  => 'PrivatpersonId', // Optional for backward compatibility
+                'organisationName'                => 'Privatperson', // Optional for backward compatibility
                 'sub'                             => '456',
                 'preferred_username'              => 'johndoe',
                 'UnternehmensanschriftStrasse'    => 'Test Street',
@@ -187,6 +192,9 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
             ]);
 
         $this->sut->fill($resourceOwner);
+
+        // Verify validation passes with organization attributes (backward compatibility)
+        $this->sut->checkMandatoryValuesExist();
 
         self::assertEquals(self::TEST_EMAIL, $this->sut->getEmailAddress());
         self::assertEquals('John', $this->sut->getFirstName());
