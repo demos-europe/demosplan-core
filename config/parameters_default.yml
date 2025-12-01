@@ -356,6 +356,7 @@ parameters:
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
+    # OAuth client ID - used for authentication AND for extracting roles from resource_access claim in JWT token
     oauth_keycloak_client_id: ''
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
@@ -365,9 +366,6 @@ parameters:
     oauth_keycloak_logout_route: ''
     # roles may be granted via keycloak groups (LEGACY - fallback only)
     keycloak_group_role_string: ''
-    # specific client ID in resource_access claim for role extraction
-    # override in project-specific parameters_default_project.yml with actual client ID
-    keycloak_client_id: ''
 
     # Azure AD logout route for Front-Channel logout like
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout

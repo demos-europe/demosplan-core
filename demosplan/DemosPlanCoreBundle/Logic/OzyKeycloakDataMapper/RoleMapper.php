@@ -62,7 +62,7 @@ class RoleMapper
     {
         // If no client ID is configured, skip resource_access extraction (fallback to groups)
         if ('' === $keycloakClientId) {
-            $this->logger->info('No keycloak_client_id configured, skipping resource_access extraction');
+            $this->logger->info('No oauth_keycloak_client_id configured, skipping resource_access extraction');
 
             return [];
         }

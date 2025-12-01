@@ -44,7 +44,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         private readonly RoleMapper $roleMapper,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
-        $this->keycloakClientId = $parameterBag->get('keycloak_client_id');
+        $this->keycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
     }
 
     public function fill(ResourceOwnerInterface $resourceOwner, ?string $customerSubdomain = null): void

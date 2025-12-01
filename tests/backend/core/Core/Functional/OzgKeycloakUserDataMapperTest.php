@@ -143,8 +143,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $userData = new OzgKeycloakUserData(
             new NullLogger(),
             new ParameterBag([
-                'keycloak_group_role_string' => 'PlaceholderForKeycloakForRole',
-                'keycloak_client_id'         => 'test-client-id',
+                'keycloak_group_role_string'  => 'PlaceholderForKeycloakForRole',
+                'oauth_keycloak_client_id'    => 'test-client-id',
             ]),
             $roleMapper
         );
@@ -267,8 +267,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
 
         $parameterBag = new ParameterBag([
-            'keycloak_group_role_string' => 'Beteiligung-Berechtigung',
-            'keycloak_client_id'         => "diplan-develop-beteiligung-{$customerSubdomain}",
+            'keycloak_group_role_string'  => 'Beteiligung-Berechtigung',
+            'oauth_keycloak_client_id'    => "diplan-develop-beteiligung-{$customerSubdomain}",
         ]);
         $roleMapper = new RoleMapper(new NullLogger());
         $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag, $roleMapper);
