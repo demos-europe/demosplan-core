@@ -20665,26 +20665,26 @@
         },
         {
             "name": "liip/test-fixtures-bundle",
-            "version": "3.6.0",
+            "version": "3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipTestFixturesBundle.git",
-                "reference": "29942037076433f0189f33ccd7d53198dd818fe7"
+                "reference": "75336011605a762d04e5d5691eff8d4945438f8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipTestFixturesBundle/zipball/29942037076433f0189f33ccd7d53198dd818fe7",
-                "reference": "29942037076433f0189f33ccd7d53198dd818fe7",
+                "url": "https://api.github.com/repos/liip/LiipTestFixturesBundle/zipball/75336011605a762d04e5d5691eff8d4945438f8f",
+                "reference": "75336011605a762d04e5d5691eff8d4945438f8f",
                 "shasum": ""
             },
             "require": {
                 "doctrine/persistence": "^1.3.3 || ^2.0 || ^3.0 || ^4.0",
                 "php": "^8.1",
                 "symfony/deprecation-contracts": "^2.1 || ^3.0",
-                "symfony/event-dispatcher": "^5.4 || ^6.3 || ^7.0",
+                "symfony/event-dispatcher": "^5.4 || ^6.3 || ^7.0 || ^8.0",
                 "symfony/event-dispatcher-contracts": "^1 || ^2 || ^3",
-                "symfony/framework-bundle": "^5.4 || ^6.3 || ^7.0",
-                "symfony/yaml": "^5.4 || ^6.3 || ^7.0"
+                "symfony/framework-bundle": "^5.4 || ^6.3 || ^7.0 || ^8.0",
+                "symfony/yaml": "^5.4 || ^6.3 || ^7.0 || ^8.0"
             },
             "conflict": {
                 "doctrine/annotations": "<1.13.1 || >=3.0",
@@ -20694,15 +20694,15 @@
             },
             "require-dev": {
                 "doctrine/data-fixtures": "^1.7 || ^2.0.1",
-                "doctrine/doctrine-bundle": "^2.11",
+                "doctrine/doctrine-bundle": "^2.11 || ^3.1.0",
                 "doctrine/doctrine-fixtures-bundle": "^3.5.1 || ^4.0",
                 "doctrine/mongodb-odm": "^2.5",
                 "doctrine/mongodb-odm-bundle": "^4.4 || ^5.0",
                 "doctrine/orm": "^2.14 || ^3.1.0",
                 "monolog/monolog": "^1.25.1 || ^2.0 || ^3.0",
                 "phpunit/phpunit": "^10.5.11 || ^11.0.4 || ^12.0.0",
-                "symfony/doctrine-bridge": "^5.4 || ^6.3 || ^7.0",
-                "symfony/monolog-bridge": "^5.4 || ^6.3 || ^7.0",
+                "symfony/doctrine-bridge": "^5.4 || ^6.3 || ^7.0 || ^8.0",
+                "symfony/monolog-bridge": "^5.4 || ^6.3 || ^7.0 || ^8.0",
                 "symfony/monolog-bundle": "^3.2",
                 "theofidry/alice-data-fixtures": "^1.5.2"
             },
@@ -20746,9 +20746,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipTestFixturesBundle/issues",
-                "source": "https://github.com/liip/LiipTestFixturesBundle/tree/3.6.0"
+                "source": "https://github.com/liip/LiipTestFixturesBundle/tree/3.7.0"
             },
-            "time": "2025-10-06T18:40:34+00:00"
+            "time": "2025-11-29T14:26:43+00:00"
         },
         {
             "name": "myclabs/deep-copy",
