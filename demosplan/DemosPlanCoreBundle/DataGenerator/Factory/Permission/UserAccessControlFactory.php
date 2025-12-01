@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
 use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<UserAccessControl>
@@ -29,7 +28,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static UserAccessControl|Proxy                              last(string $sortedField = 'id')
  * @method static UserAccessControl|Proxy                              random(array $attributes = [])
  * @method static UserAccessControl|Proxy                              randomOrCreate(array $attributes = [])
- * @method static UserAccessControlRepository|ProxyRepositoryDecorator repository()
+ * @method static UserAccessControlRepository repository()
  * @method static UserAccessControl[]|Proxy[]                          all()
  * @method static UserAccessControl[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static UserAccessControl[]|Proxy[]                          createSequence(iterable|callable $sequence)
@@ -45,7 +44,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @phpstan-method static UserAccessControl&Proxy<UserAccessControl> last(string $sortedField = 'id')
  * @phpstan-method static UserAccessControl&Proxy<UserAccessControl> random(array $attributes = [])
  * @phpstan-method static UserAccessControl&Proxy<UserAccessControl> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<UserAccessControl, EntityRepository> repository()
+ * @phpstan-method static UserAccessControlRepository repository()
  * @phpstan-method static list<UserAccessControl&Proxy<UserAccessControl>> all()
  * @phpstan-method static list<UserAccessControl&Proxy<UserAccessControl>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<UserAccessControl&Proxy<UserAccessControl>> createSequence(iterable|callable $sequence)

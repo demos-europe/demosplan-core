@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Procedure>
@@ -29,7 +28,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Procedure|Proxy                              last(string $sortedField = 'id')
  * @method static Procedure|Proxy                              random(array $attributes = [])
  * @method static Procedure|Proxy                              randomOrCreate(array $attributes = [])
- * @method static ProcedureRepository|ProxyRepositoryDecorator repository()
+ * @method static ProcedureRepository repository()
  * @method static Procedure[]|Proxy[]                          all()
  * @method static Procedure[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static Procedure[]|Proxy[]                          createSequence(iterable|callable $sequence)
