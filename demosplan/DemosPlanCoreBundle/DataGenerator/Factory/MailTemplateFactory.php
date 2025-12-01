@@ -14,7 +14,6 @@ use demosplan\DemosPlanCoreBundle\Entity\MailTemplate;
 use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<MailTemplate>
@@ -27,7 +26,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static MailTemplate|Proxy                        last(string $sortedField = 'id')
  * @method static MailTemplate|Proxy                        random(array $attributes = [])
  * @method static MailTemplate|Proxy                        randomOrCreate(array $attributes = [])
- * @method static EntityRepository|ProxyRepositoryDecorator repository()
+ * @method static EntityRepository repository()
  * @method static MailTemplate[]|Proxy[]                    all()
  * @method static MailTemplate[]|Proxy[]                    createMany(int $number, array|callable $attributes = [])
  * @method static MailTemplate[]|Proxy[]                    createSequence(iterable|callable $sequence)
@@ -43,7 +42,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @phpstan-method static MailTemplate&Proxy<MailTemplate> last(string $sortedField = 'id')
  * @phpstan-method static MailTemplate&Proxy<MailTemplate> random(array $attributes = [])
  * @phpstan-method static MailTemplate&Proxy<MailTemplate> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<MailTemplate, EntityRepository> repository()
+ * @phpstan-method static EntityRepository repository()
  * @phpstan-method static list<MailTemplate&Proxy<MailTemplate>> all()
  * @phpstan-method static list<MailTemplate&Proxy<MailTemplate>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<MailTemplate&Proxy<MailTemplate>> createSequence(iterable|callable $sequence)

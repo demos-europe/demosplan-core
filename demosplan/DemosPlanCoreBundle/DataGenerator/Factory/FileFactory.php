@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<File>
@@ -28,7 +27,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static File|Proxy                              last(string $sortedField = 'id')
  * @method static File|Proxy                              random(array $attributes = [])
  * @method static File|Proxy                              randomOrCreate(array $attributes = [])
- * @method static FileRepository|ProxyRepositoryDecorator repository()
+ * @method static FileRepository repository()
  * @method static File[]|Proxy[]                          all()
  * @method static File[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static File[]|Proxy[]                          createSequence(iterable|callable $sequence)
@@ -44,7 +43,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @phpstan-method static File&Proxy<File> last(string $sortedField = 'id')
  * @phpstan-method static File&Proxy<File> random(array $attributes = [])
  * @phpstan-method static File&Proxy<File> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<File, EntityRepository> repository()
+ * @phpstan-method static FileRepository repository()
  * @phpstan-method static list<File&Proxy<File>> all()
  * @phpstan-method static list<File&Proxy<File>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<File&Proxy<File>> createSequence(iterable|callable $sequence)

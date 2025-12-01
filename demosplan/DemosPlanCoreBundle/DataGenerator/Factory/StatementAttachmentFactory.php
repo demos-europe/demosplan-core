@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
 use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<StatementAttachment>
@@ -29,7 +28,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static StatementAttachment|Proxy                              last(string $sortedField = 'id')
  * @method static StatementAttachment|Proxy                              random(array $attributes = [])
  * @method static StatementAttachment|Proxy                              randomOrCreate(array $attributes = [])
- * @method static StatementAttachmentRepository|ProxyRepositoryDecorator repository()
+ * @method static StatementAttachmentRepository repository()
  * @method static StatementAttachment[]|Proxy[]                          all()
  * @method static StatementAttachment[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static StatementAttachment[]|Proxy[]                          createSequence(iterable|callable $sequence)
@@ -45,7 +44,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @phpstan-method static StatementAttachment&Proxy<StatementAttachment> last(string $sortedField = 'id')
  * @phpstan-method static StatementAttachment&Proxy<StatementAttachment> random(array $attributes = [])
  * @phpstan-method static StatementAttachment&Proxy<StatementAttachment> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<StatementAttachment, EntityRepository> repository()
+ * @phpstan-method static StatementAttachmentRepository repository()
  * @phpstan-method static list<StatementAttachment&Proxy<StatementAttachment>> all()
  * @phpstan-method static list<StatementAttachment&Proxy<StatementAttachment>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<StatementAttachment&Proxy<StatementAttachment>> createSequence(iterable|callable $sequence)
