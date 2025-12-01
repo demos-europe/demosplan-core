@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Paragraph>
@@ -28,7 +27,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Paragraph|Proxy                              last(string $sortedField = 'id')
  * @method static Paragraph|Proxy                              random(array $attributes = [])
  * @method static Paragraph|Proxy                              randomOrCreate(array $attributes = [])
- * @method static ParagraphRepository|ProxyRepositoryDecorator repository()
+ * @method static ParagraphRepository repository()
  * @method static Paragraph[]|Proxy[]                          all()
  * @method static Paragraph[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static Paragraph[]|Proxy[]                          createSequence(iterable|callable $sequence)

@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<Elements>
@@ -29,7 +28,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Elements|Proxy                              last(string $sortedField = 'id')
  * @method static Elements|Proxy                              random(array $attributes = [])
  * @method static Elements|Proxy                              randomOrCreate(array $attributes = [])
- * @method static ElementsRepository|ProxyRepositoryDecorator repository()
+ * @method static ElementsRepository repository()
  * @method static Elements[]|Proxy[]                          all()
  * @method static Elements[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static Elements[]|Proxy[]                          createSequence(iterable|callable $sequence)
