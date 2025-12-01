@@ -760,6 +760,19 @@ class ProcedureService implements ProcedureServiceInterface
         }
     }
 
+    /**
+     * Current user can assign statements & datasets to authorized user. To do that, we need a list. This gets the list.
+     *
+     * @param string $procedureId
+     * @param User   $user                            User is needed as s/he only may see
+     *                                                members of same organisation; if no user was given then the current user will be used
+     * @param bool   $excludeUser                     exclude given user from list?
+     * @param bool   $excludeProcedureAuthorizedUsers filter users who may not administer this Procedure
+     *
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
     public function getAuthorizedUsers(
         $procedureId,
         ?User $user = null,
@@ -806,38 +819,6 @@ class ProcedureService implements ProcedureServiceInterface
             $usersOfOrganisation = $usersOfOrganisation->filter(
                 static fn (User $user): bool => \in_array($user->getId(), $authorizedUserIds)
             );
-        }
-
-        return $usersOfOrganisation;
-    }
-
-    /**
-     * Get all user from the current user's organization for the authorized user multiselect in procedure basic settings.
-     * This returns ONLY user from the current user's own organization.
-     *
-     * @param User|null $user        The current user
-     * @param bool      $excludeUser To exclude the current user from the list
-     *
-     * @return Collection<User>
-     */
-    public function getAuthorizedUsersForSelection(
-        ?User $user = null,
-        bool $excludeUser = true,
-    ): Collection {
-        $user ??= $this->currentUser->getUser();
-        $userOrga = $user?->getOrga();
-
-        if (!$userOrga instanceof Orga) {
-            return \collect();
-        }
-
-        // Get all user from the org, filter by role, and exclude the current user.
-        $usersOfOrganisation = $userOrga->getUsers()->filter(
-            static fn (User $u): bool => $u->isPlanningAgency() || $u->isHearingAuthority() || $u->isPlanner()
-        );
-
-        if ($excludeUser) {
-            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
         }
 
         return $usersOfOrganisation;

@@ -1423,14 +1423,13 @@ class DemosPlanProcedureController extends BaseController
 
             $templateVars['procedure'] = $procedureObject;
 
-            /*
-             * Show the users of own organization in dropdown who can be selected and authorized.
-             * The user itself is implicitly authorized and therefore excluded from the list.
-             **/
+            // Get list of authorized users without current user - sorted after Users lastname (a to z)
             if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-                $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsersForSelection(
+                $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsers(
+                    $procedureId,
                     null,
-                    true
+                    true,
+                    false
                 )->sort(static function (User $userA, User $userB): int {
                     $lastNameCmpResult = strcmp((string) $userA->getLastname(), (string) $userB->getLastname());
                     if (0 === $lastNameCmpResult) {
