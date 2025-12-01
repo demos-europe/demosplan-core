@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -138,11 +139,14 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     private function createUserData(array $attributes): OzgKeycloakUserData
     {
         $resourceOwner = new KeycloakResourceOwner($attributes);
+        $roleMapper = new RoleMapper(new NullLogger());
         $userData = new OzgKeycloakUserData(
             new NullLogger(),
             new ParameterBag([
                 'keycloak_group_role_string' => 'PlaceholderForKeycloakForRole',
+                'keycloak_client_id'         => 'test-client-id',
             ]),
+            $roleMapper
         );
         $userData->fill($resourceOwner);
 
@@ -266,7 +270,8 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             'keycloak_group_role_string' => 'Beteiligung-Berechtigung',
             'keycloak_client_id'         => "diplan-develop-beteiligung-{$customerSubdomain}",
         ]);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
+        $roleMapper = new RoleMapper(new NullLogger());
+        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag, $roleMapper);
         $ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain);
 
         return $this->sut->mapUserData($ozgKeycloakUserData);
