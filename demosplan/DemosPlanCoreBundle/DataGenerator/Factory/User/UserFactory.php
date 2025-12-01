@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<User>
@@ -28,7 +27,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static User|Proxy                              last(string $sortedField = 'id')
  * @method static User|Proxy                              random(array $attributes = [])
  * @method static User|Proxy                              randomOrCreate(array $attributes = [])
- * @method static UserRepository|ProxyRepositoryDecorator repository()
+ * @method static UserRepository repository()
  * @method static User[]|Proxy[]                          all()
  * @method static User[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
  * @method static User[]|Proxy[]                          createSequence(iterable|callable $sequence)
@@ -44,7 +43,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @phpstan-method static User&Proxy<User> last(string $sortedField = 'id')
  * @phpstan-method static User&Proxy<User> random(array $attributes = [])
  * @phpstan-method static User&Proxy<User> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<User, EntityRepository> repository()
+ * @phpstan-method static repository()
  * @phpstan-method static list<User&Proxy<User>> all()
  * @phpstan-method static list<User&Proxy<User>> createMany(int $number, array|callable $attributes = [])
  * @phpstan-method static list<User&Proxy<User>> createSequence(iterable|callable $sequence)
