@@ -3,13 +3,32 @@
         data-cy="statementDetail:statementFinalSend"
         title="{{ "statement.final.send"|trans }}">
         <div class="o-box--dark u-ph u-pv-0_5">
+            {# Determine if statement has feedback value set (authorFeedback is true means citizen wants feedback) #}
+            {% set hasFeedbackValue = templateVars.table.statement.meta.authorFeedback is defined and templateVars.table.statement.meta.authorFeedback == true %}
+
             {% if templateVars.sendFinalEmail is defined and templateVars.sendFinalEmail == false %}
+                {# If feature is now disabled, show note that statement was created when feature was enabled #}
+                {% if not templateVars.table.procedure.settings.publicParticipationFeedbackEnabled %}
+                    <p class="flash-info u-mb-0_5">{{ "note.statement.created.when.feature.enabled.postal"|trans }}</p>
+                {% endif %}
                 {{ "explanation.no.statement.final.sent"|trans }}
-            {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement and templateVars.table.statement.meta.authorFeedback|default() == false %}
+            {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement
+                and not hasFeedbackValue
+                and not templateVars.table.procedure.settings.publicParticipationFeedbackEnabled %}
+                {# Statement has no feedback value AND feature is disabled - show feature disabled message #}
+                {{ "explanation.statement.final.feedback.feature.disabled"|trans }}
+            {% elseif constant('demosplan\\DemosPlanCoreBundle\\Entity\\Statement\\Statement::EXTERNAL') == templateVars.table.statement.publicStatement
+                and not hasFeedbackValue %}
+                {# Statement has no feedback value - citizen doesn't want feedback #}
                 {{ "explanation.no.statement.final.no.feedback.wanted"|trans }}
             {% elseif templateVars.email2|default()|length == 0 %}
                 {{ "explanation.no.statement.final.no.email"|trans }}
             {% else %}
+                {# Show note if feature is currently disabled but statement has feedback value #}
+                {% if not templateVars.table.procedure.settings.publicParticipationFeedbackEnabled and hasFeedbackValue %}
+                    <p class="flash-info u-mb-0_5">{{ "note.statement.created.when.feature.enabled.form.shown"|trans }}</p>
+                {% endif %}
+
                 {% if templateVars.finalEmailOnlyToVoters is defined and templateVars.finalEmailOnlyToVoters == true %}
                     {{ "explanation.statement.final.sent.only.voters"|trans }}
                 {% endif %}
