@@ -194,6 +194,7 @@
       color="primary"
       :href="sanitizedReturnLink"
       :text="Translator.trans('back.to.segments.list')"
+      :text="sourcePageButtonText"
     />
   </div>
 </template>
@@ -489,6 +490,14 @@ export default {
       return sanitizeUrl(this.returnLink)
     },
 
+    sourcePageButtonText () {
+      if (this.sourcePage === 'StatementsList') {
+        return Translator.trans('back.to.statements.list')
+      }
+
+      return Translator.trans('back.to.segments.list')
+    },
+
     statement () {
       return this.statements[this.statementId] || null
     },
@@ -676,12 +685,16 @@ export default {
       const currentQueryHash =
         lscache.get(`${this.procedure.id}:segments:currentQueryHash`)
 
-      if (currentQueryHash) {
+      if (currentQueryHash && (!this.sourcePage || this.sourcePage === 'SegmentsList')) {
         this.returnLink =
           Routing.generate('dplan_segments_list_by_query_hash', {
             procedureId: this.procedure.id,
             queryHash: currentQueryHash,
           })
+      } else if (this.sourcePage === 'StatementsList') {
+        this.returnLink = Routing.generate('dplan_procedure_statement_list', {
+          procedureId: this.procedure.id
+        })
       }
     },
 
