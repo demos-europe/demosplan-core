@@ -17,15 +17,24 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
 
 class StatementExportTagFilter
 {
+    public function __construct(
+        private readonly TranslatorInterface $translator
+    ) {
+    }
     private const TAG_IDS_FILTER_KEY = 'tagIds';
     private const TAG_TITLES_FILTER_KEY = 'tagTitles';
     private const TAG_TOPIC_IDS_FILTER_KEY = 'tagTopicIds';
     private const TAG_TOPIC_TITLES_FILTER_KEY = 'tagTopicTitles';
+
+    private array $tagsFilter = [];
+    private array $tagNamesFound = [];
+    private array $topicNamesFound = [];
 
     /**
      * Filters statements and their segments based on tag criteria.
@@ -49,6 +58,9 @@ class StatementExportTagFilter
      */
     public function filterStatementsByTags(array $statements, array $tagsFilter): array
     {
+        // Store filter for later use in helper methods
+        $this->tagsFilter = $tagsFilter;
+
         $tagIds = $tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
         $tagTitles = $tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
         $tagTopicIds = $tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
@@ -64,6 +76,102 @@ class StatementExportTagFilter
         // the goal is to exclude all Segments from the payload that do not match the filter criteria
         // if all Segments from a parentStatement get excluded - the whole statement gets excluded as well.
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
+    }
+
+    public function hasAnySupportedFilterSet(): bool
+    {
+        return $this->isTagIdFilterActive()
+            || $this->isTagTitleFilterActive()
+            || $this->isTagTopicIdFilterActive()
+            || $this->isTagTopicTitleFilterActive();
+    }
+
+    public function isTagIdFilterActive(): bool
+    {
+        return !empty($this->tagsFilter[self::TAG_IDS_FILTER_KEY] ?? []);
+    }
+
+    public function isTagTitleFilterActive(): bool
+    {
+        return !empty($this->tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? []);
+    }
+
+    public function isTagTopicIdFilterActive(): bool
+    {
+        return !empty($this->tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? []);
+    }
+
+    public function isTagTopicTitleFilterActive(): bool
+    {
+        return !empty($this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? []);
+    }
+
+    public function getTagIds(): array
+    {
+        return $this->tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
+    }
+
+    public function getTagTitles(): array
+    {
+        return $this->tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
+    }
+
+    public function getTagTopicIds(): array
+    {
+        return $this->tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
+    }
+
+    public function getTagTopicTitles(): array
+    {
+        return $this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
+    }
+
+    /**
+     * Checks if any tag filters were applied and matched segments during filtering.
+     *
+     * @return bool True if tag filters were applied and matched, false otherwise
+     */
+    public function hasTagFiltersApplied(): bool
+    {
+        return !empty($this->tagNamesFound);
+    }
+
+    /**
+     * Checks if any topic filters were applied and matched segments during filtering.
+     *
+     * @return bool True if topic filters were applied and matched, false otherwise
+     */
+    public function hasTopicFiltersApplied(): bool
+    {
+        return !empty($this->topicNamesFound);
+    }
+
+    /**
+     * Returns a human-readable description of tag names that were matched during filtering.
+     * This includes both tags filtered by ID and by title.
+     *
+     * @return string Formatted description of tag names
+     */
+    public function getTagFiltersHumanReadable(): string
+    {
+        if (empty($this->tagNamesFound)) {
+            return $this->translator->trans('export.filter.tags.none');
+        }
+        return $this->translator->trans('export.filter.tags.names', ['names' => implode(', ', $this->tagNamesFound)]);
+    }
+
+    /**
+     * Returns a human-readable description of topic names that were matched during filtering.
+     * This includes both topics filtered by ID and by title.
+     *
+     * @return string Formatted description of topic names
+     */
+    public function getTopicFiltersHumanReadable(): string
+    {
+        if (empty($this->topicNamesFound)) {
+            return $this->translator->trans('export.filter.topics.none');
+        }
+        return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
     }
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
@@ -92,6 +200,13 @@ class StatementExportTagFilter
                                 && in_array($tagTopic->getTitle(), $tagTopicTitles, true);
 
                             if ($matchByTagId || $matchByTagTitle || $matchByTagTopicId || $matchByTagTopicTitle) {
+                                // Collect human-readable names for matched tags and topics
+                                if ($matchByTagId || $matchByTagTitle) {
+                                    $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
+                                }
+                                if ($matchByTagTopicId || $matchByTagTopicTitle) {
+                                    $this->topicNamesFound[$tagTopic->getId()] = $tagTopic->getTitle();
+                                }
                                 return true;
                             }
                         }
