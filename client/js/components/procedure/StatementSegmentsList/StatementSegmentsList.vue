@@ -193,8 +193,8 @@
       class="mt-4"
       color="primary"
       :href="sanitizedReturnLink"
-      :text="Translator.trans('back.to.segments.list')"
       :text="sourcePageButtonText"
+      @click="removeNavigationSourceStorageEntry"
     />
   </div>
 </template>
@@ -627,6 +627,10 @@ export default {
 
     hasDraftSegments () {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
+    removeNavigationSourceStorageEntry () {
+      lscache.remove(`${this.procedure.id}:navigation:source`)
     },
 
     resetSlidebar () {

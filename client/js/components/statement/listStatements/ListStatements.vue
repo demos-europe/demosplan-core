@@ -1016,6 +1016,10 @@ export default {
   },
 
   mounted () {
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
+
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {

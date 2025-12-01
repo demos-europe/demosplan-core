@@ -1071,6 +1071,10 @@ export default {
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
     lscache.remove(this.lsKey.currentQueryHash)
 
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
+
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {
         const query = {}
