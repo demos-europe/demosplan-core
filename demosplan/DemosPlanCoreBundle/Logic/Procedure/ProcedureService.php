@@ -760,24 +760,11 @@ class ProcedureService implements ProcedureServiceInterface
         }
     }
 
-    /**
-     * Current user can assign statements & datasets to authorized user. To do that, we need a list. This gets the list.
-     *
-     * Returns users from:
-     * - All planning offices registered in Basic Settings
-     * - Explicitly authorized users from procedure settings
-     *
-     * @param string $procedureId
-     * @param User   $user        User is needed as s/he only may see members of same organisation;
-     *                            if no user was given then the current user will be used
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws TransactionRequiredException
-     */
     public function getAuthorizedUsers(
         $procedureId,
         ?User $user = null,
+        $excludeUser = false,
+        $excludeProcedureAuthorizedUsers = true,
     ): Collection {
         if (!$user instanceof User) {
             $user = $this->currentUser->getUser();
@@ -793,41 +780,32 @@ class ProcedureService implements ProcedureServiceInterface
             return \collect();
         }
 
-        $usersOfOrganisation = \collect();
+        $usersOfOrganisation = $userOrga->getUsers();
 
-        // Include planners from all planning offices configured in Basic Settings
-        // to show them as assignee options in the assessment table multiselect dropdown.
-        foreach ($procedure->getPlanningOfficesIds() as $planningOfficeId) {
-            try {
-                $planningOffice = $this->orgaService->getOrga($planningOfficeId);
-                foreach ($planningOffice?->getUsers()->filter(static fn (User $u): bool => $u->isPlanner()) ?? [] as $user) {
-                    if (!$usersOfOrganisation->contains($user)) {
-                        $usersOfOrganisation->add($user);
-                    }
-                }
-            } catch (Exception $e) {
-                $this->logger->error('getAuthorizedUsers - failed to load planning office', [
-                    'planningOfficeId' => $planningOfficeId,
-                    'error'            => $e->getMessage(),
-                ]);
-            }
+        // remove current user, to avoid unselecting yourself:
+        if ($excludeUser) {
+            $usersOfOrganisation->forget($usersOfOrganisation->search($user));
+        }
+        // planning offices needs to get all Orga members that are planners
+        if (\in_array($userOrga->getId(), $procedure->getPlanningOfficesIds(), true)) {
+            return $usersOfOrganisation->filter(static fn (User $user): bool => $user->isPlanner());
         }
 
-        // Filter users by role to ensure only valid roles appear in the assessment table multiselect dropdown.
-        // Exclude citizens, guests, and other roles that should not be assigned.
+        // T8901: filter users with false roles:
         $usersOfOrganisation = $usersOfOrganisation->filter(
-            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority() || $user->isPlanner()
+            static fn (User $user): bool => $user->isPlanningAgency() || $user->isHearingAuthority()
         );
 
-        // Add individual authorized users configured in Basic Settings
-        // as additional assignee options in the assessment table multiselect dropdown.
-        $procedureAuthorizedUsers = $procedure->getAuthorizedUsers();
-        if ($procedureAuthorizedUsers->count() > 0) {
-            foreach ($procedureAuthorizedUsers as $authorizedUser) {
-                if (!$usersOfOrganisation->contains($authorizedUser)) {
-                    $usersOfOrganisation->add($authorizedUser);
-                }
-            }
+        // filter users who may not administer this Procedure
+        // aka "authorized users" in terms of procedure entity
+
+        // planunngsbüros shoul be authorized, but may not in case of permission is disabled.
+        // cover this by checking for flag AND for permission (to check)
+        if ($excludeProcedureAuthorizedUsers && $this->globalConfig->hasProcedureUserRestrictedAccess()) {
+            $authorizedUserIds = $procedure->getAuthorizedUserIds();
+            $usersOfOrganisation = $usersOfOrganisation->filter(
+                static fn (User $user): bool => \in_array($user->getId(), $authorizedUserIds)
+            );
         }
 
         return $usersOfOrganisation;
