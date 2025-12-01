@@ -253,7 +253,7 @@
                 })"
                 data-cy="segmentsList:edit"
                 rel="noopener"
-                @click="storeFilterInCache"
+                @click="storeNavigationContextInCache"
               >
                 {{ Translator.trans('edit') }}
               </a>
@@ -267,7 +267,7 @@
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
                 rel="noopener"
-                @click="storeFilterInCache"
+                @click="storeNavigationContextInCache"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
@@ -990,6 +990,11 @@ export default {
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
 
       globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    storeNavigationContextInCache () {
+      lscache.set(`${this.procedureId}:navigation:source`, 'SegmentsList')
+      this.storeFilterInCache()
     },
 
     storeToggledSegments () {

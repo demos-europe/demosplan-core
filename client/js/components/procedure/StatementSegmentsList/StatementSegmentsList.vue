@@ -343,6 +343,7 @@ export default {
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
+      sourcePage: '',
       statementClaimChecked: false,
       submittersList: '',
     }
@@ -462,6 +463,10 @@ export default {
       }
 
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
+    },
+
+    navigationSource () {
+      return lscache.get(`${this.procedure.id}:navigation:source`)
     },
 
     originalAttachment () {
@@ -785,7 +790,11 @@ export default {
 
   mounted () {
     this.getStatement()
+
+    this.sourcePage = this.navigationSource
+
     this.setReturnLink()
+
     if (hasPermission('field_segments_custom_fields')) {
       this.fetchCustomFields()
     }
