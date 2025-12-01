@@ -19,21 +19,21 @@ use Zenstruck\Foundry\Persistence\Proxy;
 /**
  * @extends PersistentProxyObjectFactory<Paragraph>
  *
- * @method        Paragraph|Proxy                              create(array|callable $attributes = [])
- * @method static Paragraph|Proxy                              createOne(array $attributes = [])
- * @method static Paragraph|Proxy                              find(object|array|mixed $criteria)
- * @method static Paragraph|Proxy                              findOrCreate(array $attributes)
- * @method static Paragraph|Proxy                              first(string $sortedField = 'id')
- * @method static Paragraph|Proxy                              last(string $sortedField = 'id')
- * @method static Paragraph|Proxy                              random(array $attributes = [])
- * @method static Paragraph|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        Paragraph|Proxy     create(array|callable $attributes = [])
+ * @method static Paragraph|Proxy     createOne(array $attributes = [])
+ * @method static Paragraph|Proxy     find(object|array|mixed $criteria)
+ * @method static Paragraph|Proxy     findOrCreate(array $attributes)
+ * @method static Paragraph|Proxy     first(string $sortedField = 'id')
+ * @method static Paragraph|Proxy     last(string $sortedField = 'id')
+ * @method static Paragraph|Proxy     random(array $attributes = [])
+ * @method static Paragraph|Proxy     randomOrCreate(array $attributes = [])
  * @method static ParagraphRepository repository()
- * @method static Paragraph[]|Proxy[]                          all()
- * @method static Paragraph[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static Paragraph[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static Paragraph[]|Proxy[]                          findBy(array $attributes)
- * @method static Paragraph[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static Paragraph[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static Paragraph[]|Proxy[] all()
+ * @method static Paragraph[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static Paragraph[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static Paragraph[]|Proxy[] findBy(array $attributes)
+ * @method static Paragraph[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static Paragraph[]|Proxy[] randomSet(int $number, array $attributes = [])
  */
 final class ParagraphFactory extends PersistentProxyObjectFactory
 {

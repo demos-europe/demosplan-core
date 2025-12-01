@@ -20,21 +20,21 @@ use Zenstruck\Foundry\Persistence\Proxy;
 /**
  * @extends PersistentProxyObjectFactory<Elements>
  *
- * @method        Elements|Proxy                              create(array|callable $attributes = [])
- * @method static Elements|Proxy                              createOne(array $attributes = [])
- * @method static Elements|Proxy                              find(object|array|mixed $criteria)
- * @method static Elements|Proxy                              findOrCreate(array $attributes)
- * @method static Elements|Proxy                              first(string $sortedField = 'id')
- * @method static Elements|Proxy                              last(string $sortedField = 'id')
- * @method static Elements|Proxy                              random(array $attributes = [])
- * @method static Elements|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        Elements|Proxy     create(array|callable $attributes = [])
+ * @method static Elements|Proxy     createOne(array $attributes = [])
+ * @method static Elements|Proxy     find(object|array|mixed $criteria)
+ * @method static Elements|Proxy     findOrCreate(array $attributes)
+ * @method static Elements|Proxy     first(string $sortedField = 'id')
+ * @method static Elements|Proxy     last(string $sortedField = 'id')
+ * @method static Elements|Proxy     random(array $attributes = [])
+ * @method static Elements|Proxy     randomOrCreate(array $attributes = [])
  * @method static ElementsRepository repository()
- * @method static Elements[]|Proxy[]                          all()
- * @method static Elements[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static Elements[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static Elements[]|Proxy[]                          findBy(array $attributes)
- * @method static Elements[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static Elements[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static Elements[]|Proxy[] all()
+ * @method static Elements[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static Elements[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static Elements[]|Proxy[] findBy(array $attributes)
+ * @method static Elements[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static Elements[]|Proxy[] randomSet(int $number, array $attributes = [])
  */
 final class ElementsFactory extends PersistentProxyObjectFactory
 {

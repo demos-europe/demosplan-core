@@ -19,21 +19,21 @@ use Zenstruck\Foundry\Persistence\Proxy;
 /**
  * @extends PersistentProxyObjectFactory<SingleDocument>
  *
- * @method        SingleDocument|Proxy                              create(array|callable $attributes = [])
- * @method static SingleDocument|Proxy                              createOne(array $attributes = [])
- * @method static SingleDocument|Proxy                              find(object|array|mixed $criteria)
- * @method static SingleDocument|Proxy                              findOrCreate(array $attributes)
- * @method static SingleDocument|Proxy                              first(string $sortedField = 'id')
- * @method static SingleDocument|Proxy                              last(string $sortedField = 'id')
- * @method static SingleDocument|Proxy                              random(array $attributes = [])
- * @method static SingleDocument|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        SingleDocument|Proxy     create(array|callable $attributes = [])
+ * @method static SingleDocument|Proxy     createOne(array $attributes = [])
+ * @method static SingleDocument|Proxy     find(object|array|mixed $criteria)
+ * @method static SingleDocument|Proxy     findOrCreate(array $attributes)
+ * @method static SingleDocument|Proxy     first(string $sortedField = 'id')
+ * @method static SingleDocument|Proxy     last(string $sortedField = 'id')
+ * @method static SingleDocument|Proxy     random(array $attributes = [])
+ * @method static SingleDocument|Proxy     randomOrCreate(array $attributes = [])
  * @method static SingleDocumentRepository repository()
- * @method static SingleDocument[]|Proxy[]                          all()
- * @method static SingleDocument[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static SingleDocument[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static SingleDocument[]|Proxy[]                          findBy(array $attributes)
- * @method static SingleDocument[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static SingleDocument[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static SingleDocument[]|Proxy[] all()
+ * @method static SingleDocument[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static SingleDocument[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static SingleDocument[]|Proxy[] findBy(array $attributes)
+ * @method static SingleDocument[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static SingleDocument[]|Proxy[] randomSet(int $number, array $attributes = [])
  */
 final class SingleDocumentFactory extends PersistentProxyObjectFactory
 {
