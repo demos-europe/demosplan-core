@@ -187,10 +187,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds an info sheet to the Excel document with export information.
      *
-     * @param IWriter                   $writer    The Excel writer
-     * @param StatementExportTagFilter  $tagFilter The tag filter containing filter information
+     * @param IWriter                  $writer    The Excel writer
+     * @param StatementExportTagFilter $tagFilter The tag filter containing filter information
      *
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
     public function addFilterInfoSheet(IWriter $writer, StatementExportTagFilter $tagFilter): void
     {
@@ -225,7 +225,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // Filter information
         $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.filter.applied'));
         $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
-        $row++;
+        ++$row;
 
         $this->addTagFilterInfo($infoSheet, $tagFilter, $row);
 
@@ -257,7 +257,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         if (!empty($tagFilterLabels)) {
             $infoSheet->setCellValue("A{$row}", implode(', ', $tagFilterLabels));
             $infoSheet->setCellValue("B{$row}", $tagFilter->getTagFiltersHumanReadable());
-            $row++;
+            ++$row;
         }
 
         // Accumulate topic filter labels if any topic filter is active
@@ -271,7 +271,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         if (!empty($topicFilterLabels)) {
             $infoSheet->setCellValue("A{$row}", implode(', ', $topicFilterLabels));
             $infoSheet->setCellValue("B{$row}", $tagFilter->getTopicFiltersHumanReadable());
-            $row++;
+            ++$row;
         }
     }
 

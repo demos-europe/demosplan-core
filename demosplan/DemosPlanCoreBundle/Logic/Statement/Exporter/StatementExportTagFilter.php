@@ -24,7 +24,7 @@ use function in_array;
 class StatementExportTagFilter
 {
     public function __construct(
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
     }
     private const TAG_IDS_FILTER_KEY = 'tagIds';
@@ -157,6 +157,7 @@ class StatementExportTagFilter
         if (empty($this->tagNamesFound)) {
             return $this->translator->trans('export.filter.tags.none');
         }
+
         return $this->translator->trans('export.filter.tags.names', ['names' => implode(', ', $this->tagNamesFound)]);
     }
 
@@ -171,6 +172,7 @@ class StatementExportTagFilter
         if (empty($this->topicNamesFound)) {
             return $this->translator->trans('export.filter.topics.none');
         }
+
         return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
     }
 
@@ -207,6 +209,7 @@ class StatementExportTagFilter
                                 if ($matchByTagTopicId || $matchByTagTopicTitle) {
                                     $this->topicNamesFound[$tagTopic->getId()] = $tagTopic->getTitle();
                                 }
+
                                 return true;
                             }
                         }
