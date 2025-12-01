@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<RadioButtonField>
@@ -26,7 +25,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static RadioButtonField|Proxy                    last(string $sortedField = 'id')
  * @method static RadioButtonField|Proxy                    random(array $attributes = [])
  * @method static RadioButtonField|Proxy                    randomOrCreate(array $attributes = [])
- * @method static RadioButtonField|ProxyRepositoryDecorator repository()
+ * @method static RadioButtonField repository()
  * @method static RadioButtonField[]|Proxy[]                all()
  * @method static RadioButtonField[]|Proxy[]                createMany(int $number, array|callable $attributes = [])
  * @method static RadioButtonField[]|Proxy[]                createSequence(iterable|callable $sequence)
