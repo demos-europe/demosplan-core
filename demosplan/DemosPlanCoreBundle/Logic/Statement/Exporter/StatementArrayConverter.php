@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -111,7 +112,7 @@ class StatementArrayConverter
     {
         $fileNames = $statement->getFileNames();
         $originalFile = $statement->getOriginalFile();
-        if (null !== $originalFile) {
+        if ($originalFile instanceof FileInterface) {
             $fileNames[] = $originalFile->getFilename();
         }
 

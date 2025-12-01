@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Response\EmptyResponse;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementFragmentUpdate;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -46,7 +46,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      * @throws Exception
      */
     #[Route(path: '/api/1.0/statement-fragment-update', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
-    public function createAction(
+    public function create(
         CurrentProcedureService $currentProcedureService,
         StatementFragmentService $statementFragmentService,
         ValidatorInterface $validator,

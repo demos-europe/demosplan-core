@@ -19,7 +19,7 @@ use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
@@ -30,13 +30,13 @@ class WerDenktWasAPIController extends BaseController
      * @DplanPermissions("area_public_participation")
      */
     #[Route(path: '/api/werdenktwas/procedures', methods: ['GET'])]
-    public function procedureListGeoJSONAction(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
+    public function procedureListGeoJSON(TranslatorInterface $translator, LoggerInterface $logger): ?JsonResponse
     {
         $searchProceduresResponse = $this->forward(
-            '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjaxAction',
+            '\demosplan\DemosPlanCoreBundle\Controller\Procedure\DemosPlanProcedureAPIController::searchProceduresAjax',
         );
 
-        if (!is_a($searchProceduresResponse, JsonResponse::class)) {
+        if (!$searchProceduresResponse instanceof JsonResponse) {
             return new JsonResponse(null);
         }
 

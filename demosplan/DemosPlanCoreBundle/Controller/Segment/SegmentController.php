@@ -16,6 +16,9 @@ use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundExcepti
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -29,13 +32,15 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -45,7 +50,7 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
-    public function listAction(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
+    public function list(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
         $segmentListQuery = new SegmentListQuery();
         $segmentListQuery->setProcedureId($procedureId);
@@ -54,7 +59,7 @@ class SegmentController extends BaseController
 
         return $this->redirectToRoute(
             'dplan_segments_list_by_query_hash',
-            compact('procedureId', 'queryHash')
+            ['procedureId' => $procedureId, 'queryHash' => $queryHash]
         );
     }
 
@@ -66,7 +71,7 @@ class SegmentController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
-    public function statementSpecificListAction(
+    public function statementSpecificList(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
         ProcedureService $procedureService,
@@ -83,7 +88,7 @@ class SegmentController extends BaseController
         }
 
         $statement = $statementHandler->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
 
@@ -124,6 +129,45 @@ class SegmentController extends BaseController
     }
 
     /**
+     * Get the position of a segment within its parent statement.
+     */
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_segments_of_statement_list')]
+    #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
+    public function getSegmentPosition(
+        string $segmentId,
+        string $statementId,
+        SegmentRepository $segmentRepository,
+    ): JsonResponse {
+        // Explicit ownership verification: ensure segment belongs to the statement
+        $segment = $segmentRepository->find($segmentId);
+
+        if (null === $segment) {
+            return new JsonResponse(['error' => 'Segment not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Verify the segment belongs to the specified statement
+        $parentStatement = $segment->getParentStatementOfSegment();
+        if ($parentStatement->getId() !== $statementId) {
+            return new JsonResponse(
+                ['error' => 'Segment does not belong to the specified statement'],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        // Now fetch the position using the repository method
+        $position = $segmentRepository->getSegmentPosition($segmentId, $statementId);
+
+        if (null === $position) {
+            return new JsonResponse(
+                ['error' => 'Unable to calculate segment position'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
+        return new JsonResponse($position);
+    }
+
+    /**
      * @DplanPermissions("feature_segments_import_excel")
      *
      * @throws ProcedureNotFoundException
@@ -142,12 +186,12 @@ class SegmentController extends BaseController
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
         // recreate uploaded array
-        $uploads = explode(',', $requestPost['uploadedFiles']);
+        $uploads = explode(',', (string) $requestPost['uploadedFiles']);
 
         foreach ($uploads as $uploadHash) {
             $file = $fileService->getFileInfo($uploadHash);
@@ -198,7 +242,7 @@ class SegmentController extends BaseController
 
                 return $this->redirectToRoute(
                     $route,
-                    compact('procedureId')
+                    ['procedureId' => $procedureId]
                 );
             } catch (AddonResourceNotFoundException) {
                 $this->getMessageBag()->add(
@@ -231,7 +275,7 @@ class SegmentController extends BaseController
 
         return $this->redirectToRoute(
             'DemosPlan_procedure_import',
-            compact('procedureId')
+            ['procedureId' => $procedureId]
         );
     }
 
@@ -239,14 +283,14 @@ class SegmentController extends BaseController
      * @DplanPermissions("area_statement_segmentation")
      */
     #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
-    public function listFilteredAction(
+    public function listFiltered(
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
         FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
-        $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();
+        $segmentListQuery = $querySet instanceof HashedQuery ? $querySet->getStoredQuery() : null;
         if (!$segmentListQuery instanceof SegmentListQuery) {
             throw BadRequestException::unknownQueryHash($queryHash);
         }

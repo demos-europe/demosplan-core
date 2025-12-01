@@ -205,9 +205,9 @@ export default {
         .reduce((acc, fragments) => {
           return [...acc, ...fragments]
         })
-        .filter(fragment => {
-          return (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
-        }).length > 0
+        .some(fragment => {
+          return !fragment.assignee || (fragment.assignee.id !== this.currentUserId) || (fragment.departmentId && fragment.departmentId !== '')
+        })
     },
 
     selectionContainsUnclaimedStatements () {

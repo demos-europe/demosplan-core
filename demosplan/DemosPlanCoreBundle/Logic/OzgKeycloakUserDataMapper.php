@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -21,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -67,7 +70,21 @@ class OzgKeycloakUserDataMapper
         'Datenerfassung'                    => Role::PROCEDURE_DATA_INPUT,
     ];
 
-    public function __construct(private readonly CustomerService $customerService, private readonly DepartmentRepository $departmentRepository, private readonly EntityManagerInterface $entityManager, private readonly GlobalConfig $globalConfig, private readonly LoggerInterface $logger, private readonly OrgaRepository $orgaRepository, private readonly OrgaService $orgaService, private readonly OrgaTypeRepository $orgaTypeRepository, private readonly RoleRepository $roleRepository, private readonly UserRepository $userRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository, private readonly UserService $userService, private readonly ValidatorInterface $validator)
+    public function __construct(
+        private readonly CustomerService $customerService,
+        private readonly DepartmentRepository $departmentRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly GlobalConfig $globalConfig,
+        private readonly LoggerInterface $logger,
+        private readonly OrgaRepository $orgaRepository,
+        private readonly OrgaService $orgaService,
+        private readonly OrgaTypeRepository $orgaTypeRepository,
+        private readonly RoleRepository $roleRepository,
+        private readonly UserRepository $userRepository,
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
+        private readonly UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly DepartmentMapper $departmentMapper)
     {
     }
 
@@ -116,7 +133,7 @@ class OzgKeycloakUserDataMapper
         // CITIZEN are special as they have to be put in their specific organisation
         $isPrivatePersonByAttribute = $this->ozgKeycloakUserData->isPrivatePerson();
         $isPrivatePersonByRole = $this->isUserCitizen($requestedRoles);
-        $isPrivatePersonByOrga = null !== $existingOrga && User::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
+        $isPrivatePersonByOrga = $existingOrga instanceof Orga && UserInterface::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
 
         if ($isPrivatePersonByAttribute) {
             $this->logger->info('User identified as private person via isPrivatePerson token attribute');
@@ -125,7 +142,7 @@ class OzgKeycloakUserDataMapper
         if ($isPrivatePersonByAttribute || $isPrivatePersonByRole || $isPrivatePersonByOrga) {
             // was the user in a different Organisation beforehand - get him out of there and reset his department
             // except it was the CITIZEN organisation already.
-            if (null !== $existingUser && !$this->isCurrentlyInCitizenOrga($existingUser)) {
+            if ($existingUser instanceof User && !$this->isCurrentlyInCitizenOrga($existingUser)) {
                 $this->detachUserFromOrgaAndDepartment($existingUser);
             }
             // just return the CITIZEN organisation and do not update the orga in this case
@@ -138,16 +155,16 @@ class OzgKeycloakUserDataMapper
         // and an existing user could be found using the given user attributes:
         // If the organisations are different - the assumption is that the user wants to change the orga.
         $moveUserToAnotherOrganisation =
-            null !== $existingUser
-            && null !== $existingOrga
-            && null !== $existingUser->getOrga()
+            $existingUser instanceof User
+            && $existingOrga instanceof Orga
+            && $existingUser->getOrga() instanceof OrgaInterface
             && $existingUser->getOrga()->getId() !== $existingOrga->getId();
 
         if ($moveUserToAnotherOrganisation) {
             $this->detachUserFromOrgaAndDepartment($existingUser);
         }
 
-        if (null !== $existingOrga) {
+        if ($existingOrga instanceof Orga) {
             return $this->updateOrganisation($existingOrga, $requestedRoles);
         }
 
@@ -173,7 +190,7 @@ class OzgKeycloakUserDataMapper
     private function detachUserFromOrgaAndDepartment(User $existingUser): void
     {
         $oldOrga = $existingUser->getOrga();
-        if ($oldOrga) {
+        if ($oldOrga instanceof OrgaInterface) {
             // get user out of his old organisation
             $oldOrga->removeUser($existingUser);
             $this->entityManager->persist($oldOrga);
@@ -331,7 +348,7 @@ class OzgKeycloakUserDataMapper
             'gwId'          => $this->ozgKeycloakUserData->getUserId(),
             'customer'      => $this->customerService->getCurrentCustomer(),
             'organisation'  => $userOrga,
-            'department'    => $this->getDepartmentToSetForUser($userOrga),
+            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
             'roles'         => $requestedRoles,
         ];
 
@@ -441,14 +458,14 @@ class OzgKeycloakUserDataMapper
             $customer->getSubdomain()
         );
 
-        if (0 !== count($unIdentifiedRoles)) {
+        if ([] !== $unIdentifiedRoles) {
             $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
 
         $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
 
-        if (0 === count($requestedRoles)) {
+        if ([] === $requestedRoles) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
 
@@ -512,7 +529,7 @@ class OzgKeycloakUserDataMapper
                 $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
             }
         }
-        if (0 !== count($unavailableRoles)) {
+        if ([] !== $unavailableRoles) {
             $this->logger->info('the following requested roles are not available in project', $unavailableRoles);
         }
 
@@ -595,10 +612,9 @@ class OzgKeycloakUserDataMapper
         }
 
         $this->orgaService->orgaAddUser($orga->getId(), $dplanUser);
-        $departmentToSet = $this->getDepartmentToSetForUser($orga);
-        if ($dplanUser->getDepartment() !== $departmentToSet) {
-            $this->userService->departmentAddUser($departmentToSet->getId(), $dplanUser);
-        }
+
+        $this->departmentMapper->assignUserDepartmentFromToken($dplanUser, $orga, $this->ozgKeycloakUserData->getCompanyDepartment());
+
         $violations = new ConstraintViolationList([]);
         $violations->addAll($this->validator->validate($dplanUser));
         $violations->addAll($this->validator->validate($orga));
@@ -630,13 +646,6 @@ class OzgKeycloakUserDataMapper
         return $dplanUser;
     }
 
-    private function getDepartmentToSetForUser(Orga $userOrga): Department
-    {
-        return $userOrga->getDepartments()->filter(
-            static fn (Department $department): bool => Department::DEFAULT_DEPARTMENT_NAME === $department->getName()
-        )->first() ?? $userOrga->getDepartments()->first();
-    }
-
     private function hasUserAttributeToUpdate($dplanUserAttribute, $keycloakUserAttribute): bool
     {
         /*
@@ -650,7 +659,7 @@ class OzgKeycloakUserDataMapper
                 return true;
             }
 
-            return !empty(array_diff($keycloakUserAttribute, $dplanUserAttribute));
+            return [] !== array_diff($keycloakUserAttribute, $dplanUserAttribute);
         }
 
         return $dplanUserAttribute !== $keycloakUserAttribute;
@@ -667,11 +676,11 @@ class OzgKeycloakUserDataMapper
     {
         // 1) have they logged in with Keycloak before? Easy!
         $existingUser = $this->fetchExistingUserViaGatewayId();
-        if (null === $existingUser) {
+        if (!$existingUser instanceof User) {
             // 2) do we have a matching user by login
             $existingUser = $this->fetchExistingUserViaLoginAttribute();
         }
-        if (null === $existingUser) {
+        if (!$existingUser instanceof User) {
             // 3) do we have a matching user by email?
             $existingUser = $this->fetchExistingUserViaEmail();
         }

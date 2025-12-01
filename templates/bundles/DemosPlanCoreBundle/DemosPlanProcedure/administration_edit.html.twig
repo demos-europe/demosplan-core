@@ -97,10 +97,10 @@
     {% endfor %}
 
     <dp-basic-settings
-        inline-template
         plis-id="{{ proceduresettings.plisId|default }}"
         procedure-external-desc="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}"
         init-procedure-name="{{ proceduresettings.name|default( 'notspecified'|trans ) }}"
+        :agencies-options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :authorized-users-options="JSON.parse('{{ authUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-agencies="JSON.parse('{{ selectedAgencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-auth-users="JSON.parse('{{ selectedAuthUsers|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -112,6 +112,18 @@
         init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
         init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
         procedure-id="{{ proceduresettings.id|default }}">
+
+        <template #default="{
+            state,
+            authUsersOptions,
+            setSelectedInternalPhase,
+            setSelectedPublicPhase,
+            selectAllAuthUsers,
+            unselectAllAuthUsers,
+            updateAddonPayload,
+            submit
+          }">
+
         <form
             ref="configForm"
             name="configForm"
@@ -166,11 +178,11 @@
 
                                     <dp-multiselect
                                         id="r_agency"
-                                        v-model="selectedAgencies"
+                                        v-model="state.selectedAgencies"
                                         data-cy="internal:selectedAgencies"
                                         label="name"
                                         multiple
-                                        :options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
+                                        :options="sortedAgenciesOptions"
                                         track-by="id">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
@@ -255,8 +267,8 @@
 
                                     <dp-multiselect
                                         id="r_dataInputOrgaTest"
+                                        v-model="state.selectedDataInputOrgas"
                                         data-cy="internal:selectedDataInputOrgas"
-                                        v-model="selectedDataInputOrgas"
                                         label="name"
                                         multiple
                                         :options="JSON.parse('{{ dataInputOrgas|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -288,7 +300,7 @@
 
                                     <dp-multiselect
                                         id="r_authorizedUsers"
-                                        v-model="selectedAuthUsers"
+                                        v-model="state.selectedAuthUsers"
                                         data-cy="internal:selectedAuthUsers"
                                         label="name"
                                         multiple
@@ -436,7 +448,7 @@
                                 {% else %}
                                     <dp-input
                                         id="expandProcedureDescription"
-                                        :value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
+                                        :model-value="{{ proceduresettings.expandProcedureDescription|default(false) ? '1' : '0' }}"
                                         name="expandProcedureDescription"
                                         type="hidden">
                                     </dp-input>
@@ -510,7 +522,7 @@
 
                                         <dp-input
                                             id="r_pictogramCopyright"
-                                            v-model="pictogramCopyright"
+                                            v-model="state.pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
                                             }"
@@ -522,7 +534,7 @@
 
                                         <dp-input
                                             id="r_pictogramAltText"
-                                            v-model="pictogramAltText"
+                                            v-model="state.pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText'),
                                                 tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
@@ -543,7 +555,7 @@
                                         </label>
                                         <dp-multiselect
                                             id="r_procedure_categories"
-                                            v-model="selectedProcedureCategories"
+                                            v-model="state.selectedProcedureCategories"
                                             label="name"
                                             multiple
                                             :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -559,7 +571,12 @@
                                                     </span>
                                             </template>
                                         </dp-multiselect>
-                                        <input v-if="selectedProcedureCategories.length === 0" type="hidden" value="" name="r_procedure_categories" />
+                                        <input
+                                            v-if="state.selectedProcedureCategories.length === 0"
+                                            type="hidden"
+                                            value=""
+                                            name="r_procedure_categories"
+                                        />
                                     </div>
                                 {% endif %}
 
@@ -851,7 +868,7 @@
                                         init-switch-date="{{ proceduresettings.phaseObject.designatedSwitchDate|default|isoDate }}"
                                         is-internal
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
-                                        :selected-current-phase="selectedInternalPhase">
+                                        :selected-current-phase="state.selectedInternalPhase">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
                             </div>
@@ -978,7 +995,7 @@
                                         init-selected-phase="{{ proceduresettings.publicParticipationPhaseObject.designatedPhase }}"
                                         init-switch-date="{{ proceduresettings.publicParticipationPhaseObject.designatedSwitchDate|default|isoDate }}"
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
-                                        :selected-current-phase="selectedPublicPhase">
+                                        :selected-current-phase="state.selectedPublicPhase">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
 
@@ -1015,7 +1032,7 @@
                                     {# Allow anonymous statements by default #}
                                     <dp-input
                                         id="allowAnonymousStatements"
-                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        :model-value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
                                         type="hidden">
                                     </dp-input>
@@ -1187,53 +1204,53 @@
                 {# end wizard item: Name und Webadresse #}
 
                 {% if hasPermission('feature_data_in_export') %}
-                {# wizard item: Daten im Export #}
-                <fieldset
-                    name="settingsForm"
-                    {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
-                    data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
-                    data-dp-validate-topic="{{ 'wizard.topic.export.settings'|trans }}"
-                    class="o-wizard"
-                    data-dp-validate="settingsForm">
-                    <legend
-                        data-toggle-id="exportSettings"
-                        class="js__toggleAnything"
-                        data-cy="exportSettings">
-                        <i class="caret"></i>
-                        {{ 'wizard.topic.export.settings'|trans }}
-                        <i class="fa fa-check"></i>
-                    </legend>
+                    {# wizard item: Daten im Export #}
+                    <fieldset
+                        name="settingsForm"
+                        {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
+                        data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.export.settings'|trans }}"
+                        class="o-wizard"
+                        data-dp-validate="settingsForm">
+                        <legend
+                            data-toggle-id="exportSettings"
+                            class="js__toggleAnything"
+                            data-cy="exportSettings">
+                            <i class="caret"></i>
+                            {{ 'wizard.topic.export.settings'|trans }}
+                            <i class="fa fa-check"></i>
+                        </legend>
 
-                    <div data-toggle-id="phasesParticipation" class="o-wizard__content">
-                        <div class="o-wizard__main">
-                            <div>
-                                <export-settings
-                                    :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
-                                    :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
-                                </export-settings>
+                        <div data-toggle-id="phasesParticipation" class="o-wizard__content">
+                            <div class="o-wizard__main">
+                                <div>
+                                    <export-settings
+                                        :field-definitions="JSON.parse('{{ fieldDefinitions|default({})|json_encode|e('js', 'utf-8') }}')"
+                                        :initial-settings="JSON.parse('{{ proceduresettings.exportSettings|default([])|json_encode|e('js', 'utf-8') }}')">
+                                    </export-settings>
+                                </div>
                             </div>
+
+                            <label class="o-wizard__mark u-mb-0">
+                                <input
+                                    data-wizard-cb
+                                    name="fieldCompletions[]"
+                                    value="exportSettingsComplete"
+                                    type="checkbox"
+                                    {% if proceduresettings.exportSettingsComplete is defined %}checked="checked"{% endif %} />
+                                {{ "wizard.mark_as_done"|trans }}
+                            </label>
                         </div>
 
-                        <label class="o-wizard__mark u-mb-0">
-                            <input
-                                data-wizard-cb
-                                name="fieldCompletions[]"
-                                value="exportSettingsComplete"
-                                type="checkbox"
-                                {% if proceduresettings.exportSettingsComplete is defined %}checked="checked"{% endif %} />
-                            {{ "wizard.mark_as_done"|trans }}
-                        </label>
-                    </div>
-
-                    <button
-                        type="button"
-                        data-cy="wizardNext"
-                        data-dp-validate-capture-click
-                        class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
-                        {{ "wizard.next"|trans }}
-                    </button>
-                </fieldset>
-                {# end wizard item: Daten im Export #}
+                        <button
+                            type="button"
+                            data-cy="wizardNext"
+                            data-dp-validate-capture-click
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
+                            {{ "wizard.next"|trans }}
+                        </button>
+                    </fieldset>
+                    {# end wizard item: Daten im Export #}
                 {% endif %}
 
                 {# wizard item: Erweiterte Einstellungen #}
@@ -1388,7 +1405,7 @@
                     name="saveConfig"
                     data-cy="saveConfig"
                     type="button"
-                    @click="submit">
+                    @click="submit($refs.configForm)">
                     {{ "save"|trans }}
                 </button>
                 <a
@@ -1400,11 +1417,8 @@
             </div>
 
         </form>
-
+        </template>
     </dp-basic-settings>
-
-
-
 {% endblock demosplanbundlecontent %}
 
 {% block stylesheets %}

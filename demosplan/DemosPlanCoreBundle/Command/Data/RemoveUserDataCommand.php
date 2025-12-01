@@ -42,6 +42,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
 use Faker\Generator;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -54,12 +55,9 @@ use function strlen;
 /**
  * dplan:data:remove-user-data.
  */
+#[AsCommand(name: 'dplan:data:remove-user-data', description: 'Deletes sensitive/personal data from DB.')]
 class RemoveUserDataCommand extends CoreCommand
 {
-    // lazy load command
-    protected static $defaultName = 'dplan:data:remove-user-data';
-    protected static $defaultDescription = 'Deletes sensitive/personal data from DB.';
-
     /** @var UserService */
     protected $userService;
 
@@ -579,7 +577,7 @@ class RemoveUserDataCommand extends CoreCommand
 
     protected function anonymizeStatementMiscData(?array $miscData): ?string
     {
-        if (0 === count((array) $miscData)) {
+        if ([] === (array) $miscData) {
             return null;
         }
 
@@ -1106,7 +1104,7 @@ class RemoveUserDataCommand extends CoreCommand
         $roundedLength = (int) round($length, -2);
 
         if (!array_key_exists($roundedLength, $this->mockTexts)) {
-            $this->mockTexts[$roundedLength] = $this->faker->text($length < 10 ? 10 : $length);
+            $this->mockTexts[$roundedLength] = $this->faker->text(max(10, $length));
         }
 
         return $this->mockTexts[$roundedLength];
@@ -1165,7 +1163,7 @@ class RemoveUserDataCommand extends CoreCommand
             $message = $this->anonymizeArray($keysToOverwrite, $message);
 
             foreach ($message as $subArray) {
-                if (is_array($subArray) && !empty($subArray)) {
+                if (is_array($subArray) && [] !== $subArray) {
                     $message = $this->anonymizeArray($keysToOverwrite, $subArray);
                 }
             }

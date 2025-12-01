@@ -18,7 +18,7 @@ use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class LocationSearchController extends BaseController
 {
@@ -28,7 +28,7 @@ class LocationSearchController extends BaseController
      * @DplanPermissions("area_demosplan")
      */
     #[Route(path: '/suggest/location/json', name: 'core_suggest_location_json', options: ['expose' => true])]
-    public function searchLocationJsonAction(Request $request, LocationService $locationService, CurrentUserInterface $currentUser): Response
+    public function searchLocationJson(Request $request, LocationService $locationService, CurrentUserInterface $currentUser): Response
     {
         try {
             $query = $request->query->all();

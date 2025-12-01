@@ -113,10 +113,8 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
     public function generateObjectValues($entity, array $data)
     {
         $mailTemplate = $this->getTemplate($data['template']);
-        if (array_key_exists('template', $data)) {
-            if (!is_null($mailTemplate)) {
-                $entity->setTemplate($mailTemplate->getLabel());
-            }
+        if (array_key_exists('template', $data) && !is_null($mailTemplate)) {
+            $entity->setTemplate($mailTemplate->getLabel());
         }
 
         if (!is_null($mailTemplate)) {
@@ -157,7 +155,7 @@ class MailRepository extends FluentRepository implements ImmutableArrayInterface
     public function replacePlaceholder($string, array $placeholder)
     {
         foreach ($placeholder as $toReplace => $value) {
-            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, $string);
+            $string = preg_replace('/\$\{'.$toReplace.'\}/', (string) $value, (string) $string);
         }
 
         return $string;

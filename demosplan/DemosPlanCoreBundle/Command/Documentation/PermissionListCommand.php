@@ -17,6 +17,8 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
+use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -26,13 +28,10 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Collection;
 
+#[AsCommand(name: 'documentation:generate:permission-list', description: 'Update the permissions information in dplandocs')]
 class PermissionListCommand extends CoreCommand
 {
-    protected static $defaultName = 'documentation:generate:permission-list';
-    protected static $defaultDescription = 'Update the permissions information in dplandocs';
-
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $loaderOutput = new NullOutput();
@@ -138,23 +137,21 @@ class PermissionListCommand extends CoreCommand
 
     /**
      * @param string[] $roleCombination
-     *
-     * @return string
      */
     protected function loadEnabledPermissionsForProject(
         string $projectName,
-        array $roleCombination
+        array $roleCombination,
     ): ?string {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             implode('--role ', $roleCombination),
         ];
 
         try {
-            $projectPermissionsProcess = new Process($cmd);
+            $projectPermissionsProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectPermissionsProcess->enableOutput();
             $projectPermissionsProcess->mustRun();
 
@@ -168,14 +165,14 @@ class PermissionListCommand extends CoreCommand
     {
         $cmd = [
             '/usr/bin/env php',
-            DemosPlanPath::getRootPath('bin/'.$projectName),
+            DemosPlanPath::getRootPath('bin/console'),
             'dplan:documentation:project-permissions',
             '--yaml',
             '--list-roles',
         ];
 
         try {
-            $projectRolesProcess = new Process($cmd);
+            $projectRolesProcess = new Process($cmd, null, ['ACTIVE_PROJECT' => $projectName]);
             $projectRolesProcess->enableOutput();
             $projectRolesProcess->mustRun();
 

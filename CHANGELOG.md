@@ -5,6 +5,16 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.25.0 (2025-11-06)
+## v4.24.0 (2025-11-06)
+- Detect Company Department from OzgKeycloak token and assign it to user
+## v4.23.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.18.1 (2025-10-16)
+## v4.18.0 (2025-10-13)
+## v4.16.1 (2025-10-16)
+- Fix addon asset build during docker build
+
 ## v4.16.0 (2025-09-30)
 - Allow project specific CSS
 - allow sessions to be stored in redis
@@ -16,6 +26,9 @@
 
 ### Features
 - Add possibility to delete custom fields and their options
+
+## v4.15.2 (2025-10-24)
+- fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
 ## v4.14.0 (2025-09-15)
@@ -55,6 +68,13 @@
 - Allow filtering of institution tags in DpAddOrganizationList
 
 ## v4.4.0 (2025-06-13)
+
+## 4.3.4 (2025-11-14)
+- implement option to import additional submitters via statement ID in statement imports via xlsx
+- adjust example statement import xlsx files
+
+## v4.3.3 (2025-11-04)
+- smart pagination for segment navigation
 
 ## v4.3.1-ewm (2025-09-25)
 - allow sessions to be stored in redis

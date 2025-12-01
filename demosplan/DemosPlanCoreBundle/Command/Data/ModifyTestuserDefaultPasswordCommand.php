@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,10 +25,9 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Throwable;
 
+#[AsCommand(name: 'dplan:data:modify-testuser-default-password', description: 'Update default password for test users')]
 class ModifyTestuserDefaultPasswordCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:data:modify-testuser-default-password';
-    protected static $defaultDescription = 'Update default password for test users';
     /**
      * @var QuestionHelper
      */
@@ -36,7 +36,7 @@ class ModifyTestuserDefaultPasswordCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly UserService $userService,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();

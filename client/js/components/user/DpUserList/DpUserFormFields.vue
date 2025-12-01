@@ -18,7 +18,7 @@
           text: Translator.trans('name.first')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 
@@ -31,7 +31,7 @@
           text: Translator.trans('name.last')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 
@@ -46,7 +46,7 @@
           text: Translator.trans('email')
         }"
         required
-        @input="emitUserUpdate"
+        @update:model-value="emitUserUpdate"
       />
     </div>
 
@@ -206,10 +206,17 @@ export default {
       required: false,
       default: () => '',
     },
+
+    triggerReset: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   emits: [
     'user:update',
+    'reset:complete',
   ],
 
   data () {
@@ -303,9 +310,16 @@ export default {
   watch: {
     user: {
       handler () {
-        this.localUser = JSON.parse(JSON.stringify(this.user))
+        this.setInitialUser()
       },
       deep: true,
+    },
+
+    triggerReset (newVal) {
+      if (newVal && !this.isUserSet) {
+        this.resetData()
+        this.$emit('reset:complete')
+      }
     },
   },
 
@@ -422,7 +436,7 @@ export default {
         plainUser.relationships.roles.data = []
         this.localUser = plainUser
       } else {
-        this.localUser = JSON.parse(JSON.stringify(this.user))
+        this.setInitialUser()
         this.currentUserOrga = {
           id: '',
           name: '',
@@ -459,6 +473,10 @@ export default {
             }
           })
       }
+    },
+
+    setInitialUser () {
+      this.localUser = JSON.parse(JSON.stringify(this.user))
     },
 
     setOrganisationDepartments (departments) {
@@ -530,19 +548,13 @@ export default {
   },
 
   created () {
-    this.localUser = JSON.parse(JSON.stringify(this.user))
+    this.setInitialUser()
     this.handleUndefinedRelationships(['department', 'orga', 'roles'])
   },
 
   mounted () {
     this.setInitialOrgaData()
     this.fetchOrgaSuggestions()
-
-    this.$root.$on('user:reset', () => {
-      if (!this.isUserSet) {
-        this.resetData()
-      }
-    })
   },
 }
 </script>

@@ -28,8 +28,13 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschriftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
+    private const COMPANY_DEPARTMENT = 'Organisationseinheit';
+    private const COMPANY_DEPARTMENT_EN = 'organisationUnit';
+    private const IS_PRIVATE_PERSON = 'isPrivatePerson';
+
     protected string $addressExtension = '';
     protected string $city = '';
+    protected string $companyDepartment = '';
     protected bool $isPrivatePerson = false;
 
     /**
@@ -85,10 +90,11 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->houseNumber = $userInformation[self::COMPANY_HOUSE_NUMBER] ?? '';
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
+        $this->companyDepartment = $userInformation[self::COMPANY_DEPARTMENT] ?? $userInformation[self::COMPANY_DEPARTMENT_EN] ?? '';
 
         // Extract isPrivatePerson attribute from token
-        $this->isPrivatePerson = isset($userInformation['isPrivatePerson'])
-            && ('true' === $userInformation['isPrivatePerson'] || true === $userInformation['isPrivatePerson']);
+        $this->isPrivatePerson = isset($userInformation[self::IS_PRIVATE_PERSON])
+            && ('true' === $userInformation[self::IS_PRIVATE_PERSON] || true === $userInformation[self::IS_PRIVATE_PERSON]);
 
         $this->lock();
         $this->checkMandatoryValuesExist();
@@ -187,24 +193,40 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     }
 
     /**
-     * Override parent method to make roles optional when isPrivatePerson is true.
-     * For private persons, roles will be assigned automatically to CITIZEN role,
-     * so empty customerRoleRelations is acceptable.
+     * Override parent method to make roles and organization optional when isPrivatePerson is true.
+     *
+     * For private persons authenticated via the isPrivatePerson token attribute:
+     * - Roles are assigned automatically (CITIZEN role), so customerRoleRelations may be empty
+     * - Organization attributes are optional, as they'll be assigned to the private organization
+     * - Only validates: userId, userName, emailAddress, and name (firstName/lastName)
+     *
+     * For organization users, standard validation including roles and organization is performed.
      */
     public function checkMandatoryValuesExist(): void
     {
-        // For private persons, temporarily set a dummy role to pass parent validation
         if ($this->isPrivatePerson) {
-            $originalRoles = $this->customerRoleRelations;
-            $this->customerRoleRelations = ['temp' => ['CITIZEN']];
+            // For private persons, validate only essential fields (skip roles and organization)
+            $missingMandatoryValues = [];
 
-            try {
-                parent::checkMandatoryValuesExist();
-            } finally {
-                $this->customerRoleRelations = $originalRoles;
+            if ('' === $this->userId) {
+                $missingMandatoryValues[] = 'userId';
             }
+
+            if ('' === $this->userName) {
+                $missingMandatoryValues[] = 'userName';
+            }
+
+            if ('' === $this->emailAddress) {
+                $missingMandatoryValues[] = 'emailAddress';
+            }
+
+            if ('' === $this->firstName && '' === $this->lastName) {
+                $missingMandatoryValues[] = 'name';
+            }
+
+            $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
         } else {
-            // Non-private persons use standard validation
+            // Organization users: use standard validation including role and organization checks
             parent::checkMandatoryValuesExist();
         }
     }
@@ -216,6 +238,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         return $parentString.
             ', addressExtension: '.$this->addressExtension.
             ', city: '.$this->city.
+            ', company department: '.$this->companyDepartment.
             ', isPrivatePerson: '.($this->isPrivatePerson ? 'true' : 'false');
     }
 }

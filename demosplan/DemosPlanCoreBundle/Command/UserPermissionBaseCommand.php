@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -83,7 +85,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
 
     protected function validateAndGetUser(string $userId, SymfonyStyle $io): ?UserInterface
     {
-        if (empty(trim($userId))) {
+        if (in_array(trim($userId), ['', '0'], true)) {
             $io->error(self::ERROR_USER_ID_EMPTY);
 
             return null;
@@ -107,13 +109,13 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     private function validateUserConfiguration(UserInterface $user, SymfonyStyle $io): bool
     {
         // Validate user has proper organization setup
-        if (null === $user->getOrga()) {
+        if (!$user->getOrga() instanceof OrgaInterface) {
             $io->error(sprintf(self::ERROR_USER_NO_ORGANIZATION, $user->getLogin()));
 
             return false;
         }
 
-        if (null === $user->getCurrentCustomer()) {
+        if (!$user->getCurrentCustomer() instanceof CustomerInterface) {
             $io->error(sprintf(self::ERROR_USER_NO_CUSTOMER, $user->getLogin()));
 
             return false;
@@ -154,7 +156,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     {
         // Find the specific role
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
-        if (empty($roles)) {
+        if ([] === $roles) {
             $io->error(sprintf(self::ERROR_ROLE_NOT_FOUND, $roleCode));
 
             return null;
@@ -180,7 +182,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
 
     protected function validatePermissionName(string $permission, SymfonyStyle $io): bool
     {
-        if (empty(trim($permission))) {
+        if (in_array(trim($permission), ['', '0'], true)) {
             $io->error(self::ERROR_PERMISSION_EMPTY);
 
             return false;

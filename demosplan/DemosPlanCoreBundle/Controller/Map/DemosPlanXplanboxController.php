@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\Xplanbox;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanXplanboxController extends BaseController
 {
@@ -27,12 +27,10 @@ class DemosPlanXplanboxController extends BaseController
      *
      * @DplanPermissions("feature_use_xplanbox")
      *
-     * @param string $procedureName
-     *
      * @return Response
      */
     #[Route(name: 'DemosPlan_xplanbox_get_bounds', path: '/xplanbox/getBounds/{procedureName}', requirements: ['procedureName' => '.+'], options: ['expose' => true])]
-    public function getLgvXplanboxBoundsAction(Xplanbox $xplanbox, $procedureName)
+    public function getLgvXplanboxBounds(Xplanbox $xplanbox, string $procedureName)
     {
         try {
             $procedure = $xplanbox->getXplanboxBounds($procedureName);

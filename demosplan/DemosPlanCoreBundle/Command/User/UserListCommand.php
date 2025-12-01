@@ -14,25 +14,24 @@ use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Illuminate\Support\Collection;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Illuminate\Support\Collection;
 
 /**
  * dplan:users:list.
  *
  * List users with their roles
  */
+#[AsCommand(name: 'dplan:user:list', description: 'List users with roles')]
 class UserListCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:user:list';
-    protected static $defaultDescription = 'List users with roles';
-
-    public function __construct(ParameterBagInterface $parameterBag, private readonly UserService $userService, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, private readonly UserService $userService, ?string $name = null)
     {
         parent::__construct($parameterBag, $name);
     }

@@ -50,7 +50,7 @@ class ContextualHelpExtension extends ExtensionBase
 
                 $content = $this->container->get('twig')->render(
                     '@DemosPlanCore/Extension/contextual_help.html.twig',
-                    compact('helpText', 'cssClasses')
+                    ['helpText' => $helpText, 'cssClasses' => $cssClasses]
                 );
             }
         } catch (Exception) {
