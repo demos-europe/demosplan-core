@@ -13,28 +13,27 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 
 /**
  * @extends PersistentProxyObjectFactory<StatementAttachment>
  *
- * @method        StatementAttachment|Proxy                              create(array|callable $attributes = [])
- * @method static StatementAttachment|Proxy                              createOne(array $attributes = [])
- * @method static StatementAttachment|Proxy                              find(object|array|mixed $criteria)
- * @method static StatementAttachment|Proxy                              findOrCreate(array $attributes)
- * @method static StatementAttachment|Proxy                              first(string $sortedField = 'id')
- * @method static StatementAttachment|Proxy                              last(string $sortedField = 'id')
- * @method static StatementAttachment|Proxy                              random(array $attributes = [])
- * @method static StatementAttachment|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        StatementAttachment|Proxy     create(array|callable $attributes = [])
+ * @method static StatementAttachment|Proxy     createOne(array $attributes = [])
+ * @method static StatementAttachment|Proxy     find(object|array|mixed $criteria)
+ * @method static StatementAttachment|Proxy     findOrCreate(array $attributes)
+ * @method static StatementAttachment|Proxy     first(string $sortedField = 'id')
+ * @method static StatementAttachment|Proxy     last(string $sortedField = 'id')
+ * @method static StatementAttachment|Proxy     random(array $attributes = [])
+ * @method static StatementAttachment|Proxy     randomOrCreate(array $attributes = [])
  * @method static StatementAttachmentRepository repository()
- * @method static StatementAttachment[]|Proxy[]                          all()
- * @method static StatementAttachment[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static StatementAttachment[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static StatementAttachment[]|Proxy[]                          findBy(array $attributes)
- * @method static StatementAttachment[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static StatementAttachment[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static StatementAttachment[]|Proxy[] all()
+ * @method static StatementAttachment[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static StatementAttachment[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static StatementAttachment[]|Proxy[] findBy(array $attributes)
+ * @method static StatementAttachment[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static StatementAttachment[]|Proxy[] randomSet(int $number, array $attributes = [])
  *
  * @phpstan-method        StatementAttachment&Proxy<StatementAttachment> create(array|callable $attributes = [])
  * @phpstan-method static StatementAttachment&Proxy<StatementAttachment> createOne(array $attributes = [])
