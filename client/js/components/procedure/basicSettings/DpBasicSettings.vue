@@ -186,7 +186,7 @@ export default {
     },
 
     isAddonLoaded () {
-      return !!window.dplan.loadedAddons['addon.additional.field']
+      return !!window.dplan.loadedAddons['interface.fields.to.transmit']
     },
 
     isPublicParticipationPhaseActive () {
@@ -205,7 +205,7 @@ export default {
 
     shouldShowInterfaceWarningModal () {
       // Check if checkbox is not disabled
-      const checkbox = document.getElementById('addonAdditionalField-checkbox')
+      const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
       const isCheckboxDisabled = checkbox?.disabled ?? true
 
       return this.isAddonLoaded && !this.isAddonInterfaceActivated && this.isPublicParticipationPhaseActive && !this.bypassAddonWarningModal && !isCheckboxDisabled
@@ -259,7 +259,7 @@ export default {
       return addonRequest
         .catch(error => {
           /** The 'is-invalid' class would be added to the addon input-field in case of an error */
-          const input = document.getElementById('addonAdditionalField-input')
+          const input = document.getElementById('interfaceFieldsToTransmit-input')
           if (input) {
             input.classList.add('is-invalid')
           }
@@ -352,7 +352,7 @@ export default {
 
       // Scroll to addon-wrapper
       this.$nextTick(() => {
-        const addonWrapper = document.querySelector('addon-wrapper[hook-name="addon.additional.field"]')
+        const addonWrapper = document.querySelector('addon-wrapper[hook-name="interface.fields.to.transmit"]')
         if (addonWrapper) {
           addonWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }

@@ -231,7 +231,7 @@
       </div>
 
       <addon-wrapper
-        hook-name="addon.additional.field"
+        hook-name="interface.fields.to.transmit"
         :addon-props="{
           additionalFieldOptions,
           class: 'ml-4',
