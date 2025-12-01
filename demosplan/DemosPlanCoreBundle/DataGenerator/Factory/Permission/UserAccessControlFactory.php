@@ -13,28 +13,27 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Permission;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
 use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 
 /**
  * @extends PersistentProxyObjectFactory<UserAccessControl>
  *
- * @method        UserAccessControl|Proxy                              create(array|callable $attributes = [])
- * @method static UserAccessControl|Proxy                              createOne(array $attributes = [])
- * @method static UserAccessControl|Proxy                              find(object|array|mixed $criteria)
- * @method static UserAccessControl|Proxy                              findOrCreate(array $attributes)
- * @method static UserAccessControl|Proxy                              first(string $sortedField = 'id')
- * @method static UserAccessControl|Proxy                              last(string $sortedField = 'id')
- * @method static UserAccessControl|Proxy                              random(array $attributes = [])
- * @method static UserAccessControl|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        UserAccessControl|Proxy     create(array|callable $attributes = [])
+ * @method static UserAccessControl|Proxy     createOne(array $attributes = [])
+ * @method static UserAccessControl|Proxy     find(object|array|mixed $criteria)
+ * @method static UserAccessControl|Proxy     findOrCreate(array $attributes)
+ * @method static UserAccessControl|Proxy     first(string $sortedField = 'id')
+ * @method static UserAccessControl|Proxy     last(string $sortedField = 'id')
+ * @method static UserAccessControl|Proxy     random(array $attributes = [])
+ * @method static UserAccessControl|Proxy     randomOrCreate(array $attributes = [])
  * @method static UserAccessControlRepository repository()
- * @method static UserAccessControl[]|Proxy[]                          all()
- * @method static UserAccessControl[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static UserAccessControl[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static UserAccessControl[]|Proxy[]                          findBy(array $attributes)
- * @method static UserAccessControl[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static UserAccessControl[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static UserAccessControl[]|Proxy[] all()
+ * @method static UserAccessControl[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static UserAccessControl[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static UserAccessControl[]|Proxy[] findBy(array $attributes)
+ * @method static UserAccessControl[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static UserAccessControl[]|Proxy[] randomSet(int $number, array $attributes = [])
  *
  * @phpstan-method        UserAccessControl&Proxy<UserAccessControl> create(array|callable $attributes = [])
  * @phpstan-method static UserAccessControl&Proxy<UserAccessControl> createOne(array $attributes = [])

@@ -18,21 +18,21 @@ use Zenstruck\Foundry\Persistence\Proxy;
 /**
  * @extends PersistentProxyObjectFactory<ProcedureSettings>
  *
- * @method        ProcedureSettings|Proxy                              create(array|callable $attributes = [])
- * @method static ProcedureSettings|Proxy                              createOne(array $attributes = [])
- * @method static ProcedureSettings|Proxy                              find(object|array|mixed $criteria)
- * @method static ProcedureSettings|Proxy                              findOrCreate(array $attributes)
- * @method static ProcedureSettings|Proxy                              first(string $sortedField = 'id')
- * @method static ProcedureSettings|Proxy                              last(string $sortedField = 'id')
- * @method static ProcedureSettings|Proxy                              random(array $attributes = [])
- * @method static ProcedureSettings|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        ProcedureSettings|Proxy     create(array|callable $attributes = [])
+ * @method static ProcedureSettings|Proxy     createOne(array $attributes = [])
+ * @method static ProcedureSettings|Proxy     find(object|array|mixed $criteria)
+ * @method static ProcedureSettings|Proxy     findOrCreate(array $attributes)
+ * @method static ProcedureSettings|Proxy     first(string $sortedField = 'id')
+ * @method static ProcedureSettings|Proxy     last(string $sortedField = 'id')
+ * @method static ProcedureSettings|Proxy     random(array $attributes = [])
+ * @method static ProcedureSettings|Proxy     randomOrCreate(array $attributes = [])
  * @method static ProcedureSettingsRepository repository()
- * @method static ProcedureSettings[]|Proxy[]                          all()
- * @method static ProcedureSettings[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static ProcedureSettings[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static ProcedureSettings[]|Proxy[]                          findBy(array $attributes)
- * @method static ProcedureSettings[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static ProcedureSettings[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static ProcedureSettings[]|Proxy[] all()
+ * @method static ProcedureSettings[]|Proxy[] createMany(int $number, array|callable $attributes = [])
+ * @method static ProcedureSettings[]|Proxy[] createSequence(iterable|callable $sequence)
+ * @method static ProcedureSettings[]|Proxy[] findBy(array $attributes)
+ * @method static ProcedureSettings[]|Proxy[] randomRange(int $min, int $max, array $attributes = [])
+ * @method static ProcedureSettings[]|Proxy[] randomSet(int $number, array $attributes = [])
  */
 final class ProcedureSettingsFactory extends PersistentProxyObjectFactory
 {
