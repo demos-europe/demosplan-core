@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -46,6 +47,7 @@ class SegmentsExportController extends BaseController
         private readonly NameGenerator $nameGenerator,
         private readonly ProcedureHandler $procedureHandler,
         private readonly RequestStack $requestStack,
+        private readonly StatementExportTagFilter $statementExportTagFilter,
     ) {
     }
 
@@ -125,6 +127,10 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
@@ -186,6 +192,10 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+
         $response = new StreamedResponse(
             static function () use ($statementEntities, $exporter) {
                 $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
@@ -246,6 +256,11 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
+
+        // Apply tag filtering after JsonAPI filtering
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,
             $censorCitizenData,

@@ -159,7 +159,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
 
     // This is a normal Command::initialize() method and it's called exactly once before the first execute call
 
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         // Never init permissions like this, because the session has no user we can't check permissions.
         // This way i can only check if it is enabled in project
