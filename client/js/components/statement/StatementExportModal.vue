@@ -191,7 +191,7 @@ import {
   sessionStorageMixin
 } from '@demos-europe/demosplan-ui'
 import FilterFlyout from '../procedure/SegmentsList/FilterFlyout.vue'
-import { mapMutations } from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'StatementExportModal',
@@ -290,6 +290,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', [
+      'getIsExpandedByCategoryId',
+    ]),
+
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
