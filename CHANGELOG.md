@@ -5,8 +5,15 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- Move addon interface fields to public participation phase section in procedure settings
+
+### Features
 - Add warning modal in procedure settings on form-submit when public participation phase is set and interface is not activated
+
+### Further changes
+- Add separate view permission for procedure pictogram (`field_procedure_pictogram_view`)
+- Move addon interface fields to public participation phase section in procedure settings
+- Rename addon hook from `addon.additional.field` to `interface.fields.to.transmit`
+- Make pictogram fields optional in procedure settings
 
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
