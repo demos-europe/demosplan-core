@@ -237,7 +237,9 @@
           class: 'ml-4',
           isValueRemovable: true,
           relationshipId: organisationId,
-          relationshipKey: 'orga'
+          relationshipKey: 'orga',
+          userOrgaId: organisationId,
+          userMeinBerlinOrgId: ''
         }"
         class="w-1/2"
         @resource-list:loaded="setAdditionalFieldOptions"
