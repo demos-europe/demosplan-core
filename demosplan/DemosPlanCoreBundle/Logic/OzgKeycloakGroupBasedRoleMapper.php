@@ -43,7 +43,7 @@ class OzgKeycloakGroupBasedRoleMapper
     public function __construct(
         private readonly GlobalConfig $globalConfig,
         private readonly LoggerInterface $logger,
-        private readonly RoleRepository $roleRepository
+        private readonly RoleRepository $roleRepository,
     ) {
     }
 

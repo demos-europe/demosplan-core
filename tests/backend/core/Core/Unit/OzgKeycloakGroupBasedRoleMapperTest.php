@@ -143,10 +143,10 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
 
         $this->roleRepository->method('findOneBy')
             ->willReturnCallback(function ($criteria) use ($mockRole1, $mockRole2) {
-                if ($criteria['code'] === RoleInterface::PLANNING_AGENCY_ADMIN) {
+                if (RoleInterface::PLANNING_AGENCY_ADMIN === $criteria['code']) {
                     return $mockRole1;
                 }
-                if ($criteria['code'] === RoleInterface::PLATFORM_SUPPORT) {
+                if (RoleInterface::PLATFORM_SUPPORT === $criteria['code']) {
                     return $mockRole2;
                 }
 
@@ -193,7 +193,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
 
         $this->roleRepository->method('findOneBy')
             ->willReturnCallback(function ($criteria) use ($mockRole1) {
-                if ($criteria['code'] === RoleInterface::PLANNING_AGENCY_ADMIN) {
+                if (RoleInterface::PLANNING_AGENCY_ADMIN === $criteria['code']) {
                     return $mockRole1;
                 }
 
@@ -209,18 +209,18 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testAllRoleTitlesMapToValidCodes(): void
     {
         $expectedMappings = [
-            'Mandanten Administration' => RoleInterface::CUSTOMER_MASTER_USER,
-            'Organisationsadministration' => RoleInterface::ORGANISATION_ADMINISTRATION,
-            'Fachplanung Planungsbüro' => RoleInterface::PRIVATE_PLANNING_AGENCY,
-            'Fachplanung Administration' => RoleInterface::PLANNING_AGENCY_ADMIN,
-            'Fachplanung Sachbearbeitung' => RoleInterface::PLANNING_AGENCY_WORKER,
-            'Institutions Koordination' => RoleInterface::PUBLIC_AGENCY_COORDINATION,
+            'Mandanten Administration'     => RoleInterface::CUSTOMER_MASTER_USER,
+            'Organisationsadministration'  => RoleInterface::ORGANISATION_ADMINISTRATION,
+            'Fachplanung Planungsbüro'     => RoleInterface::PRIVATE_PLANNING_AGENCY,
+            'Fachplanung Administration'   => RoleInterface::PLANNING_AGENCY_ADMIN,
+            'Fachplanung Sachbearbeitung'  => RoleInterface::PLANNING_AGENCY_WORKER,
+            'Institutions Koordination'    => RoleInterface::PUBLIC_AGENCY_COORDINATION,
             'Institutions Sachbearbeitung' => RoleInterface::PUBLIC_AGENCY_WORKER,
-            'Support' => RoleInterface::PLATFORM_SUPPORT,
-            'Redaktion' => RoleInterface::CONTENT_EDITOR,
-            'Privatperson-Angemeldet' => RoleInterface::CITIZEN,
-            'Fachliche Leitstelle' => RoleInterface::PROCEDURE_CONTROL_UNIT,
-            'Datenerfassung' => RoleInterface::PROCEDURE_DATA_INPUT,
+            'Support'                      => RoleInterface::PLATFORM_SUPPORT,
+            'Redaktion'                    => RoleInterface::CONTENT_EDITOR,
+            'Privatperson-Angemeldet'      => RoleInterface::CITIZEN,
+            'Fachliche Leitstelle'         => RoleInterface::PROCEDURE_CONTROL_UNIT,
+            'Datenerfassung'               => RoleInterface::PROCEDURE_DATA_INPUT,
         ];
 
         foreach ($expectedMappings as $roleTitle => $expectedCode) {
