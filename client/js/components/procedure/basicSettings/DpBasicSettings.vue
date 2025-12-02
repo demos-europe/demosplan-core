@@ -186,7 +186,7 @@ export default {
     },
 
     isAddonLoaded () {
-      return !!window.dplan.loadedAddons['interface.fields.to.transmit']
+      return !!globalThis.dplan.loadedAddons['interface.fields.to.transmit']
     },
 
     isPublicParticipationPhaseActive () {
