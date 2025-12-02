@@ -322,12 +322,12 @@ export default {
 
     collapseSectionsIfExpanded (sectionIds) {
       sectionIds.forEach(sectionId => {
-        this.toggleWizardSection(sectionId, false)
+        this.toggleInterfaceSection(sectionId, false)
       })
     },
 
     expandSectionIfCollapsed (sectionId) {
-      this.toggleWizardSection(sectionId, true)
+      this.toggleInterfaceSection(sectionId, true)
     },
 
     handleAutoSwitchPhaseUpdate (payload) {
@@ -350,7 +350,7 @@ export default {
       this.submit()
     },
 
-    toggleWizardSection (sectionId, shouldBeExpanded) {
+    toggleInterfaceSection (sectionId, shouldBeExpanded) {
       const fieldset = document.getElementById(sectionId)
       if (!fieldset) {
         return
