@@ -37,6 +37,7 @@
 ### Features
 - Add possibility to delete custom fields and their options
 
+## v4.15.3 (2025-12-02)
 ## v4.15.2 (2025-10-24)
 - fix zip download for older uploads
 
