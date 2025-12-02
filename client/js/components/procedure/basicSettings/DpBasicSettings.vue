@@ -314,51 +314,20 @@ export default {
 
     // Needed for the addon-modal on submit
     activateInterface () {
-      // Close wizard items below if expanded
-      const sectionsToClose = [
-        '#wizardNameUrl',
-        '#wizardSettings'
-      ]
-
-      sectionsToClose.forEach(selector => {
-        const fieldset = document.querySelector(selector)
-        if (fieldset) {
-          const wizardContent = fieldset.querySelector('.o-wizard__content')
-          const isExpanded = wizardContent?.classList.contains('is-active')
-
-          if (isExpanded) {
-            const legend = fieldset.querySelector('legend')
-            if (legend) {
-              legend.click()
-            }
-          }
-        }
-      })
-
-      // Find the phaseExternalForm fieldset
-      const fieldset = document.getElementById('wizardPhaseExternal')
-
-      if (fieldset) {
-        const wizardContent = fieldset.querySelector('.o-wizard__content')
-        const isAlreadyExpanded = wizardContent?.classList.contains('is-active')
-
-        if (!isAlreadyExpanded) {
-          const legend = fieldset.querySelector('legend')
-          if (legend) {
-            legend.click()
-          }
-        }
-      }
-
-      // Scroll to addon-wrapper
-      this.$nextTick(() => {
-        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
-        if (addonWrapper) {
-          addonWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
-      })
-
+      this.collapseSectionsIfExpanded(['wizardNameUrl', 'wizardSettings'])
+      this.expandSectionIfCollapsed('wizardPhaseExternal')
+      this.scrollToInterfaceFields()
       this.$refs.interfaceWarningOnSubmit.toggle()
+    },
+
+    collapseSectionsIfExpanded (sectionIds) {
+      sectionIds.forEach(sectionId => {
+        this.toggleWizardSection(sectionId, false)
+      })
+    },
+
+    expandSectionIfCollapsed (sectionId) {
+      this.toggleWizardSection(sectionId, true)
     },
 
     handleAutoSwitchPhaseUpdate (payload) {
@@ -368,10 +337,32 @@ export default {
       }
     },
 
+    scrollToInterfaceFields () {
+      this.$nextTick(() => {
+        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
+        addonWrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    },
+
     submitWithoutInterfaceActivation () {
       this.$refs.interfaceWarningOnSubmit.toggle()
       this.bypassAddonWarningModal = true
       this.submit()
+    },
+
+    toggleWizardSection (sectionId, shouldBeExpanded) {
+      const fieldset = document.getElementById(sectionId)
+      if (!fieldset) {
+        return
+      }
+
+      const wizardContent = fieldset.querySelector('.o-wizard__content')
+      const isCurrentlyExpanded = wizardContent?.classList.contains('is-active')
+
+      if (isCurrentlyExpanded !== shouldBeExpanded) {
+        const legend = fieldset.querySelector('legend')
+        legend?.click()
+      }
     },
   },
 
