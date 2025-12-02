@@ -216,7 +216,7 @@
           <div
             class="u-mv"
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
-            @click="focusElement('r_submitted_date')"
+            @click="focusDatepicker('r_submitted_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.submitted')"
@@ -238,7 +238,7 @@
        --><div
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
-            @click="focusElement('r_authored_date')"
+            @click="focusDatepicker('r_authored_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.authored')"
@@ -303,7 +303,6 @@
 
           <!-- Tags -->
           <template v-if="hasPermission('feature_statements_tag')">
-            <div @click="focusElement('r_tags[]')">
               <dp-label
                 :text="Translator.trans('tags')"
                 for="r_tags[]"
@@ -345,7 +344,6 @@
                 </span>
               </template>
             </dp-multiselect>
-            </div>
           </template>
         </dp-accordion>
       </div>
@@ -640,6 +638,18 @@ export default {
       window.location.replace(href)
     },
 
+    focusDatepicker (id) {
+      const container = document.getElementById(id)
+      const input = container?.querySelector('input')
+      input?.focus()
+    },
+
+    focusEditor () {
+      const editorRef = this.$refs.statementText
+      const input = editorRef?.$el?.querySelector('.ProseMirror, [contenteditable]')
+      input?.focus()
+    },
+
     setInitialValues () {
       this.values = { ...this.initValues }
 
@@ -670,36 +680,6 @@ export default {
 
     sortSelected (property, sortBy = 'name') {
       this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
-    },
-
-    focusElement (containerId) {
-      // Find any focusable element in the container and focus it
-      const container = document.getElementById(containerId)
-      if (container) {
-        const selectors = [
-          'input',
-          'textarea', 
-          '[contenteditable]',
-          'button',
-          '[tabindex]:not([tabindex="-1"])',
-          '.ql-editor',
-          '.ProseMirror'
-        ]
-        
-        let focusable = null
-        for (const selector of selectors) {
-          focusable = container.querySelector(selector)
-          if (focusable) break
-        }
-        
-        if (focusable) {
-          if (focusable.focus) {
-            focusable.focus()
-          } else if (focusable.click) {
-            focusable.click()
-          }
-        }
-      }
     },
 
 
