@@ -26,7 +26,7 @@
             {% else %}
                 {# Show note if feature is currently disabled but statement has feedback value #}
                 {% if not templateVars.table.procedure.settings.publicParticipationFeedbackEnabled and hasFeedbackValue %}
-                    <p class="flash-info u-mb-0_5">{{ "note.statement.created.when.feature.enabled.form.shown"|trans }}</p>
+                    <p class="flash flash-info u-mb-0_5">{{ "note.statement.created.when.feature.enabled.form.shown"|trans }}</p>
                 {% endif %}
 
                 {% if templateVars.finalEmailOnlyToVoters is defined and templateVars.finalEmailOnlyToVoters == true %}
