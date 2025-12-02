@@ -13,7 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RoleResourceType;
@@ -22,9 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanRoleAPIController extends APIController
 {
-    /**
-     * @DplanPermissions("area_manage_users")
-     */
+    #[DplanPermissions('area_manage_users')]
     #[Route(path: '/api/1.0/role', methods: ['GET'], name: 'dplan_api_role_list', options: ['expose' => true])]
     public function list(RoleService $roleService, OrgaService $orgaService, CurrentUserInterface $currentUser): APIResponse
     {

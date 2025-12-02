@@ -5,6 +5,13 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+- Add tag-based filtering for segments of Statement exports (DOCX, XLSX, ZIP)
+  that filters segments within statements
+  by tag ID, tag title, tag topic ID, or tag topic title.
+  Statements without matching segments are excluded from export.
+  No applied tag-filter will still export all statements unchanged
+  
 - Add similar submitters to the Submitter List
 - Add segment text to the boilerplate modal, if the segment and its text is available
 

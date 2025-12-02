@@ -16,6 +16,7 @@ use Cocur\Slugify\Slugify;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
@@ -44,7 +45,7 @@ abstract class SegmentsExporter
     protected array $styles;
 
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
+        protected readonly CurrentUserInterface $currentUser,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         protected Slugify $slugify,
@@ -256,6 +257,24 @@ abstract class SegmentsExporter
             $this->styles['footerPaginationFont'],
             $this->styles['footerPaginationParagraph']
         );
+    }
+
+    protected function addNoSegmentsMessage(Section $section): void
+    {
+        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
+        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
+    }
+
+    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    {
+        uasort($segments, [$this, 'compareOrderInProcedure']);
+
+        return $segments;
+    }
+
+    protected function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    {
+        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
     }
 
     protected function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void

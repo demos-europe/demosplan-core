@@ -263,24 +263,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $this->createTableWithHeader($section, $headerConfigs);
     }
 
-    protected function sortSegmentsByOrderInProcedure(array $segments): array
-    {
-        uasort($segments, [$this, 'compareOrderInProcedure']);
-
-        return $segments;
-    }
-
-    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
-    {
-        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
-    }
-
-    protected function addNoSegmentsMessage(Section $section): void
-    {
-        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
-    }
-
     /**
      * Creates a file name from each given {@link Statement} to be used in the ZIP the
      * {@link Statement} is exported in.
