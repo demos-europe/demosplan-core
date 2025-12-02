@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
+    private const RESOURCE_ACCESS = 'resource_access';
+    private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
     private readonly string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
@@ -54,10 +56,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         // Try to extract roles from resource_access claim first (preferred method)
         // Requires customerSubdomain parameter since resource_access can contain multiple clients
         if (null !== $customerSubdomain
-            && array_key_exists('resource_access', $userInformation)
-            && is_array($userInformation['resource_access'])) {
+            && array_key_exists(self::RESOURCE_ACCESS, $userInformation)
+            && is_array($userInformation[self::RESOURCE_ACCESS])) {
             $mappedRoles = $this->roleMapper->mapResourceAccessRoles(
-                $userInformation['resource_access'],
+                $userInformation[self::RESOURCE_ACCESS],
                 $this->keycloakClientId,
                 $customerSubdomain
             );
@@ -68,9 +70,9 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         }
 
         // FALLBACK: If no roles were extracted from resource_access, use group-based extraction for backward compatibility
-        if ([] === $this->customerRoleRelations && array_key_exists('groups', $userInformation) && is_array($userInformation['groups'])) {
+        if ([] === $this->customerRoleRelations && array_key_exists(self::GROUPS, $userInformation) && is_array($userInformation[self::GROUPS])) {
             $this->logger->info('No roles found in resource_access, falling back to group-based role extraction');
-            $this->mapCustomerRoles($userInformation['groups']);
+            $this->mapCustomerRoles($userInformation[self::GROUPS]);
         }
 
         $this->userId = $userInformation['sub'] ?? '';
