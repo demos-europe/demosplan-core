@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Move addon interface fields to public participation phase section in procedure settings
+- Add warning modal in procedure settings on form-submit when public participation phase is set and interface is not activated
+
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 ## v4.23.0 (2025-10-22)
@@ -18,7 +21,7 @@
 - Allow project specific CSS
 - allow sessions to be stored in redis
 
--  Add checkbox in procedure settings to expand procedure description in public view on page load
+- Add checkbox in procedure settings to expand procedure description in public view on page load
 - Use external Geocoder API as service for address auto-suggestions
 
 - Turn projects into yarn workspaces
