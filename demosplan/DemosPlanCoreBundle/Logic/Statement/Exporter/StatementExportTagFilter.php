@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -188,32 +189,16 @@ class StatementExportTagFilter
                         /** @var TagInterface $tag */
                         foreach ($segment->getTags() as $tag) {
                             // Check if tag matches any of the filter criteria to include the segment
-                            $matchByTagId = !empty($tagIds)
-                                && in_array($tag->getId(), $tagIds, true);
-                            $matchByTagTitle = !empty($tagTitles)
-                                && in_array($tag->getTitle(), $tagTitles, true);
-
                             $tagTopic = $tag->getTopic();
-                            $matchByTagTopicId = null !== $tagTopic
-                                && !empty($tagTopicIds)
-                                && in_array($tagTopic->getId(), $tagTopicIds, true);
-                            $matchByTagTopicTitle = null !== $tagTopic
-                                && !empty($tagTopicTitles)
-                                && in_array($tagTopic->getTitle(), $tagTopicTitles, true);
 
-                            if ($matchByTagId || $matchByTagTitle || $matchByTagTopicId || $matchByTagTopicTitle) {
-                                // Collect human-readable names for matched tags and topics
-                                if ($matchByTagId || $matchByTagTitle) {
-                                    $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
-                                }
-                                if ($matchByTagTopicId || $matchByTagTopicTitle) {
-                                    $this->topicNamesFound[$tagTopic->getId()] = $tagTopic->getTitle();
-                                }
+                            $matchByTag = $this->evaluateTag($tag, $tagIds, $tagTitles);
+                            $matchByTopic = $this->evaluateTopic($tagTopic, $tagTopicIds, $tagTopicTitles);
+
+                            if ($matchByTag || $matchByTopic) {
 
                                 return true;
                             }
                         }
-
                         // exclude this segment from the payload
                         return false;
                     }
@@ -230,5 +215,36 @@ class StatementExportTagFilter
                 return true;
             } // STATEMENT FILTER END
         )->toArray();
+    }
+
+    private function evaluateTag(TagInterface $tag, array $tagIds, array $tagTitles): bool
+    {
+        $matchByTagId = $this->checkExistence($tag->getId(), $tagIds);
+        $matchByTagTitle = $this->checkExistence($tag->getTitle(), $tagTitles);
+
+        $matchByTag = $matchByTagId || $matchByTagTitle;
+        if ($matchByTag) {
+            $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
+        }
+
+        return $matchByTag;
+    }
+
+    private function evaluateTopic(?TagTopicInterface $tagTopic, array $tagTopicIds, array $tagTopicTitles): bool
+    {
+        $matchByTagTopicId = $this->checkExistence($tagTopic?->getId(), $tagTopicIds);
+        $matchByTagTopicTitle = $this->checkExistence($tagTopic?->getTitle(), $tagTopicTitles);
+
+        $matchByTagTopic = $matchByTagTopicId || $matchByTagTopicTitle;
+        if ($matchByTagTopic) {
+            $this->topicNamesFound[$tagTopic->getId()] = $tagTopic->getTitle();
+        }
+
+        return $matchByTagTopic;
+    }
+
+    private function checkExistence(?string $needle, array $haystack): bool
+    {
+        return null !== $needle && !empty($haystack) && in_array($needle, $haystack, true);
     }
 }
