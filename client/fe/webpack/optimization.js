@@ -93,10 +93,19 @@ function optimization () {
               global_defs: {
                 PROJECT: config.project,
               },
+              // More conservative settings for OpenLayers compatibility
+              passes: 1, // Single pass to avoid over-optimization
+              unsafe_math: false, // Don't optimize numeric expressions
+              unsafe: false, // Disable unsafe optimizations
             },
             format: {
               comments: false,
               indent_level: 2,
+              ascii_only: false, // Allow unicode characters
+              safari10: true, // Fix Safari 10 issues
+            },
+            mangle: {
+              safari10: true, // Safari 10 compatibility
             },
           },
           extractComments: false,
