@@ -195,10 +195,10 @@ class StatementExportTagFilter
                             $matchByTopic = $this->evaluateTopic($tagTopic, $tagTopicIds, $tagTopicTitles);
 
                             if ($matchByTag || $matchByTopic) {
-
                                 return true;
                             }
                         }
+
                         // exclude this segment from the payload
                         return false;
                     }
