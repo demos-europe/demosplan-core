@@ -316,8 +316,8 @@ export default {
     activateInterface () {
       // Close wizard items below if expanded
       const sectionsToClose = [
-        'fieldset[data-dp-validate="nameUrlForm"]',
-        'fieldset[data-dp-validate="settingsForm"]'
+        '#wizardNameUrl',
+        '#wizardSettings'
       ]
 
       sectionsToClose.forEach(selector => {
@@ -336,7 +336,7 @@ export default {
       })
 
       // Find the phaseExternalForm fieldset
-      const fieldset = document.querySelector('fieldset[data-dp-validate="phaseExternalForm"]')
+      const fieldset = document.getElementById('wizardPhaseExternal')
 
       if (fieldset) {
         const wizardContent = fieldset.querySelector('.o-wizard__content')
@@ -352,7 +352,7 @@ export default {
 
       // Scroll to addon-wrapper
       this.$nextTick(() => {
-        const addonWrapper = document.querySelector('addon-wrapper[hook-name="interface.fields.to.transmit"]')
+        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
         if (addonWrapper) {
           addonWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
