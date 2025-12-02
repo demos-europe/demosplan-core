@@ -18,6 +18,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
 
+use function in_array;
+
 class StatementExportTagFilter
 {
     private const TAG_IDS_FILTER_KEY = 'tagIds';
@@ -66,13 +68,13 @@ class StatementExportTagFilter
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
     {
-        return array_filter(
-            $statements,
-            function (StatementInterface $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles) {
+        $statementsCollection = new ArrayCollection($statements);
+
+        return $statementsCollection->filter(
+            function (StatementInterface $statement) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
                 // filter out non-matching segments from statement
-                $filteredSegmentsList = array_filter(
-                    $statement->getSegmentsOfStatement()->toArray(),
-                    function (SegmentInterface $segment) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles) {
+                $filteredSegmentsList = $statement->getSegmentsOfStatement()->filter(
+                    function (SegmentInterface $segment) use ($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles): bool {
                         /** @var TagInterface $tag */
                         foreach ($segment->getTags() as $tag) {
                             // Check if tag matches any of the filter criteria to include the segment
@@ -97,18 +99,18 @@ class StatementExportTagFilter
                         // exclude this segment from the payload
                         return false;
                     }
-                );
+                ); // SEGMENT FILTER END
                 // meet any segments of this statement the filter criteria?
-                if (empty($filteredSegmentsList)) {
+                if ($filteredSegmentsList->isEmpty()) {
                     // if not exclude the whole statement
                     return false;
                 }
                 // set the filtered segmentList at the statement to replace the old one.
                 // this is not meant to be persisted and just build for export purposes!
-                $statement->setSegmentsOfStatement(new ArrayCollection($filteredSegmentsList));
+                $statement->setSegmentsOfStatement($filteredSegmentsList);
 
                 return true;
-            }
-        );
+            } // STATEMENT FILTER END
+        )->toArray();
     }
 }
