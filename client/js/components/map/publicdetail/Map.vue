@@ -839,7 +839,11 @@ export default {
     },
 
     doAllTheOtherExcitingStuff () {
-      this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      // Ensure map has correct dimensions before fitting to initial extent
+      this.$nextTick(() => {
+        this.map.updateSize()
+        this.map.getView().fit(this.initialExtent, this.map.getSize()) // Zoom to Startkartenausschnitt from backend
+      })
 
       this.map.getLayerGroup().set('name', 'Root')
 
@@ -1945,15 +1949,21 @@ export default {
     setView () {
       const resolutions = this.resolutions
 
-      this.mapview = new View({
+      const viewConfig = {
         center: [this.mapx, this.mapy],
         projection: this.mapprojection,
         resolutions,
-        extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
         constrainResolution: true,
-      })
+      }
+
+      // Only constrain view extent if user explicitly set a maxExtent
+      if (this.procedureMaxExtent.length > 0) {
+        viewConfig.extent = this.maxExtent
+      }
+
+      this.mapview = new View(viewConfig)
     },
 
     showPopup (templateId, content, coordinate) {
