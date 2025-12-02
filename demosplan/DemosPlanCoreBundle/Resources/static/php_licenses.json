@@ -305,7 +305,7 @@
         "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
-        "license": "LGPL-3.0",
+        "license": "LGPL-3.0-only",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
     },
