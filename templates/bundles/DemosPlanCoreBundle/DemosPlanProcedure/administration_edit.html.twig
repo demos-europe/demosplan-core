@@ -1021,32 +1021,32 @@
                                         type="hidden">
                                     </dp-input>
                                 {% endif %}
-                            </div>
 
-                            <addon-wrapper
-                                id="interfaceFieldsToTransmit"
-                                hook-name="interface.fields.to.transmit"
-                                :addon-props="{
-                                    isProcedureSettingsPage: true,
-                                    organisationId: '{{ orgaInfo.id }}',
-                                    relationshipId: '{{ proceduresettings.id }}',
-                                    relationshipKey: 'procedure',
-                                    existingPictogram:
-                                        {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
-                                            {
-                                                hash: '{{ proceduresettings.settings.pictogram|getFile('hash')|e('js') }}',
-                                                name: '{{ proceduresettings.settings.pictogram|getFile('name')|e('js') }}'
-                                            }
-                                        {% else %}
-                                            null
-                                        {% endif %},
-                                    pictogramAltText: '{{ proceduresettings.pictogramAltText|default|e('js') }}',
-                                    pictogramCopyright: '{{ proceduresettings.pictogramCopyright|default|e('js') }}'
-                                }"
-                                class="mb-4"
-                                @blur="updateAddonPayload"
-                                @change="updateAddonPayload">
-                            </addon-wrapper>
+                                <addon-wrapper
+                                    id="interfaceFieldsToTransmit"
+                                    hook-name="interface.fields.to.transmit"
+                                    :addon-props="{
+                                        isProcedureSettingsPage: true,
+                                        organisationId: '{{ orgaInfo.id }}',
+                                        relationshipId: '{{ proceduresettings.id }}',
+                                        relationshipKey: 'procedure',
+                                        existingPictogram:
+                                            {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
+                                                {
+                                                    hash: '{{ proceduresettings.settings.pictogram|getFile('hash')|e('js') }}',
+                                                    name: '{{ proceduresettings.settings.pictogram|getFile('name')|e('js') }}'
+                                                }
+                                            {% else %}
+                                                null
+                                            {% endif %},
+                                        pictogramAltText: '{{ proceduresettings.pictogramAltText|default|e('js') }}',
+                                        pictogramCopyright: '{{ proceduresettings.pictogramCopyright|default|e('js') }}'
+                                    }"
+                                    class="mb-4"
+                                    @blur="updateAddonPayload"
+                                    @change="updateAddonPayload">
+                                </addon-wrapper>
+                            </div>
 
                             <label class="o-wizard__mark u-mb-0">
                                 <input
