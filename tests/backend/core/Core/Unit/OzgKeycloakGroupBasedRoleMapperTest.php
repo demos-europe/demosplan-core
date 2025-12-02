@@ -24,6 +24,11 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 
 class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
 {
+    private const ROLE_NAME_PLANNING_ADMIN = 'Fachplanung Administration';
+    private const ROLE_NAME_SUPPORT = 'Support';
+    private const ROLE_NAME_PUBLIC_AGENCY_WORKER = 'Institutions Sachbearbeitung';
+    private const TEST_CUSTOMER = 'testcustomer';
+
     private OzgKeycloakGroupBasedRoleMapper $sut;
     private MockObject&GlobalConfig $globalConfig;
     private MockObject&RoleRepository $roleRepository;
@@ -45,15 +50,15 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testExtractRoleCodesFromGroupsWithRecognizedRoles(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
-                'Fachplanung Administration',
-                'Institutions Sachbearbeitung',
+            self::TEST_CUSTOMER => [
+                self::ROLE_NAME_PLANNING_ADMIN,
+                self::ROLE_NAME_PUBLIC_AGENCY_WORKER,
             ],
         ];
 
         [$recognizedRoleCodes, $unIdentifiedRoles] = $this->sut->extractRoleCodesFromGroups(
             $rolesOfCustomer,
-            'testcustomer'
+            self::TEST_CUSTOMER
         );
 
         self::assertCount(2, $recognizedRoleCodes);
@@ -65,8 +70,8 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testExtractRoleCodesFromGroupsWithUnrecognizedRoles(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
-                'Fachplanung Administration',
+            self::TEST_CUSTOMER => [
+                self::ROLE_NAME_PLANNING_ADMIN,
                 'Unknown Role Name',
                 'Another Unknown',
             ],
@@ -74,7 +79,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
 
         [$recognizedRoleCodes, $unIdentifiedRoles] = $this->sut->extractRoleCodesFromGroups(
             $rolesOfCustomer,
-            'testcustomer'
+            self::TEST_CUSTOMER
         );
 
         self::assertCount(1, $recognizedRoleCodes);
@@ -88,7 +93,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     {
         $rolesOfCustomer = [
             'othercustomer' => [
-                'Fachplanung Administration',
+                self::ROLE_NAME_PLANNING_ADMIN,
             ],
         ];
 
@@ -104,17 +109,17 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testExtractRoleCodesFromGroupsWithEmptyRoleNames(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
-                'Fachplanung Administration',
+            self::TEST_CUSTOMER => [
+                self::ROLE_NAME_PLANNING_ADMIN,
                 '',
                 null,
-                'Support',
+                self::ROLE_NAME_SUPPORT,
             ],
         ];
 
         [$recognizedRoleCodes, $unIdentifiedRoles] = $this->sut->extractRoleCodesFromGroups(
             $rolesOfCustomer,
-            'testcustomer'
+            self::TEST_CUSTOMER
         );
 
         self::assertCount(2, $recognizedRoleCodes);
@@ -126,9 +131,9 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testMapGroupBasedRolesWithValidRoles(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
-                'Fachplanung Administration',
-                'Support',
+            self::TEST_CUSTOMER => [
+                self::ROLE_NAME_PLANNING_ADMIN,
+                self::ROLE_NAME_SUPPORT,
             ],
         ];
 
@@ -153,7 +158,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
                 return null;
             });
 
-        $result = $this->sut->mapGroupBasedRoles($rolesOfCustomer, 'testcustomer');
+        $result = $this->sut->mapGroupBasedRoles($rolesOfCustomer, self::TEST_CUSTOMER);
 
         self::assertCount(2, $result);
         self::assertContains($mockRole1, $result);
@@ -163,7 +168,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
     public function testMapGroupBasedRolesThrowsExceptionWhenNoRolesIdentified(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
+            self::TEST_CUSTOMER => [
                 'Unknown Role',
             ],
         ];
@@ -171,15 +176,15 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
         $this->expectException(AuthenticationCredentialsNotFoundException::class);
         $this->expectExceptionMessage('no roles could be identified');
 
-        $this->sut->mapGroupBasedRoles($rolesOfCustomer, 'testcustomer');
+        $this->sut->mapGroupBasedRoles($rolesOfCustomer, self::TEST_CUSTOMER);
     }
 
     public function testMapGroupBasedRolesFiltersUnavailableRoles(): void
     {
         $rolesOfCustomer = [
-            'testcustomer' => [
-                'Fachplanung Administration',
-                'Support',
+            self::TEST_CUSTOMER => [
+                self::ROLE_NAME_PLANNING_ADMIN,
+                self::ROLE_NAME_SUPPORT,
             ],
         ];
 
@@ -200,7 +205,7 @@ class OzgKeycloakGroupBasedRoleMapperTest extends TestCase
                 return null;
             });
 
-        $result = $this->sut->mapGroupBasedRoles($rolesOfCustomer, 'testcustomer');
+        $result = $this->sut->mapGroupBasedRoles($rolesOfCustomer, self::TEST_CUSTOMER);
 
         self::assertCount(1, $result);
         self::assertContains($mockRole1, $result);

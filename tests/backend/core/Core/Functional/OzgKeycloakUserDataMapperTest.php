@@ -60,7 +60,6 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             $this->getContainer()->get(CustomerService::class),
             $this->getContainer()->get(DepartmentRepository::class),
             $this->getContainer()->get(EntityManagerInterface::class),
-            $this->getContainer()->get(GlobalConfig::class),
             new NullLogger(),
             $this->getContainer()->get(OrgaRepository::class),
             $this->getContainer()->get(OrgaService::class),

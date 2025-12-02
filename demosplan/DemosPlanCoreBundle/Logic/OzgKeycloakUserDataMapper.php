@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator;
 use demosplan\DemosPlanCoreBundle\ValueObject\KeycloakUserDataInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
@@ -57,7 +56,6 @@ class OzgKeycloakUserDataMapper
         private readonly CustomerService $customerService,
         private readonly DepartmentRepository $departmentRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly GlobalConfig $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly OrgaRepository $orgaRepository,
         private readonly OrgaService $orgaService,
