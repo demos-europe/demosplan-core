@@ -196,7 +196,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     {
         /** @var Spreadsheet $spreadsheet */
         $spreadsheet = $writer->getSpreadsheet();
-        $infoSheet = $spreadsheet->createSheet();
+        $infoSheet = $spreadsheet->createSheet(0);
         $infoSheet->setTitle($this->translator->trans('export.info'));
 
         $currentDate = new DateTime();
