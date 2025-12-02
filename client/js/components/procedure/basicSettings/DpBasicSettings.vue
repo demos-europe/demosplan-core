@@ -190,9 +190,7 @@ export default {
     },
 
     isPublicParticipationPhaseActive () {
-      // Check current public phase
       const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.selectedPublicPhase)
-      // Check auto-switch phase ONLY if auto-switch is enabled and it's for public phases
       const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
         this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
 
@@ -204,11 +202,14 @@ export default {
     },
 
     shouldShowInterfaceWarningModal () {
-      // Check if checkbox is not disabled
       const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
-      const isCheckboxDisabled = checkbox?.disabled ?? true
+      const isInterfaceCheckboxEnabled = !(checkbox?.disabled ?? true)
 
-      return this.isAddonLoaded && !this.isAddonInterfaceActivated && this.isPublicParticipationPhaseActive && !this.bypassAddonWarningModal && !isCheckboxDisabled
+      return this.isAddonLoaded &&
+        !this.isAddonInterfaceActivated &&
+        this.isPublicParticipationPhaseActive &&
+        !this.bypassAddonWarningModal &&
+        isInterfaceCheckboxEnabled
     },
   },
 
