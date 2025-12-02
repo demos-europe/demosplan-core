@@ -216,6 +216,7 @@
           <div
             class="u-mv"
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+            @click="focusElement('r_submitted_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.submitted')"
@@ -237,6 +238,7 @@
        --><div
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
+            @click="focusElement('r_authored_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.authored')"
@@ -301,11 +303,12 @@
 
           <!-- Tags -->
           <template v-if="hasPermission('feature_statements_tag')">
-            <dp-label
-              :text="Translator.trans('tags')"
-              for="r_tags[]"
-            />
-            <dp-multiselect
+            <div @click="focusElement('r_tags[]')">
+              <dp-label
+                :text="Translator.trans('tags')"
+                for="r_tags[]"
+              />
+              <dp-multiselect
               v-model="values.tags"
               class="u-mb"
               group-label="title"
@@ -342,17 +345,19 @@
                 </span>
               </template>
             </dp-multiselect>
+            </div>
           </template>
         </dp-accordion>
       </div>
 
       <!-- Statement text -->
-      <dp-label
-        :text="Translator.trans('statement.text.short')"
-        for="r_text"
-        required
-      />
-      <dp-editor
+      <div @click="focusEditor()">
+        <dp-label
+          :text="Translator.trans('statement.text.short')"
+          for="r_text"
+          required
+        />
+        <dp-editor
         ref="statementText"
         v-model="values.text"
         :procedure-id="procedureId"
@@ -360,6 +365,7 @@
         required
         hidden-input="r_text"
       />
+      </div>
 
       <slot />
 
@@ -666,6 +672,37 @@ export default {
       this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
     },
 
+    focusElement (containerId) {
+      // Find any focusable element in the container and focus it
+      const container = document.getElementById(containerId)
+      if (container) {
+        const selectors = [
+          'input',
+          'textarea', 
+          '[contenteditable]',
+          'button',
+          '[tabindex]:not([tabindex="-1"])',
+          '.ql-editor',
+          '.ProseMirror'
+        ]
+        
+        let focusable = null
+        for (const selector of selectors) {
+          focusable = container.querySelector(selector)
+          if (focusable) break
+        }
+        
+        if (focusable) {
+          if (focusable.focus) {
+            focusable.focus()
+          } else if (focusable.click) {
+            focusable.click()
+          }
+        }
+      }
+    },
+
+
     submit () {
       this.dpValidateAction('simplifiedNewStatementForm', () => {
         this.isSaving = true
@@ -685,6 +722,7 @@ export default {
     if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
       this.values.authoredDate = dayjs(this.values.submitter.date).format('DD.MM.YYYY')
     }
+
   },
 }
 </script>
