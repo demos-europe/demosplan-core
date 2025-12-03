@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\ValueObject;
 
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
@@ -21,7 +22,10 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
+    private const RESOURCE_ACCESS = 'resource_access';
+    private const GROUPS = 'groups';
     private readonly string $keycloakGroupRoleString;
+    private readonly string $keycloakClientId;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
@@ -39,18 +43,36 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     public function __construct(
         private readonly LoggerInterface $logger,
         ParameterBagInterface $parameterBag,
+        private readonly RoleMapper $roleMapper,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
+        $this->keycloakClientId = $parameterBag->get('oauth_keycloak_client_id');
     }
 
-    public function fill(ResourceOwnerInterface $resourceOwner): void
+    public function fill(ResourceOwnerInterface $resourceOwner, ?string $customerSubdomain = null): void
     {
         $userInformation = $resourceOwner->toArray();
 
-        if (array_key_exists('groups', $userInformation)
-            && is_array($userInformation['groups'])
-        ) {
-            $this->mapCustomerRoles($userInformation['groups']);
+        // Try to extract roles from resource_access claim first (preferred method)
+        // Requires customerSubdomain parameter since resource_access can contain multiple clients
+        if (null !== $customerSubdomain
+            && array_key_exists(self::RESOURCE_ACCESS, $userInformation)
+            && is_array($userInformation[self::RESOURCE_ACCESS])) {
+            $mappedRoles = $this->roleMapper->mapResourceAccessRoles(
+                $userInformation[self::RESOURCE_ACCESS],
+                $this->keycloakClientId,
+                $customerSubdomain
+            );
+
+            if ([] !== $mappedRoles) {
+                $this->customerRoleRelations = $mappedRoles;
+            }
+        }
+
+        // FALLBACK: If no roles were extracted from resource_access, use group-based extraction for backward compatibility
+        if ([] === $this->customerRoleRelations && array_key_exists(self::GROUPS, $userInformation) && is_array($userInformation[self::GROUPS])) {
+            $this->logger->info('No roles found in resource_access, falling back to group-based role extraction');
+            $this->mapCustomerRoles($userInformation[self::GROUPS]);
         }
 
         $this->userId = $userInformation['sub'] ?? '';
@@ -77,7 +99,7 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     }
 
     /**
-     * Mapping of roles of customer based on string-comparison.
+     * Mapping of roles of customer based on string-comparison (LEGACY fallback method).
      * Example of data structure of $groups:
      * [
      *      "/Beteiligung-Organisation/OrgaName1",

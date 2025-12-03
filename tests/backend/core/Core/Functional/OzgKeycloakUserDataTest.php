@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\ValueObject\OzgKeycloakUserData;
 use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\NullLogger;
@@ -27,8 +28,12 @@ class OzgKeycloakUserDataTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $this->sut = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
+        $parameterBag = new ParameterBag([
+            'keycloak_group_role_string'  => 'Beteiligung-Berechtigung',
+            'oauth_keycloak_client_id'    => 'diplan-develop-beteiligung-test',
+        ]);
+        $roleMapper = new RoleMapper(new NullLogger());
+        $this->sut = new OzgKeycloakUserData(new NullLogger(), $parameterBag, $roleMapper);
     }
 
     public function testIsPrivatePersonReturnsTrueWhenAttributeIsBooleanTrue(): void
