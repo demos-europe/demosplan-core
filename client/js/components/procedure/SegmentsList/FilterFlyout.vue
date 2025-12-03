@@ -133,7 +133,7 @@
         </span>
       </div>
       <div
-        v-if="itemsSelected.length > 0"
+        v-if="itemsSelected.length"
         class="flow-root"
       >
         <h3
@@ -299,6 +299,7 @@ export default {
   emits: [
     'filterApply',
     'filterOptions:request',
+    'update:expanded',
   ],
 
   data () {
@@ -511,11 +512,13 @@ export default {
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     handleOpen () {
       this.setIsExpanded({ categoryId: this.category.id, isExpanded: true })
       this.requestFilterOptions()
+      this.$emit('update:expanded', this.isExpanded)
     },
 
     /**

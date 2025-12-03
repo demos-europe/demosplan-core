@@ -147,7 +147,7 @@
 
       <fieldset>
         <legend
-          id="tagFilter"
+          id="tagsFilter"
           class="o-form__label text-base mb-1"
           v-text="'Nur Abschnitte mit folgenden Schlagworten'"
         />
@@ -169,9 +169,16 @@
             groupedOptions: true,
             ungroupedOptions: true
           }"
+          @update:expanded="(value) => isFilterExpanded = value"
           @filter-apply="getFilterValues"
           @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
         />
+
+        <ul v-if="!isFilterExpanded">
+          <li v-for="(tag, idx) in selectedTags">
+            <span>{{ tag.label }}</span>
+          </li>
+        </ul>
       </fieldset>
 
       <dp-button-row
@@ -239,8 +246,9 @@ export default {
 
   data () {
     return {
+      isFilterExpanded: false,
       searchTerm: '',
-      selectedTags: [],
+      selectedTagIds: [],
       filter: {
         comparisonOperator: "ARRAY_CONTAINS_VALUE",
         grouping: {
@@ -304,6 +312,10 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getIsExpandedByCategoryId',
     ]),
+
+    selectedTags () {
+      return this.$refs.filterFlyout?.itemsSelected
+    },
 
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
