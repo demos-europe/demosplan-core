@@ -315,6 +315,11 @@ export default {
           }
 
           if (isVisible !== layer.getVisible()) {
+            // Create source for layer if it doesn't have one and is being set to visible
+            if (isVisible && !layer.getSource()) {
+              this.setLayerSource(layer)
+            }
+
             if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
               const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
               // Only toggle baselayer
