@@ -14,6 +14,7 @@
   
 - Add similar submitters to the Submitter List
 - Add segment text to the boilerplate modal, if the segment and its text is available
+- Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
