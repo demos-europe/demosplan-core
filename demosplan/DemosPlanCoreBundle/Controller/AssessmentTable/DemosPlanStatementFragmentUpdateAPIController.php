@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\ResourceObject;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
@@ -36,8 +36,6 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
     /**
      * Accepts a new statement-fragment-update resource.
      *
-     * @DplanPermissions({"area_admin_assessmenttable", "feature_statements_fragment_edit", "feature_statement_fragment_bulk_edit"})
-     *
      * Action to update multiple Fragments.
      * Will create a StatementFragmentUpdate which data is given in $request.
      *
@@ -45,6 +43,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
      *
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_edit', 'feature_statement_fragment_bulk_edit'])]
     #[Route(path: '/api/1.0/statement-fragment-update', methods: ['POST'], name: 'dplan_api_assessment_table_statement_fragment_update_create', options: ['expose' => true])]
     public function create(
         CurrentProcedureService $currentProcedureService,

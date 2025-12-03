@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationFloodEvent;
@@ -27,9 +27,8 @@ class ConsultationController extends BaseController
 {
     /**
      * Handle Autorisation via ConsultationTokens.
-     *
-     * @DplanPermissions("feature_public_consultation")
      */
+    #[DplanPermissions('feature_public_consultation')]
     #[Route(name: 'core_auth_procedure_consultation', path: '/consultation/auth/{procedureId}')]
     public function procedureConsultationAuthorize(
         ConsultationTokenService $consultationTokenService,

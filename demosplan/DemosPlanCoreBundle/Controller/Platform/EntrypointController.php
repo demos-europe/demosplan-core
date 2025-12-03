@@ -11,8 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
-use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -51,9 +50,8 @@ class EntrypointController extends BaseController
      * Logged in users get different index pages depending on their role or
      * role combination. Guests that end up here will be redirected to
      * the platform's external start page.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/loggedin', name: 'core_home_loggedin')]
     public function loggedInIndexEntrypoint(Request $request): Response
     {
@@ -128,12 +126,11 @@ class EntrypointController extends BaseController
      * ends up at this page, they may need to be re-routed to
      * their designated logged-in index page.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/', name: 'core_home', options: ['expose' => true])]
     public function index(
         ContentService $contentService,
@@ -153,7 +150,7 @@ class EntrypointController extends BaseController
         return $this->processEntrypointRoute($entrypointRoute);
     }
 
-    #[AttributeDplanPermissions('area_demosplan')]
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
     public function loginIdpError(CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType): RedirectResponse|Response
     {
