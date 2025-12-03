@@ -193,7 +193,7 @@
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener"
-              @click="storeNavigationContextInCache"
+              @click="storeNavigationContextInLocalStorage"
             >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
@@ -982,7 +982,7 @@ export default {
       }
     },
 
-    storeNavigationContextInCache () {
+    storeNavigationContextInLocalStorage () {
       lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
       this.storeFilterInCache()
     },
