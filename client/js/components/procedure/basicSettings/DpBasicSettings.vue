@@ -190,9 +190,7 @@ export default {
     },
 
     isPublicParticipationPhaseActive () {
-      // Check current public phase
       const currentPhaseIsPublic = this.publicParticipationPhases.includes(this.selectedPublicPhase)
-      // Check auto-switch phase ONLY if auto-switch is enabled and it's for public phases
       const autoSwitchPhaseIsPublic = this.addonCheckAutoSwitchEnabled &&
         this.publicParticipationPhases.includes(this.addonCheckAutoSwitchPhase)
 
@@ -204,11 +202,14 @@ export default {
     },
 
     shouldShowInterfaceWarningModal () {
-      // Check if checkbox is not disabled
       const checkbox = document.getElementById('interfaceFieldsToTransmit-checkbox')
-      const isCheckboxDisabled = checkbox?.disabled ?? true
+      const isInterfaceCheckboxEnabled = !(checkbox?.disabled ?? true)
 
-      return this.isAddonLoaded && !this.isAddonInterfaceActivated && this.isPublicParticipationPhaseActive && !this.bypassAddonWarningModal && !isCheckboxDisabled
+      return this.isAddonLoaded &&
+        !this.isAddonInterfaceActivated &&
+        this.isPublicParticipationPhaseActive &&
+        !this.bypassAddonWarningModal &&
+        isInterfaceCheckboxEnabled
     },
   },
 
@@ -314,51 +315,20 @@ export default {
 
     // Needed for the addon-modal on submit
     activateInterface () {
-      // Close wizard items below if expanded
-      const sectionsToClose = [
-        'fieldset[data-dp-validate="nameUrlForm"]',
-        'fieldset[data-dp-validate="settingsForm"]'
-      ]
-
-      sectionsToClose.forEach(selector => {
-        const fieldset = document.querySelector(selector)
-        if (fieldset) {
-          const wizardContent = fieldset.querySelector('.o-wizard__content')
-          const isExpanded = wizardContent?.classList.contains('is-active')
-
-          if (isExpanded) {
-            const legend = fieldset.querySelector('legend')
-            if (legend) {
-              legend.click()
-            }
-          }
-        }
-      })
-
-      // Find the phaseExternalForm fieldset
-      const fieldset = document.querySelector('fieldset[data-dp-validate="phaseExternalForm"]')
-
-      if (fieldset) {
-        const wizardContent = fieldset.querySelector('.o-wizard__content')
-        const isAlreadyExpanded = wizardContent?.classList.contains('is-active')
-
-        if (!isAlreadyExpanded) {
-          const legend = fieldset.querySelector('legend')
-          if (legend) {
-            legend.click()
-          }
-        }
-      }
-
-      // Scroll to addon-wrapper
-      this.$nextTick(() => {
-        const addonWrapper = document.querySelector('addon-wrapper[hook-name="interface.fields.to.transmit"]')
-        if (addonWrapper) {
-          addonWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }
-      })
-
+      this.collapseSectionsIfExpanded(['wizardNameUrl', 'wizardSettings'])
+      this.expandSectionIfCollapsed('wizardPhaseExternal')
+      this.scrollToInterfaceFields()
       this.$refs.interfaceWarningOnSubmit.toggle()
+    },
+
+    collapseSectionsIfExpanded (sectionIds) {
+      sectionIds.forEach(sectionId => {
+        this.toggleInterfaceSection(sectionId, false)
+      })
+    },
+
+    expandSectionIfCollapsed (sectionId) {
+      this.toggleInterfaceSection(sectionId, true)
     },
 
     handleAutoSwitchPhaseUpdate (payload) {
@@ -368,10 +338,32 @@ export default {
       }
     },
 
+    scrollToInterfaceFields () {
+      this.$nextTick(() => {
+        const addonWrapper = document.getElementById('interfaceFieldsToTransmit')
+        addonWrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    },
+
     submitWithoutInterfaceActivation () {
       this.$refs.interfaceWarningOnSubmit.toggle()
       this.bypassAddonWarningModal = true
       this.submit()
+    },
+
+    toggleInterfaceSection (sectionId, shouldBeExpanded) {
+      const fieldset = document.getElementById(sectionId)
+      if (!fieldset) {
+        return
+      }
+
+      const wizardContent = fieldset.querySelector('.o-wizard__content')
+      const isCurrentlyExpanded = wizardContent?.classList.contains('is-active')
+
+      if (isCurrentlyExpanded !== shouldBeExpanded) {
+        const legend = fieldset.querySelector('legend')
+        legend?.click()
+      }
     },
   },
 

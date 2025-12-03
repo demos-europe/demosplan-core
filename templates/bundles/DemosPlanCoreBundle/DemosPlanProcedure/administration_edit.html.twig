@@ -899,6 +899,7 @@
                 {# wizard item: Verfahrensschritt / Zeitraum und Beteiligung Bürger #}
                 {% if hasPermission('area_public_participation') %}
                     <fieldset
+                        id="wizardPhaseExternal"
                         name="phaseExternalForm"
                         {% if proceduresettings.phaseExternalComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.phaseExternal'|trans }}"
@@ -1041,6 +1042,7 @@
                             </div>
 
                             <addon-wrapper
+                                id="interfaceFieldsToTransmit"
                                 hook-name="interface.fields.to.transmit"
                                 :addon-props="{
                                     isProcedureSettingsPage: true,
@@ -1067,6 +1069,8 @@
                                 @selected="updateAddonPayload">
                             </addon-wrapper>
 
+                        </div>
+
                             <label class="o-wizard__mark u-mb-0">
                                 <input
                                     data-wizard-cb
@@ -1092,6 +1096,7 @@
 
                 {# wizard item: Name und Webadresse #}
                 <fieldset
+                    id="wizardNameUrl"
                     name="nameUrlForm"
                     {% if proceduresettings.nameUrlComplete is defined %}data-wizard-finished="true"{% endif %}
                     data-wizard-topic="{{ 'wizard.topic.nameUrl'|trans }}"
@@ -1223,6 +1228,7 @@
                 {% if hasPermission('feature_data_in_export') %}
                 {# wizard item: Daten im Export #}
                 <fieldset
+                    id="wizardSettings"
                     name="settingsForm"
                     {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
                     data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
