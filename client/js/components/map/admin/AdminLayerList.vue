@@ -193,6 +193,7 @@
             :is-loading="(false === isEditable)"
             layer-type="base"
             :sorting-type="currentTab"
+            @visibility-toggled="ensureSingleBaseLayerVisible"
           />
         </dp-draggable>
         <div class="my-4">
@@ -382,6 +383,30 @@ export default {
       'setMinimapBaseLayer',
       'updateState',
     ]),
+
+    ensureSingleBaseLayerVisible (changedLayerId) {
+      // Get all base layers with hasDefaultVisibility true
+      const visibleBaseLayers = this.mapBaseList.filter(
+        layer => layer.attributes.hasDefaultVisibility === true,
+      )
+
+      // If more than one base layer is visible on load
+      if (visibleBaseLayers.length > 1) {
+        // Disable all except the one that was just changed
+        visibleBaseLayers.forEach(layer => {
+          if (layer.id !== changedLayerId) {
+            this.setAttributeForLayer({
+              id: layer.id,
+              attribute: 'hasDefaultVisibility',
+              value: false,
+            })
+          }
+        })
+
+        // Show notification
+        dplan.notify.notify('info', Translator.trans('map.baselayer.visibility.single'))
+      }
+    },
 
     updateChildren (ev) {
       this.setChildrenFromCategory({
