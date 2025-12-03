@@ -471,24 +471,6 @@
                                         </dp-editor>
                                     </div>
                                 {% endif %}
-                                {% set userOrgaId = currentUser.organisationId|default('') %}
-                                {% set userMeinBerlinOrgId = currentUser.meinBerlinOrgId|default('') %}
-
-                                {% set districtAddonProps = {
-                                    isProcedureSettingsPage: false,
-                                    relationshipId: proceduresettings.id,
-                                    relationshipKey: 'procedure',
-                                    userOrgaId: userOrgaId,
-                                    userMeinBerlinOrgId: userMeinBerlinOrgId
-                                } %}
-
-                                <addon-wrapper
-                                    class="mb-4"
-                                    hook-name="addon.additional.field"
-                                    :addon-props="JSON.parse('{{ districtAddonProps|json_encode|e('js', 'utf-8') }}')"
-                                    @selected="updateAddonPayload"
-                                    @blur="updateAddonPayload">
-                                </addon-wrapper>
 
                                 {% if hasPermission('field_procedure_pictogram_view') and hasPermission('area_public_participation') %}
                                     <div class="mb-4">
