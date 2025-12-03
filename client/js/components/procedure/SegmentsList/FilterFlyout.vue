@@ -92,7 +92,7 @@
 
     <div v-else>
       <div
-        :style="flyoutHeight"
+        :style="flyoutHeightStyle"
         class="w-full border--bottom overflow-y-scroll u-p-0_5"
       >
         <ul
@@ -373,26 +373,13 @@ export default {
       return this.getIsLoadingByCategoryId(this.category.id) ?? false
     },
 
-    /*
-     * The maxHeight for the scrollable options is calculated to better match devices.
-     */
-    flyoutHeight () {
-      const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
+    flyoutHeightStyle () {
+      const scrollOffset = this.getParentScrollTop()
+      const elementTop = this.$el?.getBoundingClientRect().top ?? 0
+      const elementOffset = elementTop + scrollOffset
 
-      const ACTIVE_FILTERS_ROW_HEIGHT = 42
-      const BUTTON_ROW_HEIGHT = 58
-      const OPTION_HEIGHT = 26
-      const SEARCH_FIELD_HEIGHT = 58
-
-      const MIN_HEIGHT_SMALL = 100
-      const MIN_HEIGHT_LARGE = 300
-
-      const selectedItemsHeight = (this.itemsSelected.length + 1) * OPTION_HEIGHT + ACTIVE_FILTERS_ROW_HEIGHT
-      const totalUsedHeight = selectedItemsHeight + offsetTop + SEARCH_FIELD_HEIGHT + BUTTON_ROW_HEIGHT
-      const maxHeight = `calc(100vh - ${totalUsedHeight}px)`
-
-      const hasManyOptions = this.groupedOptions.length > 10 || this.ungroupedOptions.length > 10
-      const minHeight = hasManyOptions ? MIN_HEIGHT_LARGE : MIN_HEIGHT_SMALL
+      const maxHeight = this.getMaxHeight(elementOffset)
+      const minHeight = this.getMinHeight()
 
       return `max-height: ${maxHeight};min-height: ${minHeight}px;`
     },
@@ -473,6 +460,41 @@ export default {
     close () {
       this.handleClose()
       this.$refs.flyout.close()
+    },
+
+    /**
+     * The maxHeight for the scrollable options is calculated to better match devices.
+     */
+    getMaxHeight (elementOffset) {
+      const ACTIVE_FILTERS_ROW_HEIGHT = 42
+      const BUTTON_ROW_HEIGHT = 58
+      const OPTION_HEIGHT = 26
+      const SEARCH_FIELD_HEIGHT = 58
+
+      // Dynamic heights
+      const selectedItemsHeight = (this.itemsSelected.length + 1) * OPTION_HEIGHT + ACTIVE_FILTERS_ROW_HEIGHT
+      const totalUsedHeight = selectedItemsHeight + elementOffset + SEARCH_FIELD_HEIGHT + BUTTON_ROW_HEIGHT
+
+      return `calc(100vh - ${totalUsedHeight}px)`
+    },
+
+    getMinHeight () {
+      const MIN_HEIGHT_SMALL = 100
+      const MIN_HEIGHT_LARGE = 300
+      const hasManyOptions = this.groupedOptions.length > 10 || this.ungroupedOptions.length > 10
+
+      return hasManyOptions ? MIN_HEIGHT_LARGE : MIN_HEIGHT_SMALL
+    },
+
+    getParentScrollTop () {
+      const modal = this.$el?.closest('[role="dialog"]')
+
+      if (modal) {
+        const scrollable = modal.querySelector('.o-modal__body')
+        return scrollable?.scrollTop ?? 0
+      }
+
+      return document.documentElement.scrollTop || 0
     },
 
     isChecked (id) {

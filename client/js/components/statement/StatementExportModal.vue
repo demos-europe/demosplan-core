@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
-      content-body-classes="flex flex-col h-[95%] max-h-[600px]"
+      content-body-classes="flex flex-col h-14"
     >
       <h2 class="mb-5">
         {{ exportModalTitle }}
@@ -30,7 +30,7 @@
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
+        <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
@@ -106,7 +106,7 @@
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')"
         />
-        <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
+        <div class="grid grid-cols-5 gap-3 mt-1 mb-3">
           <dp-input
             v-for="(column, key) in docxColumns"
             :id="key"
@@ -155,12 +155,12 @@
           ref="filterFlyout"
           :key="`filter_${filter.labelTranslationKey}`"
           :additional-query-params="{ searchPhrase: searchTerm }"
-          align="top"
           :category="{
             id: `${filter.labelTranslationKey}`,
             label: Translator.trans('search.list')
           }"
           appearance="basic"
+          flyout-align="top"
           flyout-position="relative"
           :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
           :operator="filter.comparisonOperator"
