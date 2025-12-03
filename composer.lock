@@ -20585,42 +20585,42 @@
         },
         {
             "name": "liip/functional-test-bundle",
-            "version": "4.14.0",
+            "version": "4.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipFunctionalTestBundle.git",
-                "reference": "a36b57ece8218fa0319a86de75dede6a0e228721"
+                "reference": "8c9176666cd70bb0c5fc2e10a9d77f8136f6a851"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/a36b57ece8218fa0319a86de75dede6a0e228721",
-                "reference": "a36b57ece8218fa0319a86de75dede6a0e228721",
+                "url": "https://api.github.com/repos/liip/LiipFunctionalTestBundle/zipball/8c9176666cd70bb0c5fc2e10a9d77f8136f6a851",
+                "reference": "8c9176666cd70bb0c5fc2e10a9d77f8136f6a851",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.0",
                 "phpunit/phpunit": "^9.6 || ^10.0 || ^11.0 || ^12.0",
-                "symfony/browser-kit": "^5.4 || ^6.4 || ^7.0",
-                "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.0"
+                "symfony/browser-kit": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.0 || ^8.0"
             },
             "conflict": {
                 "symfony/framework-bundle": "4.3.0"
             },
             "require-dev": {
                 "doctrine/annotations": "^1.3 || ^2.0",
-                "doctrine/doctrine-bundle": "^2.11",
-                "doctrine/orm": "^2.7",
+                "doctrine/doctrine-bundle": "^2.11 || ^3.1.0",
+                "doctrine/orm": "^2.7 || ^3.0",
                 "ext-json": "*",
                 "monolog/monolog": "^1.25.1 || ^2.0 || ^3.0",
-                "symfony/css-selector": "^5.4 || ^6.4 || ^7.0",
-                "symfony/doctrine-bridge": "^5.4 || ^6.4 || ^7.0",
-                "symfony/form": "^5.4 || ^6.4 || ^7.0",
-                "symfony/http-kernel": "^5.4 || ^6.4 || ^7.0",
-                "symfony/monolog-bundle": "^3.4",
-                "symfony/security-bundle": "^5.4 || ^6.4 || ^7.0",
-                "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.0",
-                "symfony/validator": "^5.4 || ^6.4 || ^7.0",
-                "symfony/yaml": "^5.4 || ^6.4 || ^7.0",
+                "symfony/css-selector": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/doctrine-bridge": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/form": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/http-kernel": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/monolog-bundle": "^3.4 || ^4.0",
+                "symfony/security-bundle": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/validator": "^5.4 || ^6.4 || ^7.0 || ^8.0",
+                "symfony/yaml": "^5.4 || ^6.4 || ^7.0 || ^8.0",
                 "twig/twig": "^2.0 || ^3.8"
             },
             "suggest": {
@@ -20659,9 +20659,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipFunctionalTestBundle/issues",
-                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.14.0"
+                "source": "https://github.com/liip/LiipFunctionalTestBundle/tree/4.15.0"
             },
-            "time": "2025-10-22T18:12:01+00:00"
+            "time": "2025-12-02T17:37:39+00:00"
         },
         {
             "name": "liip/test-fixtures-bundle",
@@ -21909,16 +21909,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.58",
+            "version": "10.5.59",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "e24fb46da450d8e6a5788670513c1af1424f16ca"
+                "reference": "c47fe00df06fb1f68399ef7386edb01c25132473"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e24fb46da450d8e6a5788670513c1af1424f16ca",
-                "reference": "e24fb46da450d8e6a5788670513c1af1424f16ca",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c47fe00df06fb1f68399ef7386edb01c25132473",
+                "reference": "c47fe00df06fb1f68399ef7386edb01c25132473",
                 "shasum": ""
             },
             "require": {
@@ -21990,7 +21990,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.58"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.59"
             },
             "funding": [
                 {
@@ -22014,7 +22014,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-28T12:04:46+00:00"
+            "time": "2025-12-01T07:37:23+00:00"
         },
         {
             "name": "psalm/plugin-symfony",
@@ -24036,16 +24036,16 @@
         },
         {
             "name": "theseer/tokenizer",
-            "version": "1.2.3",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theseer/tokenizer.git",
-                "reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2"
+                "reference": "b7489ce515e168639d17feec34b8847c326b0b3c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
-                "reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
+                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/b7489ce515e168639d17feec34b8847c326b0b3c",
+                "reference": "b7489ce515e168639d17feec34b8847c326b0b3c",
                 "shasum": ""
             },
             "require": {
@@ -24074,7 +24074,7 @@
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
             "support": {
                 "issues": "https://github.com/theseer/tokenizer/issues",
-                "source": "https://github.com/theseer/tokenizer/tree/1.2.3"
+                "source": "https://github.com/theseer/tokenizer/tree/1.3.1"
             },
             "funding": [
                 {
@@ -24082,7 +24082,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-03T12:36:25+00:00"
+            "time": "2025-11-17T20:03:58+00:00"
         },
         {
             "name": "timeweb/phpstan-enum",
