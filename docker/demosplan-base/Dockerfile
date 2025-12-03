@@ -15,8 +15,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     php8.3-common php8.3-curl php-excimer php8.3-fpm php8.3-gd php8.3-intl php8.3-mbstring php8.3-mysqli php8.3-soap  \
     php8.3-sqlite3 php8.3-xml php8.3-zip unzip vim-tiny -y \
     && update-alternatives --set php /usr/bin/php8.3 \
-    && update-alternatives --set phar /usr/bin/phar8.3 \
-    && update-alternatives --set phar.phar /usr/bin/phar.phar8.3 \
     && mkdir -p /opt/uploads
 COPY zzz-dplan-cli.ini /etc/php/8.3/cli/conf.d/zzz-dplan-cli.ini
 
