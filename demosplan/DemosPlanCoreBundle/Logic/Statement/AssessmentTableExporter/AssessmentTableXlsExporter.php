@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use Carbon\Carbon;
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -23,11 +25,13 @@ use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,6 +53,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
+        private readonly CurrentUserInterface $currentUser,
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
@@ -177,6 +182,97 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $this->simpleSpreadsheetService->getExcel2007Writer($filledExcelDocument);
+    }
+
+    /**
+     * Adds an info sheet to the Excel document with export information.
+     *
+     * @param IWriter                  $writer    The Excel writer
+     * @param StatementExportTagFilter $tagFilter The tag filter containing filter information
+     *
+     * @throws Exception
+     */
+    public function addFilterInfoSheet(IWriter $writer, StatementExportTagFilter $tagFilter): void
+    {
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = $writer->getSpreadsheet();
+        $infoSheet = $spreadsheet->createSheet(0);
+        $infoSheet->setTitle($this->translator->trans('export.info'));
+
+        $currentDate = new DateTime();
+        $procedure = $this->currentProcedureService->getProcedure();
+        $userName = $this->currentUser->getUser()->getFullname();
+
+        $row = 1;
+
+        // Title with date
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('segments.export.statement.export.date.filtered', ['date' => $currentDate->format('d.m.Y')]));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // Procedure name
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('procedure.name'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $procedure->getName());
+        $row += 2;
+
+        // Export user
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.user'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $userName);
+        $row += 2;
+
+        // Filter information
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.filter.applied'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        ++$row;
+
+        $this->addTagFilterInfo($infoSheet, $tagFilter, $row);
+
+        // Auto-size columns
+        $infoSheet->getColumnDimension('A')->setAutoSize(true);
+        $infoSheet->getColumnDimension('B')->setAutoSize(true);
+
+        // Move info sheet to first position
+        $spreadsheet->setActiveSheetIndex(0);
+    }
+
+    /**
+     * Adds the tag filter information to the info sheet.
+     *
+     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
+     * @param StatementExportTagFilter                      $tagFilter The tag filter
+     * @param int                                           $row       Current row number (passed by reference)
+     */
+    private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
+    {
+        // Accumulate tag filter labels if any tag filter is active
+        $tagFilterLabels = [];
+        if ($tagFilter->isTagIdFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.ids');
+        }
+        if ($tagFilter->isTagTitleFilterActive()) {
+            $tagFilterLabels[] = $this->translator->trans('tag.titles');
+        }
+        if (!empty($tagFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $tagFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTagFiltersHumanReadable());
+            ++$row;
+        }
+
+        // Accumulate topic filter labels if any topic filter is active
+        $topicFilterLabels = [];
+        if ($tagFilter->isTagTopicIdFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.ids');
+        }
+        if ($tagFilter->isTagTopicTitleFilterActive()) {
+            $topicFilterLabels[] = $this->translator->trans('tag.topic.titles');
+        }
+        if (!empty($topicFilterLabels)) {
+            $infoSheet->setCellValue("A{$row}", implode(', ', $topicFilterLabels));
+            $infoSheet->setCellValue("B{$row}", $tagFilter->getTopicFiltersHumanReadable());
+            ++$row;
+        }
     }
 
     /**

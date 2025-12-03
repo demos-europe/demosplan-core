@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactor
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -52,7 +53,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         parent::setUp();
 
         // Instantiate the filter service
-        $this->sut = new StatementExportTagFilter();
+        /** @var TranslatorInterface $translator */
+        $translator = $this->getContainer()->get(TranslatorInterface::class);
+        $this->sut = new StatementExportTagFilter($translator);
 
         // Create test procedure and statements used by most tests
         $testProcedure = ProcedureFactory::createOne();
