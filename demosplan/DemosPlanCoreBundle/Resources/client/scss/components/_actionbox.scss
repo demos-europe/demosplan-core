@@ -160,8 +160,7 @@
             }
         }
 
-        &:disabled,
-        &.is-disabled {
+        &:disabled {
             opacity: .4;
             cursor: not-allowed;
             color: $actionbox-color-inactive;
