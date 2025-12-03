@@ -145,7 +145,7 @@ All rights reserved
             {{ Translator.trans('procedure.public.phase') }}
           </dt>
           <dd class="text-muted">
-            {{ localStatement.attributes.procedurePhase.name || '-' }}
+            {{ localStatement.attributes.procedurePhase?.name || '-' }}
           </dd>
         </dl>
 
