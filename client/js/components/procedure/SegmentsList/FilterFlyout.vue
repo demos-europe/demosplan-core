@@ -47,10 +47,12 @@
 <template>
   <dp-flyout
     ref="flyout"
-    align="left"
+    :align="flyoutAlign"
+    :appearance="appearance"
     :data-cy="category.label"
-    variant="dark"
+    :flyout-position="flyoutPosition"
     :padded="false"
+    :variant="variant"
     @close="handleClose"
     @open="handleOpen"
   >
@@ -90,7 +92,7 @@
 
     <div v-else>
       <div
-        :style="maxHeight"
+        :style="flyoutHeight"
         class="w-full border--bottom overflow-y-scroll u-p-0_5"
       >
         <ul
@@ -210,6 +212,13 @@ export default {
       default: () => ({}),
     },
 
+    appearance: {
+      required: false,
+      type: String,
+      default: 'interactive',
+      validator: (prop) => ['interactive', 'basic'].includes(prop),
+    },
+
     category: {
       type: Object,
       required: true,
@@ -240,6 +249,20 @@ export default {
       default: '',
     },
 
+    flyoutAlign: {
+      required: false,
+      type: String,
+      default: 'right',
+      validator: (prop) => ['left', 'right', 'top'].includes(prop),
+    },
+
+    flyoutPosition: {
+      required: false,
+      type: String,
+      default: 'absolute',
+      validator: (prop) => ['relative', 'absolute'].includes(prop),
+    },
+
     operator: {
       type: String,
       required: true,
@@ -263,6 +286,13 @@ export default {
       validator: prop => {
         return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
       },
+    },
+
+    variant: {
+      required: false,
+      type: String,
+      default: 'light',
+      validator: (prop) => ['light', 'dark'].includes(prop),
     },
   },
 
@@ -346,17 +376,25 @@ export default {
     /*
      * The maxHeight for the scrollable options is calculated to better match devices.
      */
-    maxHeight () {
+    flyoutHeight () {
       const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
-      const searchFieldHeight = 58
-      const buttonRowHeight = 58
-      /*
-       * The "26" equals the height of one option, whereas the
-       * 42 equals the height of the "Active Filters" row.
-       */
-      const selectedItemsHeight = (this.itemsSelected.length + 1) * 26 + 42
-      const subtractedHeight = selectedItemsHeight + offsetTop + searchFieldHeight + buttonRowHeight
-      return `max-height: calc(100vh - ${subtractedHeight}px);min-height: 100px;`
+
+      const ACTIVE_FILTERS_ROW_HEIGHT = 42
+      const BUTTON_ROW_HEIGHT = 58
+      const OPTION_HEIGHT = 26
+      const SEARCH_FIELD_HEIGHT = 58
+
+      const MIN_HEIGHT_SMALL = 100
+      const MIN_HEIGHT_LARGE = 300
+
+      const selectedItemsHeight = (this.itemsSelected.length + 1) * OPTION_HEIGHT + ACTIVE_FILTERS_ROW_HEIGHT
+      const totalUsedHeight = selectedItemsHeight + offsetTop + SEARCH_FIELD_HEIGHT + BUTTON_ROW_HEIGHT
+      const maxHeight = `calc(100vh - ${totalUsedHeight}px)`
+
+      const hasManyOptions = this.groupedOptions.length > 10 || this.ungroupedOptions.length > 10
+      const minHeight = hasManyOptions ? MIN_HEIGHT_LARGE : MIN_HEIGHT_SMALL
+
+      return `max-height: ${maxHeight};min-height: ${minHeight}px;`
     },
 
     isExpanded () {

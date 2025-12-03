@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
-      content-body-classes="flex flex-col h-[95%]"
+      content-body-classes="flex flex-col h-[95%] max-h-[600px]"
     >
       <h2 class="mb-5">
         {{ exportModalTitle }}
@@ -145,23 +145,34 @@
         </fieldset>
       </fieldset>
 
-      <filter-flyout
-        ref="filterFlyout"
-        :style="dropdownStyle"
-        :key="`filter_${filter.labelTranslationKey}`"
-        :additional-query-params="{ searchPhrase: searchTerm }"
-        :category="{ id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }"
-        class="dropdown inline-block first:mr-1"
-        :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
-        :operator="filter.comparisonOperator"
-        :path="filter.rootPath"
-        :show-count="{
-          groupedOptions: true,
-          ungroupedOptions: true
-        }"
-        @filter-apply="getFilterValues"
-        @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
-      />
+      <fieldset>
+        <legend
+          id="tagFilter"
+          class="o-form__label text-base mb-1"
+          v-text="'Nur Abschnitte mit folgenden Schlagworten'"
+        />
+        <filter-flyout
+          ref="filterFlyout"
+          :key="`filter_${filter.labelTranslationKey}`"
+          :additional-query-params="{ searchPhrase: searchTerm }"
+          align="top"
+          :category="{
+            id: `${filter.labelTranslationKey}`,
+            label: Translator.trans('search.list')
+          }"
+          appearance="basic"
+          flyout-position="relative"
+          :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
+          :operator="filter.comparisonOperator"
+          :path="filter.rootPath"
+          :show-count="{
+            groupedOptions: true,
+            ungroupedOptions: true
+          }"
+          @filter-apply="getFilterValues"
+          @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
+        />
+      </fieldset>
 
       <dp-button-row
         class="text-right mt-auto"
@@ -503,6 +514,19 @@ export default {
           if (this.getIsExpandedByCategoryId(category.id)) {
             document.getElementById(`searchField_${path}`).focus()
           }
+
+          this.$nextTick(() => {
+            this.scrollModalToBottom()
+          })
+      })
+    },
+
+    scrollModalToBottom () {
+      const modal = this.$refs.exportModalInner.$el.querySelector('.o-modal__body')
+
+      modal.scrollTo({
+        top: modal.scrollHeight,
+        behavior: "smooth"
       })
     },
 
