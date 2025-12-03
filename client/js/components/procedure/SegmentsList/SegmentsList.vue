@@ -253,7 +253,7 @@
                 })"
                 data-cy="segmentsList:edit"
                 rel="noopener"
-                @click="storeNavigationContextInCache"
+                @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('edit') }}
               </a>
@@ -267,7 +267,7 @@
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
                 rel="noopener"
-                @click="storeNavigationContextInCache"
+                @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
@@ -985,16 +985,16 @@ export default {
       lscache.set(this.lsKey.allSegments, allSegments)
     },
 
-    storeFilterInCache () {
+    storeFilterInLocalStorage () {
       // Persist currentQueryHash to load the filtered SegmentsList after returning to segments list
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
 
       globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
-    storeNavigationContextInCache () {
+    storeNavigationContextInLocalStorage () {
       lscache.set(`${this.procedureId}:navigation:source`, 'SegmentsList')
-      this.storeFilterInCache()
+      this.storeFilterInLocalStorage()
     },
 
     storeToggledSegments () {
