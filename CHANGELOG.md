@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+- Add extra Info-WorkSheet to xksx exports by TagFilter
+  Add docx Title to "Teilexport ..." if a TagFilter was applied
 - Add tag-based filtering for segments of Statement exports (DOCX, XLSX, ZIP)
   that filters segments within statements
   by tag ID, tag title, tag topic ID, or tag topic title.
