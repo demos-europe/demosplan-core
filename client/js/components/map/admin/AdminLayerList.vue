@@ -159,8 +159,8 @@
           <div class="c-at-item__row-icon pl-0">
             <!-- DragHandler -->
           </div>
-          <div class="flex">
-            <div class="flex-1 pl-2">
+          <div class="flex pl-2">
+            <div class="flex-1">
               {{ Translator.trans('description') }}
             </div>
             <div
@@ -172,7 +172,7 @@
                 class="fa fa-eye mr-2"
               />
             </div>
-            <div class="w-1/12 text-right">
+            <div class="w-2/12 text-right">
               {{ Translator.trans('edit') }}
             </div>
           </div>
