@@ -10,6 +10,7 @@
 <template>
   <!-- everything within this container will be displayed in the fullscreen mode -->
   <div
+    ref="mastertoebContainer"
     class="c-mastertoeb bg-color--white"
     :class="{'is-fullscreen': isFullscreen}"
   >
@@ -417,7 +418,7 @@ export default {
     },
 
     fullscreen () {
-      toggleFullscreen(this.$el)
+      toggleFullscreen(this.$refs.mastertoebContainer)
     },
 
     generateItemMap (items) {
