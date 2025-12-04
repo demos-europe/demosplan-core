@@ -505,7 +505,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             }
 
             // Fallback for numberOfAnonymVotes: Load from database if missing from Elasticsearch
-            if ($attributeKey === 'numberOfAnonymVotes' && null === $formattedStatement[$attributeKey] && isset($statementArray['id'])) {
+            if ('numberOfAnonymVotes' === $attributeKey && null === $formattedStatement[$attributeKey] && isset($statementArray['id'])) {
                 try {
                     $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
                     if (null !== $statementEntity) {
