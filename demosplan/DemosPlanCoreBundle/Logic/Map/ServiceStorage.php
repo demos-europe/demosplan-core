@@ -265,7 +265,16 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        return $this->service->addGis($gislayer);
+        $result = $this->service->addGis($gislayer);
+
+        // If this is a base layer with default visibility, disable all other base layers
+        if (isset($gislayer['type']) && 'base' === $gislayer['type']
+            && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility']
+            && is_string($procedure)) {
+            $this->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident'] ?? null);
+        }
+
+        return $result;
     }
 
     /**
@@ -489,7 +498,16 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        return $this->handler->updateGis($gislayer);
+        $result = $this->handler->updateGis($gislayer);
+
+        // If this is a base layer with default visibility, disable all other base layers
+        if (isset($gislayer['type']) && 'base' === $gislayer['type']
+            && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility']
+            && !$isGlobalLayer && is_string($procedure)) {
+            $this->disableOtherBaseLayersDefaultVisibility($procedure, $gislayer['id'] ?? null);
+        }
+
+        return $result;
     }
 
     private function isOaf(array $data): bool
@@ -539,6 +557,45 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         return [];
+    }
+
+    /**
+     * Disable default visibility for all base layers except the given one.
+     *
+     * @param string      $procedureId The procedure ID
+     * @param string|null $exceptLayerId The layer ID to exclude from disabling
+     */
+    private function disableOtherBaseLayersDefaultVisibility(string $procedureId, ?string $exceptLayerId): void
+    {
+        try {
+            // Get all layers for this procedure
+            $allLayers = $this->service->getGisAdminList($procedureId);
+            $layerObjects = $this->service->getLayerObjects($allLayers);
+
+            foreach ($layerObjects as $layer) {
+                // Skip if not a base layer, or if it's the layer we're currently saving
+                if (!$layer->isBaseLayer() || $layer->getId() === $exceptLayerId) {
+                    continue;
+                }
+
+                // Skip if already disabled
+                if (!$layer->hasDefaultVisibility()) {
+                    continue;
+                }
+
+                // Disable default visibility for this base layer
+                $this->handler->updateGis([
+                    'id'                => $layer->getId(),
+                    'defaultVisibility' => false,
+                ]);
+            }
+        } catch (Exception $e) {
+            $this->logger->error('Failed to disable other base layers default visibility', [
+                'exception' => $e,
+                'procedureId' => $procedureId,
+                'exceptLayerId' => $exceptLayerId,
+            ]);
+        }
     }
 
     private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
