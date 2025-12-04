@@ -247,6 +247,7 @@ export default {
   data () {
     return {
       isFilterExpanded: false,
+      selectedTags: [],
       searchTerm: '',
       selectedTagIds: [],
       filter: {
@@ -313,10 +314,6 @@ export default {
       'getIsExpandedByCategoryId',
     ]),
 
-    selectedTags () {
-      return this.$refs.filterFlyout?.itemsSelected
-    },
-
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
@@ -357,6 +354,8 @@ export default {
       this.selectedTagIds = Object.values(filter)
         .filter(el => el?.condition?.path === 'tags')
         .map(el => el.condition.value)
+
+      this.selectedTags = [...this.$refs.filterFlyout.itemsSelected]
     },
 
     buildFilterOption (option) {
