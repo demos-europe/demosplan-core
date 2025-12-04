@@ -336,7 +336,7 @@ export default {
     layer () {
       return this.$store.getters['Layers/element']({ id: this.element.id, type: this.element.type })
     },
-//here
+
     hasDefaultVisibility () {
       return this.layer.attributes.hasDefaultVisibility
     },

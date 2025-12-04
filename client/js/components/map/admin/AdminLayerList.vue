@@ -390,9 +390,8 @@ export default {
         layer => layer.attributes.hasDefaultVisibility === true,
       )
 
-      // If more than one base layer is visible on load
+      // If more than one base layer is visible on load, disable all except the one that was just changed
       if (visibleBaseLayers.length > 1) {
-        // Disable all except the one that was just changed
         visibleBaseLayers.forEach(layer => {
           if (layer.id !== changedLayerId) {
             this.setAttributeForLayer({
@@ -403,7 +402,6 @@ export default {
           }
         })
 
-        // Show notification
         dplan.notify.notify('info', Translator.trans('map.baselayer.visibility.single'))
       }
     },
