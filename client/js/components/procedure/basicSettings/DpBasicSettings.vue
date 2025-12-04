@@ -98,6 +98,12 @@ export default {
       default: ''
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -134,7 +140,8 @@ export default {
       selectedProcedureCategories: this.initProcedureCategories,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName
+      procedureName: this.initProcedureName,
+      publicParticipationFeedbackEnabled: this.initPublicParticipationFeedbackEnabled
     }
   },
 
