@@ -37,9 +37,4 @@ const config = {
   }],
 }
 
-if (process.NODE_ENV === 'testing') {
-  // This only enables dynamic imports for testing in js files, vue is configured in jest config
-  config.plugins.push(['dynamic-import-node', { noInterop: true }])
-}
-
 module.exports = config
