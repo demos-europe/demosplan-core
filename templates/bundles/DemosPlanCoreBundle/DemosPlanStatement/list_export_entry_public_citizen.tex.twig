@@ -73,7 +73,8 @@
             {% endif %}
 
             {# publication #}
-            {% if hasPermission('field_statement_public_allowed')%}
+            {% if hasPermission('field_statement_public_allowed')
+                and statement.procedure.publicParticipationPublicationEnabled %}
                 {{ "publish.on.platform"|trans|latex|raw }}: &
                 {% if statement.publicAllowed is defined and statement.publicAllowed == true %}
                     {{ "yes"|trans|latex|raw }}
