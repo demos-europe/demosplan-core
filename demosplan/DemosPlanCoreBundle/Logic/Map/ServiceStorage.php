@@ -562,7 +562,7 @@ class ServiceStorage implements MapServiceStorageInterface
     /**
      * Disable default visibility for all base layers except the given one.
      *
-     * @param string      $procedureId The procedure ID
+     * @param string      $procedureId   The procedure ID
      * @param string|null $exceptLayerId The layer ID to exclude from disabling
      */
     private function disableOtherBaseLayersDefaultVisibility(string $procedureId, ?string $exceptLayerId): void
@@ -591,8 +591,8 @@ class ServiceStorage implements MapServiceStorageInterface
             }
         } catch (Exception $e) {
             $this->logger->error('Failed to disable other base layers default visibility', [
-                'exception' => $e,
-                'procedureId' => $procedureId,
+                'exception'     => $e,
+                'procedureId'   => $procedureId,
                 'exceptLayerId' => $exceptLayerId,
             ]);
         }
