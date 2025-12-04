@@ -617,7 +617,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                 if (null === $formattedStatement[$attributeKey] || '' === $formattedStatement[$attributeKey]) {
                     $formattedStatement[$attributeKey] = 0;
                 }
-                continue; // Skip further processing for numeric fields
+                continue;
             }
 
             // simplify every attribute which is an array (to stirng)
