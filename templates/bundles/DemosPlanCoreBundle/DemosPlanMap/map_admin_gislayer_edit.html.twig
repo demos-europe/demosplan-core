@@ -258,6 +258,13 @@
                 </label>
             {% endif %}
             {% if hasPermission('feature_map_layer_visibility') %}
+                <dp-inline-notification
+                    id="defaultVisibilityHint"
+                    class="u-mb-0_5"
+                    message="{{ 'hint.gislayer.default.visibility'|trans }}"
+                    type="info"
+                    style="display: none;">
+                </dp-inline-notification>
                 <label class="u-mb-0_5">
                     <input
                         data-cy="editMapLayerDefaultVisibility"
