@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+- Add extra Info-WorkSheet to xksx exports by TagFilter
+  Add docx Title to "Teilexport ..." if a TagFilter was applied
 - Add tag-based filtering for segments of Statement exports (DOCX, XLSX, ZIP)
   that filters segments within statements
   by tag ID, tag title, tag topic ID, or tag topic title.
@@ -15,6 +17,7 @@
 - Add similar submitters to the Submitter List
 - Add anonymous voters column to statement XLSX export
 - Add segment text to the boilerplate modal, if the segment and its text is available
+- Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
@@ -38,10 +41,12 @@
 ### Features
 - Add possibility to delete custom fields and their options
 
+## v4.15.3 (2025-12-02)
 ## v4.15.2 (2025-10-24)
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
 - Add html paragraph import from odt files
 
