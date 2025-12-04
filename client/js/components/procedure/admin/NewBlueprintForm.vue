@@ -83,6 +83,7 @@
         />
 
         <dp-input
+          v-if="hasPermission('feature_procedure_agency_email_addresses')"
           :id="agencyMainEmailId"
           v-model="mainEmail"
           class="mt-4"

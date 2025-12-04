@@ -122,19 +122,21 @@
                 >
                 </dp-text-area>
 
-                <dp-input
-                    id="{{ form.agencyMainEmailAddress.vars.id }}"
-                    class="mb-4 flow-root"
-                    :label="{
+                {% if hasPermission('feature_procedure_agency_email_addresses') %}
+                    <dp-input
+                        id="{{ form.agencyMainEmailAddress.vars.id }}"
+                        class="mb-4 flow-root"
+                        :label="{
                         hint: Translator.trans('explanation.organisation.email.procedure.agency'),
                         text: Translator.trans('email.procedure.agency'),
                         tooltip: Translator.trans('email.procedure.agency.help')
                     }"
-                    model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                    name="agencyMainEmailAddress[fullAddress]"
-                    type="email"
-                >
-                </dp-input>
+                        model-value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
+                        name="agencyMainEmailAddress[fullAddress]"
+                        type="email"
+                    >
+                    </dp-input>
+                {% endif %}
 
                 <div class="mb-4 flow-root">
                     <label class="inline-block mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
