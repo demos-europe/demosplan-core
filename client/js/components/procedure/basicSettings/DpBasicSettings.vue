@@ -116,6 +116,12 @@ export default {
       default: '',
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -164,6 +170,7 @@ export default {
       pictogramCopyright: this.initPictogramCopyright,
       procedureDescription: this.procedureExternalDesc,
       procedureName: this.initProcedureName,
+      publicParticipationFeedbackEnabled: this.initPublicParticipationFeedbackEnabled,
       selectedAgencies: this.initAgencies,
       selectedAuthUsers: this.initAuthUsers,
       selectedDataInputOrgas: this.initDataInputOrgas,
