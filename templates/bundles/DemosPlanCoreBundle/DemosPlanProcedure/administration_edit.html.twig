@@ -1030,6 +1030,8 @@
                                         organisationId: '{{ orgaInfo.id }}',
                                         relationshipId: '{{ proceduresettings.id }}',
                                         relationshipKey: 'procedure',
+                                        userOrgaId: '{{ orgaInfo.id }}',
+                                        userMeinBerlinOrgId: '{{ currentUser.meinBerlinOrgId|default('') }}',
                                         existingPictogram:
                                             {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                                 {
@@ -1044,7 +1046,8 @@
                                     }"
                                     class="mb-4"
                                     @blur="updateAddonPayload"
-                                    @change="updateAddonPayload">
+                                    @change="updateAddonPayload"
+                                    @selected="updateAddonPayload">
                                 </addon-wrapper>
                             </div>
 
