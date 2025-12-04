@@ -15,9 +15,9 @@
   No applied tag-filter will still export all statements unchanged
   
 - Add similar submitters to the Submitter List
-- Add anonymous voters column to statement XLSX export
 - Add segment text to the boilerplate modal, if the segment and its text is available
 - Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
+- Add anonymous voters column to statement XLSX export
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
