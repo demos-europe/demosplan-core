@@ -55,11 +55,18 @@ export default () => {
     },
   ]
 
+  // Get references to default visibility elements
+  const defaultVisibilityCheckbox = document.querySelector('input[name="r_default_visibility"]')
+  const defaultVisibilityHint = document.getElementById('defaultVisibilityHint')
+
   // Check if base layer and disable user toggling on load
   if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
     elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue)
     })
+    updateDefaultVisibility(true)
+  } else {
+    updateDefaultVisibility(false)
   }
 
   // Add event listener to handle checkbox change
@@ -91,9 +98,29 @@ export default () => {
     }
   }
 
+  function updateDefaultVisibility (isBaseLayer) {
+    if (defaultVisibilityCheckbox && defaultVisibilityHint) {
+      // Don't show hint or change checkbox if it's disabled (e.g., in visibility group)
+      if (defaultVisibilityCheckbox.disabled) {
+        defaultVisibilityHint.style.display = 'none'
+        return
+      }
+
+      if (isBaseLayer) {
+        defaultVisibilityCheckbox.checked = false
+        defaultVisibilityHint.style.removeProperty('display')
+      } else {
+        defaultVisibilityCheckbox.checked = true
+        defaultVisibilityHint.style.display = 'none'
+      }
+    }
+  }
+
   function handleUserToggle (e) {
     const radioVal = e.target.value
-    if (radioVal === 'base') {
+    const isBaseLayer = radioVal === 'base'
+
+    if (isBaseLayer) {
       elementsHiddenForBaseMap.forEach((element) => {
         disableNode(element.node, element.defaultValue)
       })
@@ -102,6 +129,9 @@ export default () => {
         enableNode(element.node)
       })
     }
+
+    // Update default visibility based on layer type
+    updateDefaultVisibility(isBaseLayer)
   }
 
   // Xplan default layer checkbox handling
