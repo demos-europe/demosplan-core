@@ -460,6 +460,7 @@ fos_elastica:
                 headStatementId: {type: keyword, index: true}
                 isClusterStatement: { type: boolean }
                 votesNum: { type: integer, null_value: 0 }
+                numberOfAnonymVotes: { type: integer, null_value: 0 }
                 voteStk: {type: keyword, index: true}
                 votePla: {type: keyword, index: true}
                 likesNum: { type: integer, null_value: 0 }

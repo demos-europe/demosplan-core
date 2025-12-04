@@ -322,6 +322,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $this->addColumnDefinition($columnsDefinition, 'memo', 'field_statement_memo', 'memo');
         $this->addColumnDefinition($columnsDefinition, 'feedback', 'field_statement_feedback', 'feedback');
         $this->addColumnDefinition($columnsDefinition, 'votesNum', 'feature_statements_vote', 'voters');
+        $this->addColumnDefinition($columnsDefinition, 'numberOfAnonymVotes', 'feature_statements_vote', 'statement.voter.anonym');
         $this->addColumnDefinition($columnsDefinition, 'phase', 'field_statement_phase', 'procedure.public.phase');
         $this->addColumnDefinition($columnsDefinition, 'submitType', 'field_statement_submit_type', 'submit.type');
         $this->addColumnDefinition(
@@ -501,6 +502,26 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     break;
                 default:
                     break;
+            }
+
+            // Fallback for numberOfAnonymVotes: Load from database if missing from Elasticsearch
+            if ($attributeKey === 'numberOfAnonymVotes' && null === $formattedStatement[$attributeKey] && isset($statementArray['id'])) {
+                try {
+                    $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
+                    if (null !== $statementEntity) {
+                        $formattedStatement[$attributeKey] = $statementEntity->getNumberOfAnonymVotes();
+                    }
+                } catch (\Exception $e) {
+                    $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
+                }
+            }
+
+            // Ensure numeric fields show 0 instead of empty/null BEFORE string conversion
+            if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'])) {
+                if (null === $formattedStatement[$attributeKey] || '' === $formattedStatement[$attributeKey]) {
+                    $formattedStatement[$attributeKey] = 0;
+                }
+                continue; // Skip further processing for numeric fields
             }
 
             // simplify every attribute which is an array (to stirng)
