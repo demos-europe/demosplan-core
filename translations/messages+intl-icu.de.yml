@@ -3948,7 +3948,7 @@ warning.deny.move.statement.taken.internId: "Die Stellungnahme kann nicht versch
 warning.deny.move.statement.has.elements: "Die Stellungnahme kann nicht verschoben werden, da sie Planungsdokumentenbezüge hat."
 warning.deny.move.statement.has.paragraphs: "Die Stellungnahme kann nicht verschoben werden, da sie Absatzbezüge hat."
 warning.deny.move.statement.has.document: "Die Stellungnahme kann nicht verschoben werden, da sie Dokmentenbezüge hat."
-warning.disable.feedback.feature: "Hinweis: Wenn diese Option deaktiviert ist, können Sie keine Schlussmitteilungen mehr versenden."
+warning.disable.feedback.feature: "Hinweis: Wenn diese Option für Bürger*innen nicht angezeigt wird, können Sie keine Schlussmitteilungen mehr versenden."
 warning.draftStatement.already.submitted: "Stellungnahme {draftStatementId} wurde bereits eingereicht."
 warning.document.import.toplevel: "Dateien auf oberster Ebene des Archivs können nicht importiert werden. Bitte speichern Sie sie unterhalb eines Ordners"
 warning.addressBookEntry.not.created: "E-Mail-Adressbucheintrag konnte nicht erstellt werden."
