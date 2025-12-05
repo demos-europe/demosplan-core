@@ -35,6 +35,7 @@
             :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0"
           />
           <button
+            v-if="editable"
             class="o-link--default"
             :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
             data-cy="statementMetaAttachments:removeSourceAttachment"
@@ -111,6 +112,7 @@
               :procedure-id="procedureId"
             />
             <button
+              v-if="editable"
               class="o-link--default mt-1"
               :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
               data-cy="statementMetaAttachments:removeGenericAttachment"
