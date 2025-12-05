@@ -1947,6 +1947,7 @@ gislayer: "Kartenebenen"
 gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
 gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
+gislayer.removed.from.visibility.group: 'Wenn Sie Ihre Änderungen speichern, werden die folgenden Kartenebenen aus ihrer Sichtbarkeitsgruppe entfernt: {layers}.'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 go.back.to.personal.data: "Zurück zu Kontaktdaten"
