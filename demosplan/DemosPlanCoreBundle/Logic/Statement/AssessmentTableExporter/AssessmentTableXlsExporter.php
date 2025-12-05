@@ -586,16 +586,13 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $formattedStatement[$attributeKey] = $this->getStatementValue($attributeKey, $statementArray);
             $formattedStatement[$attributeKey] = $this->getAnonymVotesFromDatabase($attributeKey, $formattedStatement[$attributeKey], $statementArray);
+            $formattedStatement[$attributeKey] = $this->ensureNumericFieldHasValue($attributeKey, $formattedStatement[$attributeKey]);
 
-            // Ensure numeric fields show 0 instead of empty/null BEFORE string conversion
-            if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'])) {
-                if (null === $formattedStatement[$attributeKey] || '' === $formattedStatement[$attributeKey]) {
-                    $formattedStatement[$attributeKey] = 0;
-                }
-                continue;
+            if ($this->isNumericField($attributeKey)) {
+                continue; // Skip further formatting for numeric fields
             }
 
-            // simplify every attribute which is an array (to stirng)
+            // simplify every attribute that is an array (to string)
             if (is_array($formattedStatement[$attributeKey])) {
                 $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
             }
@@ -650,7 +647,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         };
     }
 
-    // Load numberOfAnonymVotes from database if missing from Elasticsearch
+    // Load the numberOfAnonymVotes from a database if missing from Elasticsearch
     private function getAnonymVotesFromDatabase(string $attributeKey, mixed $value, array $statementArray): mixed
     {
         if ('numberOfAnonymVotes' !== $attributeKey || null !== $value || !isset($statementArray['id'])) {
@@ -666,6 +663,21 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
         }
 
-        return $value;
+        return null;
+    }
+
+    // Ensure numeric fields have a value (0 instead of null or empty string)
+    private function ensureNumericFieldHasValue(string $attributeKey, mixed $value): mixed
+    {
+        if (!$this->isNumericField($attributeKey)) {
+            return $value;
+        }
+
+        return (null === $value || '' === $value) ? 0 : $value;
+    }
+
+    private function isNumericField(string $attributeKey): bool
+    {
+        return in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true);
     }
 }
