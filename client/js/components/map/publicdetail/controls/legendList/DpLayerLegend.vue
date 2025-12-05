@@ -61,8 +61,8 @@
   </div>
 </template>
 <script>
-import DpLayerLegendItem from './DpLayerLegendItem'
 import { mapGetters, mapState } from 'vuex'
+import DpLayerLegendItem from './DpLayerLegendItem'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -88,10 +88,10 @@ export default {
       default: () => ({})
     },
 
-  procedureId: {
-    type: String,
-    required: true
-  }
+    procedureId: {
+      type: String,
+      required: true
+    }
   },
 
   data () {
