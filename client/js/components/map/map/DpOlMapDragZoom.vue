@@ -38,6 +38,7 @@ export default {
     return {
       active: false,
       name: 'dragzoom',
+      dragZoom: null,
     }
   },
 
@@ -49,13 +50,21 @@ export default {
 
   methods: {
     activateTool () {
+      if (this.dragZoom) {
+        this.map.removeInteraction(this.dragZoom)
+      }
+      this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
       this.map.addInteraction(this.dragZoom)
       this.$emit('tool:activated', true)
       this.active = true
     },
 
     deactivateTool () {
-      this.map.removeInteraction(this.dragZoom)
+      if (this.dragZoom) {
+        this.map.removeInteraction(this.dragZoom)
+        this.dragZoom = null
+      }
+
       this.$emit('tool:activated', false)
       this.active = false
     },
@@ -66,7 +75,7 @@ export default {
   },
 
   mounted () {
-    this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
+    // DragZoom wird erst bei Aktivierung erstellt
   },
 }
 </script>
