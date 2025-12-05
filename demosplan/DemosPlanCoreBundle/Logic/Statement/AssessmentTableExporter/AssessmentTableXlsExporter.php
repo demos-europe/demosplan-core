@@ -585,18 +585,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $formattedStatement[$attributeKey] = $this->getStatementValue($attributeKey, $statementArray);
-
-            // Fallback for numberOfAnonymVotes: Load from database if missing from Elasticsearch
-            if ('numberOfAnonymVotes' === $attributeKey && null === $formattedStatement[$attributeKey] && isset($statementArray['id'])) {
-                try {
-                    $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
-                    if (null !== $statementEntity) {
-                        $formattedStatement[$attributeKey] = $statementEntity->getNumberOfAnonymVotes();
-                    }
-                } catch (\Exception $e) {
-                    $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
-                }
-            }
+            $formattedStatement[$attributeKey] = $this->getAnonymVotesFromDatabase($attributeKey, $formattedStatement[$attributeKey], $statementArray);
 
             // Ensure numeric fields show 0 instead of empty/null BEFORE string conversion
             if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'])) {
@@ -659,5 +648,24 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             3       => $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null,
             default => $statementArray[$attributeKey] ?? null,
         };
+    }
+
+    // Load numberOfAnonymVotes from database if missing from Elasticsearch
+    private function getAnonymVotesFromDatabase(string $attributeKey, mixed $value, array $statementArray): mixed
+    {
+        if ('numberOfAnonymVotes' !== $attributeKey || null !== $value || !isset($statementArray['id'])) {
+            return $value;
+        }
+
+        try {
+            $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
+            if (null !== $statementEntity) {
+                return $statementEntity->getNumberOfAnonymVotes();
+            }
+        } catch (\Exception $e) {
+            $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
+        }
+
+        return $value;
     }
 }
