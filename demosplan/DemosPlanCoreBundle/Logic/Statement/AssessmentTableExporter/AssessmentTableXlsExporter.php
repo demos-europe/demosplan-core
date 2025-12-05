@@ -584,21 +584,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $formattedStatement = [];
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
-
-            // allow dot notation in export definition
-            $explodedParts = explode('.', (string) $attributeKey);
-            switch (count($explodedParts)) {
-                case 2:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                    break;
-                case 3:
-                    $formattedStatement[$attributeKey] =
-                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
-                    break;
-                default:
-                    break;
-            }
+            $formattedStatement[$attributeKey] = $this->getStatementValue($attributeKey, $statementArray);
 
             // Fallback for numberOfAnonymVotes: Load from database if missing from Elasticsearch
             if ('numberOfAnonymVotes' === $attributeKey && null === $formattedStatement[$attributeKey] && isset($statementArray['id'])) {
@@ -661,5 +647,17 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatement;
+    }
+
+    // Get the value from the statement array, including dot notation for nested values
+    private function getStatementValue(string $attributeKey, array $statementArray): mixed
+    {
+        $explodedParts = explode('.', $attributeKey);
+
+        return match (count($explodedParts)) {
+            2 => $statementArray[$explodedParts[0]][$explodedParts[1]] ?? null,
+            3 => $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null,
+            default => $statementArray[$attributeKey] ?? null,
+        };
     }
 }
