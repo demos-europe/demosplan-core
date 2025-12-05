@@ -172,7 +172,6 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
-  DpIcon,
   DpLabel,
   DpUpload,
 } from '@demos-europe/demosplan-ui'
@@ -186,7 +185,6 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
-    DpIcon,
     DpLabel,
     DpUpload,
     StatementMetaAttachmentsLink,
