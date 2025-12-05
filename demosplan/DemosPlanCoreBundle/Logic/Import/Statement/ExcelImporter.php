@@ -205,31 +205,56 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
+        $phaseStart = microtime(true);
         $result = new SegmentExcelImportResult();
 
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
         }
 
+        $step = microtime(true);
         [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
+        $this->logger->info('[ExcelImporter] Worksheets loaded', [
+            'duration_sec' => round(microtime(true) - $step, 2),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
 
+        $step = microtime(true);
         $segmentWorksheetTitle = $this->getTitle($segmentsWorksheet);
         $segments = $this->getGroupedSegmentsFromWorksheet($segmentsWorksheet, $result);
+        $this->logger->info('[ExcelImporter] Segments parsed from worksheet', [
+            'segments_count' => count($segments),
+            'duration_sec' => round(microtime(true) - $step, 2),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
 
         unset($segmentsWorksheet);
+        // PHP's automatic GC will handle memory cleanup - manual gc_collect_cycles() adds overhead
 
         // option for addons to process additional information of import file
+        $step = microtime(true);
         $event = $this->dispatcher->dispatch(
             new ExcelImporterHandleSegmentsEvent($segments),
             ExcelImporterHandleSegmentsEventInterface::class
         );
+        $this->logger->info('[ExcelImporter] Segment event dispatched', [
+            'duration_sec' => round(microtime(true) - $step, 2),
+        ]);
 
         $segments = $event->getSegments();
 
+        $step = microtime(true);
         $miscTopic = $this->findOrCreateMiscTagTopic();
+        $this->logger->info('[ExcelImporter] Misc topic found/created', [
+            'duration_sec' => round(microtime(true) - $step, 2),
+        ]);
 
         $columnNamesMeta = $this->getFirstRowOfWorksheet($metaDataWorksheet);
         $statementWorksheetTitle = $metaDataWorksheet->getTitle() ?? '';
+
+        $step = microtime(true);
+        $processedStatements = 0;
+        $processedSegments = 0;
 
         foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
             $statementIterator = $row->getCellIterator('A', $metaDataWorksheet->getHighestColumn());
@@ -251,6 +276,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $statementId = $statement[self::STATEMENT_ID];
             $correspondingSegments = $segments[$statementId] ?? [];
 
+            // Debug: Log which statement is being processed and how many segments it has
+            if ($processedStatements < 5 || $processedStatements % 10 === 0) {
+                $this->logger->info('[ExcelImporter] Processing statement', [
+                    'statement_id' => $statementId,
+                    'segments_for_this_statement' => count($correspondingSegments),
+                    'processed_count' => $processedStatements,
+                ]);
+            }
+
             $idMatchViolations = $this->validator->validate(
                 $statement,
                 new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
@@ -269,11 +303,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $statement[self::STATEMENT_TEXT] = $text;
 
             $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
-            $generatedStatement = $this->createCopy($generatedOriginalStatement);
+            // Skip flush - let batch processing in XlsxSegmentImport handle it
+            $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
 
             $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
             if (0 === $violations->count()) {
                 $result->addStatement($generatedStatement);
+                $processedStatements++;
             } else {
                 $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
             }
@@ -291,6 +327,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
                     // needs to be persisted to make the PrePersistUniqueInternIdConstraint work
                     $this->entityManager->persist($generatedSegment);
+                    $processedSegments++;
                 } else {
                     $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
                 }
@@ -298,8 +335,45 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 ++$counter;
             }
 
+            // Debug: Log actual segments created for this statement
+            if ($processedStatements < 5 || $processedStatements % 10 === 0) {
+                $this->logger->info('[ExcelImporter] Segments created for statement', [
+                    'statement_id' => $statementId,
+                    'segments_created' => $counter - 1,
+                    'expected_segments' => count($correspondingSegments),
+                ]);
+            }
+
+            // TEMPORARY: Break after 30 statements for Blackfire profiling
+            if (false) {
+                $this->logger->warning('[ExcelImporter] STOPPING AFTER 30 STATEMENTS FOR PROFILING', [
+                    'statements_processed' => $processedStatements,
+                    'segments_processed' => $processedSegments,
+                    'duration_sec' => round(microtime(true) - $step, 2),
+                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                ]);
+                break;
+            }
+
+            // Log progress periodically
+            if ($processedStatements % 100 === 0) {
+                $this->logger->info('[ExcelImporter] Statement processing progress', [
+                    'statements_processed' => $processedStatements,
+                    'segments_processed' => $processedSegments,
+                    'duration_sec' => round(microtime(true) - $step, 2),
+                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                ]);
+            }
+
             unset($segments[$statementId]);
         }
+
+        $this->logger->info('[ExcelImporter] All statements and segments created', [
+            'total_statements' => $processedStatements,
+            'total_segments' => $processedSegments,
+            'duration_sec' => round(microtime(true) - $step, 2),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
 
         // option for addons to gather the persisted ids and core relations of imported segments
         $this->dispatcher->dispatch(
@@ -398,7 +472,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             );
             // no validation of $generatedOriginalStatement?
 
-            $generatedStatement = $this->createCopy($generatedOriginalStatement);
+            // Skip flush - let batch processing in XlsxSegmentImport handle it
+            $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
 
             $constraints = $this->statementValidator->validate(
                 $generatedStatement,
@@ -430,6 +505,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $columnNamesSegments = $this->getFirstRowOfWorksheet($segmentsWorksheet);
         $segmentsWorksheetTitle = $this->getTitle($segmentsWorksheet);
 
+        // Debug: Log column names to identify why tags aren't being imported
+        $this->logger->info('[ExcelImporter] Segments worksheet columns', [
+            'columns' => $columnNamesSegments,
+            'has_schlagworte' => in_array('Schlagworte', $columnNamesSegments, true),
+        ]);
+
         $segments = [];
         foreach ($segmentsWorksheet->getRowIterator(2) as $segmentLine => $row) {
             $segmentIterator = $row->getCellIterator('A', $segmentsWorksheet->getHighestColumn());
@@ -459,6 +540,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             $segments[$statementId][] = $segmentData;
         }
+
+        // Debug: Log segment distribution per statement
+        $segmentDistribution = [];
+        foreach ($segments as $stmtId => $stmtSegments) {
+            $segmentDistribution[$stmtId] = count($stmtSegments);
+        }
+        $this->logger->info('[ExcelImporter] Segment distribution by statement ID', [
+            'total_statements' => count($segments),
+            'distribution' => $segmentDistribution,
+        ]);
 
         return $segments;
     }
@@ -553,7 +644,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setOrderInProcedure($counter);
 
         // Handle Tags
-        if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
+        if (array_key_exists('Schlagworte', $segmentData) && '' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
             $procedureId = $statement->getProcedure()->getId();
             $tagTitlesString = $segmentData['Schlagworte'];
             if (is_numeric($tagTitlesString)) {
@@ -767,17 +858,43 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
+        $tagTitleLower = mb_strtolower($tagTitle);
+
+        // First, search in generatedTags array (tags created during this import) - CASE-INSENSITIVE
+        foreach ($this->generatedTags as $tag) {
+            $topic = $tag->getTopic();
+            if (null !== $topic
+                && $topic->getProcedure()?->getId() === $procedureId
+                && mb_strtolower($tag->getTitle()) === $tagTitleLower) {
+                return $tag;
+            }
+        }
+
+        // If not found, check EntityManager's UnitOfWork for tags that are persisted but not yet flushed - CASE-INSENSITIVE
+        $uow = $this->entityManager->getUnitOfWork();
+        $scheduledInsertions = $uow->getScheduledEntityInsertions();
+
+        foreach ($scheduledInsertions as $entity) {
+            if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
+                $topic = $entity->getTopic();
+                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
+                    return $entity;
+                }
+            }
+        }
+
+        // If still not found, query the database (already case-insensitive due to utf8mb3_unicode_ci collation)
         $titleCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
             $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         );
+        $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
 
-        $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
-        if ([] === $matchingTags) {
-            $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
+        if ([] !== $matchingTags) {
+            return $matchingTags[0];
         }
 
-        return $matchingTags[0] ?? null;
+        return null;
     }
 
     protected function getValidatedStatementText(

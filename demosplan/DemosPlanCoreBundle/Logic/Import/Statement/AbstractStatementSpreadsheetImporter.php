@@ -85,7 +85,10 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
      */
     protected function extractWorksheets(SplFileInfo $workbookFile, int $requiredWorksheets): array
     {
-        $workbook = IOFactory::load($workbookFile->getPathname());
+        // Optimize memory by reading data only (skip formulas, formatting, etc.)
+        $reader = IOFactory::createReaderForFile($workbookFile->getPathname());
+        $reader->setReadDataOnly(true);
+        $workbook = $reader->load($workbookFile->getPathname());
 
         $worksheets = $workbook->getAllSheets();
         Assert::greaterThanEq(count($worksheets), $requiredWorksheets, 'Expected at least %2$s worksheets, only found %s instead.');
@@ -94,15 +97,18 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     }
 
     /**
+     * @param bool $flush Whether to flush the copied statement immediately (default: true for backward compatibility)
+     *
      * @throws CopyException
      * @throws ClusterStatementCopyNotImplementedException
      */
-    public function createCopy(Statement $generatedOriginalStatement): Statement
+    public function createCopy(Statement $generatedOriginalStatement, bool $flush = true): Statement
     {
         return $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles(
             $generatedOriginalStatement,
             false,
-            true
+            true,
+            $flush
         );
     }
 
