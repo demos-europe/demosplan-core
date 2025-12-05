@@ -44,8 +44,8 @@
 
         <template v-if="hasPermission('feature_map_layer_legend_file')">
           <li
-            v-for="(layer, idx) in layersWithLegendFiles"
-            :key="idx"
+            v-for="layer in visibleLayersWithLegendFiles"
+            :key="layer.name"
             :data-layername="layer.name">
             <a
               :class="prefixClass('c-map__group-item block')"
@@ -62,7 +62,7 @@
 </template>
 <script>
 import DpLayerLegendItem from './DpLayerLegendItem'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -75,6 +75,9 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    /**
+     * All layers that have legend files, both layers that are visible on initial load and layers that aren't
+     */
     layersWithLegendFiles: {
       type: Array,
       default: () => []
@@ -99,8 +102,37 @@ export default {
 
   computed: {
     ...mapGetters('layers', {
-      legends: 'elementListForLegendSidebar'
+      legends: 'elementListForLegendSidebar',
+      isLayerVisible: 'isLayerVisible'
     }),
+
+    ...mapState('layers', {
+      apiData: 'apiData'
+    }),
+
+    /**
+     * Show legends for currently visible layers that have legend files
+     */
+    visibleLayersWithLegendFiles () {
+      // Get all GisLayers from store
+      const allLayers = this.apiData?.included?.filter(
+        item => item.type === 'GisLayer'
+      ) || []
+
+      // Filter to visible layers that have legend files
+      return allLayers
+        .filter(layer => {
+          const layerId = layer.id.replaceAll('-', '')
+
+          return this.isLayerVisible(layerId)
+        })
+        .map(layer => {
+          return this.layersWithLegendFiles.find(
+            legendFile => legendFile.name === layer.attributes.name
+          )
+        })
+        .filter(legendFile => legendFile !== undefined)
+    },
 
     planPdfTitle () {
       let fileInfo = ''
