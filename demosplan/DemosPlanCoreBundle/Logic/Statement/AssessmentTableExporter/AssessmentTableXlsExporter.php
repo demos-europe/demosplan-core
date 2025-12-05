@@ -655,8 +655,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $explodedParts = explode('.', $attributeKey);
 
         return match (count($explodedParts)) {
-            2 => $statementArray[$explodedParts[0]][$explodedParts[1]] ?? null,
-            3 => $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null,
+            2       => $statementArray[$explodedParts[0]][$explodedParts[1]] ?? null,
+            3       => $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null,
             default => $statementArray[$attributeKey] ?? null,
         };
     }
