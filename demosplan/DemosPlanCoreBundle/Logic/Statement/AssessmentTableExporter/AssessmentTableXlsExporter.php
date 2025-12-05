@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use League\HTMLToMarkdown\HtmlConverter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;

@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -109,7 +110,7 @@ class StatementFormatter
             if (null !== $statementEntity) {
                 return $statementEntity->getNumberOfAnonymVotes();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
         }
 
