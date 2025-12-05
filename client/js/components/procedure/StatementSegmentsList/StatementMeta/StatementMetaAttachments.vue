@@ -34,20 +34,20 @@
             :procedure-id="procedureId"
             :tabindex="isSourceAttachmentMarkedForDeletion ? -1 : 0"
           />
-          <button
+          <dp-button
             v-if="editable"
-            class="o-link--default"
-            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            class="o-link--default ml-1"
             data-cy="statementMetaAttachments:removeSourceAttachment"
-            :disabled="isSourceAttachmentMarkedForDeletion"
+            hide-text
+            icon="delete"
+            icon-size="medium"
             type="button"
+            variant="subtle"
+            :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            :disabled="isSourceAttachmentMarkedForDeletion"
+            :text="Translator.trans('delete')"
             @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()"
-          >
-            <dp-icon
-              class="ml-2"
-              icon="delete"
-            />
-          </button>
+          />
         </div>
 
         <p
@@ -111,20 +111,20 @@
               :class="{ 'line-through text-muted pointer-events-none': genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) }"
               :procedure-id="procedureId"
             />
-            <button
+            <dp-button
               v-if="editable"
-              class="o-link--default mt-1"
-              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              class="o-link--default ml-1"
               data-cy="statementMetaAttachments:removeGenericAttachment"
-              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              hide-text
+              icon="delete"
+              icon-size="medium"
               type="button"
+              variant="subtle"
+              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
+              :text="Translator.trans('delete')"
               @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)"
-            >
-              <dp-icon
-                class="ml-2"
-                icon="delete"
-              />
-            </button>
+            />
           </li>
         </ul>
         <p
@@ -170,6 +170,7 @@
 <script>
 import {
   dpApi,
+  DpButton,
   DpButtonRow,
   DpIcon,
   DpLabel,
@@ -183,6 +184,7 @@ export default {
   name: 'StatementMetaAttachments',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpIcon,
     DpLabel,
