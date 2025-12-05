@@ -334,7 +334,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     if (!$publicAgencyUser instanceof User) {
                         $getUserContext = [
                             'foundUser' => $publicAgencyUser,
-                            'userData' => $this->data['user']
+                            'userData'  => $this->data['user'],
                         ];
                         $this->logger->info('Could not find user with data', $getUserContext);
                         $this->logger->info('User does not exist create with roles', ['roles' => $toebRoles]);
@@ -346,7 +346,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $masterToebEntries = [];
                     foreach ($unknownRoles as $unknownRole) {
                         if (null != ($masterToeb = $this->masterToebService->getMasterToebByGroupName($unknownRole))) {
-                            $masterToebEntries = array_merge($masterToebEntries, $masterToeb);
+                            $masterToebEntries[] = $masterToeb;
                         }
                     }
                     // Wenn mehr als ein Eintrag existiert muss geprüft werden welcher der richtige ist.
