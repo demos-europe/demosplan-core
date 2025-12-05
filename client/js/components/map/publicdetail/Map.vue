@@ -444,6 +444,7 @@ export default {
         })
 
         if (typeof firstToggleableLayer !== 'undefined') {
+          this.setLayerSource(firstToggleableLayer)
           firstToggleableLayer.setVisible(true)
         } else {
           console.warn('There is no published baseLayer, please go to the admin area and set a baseLayer as "published"')
