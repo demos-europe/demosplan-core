@@ -10,6 +10,7 @@
 <template>
   <!-- everything within this container will be displayed in the fullscreen mode -->
   <div
+    ref="mastertoebContainer"
     class="c-mastertoeb bg-color--white"
     :class="{'is-fullscreen': isFullscreen}"
   >
@@ -201,11 +202,14 @@
 
       <!-- Pager & "Items per page" control -->
       <div class="u-mv-0_5 text-right">
-        <sliding-pagination
+        <dp-pager
           v-if="totalPages > 1"
           class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
-          :current="currentPage"
-          :total="totalPages"
+          :current-page="currentPage"
+          :limits="itemsPerPageOptions"
+          :per-page="itemsPerPage"
+          :total-items="rowItems.length"
+          :total-pages="totalPages"
           @page-change="handlePageChange"
         />
         <dp-select-page-item-count
@@ -226,6 +230,7 @@ import {
   dataTableSearch,
   dpApi,
   DpDataTable,
+  DpPager,
   DpSelectPageItemCount,
   DpStickyElement,
   isActiveFullScreen,
@@ -239,7 +244,6 @@ import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'
 import DpNewMasterToeb from './DpMasterToebList/DpNewMasterToeb'
 import DpUpdateMastertoeb from './DpMasterToebList/DpUpdateMastertoeb'
 import Scroller from '@DpJs/directives/scroller'
-import SlidingPagination from 'vue-sliding-pagination'
 
 const setupCellUpdate = (originalValue, id, field, isBoolToString) => (e) => {
   let newValue = e.target.value
@@ -272,6 +276,7 @@ export default {
 
   components: {
     DpDataTable,
+    DpPager,
     DpDeleteMasterToeb,
     DpFilterMasterToeb,
     DpInviteMasterToeb,
@@ -279,7 +284,6 @@ export default {
     DpSelectPageItemCount,
     DpStickyElement,
     DpUpdateMastertoeb,
-    SlidingPagination,
   },
 
   props: {
@@ -414,7 +418,7 @@ export default {
     },
 
     fullscreen () {
-      toggleFullscreen(this.$el)
+      toggleFullscreen(this.$refs.mastertoebContainer)
     },
 
     generateItemMap (items) {
