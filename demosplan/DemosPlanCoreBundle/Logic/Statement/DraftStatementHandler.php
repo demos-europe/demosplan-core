@@ -390,9 +390,7 @@ class DraftStatementHandler extends CoreHandler
 
         $statement = $this->addStatementUserData($statement);
 
-        if ($this->currentUser->hasPermission('feature_draft_statement_add_address_to_institutions')) {
-            $statement = $this->addUserAddressData($statement);
-        }
+        $statement = $this->addUserAddressData($statement);
 
         return $this->draftStatementService->addDraftStatement($statement);
     }
