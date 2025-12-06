@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
-      content-body-classes="flex flex-col h-[95%]"
+      content-body-classes="flex flex-col h-14"
     >
       <h2 class="mb-5">
         {{ exportModalTitle }}
@@ -30,7 +30,7 @@
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
+        <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
@@ -106,7 +106,7 @@
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')"
         />
-        <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
+        <div class="grid grid-cols-5 gap-3 mt-1 mb-3">
           <dp-input
             v-for="(column, key) in docxColumns"
             :id="key"
@@ -145,6 +145,42 @@
         </fieldset>
       </fieldset>
 
+      <fieldset>
+        <legend
+          id="tagsFilter"
+          class="o-form__label text-base mb-1"
+          v-text="'Nur Abschnitte mit folgenden Schlagworten'"
+        />
+        <filter-flyout
+          ref="filterFlyout"
+          :key="`filter_${filter.labelTranslationKey}`"
+          :additional-query-params="{ searchPhrase: searchTerm }"
+          :category="{
+            id: `${filter.labelTranslationKey}`,
+            label: Translator.trans('search.list')
+          }"
+          appearance="basic"
+          flyout-align="top"
+          flyout-position="relative"
+          :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
+          :operator="filter.comparisonOperator"
+          :path="filter.rootPath"
+          :show-count="{
+            groupedOptions: true,
+            ungroupedOptions: true
+          }"
+          @update:expanded="(value) => isFilterExpanded = value"
+          @filter-apply="getFilterValues"
+          @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
+        />
+
+        <ul v-if="!isFilterExpanded">
+          <li v-for="(tag, idx) in selectedTags">
+            <span>{{ tag.label }}</span>
+          </li>
+        </ul>
+      </fieldset>
+
       <dp-button-row
         class="text-right mt-auto"
         data-cy="exportModal"
@@ -168,13 +204,18 @@ import {
   DpInput,
   DpModal,
   DpRadio,
-  sessionStorageMixin,
+  dpRpc,
+  hasOwnProp,
+  sessionStorageMixin
 } from '@demos-europe/demosplan-ui'
+import FilterFlyout from '../procedure/SegmentsList/FilterFlyout.vue'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'StatementExportModal',
 
   components: {
+    FilterFlyout,
     DpButton,
     DpButtonRow,
     DpCheckbox,
@@ -192,6 +233,11 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    procedureId: {
+      required: true,
+      type: String,
+    },
   },
 
   emits: [
@@ -200,6 +246,20 @@ export default {
 
   data () {
     return {
+      isFilterExpanded: false,
+      selectedTags: [],
+      searchTerm: '',
+      selectedTagIds: [],
+      filter: {
+        comparisonOperator: "ARRAY_CONTAINS_VALUE",
+        grouping: {
+          labelTranslationKey: 'topic',
+          targetPath: 'tags.topic.label'
+        },
+        labelTranslationKey: 'tags',
+        rootPath: 'tags',
+        selected: false
+      },
       active: 'docx_normal',
       docxColumns: {
         col1: {
@@ -250,6 +310,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', [
+      'getIsExpandedByCategoryId',
+    ]),
+
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
@@ -279,7 +343,207 @@ export default {
   },
 
   methods: {
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    getFilterValues (filter) {
+      this.selectedTagIds = Object.values(filter)
+        .filter(el => el?.condition?.path === 'tags')
+        .map(el => el.condition.value)
+
+      this.selectedTags = [...this.$refs.filterFlyout.itemsSelected]
+    },
+
+    buildFilterOption (option) {
+      if (!option) {
+        return null
+      }
+
+      const { attributes, id } = option
+      const { count, description, label, selected } = attributes
+
+      return { id, count, description, label, selected }
+    },
+
+    getGroupedOptions (resource, filter, result) {
+      const isGroup = resource.type === 'AggregationFilterGroup'
+      const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+      const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
+
+      if (isGroup && groupBelongsToFilterType) {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
+
+        const filterOptions = filterOptionsIds
+          .map(id => this.buildFilterOption(result.included.find(item => item.id === id)))
+          .filter(Boolean)
+
+        if (filterOptions.length === 0) {
+          return null
+        }
+
+        const { id, attributes } = resource
+        const { label } = attributes
+
+        return {
+          id,
+          label,
+          options: filterOptions,
+        }
+      }
+    },
+
+    getUngroupedOptions (resource, filter) {
+      const isFilterItem = resource.type === 'AggregationFilterItem'
+      const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+      const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
+
+      if (isFilterItem && filterOptionBelongsToFilterType) {
+        const option = this.buildFilterOption(resource)
+
+        if (!option) {
+          return null
+        }
+
+        return {
+          ...option,
+          ungrouped: true,
+        }
+      }
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    sendFilterOptionsRequest (params) {
+      const {
+        additionalQueryParams,
+        category,
+        filter,
+        isInitialWithQuery,
+        path,
+        currentQuery,
+      } = params
+
+      if (currentQuery && currentQuery.length > 0) {
+        return
+      }
+
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        path,
+      }
+
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
+      }
+
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(({ data }) => {
+          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
+          if (!result) {
+            return
+          }
+
+          const filter = result.data.find(type => type.attributes.path === path)
+          if (!filter) {
+            return
+          }
+
+          const groupedOptions = []
+          const ungroupedOptions = []
+
+          result.included?.forEach(resource => {
+            const group = this.getGroupedOptions(resource, filter, result)
+            if (group) {
+              groupedOptions.push(group)
+            }
+
+            const item = this.getUngroupedOptions(resource, filter)
+            if (item) {
+              ungroupedOptions.push(item)
+            }
+          })
+
+          // Needs to be added to ungroupedOptions
+          if (result.data[0].attributes.path === 'assignee') {
+            ungroupedOptions.push({
+              id: 'unassigned',
+              count: result.data[0].attributes.missingResourcesSum,
+              label: Translator.trans('not.assigned'),
+              ungrouped: true,
+              selected: result.meta.unassigned_selected,
+            })
+          }
+
+          if (isInitialWithQuery && this.queryIds.length > 0) {
+            const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+            const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+              const item = allOptions.find(item => item.id === queryId)
+              return item ? item.id : null
+            })
+
+            this.setInitialFlyoutFilterIds({
+              categoryId: category.id,
+              filterIds: currentFlyoutFilterIds,
+            })
+          }
+
+          this.setGroupedFilterOptions({
+            categoryId: category.id,
+            groupedOptions,
+          })
+
+          this.setUngroupedFilterOptions({
+            categoryId: category.id,
+            options: ungroupedOptions,
+          })
+
+          this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+
+          if (this.getIsExpandedByCategoryId(category.id)) {
+            document.getElementById(`searchField_${path}`).focus()
+          }
+
+          this.$nextTick(() => {
+            this.scrollModalToBottom()
+          })
+      })
+    },
+
+    scrollModalToBottom () {
+      const modal = this.$refs.exportModalInner.$el.querySelector('.o-modal__body')
+
+      modal.scrollTo({
+        top: modal.scrollHeight,
+        behavior: "smooth"
+      })
+    },
+
     closeModal () {
+      this.selectedTagIds = []
+      this.$refs.filterFlyout.reset()
       this.$refs.exportModalInner.toggle()
     },
 
@@ -308,6 +572,7 @@ export default {
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
         isObscured: this.isObscure,
+        tagFilterIds: this.selectedTagIds
       })
       this.closeModal()
     },

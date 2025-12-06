@@ -11,6 +11,7 @@
  * This is the entrypoint for list_statements.html.twig
  */
 
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
@@ -21,4 +22,8 @@ const components = {
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 
-initialize(components, {}, apiStores)
+const stores = {
+  FilterFlyout: FilterFlyoutStore,
+}
+
+initialize(components, stores, apiStores)
