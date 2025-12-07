@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\ImportJobProcessor;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -119,6 +120,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         private readonly ElementsService $elementService,
         EventDispatcherInterface $eventDispatcher,
         GlobalConfigInterface $globalConfig,
+        private readonly ImportJobProcessor $importJobProcessor,
         LocationService $locationService,
         LoggerInterface $dplanMaintenanceLogger,
         MailService $mailService,
@@ -197,6 +199,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
             // the procedure switch instead of the ones before the category change.
             $this->switchStatesOfElementsUntilNow($output);
             $this->switchPhasesOfProceduresUntilNow($output);
+            $this->processImportJobs($output);
 
             // prevent memoryleaks @see https://github.com/mac-cain13/daemonizable-command#how-to-prevent-leaks
             foreach ($this->logger->getHandlers() as $handler) {
@@ -499,6 +502,27 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
 
         if ($affectedElements > 0) {
             $output->writeln("Switched states of $affectedElements elements.");
+        }
+    }
+
+    /**
+     * Process pending import jobs.
+     */
+    protected function processImportJobs(OutputInterface $output): void
+    {
+        $output->write('Processing import jobs... ');
+        $this->logger->info('processImportJobs');
+
+        try {
+            $jobsProcessed = $this->importJobProcessor->processPendingJobs();
+
+            if ($jobsProcessed > 0) {
+                $output->writeln('Import jobs processed: '.$jobsProcessed);
+            }
+
+            $this->logger->info('Import jobs processed: '.$jobsProcessed);
+        } catch (Exception $e) {
+            $this->logger->error('Process import jobs failed', [$e]);
         }
     }
 }

@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
@@ -118,6 +119,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private array $excelIdToStatementMapping = [];
 
+    /**
+     * Cache for the first workflow place to avoid repeated database queries
+     * during segment import (same place is used for all segments).
+     *
+     * @var array<string, Place|null> Keyed by procedure ID
+     */
+    private array $firstWorkflowPlaceCache = [];
+
     public function __construct(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -171,6 +180,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $this->generatedStatements = [];
         $this->errors = [];
         $this->excelIdToStatementMapping = [];
+        $this->firstWorkflowPlaceCache = [];
         $worksheets = $this->extractWorksheets($workbook, 1);
         // get the worksheet in the correct order - sheets including statements have to be processed first
         $worksheets = $this->sortWorkSheets($worksheets);
@@ -634,9 +644,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
 
-        $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
+        // Use cached workflow place to avoid repeated database queries
+        $procedureId = $procedure->getId();
+        if (!isset($this->firstWorkflowPlaceCache[$procedureId])) {
+            $this->firstWorkflowPlaceCache[$procedureId] = $this->placeService->findFirstOrderedBySortIndex($procedureId);
+        }
+
+        $place = $this->firstWorkflowPlaceCache[$procedureId];
         if (null === $place) {
-            throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedure->getId());
+            throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedureId);
         }
 
         $segment->setPlace($place);

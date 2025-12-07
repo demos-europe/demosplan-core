@@ -62,6 +62,11 @@ class XlsxSegmentImport
      */
     private array $statementsForReports = [];
 
+    /**
+     * @var callable|null Optional progress callback for tracking import progress
+     */
+    private $progressCallback = null;
+
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly EntityManagerInterface $entityManager,
@@ -76,6 +81,15 @@ class XlsxSegmentImport
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
     ) {
+    }
+
+    /**
+     * Set a progress callback for tracking import progress.
+     * The callback receives ($processedCount, $totalCount) as parameters.
+     */
+    public function setProgressCallback(?callable $callback): void
+    {
+        $this->progressCallback = $callback;
     }
 
     /**
@@ -309,6 +323,11 @@ class XlsxSegmentImport
                 $batchNumber++;
                 $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
 
+                // Call progress callback if set
+                if (null !== $this->progressCallback) {
+                    call_user_func($this->progressCallback, $processedStatements, $totalStatements);
+                }
+
                 // Dispatch events AFTER flush to ensure addons can query statements from database
                 foreach ($statementBatch as $flushedStatement) {
                     // Defer report generation - collect statement data for batch processing after commit
@@ -336,6 +355,11 @@ class XlsxSegmentImport
         if (!empty($statementBatch)) {
             $batchNumber++;
             $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
+
+            // Call progress callback if set
+            if (null !== $this->progressCallback) {
+                call_user_func($this->progressCallback, $processedStatements, $totalStatements);
+            }
 
             // Dispatch events AFTER flush for remaining statements (addon safety)
             foreach ($statementBatch as $flushedStatement) {
