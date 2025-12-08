@@ -300,6 +300,8 @@ export default {
     ]),
 
     ...mapGetters('Layers', [
+      'element',
+      'elementsListByAttribute',
       'gisLayerList',
       'elementListForLayerSidebar',
       'minimapLayer',
@@ -383,31 +385,23 @@ export default {
       'updateState',
     ]),
 
-    updateChildren (ev) {
-      this.setChildrenFromCategory({
-        newCategoryId: ev.to.id,
-        oldCategoryId: ev.from.id,
-        movedElement: {
-          id: ev.item.id,
-          newIndex: ev.newIndex,
-          oldIndex: ev.oldIndex,
-        },
-        orderType: this.currentTab,
-        parentOrder: this.parentOrderPosition,
+    /**
+     * Dissolves a visibility group if it has only 1 member remaining
+     *
+     * @param {string} groupId - The visibility group ID to check
+     */
+    cleanUpOrphanedVisibilityGroup (groupId) {
+      const remainingMembers = this.elementsListByAttribute({
+        type: 'visibilityGroupId',
+        value: groupId,
       })
 
-      // If there is just one order (map) -then the treeorder should match the map-order
-      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
-        this.setChildrenFromCategory({
-          newCategoryId: ev.to.id,
-          oldCategoryId: ev.from.id,
-          movedElement: {
-            id: ev.item.id,
-            newIndex: ev.newIndex,
-            oldIndex: ev.oldIndex,
-          },
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition,
+      // If only 1 member left, dissolve the group
+      if (remainingMembers.length === 1) {
+        this.setAttributeForLayer({
+          id: remainingMembers[0].id,
+          attribute: 'visibilityGroupId',
+          value: null,
         })
       }
     },
@@ -435,6 +429,114 @@ export default {
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
+    },
+
+    /**
+     * Synchronizes all children of a category that appears as a layer
+     * Recursively updates hasDefaultVisibility and clears visibilityGroupId
+     *
+     * @param {string} categoryId - ID of the parent category
+     * @returns {Object} Object with ungroupedLayers array and affectedGroupIds Set
+     */
+    syncChildrenOfCategoryThatAppearsAsLayer (categoryId) {
+      const category = this.element({
+        id: categoryId,
+        type: 'GisLayerCategory',
+      })
+
+      if (!category) {
+        return { ungroupedLayers: [], affectedGroupIds: new Set() }
+      }
+
+      const children = this.elementListForLayerSidebar(categoryId, 'overlay', true)
+      const ungroupedLayers = []
+      const affectedGroupIds = new Set()
+
+      children.forEach((child) => {
+        // Match parent's default visibility
+        this.setAttributeForLayer({
+          id: child.id,
+          attribute: 'hasDefaultVisibility',
+          value: category.attributes.hasDefaultVisibility,
+        })
+
+        // Clear visibility group for child layers
+        if (child.type === 'GisLayer') {
+          // Track layers that were in a visibility group
+          if (child.attributes.visibilityGroupId) {
+            ungroupedLayers.push(child)
+            affectedGroupIds.add(child.attributes.visibilityGroupId)
+          }
+
+          this.setAttributeForLayer({
+            id: child.id,
+            attribute: 'visibilityGroupId',
+            value: null,
+          })
+        }
+
+        // If child is also a category, recursively sync its children
+        if (child.type === 'GisLayerCategory') {
+          const nestedResult = this.syncChildrenOfCategoryThatAppearsAsLayer(child.id)
+          ungroupedLayers.push(...nestedResult.ungroupedLayers)
+          nestedResult.affectedGroupIds.forEach(groupId => affectedGroupIds.add(groupId))
+        }
+      })
+
+      return { ungroupedLayers, affectedGroupIds }
+    },
+
+    updateChildren (ev) {
+      this.setChildrenFromCategory({
+        newCategoryId: ev.to.id,
+        oldCategoryId: ev.from.id,
+        movedElement: {
+          id: ev.item.id,
+          newIndex: ev.newIndex,
+          oldIndex: ev.oldIndex,
+        },
+        orderType: this.currentTab,
+        parentOrder: this.parentOrderPosition,
+      })
+
+      // If there is just one order (map) -then the treeorder should match the map-order
+      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
+        this.setChildrenFromCategory({
+          newCategoryId: ev.to.id,
+          oldCategoryId: ev.from.id,
+          movedElement: {
+            id: ev.item.id,
+            newIndex: ev.newIndex,
+            oldIndex: ev.oldIndex,
+          },
+          orderType: 'treeOrder',
+          parentOrder: this.parentOrderPosition,
+        })
+      }
+
+      // If dropped into a category that hides children, sync all its children
+      const newCategory = this.element({
+        id: ev.to.id,
+        type: 'GisLayerCategory',
+      })
+
+      if (newCategory && newCategory.attributes.layerWithChildrenHidden) {
+        this.$nextTick(() => {
+          const { ungroupedLayers, affectedGroupIds } = this.syncChildrenOfCategoryThatAppearsAsLayer(ev.to.id)
+
+          // Clean up orphaned visibility groups (groups with only 1 member left)
+          affectedGroupIds.forEach(groupId => {
+            this.cleanUpOrphanedVisibilityGroup(groupId)
+          })
+
+          // Notify user if any layers were removed from visibility groups
+          if (ungroupedLayers.length > 0) {
+            const layerNames = ungroupedLayers.map(layer => layer.attributes.name).join(', ')
+
+            dplan.notify.notify('warning', Translator.trans('gislayer.removed.from.visibility.group', { layers: layerNames }))
+          }
+        })
+      }
     },
   },
 
