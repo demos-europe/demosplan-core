@@ -81,9 +81,10 @@ class FacetFactory
         Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $groupsLoadConditions = $facetDefinition->getGroupsLoadConditions();
+        $groupsSortMethods = $facetDefinition->getGroupsSortMethods();
 
         // load the groups to be shown in the facet
-        $groups = collect($resourceType->getEntities($groupsLoadConditions, []));
+        $groups = collect($resourceType->getEntities($groupsLoadConditions, $groupsSortMethods));
 
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
