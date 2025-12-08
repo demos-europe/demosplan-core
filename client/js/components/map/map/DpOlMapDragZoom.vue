@@ -37,8 +37,8 @@ export default {
   data () {
     return {
       active: false,
-      name: 'dragzoom',
       dragZoom: null,
+      name: 'dragzoom',
     }
   },
 
