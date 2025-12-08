@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTablePdfExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableZipExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -49,8 +50,8 @@ class StatementExportTest extends FunctionalTestCase
     private $statement;
     private $permissions;
     private $editorService;
-
     private $assessmentTableXlsExporter;
+    private $statementFormatter;
 
     public function setUp(): void
     {
@@ -88,8 +89,8 @@ class StatementExportTest extends FunctionalTestCase
         /** @var Environment $twig */
         $twig = $this->getContainer()->get(Environment::class);
         $this->editorService = $this->getContainer()->get(EditorService::class);
-        /** @var FormOptionsResolver $formOptionsResolver */
-        $formOptionsResolver = $this->getContainer()->get(FormOptionsResolver::class);
+        /** @var StatementFormatter $statementFormatter */
+        $statementFormatter = $this->getContainer()->get(StatementFormatter::class);
         $this->permissions = $this->getContainer()->get(PermissionsInterface::class);
         /** @var ServiceImporter $serviceImporter */
         $serviceImporter = $this->getContainer()->get(ServiceImporter::class);
@@ -107,13 +108,13 @@ class StatementExportTest extends FunctionalTestCase
             $documentWriterSelector,
             $this->editorService,
             $twig,
-            $formOptionsResolver,
             $loggerInterface,
             $this->permissions,
             $requestStack,
             $serviceImporter,
             $simpleSpreadsheetService,
             $statementHandler,
+            $statementFormatter,
             $translatorInterface
         );
         $this->sut = new AssessmentTableZipExporter(
