@@ -154,38 +154,89 @@ class ImportJobProcessor
         );
 
         // Set progress callback (updates every 300 statements per batch)
+        // Note: Job progress is automatically flushed by the next batch flush in persistStatementsInBatches()
+        // The callback runs AFTER each batch flush, so the updated progress is flushed with the NEXT batch
+        // This provides UI updates every ~10-30 seconds without causing race conditions with batch flushing
         $this->xlsxSegmentImport->setProgressCallback(function($processed, $total) use ($job) {
             $job->updateProgress($processed, $total);
-
-            // Flush every 3000 statements to reduce DB overhead by 90%
-            if ($processed % 3000 === 0) {
-                $this->entityManager->flush();
-            }
         });
 
         // Execute import (reuse existing optimized code)
         $result = $this->xlsxSegmentImport->importFromFile($fileInfo);
 
         if ($result->hasErrors()) {
+            // Rollback transaction before saving error (prevents nested transaction issues)
+            if ($this->entityManager->getConnection()->isTransactionActive()) {
+                $this->entityManager->rollback();
+            }
+
+            // Clear EntityManager to detach all rolled-back entities
+            // Without this, Doctrine tries to persist orphaned StatementMeta records
+            // that reference non-existent statements, causing foreign key violations
+            $this->entityManager->clear();
+
+            // Re-fetch the ImportJob entity after clear (it was detached)
+            $job = $this->importJobRepository->find($job->getId());
+            if (null === $job) {
+                throw new Exception('Import job not found after rollback');
+            }
+
+            // Start new transaction to save error status
+            $this->entityManager->beginTransaction();
+
             $errors = $result->getErrorsAsArray();
+            $errorCount = count($errors);
 
             $this->logger->error('Import job failed with validation errors', [
                 'jobId' => $job->getId(),
-                'errors' => $errors,
+                'errorCount' => $errorCount,
             ]);
 
-            // Format errors in human-readable format
-            $errorMessages = [];
-            foreach ($errors as $error) {
+            // Create concise error summary for display (TEXT column has 65KB limit)
+            $showErrors = 40;
+            $errorSummary = sprintf(
+                "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
+                $errorCount,
+                min($showErrors, $errorCount)
+            );
+
+            // Add first errors to summary
+            $firstErrors = array_slice($errors, 0, $showErrors);
+            foreach ($firstErrors as $error) {
                 $worksheet = $error['currentWorksheet'] ?? 'Unknown';
                 $lineNumber = $error['lineNumber'] ?? '?';
                 $message = $error['message'] ?? 'Unknown error';
-                $errorMessages[] = "Arbeitsblatt \"{$worksheet}\", Zeile {$lineNumber}: {$message}";
+                $errorSummary .= sprintf("• Arbeitsblatt \"%s\", Zeile %s: %s\n", $worksheet, $lineNumber, $message);
             }
-            $errorMessage = "Validierungsfehler in der Import-Datei:\n\n" . implode("\n", $errorMessages);
 
-            // Throw exception to trigger proper error handling with transaction rollback
-            throw new Exception($errorMessage);
+            if ($errorCount > $showErrors) {
+                $errorSummary .= sprintf("\n... und %d weitere Fehler", $errorCount - $showErrors
+                );
+            }
+
+            // Store full error details in result field (JSON can handle large data)
+            $job->setResult([
+                'validationErrors' => $errors,
+                'errorCount' => $errorCount,
+            ]);
+
+            // Mark as failed with summary (prevents TEXT column overflow)
+            $job->markAsFailed($errorSummary);
+            $this->entityManager->flush();
+            $this->entityManager->commit();  // Commit the error status to database
+
+            // Cleanup uploaded file
+            try {
+                $this->fileService->deleteLocalFile($job->getFilePath());
+            } catch (Exception $e) {
+                $this->logger->warning('Failed to cleanup import file after validation errors', [
+                    'jobId' => $job->getId(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            // Return early - error has been saved, no further processing needed
+            return;
         }
 
         // Mark as completed with results

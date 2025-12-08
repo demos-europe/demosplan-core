@@ -178,6 +178,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     public function process(SplFileInfo $workbook): void
     {
         $this->generatedStatements = [];
+        $this->generatedTags = [];
         $this->errors = [];
         $this->excelIdToStatementMapping = [];
         $this->firstWorkflowPlaceCache = [];
@@ -213,13 +214,28 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws UserNotFoundException
      * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
-    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
+    public function processSegments(SplFileInfo $fileInfo, bool $skipValidation = false): SegmentExcelImportResult
     {
         $phaseStart = microtime(true);
         $result = new SegmentExcelImportResult();
 
+        // Clear ALL entity caches at start of each import job
+        // Caches can contain detached entities from previous jobs if:
+        // 1. Previous job failed and EntityManager.clear() was called
+        // 2. EntityManager was cleared for any other reason
+        // Without this, segments reference detached entities causing cascade persist errors
+        $this->firstWorkflowPlaceCache = [];
+        $this->generatedTags = [];
+        $this->generatedStatements = [];
+        $this->errors = [];
+        $this->excelIdToStatementMapping = [];
+
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
+        }
+
+        if ($skipValidation) {
+            $this->logger->info('[ExcelImporter] Pass 2: Validation skipped (already done in Pass 1)');
         }
 
         $step = microtime(true);
@@ -277,10 +293,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $statement = \array_combine($columnNamesMeta, $statement);
             $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
 
-            $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
-            if (0 !== $idConstraints->count()) {
-                $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
-                $statement[self::STATEMENT_ID] = 0;
+            // Pass 1 only: Validate statement ID
+            if (!$skipValidation) {
+                $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
+                if (0 !== $idConstraints->count()) {
+                    $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
+                    $statement[self::STATEMENT_ID] = 0;
+                }
             }
 
             $statementId = $statement[self::STATEMENT_ID];
@@ -295,12 +314,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 ]);
             }
 
-            $idMatchViolations = $this->validator->validate(
-                $statement,
-                new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
-            );
-            if (0 !== $idMatchViolations->count()) {
-                $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
+            // Pass 1 only: Validate matching field values
+            if (!$skipValidation) {
+                $idMatchViolations = $this->validator->validate(
+                    $statement,
+                    new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
+                );
+                if (0 !== $idMatchViolations->count()) {
+                    $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
+                }
             }
 
             // This is a segment import. If there are statements without segments, ignore them
@@ -316,12 +338,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             // Skip flush - let batch processing in XlsxSegmentImport handle it
             $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
 
-            $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
-            if (0 === $violations->count()) {
+            // Pass 1 only: Validate statement entity
+            if (!$skipValidation) {
+                $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
+                if (0 === $violations->count()) {
+                    $result->addStatement($generatedStatement);
+                    $processedStatements++;
+                } else {
+                    $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
+                }
+            } else {
+                // Pass 2: Skip validation, always add
                 $result->addStatement($generatedStatement);
                 $processedStatements++;
-            } else {
-                $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
             }
 
             // create all corresponding segments
@@ -329,17 +358,24 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             foreach ($correspondingSegments as $segmentData) {
                 $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic);
 
-                // validate segment
-                $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
+                // Pass 1 only: Validate segment entity
+                if (!$skipValidation) {
+                    $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
 
-                if (0 === $violations->count()) {
+                    if (0 === $violations->count()) {
+                        $result->addSegment($generatedSegment);
+
+                        // needs to be persisted to make the PrePersistUniqueInternIdConstraint work
+                        $this->entityManager->persist($generatedSegment);
+                        $processedSegments++;
+                    } else {
+                        $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
+                    }
+                } else {
+                    // Pass 2: Skip validation, always add
                     $result->addSegment($generatedSegment);
-
-                    // needs to be persisted to make the PrePersistUniqueInternIdConstraint work
                     $this->entityManager->persist($generatedSegment);
                     $processedSegments++;
-                } else {
-                    $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
                 }
 
                 ++$counter;
@@ -841,6 +877,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $procedure,
                 false
             );
+
+            // Persist the TagTopic immediately so it's managed
+            // Without this, when tags are persisted with cascade persist to TagTopic,
+            // Doctrine tries to persist an unmanaged TagTopic that references Procedure,
+            // but TagTopic→Procedure doesn't have cascade persist, causing flush to fail
+            $this->entityManager->persist($miscTopic);
         }
 
         return $miscTopic;

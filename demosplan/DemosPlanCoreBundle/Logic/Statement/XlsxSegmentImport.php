@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedViaExcelEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelValidationService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -42,8 +43,15 @@ class XlsxSegmentImport
     /**
      * Batch size for processing statements to prevent memory overflow.
      * ~5,200 entities per batch (300 statements × ~17 segments avg + metadata).
+     * This determines how often we flush to database during import.
      */
     private const BATCH_SIZE = 300;
+
+    /**
+     * Elasticsearch bulk indexing batch size.
+     * Larger than BATCH_SIZE since ES can handle bigger bulks efficiently.
+     */
+    private const ES_BULK_INDEX_BATCH_SIZE = 1000;
 
     /**
      * @var array
@@ -73,6 +81,7 @@ class XlsxSegmentImport
         private readonly EventDispatcherPostInterface $eventDispatcher,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly ExcelImporter $xlsxSegmentImporter,
+        private readonly ExcelValidationService $excelValidationService,
         private readonly LoggerInterface $logger,
         private readonly ObjectPersisterInterface $segmentPersister,
         private readonly ReportService $reportService,
@@ -110,12 +119,51 @@ class XlsxSegmentImport
     public function importFromFile(FileInfo $file): SegmentExcelImportResult
     {
         $startTime = microtime(true);
-        $this->logger->info('=== SEGMENT IMPORT START ===', [
+        $this->logger->info('=== SEGMENT IMPORT START (TWO-PASS) ===', [
             'file' => $file->getFileName(),
             'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
+
+        // ========================================
+        // PASS 1: LIGHTWEIGHT VALIDATION (NO ENTITIES)
+        // ========================================
+        $phaseStart = microtime(true);
+        $validationResult = $this->excelValidationService->validateExcelFile($fileInfo);
+        $this->logger->info('Phase 1 (Validation Pass): Completed', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'errors' => $validationResult->getErrorCount(),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        // If validation failed, return immediately WITHOUT touching database
+        if ($validationResult->hasErrors()) {
+            $this->logger->warning('Import aborted due to validation errors', [
+                'error_count' => $validationResult->getErrorCount(),
+                'total_duration_sec' => round(microtime(true) - $startTime, 2),
+            ]);
+
+            // Convert validation result to SegmentExcelImportResult for compatibility
+            $importResult = new SegmentExcelImportResult();
+            foreach ($validationResult->getErrors() as $error) {
+                $importResult->addError(
+                    $error['message'],
+                    $error['lineNumber'],
+                    $error['currentWorksheet']
+                );
+            }
+
+            return $importResult;
+        }
+
+        $this->logger->info('Pass 1 validation successful - proceeding to Pass 2 (persistence)', [
+            'memory_freed_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        // ========================================
+        // PASS 2: ENTITY CREATION AND PERSISTENCE (SKIP VALIDATION)
+        // ========================================
 
         // Temporarily disable Elasticsearch auto-indexing event listeners
         // We'll use bulk indexing after commit instead
@@ -139,21 +187,24 @@ class XlsxSegmentImport
             'listeners_disabled' => count($disabledListeners),
         ]);
 
-        // allow to rollback all in case of error
-        $doctrineConnection = $this->entityManager->getConnection();
+        // NOTE: Transaction management is handled by the caller (ImportJobProcessor)
+        // Do NOT start nested transactions - Doctrine doesn't support them properly!
         try {
-            $doctrineConnection->beginTransaction();
-
             $phaseStart = microtime(true);
-            $importResult = $this->xlsxSegmentImporter->processSegments($fileInfo);
-            $this->logger->info('Phase 1: Excel parsing completed', [
+            // Pass 2: Run full entity validation (Pass 1 only caught simple field errors)
+            $importResult = $this->xlsxSegmentImporter->processSegments($fileInfo, skipValidation: false);
+            $this->logger->info('Phase 2 (Persistence Pass): Excel parsing completed', [
                 'duration_sec' => round(microtime(true) - $phaseStart, 2),
                 'statements_count' => count($importResult->getStatements()),
                 'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
             if ($importResult->hasErrors()) {
-                $doctrineConnection->rollBack();
+                // Validation errors detected - return result without persisting
+                // Caller will handle rollback and error reporting
+                $this->logger->error('Unexpected errors during persistence pass', [
+                    'error_count' => count($importResult->getErrorsAsArray()),
+                ]);
 
                 return $importResult;
             }
@@ -161,28 +212,28 @@ class XlsxSegmentImport
             // Batch processing to prevent memory overflow
             $phaseStart = microtime(true);
             $this->persistTagsInBatches($this->xlsxSegmentImporter->getGeneratedTags());
-            $this->logger->info('Phase 2: Tags persisted', [
+            $this->logger->info('Phase 3: New tags flushed', [
                 'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'tags_count' => count($this->xlsxSegmentImporter->getGeneratedTags()),
+                'new_tags_count' => count($this->xlsxSegmentImporter->getGeneratedTags()),
                 'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
+            // NOTE: No need to flush existing tags from database - they already have IDs
+            // Segments reference both:
+            // - New tags (just flushed in Phase 3, now have IDs)
+            // - Existing tags (fetched from DB via getMatchingTag(), already have IDs)
+            // The join table (_statement_tag) can reference both when segments are persisted
+
             $phaseStart = microtime(true);
             $this->persistStatementsInBatches($importResult->getStatements());
-            $this->logger->info('Phase 3: Statements and segments persisted', [
+            $this->logger->info('Phase 4: Statements and segments persisted', [
                 'duration_sec' => round(microtime(true) - $phaseStart, 2),
                 'statements_count' => count($importResult->getStatements()),
                 'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
-            $phaseStart = microtime(true);
-            $doctrineConnection->commit();
-            $this->logger->info('Phase 4: Database commit completed', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            // Collect segment IDs AFTER commit when they have database IDs
+            // NOTE: Database commit is handled by the caller (ImportJobProcessor)
+            // Collect segment IDs after flush when they have database IDs
             $this->segmentIdsForIndexing = [];
             foreach ($importResult->getSegments() as $segment) {
                 $segmentId = $segment->getId();
@@ -194,7 +245,7 @@ class XlsxSegmentImport
                 'segments_count' => count($this->segmentIdsForIndexing),
             ]);
 
-            // Generate report entries in batch after commit
+            // Generate report entries in batch after flush
             $phaseStart = microtime(true);
             $this->batchCreateReportEntries();
             $this->logger->info('Phase 5: Report entries created', [
@@ -203,7 +254,7 @@ class XlsxSegmentImport
                 'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
-            // Bulk index all segments in Elasticsearch after successful database commit
+            // Bulk index all segments in Elasticsearch after successful flush
             $phaseStart = microtime(true);
             $this->bulkIndexSegments();
             $this->logger->info('Phase 6: Elasticsearch bulk indexing completed', [
@@ -224,14 +275,14 @@ class XlsxSegmentImport
                 'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
 
-            $this->logger->info('=== SEGMENT IMPORT COMPLETE ===', [
+            $this->logger->info('=== SEGMENT IMPORT COMPLETE (TWO-PASS) ===', [
                 'total_duration_sec' => round(microtime(true) - $startTime, 2),
                 'peak_memory_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
             ]);
 
             return $importResult;
         } catch (Exception $exception) {
-            $doctrineConnection->rollBack();
+            // NOTE: Transaction rollback is handled by the caller (ImportJobProcessor)
             $this->logger->error('Segment import failed', [
                 'exception' => $exception->getMessage(),
                 'duration_sec' => round(microtime(true) - $startTime, 2),
@@ -391,9 +442,18 @@ class XlsxSegmentImport
 
         $this->entityManager->flush();
 
-        // NOTE: Don't call clear() - it detaches all entities including shared ones (Procedure, Organisation, etc.)
-        // The entities stay managed in EntityManager and referenced in importResult
-        // PHP's automatic garbage collector will handle memory cleanup when truly needed
+        // NOTE: We don't clear() here because:
+        // 1. clear() with entity arguments is deprecated in Doctrine ORM 3.0
+        // 2. The deprecated implementation is buggy - it detaches MORE than requested
+        // 3. Tags flushed earlier would be detached, preventing them from being committed
+        // 4. Performance hit is acceptable: 114MB memory growth, 2x slowdown at end
+        //
+        // Alternative approaches considered:
+        // - detach() individual entities: Too slow (26k entities)
+        // - clear() without args + re-merge: Complex, error-prone
+        // - Separate EntityManager: Architectural change
+        //
+        // Decision: Accept the performance tradeoff to maintain correctness
 
         $this->logger->info('Statement batch flushed', [
             'batch' => $batchNumber,
@@ -461,8 +521,7 @@ class XlsxSegmentImport
             ]);
 
             // Process segments in batches to avoid loading all into memory at once
-            $batchSize = 1000; // ES bulk indexing batch size
-            $segmentIdBatches = array_chunk($this->segmentIdsForIndexing, $batchSize);
+            $segmentIdBatches = array_chunk($this->segmentIdsForIndexing, self::ES_BULK_INDEX_BATCH_SIZE);
             $indexed = 0;
 
             foreach ($segmentIdBatches as $batchNum => $segmentIdBatch) {
