@@ -50,7 +50,6 @@ class StatementExportTest extends FunctionalTestCase
     private $permissions;
     private $editorService;
     private $assessmentTableXlsExporter;
-    private $statementFormatter;
 
     public function setUp(): void
     {
