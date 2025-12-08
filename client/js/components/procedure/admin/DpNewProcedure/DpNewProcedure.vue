@@ -70,6 +70,7 @@
           :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
           name="r_plisId"
           :options="plisNameOptions"
+          required
         />
 
         <dl>
@@ -90,7 +91,7 @@
         id="r_name"
         v-model="procedureName"
         :label="{ text: Translator.trans('name') }"
-        :required="requireField"
+        required
         class="mb-4"
         data-cy="newProcedureTitle"
         maxlength="200"
@@ -230,7 +231,6 @@
           :text="Translator.trans('save')"
           type="submit"
           data-cy="newProcedureForm:saveNewProcedure"
-          @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
         />
         <dp-button
           color="secondary"
