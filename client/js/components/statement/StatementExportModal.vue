@@ -171,7 +171,7 @@
           }"
           @update:expanded="(value) => isFilterExpanded = value"
           @filter-apply="getFilterValues"
-          @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
+          @filter-options:request="(params) => loadFilterFlyoutOptions({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
         />
 
         <ul
@@ -401,6 +401,31 @@ export default {
       }
     },
 
+    closeModal () {
+      this.selectedTagIds = []
+      this.$refs.filterFlyout.reset()
+      this.$refs.exportModalInner.toggle()
+    },
+
+    async fetchFilterOptions (requestParams) {
+      try {
+        const { data } = await dpRpc('segments.facets.list', requestParams, 'filterList')
+
+        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList')
+          ? data[0].result
+          : null
+
+        return result || null
+      } catch (error) {
+        console.error('Failed to fetch filter options', error)
+        return null
+      }
+    },
+
+    findFilterDefinition (result, path) {
+      return result.data.find(type => type.attributes.path === path) || null
+    },
+
     getFilterValues (filter = {}) {
       this.updateSelectedTadIds(filter)
       this.updateSelectedTags()
@@ -452,88 +477,15 @@ export default {
       }
     },
 
-    /**
-     *
-     * @param params {Object}
-     * @param params.additionalQueryParams {Object}
-     * @param params.category {Object} id, label
-     * @param params.filter {Object}
-     * @param params.isInitialWithQuery {Boolean}
-     * @param params.path {String}
-     * @param params.searchPhrase {String}
-     */
-    sendFilterOptionsRequest (params) {
-      const {
-        additionalQueryParams,
-        category,
-        filter,
-        isInitialWithQuery,
-        path,
-        currentQuery,
-      } = params
-
-      if (currentQuery && currentQuery.length > 0) {
-        this.scrollModalToBottom()
-        return
+    handleAfterOptionsLoaded ({ category, path }) {
+      if (this.getIsExpandedByCategoryId(category.id)) {
+        const input = document.getElementById(`searchField_${path}`)
+        if (input) {
+          input.focus()
+        }
       }
 
-      const requestParams = this.setRequestParams(additionalQueryParams, filter, path, currentQuery)
-
-      dpRpc('segments.facets.list', requestParams, 'filterList')
-        .then(({ data }) => {
-          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
-          if (!result) {
-            return
-          }
-
-          const filter = result.data.find(type => type.attributes.path === path)
-          if (!filter) {
-            return
-          }
-
-          const {
-            groupedOptions,
-            ungroupedOptions,
-          } = this.buildOptionsFromResult(result, filter)
-
-          if (isInitialWithQuery && this.queryIds.length > 0) {
-            const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
-
-            const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
-              const item = allOptions.find(item => item.id === queryId)
-              return item ? item.id : null
-            })
-
-            this.setInitialFlyoutFilterIds({
-              categoryId: category.id,
-              filterIds: currentFlyoutFilterIds,
-            })
-          }
-
-          this.setGroupedFilterOptions({
-            categoryId: category.id,
-            groupedOptions,
-          })
-
-          this.setUngroupedFilterOptions({
-            categoryId: category.id,
-            options: ungroupedOptions,
-          })
-
-          this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
-
-          if (this.getIsExpandedByCategoryId(category.id)) {
-            document.getElementById(`searchField_${path}`).focus()
-          }
-
-          this.scrollModalToBottom()
-      })
-    },
-
-    closeModal () {
-      this.selectedTagIds = []
-      this.$refs.filterFlyout.reset()
-      this.$refs.exportModalInner.toggle()
+      this.scrollModalToBottom()
     },
 
     handleExport () {
@@ -566,6 +518,89 @@ export default {
       this.closeModal()
     },
 
+    initInitialFlyoutFilterSelection ({ isInitialWithQuery, category, groupedOptions, ungroupedOptions }) {
+      if (!isInitialWithQuery || this.queryIds.length === 0) {
+        return
+      }
+
+      const allOptions = [
+        ...groupedOptions.flatMap(group => group.options),
+        ...ungroupedOptions,
+      ]
+
+      const currentFlyoutFilterIds = this.queryIds.filter(queryId =>
+        allOptions.some(item => item.id === queryId),
+      )
+
+      this.setInitialFlyoutFilterIds({
+        categoryId: category.id,
+        filterIds: currentFlyoutFilterIds,
+      })
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    async loadFilterFlyoutOptions (params) {
+      const {
+        additionalQueryParams,
+        category,
+        filter,
+        isInitialWithQuery,
+        path,
+        currentQuery,
+      } = params
+
+      if (currentQuery && currentQuery.length > 0) {
+        this.scrollModalToBottom()
+        return
+      }
+
+      const requestParams = this.setRequestParams({
+        additionalQueryParams,
+        filter,
+        path,
+        currentQuery,
+      })
+
+      const result = await this.fetchFilterOptions(requestParams)
+      if (!result) {
+        return
+      }
+
+      const filterDefinition = this.findFilterDefinition(result, path)
+      if (!filterDefinition) {
+        return
+      }
+
+      const {
+        groupedOptions,
+        ungroupedOptions,
+      } = this.buildOptionsFromResult(result, filterDefinition)
+
+      this.initInitialFlyoutFilterSelection({
+        isInitialWithQuery,
+        category,
+        groupedOptions,
+        ungroupedOptions,
+      })
+
+      this.updateFilterOptionsInStore({
+        category,
+        groupedOptions,
+        ungroupedOptions,
+      })
+
+      this.handleAfterOptionsLoaded({ category, path })
+    },
+
     openModal () {
       this.setInitialValues()
       this.$refs.exportModalInner.toggle()
@@ -596,7 +631,7 @@ export default {
       })
     },
 
-    setRequestParams (additionalQueryParams, filter, path, currentQuery) {
+    setRequestParams ({ additionalQueryParams, filter, path, currentQuery }) {
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -627,6 +662,23 @@ export default {
       }
 
       this.selectedTags = filterFlyout.itemsSelected
+    },
+
+    updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
+      this.setGroupedFilterOptions({
+        categoryId: category.id,
+        groupedOptions,
+      })
+
+      this.setUngroupedFilterOptions({
+        categoryId: category.id,
+        options: ungroupedOptions,
+      })
+
+      this.setIsLoadingFilterFlyout({
+        categoryId: category.id,
+        isLoading: false,
+      })
     },
 
     updateSelectedTags () {
