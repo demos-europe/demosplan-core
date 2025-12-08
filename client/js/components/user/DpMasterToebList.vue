@@ -212,13 +212,6 @@
           :total-pages="totalPages"
           @page-change="handlePageChange"
         />
-        <dp-select-page-item-count
-          class="inline"
-          :current-item-count="itemsPerPage"
-          :label-text="Translator.trans('pager.per.page')"
-          :page-count-options="itemsPerPageOptions"
-          @changed-count="setPageItemCount"
-        />
       </div>
     </dp-sticky-element>
   </div>
@@ -231,7 +224,6 @@ import {
   dpApi,
   DpDataTable,
   DpPager,
-  DpSelectPageItemCount,
   DpStickyElement,
   isActiveFullScreen,
   makeFormPost,
@@ -281,7 +273,6 @@ export default {
     DpFilterMasterToeb,
     DpInviteMasterToeb,
     DpNewMasterToeb,
-    DpSelectPageItemCount,
     DpStickyElement,
     DpUpdateMastertoeb,
   },
