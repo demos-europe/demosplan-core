@@ -1121,7 +1121,7 @@ export default {
           }
           this.handleButtonInteraction(drawTool.active, drawTool.button, () => {
             this.map.addInteraction(drawing)
-            $('#saveStatementButton').addClass(this.prefixClass('is-visible'))
+            $('#saveStatementButton').removeClass(this.prefixClass('hidden')).addClass(this.prefixClass('is-visible')).prop('disabled', true)
           })
         })
 
@@ -1153,6 +1153,7 @@ export default {
         $('#clearDrawingButton').addClass(this.prefixClass('c-actionbox__tool--dimmed'))
         $('#saveStatementButton')
           .removeClass(this.prefixClass('is-active'))
+          .prop('disabled', true)
           .html(window.dplan.statement.labels.saveStatementButton.states.visible.button)
           .prop(
             'title',
@@ -1268,6 +1269,7 @@ export default {
 
         saveStatementButton
           .addClass(this.prefixClass('is-active c-actionbox__toggle-shake'))
+          .prop('disabled', false)
           .html(window.dplan.statement.labels.saveStatementButton.states.active.button)
           .prop(
             'title',
@@ -1692,7 +1694,7 @@ export default {
       unByKey(this.mapSingleClickListener)
 
       //  Hide drawpoint stn button
-      $('#saveStatementButton').removeClass(this.prefixClass('is-visible'))
+      $('#saveStatementButton').removeClass(this.prefixClass('is-visible')).addClass(this.prefixClass('hidden'))
       $(this.prefixClass('.js__mapcontrol')).removeClass(this.prefixClass('is-active'))
 
       //  Unselect tools
