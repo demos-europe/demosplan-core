@@ -8,6 +8,7 @@
 
 ### Features
 - Add warning modal in procedure settings on form-submit when public participation phase is set and interface is not activated
+- Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
 
 ### Further changes
 - Add separate view permission for procedure pictogram (`field_procedure_pictogram_view`)

@@ -86,9 +86,13 @@ class CommonUserData extends ValueObject
     }
 
     /**
-     * Checks for existing mandatory data.
+     * Checks common mandatory values (userId, userName, email, organisationId, name).
+     * This method is extracted to allow child classes to validate only common fields
+     * without requiring role validation.
+     *
+     * @return array<int, string> Array of missing mandatory field names
      */
-    public function checkMandatoryValuesExist(): void
+    protected function checkCommonMandatoryValues(): array
     {
         $missingMandatoryValues = [];
         if ('' === $this->userId) {
@@ -111,12 +115,34 @@ class CommonUserData extends ValueObject
             $missingMandatoryValues[] = 'name';
         }
 
+        return $missingMandatoryValues;
+    }
+
+    /**
+     * Throws an exception if any mandatory values are missing.
+     *
+     * @param array<int, string> $missingMandatoryValues Array of missing field names
+     *
+     * @throws AuthenticationCredentialsNotFoundException if any values are missing
+     */
+    protected function throwIfMandatoryValuesMissing(array $missingMandatoryValues): void
+    {
+        if ([] !== $missingMandatoryValues) {
+            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).' are missing in requestValues');
+        }
+    }
+
+    /**
+     * Checks for existing mandatory data including roles.
+     */
+    public function checkMandatoryValuesExist(): void
+    {
+        $missingMandatoryValues = $this->checkCommonMandatoryValues();
+
         if ([] === $this->customerRoleRelations) {
             $missingMandatoryValues[] = 'roles';
         }
 
-        if ([] !== $missingMandatoryValues) {
-            throw new AuthenticationCredentialsNotFoundException(implode(', ', $missingMandatoryValues).'are missing in requestValues');
-        }
+        $this->throwIfMandatoryValuesMissing($missingMandatoryValues);
     }
 }
