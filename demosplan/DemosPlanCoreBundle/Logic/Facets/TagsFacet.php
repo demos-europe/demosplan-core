@@ -26,14 +26,14 @@ use EDT\Querying\Contracts\SortMethodInterface;
 class TagsFacet implements GroupedFacetInterface
 {
     /**
-     * @param FunctionInterface<bool> $rootItemsLoadCondition
+     * @param FunctionInterface<bool>        $rootItemsLoadCondition
      * @param array<int,SortMethodInterface> $itemsSortMethods
      * @param array<int,SortMethodInterface> $groupsSortMethods
      */
     public function __construct(
         private readonly FunctionInterface $rootItemsLoadCondition,
         private readonly array $itemsSortMethods = [],
-        private readonly array $groupsSortMethods = []
+        private readonly array $groupsSortMethods = [],
     ) {
     }
 
