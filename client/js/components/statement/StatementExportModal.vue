@@ -174,8 +174,15 @@
           @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
         />
 
-        <ul v-if="!isFilterExpanded">
-          <li v-for="(tag, idx) in selectedTags">
+        <ul
+          v-if="!isFilterExpanded && selectedTags.length"
+          class="mt-2"
+        >
+          <li
+            v-for="(tag) in selectedTags"
+            :key="tag.id"
+            class="mt-1"
+          >
             <span>{{ tag.label }}</span>
           </li>
         </ul>
@@ -350,14 +357,6 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
-    getFilterValues (filter) {
-      this.selectedTagIds = Object.values(filter)
-        .filter(el => el?.condition?.path === 'tags')
-        .map(el => el.condition.value)
-
-      this.selectedTags = [...this.$refs.filterFlyout.itemsSelected]
-    },
-
     buildFilterOption (option) {
       if (!option) {
         return null
@@ -367,6 +366,44 @@ export default {
       const { count, description, label, selected } = attributes
 
       return { id, count, description, label, selected }
+    },
+
+    buildOptionsFromResult (result, filter) {
+      const groupedOptions = []
+      const ungroupedOptions = []
+
+      result.included?.forEach(resource => {
+        const group = this.getGroupedOptions(resource, filter, result)
+        if (group) {
+          groupedOptions.push(group)
+        }
+
+        const item = this.getUngroupedOptions(resource, filter)
+        if (item) {
+          ungroupedOptions.push(item)
+        }
+      })
+
+      // Needs to be added to ungroupedOptions
+      if (result.data[0].attributes.path === 'assignee') {
+        ungroupedOptions.push({
+          id: 'unassigned',
+          count: result.data[0].attributes.missingResourcesSum,
+          label: Translator.trans('not.assigned'),
+          ungrouped: true,
+          selected: result.meta.unassigned_selected,
+        })
+      }
+
+      return {
+        groupedOptions,
+        ungroupedOptions,
+      }
+    },
+
+    getFilterValues (filter = {}) {
+      this.updateSelectedTadIds(filter)
+      this.updateSelectedTags()
     },
 
     getGroupedOptions (resource, filter, result) {
@@ -436,27 +473,11 @@ export default {
       } = params
 
       if (currentQuery && currentQuery.length > 0) {
+        this.scrollModalToBottom()
         return
       }
 
-      const requestParams = {
-        ...additionalQueryParams,
-        filter: {
-          ...filter,
-          sameProcedure: {
-            condition: {
-              path: 'parentStatement.procedure.id',
-              value: this.procedureId,
-            },
-          },
-        },
-        path,
-      }
-
-      // We have to set the searchPhrase to null if its empty to satisfy the backend
-      if (requestParams.searchPhrase === '') {
-        requestParams.searchPhrase = null
-      }
+      const requestParams = this.setRequestParams(additionalQueryParams, filter, path, currentQuery)
 
       dpRpc('segments.facets.list', requestParams, 'filterList')
         .then(({ data }) => {
@@ -470,31 +491,10 @@ export default {
             return
           }
 
-          const groupedOptions = []
-          const ungroupedOptions = []
-
-          result.included?.forEach(resource => {
-            const group = this.getGroupedOptions(resource, filter, result)
-            if (group) {
-              groupedOptions.push(group)
-            }
-
-            const item = this.getUngroupedOptions(resource, filter)
-            if (item) {
-              ungroupedOptions.push(item)
-            }
-          })
-
-          // Needs to be added to ungroupedOptions
-          if (result.data[0].attributes.path === 'assignee') {
-            ungroupedOptions.push({
-              id: 'unassigned',
-              count: result.data[0].attributes.missingResourcesSum,
-              label: Translator.trans('not.assigned'),
-              ungrouped: true,
-              selected: result.meta.unassigned_selected,
-            })
-          }
+          const {
+            groupedOptions,
+            ungroupedOptions,
+          } = this.buildOptionsFromResult(result, filter)
 
           if (isInitialWithQuery && this.queryIds.length > 0) {
             const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
@@ -526,18 +526,7 @@ export default {
             document.getElementById(`searchField_${path}`).focus()
           }
 
-          this.$nextTick(() => {
-            this.scrollModalToBottom()
-          })
-      })
-    },
-
-    scrollModalToBottom () {
-      const modal = this.$refs.exportModalInner.$el.querySelector('.o-modal__body')
-
-      modal.scrollTo({
-        top: modal.scrollHeight,
-        behavior: "smooth"
+          this.scrollModalToBottom()
       })
     },
 
@@ -582,6 +571,21 @@ export default {
       this.$refs.exportModalInner.toggle()
     },
 
+    scrollModalToBottom () {
+      this.$nextTick(() => {
+        const modalBody = this.$refs.exportModalInner.$el.querySelector('.o-modal__body')
+
+        if (!modalBody) {
+          return
+        }
+
+        modalBody.scrollTo({
+          top: modalBody.scrollHeight,
+          behavior: "smooth"
+        })
+      })
+    },
+
     setInitialValues () {
       this.active = 'docx_normal'
 
@@ -590,6 +594,54 @@ export default {
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
+    },
+
+    setRequestParams (additionalQueryParams, filter, path, currentQuery) {
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        path,
+      }
+
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null // The backend expects `searchPhrase` to be null when it is empty
+      }
+
+      return requestParams
+    },
+
+    syncSelectedItemsFromFlyout() {
+      const filterFlyout = this.$refs.filterFlyout
+
+      if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
+        this.selectedTags = []
+        return
+      }
+
+      this.selectedTags = filterFlyout.itemsSelected
+    },
+
+    updateSelectedTags () {
+      if (this.selectedTagIds.length === 0) {
+        this.selectedTags = []
+        return
+      }
+
+      this.syncSelectedItemsFromFlyout()
+    },
+
+    updateSelectedTadIds (filter) {
+      this.selectedTagIds = Object.values(filter)
+        .filter(item => item?.condition?.path === 'tags')
+        .map(item => item.condition.value)
     },
   },
 }
