@@ -116,6 +116,7 @@ class StatementFormatter
                 $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
             }
         }
+
         return $value;
     }
 
