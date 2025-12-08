@@ -86,6 +86,9 @@ class FacetFactory
         // load the groups to be shown in the facet
         $groups = collect($resourceType->getEntities($groupsLoadConditions, $groupsSortMethods));
 
+        // Apply natural sorting to groups for human-friendly ordering (e.g., "2" before "11")
+        $groups = $this->applyNaturalSorting($groups, $facetDefinition, fn($group) => $facetDefinition->getGroupTitle($group));
+
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
             $itemResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
@@ -174,6 +177,10 @@ class FacetFactory
             $facetDefinition->getRootItemsLoadConditions(),
             $facetDefinition->getItemsSortMethods()
         );
+
+        // Apply natural sorting to items for human-friendly ordering (e.g., "2" before "11")
+        $items = $this->applyNaturalSorting(collect($items), $facetDefinition, fn($item) => $facetDefinition->getItemTitle($item))->all();
+
         $selections = $this->determineSelections($facetDefinition, $rawFilter, collect($items));
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCount, $selections);
@@ -197,6 +204,9 @@ class FacetFactory
         $itemResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
         Assert::isInstanceOf($itemResourceType, JsonApiResourceTypeInterface::class);
         $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []);
+
+        // Apply natural sorting to items within this group for human-friendly ordering (e.g., "2" before "11")
+        $items = $this->applyNaturalSorting(collect($items), $facetDefinition, fn($item) => $facetDefinition->getItemTitle($item))->all();
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);
     }
@@ -225,5 +235,26 @@ class FacetFactory
 
             return new AggregationFilterItem($itemId, $itemTitle, $itemDescription, $count, $selected);
         });
+    }
+
+    /**
+     * Apply natural sorting to a collection based on a title extraction function.
+     *
+     * Natural sorting treats numbers within strings as integers rather than characters,
+     * so "2 test" comes before "11 test" instead of the lexicographic "11 test" before "2 test".
+     *
+     * @template T of object
+     *
+     * @param Collection<int,T>      $collection The collection to sort
+     * @param FacetInterface<object> $facetDefinition The facet definition (for context)
+     * @param callable(T): string    $titleExtractor Function to extract the title from each item
+     *
+     * @return Collection<int,T> The naturally sorted collection
+     */
+    private function applyNaturalSorting(Collection $collection, FacetInterface $facetDefinition, callable $titleExtractor): Collection
+    {
+        return $collection->sort(static function (object $a, object $b) use ($titleExtractor): int {
+            return strnatcasecmp($titleExtractor($a), $titleExtractor($b));
+        })->values();
     }
 }
