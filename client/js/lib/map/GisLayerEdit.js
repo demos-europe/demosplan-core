@@ -61,27 +61,23 @@ export default () => {
   const defaultVisibilityHint = document.getElementById('defaultVisibilityHint')
 
   // Detect if we're in edit mode
-  const isEditMode = defaultVisibilityCheckbox?.getAttribute('data-cy') === 'editMapLayerDefaultVisibility'
+  const isEditMode = defaultVisibilityCheckbox?.dataset.cy === 'editMapLayerDefaultVisibility'
 
   // If base layer, hide toggleVisibility checkbox and its parent (the label)
   if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
     elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue, element.hideParent)
     })
-    // Only auto-update default visibility in create mode, preserve database value in edit mode
-    if (!isEditMode) {
-      updateDefaultVisibility(true)
-    } else {
+    // Preserve database value in edit mode, auto-update in create mode
+    if (isEditMode && defaultVisibilityCheckbox && defaultVisibilityHint && !defaultVisibilityCheckbox.disabled) {
       // In edit mode, just show the hint without changing the checkbox value
-      if (defaultVisibilityCheckbox && defaultVisibilityHint && !defaultVisibilityCheckbox.disabled) {
-        defaultVisibilityHint.style.removeProperty('display')
-      }
+      defaultVisibilityHint.style.removeProperty('display')
+    } else if (isEditMode === false) {
+      updateDefaultVisibility(true)
     }
-  } else {
-    // For overlay layers, only auto-check in create mode
-    if (!isEditMode) {
-      updateDefaultVisibility(false)
-    }
+  } else if (isEditMode === false) {
+    // For overlay layers, auto-check in create mode
+    updateDefaultVisibility(false)
   }
 
   // Add event listener to handle checkbox change
