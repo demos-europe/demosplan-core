@@ -91,7 +91,7 @@
         id="r_name"
         v-model="procedureName"
         :label="{ text: Translator.trans('name') }"
-        required
+        :required="requireField"
         class="mb-4"
         data-cy="newProcedureTitle"
         maxlength="200"
@@ -231,6 +231,7 @@
           :text="Translator.trans('save')"
           type="submit"
           data-cy="newProcedureForm:saveNewProcedure"
+          @click.prevent="dpValidateAction('newProcedureForm', submit, false)"
         />
         <dp-button
           color="secondary"
