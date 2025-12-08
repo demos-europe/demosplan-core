@@ -404,7 +404,8 @@ export default {
     },
 
     closeModal () {
-      this.resetModalState()
+      this.resetExportModalState()
+      this.resetFilterFlyout()
       this.$refs.exportModalInner.toggle()
     },
 
@@ -605,9 +606,8 @@ export default {
 
     onModalToggle (isOpen) {
       if (!isOpen) {
-        console.log('isOpen', isOpen)
-
-        this.resetModalState()
+        this.resetExportModalState()
+        this.resetFilterFlyout()
       }
     },
 
@@ -616,14 +616,17 @@ export default {
       this.$refs.exportModalInner.toggle()
     },
 
-    resetModalState () {
-      active: 'docx_normal',
-      isCitizenDataCensored = false
-      isInstitutionDataCensored = false
-      isObscure = false
+    resetFilterFlyout () {
+      this.$refs.filterFlyout.reset()
+    },
+
+    resetExportModalState () {
+      this.active = 'docx_normal'
+      this.isCitizenDataCensored = false
+      this.isInstitutionDataCensored = false
+      this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
-      this.$refs.filterFlyout.reset()
     },
 
     scrollModalToBottom () {
