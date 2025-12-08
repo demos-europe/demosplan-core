@@ -357,14 +357,20 @@ export default {
     },
 
     searchedGroupedOptions () {
-      return this.groupedOptions.map(group => ({
-        ...group,
-        options: dataTableSearch(this.searchTerm, group.options, ['label'])
-      })).filter(group => group.options.length > 0)
+      const groups = this.groupedOptions.map(group => {
+        const options = dataTableSearch(this.searchTerm, group.options, ['label'])
+        return {
+          ...group,
+          options: this.path === 'tags' ? options.sort((a, b) => a.label.localeCompare(b.label)) : options
+        }
+      }).filter(group => group.options.length > 0)
+
+      return this.path === 'tags' ? groups.sort((a, b) => a.label.localeCompare(b.label)) : groups
     },
 
     searchedUngroupedOptions () {
-      return dataTableSearch(this.searchTerm, this.ungroupedOptions, ['label'])
+      const options = dataTableSearch(this.searchTerm, this.ungroupedOptions, ['label'])
+      return this.path === 'tags' ? options.sort((a, b) => a.label.localeCompare(b.label)) : options
     },
 
     ungroupedOptions () {
