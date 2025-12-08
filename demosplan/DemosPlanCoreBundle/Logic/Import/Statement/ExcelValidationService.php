@@ -159,7 +159,7 @@ class ExcelValidationService
      * Validate a single segment row and add it to the collection.
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
-     * @param array<string, int> $usedInternIds
+     * @param array<string, int>                     $usedInternIds
      */
     private function validateAndAddSegment(
         array $values,
@@ -168,7 +168,7 @@ class ExcelValidationService
         string $worksheetTitle,
         ImportValidationResult $result,
         array &$segmentsByStatementId,
-        array &$usedInternIds
+        array &$usedInternIds,
     ): void {
         $data = array_combine($columnNames, $values);
 
@@ -213,7 +213,7 @@ class ExcelValidationService
         int $lineNumber,
         string $worksheetTitle,
         ImportValidationResult $result,
-        array &$usedInternIds
+        array &$usedInternIds,
     ): void {
         if (empty($dto->internId) || '' === trim($dto->internId)) {
             return;
@@ -275,7 +275,7 @@ class ExcelValidationService
      * Validate a single statement row.
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
-     * @param array<string, bool> $statementIdsSeen
+     * @param array<string, bool>                    $statementIdsSeen
      */
     private function validateSingleStatement(
         array $values,
@@ -284,7 +284,7 @@ class ExcelValidationService
         int $lineNumber,
         string $worksheetTitle,
         ImportValidationResult $result,
-        array &$statementIdsSeen
+        array &$statementIdsSeen,
     ): void {
         $data = array_combine($columnNames, $values);
         $statementId = (string) ($data['Stellungnahme ID'] ?? '');
@@ -300,6 +300,7 @@ class ExcelValidationService
                 $lineNumber,
                 $worksheetTitle
             );
+
             return;
         }
 
@@ -333,12 +334,12 @@ class ExcelValidationService
      * Check for segments without corresponding statements.
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
-     * @param array<string, bool> $statementIdsSeen
+     * @param array<string, bool>                    $statementIdsSeen
      */
     private function validateOrphanedSegments(
         array $segmentsByStatementId,
         array $statementIdsSeen,
-        ImportValidationResult $result
+        ImportValidationResult $result,
     ): void {
         foreach ($segmentsByStatementId as $statementId => $segments) {
             if (!isset($statementIdsSeen[$statementId])) {
@@ -362,6 +363,7 @@ class ExcelValidationService
         foreach ($cellIterator as $cell) {
             $values[] = $cell->getFormattedValue();
         }
+
         return $values;
     }
 

@@ -236,15 +236,13 @@ class XlsxSegmentImport
     /**
      * Process a batch of statements: flush, dispatch events, and call progress callback.
      *
-     * @param array $statementBatch
-     *
      * @throws Exception
      */
     private function processBatch(
         array $statementBatch,
         int $batchNumber,
         int $processedCount,
-        int $totalCount
+        int $totalCount,
     ): void {
         $this->flushAndClearBatch($batchNumber, $processedCount, $totalCount);
 
@@ -259,8 +257,6 @@ class XlsxSegmentImport
 
     /**
      * Dispatch events for flushed statements.
-     *
-     * @param array $statementBatch
      *
      * @throws Exception
      */
