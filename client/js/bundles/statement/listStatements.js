@@ -21,7 +21,6 @@ const components = {
   ListOriginalStatements,
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
-
 const stores = {
   FilterFlyout: FilterFlyoutStore,
 }

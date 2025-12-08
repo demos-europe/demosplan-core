@@ -20,6 +20,7 @@
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
       content-body-classes="flex flex-col h-14"
+      @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
         {{ exportModalTitle }}
@@ -149,31 +150,30 @@
         <legend
           id="tagsFilter"
           class="o-form__label text-base mb-1"
-          v-text="'Nur Abschnitte mit folgenden Schlagworten'"
+          v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
           ref="filterFlyout"
           :key="`filter_${filter.labelTranslationKey}`"
           :additional-query-params="{ searchPhrase: searchTerm }"
+          appearance="basic"
           :category="{
             id: `${filter.labelTranslationKey}`,
             label: Translator.trans('search.list')
           }"
-          appearance="basic"
+          :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
           flyout-align="top"
           flyout-position="relative"
-          :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
           :operator="filter.comparisonOperator"
           :path="filter.rootPath"
           :show-count="{
             groupedOptions: true,
             ungroupedOptions: true
           }"
-          @update:expanded="(value) => isFilterExpanded = value"
           @filter-apply="getFilterValues"
-          @filter-options:request="(params) => loadFilterFlyoutOptions({ ...params, category: { id: `${filter.labelTranslationKey}`, label: Translator.trans(filter.labelTranslationKey) }})"
+          @filter-options:request="loadFilterFlyoutOptions"
+          @update:expanded="(value) => isFilterExpanded = value"
         />
-
         <ul
           v-if="!isFilterExpanded && selectedTags.length"
           class="mt-2"
@@ -215,14 +215,13 @@ import {
   hasOwnProp,
   sessionStorageMixin
 } from '@demos-europe/demosplan-ui'
-import FilterFlyout from '../procedure/SegmentsList/FilterFlyout.vue'
-import {mapGetters, mapMutations} from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 export default {
   name: 'StatementExportModal',
 
   components: {
-    FilterFlyout,
     DpButton,
     DpButtonRow,
     DpCheckbox,
@@ -230,6 +229,7 @@ export default {
     DpInput,
     DpModal,
     DpRadio,
+    FilterFlyout,
   },
 
   mixins: [sessionStorageMixin],
@@ -253,20 +253,6 @@ export default {
 
   data () {
     return {
-      isFilterExpanded: false,
-      selectedTags: [],
-      searchTerm: '',
-      selectedTagIds: [],
-      filter: {
-        comparisonOperator: "ARRAY_CONTAINS_VALUE",
-        grouping: {
-          labelTranslationKey: 'topic',
-          targetPath: 'tags.topic.label'
-        },
-        labelTranslationKey: 'tags',
-        rootPath: 'tags',
-        selected: false
-      },
       active: 'docx_normal',
       docxColumns: {
         col1: {
@@ -309,9 +295,23 @@ export default {
         },
       },
       fileName: '',
-      isInstitutionDataCensored: false,
+      filter: {
+        comparisonOperator: "ARRAY_CONTAINS_VALUE",
+        grouping: {
+          labelTranslationKey: 'topic',
+          targetPath: 'tags.topic.label'
+        },
+        labelTranslationKey: 'tags',
+        rootPath: 'tags',
+        selected: false
+      },
       isCitizenDataCensored: false,
+      isFilterExpanded: false,
+      isInstitutionDataCensored: false,
       isObscure: false,
+      searchTerm: '',
+      selectedTags: [],
+      selectedTagIds: [],
       singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
     }
   },
@@ -351,9 +351,9 @@ export default {
 
   methods: {
     ...mapMutations('FilterFlyout', {
+      setGroupedFilterOptions: 'setGroupedOptions',
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
-      setGroupedFilterOptions: 'setGroupedOptions',
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
@@ -384,11 +384,13 @@ export default {
         }
       })
 
-      // Needs to be added to ungroupedOptions
+      // Add "unassigned" pseudo-option to ungroupedOptions when the filter is "assignee"
       if (result.data[0].attributes.path === 'assignee') {
+        const { missingResourcesSum } = result.data[0].attributes
+
         ungroupedOptions.push({
           id: 'unassigned',
-          count: result.data[0].attributes.missingResourcesSum,
+          count: missingResourcesSum,
           label: Translator.trans('not.assigned'),
           ungrouped: true,
           selected: result.meta.unassigned_selected,
@@ -402,8 +404,7 @@ export default {
     },
 
     closeModal () {
-      this.selectedTagIds = []
-      this.$refs.filterFlyout.reset()
+      this.resetModalState()
       this.$refs.exportModalInner.toggle()
     },
 
@@ -424,6 +425,10 @@ export default {
 
     findFilterDefinition (result, path) {
       return result.data.find(type => type.attributes.path === path) || null
+    },
+
+    focusSearchField (path) {
+      document.getElementById(`searchField_${path}`)?.focus()
     },
 
     getFilterValues (filter = {}) {
@@ -477,12 +482,12 @@ export default {
       }
     },
 
-    handleAfterOptionsLoaded ({ category, path }) {
-      if (this.getIsExpandedByCategoryId(category.id)) {
-        const input = document.getElementById(`searchField_${path}`)
-        if (input) {
-          input.focus()
-        }
+    handleAfterOptionsLoaded (path) {
+      const filterId = this.filter.labelTranslationKey
+      const isExpanded = this.getIsExpandedByCategoryId(filterId)
+
+      if (isExpanded) {
+        this.focusSearchField(path)
       }
 
       this.scrollModalToBottom()
@@ -506,19 +511,19 @@ export default {
       })
 
       this.$emit('export', {
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
-        shouldConfirm,
-        isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
+        isInstitutionDataCensored: this.isInstitutionDataCensored,
         isObscured: this.isObscure,
-        tagFilterIds: this.selectedTagIds
+        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        shouldConfirm,
+        tagFilterIds: this.selectedTagIds,
       })
       this.closeModal()
     },
 
-    initInitialFlyoutFilterSelection ({ isInitialWithQuery, category, groupedOptions, ungroupedOptions }) {
+    initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
       if (!isInitialWithQuery || this.queryIds.length === 0) {
         return
       }
@@ -533,7 +538,7 @@ export default {
       )
 
       this.setInitialFlyoutFilterIds({
-        categoryId: category.id,
+        categoryId: this.filter.labelTranslationKey,
         filterIds: currentFlyoutFilterIds,
       })
     },
@@ -551,7 +556,6 @@ export default {
     async loadFilterFlyoutOptions (params) {
       const {
         additionalQueryParams,
-        category,
         filter,
         isInitialWithQuery,
         path,
@@ -587,23 +591,39 @@ export default {
 
       this.initInitialFlyoutFilterSelection({
         isInitialWithQuery,
-        category,
         groupedOptions,
         ungroupedOptions,
       })
 
       this.updateFilterOptionsInStore({
-        category,
         groupedOptions,
         ungroupedOptions,
       })
 
-      this.handleAfterOptionsLoaded({ category, path })
+      this.handleAfterOptionsLoaded(path)
+    },
+
+    onModalToggle (isOpen) {
+      if (!isOpen) {
+        console.log('isOpen', isOpen)
+
+        this.resetModalState()
+      }
     },
 
     openModal () {
       this.setInitialValues()
       this.$refs.exportModalInner.toggle()
+    },
+
+    resetModalState () {
+      active: 'docx_normal',
+      isCitizenDataCensored = false
+      isInstitutionDataCensored = false
+      isObscure = false
+      this.selectedTagIds = []
+      this.selectedTags = []
+      this.$refs.filterFlyout.reset()
     },
 
     scrollModalToBottom () {
@@ -666,17 +686,17 @@ export default {
 
     updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
       this.setGroupedFilterOptions({
-        categoryId: category.id,
+        categoryId: this.filter.labelTranslationKey,
         groupedOptions,
       })
 
       this.setUngroupedFilterOptions({
-        categoryId: category.id,
+        categoryId: this.filter.labelTranslationKey,
         options: ungroupedOptions,
       })
 
       this.setIsLoadingFilterFlyout({
-        categoryId: category.id,
+        categoryId: this.filter.labelTranslationKey,
         isLoading: false,
       })
     },
