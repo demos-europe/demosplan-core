@@ -48,7 +48,7 @@
         <!-- Result Column -->
         <template v-slot:result="rowData">
           <span v-if="rowData.status === 'completed' && rowData.result">
-            {{ rowData.result.statements || 0 }} STN, {{ rowData.result.segments || 0 }} Segmente
+            {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }} , {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}
           </span>
           <details v-else-if="rowData.status === 'failed' && rowData.error">
             <summary>{{ Translator.trans('import.job.error') }}</summary>

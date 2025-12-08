@@ -126,154 +126,15 @@ class XlsxSegmentImport
 
         $fileInfo = new SplFileInfo($file->getAbsolutePath(), '', $file->getHash());
 
-        // ========================================
-        // PASS 1: LIGHTWEIGHT VALIDATION (NO ENTITIES)
-        // ========================================
-        $phaseStart = microtime(true);
-        $validationResult = $this->excelValidationService->validateExcelFile($fileInfo);
-        $this->logger->info('Phase 1 (Validation Pass): Completed', [
-            'duration_sec' => round(microtime(true) - $phaseStart, 2),
-            'errors' => $validationResult->getErrorCount(),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-        ]);
-
-        // If validation failed, return immediately WITHOUT touching database
-        if ($validationResult->hasErrors()) {
-            $this->logger->warning('Import aborted due to validation errors', [
-                'error_count' => $validationResult->getErrorCount(),
-                'total_duration_sec' => round(microtime(true) - $startTime, 2),
-            ]);
-
-            // Convert validation result to SegmentExcelImportResult for compatibility
-            $importResult = new SegmentExcelImportResult();
-            foreach ($validationResult->getErrors() as $error) {
-                $importResult->addError(
-                    $error['message'],
-                    $error['lineNumber'],
-                    $error['currentWorksheet']
-                );
-            }
-
-            return $importResult;
+        $validationResult = $this->runValidationPass($fileInfo, $startTime);
+        if (null !== $validationResult) {
+            return $validationResult;
         }
 
-        $this->logger->info('Pass 1 validation successful - proceeding to Pass 2 (persistence)', [
-            'memory_freed_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-        ]);
+        $disabledListeners = $this->disableElasticsearchListeners();
 
-        // ========================================
-        // PASS 2: ENTITY CREATION AND PERSISTENCE (SKIP VALIDATION)
-        // ========================================
-
-        // Temporarily disable Elasticsearch auto-indexing event listeners
-        // We'll use bulk indexing after commit instead
-        $eventManager = $this->entityManager->getEventManager();
-        $disabledListeners = [];
-
-        // Disable all Elasticsearch-related listeners to prevent auto-indexing during import
-        foreach ($eventManager->getListeners() as $eventName => $listeners) {
-            foreach ($listeners as $listener) {
-                $listenerClass = get_class($listener);
-
-                // Disable only Elasticsearch-related listeners (be specific to avoid breaking other listeners)
-                if (str_contains($listenerClass, 'Elastica')) {
-                    $eventManager->removeEventListener($eventName, $listener);
-                    $disabledListeners[$eventName][] = $listener;
-                }
-            }
-        }
-
-        $this->logger->info('Elasticsearch auto-indexing disabled during import', [
-            'listeners_disabled' => count($disabledListeners),
-        ]);
-
-        // NOTE: Transaction management is handled by the caller (ImportJobProcessor)
-        // Do NOT start nested transactions - Doctrine doesn't support them properly!
         try {
-            $phaseStart = microtime(true);
-            // Pass 2: Run full entity validation (Pass 1 only caught simple field errors)
-            $importResult = $this->xlsxSegmentImporter->processSegments($fileInfo, skipValidation: false);
-            $this->logger->info('Phase 2 (Persistence Pass): Excel parsing completed', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'statements_count' => count($importResult->getStatements()),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            if ($importResult->hasErrors()) {
-                // Validation errors detected - return result without persisting
-                // Caller will handle rollback and error reporting
-                $this->logger->error('Unexpected errors during persistence pass', [
-                    'error_count' => count($importResult->getErrorsAsArray()),
-                ]);
-
-                return $importResult;
-            }
-
-            // Batch processing to prevent memory overflow
-            $phaseStart = microtime(true);
-            $this->persistTagsInBatches($this->xlsxSegmentImporter->getGeneratedTags());
-            $this->logger->info('Phase 3: New tags flushed', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'new_tags_count' => count($this->xlsxSegmentImporter->getGeneratedTags()),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            // NOTE: No need to flush existing tags from database - they already have IDs
-            // Segments reference both:
-            // - New tags (just flushed in Phase 3, now have IDs)
-            // - Existing tags (fetched from DB via getMatchingTag(), already have IDs)
-            // The join table (_statement_tag) can reference both when segments are persisted
-
-            $phaseStart = microtime(true);
-            $this->persistStatementsInBatches($importResult->getStatements());
-            $this->logger->info('Phase 4: Statements and segments persisted', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'statements_count' => count($importResult->getStatements()),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            // NOTE: Database commit is handled by the caller (ImportJobProcessor)
-            // Collect segment IDs after flush when they have database IDs
-            $this->segmentIdsForIndexing = [];
-            foreach ($importResult->getSegments() as $segment) {
-                $segmentId = $segment->getId();
-                if (null !== $segmentId) {
-                    $this->segmentIdsForIndexing[] = $segmentId;
-                }
-            }
-            $this->logger->info('Segment IDs collected for bulk indexing', [
-                'segments_count' => count($this->segmentIdsForIndexing),
-            ]);
-
-            // Generate report entries in batch after flush
-            $phaseStart = microtime(true);
-            $this->batchCreateReportEntries();
-            $this->logger->info('Phase 5: Report entries created', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'reports_count' => count($this->statementsForReports),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            // Bulk index all segments in Elasticsearch after successful flush
-            $phaseStart = microtime(true);
-            $this->bulkIndexSegments();
-            $this->logger->info('Phase 6: Elasticsearch bulk indexing completed', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
-
-            $phaseStart = microtime(true);
-            foreach ($importResult->getStatements() as $statement) {
-                // this event allows to send segmentation proposals requests
-                $this->dispatcher->dispatch(
-                    new StatementCreatedViaExcelEvent($statement),
-                    StatementCreatedViaExcelEventInterface::class
-                );
-            }
-            $this->logger->info('Phase 7: Events dispatched', [
-                'duration_sec' => round(microtime(true) - $phaseStart, 2),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-            ]);
+            $importResult = $this->runPersistencePass($fileInfo);
 
             $this->logger->info('=== SEGMENT IMPORT COMPLETE (TWO-PASS) ===', [
                 'total_duration_sec' => round(microtime(true) - $startTime, 2),
@@ -282,7 +143,6 @@ class XlsxSegmentImport
 
             return $importResult;
         } catch (Exception $exception) {
-            // NOTE: Transaction rollback is handled by the caller (ImportJobProcessor)
             $this->logger->error('Segment import failed', [
                 'exception' => $exception->getMessage(),
                 'duration_sec' => round(microtime(true) - $startTime, 2),
@@ -290,16 +150,7 @@ class XlsxSegmentImport
 
             throw $exception;
         } finally {
-            // Re-enable Elasticsearch listeners that were disabled during import
-            foreach ($disabledListeners as $eventName => $listeners) {
-                foreach ($listeners as $listener) {
-                    $eventManager->addEventListener($eventName, $listener);
-                    $this->logger->info('Re-enabled Elasticsearch listener after import', [
-                        'event' => $eventName,
-                        'listener' => get_class($listener),
-                    ]);
-                }
-            }
+            $this->reEnableElasticsearchListeners($disabledListeners);
         }
     }
 
@@ -595,5 +446,194 @@ class XlsxSegmentImport
     public function getErrorsAsArray(): array
     {
         return $this->xlsxSegmentImporter->getErrorsAsArray();
+    }
+
+    /**
+     * Run Pass 1: Lightweight validation without creating entities.
+     * Returns SegmentExcelImportResult with errors if validation fails, null if successful.
+     */
+    private function runValidationPass(SplFileInfo $fileInfo, float $startTime): ?SegmentExcelImportResult
+    {
+        $phaseStart = microtime(true);
+        $validationResult = $this->excelValidationService->validateExcelFile($fileInfo);
+        $this->logger->info('Phase 1 (Validation Pass): Completed', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'errors' => $validationResult->getErrorCount(),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        if (!$validationResult->hasErrors()) {
+            $this->logger->info('Pass 1 validation successful - proceeding to Pass 2 (persistence)', [
+                'memory_freed_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            ]);
+            return null;
+        }
+
+        $this->logger->warning('Import aborted due to validation errors', [
+            'error_count' => $validationResult->getErrorCount(),
+            'total_duration_sec' => round(microtime(true) - $startTime, 2),
+        ]);
+
+        $importResult = new SegmentExcelImportResult();
+        foreach ($validationResult->getErrors() as $error) {
+            $importResult->addError(
+                $error['message'],
+                $error['lineNumber'],
+                $error['currentWorksheet']
+            );
+        }
+
+        return $importResult;
+    }
+
+    /**
+     * Disable Elasticsearch auto-indexing listeners during import.
+     * Returns array of disabled listeners to re-enable later.
+     */
+    private function disableElasticsearchListeners(): array
+    {
+        $eventManager = $this->entityManager->getEventManager();
+        $disabledListeners = [];
+
+        $eventsToCheck = [
+            'prePersist', 'postPersist',
+            'preUpdate', 'postUpdate',
+            'preRemove', 'postRemove',
+            'postLoad', 'preFlush', 'onFlush', 'postFlush', 'onClear',
+        ];
+
+        foreach ($eventsToCheck as $eventName) {
+            foreach ($eventManager->getListeners($eventName) as $listener) {
+                if (str_contains(get_class($listener), 'Elastica')) {
+                    $eventManager->removeEventListener($eventName, $listener);
+                    $disabledListeners[$eventName][] = $listener;
+                }
+            }
+        }
+
+        $this->logger->info('Elasticsearch auto-indexing disabled during import', [
+            'listeners_disabled' => count($disabledListeners),
+        ]);
+
+        return $disabledListeners;
+    }
+
+    /**
+     * Re-enable Elasticsearch listeners that were disabled during import.
+     */
+    private function reEnableElasticsearchListeners(array $disabledListeners): void
+    {
+        $eventManager = $this->entityManager->getEventManager();
+
+        foreach ($disabledListeners as $eventName => $listeners) {
+            foreach ($listeners as $listener) {
+                $eventManager->addEventListener($eventName, $listener);
+                $this->logger->info('Re-enabled Elasticsearch listener after import', [
+                    'event' => $eventName,
+                    'listener' => get_class($listener),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Run Pass 2: Entity creation and persistence phases.
+     */
+    private function runPersistencePass(SplFileInfo $fileInfo): SegmentExcelImportResult
+    {
+        $phaseStart = microtime(true);
+        $importResult = $this->xlsxSegmentImporter->processSegments($fileInfo);
+        $this->logger->info('Phase 2 (Persistence Pass): Excel parsing completed', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'statements_count' => count($importResult->getStatements()),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        if ($importResult->hasErrors()) {
+            $this->logger->error('Unexpected errors during persistence pass', [
+                'error_count' => count($importResult->getErrorsAsArray()),
+            ]);
+            return $importResult;
+        }
+
+        $this->persistEntitiesAndIndex($importResult);
+
+        return $importResult;
+    }
+
+    /**
+     * Persist all entities (tags, statements, segments) and index them.
+     */
+    private function persistEntitiesAndIndex(SegmentExcelImportResult $importResult): void
+    {
+        $phaseStart = microtime(true);
+        $this->persistTagsInBatches($this->xlsxSegmentImporter->getGeneratedTags());
+        $this->logger->info('Phase 3: New tags flushed', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'new_tags_count' => count($this->xlsxSegmentImporter->getGeneratedTags()),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        $phaseStart = microtime(true);
+        $this->persistStatementsInBatches($importResult->getStatements());
+        $this->logger->info('Phase 4: Statements and segments persisted', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'statements_count' => count($importResult->getStatements()),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        $this->collectSegmentIdsForIndexing($importResult);
+
+        $phaseStart = microtime(true);
+        $this->batchCreateReportEntries();
+        $this->logger->info('Phase 5: Report entries created', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'reports_count' => count($this->statementsForReports),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        $phaseStart = microtime(true);
+        $this->bulkIndexSegments();
+        $this->logger->info('Phase 6: Elasticsearch bulk indexing completed', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+
+        $this->dispatchStatementCreatedEvents($importResult);
+    }
+
+    /**
+     * Collect segment IDs for bulk Elasticsearch indexing.
+     */
+    private function collectSegmentIdsForIndexing(SegmentExcelImportResult $importResult): void
+    {
+        $this->segmentIdsForIndexing = [];
+        foreach ($importResult->getSegments() as $segment) {
+            $segmentId = $segment->getId();
+            if (null !== $segmentId) {
+                $this->segmentIdsForIndexing[] = $segmentId;
+            }
+        }
+        $this->logger->info('Segment IDs collected for bulk indexing', [
+            'segments_count' => count($this->segmentIdsForIndexing),
+        ]);
+    }
+
+    /**
+     * Dispatch StatementCreatedViaExcelEvent for all statements.
+     */
+    private function dispatchStatementCreatedEvents(SegmentExcelImportResult $importResult): void
+    {
+        $phaseStart = microtime(true);
+        foreach ($importResult->getStatements() as $statement) {
+            $this->dispatcher->dispatch(
+                new StatementCreatedViaExcelEvent($statement),
+                StatementCreatedViaExcelEventInterface::class
+            );
+        }
+        $this->logger->info('Phase 7: Events dispatched', [
+            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
     }
 }

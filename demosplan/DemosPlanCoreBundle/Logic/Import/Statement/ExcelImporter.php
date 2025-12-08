@@ -19,6 +19,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
@@ -212,11 +213,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
-    public function processSegments(SplFileInfo $fileInfo, bool $skipValidation = false): SegmentExcelImportResult
+    public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
-        $phaseStart = microtime(true);
         $result = new SegmentExcelImportResult();
 
         // Clear ALL entity caches at start of each import job
@@ -232,10 +232,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
-
-        if ($skipValidation) {
-            $this->logger->info('[ExcelImporter] Pass 2: Validation skipped (already done in Pass 1)');
         }
 
         $step = microtime(true);
@@ -283,135 +279,24 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $processedSegments = 0;
 
         foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
-            $statementIterator = $row->getCellIterator('A', $metaDataWorksheet->getHighestColumn());
-            $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
+            $segmentsCreated = $this->processStatementRow(
+                $row,
+                $metaDataWorksheet,
+                $columnNamesMeta,
+                $segments,
+                $segmentWorksheetTitle,
+                $statementWorksheetTitle,
+                $miscTopic,
+                $statementLine,
+                $result,
+                $processedStatements,
+                $step
+            );
 
-            if ($this->isEmpty($statement)) {
-                continue;
-            }
-
-            $statement = \array_combine($columnNamesMeta, $statement);
-            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
-
-            // Pass 1 only: Validate statement ID
-            if (!$skipValidation) {
-                $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
-                if (0 !== $idConstraints->count()) {
-                    $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
-                    $statement[self::STATEMENT_ID] = 0;
-                }
-            }
-
-            $statementId = $statement[self::STATEMENT_ID];
-            $correspondingSegments = $segments[$statementId] ?? [];
-
-            // Debug: Log which statement is being processed and how many segments it has
-            if ($processedStatements < 5 || $processedStatements % 10 === 0) {
-                $this->logger->info('[ExcelImporter] Processing statement', [
-                    'statement_id' => $statementId,
-                    'segments_for_this_statement' => count($correspondingSegments),
-                    'processed_count' => $processedStatements,
-                ]);
-            }
-
-            // Pass 1 only: Validate matching field values
-            if (!$skipValidation) {
-                $idMatchViolations = $this->validator->validate(
-                    $statement,
-                    new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
-                );
-                if (0 !== $idMatchViolations->count()) {
-                    $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
-                }
-            }
-
-            // This is a segment import. If there are statements without segments, ignore them
-            if (0 === count($correspondingSegments)) {
-                continue;
-            }
-
-            $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
-
-            $statement[self::STATEMENT_TEXT] = $text;
-
-            $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
-            // Skip flush - let batch processing in XlsxSegmentImport handle it
-            $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
-
-            // Pass 1 only: Validate statement entity
-            if (!$skipValidation) {
-                $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
-                if (0 === $violations->count()) {
-                    $result->addStatement($generatedStatement);
-                    $processedStatements++;
-                } else {
-                    $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
-                }
-            } else {
-                // Pass 2: Skip validation, always add
-                $result->addStatement($generatedStatement);
+            if ($segmentsCreated > 0) {
                 $processedStatements++;
+                $processedSegments += $segmentsCreated;
             }
-
-            // create all corresponding segments
-            $counter = 1;
-            foreach ($correspondingSegments as $segmentData) {
-                $generatedSegment = $this->generateSegment($generatedStatement, $segmentData, $counter, $segmentData['segment_line'], $segmentWorksheetTitle, $miscTopic);
-
-                // Pass 1 only: Validate segment entity
-                if (!$skipValidation) {
-                    $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
-
-                    if (0 === $violations->count()) {
-                        $result->addSegment($generatedSegment);
-
-                        // needs to be persisted to make the PrePersistUniqueInternIdConstraint work
-                        $this->entityManager->persist($generatedSegment);
-                        $processedSegments++;
-                    } else {
-                        $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
-                    }
-                } else {
-                    // Pass 2: Skip validation, always add
-                    $result->addSegment($generatedSegment);
-                    $this->entityManager->persist($generatedSegment);
-                    $processedSegments++;
-                }
-
-                ++$counter;
-            }
-
-            // Debug: Log actual segments created for this statement
-            if ($processedStatements < 5 || $processedStatements % 10 === 0) {
-                $this->logger->info('[ExcelImporter] Segments created for statement', [
-                    'statement_id' => $statementId,
-                    'segments_created' => $counter - 1,
-                    'expected_segments' => count($correspondingSegments),
-                ]);
-            }
-
-            // TEMPORARY: Break after 30 statements for Blackfire profiling
-            if (false) {
-                $this->logger->warning('[ExcelImporter] STOPPING AFTER 30 STATEMENTS FOR PROFILING', [
-                    'statements_processed' => $processedStatements,
-                    'segments_processed' => $processedSegments,
-                    'duration_sec' => round(microtime(true) - $step, 2),
-                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-                ]);
-                break;
-            }
-
-            // Log progress periodically
-            if ($processedStatements % 100 === 0) {
-                $this->logger->info('[ExcelImporter] Statement processing progress', [
-                    'statements_processed' => $processedStatements,
-                    'segments_processed' => $processedSegments,
-                    'duration_sec' => round(microtime(true) - $step, 2),
-                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
-                ]);
-            }
-
-            unset($segments[$statementId]);
         }
 
         $this->logger->info('[ExcelImporter] All statements and segments created', [
@@ -1069,5 +954,127 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             'pattern' => $this->getSubmitTypePattern(),
             'message' => $violationMessage,
         ]);
+    }
+
+    /**
+     * Process a single statement row from the Excel worksheet.
+     * Returns the number of segments created (0 if statement was not processed).
+     */
+    private function processStatementRow(
+        $row,
+        Worksheet $worksheet,
+        array $columnNamesMeta,
+        array $segments,
+        string $segmentWorksheetTitle,
+        string $statementWorksheetTitle,
+        TagTopic $miscTopic,
+        int $statementLine,
+        SegmentExcelImportResult $result,
+        int $processedStatements,
+        float $step
+    ): int {
+        $statementIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
+        $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
+
+        if ($this->isEmpty($statement)) {
+            return 0;
+        }
+
+        $statement = \array_combine($columnNamesMeta, $statement);
+        $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
+
+        $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
+        if (0 !== $idConstraints->count()) {
+            $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
+            $statement[self::STATEMENT_ID] = 0;
+        }
+
+        $statementId = $statement[self::STATEMENT_ID];
+        $correspondingSegments = $segments[$statementId] ?? [];
+
+        $idMatchViolations = $this->validator->validate(
+            $statement,
+            new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
+        );
+        if (0 !== $idMatchViolations->count()) {
+            $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
+        }
+
+        // This is a segment import. If there are statements without segments, ignore them
+        if (0 === count($correspondingSegments)) {
+            return 0;
+        }
+
+        $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
+        $statement[self::STATEMENT_TEXT] = $text;
+
+        $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+        $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
+
+        $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
+        if (0 !== $violations->count()) {
+            $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
+            return 0;
+        }
+
+        $result->addStatement($generatedStatement);
+
+        $segmentsCreated = $this->createAndValidateSegmentsForStatement(
+            $generatedStatement,
+            $correspondingSegments,
+            $segmentWorksheetTitle,
+            $miscTopic,
+            $result
+        );
+
+        if ($processedStatements % 100 === 0) {
+            $this->logger->info('[ExcelImporter] Statement processing progress', [
+                'statements_processed' => $processedStatements,
+                'duration_sec' => round(microtime(true) - $step, 2),
+                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            ]);
+        }
+
+        return $segmentsCreated;
+    }
+
+    /**
+     * Create and validate all segments for a given statement.
+     * Returns the number of segments successfully created.
+     */
+    private function createAndValidateSegmentsForStatement(
+        Statement $statement,
+        array $correspondingSegments,
+        string $segmentWorksheetTitle,
+        TagTopic $miscTopic,
+        SegmentExcelImportResult $result
+    ): int {
+        $counter = 1;
+        $segmentsCreated = 0;
+
+        foreach ($correspondingSegments as $segmentData) {
+            $generatedSegment = $this->generateSegment(
+                $statement,
+                $segmentData,
+                $counter,
+                $segmentData['segment_line'],
+                $segmentWorksheetTitle,
+                $miscTopic
+            );
+
+            $violations = $this->segmentValidator->validate($generatedSegment, Segment::VALIDATION_GROUP_IMPORT);
+
+            if (0 === $violations->count()) {
+                $result->addSegment($generatedSegment);
+                $this->entityManager->persist($generatedSegment);
+                $segmentsCreated++;
+            } else {
+                $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
+            }
+
+            ++$counter;
+        }
+
+        return $segmentsCreated;
     }
 }
