@@ -21,16 +21,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SegmentImportDTO
 {
     /**
-     * @param int         $rowNumber       Excel row number for error reporting
-     * @param string      $statementId     Parent statement ID
-     * @param string      $internId        Internal segment ID (must be unique)
-     * @param string|null $externId        External segment ID
-     * @param string      $recommendation  Segment recommendation text
-     * @param string|null $tags            Comma-separated tags
-     * @param string|null $places          Comma-separated places
-     * @param string|null $counties        Comma-separated counties
-     * @param string|null $municipalities  Comma-separated municipalities
-     * @param string|null $priorityAreas   Comma-separated priority areas
+     * @param int         $rowNumber      Excel row number for error reporting
+     * @param string      $statementId    Parent statement ID
+     * @param string      $internId       Internal segment ID (must be unique)
+     * @param string|null $externId       External segment ID
+     * @param string      $recommendation Segment recommendation text
+     * @param string|null $tags           Comma-separated tags
+     * @param string|null $places         Comma-separated places
+     * @param string|null $counties       Comma-separated counties
+     * @param string|null $municipalities Comma-separated municipalities
+     * @param string|null $priorityAreas  Comma-separated priority areas
      */
     public function __construct(
         public readonly int $rowNumber,

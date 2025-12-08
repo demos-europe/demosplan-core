@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -59,7 +60,7 @@ class ImportJobRepository extends CoreRepository
             ->orderBy('ij.createdAt', 'DESC')
             ->setMaxResults(20);
 
-        if ($user !== null) {
+        if (null !== $user) {
             $qb->andWhere('ij.user = :user')
                 ->setParameter('user', $user);
         }
@@ -84,7 +85,7 @@ class ImportJobRepository extends CoreRepository
     /**
      * Clean up old completed jobs.
      */
-    public function cleanupOldJobs(\DateTime $before): int
+    public function cleanupOldJobs(DateTime $before): int
     {
         return $this->createQueryBuilder('ij')
             ->delete()

@@ -73,7 +73,7 @@ class XlsxSegmentImport
     /**
      * @var callable|null Optional progress callback for tracking import progress
      */
-    private $progressCallback = null;
+    private $progressCallback;
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
@@ -120,7 +120,7 @@ class XlsxSegmentImport
     {
         $startTime = microtime(true);
         $this->logger->info('=== SEGMENT IMPORT START (TWO-PASS) ===', [
-            'file' => $file->getFileName(),
+            'file'      => $file->getFileName(),
             'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
@@ -138,13 +138,13 @@ class XlsxSegmentImport
 
             $this->logger->info('=== SEGMENT IMPORT COMPLETE (TWO-PASS) ===', [
                 'total_duration_sec' => round(microtime(true) - $startTime, 2),
-                'peak_memory_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
+                'peak_memory_mb'     => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
             ]);
 
             return $importResult;
         } catch (Exception $exception) {
             $this->logger->error('Segment import failed', [
-                'exception' => $exception->getMessage(),
+                'exception'    => $exception->getMessage(),
                 'duration_sec' => round(microtime(true) - $startTime, 2),
             ]);
 
@@ -168,18 +168,18 @@ class XlsxSegmentImport
         foreach ($tags as $tag) {
             $this->entityManager->persist($tag);
 
-            if (++$batchCount % self::BATCH_SIZE === 0) {
+            if (0 === ++$batchCount % self::BATCH_SIZE) {
                 $batchStart = microtime(true);
                 $this->entityManager->flush();
                 // Don't clear() - keeps shared entities (Topic, Procedure) managed
-                $batchNumber++;
+                ++$batchNumber;
 
                 $this->logger->debug('Tag batch flushed', [
-                    'batch' => $batchNumber,
-                    'processed' => $batchCount,
-                    'total' => $totalTags,
+                    'batch'              => $batchNumber,
+                    'processed'          => $batchCount,
+                    'total'              => $totalTags,
                     'flush_duration_sec' => round(microtime(true) - $batchStart, 2),
-                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                    'memory_mb'          => round(memory_get_usage(true) / 1024 / 1024, 2),
                 ]);
 
                 $batchCount = 0;
@@ -193,7 +193,7 @@ class XlsxSegmentImport
             // Don't clear() - keeps shared entities (Topic, Procedure) managed
 
             $this->logger->debug('Final tag batch flushed', [
-                'remaining' => $batchCount,
+                'remaining'          => $batchCount,
                 'flush_duration_sec' => round(microtime(true) - $batchStart, 2),
             ]);
         }
@@ -218,11 +218,11 @@ class XlsxSegmentImport
             $this->entityManager->persist($statement);
 
             $statementBatch[] = $statement;
-            $processedStatements++;
+            ++$processedStatements;
 
             // Flush batch when reaching batch size (BEFORE event dispatch for addon safety)
             if (count($statementBatch) >= self::BATCH_SIZE) {
-                $batchNumber++;
+                ++$batchNumber;
                 $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
 
                 // Call progress callback if set
@@ -255,7 +255,7 @@ class XlsxSegmentImport
 
         // Flush remaining statements and dispatch their events
         if (!empty($statementBatch)) {
-            $batchNumber++;
+            ++$batchNumber;
             $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
 
             // Call progress callback if set
@@ -307,12 +307,12 @@ class XlsxSegmentImport
         // Decision: Accept the performance tradeoff to maintain correctness
 
         $this->logger->info('Statement batch flushed', [
-            'batch' => $batchNumber,
-            'processed' => $processedCount,
-            'total' => $totalCount,
-            'progress_pct' => round(($processedCount / $totalCount) * 100, 1),
+            'batch'              => $batchNumber,
+            'processed'          => $processedCount,
+            'total'              => $totalCount,
+            'progress_pct'       => round(($processedCount / $totalCount) * 100, 1),
             'flush_duration_sec' => round(microtime(true) - $batchStart, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'          => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
     }
 
@@ -325,6 +325,7 @@ class XlsxSegmentImport
         try {
             if (empty($this->statementsForReports)) {
                 $this->logger->warning('No statements collected for report generation');
+
                 return;
             }
 
@@ -346,7 +347,7 @@ class XlsxSegmentImport
                 'Failed to create report entries, but import succeeded',
                 [
                     'exception' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
+                    'trace'     => $exception->getTraceAsString(),
                 ]
             );
         }
@@ -363,6 +364,7 @@ class XlsxSegmentImport
         try {
             if (empty($this->segmentIdsForIndexing)) {
                 $this->logger->warning('No segment IDs collected for indexing');
+
                 return;
             }
 
@@ -391,13 +393,13 @@ class XlsxSegmentImport
                 $indexed += count($segments);
 
                 $this->logger->info('ES batch indexed', [
-                    'batch' => $batchNum + 1,
-                    'batch_count' => count($segments),
-                    'total_indexed' => $indexed,
-                    'total_segments' => $totalSegments,
-                    'progress_pct' => round(($indexed / $totalSegments) * 100, 1),
+                    'batch'              => $batchNum + 1,
+                    'batch_count'        => count($segments),
+                    'total_indexed'      => $indexed,
+                    'total_segments'     => $totalSegments,
+                    'progress_pct'       => round(($indexed / $totalSegments) * 100, 1),
                     'batch_duration_sec' => round(microtime(true) - $batchStart, 2),
-                    'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                    'memory_mb'          => round(memory_get_usage(true) / 1024 / 1024, 2),
                 ]);
 
                 // Clear batch array - segments are still managed by EntityManager
@@ -413,7 +415,7 @@ class XlsxSegmentImport
                 'Failed to index segments in Elasticsearch after successful database import',
                 [
                     'exception' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
+                    'trace'     => $exception->getTraceAsString(),
                 ]
             );
         }
@@ -458,19 +460,20 @@ class XlsxSegmentImport
         $validationResult = $this->excelValidationService->validateExcelFile($fileInfo);
         $this->logger->info('Phase 1 (Validation Pass): Completed', [
             'duration_sec' => round(microtime(true) - $phaseStart, 2),
-            'errors' => $validationResult->getErrorCount(),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'errors'       => $validationResult->getErrorCount(),
+            'memory_mb'    => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         if (!$validationResult->hasErrors()) {
             $this->logger->info('Pass 1 validation successful - proceeding to Pass 2 (persistence)', [
                 'memory_freed_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
+
             return null;
         }
 
         $this->logger->warning('Import aborted due to validation errors', [
-            'error_count' => $validationResult->getErrorCount(),
+            'error_count'        => $validationResult->getErrorCount(),
             'total_duration_sec' => round(microtime(true) - $startTime, 2),
         ]);
 
@@ -529,7 +532,7 @@ class XlsxSegmentImport
             foreach ($listeners as $listener) {
                 $eventManager->addEventListener($eventName, $listener);
                 $this->logger->info('Re-enabled Elasticsearch listener after import', [
-                    'event' => $eventName,
+                    'event'    => $eventName,
                     'listener' => get_class($listener),
                 ]);
             }
@@ -544,15 +547,16 @@ class XlsxSegmentImport
         $phaseStart = microtime(true);
         $importResult = $this->xlsxSegmentImporter->processSegments($fileInfo);
         $this->logger->info('Phase 2 (Persistence Pass): Excel parsing completed', [
-            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'duration_sec'     => round(microtime(true) - $phaseStart, 2),
             'statements_count' => count($importResult->getStatements()),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         if ($importResult->hasErrors()) {
             $this->logger->error('Unexpected errors during persistence pass', [
                 'error_count' => count($importResult->getErrorsAsArray()),
             ]);
+
             return $importResult;
         }
 
@@ -569,17 +573,17 @@ class XlsxSegmentImport
         $phaseStart = microtime(true);
         $this->persistTagsInBatches($this->xlsxSegmentImporter->getGeneratedTags());
         $this->logger->info('Phase 3: New tags flushed', [
-            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'duration_sec'   => round(microtime(true) - $phaseStart, 2),
             'new_tags_count' => count($this->xlsxSegmentImporter->getGeneratedTags()),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'      => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $phaseStart = microtime(true);
         $this->persistStatementsInBatches($importResult->getStatements());
         $this->logger->info('Phase 4: Statements and segments persisted', [
-            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'duration_sec'     => round(microtime(true) - $phaseStart, 2),
             'statements_count' => count($importResult->getStatements()),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $this->collectSegmentIdsForIndexing($importResult);
@@ -587,16 +591,16 @@ class XlsxSegmentImport
         $phaseStart = microtime(true);
         $this->batchCreateReportEntries();
         $this->logger->info('Phase 5: Report entries created', [
-            'duration_sec' => round(microtime(true) - $phaseStart, 2),
+            'duration_sec'  => round(microtime(true) - $phaseStart, 2),
             'reports_count' => count($this->statementsForReports),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'     => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $phaseStart = microtime(true);
         $this->bulkIndexSegments();
         $this->logger->info('Phase 6: Elasticsearch bulk indexing completed', [
             'duration_sec' => round(microtime(true) - $phaseStart, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'    => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $this->dispatchStatementCreatedEvents($importResult);
@@ -633,7 +637,7 @@ class XlsxSegmentImport
         }
         $this->logger->info('Phase 7: Events dispatched', [
             'duration_sec' => round(microtime(true) - $phaseStart, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'    => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
     }
 }

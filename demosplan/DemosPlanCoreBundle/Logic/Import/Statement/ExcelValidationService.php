@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\ImportValidationResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\SegmentImportDTO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementImportDTO;
+use Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -46,7 +47,7 @@ class ExcelValidationService
         $result = new ImportValidationResult();
 
         $this->logger->info('[ExcelValidation] Pass 1: Starting validation', [
-            'file' => $fileInfo->getFilename(),
+            'file'      => $fileInfo->getFilename(),
             'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
@@ -67,16 +68,15 @@ class ExcelValidationService
 
             $this->logger->info('[ExcelValidation] Pass 1: Validation complete', [
                 'duration_sec' => round(microtime(true) - $startTime, 2),
-                'errors' => $result->getErrorCount(),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                'errors'       => $result->getErrorCount(),
+                'memory_mb'    => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('[ExcelValidation] Validation failed with exception', [
                 'exception' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'trace'     => $e->getTraceAsString(),
             ]);
-            $result->addError('Fehler beim Lesen der Excel-Datei: ' . $e->getMessage(), 0, 'Allgemein');
+            $result->addError('Fehler beim Lesen der Excel-Datei: '.$e->getMessage(), 0, 'Allgemein');
         }
 
         return $result;
@@ -167,7 +167,7 @@ class ExcelValidationService
 
             // Check duplicate internId (cross-row constraint)
             // Empty internId is allowed, but non-empty must be unique
-            if (!empty($dto->internId) && trim($dto->internId) !== '') {
+            if (!empty($dto->internId) && '' !== trim($dto->internId)) {
                 if (isset($usedInternIds[$dto->internId])) {
                     $result->addError(
                         "Doppelter Abschnitt Interner ID '{$dto->internId}' (bereits verwendet in Zeile {$usedInternIds[$dto->internId]})",
@@ -189,9 +189,9 @@ class ExcelValidationService
         }
 
         $this->logger->info('[ExcelValidation] Segments validated', [
-            'segments_count' => array_sum(array_map('count', $segmentsByStatementId)),
+            'segments_count'  => array_sum(array_map('count', $segmentsByStatementId)),
             'statement_count' => count($segmentsByStatementId),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'       => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         return $segmentsByStatementId;
@@ -205,7 +205,7 @@ class ExcelValidationService
     private function validateStatementsWorksheet(
         Worksheet $worksheet,
         array $segmentsByStatementId,
-        ImportValidationResult $result
+        ImportValidationResult $result,
     ): void {
         $worksheetTitle = $worksheet->getTitle() ?? 'Metadaten';
         $columnNames = $this->getFirstRowValues($worksheet);
@@ -232,7 +232,7 @@ class ExcelValidationService
                 ? count($segmentsByStatementId[$statementId])
                 : 0;
 
-            if ($segmentCount === 0) {
+            if (0 === $segmentCount) {
                 // Report error: statements without segments are invalid in segment imports
                 $result->addError(
                     "Stellungnahme ID '{$statementId}' hat keine zugehörigen Abschnitte",
@@ -292,7 +292,7 @@ class ExcelValidationService
 
         $this->logger->info('[ExcelValidation] Statements validated', [
             'statements_count' => count($statementIdsSeen),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
     }
 
@@ -327,6 +327,7 @@ class ExcelValidationService
                 return false;
             }
         }
+
         return true;
     }
 

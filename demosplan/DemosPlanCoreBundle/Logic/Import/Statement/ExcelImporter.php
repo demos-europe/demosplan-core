@@ -238,7 +238,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
         $this->logger->info('[ExcelImporter] Worksheets loaded', [
             'duration_sec' => round(microtime(true) - $step, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'memory_mb'    => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         $step = microtime(true);
@@ -246,8 +246,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segments = $this->getGroupedSegmentsFromWorksheet($segmentsWorksheet, $result);
         $this->logger->info('[ExcelImporter] Segments parsed from worksheet', [
             'segments_count' => count($segments),
-            'duration_sec' => round(microtime(true) - $step, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'duration_sec'   => round(microtime(true) - $step, 2),
+            'memory_mb'      => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         unset($segmentsWorksheet);
@@ -294,16 +294,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             );
 
             if ($segmentsCreated > 0) {
-                $processedStatements++;
+                ++$processedStatements;
                 $processedSegments += $segmentsCreated;
             }
         }
 
         $this->logger->info('[ExcelImporter] All statements and segments created', [
             'total_statements' => $processedStatements,
-            'total_segments' => $processedSegments,
-            'duration_sec' => round(microtime(true) - $step, 2),
-            'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'total_segments'   => $processedSegments,
+            'duration_sec'     => round(microtime(true) - $step, 2),
+            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
 
         // option for addons to gather the persisted ids and core relations of imported segments
@@ -438,7 +438,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Debug: Log column names to identify why tags aren't being imported
         $this->logger->info('[ExcelImporter] Segments worksheet columns', [
-            'columns' => $columnNamesSegments,
+            'columns'         => $columnNamesSegments,
             'has_schlagworte' => in_array('Schlagworte', $columnNamesSegments, true),
         ]);
 
@@ -479,7 +479,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
         $this->logger->info('[ExcelImporter] Segment distribution by statement ID', [
             'total_statements' => count($segments),
-            'distribution' => $segmentDistribution,
+            'distribution'     => $segmentDistribution,
         ]);
 
         return $segments;
@@ -540,7 +540,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     /**
      * @throws DuplicatedTagTitleException
      * @throws PathException
-     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
+     * @throws AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,
@@ -971,7 +971,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $statementLine,
         SegmentExcelImportResult $result,
         int $processedStatements,
-        float $step
+        float $step,
     ): int {
         $statementIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
         $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
@@ -1014,6 +1014,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
         if (0 !== $violations->count()) {
             $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
+
             return 0;
         }
 
@@ -1027,11 +1028,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $result
         );
 
-        if ($processedStatements % 100 === 0) {
+        if (0 === $processedStatements % 100) {
             $this->logger->info('[ExcelImporter] Statement processing progress', [
                 'statements_processed' => $processedStatements,
-                'duration_sec' => round(microtime(true) - $step, 2),
-                'memory_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+                'duration_sec'         => round(microtime(true) - $step, 2),
+                'memory_mb'            => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
         }
 
@@ -1047,7 +1048,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         array $correspondingSegments,
         string $segmentWorksheetTitle,
         TagTopic $miscTopic,
-        SegmentExcelImportResult $result
+        SegmentExcelImportResult $result,
     ): int {
         $counter = 1;
         $segmentsCreated = 0;
@@ -1067,7 +1068,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             if (0 === $violations->count()) {
                 $result->addSegment($generatedSegment);
                 $this->entityManager->persist($generatedSegment);
-                $segmentsCreated++;
+                ++$segmentsCreated;
             } else {
                 $result->addErrors($violations, $segmentData['segment_line'], $segmentWorksheetTitle);
             }

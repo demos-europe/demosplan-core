@@ -28,10 +28,10 @@ class ImportValidationResult
     public function addError(string $message, int $lineNumber, string $worksheet): void
     {
         $this->errors[] = [
-            'id' => count($this->errors),
-            'lineNumber' => $lineNumber,
+            'id'               => count($this->errors),
+            'lineNumber'       => $lineNumber,
             'currentWorksheet' => $worksheet,
-            'message' => $message,
+            'message'          => $message,
         ];
     }
 

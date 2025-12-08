@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Import;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -19,6 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository")
+ *
  * @ORM\Table(name="import_job")
  */
 class ImportJob extends CoreEntity
@@ -32,8 +34,11 @@ class ImportJob extends CoreEntity
      * @var string|null
      *
      * @ORM\Id
+     *
      * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
+     *
      * @ORM\GeneratedValue(strategy="CUSTOM")
+     *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
     protected $id;
@@ -42,6 +47,7 @@ class ImportJob extends CoreEntity
      * @var Procedure
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
+     *
      * @ORM\JoinColumn(name="procedure_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
     protected $procedure;
@@ -50,6 +56,7 @@ class ImportJob extends CoreEntity
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User")
+     *
      * @ORM\JoinColumn(name="user_id", referencedColumnName="_u_id", nullable=false, onDelete="CASCADE")
      */
     protected $user;
@@ -90,7 +97,7 @@ class ImportJob extends CoreEntity
     protected $processedItems = 0;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      *
      * @ORM\Column(name="last_activity_at", type="datetime", nullable=true)
      */
@@ -111,7 +118,7 @@ class ImportJob extends CoreEntity
     protected $error;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
@@ -119,7 +126,7 @@ class ImportJob extends CoreEntity
 
     public function __construct()
     {
-        $this->createdAt = new \DateTime();
+        $this->createdAt = new DateTime();
     }
 
     public function getId(): string
@@ -135,6 +142,7 @@ class ImportJob extends CoreEntity
     public function setProcedure(Procedure $procedure): self
     {
         $this->procedure = $procedure;
+
         return $this;
     }
 
@@ -146,6 +154,7 @@ class ImportJob extends CoreEntity
     public function setUser(User $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 
@@ -157,6 +166,7 @@ class ImportJob extends CoreEntity
     public function setFilePath(string $filePath): self
     {
         $this->filePath = $filePath;
+
         return $this;
     }
 
@@ -168,6 +178,7 @@ class ImportJob extends CoreEntity
     public function setFileName(string $fileName): self
     {
         $this->fileName = $fileName;
+
         return $this;
     }
 
@@ -179,27 +190,28 @@ class ImportJob extends CoreEntity
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
         return $this;
     }
 
     public function isPending(): bool
     {
-        return $this->status === self::STATUS_PENDING;
+        return self::STATUS_PENDING === $this->status;
     }
 
     public function isProcessing(): bool
     {
-        return $this->status === self::STATUS_PROCESSING;
+        return self::STATUS_PROCESSING === $this->status;
     }
 
     public function isCompleted(): bool
     {
-        return $this->status === self::STATUS_COMPLETED;
+        return self::STATUS_COMPLETED === $this->status;
     }
 
     public function isFailed(): bool
     {
-        return $this->status === self::STATUS_FAILED;
+        return self::STATUS_FAILED === $this->status;
     }
 
     public function getTotalItems(): int
@@ -210,6 +222,7 @@ class ImportJob extends CoreEntity
     public function setTotalItems(int $totalItems): self
     {
         $this->totalItems = $totalItems;
+
         return $this;
     }
 
@@ -221,17 +234,19 @@ class ImportJob extends CoreEntity
     public function setProcessedItems(int $processedItems): self
     {
         $this->processedItems = $processedItems;
+
         return $this;
     }
 
-    public function getLastActivityAt(): ?\DateTime
+    public function getLastActivityAt(): ?DateTime
     {
         return $this->lastActivityAt;
     }
 
-    public function setLastActivityAt(?\DateTime $lastActivityAt): self
+    public function setLastActivityAt(?DateTime $lastActivityAt): self
     {
         $this->lastActivityAt = $lastActivityAt;
+
         return $this;
     }
 
@@ -243,6 +258,7 @@ class ImportJob extends CoreEntity
     public function setError(?string $error): self
     {
         $this->error = $error;
+
         return $this;
     }
 
@@ -254,19 +270,21 @@ class ImportJob extends CoreEntity
     public function setResult(?array $result): self
     {
         $this->result = $result;
+
         return $this;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
     public function getProgressPercentage(): int
     {
-        if ($this->totalItems === 0) {
+        if (0 === $this->totalItems) {
             return 0;
         }
+
         return (int) round(($this->processedItems / $this->totalItems) * 100);
     }
 
@@ -274,35 +292,39 @@ class ImportJob extends CoreEntity
     {
         $this->processedItems = $processed;
         $this->totalItems = $total;
-        $this->lastActivityAt = new \DateTime();
+        $this->lastActivityAt = new DateTime();
+
         return $this;
     }
 
     public function markAsProcessing(): self
     {
         $this->status = self::STATUS_PROCESSING;
-        $this->lastActivityAt = new \DateTime();
+        $this->lastActivityAt = new DateTime();
+
         return $this;
     }
 
     public function markAsCompleted(array $result): self
     {
         $this->status = self::STATUS_COMPLETED;
-        $this->lastActivityAt = new \DateTime();
+        $this->lastActivityAt = new DateTime();
         $this->result = $result;
+
         return $this;
     }
 
     public function markAsFailed(string $error): self
     {
         $this->status = self::STATUS_FAILED;
-        $this->lastActivityAt = new \DateTime();
+        $this->lastActivityAt = new DateTime();
         $this->error = $error;
+
         return $this;
     }
 
     /**
-     * Clean up temporary files
+     * Clean up temporary files.
      */
     public function cleanup(): void
     {

@@ -16,7 +16,6 @@ use Tests\Base\FunctionalTestCase;
 
 class ExcelValidationServiceTest extends FunctionalTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -261,7 +260,7 @@ class ExcelValidationServiceTest extends FunctionalTestCase
      */
     private function createSplFileInfo(string $filename): SplFileInfo
     {
-        $path = __DIR__ . '/res/excel_validation/' . $filename;
+        $path = __DIR__.'/res/excel_validation/'.$filename;
 
         if (!file_exists($path)) {
             self::fail("Test file not found: {$path}");

@@ -12,10 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -58,13 +56,14 @@ class ImportJobProcessor
 
             if (empty($pendingJobs)) {
                 $this->entityManager->commit();
+
                 return 0;
             }
 
             foreach ($pendingJobs as $job) {
                 try {
                     $this->processJob($job);
-                    $jobsProcessed++;
+                    ++$jobsProcessed;
                 } catch (Exception $e) {
                     // Rollback current transaction (it may be marked for rollback already)
                     if ($this->entityManager->getConnection()->isTransactionActive()) {
@@ -83,15 +82,15 @@ class ImportJobProcessor
                             $this->entityManager->rollback();
                         }
                         $this->logger->error('Failed to save job failure status', [
-                            'jobId' => $job->getId(),
+                            'jobId'     => $job->getId(),
                             'exception' => $flushException->getMessage(),
                         ]);
                     }
 
                     $this->logger->error('Import job failed with exception', [
-                        'jobId' => $job->getId(),
+                        'jobId'     => $job->getId(),
                         'exception' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
+                        'trace'     => $e->getTraceAsString(),
                     ]);
 
                     // Return early - don't try to commit the rolled-back transaction
@@ -101,7 +100,6 @@ class ImportJobProcessor
 
             // Commit transaction after processing jobs
             $this->entityManager->commit();
-
         } catch (Exception $e) {
             // Rollback transaction on error
             if ($this->entityManager->getConnection()->isTransactionActive()) {
@@ -121,7 +119,7 @@ class ImportJobProcessor
     private function processJob(ImportJob $job): void
     {
         $this->logger->info('Processing import job', [
-            'jobId' => $job->getId(),
+            'jobId'    => $job->getId(),
             'fileName' => $job->getFileName(),
         ]);
 
@@ -157,7 +155,7 @@ class ImportJobProcessor
         // Note: Job progress is automatically flushed by the next batch flush in persistStatementsInBatches()
         // The callback runs AFTER each batch flush, so the updated progress is flushed with the NEXT batch
         // This provides UI updates every ~10-30 seconds without causing race conditions with batch flushing
-        $this->xlsxSegmentImport->setProgressCallback(function($processed, $total) use ($job) {
+        $this->xlsxSegmentImport->setProgressCallback(function ($processed, $total) use ($job) {
             $job->updateProgress($processed, $total);
         });
 
@@ -188,7 +186,7 @@ class ImportJobProcessor
             $errorCount = count($errors);
 
             $this->logger->error('Import job failed with validation errors', [
-                'jobId' => $job->getId(),
+                'jobId'      => $job->getId(),
                 'errorCount' => $errorCount,
             ]);
 
@@ -217,7 +215,7 @@ class ImportJobProcessor
             // Store full error details in result field (JSON can handle large data)
             $job->setResult([
                 'validationErrors' => $errors,
-                'errorCount' => $errorCount,
+                'errorCount'       => $errorCount,
             ]);
 
             // Mark as failed with summary (prevents TEXT column overflow)
@@ -242,7 +240,7 @@ class ImportJobProcessor
         // Mark as completed with results
         $job->markAsCompleted([
             'statements' => $result->getStatementCount(),
-            'segments' => $result->getSegmentCount(),
+            'segments'   => $result->getSegmentCount(),
         ]);
         $job->setTotalItems($result->getStatementCount());
         $job->setProcessedItems($result->getStatementCount());
@@ -259,9 +257,9 @@ class ImportJobProcessor
         }
 
         $this->logger->info('Import job completed', [
-            'jobId' => $job->getId(),
+            'jobId'      => $job->getId(),
             'statements' => $result->getStatementCount(),
-            'segments' => $result->getSegmentCount(),
+            'segments'   => $result->getSegmentCount(),
         ]);
     }
 }

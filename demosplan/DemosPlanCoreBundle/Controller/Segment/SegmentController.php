@@ -12,13 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\RecommendationRequestEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
@@ -28,13 +26,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
-use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
-use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
-use Doctrine\ORM\EntityManagerInterface;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -42,7 +37,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
 {
@@ -127,20 +121,18 @@ class SegmentController extends BaseController
 
     /**
      * Get the position of a segment within its parent statement.
-     *
      */
     #[DplanPermissions('feature_segments_of_statement_list')]
     #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
     public function getSegmentPosition(
         string $segmentId,
         string $statementId,
-        SegmentRepository $segmentRepository
+        SegmentRepository $segmentRepository,
     ): JsonResponse {
         // Explicit ownership verification: ensure segment belongs to the statement
         $segment = $segmentRepository->find($segmentId);
 
         if (null === $segment) {
-
             return new JsonResponse(['error' => 'Segment not found'], Response::HTTP_NOT_FOUND);
         }
 
@@ -207,8 +199,8 @@ class SegmentController extends BaseController
                 $entityManager->flush();
 
                 $this->logger->info('Import job queued', [
-                    'jobId' => $job->getId(),
-                    'fileName' => $fileName,
+                    'jobId'       => $job->getId(),
+                    'fileName'    => $fileName,
                     'procedureId' => $procedureId,
                 ]);
 
@@ -217,13 +209,12 @@ class SegmentController extends BaseController
                     'confirm.segments.import.queued',
                     [
                         '%fileName%' => $fileName,
-                        '%jobId%' => $job->getId()
+                        '%jobId%'    => $job->getId(),
                     ]
                 );
 
                 // Delete the file from file storage (local copy kept for processing)
                 $fileService->deleteFile($file->getHash());
-
             } catch (Exception $e) {
                 $this->logger->error('Failed to queue import job', [
                     'fileName'  => $fileName,
@@ -263,7 +254,7 @@ class SegmentController extends BaseController
     )]
     public function listImportJobs(
         CurrentProcedureService $currentProcedureService,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $procedure = $currentProcedureService->getProcedure();
 
@@ -275,7 +266,7 @@ class SegmentController extends BaseController
             '@DemosPlanCore/DemosPlanSegment/import_jobs_list.html.twig',
             [
                 'procedure' => $procedure,
-                'title' => 'import.jobs.list',
+                'title'     => 'import.jobs.list',
             ]
         );
     }
@@ -294,7 +285,7 @@ class SegmentController extends BaseController
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
         ImportJobRepository $importJobRepository,
-        string $procedureId
+        string $procedureId,
     ): JsonResponse {
         $procedure = $currentProcedureService->getProcedure();
 
@@ -309,18 +300,18 @@ class SegmentController extends BaseController
 
         $items = array_map(function (ImportJob $job) {
             return [
-                'id' => $job->getId(),
-                'fileName' => $job->getFileName(),
-                'status' => $job->getStatus(),
-                'result' => $job->getResult(),
-                'error' => $job->getError(),
-                'createdAt' => $job->getCreatedAt()->format('Y-m-d H:i:s'),
+                'id'             => $job->getId(),
+                'fileName'       => $job->getFileName(),
+                'status'         => $job->getStatus(),
+                'result'         => $job->getResult(),
+                'error'          => $job->getError(),
+                'createdAt'      => $job->getCreatedAt()->format('Y-m-d H:i:s'),
                 'lastActivityAt' => $job->getLastActivityAt()?->format('Y-m-d H:i:s'),
             ];
         }, $jobs);
 
         return $this->json([
-            'items' => $items
+            'items' => $items,
         ]);
     }
 
