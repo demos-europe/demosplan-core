@@ -293,19 +293,6 @@ class XlsxSegmentImport
 
         $this->entityManager->flush();
 
-        // NOTE: We don't clear() here because:
-        // 1. clear() with entity arguments is deprecated in Doctrine ORM 3.0
-        // 2. The deprecated implementation is buggy - it detaches MORE than requested
-        // 3. Tags flushed earlier would be detached, preventing them from being committed
-        // 4. Performance hit is acceptable: 114MB memory growth, 2x slowdown at end
-        //
-        // Alternative approaches considered:
-        // - detach() individual entities: Too slow (26k entities)
-        // - clear() without args + re-merge: Complex, error-prone
-        // - Separate EntityManager: Architectural change
-        //
-        // Decision: Accept the performance tradeoff to maintain correctness
-
         $this->logger->info('Statement batch flushed', [
             'batch'              => $batchNumber,
             'processed'          => $processedCount,

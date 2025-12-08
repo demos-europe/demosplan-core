@@ -17,7 +17,7 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20251206125503 extends AbstractMigration
+class Version20251208213155 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -37,6 +37,7 @@ class Version20251206125503 extends AbstractMigration
                 procedure_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
                 user_id CHAR(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
                 file_path VARCHAR(500) NOT NULL,
+                file_name VARCHAR(255) NOT NULL DEFAULT "",
                 status VARCHAR(50) NOT NULL DEFAULT "pending",
                 total_items INT NOT NULL DEFAULT 0,
                 processed_items INT NOT NULL DEFAULT 0,
