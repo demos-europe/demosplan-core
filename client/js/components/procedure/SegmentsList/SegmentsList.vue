@@ -804,7 +804,7 @@ export default {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
-      window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
     handleResetSearch () {
@@ -1017,7 +1017,7 @@ export default {
     },
 
     updateQueryHash () {
-      const hrefParts = window.location.href.split('/')
+      const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
@@ -1036,8 +1036,8 @@ export default {
     },
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
-      const newHref = window.location.href.replace(oldQueryHash, newQueryHash)
-      window.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
+      const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+      globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
     updateSearchFields (selectedFields) {
@@ -1053,7 +1053,7 @@ export default {
 
   mounted () {
     // Get queryHash from URL
-    const hrefParts = window.location.href.split('/')
+    const hrefParts = globalThis.location.href.split('/')
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
