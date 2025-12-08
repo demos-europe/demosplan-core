@@ -214,73 +214,73 @@ class XlsxSegmentImport
         $processedStatements = 0;
 
         foreach ($statements as $statement) {
-            // Persist statement and all its entities
             $this->entityManager->persist($statement);
-
             $statementBatch[] = $statement;
             ++$processedStatements;
 
-            // Flush batch when reaching batch size (BEFORE event dispatch for addon safety)
+            // Flush batch when reaching batch size
             if (count($statementBatch) >= self::BATCH_SIZE) {
                 ++$batchNumber;
-                $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
-
-                // Call progress callback if set
-                if (null !== $this->progressCallback) {
-                    call_user_func($this->progressCallback, $processedStatements, $totalStatements);
-                }
-
-                // Dispatch events AFTER flush to ensure addons can query statements from database
-                foreach ($statementBatch as $flushedStatement) {
-                    // Defer report generation - collect statement data for batch processing after commit
-                    try {
-                        $statementArray = $this->statementService->convertToLegacy($flushedStatement);
-                        $this->statementsForReports[] = $statementArray;
-                    } catch (Exception $exception) {
-                        $this->logger->warning('Convert to legacy failed: ', [$exception]);
-
-                        throw $exception;
-                    }
-
-                    // Dispatch ManualOriginalStatementCreatedEvent AFTER flush (addon safety)
-                    $this->eventDispatcher->dispatch(
-                        new ManualOriginalStatementCreatedEvent($flushedStatement),
-                        ManualOriginalStatementCreatedEventInterface::class
-                    );
-                }
-
+                $this->processBatch($statementBatch, $batchNumber, $processedStatements, $totalStatements);
                 $statementBatch = [];
             }
         }
 
-        // Flush remaining statements and dispatch their events
+        // Flush remaining statements
         if (!empty($statementBatch)) {
             ++$batchNumber;
-            $this->flushAndClearBatch($batchNumber, $processedStatements, $totalStatements);
+            $this->processBatch($statementBatch, $batchNumber, $processedStatements, $totalStatements);
+        }
+    }
 
-            // Call progress callback if set
-            if (null !== $this->progressCallback) {
-                call_user_func($this->progressCallback, $processedStatements, $totalStatements);
+    /**
+     * Process a batch of statements: flush, dispatch events, and call progress callback.
+     *
+     * @param array $statementBatch
+     *
+     * @throws Exception
+     */
+    private function processBatch(
+        array $statementBatch,
+        int $batchNumber,
+        int $processedCount,
+        int $totalCount
+    ): void {
+        $this->flushAndClearBatch($batchNumber, $processedCount, $totalCount);
+
+        // Call progress callback if set
+        if (null !== $this->progressCallback) {
+            call_user_func($this->progressCallback, $processedCount, $totalCount);
+        }
+
+        // Dispatch events AFTER flush to ensure addons can query statements from database
+        $this->dispatchStatementEvents($statementBatch);
+    }
+
+    /**
+     * Dispatch events for flushed statements.
+     *
+     * @param array $statementBatch
+     *
+     * @throws Exception
+     */
+    private function dispatchStatementEvents(array $statementBatch): void
+    {
+        foreach ($statementBatch as $flushedStatement) {
+            // Defer report generation - collect statement data for batch processing after commit
+            try {
+                $statementArray = $this->statementService->convertToLegacy($flushedStatement);
+                $this->statementsForReports[] = $statementArray;
+            } catch (Exception $exception) {
+                $this->logger->warning('Convert to legacy failed: ', [$exception]);
+                throw $exception;
             }
 
-            // Dispatch events AFTER flush for remaining statements (addon safety)
-            foreach ($statementBatch as $flushedStatement) {
-                // Defer report generation - collect statement data for batch processing after commit
-                try {
-                    $statementArray = $this->statementService->convertToLegacy($flushedStatement);
-                    $this->statementsForReports[] = $statementArray;
-                } catch (Exception $exception) {
-                    $this->logger->warning('Convert to legacy failed: ', [$exception]);
-
-                    throw $exception;
-                }
-
-                // Dispatch ManualOriginalStatementCreatedEvent AFTER flush (addon safety)
-                $this->eventDispatcher->dispatch(
-                    new ManualOriginalStatementCreatedEvent($flushedStatement),
-                    ManualOriginalStatementCreatedEventInterface::class
-                );
-            }
+            // Dispatch ManualOriginalStatementCreatedEvent AFTER flush (addon safety)
+            $this->eventDispatcher->dispatch(
+                new ManualOriginalStatementCreatedEvent($flushedStatement),
+                ManualOriginalStatementCreatedEventInterface::class
+            );
         }
     }
 

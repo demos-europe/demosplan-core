@@ -55,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
+use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
@@ -278,19 +279,33 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $processedStatements = 0;
         $processedSegments = 0;
 
+        $context = new StatementProcessingContext(
+            $metaDataWorksheet,
+            $columnNamesMeta,
+            $segmentWorksheetTitle,
+            $statementWorksheetTitle,
+            0,
+            $step
+        );
+
         foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
-            $segmentsCreated = $this->processStatementRow(
-                $row,
-                $metaDataWorksheet,
-                $columnNamesMeta,
-                $segments,
-                $segmentWorksheetTitle,
-                $statementWorksheetTitle,
-                $miscTopic,
-                $statementLine,
-                $result,
+            // Update context with current processing stats
+            $context = new StatementProcessingContext(
+                $context->worksheet,
+                $context->columnNamesMeta,
+                $context->segmentWorksheetTitle,
+                $context->statementWorksheetTitle,
                 $processedStatements,
                 $step
+            );
+
+            $segmentsCreated = $this->processStatementRow(
+                $row,
+                $context,
+                $segments,
+                $miscTopic,
+                $statementLine,
+                $result
             );
 
             if ($segmentsCreated > 0) {
@@ -962,30 +977,25 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private function processStatementRow(
         $row,
-        Worksheet $worksheet,
-        array $columnNamesMeta,
+        StatementProcessingContext $context,
         array $segments,
-        string $segmentWorksheetTitle,
-        string $statementWorksheetTitle,
         TagTopic $miscTopic,
         int $statementLine,
         SegmentExcelImportResult $result,
-        int $processedStatements,
-        float $step,
     ): int {
-        $statementIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
+        $statementIterator = $row->getCellIterator('A', $context->worksheet->getHighestColumn());
         $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
 
         if ($this->isEmpty($statement)) {
             return 0;
         }
 
-        $statement = \array_combine($columnNamesMeta, $statement);
+        $statement = \array_combine($context->columnNamesMeta, $statement);
         $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
 
         $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
         if (0 !== $idConstraints->count()) {
-            $result->addErrors($idConstraints, $statementLine, $statementWorksheetTitle);
+            $result->addErrors($idConstraints, $statementLine, $context->statementWorksheetTitle);
             $statement[self::STATEMENT_ID] = 0;
         }
 
@@ -994,10 +1004,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         $idMatchViolations = $this->validator->validate(
             $statement,
-            new MatchingFieldValueInSegments($segments, $statementWorksheetTitle, $segmentWorksheetTitle)
+            new MatchingFieldValueInSegments($segments, $context->statementWorksheetTitle, $context->segmentWorksheetTitle)
         );
         if (0 !== $idMatchViolations->count()) {
-            $result->addErrors($idMatchViolations, $statementLine, $statementWorksheetTitle.' + '.$segmentWorksheetTitle);
+            $result->addErrors($idMatchViolations, $statementLine, $context->statementWorksheetTitle.' + '.$context->segmentWorksheetTitle);
         }
 
         // This is a segment import. If there are statements without segments, ignore them
@@ -1008,12 +1018,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
         $statement[self::STATEMENT_TEXT] = $text;
 
-        $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+        $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $context->statementWorksheetTitle);
         $generatedStatement = $this->createCopy($generatedOriginalStatement, flush: false);
 
         $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
         if (0 !== $violations->count()) {
-            $result->addErrors($violations, $statementLine, $statementWorksheetTitle);
+            $result->addErrors($violations, $statementLine, $context->statementWorksheetTitle);
 
             return 0;
         }
@@ -1023,15 +1033,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segmentsCreated = $this->createAndValidateSegmentsForStatement(
             $generatedStatement,
             $correspondingSegments,
-            $segmentWorksheetTitle,
+            $context->segmentWorksheetTitle,
             $miscTopic,
             $result
         );
 
-        if (0 === $processedStatements % 100) {
+        if (0 === $context->processedStatements % 100) {
             $this->logger->info('[ExcelImporter] Statement processing progress', [
-                'statements_processed' => $processedStatements,
-                'duration_sec'         => round(microtime(true) - $step, 2),
+                'statements_processed' => $context->processedStatements,
+                'duration_sec'         => round(microtime(true) - $context->step, 2),
                 'memory_mb'            => round(memory_get_usage(true) / 1024 / 1024, 2),
             ]);
         }

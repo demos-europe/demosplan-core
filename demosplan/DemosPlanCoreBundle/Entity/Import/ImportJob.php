@@ -22,6 +22,11 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository")
  *
  * @ORM\Table(name="import_job")
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * Entities naturally have many methods due to standard getters/setters for each property.
+ * This is acceptable as it follows the active record pattern and Doctrine conventions.
  */
 class ImportJob extends CoreEntity
 {

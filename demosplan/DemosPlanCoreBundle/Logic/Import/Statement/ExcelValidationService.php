@@ -124,68 +124,26 @@ class ExcelValidationService
     private function validateSegmentsWorksheet(Worksheet $worksheet, ImportValidationResult $result): array
     {
         $segmentsByStatementId = [];
-        $usedInternIds = []; // Track for duplicate detection
+        $usedInternIds = [];
         $worksheetTitle = $worksheet->getTitle() ?? 'Abschnitte';
-
-        // Get column names from first row
         $columnNames = $this->getFirstRowValues($worksheet);
 
         foreach ($worksheet->getRowIterator(2) as $lineNumber => $row) {
-            $cellIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
-
-            // Extract values immediately during iteration to avoid worksheet detachment
-            $values = [];
-            foreach ($cellIterator as $cell) {
-                $values[] = $cell->getFormattedValue();
-            }
+            $values = $this->extractRowValues($row, $worksheet);
 
             if ($this->isEmptyRow($values)) {
                 continue;
             }
 
-            $data = array_combine($columnNames, $values);
-
-            // Create DTO (use exact column names from ExcelImporter)
-            $dto = new SegmentImportDTO(
-                rowNumber: $lineNumber,
-                statementId: (string) ($data['Stellungnahme ID'] ?? ''),
-                internId: (string) ($data['Abschnitt Interner ID'] ?? ''),
-                externId: $data['Abschnitt Externer ID'] ?? null,
-                recommendation: (string) ($data['Erwiderung'] ?? ''),
-                tags: $data['Schlagworte'] ?? null,
-                places: $data['Orte'] ?? null,
-                counties: $data['Kreise'] ?? null,
-                municipalities: $data['Gemeinden'] ?? null,
-                priorityAreas: $data['Vorranggebiete'] ?? null,
+            $this->validateAndAddSegment(
+                $values,
+                $columnNames,
+                $lineNumber,
+                $worksheetTitle,
+                $result,
+                $segmentsByStatementId,
+                $usedInternIds
             );
-
-            // Validate DTO
-            $violations = $this->validator->validate($dto);
-            if ($violations->count() > 0) {
-                $result->addErrors($violations, $lineNumber, $worksheetTitle);
-            }
-
-            // Check duplicate internId (cross-row constraint)
-            // Empty internId is allowed, but non-empty must be unique
-            if (!empty($dto->internId) && '' !== trim($dto->internId)) {
-                if (isset($usedInternIds[$dto->internId])) {
-                    $result->addError(
-                        "Doppelter Abschnitt Interner ID '{$dto->internId}' (bereits verwendet in Zeile {$usedInternIds[$dto->internId]})",
-                        $lineNumber,
-                        $worksheetTitle
-                    );
-                } else {
-                    $usedInternIds[$dto->internId] = $lineNumber;
-                }
-            }
-
-            // Group segments by statement ID for later cross-validation
-            if (!isset($segmentsByStatementId[$dto->statementId])) {
-                $segmentsByStatementId[$dto->statementId] = [];
-            }
-            $segmentsByStatementId[$dto->statementId][] = $dto;
-
-            unset($dto); // Explicitly free memory
         }
 
         $this->logger->info('[ExcelValidation] Segments validated', [
@@ -195,6 +153,81 @@ class ExcelValidationService
         ]);
 
         return $segmentsByStatementId;
+    }
+
+    /**
+     * Validate a single segment row and add it to the collection.
+     *
+     * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
+     * @param array<string, int> $usedInternIds
+     */
+    private function validateAndAddSegment(
+        array $values,
+        array $columnNames,
+        int $lineNumber,
+        string $worksheetTitle,
+        ImportValidationResult $result,
+        array &$segmentsByStatementId,
+        array &$usedInternIds
+    ): void {
+        $data = array_combine($columnNames, $values);
+
+        $dto = new SegmentImportDTO(
+            rowNumber: $lineNumber,
+            statementId: (string) ($data['Stellungnahme ID'] ?? ''),
+            internId: (string) ($data['Abschnitt Interner ID'] ?? ''),
+            externId: $data['Abschnitt Externer ID'] ?? null,
+            recommendation: (string) ($data['Erwiderung'] ?? ''),
+            tags: $data['Schlagworte'] ?? null,
+            places: $data['Orte'] ?? null,
+            counties: $data['Kreise'] ?? null,
+            municipalities: $data['Gemeinden'] ?? null,
+            priorityAreas: $data['Vorranggebiete'] ?? null,
+        );
+
+        // Validate DTO
+        $violations = $this->validator->validate($dto);
+        if ($violations->count() > 0) {
+            $result->addErrors($violations, $lineNumber, $worksheetTitle);
+        }
+
+        // Check duplicate internId
+        $this->checkDuplicateInternId($dto, $lineNumber, $worksheetTitle, $result, $usedInternIds);
+
+        // Group segments by statement ID
+        if (!isset($segmentsByStatementId[$dto->statementId])) {
+            $segmentsByStatementId[$dto->statementId] = [];
+        }
+        $segmentsByStatementId[$dto->statementId][] = $dto;
+
+        unset($dto);
+    }
+
+    /**
+     * Check for duplicate intern IDs across segments.
+     *
+     * @param array<string, int> $usedInternIds
+     */
+    private function checkDuplicateInternId(
+        SegmentImportDTO $dto,
+        int $lineNumber,
+        string $worksheetTitle,
+        ImportValidationResult $result,
+        array &$usedInternIds
+    ): void {
+        if (empty($dto->internId) || '' === trim($dto->internId)) {
+            return;
+        }
+
+        if (isset($usedInternIds[$dto->internId])) {
+            $result->addError(
+                "Doppelter Abschnitt Interner ID '{$dto->internId}' (bereits verwendet in Zeile {$usedInternIds[$dto->internId]})",
+                $lineNumber,
+                $worksheetTitle
+            );
+        } else {
+            $usedInternIds[$dto->internId] = $lineNumber;
+        }
     }
 
     /**
@@ -212,73 +245,101 @@ class ExcelValidationService
         $statementIdsSeen = [];
 
         foreach ($worksheet->getRowIterator(2) as $lineNumber => $row) {
-            $cellIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
-
-            // Extract values immediately during iteration to avoid worksheet detachment
-            $values = [];
-            foreach ($cellIterator as $cell) {
-                $values[] = $cell->getFormattedValue();
-            }
+            $values = $this->extractRowValues($row, $worksheet);
 
             if ($this->isEmptyRow($values)) {
                 continue;
             }
 
-            $data = array_combine($columnNames, $values);
-            $statementId = (string) ($data['Stellungnahme ID'] ?? '');
-
-            // Check if statement has segments
-            $segmentCount = isset($segmentsByStatementId[$statementId])
-                ? count($segmentsByStatementId[$statementId])
-                : 0;
-
-            if (0 === $segmentCount) {
-                // Report error: statements without segments are invalid in segment imports
-                $result->addError(
-                    "Stellungnahme ID '{$statementId}' hat keine zugehörigen Abschnitte",
-                    $lineNumber,
-                    $worksheetTitle
-                );
-                continue;
-            }
-
-            // Create DTO (use exact column names from ExcelImporter)
-            $dto = new StatementImportDTO(
-                rowNumber: $lineNumber,
-                statementId: $statementId,
-                externId: $data['Externe ID'] ?? null,
-                submitterName: (string) ($data['Name'] ?? ''),
-                submitterType: (string) ($data['Typ'] ?? ''),
-                street: $data['Straße'] ?? null,
-                postalCode: $data['Postleitzahl'] ?? null,
-                city: $data['Stadt'] ?? null,
-                email: $data['E-Mail'] ?? null,
-                phone: $data['Telefon'] ?? null,
-                text: '', // Will be built from segments during actual import
-                publicStatement: $this->getPublicStatement($data['Typ'] ?? 'öffentlich'),
-                segmentCount: $segmentCount,
+            $this->validateSingleStatement(
+                $values,
+                $columnNames,
+                $segmentsByStatementId,
+                $lineNumber,
+                $worksheetTitle,
+                $result,
+                $statementIdsSeen
             );
-
-            // Validate DTO
-            $violations = $this->validator->validate($dto);
-            if ($violations->count() > 0) {
-                $result->addErrors($violations, $lineNumber, $worksheetTitle);
-            }
-
-            // Cross-validation: Check that statement ID appears in segments
-            if (!isset($segmentsByStatementId[$statementId])) {
-                $result->addError(
-                    "Stellungnahme ID '{$statementId}' hat keine zugehörigen Abschnitte",
-                    $lineNumber,
-                    $worksheetTitle
-                );
-            }
-
-            $statementIdsSeen[$statementId] = true;
-            unset($dto); // Explicitly free memory
         }
 
         // Cross-validation: Check that all segments have a corresponding statement
+        $this->validateOrphanedSegments($segmentsByStatementId, $statementIdsSeen, $result);
+
+        $this->logger->info('[ExcelValidation] Statements validated', [
+            'statements_count' => count($statementIdsSeen),
+            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+    }
+
+    /**
+     * Validate a single statement row.
+     *
+     * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
+     * @param array<string, bool> $statementIdsSeen
+     */
+    private function validateSingleStatement(
+        array $values,
+        array $columnNames,
+        array $segmentsByStatementId,
+        int $lineNumber,
+        string $worksheetTitle,
+        ImportValidationResult $result,
+        array &$statementIdsSeen
+    ): void {
+        $data = array_combine($columnNames, $values);
+        $statementId = (string) ($data['Stellungnahme ID'] ?? '');
+
+        // Check if statement has segments
+        $segmentCount = isset($segmentsByStatementId[$statementId])
+            ? count($segmentsByStatementId[$statementId])
+            : 0;
+
+        if (0 === $segmentCount) {
+            $result->addError(
+                "Stellungnahme ID '{$statementId}' hat keine zugehörigen Abschnitte",
+                $lineNumber,
+                $worksheetTitle
+            );
+            return;
+        }
+
+        // Create and validate DTO
+        $dto = new StatementImportDTO(
+            rowNumber: $lineNumber,
+            statementId: $statementId,
+            externId: $data['Externe ID'] ?? null,
+            submitterName: (string) ($data['Name'] ?? ''),
+            submitterType: (string) ($data['Typ'] ?? ''),
+            street: $data['Straße'] ?? null,
+            postalCode: $data['Postleitzahl'] ?? null,
+            city: $data['Stadt'] ?? null,
+            email: $data['E-Mail'] ?? null,
+            phone: $data['Telefon'] ?? null,
+            text: '',
+            publicStatement: $this->getPublicStatement($data['Typ'] ?? 'öffentlich'),
+            segmentCount: $segmentCount,
+        );
+
+        $violations = $this->validator->validate($dto);
+        if ($violations->count() > 0) {
+            $result->addErrors($violations, $lineNumber, $worksheetTitle);
+        }
+
+        $statementIdsSeen[$statementId] = true;
+        unset($dto);
+    }
+
+    /**
+     * Check for segments without corresponding statements.
+     *
+     * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
+     * @param array<string, bool> $statementIdsSeen
+     */
+    private function validateOrphanedSegments(
+        array $segmentsByStatementId,
+        array $statementIdsSeen,
+        ImportValidationResult $result
+    ): void {
         foreach ($segmentsByStatementId as $statementId => $segments) {
             if (!isset($statementIdsSeen[$statementId])) {
                 $firstSegment = $segments[0];
@@ -289,11 +350,19 @@ class ExcelValidationService
                 );
             }
         }
+    }
 
-        $this->logger->info('[ExcelValidation] Statements validated', [
-            'statements_count' => count($statementIdsSeen),
-            'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
-        ]);
+    /**
+     * Extract cell values from a row.
+     */
+    private function extractRowValues($row, Worksheet $worksheet): array
+    {
+        $cellIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
+        $values = [];
+        foreach ($cellIterator as $cell) {
+            $values[] = $cell->getFormattedValue();
+        }
+        return $values;
     }
 
     /**

@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
@@ -65,33 +67,7 @@ class ImportJobProcessor
                     $this->processJob($job);
                     ++$jobsProcessed;
                 } catch (Exception $e) {
-                    // Rollback current transaction (it may be marked for rollback already)
-                    if ($this->entityManager->getConnection()->isTransactionActive()) {
-                        $this->entityManager->rollback();
-                    }
-
-                    // Start new transaction to save error status
-                    $this->entityManager->beginTransaction();
-
-                    try {
-                        $job->markAsFailed($e->getMessage());
-                        $this->entityManager->flush();
-                        $this->entityManager->commit();
-                    } catch (Exception $flushException) {
-                        if ($this->entityManager->getConnection()->isTransactionActive()) {
-                            $this->entityManager->rollback();
-                        }
-                        $this->logger->error('Failed to save job failure status', [
-                            'jobId'     => $job->getId(),
-                            'exception' => $flushException->getMessage(),
-                        ]);
-                    }
-
-                    $this->logger->error('Import job failed with exception', [
-                        'jobId'     => $job->getId(),
-                        'exception' => $e->getMessage(),
-                        'trace'     => $e->getTraceAsString(),
-                    ]);
+                    $this->handleJobProcessingFailure($job, $e);
 
                     // Return early - don't try to commit the rolled-back transaction
                     return $jobsProcessed;
@@ -112,6 +88,40 @@ class ImportJobProcessor
     }
 
     /**
+     * Handle job processing failure by saving error status.
+     */
+    private function handleJobProcessingFailure(ImportJob $job, Exception $exception): void
+    {
+        // Rollback current transaction (it may be marked for rollback already)
+        if ($this->entityManager->getConnection()->isTransactionActive()) {
+            $this->entityManager->rollback();
+        }
+
+        // Start new transaction to save error status
+        $this->entityManager->beginTransaction();
+
+        try {
+            $job->markAsFailed($exception->getMessage());
+            $this->entityManager->flush();
+            $this->entityManager->commit();
+        } catch (Exception $flushException) {
+            if ($this->entityManager->getConnection()->isTransactionActive()) {
+                $this->entityManager->rollback();
+            }
+            $this->logger->error('Failed to save job failure status', [
+                'jobId'     => $job->getId(),
+                'exception' => $flushException->getMessage(),
+            ]);
+        }
+
+        $this->logger->error('Import job failed with exception', [
+            'jobId'     => $job->getId(),
+            'exception' => $exception->getMessage(),
+            'trace'     => $exception->getTraceAsString(),
+        ]);
+    }
+
+    /**
      * Process a single import job.
      *
      * @throws Exception
@@ -126,7 +136,7 @@ class ImportJobProcessor
         // Use the actual user who created the import job
         $user = $job->getUser();
         if (null === $user) {
-            throw new Exception('Import job has no associated user');
+            throw ImportJobUserNotFoundException::create($job->getId());
         }
 
         $customer = $this->entityManager->getRepository(Customer::class)->findOneBy(['subdomain' => 'sh']);
@@ -176,7 +186,7 @@ class ImportJobProcessor
             // Re-fetch the ImportJob entity after clear (it was detached)
             $job = $this->importJobRepository->find($job->getId());
             if (null === $job) {
-                throw new Exception('Import job not found after rollback');
+                throw ImportJobNotFoundException::create($job->getId());
             }
 
             // Start new transaction to save error status
