@@ -25,24 +25,24 @@
 
         <!-- Status Column with Icons -->
         <template v-slot:status="rowData">
-          <dp-contextual-help
-            v-if="rowData.status === 'pending'"
-            icon="clock"
-            :text="Translator.trans('import.job.status.pending')" />
-          <dp-contextual-help
-            v-else-if="rowData.status === 'processing'"
-            icon="hourglass"
-            :text="Translator.trans('import.job.status.processing')" />
-          <dp-contextual-help
-            v-else-if="rowData.status === 'completed'"
-            icon="check"
-            color="success"
-            :text="Translator.trans('import.job.status.completed')" />
-          <dp-contextual-help
-            v-else-if="rowData.status === 'failed'"
-            icon="times"
-            color="error"
-            :text="Translator.trans('import.job.status.failed')" />
+          <div class="text-center">
+            <dp-contextual-help
+              v-if="rowData.status === 'pending'"
+              icon="clock"
+              :text="Translator.trans('import.job.status.pending')" />
+            <dp-contextual-help
+              v-if="rowData.status === 'processing'"
+              icon="hourglass"
+              :text="Translator.trans('import.job.status.processing')" />
+            <dp-contextual-help
+              v-if="rowData.status === 'completed'"
+              icon="check"
+              :text="Translator.trans('import.job.status.completed')" />
+            <dp-contextual-help
+              v-if="rowData.status === 'failed'"
+              icon="warning"
+              :text="Translator.trans('import.job.status.failed')" />
+          </div>
         </template>
 
         <!-- Result Column -->
