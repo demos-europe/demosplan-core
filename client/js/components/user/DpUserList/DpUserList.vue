@@ -56,8 +56,6 @@
         </div>
         <!--Button row -->
         <div class="text-right u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary mb-1.5"
           <dp-button
             class="mb-1.5 mr-0.5"
             color="primary"
@@ -65,21 +63,16 @@
             value="inviteSelected"
             name="manageUsers"
             type="submit"
-          >
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
+            :disabled="!isUserSelected"
             :text="Translator.trans('user.marked.invite')"
           />
           <dp-button
             v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning mb-1.5"
-            type="button"
             class="mb-1.5"
             color="warning"
             data-cy="deleteSelectedItems"
             type="button"
+            :disabled="!isUserSelected"
             :text="deleteSelectedUsersLabel"
             @click="deleteItems(selectedItems)"
           />
@@ -183,6 +176,10 @@ export default {
       currentPage: 'currentPage',
       totalPages: 'totalPages',
     }),
+
+    isUserSelected () {
+      return this.selectedItems.length > 0
+    },
 
     deleteSelectedUsersLabel () {
       return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
