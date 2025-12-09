@@ -27,12 +27,14 @@ describe('StatementExportModal', () => {
     isCitizenDataCensored: false,
     isInstitutionDataCensored: false,
     isObscured: false,
+    tagFilterIds: [],
   }
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false,
+        procedureId: 'fbuu48486b6'
       },
       global: {
         renderStubDefaultSlot: true,
@@ -41,6 +43,12 @@ describe('StatementExportModal', () => {
             template: '<div><slot /></div>',
             methods: {
               toggle: jest.fn(),
+            },
+          },
+          'filter-flyout': {
+            template: '<div></div>',
+            methods: {
+              reset: jest.fn()
             },
           },
         },
@@ -201,6 +209,7 @@ describe('StatementExportModal', () => {
       isCitizenDataCensored: false,
       isInstitutionDataCensored: true,
       isObscured: false,
+      tagFilterIds: [],
     })
   })
 
@@ -222,6 +231,7 @@ describe('StatementExportModal', () => {
       isCitizenDataCensored: false,
       isInstitutionDataCensored: false,
       isObscured: true,
+      tagFilterIds: [],
     })
   })
 
