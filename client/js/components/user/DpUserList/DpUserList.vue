@@ -116,7 +116,7 @@ import {
   DpLoading,
   DpSearchField,
   dpSelectAllMixin,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
