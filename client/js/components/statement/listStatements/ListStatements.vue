@@ -509,8 +509,6 @@ export default {
           isCitizenDataCensored,
         }
 
-        console.log('parameters', parameters)
-
         if (docxHeaders) {
           parameters.tableHeaders = {
             col1: docxHeaders.col1,

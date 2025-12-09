@@ -488,11 +488,10 @@ export default {
     },
 
     getParentScrollTop () {
-      const modal = this.$el?.closest('[role="dialog"]')
+      const modal = this.$el?.closest('.o-modal__body')
 
       if (modal) {
-        const scrollable = modal.querySelector('.o-modal__body')
-        return scrollable?.scrollTop ?? 0
+        return modal.scrollTop ?? 0
       }
 
       return document.documentElement.scrollTop || 0
