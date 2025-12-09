@@ -236,6 +236,102 @@ describe('StatementExportModal', () => {
     })
   })
 
+  it('calls updateSelectedTags when getFilterValues is called', () => {
+    const updateSelectedTagIdsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTadIds')
+    const updateSelectedTagsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTags')
+
+    wrapper.vm.getFilterValues({})
+
+    expect(updateSelectedTagIdsSpy).toHaveBeenCalledTimes(1)
+    expect(updateSelectedTagsSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('syncs selectedTags from filterFlyout when tag filters are applied', () => {
+    const MOCK_TAG_ID_1 = 'tagID1'
+    const MOCK_TAG_ID_2 = 'tagID2'
+    const itemsSelectedMock = [
+      { id: MOCK_TAG_ID_1, label: 'Tag 1' },
+      { id: MOCK_TAG_ID_2, label: 'Tag 2' },
+    ]
+
+    const flyoutRef = wrapper.vm.$refs.filterFlyout
+    expect(flyoutRef).toBeTruthy()
+    flyoutRef.itemsSelected = itemsSelectedMock
+
+    const filter = {
+      MOCK_TAG_ID_1: {
+        condition: {
+          operator: "ARRAY_CONTAINS_VALUE",
+          path: "tags",
+          value: MOCK_TAG_ID_1,
+        }
+      },
+      MOCK_TAG_ID_2: {
+        condition: {
+          operator: "ARRAY_CONTAINS_VALUE",
+          path: "tags",
+          value: MOCK_TAG_ID_2,
+        }
+      }
+    }
+
+    wrapper.vm.getFilterValues(filter)
+    expect(wrapper.vm.selectedTags).toEqual(itemsSelectedMock)
+  })
+
+  it('clears selectedTags when filter is empty and selectedTagIds are not presented', () => {
+    const MOCK_TAG_ID_1 = 'tagID1'
+    const MOCK_TAG_ID_2 = 'tagID2'
+    const itemsSelectedMock = [
+      { id: MOCK_TAG_ID_1, label: 'Tag 1' },
+      { id: MOCK_TAG_ID_2, label: 'Tag 2' },
+    ]
+
+    const flyoutRef = wrapper.vm.$refs.filterFlyout
+    expect(flyoutRef).toBeTruthy()
+    flyoutRef.itemsSelected = itemsSelectedMock
+
+    const filter = {}
+
+    wrapper.vm.getFilterValues(filter)
+    expect(wrapper.vm.selectedTags).toEqual([])
+  })
+
+  it('emits export event with "tagFilterIds" from selected filters', () => {
+    const MOCK_TAG_ID_1 = 'tagID1'
+    const MOCK_TAG_ID_2 = 'tagID2'
+
+    const filter = {
+      MOCK_TAG_ID_1: {
+        condition: {
+          operator: "ARRAY_CONTAINS_VALUE",
+          path: "tags",
+          value: MOCK_TAG_ID_1,
+        }
+      },
+      MOCK_TAG_ID_2: {
+        condition: {
+          operator: "ARRAY_CONTAINS_VALUE",
+          path: "tags",
+          value: MOCK_TAG_ID_2,
+        }
+      }
+    }
+
+    wrapper.vm.getFilterValues(filter)
+    wrapper.vm.handleExport()
+
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
+      ...defaultPayload,
+      route: 'dplan_statement_segments_export',
+      shouldConfirm: true,
+      tagFilterIds: [MOCK_TAG_ID_1, MOCK_TAG_ID_2],
+    })
+  })
+
   it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
     wrapper.vm.handleExport()
