@@ -7,7 +7,7 @@
       <!-- Last Refresh Timestamp -->
       <div
         v-if="lastRefreshAt"
-        class="u-mb-0_5 color--grey">
+        class="mb-2 text-muted">
         {{ Translator.trans('import.job.last_refresh') }}: {{ formatDateTime(lastRefreshAt) }}
       </div>
 
