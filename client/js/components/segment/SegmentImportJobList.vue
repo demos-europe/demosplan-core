@@ -182,6 +182,7 @@ export default {
         }
       } catch (error) {
         console.error('Failed to fetch import jobs:', error)
+        
         dplan.notify.error(Translator.trans('error.generic'))
       } finally {
         if (this.isInitialLoad) {
