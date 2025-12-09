@@ -117,7 +117,7 @@ class StatementFormatter
     private function getAnonymVotesFromDatabase(string $attributeKey, mixed $value, array $statementArray): mixed
     {
         // Only handle numberOfAnonymVotes, other fields return unchanged
-        if ($attributeKey !== 'numberOfAnonymVotes') {
+        if ('numberOfAnonymVotes' !== $attributeKey) {
             return $value;
         }
 
@@ -125,7 +125,7 @@ class StatementFormatter
         if (null === $value && isset($statementArray['id'])) {
             try {
                 $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
-                if ($statementEntity !== null) {
+                if (null !== $statementEntity) {
                     $value = $statementEntity->getNumberOfAnonymVotes();
                 }
             } catch (Exception $e) {
