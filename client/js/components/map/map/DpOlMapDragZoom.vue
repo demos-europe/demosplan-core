@@ -56,7 +56,6 @@ export default {
       this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
       this.map.addInteraction(this.dragZoom)
       this.$emit('tool:activated', true)
-      this.$root.$emit('setDrawingActive', this.name)
       this.active = true
     },
 
@@ -70,23 +69,9 @@ export default {
       this.active = false
     },
 
-    handleToolActivation (toolName) {
-      if (toolName !== this.name && this.active) {
-        this.deactivateTool()
-      }
-    },
-
     toggle () {
       this.active ? this.deactivateTool() : this.activateTool()
     },
-  },
-
-  mounted () {
-    this.$root.$on('setDrawingActive', this.handleToolActivation)
-  },
-
-  beforeDestroy () {
-    this.$root.$off('setDrawingActive', this.handleToolActivation)
   },
 }
 </script>
