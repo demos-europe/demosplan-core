@@ -19,8 +19,8 @@ use Psr\Log\LoggerInterface;
 
 class BaseLayerVisibilityValidator
 {
-
     final public const BASE_LAYER_TYPE = 'base';
+
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly MapService $mapService,
