@@ -39,11 +39,11 @@
             <dp-contextual-help
               v-else-if="rowData.status === 'completed'"
               icon="check"
-              :text="Translator.trans('import.job.status.completed')" />
+              :text="Translator.trans('terminated')" />
             <dp-contextual-help
               v-else-if="rowData.status === 'failed'"
               icon="warning"
-              :text="Translator.trans('import.job.status.failed')" />
+              :text="Translator.trans('error')" />
           </div>
         </template>
 
@@ -108,23 +108,23 @@ export default {
   },
 
   props: {
+    initUrl: {
+      type: String,
+      required: true
+    },
     procedureId: {
       type: String,
       required: true
     },
-    
-    initUrl: {
-      type: String,
-      required: true
-    }
+
   },
 
   data () {
     return {
       items: [],
       isLoading: true,
-      isInitialLoad: true,        // Track if this is the first load
-      lastRefreshAt: null,        // Track last refresh time
+      isInitialLoad: true,
+      lastRefreshAt: null,
       pollInterval: 5000,        // Start at 5 seconds (adaptive polling)
       maxPollInterval: 60000,    // Max 60 seconds
       pollTimeoutId: null         // Use setTimeout for adaptive intervals
@@ -132,22 +132,22 @@ export default {
   },
 
   computed: {
-    headerFields () {
-      return [
-        { field: 'id', label: Translator.trans('import.job.id') },
-        { field: 'fileName', label: Translator.trans('import.job.filename') },
-        { field: 'status', label: Translator.trans('import.job.status') },
-        { field: 'createdAt', label: Translator.trans('import.job.created') },
-        { field: 'lastActivityAt', label: Translator.trans('import.job.last_activity') },
-        { field: 'result', label: Translator.trans('import.job.result') }
-      ]
-    },
-
     hasActiveJobs () {
       return this.items.some(item =>
         item.status === 'pending' || item.status === 'processing'
       )
-    }
+    },
+
+    headerFields () {
+      return [
+        { field: 'id', label: Translator.trans('import.job.id') },
+        { field: 'fileName', label: Translator.trans('file.name') },
+        { field: 'status', label: Translator.trans('status') },
+        { field: 'createdAt', label: Translator.trans('created') },
+        { field: 'lastActivityAt', label: Translator.trans('import.job.last_activity') },
+        { field: 'result', label: Translator.trans('result') }
+      ]
+    },
   },
 
   methods: {
@@ -182,7 +182,7 @@ export default {
         }
       } catch (error) {
         console.error('Failed to fetch import jobs:', error)
-        
+
         dplan.notify.error(Translator.trans('error.generic'))
       } finally {
         if (this.isInitialLoad) {
