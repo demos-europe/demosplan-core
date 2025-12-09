@@ -251,6 +251,7 @@ parameters:
     sentry_loglevel: "warning"
     # percentage of requests to trace performance. 0 = none, 1.0 = 100%
     sentry_traces_sample_rate: 0
+    sentry_profiles_sample_rate: 0
 
     fileservice_filepath: "../../files"
 

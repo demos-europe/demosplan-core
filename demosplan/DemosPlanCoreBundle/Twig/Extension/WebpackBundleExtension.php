@@ -48,7 +48,13 @@ class WebpackBundleExtension extends ExtensionBase
      * that must be loaded synchronously for inline scripts.
      */
     private const NON_DEFER_BUNDLES = [
+        'bs.js',
+        'common.js',
+        'core.js',
         'jquery-3.5.1.min.js',
+        'leaflet.js',
+        'ol.js',
+        'runtime.js',
     ];
 
     /**

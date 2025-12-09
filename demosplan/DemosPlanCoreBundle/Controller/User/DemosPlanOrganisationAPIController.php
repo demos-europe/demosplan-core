@@ -20,7 +20,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
@@ -80,9 +80,8 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * Get organisation by ID.
-     *
-     * @DplanPermissions("feature_orga_get")
      */
+    #[DplanPermissions('feature_orga_get')]
     #[Route(path: '/api/1.0/Orga/{id}', name: 'dplan_api_orga_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(CurrentUserService $currentUser, OrgaHandler $orgaHandler, PermissionsInterface $permissions, string $id): APIResponse
     {
@@ -113,9 +112,8 @@ class DemosPlanOrganisationAPIController extends APIController
 
     /**
      * List organizations, depending on permissions.
-     *
-     * @DplanPermissions("feature_organisation_user_list")
      */
+    #[DplanPermissions('feature_organisation_user_list')]
     #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function list(
         CustomerHandler $customerHandler,
@@ -284,9 +282,8 @@ class DemosPlanOrganisationAPIController extends APIController
      * This action DOES NOT delete an orga. Instead, it "wipes" it, which is our way of deleting.
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/deletion_of_entity_objects/ delete entity objects
-     *
-     * @DplanPermissions("feature_orga_delete")
      */
+    #[DplanPermissions('feature_orga_delete')]
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_delete', options: ['expose' => true], methods: ['DELETE'])]
     public function wipeOrga(UserHandler $userHandler, string $id): APIResponse
     {
@@ -341,10 +338,9 @@ class DemosPlanOrganisationAPIController extends APIController
     /**
      * Creates a new Organisation.
      *
-     * @DplanPermissions("area_manage_orgas")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_manage_orgas')]
     #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrga(UserHandler $userHandler,
         CustomerHandler $customerHandler,
@@ -417,9 +413,7 @@ class DemosPlanOrganisationAPIController extends APIController
         }
     }
 
-    /**
-     * @DplanPermissions("feature_orga_edit")
-     */
+    #[DplanPermissions('feature_orga_edit')]
     #[Route(path: '/api/1.0/organisation/{id}', name: 'organisation_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateOrga(
         CustomerHandler $customerHandler,

@@ -14,7 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Events\AfterSegmentationEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -46,9 +46,8 @@ class DraftsInfoApiController extends APIController
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
     public function edit(
         StatementToDraftsInfoTransformer $transformer,
@@ -80,9 +79,8 @@ class DraftsInfoApiController extends APIController
      * @throws MessageBagException
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
     public function save(
         DraftsInfoHandler $draftsInfoHandler,
@@ -116,9 +114,8 @@ class DraftsInfoApiController extends APIController
      * @throws StatementAlreadySegmentedException
      * @throws StatementNotFoundException
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
     public function confirmDrafts(
         CurrentUserService $currentUserProvider,

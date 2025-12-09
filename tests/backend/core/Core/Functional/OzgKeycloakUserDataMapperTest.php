@@ -15,7 +15,9 @@ namespace Tests\Core\Core\Functional;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakGroupBasedRoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
@@ -51,22 +53,27 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
             new NullLogger()
         );
 
+        $groupBasedRoleMapper = new OzgKeycloakGroupBasedRoleMapper(
+            $this->getContainer()->get(GlobalConfig::class),
+            new NullLogger(),
+            $this->getContainer()->get(RoleRepository::class)
+        );
+
         $this->sut = new OzgKeycloakUserDataMapper(
             $this->getContainer()->get(CustomerService::class),
             $this->getContainer()->get(DepartmentRepository::class),
             $this->getContainer()->get(EntityManagerInterface::class),
-            $this->getContainer()->get(GlobalConfig::class),
             new NullLogger(),
             $this->getContainer()->get(OrgaRepository::class),
             $this->getContainer()->get(OrgaService::class),
             $this->getContainer()->get(OrgaTypeRepository::class),
             $this->getContainer()->get(RoleRepository::class),
             $this->getContainer()->get(UserRepository::class),
-
             $this->getContainer()->get(UserRoleInCustomerRepository::class),
             $this->getContainer()->get(UserService::class),
             $this->getContainer()->get(ValidatorInterface::class),
-            $departmentMapper
+            $departmentMapper,
+            $groupBasedRoleMapper
         );
     }
 

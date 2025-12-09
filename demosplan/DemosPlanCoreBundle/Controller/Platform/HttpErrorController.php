@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,9 +22,8 @@ class HttpErrorController extends BaseController
 {
     /**
      * Create custom 404 Response.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: 'notfound', methods: ['GET'], name: 'core_404')]
     public function custom404(Request $request): Response
     {
@@ -55,9 +54,8 @@ class HttpErrorController extends BaseController
 
     /**
      * Create custom 500 page.
-     *
-     * @DplanPermissions("area_demosplan")
      */
+    #[DplanPermissions('area_demosplan')]
     #[Route(path: 'error', methods: ['GET'], name: 'core_500')]
     public function custom500(TranslatorInterface $translator): Response
     {

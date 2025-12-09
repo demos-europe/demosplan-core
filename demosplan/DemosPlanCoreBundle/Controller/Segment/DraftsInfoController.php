@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
@@ -32,9 +32,8 @@ class DraftsInfoController extends BaseController
      * redirects to dplan_drafts_list_edit.
      *
      * @throws StatementNotFoundException
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     // TODO: receiving the statement ID here may result in concurrency problems
     // because multiple users may be shown the same butten (with the same ID) and
     // it is unknown what happens if they both use it but it will be nothing good.
@@ -68,9 +67,8 @@ class DraftsInfoController extends BaseController
      * the segmentation.
      *
      * @throws Exception
-     *
-     * @DplanPermissions("area_statement_segmentation")
      */
+    #[DplanPermissions('area_statement_segmentation')]
     #[Route(name: 'dplan_drafts_list_edit', methods: 'GET', path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', options: ['expose' => true])]
     public function edit(
         string $procedureId,
