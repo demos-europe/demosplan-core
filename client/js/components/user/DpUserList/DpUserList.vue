@@ -177,12 +177,12 @@ export default {
       totalPages: 'totalPages',
     }),
 
-    isUserSelected () {
-      return this.selectedItems.length > 0
-    },
-
     deleteSelectedUsersLabel () {
       return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
+    },
+
+    isUserSelected () {
+      return this.selectedItems.length > 0
     },
 
     selectedItems () {
