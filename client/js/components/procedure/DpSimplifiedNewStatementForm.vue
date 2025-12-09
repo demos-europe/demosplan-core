@@ -353,13 +353,13 @@
         required
       />
       <dp-editor
-      ref="statementText"
-      v-model="values.text"
-      :procedure-id="procedureId"
-      :toolbar-items="{ linkButton: true }"
-      required
-      hidden-input="r_text"
-    />
+        ref="statementText"
+        v-model="values.text"
+        :procedure-id="procedureId"
+        :toolbar-items="{ linkButton: true }"
+        required
+        hidden-input="r_text"
+      />
 
       <slot />
 
@@ -666,7 +666,6 @@ export default {
       this.values[property].sort((a, b) => (a[sortBy] > b[sortBy]) ? 1 : ((b[sortBy] > a[sortBy]) ? -1 : 0))
     },
 
-
     submit () {
       this.dpValidateAction('simplifiedNewStatementForm', () => {
         this.isSaving = true
@@ -686,7 +685,6 @@ export default {
     if (hasOwnProp(this.values.submitter, 'date') && dayjs(this.values.submitter.date, 'YYYY-MM-DD', true).isValid()) {
       this.values.authoredDate = dayjs(this.values.submitter.date).format('DD.MM.YYYY')
     }
-
   },
 }
 </script>
