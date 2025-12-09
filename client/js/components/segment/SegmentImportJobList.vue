@@ -225,7 +225,7 @@ export default {
     document.addEventListener('visibilitychange', this.handleVisibilityChange)
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Clean up polling interval and event listener
     this.stopPolling()
     document.removeEventListener('visibilitychange', this.handleVisibilityChange)
