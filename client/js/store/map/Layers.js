@@ -24,6 +24,7 @@ const LayersStore = {
     hoverLayerIconIsHovered: false,
     apiData: {},
     procedureId: '',
+    layerStates: {},
     visibilityGroups: {},
     draggableOptions: {},
     draggableOptionsForBaseLayer: {},
@@ -166,6 +167,17 @@ const LayersStore = {
       state.apiData.included.sort((a, b) => ('' + a.attributes.mapOrder).padEnd(21, 0) - ('' + b.attributes.mapOrder).padEnd(21, 0))
     },
 
+    /**
+     * Set state for a layer (visibility, opacity, etc.)
+     * @param state
+     * @param data|Object { id: string, key: string, value: any }
+     */
+    setLayerState (state, { id, key, value }) {
+      const currentState = state.layerStates[id] || {}
+
+      set(state.layerStates, id, { ...currentState, [key]: value })
+    },
+
     setVisibilityGroups (state) {
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
         return (typeof elem.attributes.visibilityGroupId !== 'undefined' && elem.attributes.visibilityGroupId !== '')
@@ -192,7 +204,6 @@ const LayersStore = {
     setIsMapLoaded (state) {
       set(state, 'isMapLoaded', true)
     }
-
   },
 
   actions: {
@@ -224,9 +235,18 @@ const LayersStore = {
      * @param getters
      */
     buildLegends ({ commit, getters }) {
-      const layers = getters.gisLayerList('overlay')
-      for (let i = 0; i < layers.length; i++) {
-        const layer = layers[i]
+      // Initialize visibility for overlay layers
+      const overlayLayers = getters.gisLayerList('overlay')
+
+      for (const layer of overlayLayers) {
+        const layerId = layer.id.replaceAll('-', '')
+
+        commit('setLayerState', {
+          id: layerId,
+          key: 'isVisible',
+          value: layer.attributes.hasDefaultVisibility
+        })
+
         const layerParam = layer.attributes.layers
         const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
         const legendUrlBase = layer.attributes.url + delimiter
@@ -235,9 +255,9 @@ const LayersStore = {
           return item.trim()
         })
         // Add each layer layer to GetLegendGraphic request
-        for (let j = 0; j < layerParamSplit.length; j++) {
+        for (const layerParamItem of layerParamSplit) {
           if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+            const legendUrl = legendUrlBase + 'Layer=' + layerParamItem + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
             const legend = {
               layerId: layer.id,
               treeOrder: layer.attributes.treeOrder,
@@ -245,10 +265,26 @@ const LayersStore = {
               defaultVisibility: layer.attributes.hasDefaultVisibility,
               url: legendUrl
             }
+
             commit('setLegend', legend)
           }
         }
       }
+
+      // Initialize visibility for base layers (only one can be active at a time)
+      const baseLayers = getters.gisLayerList('base')
+      const firstActiveBaseLayer = baseLayers.find(layer => layer.attributes.hasDefaultVisibility)
+
+      baseLayers.forEach(layer => {
+        const layerId = layer.id.replaceAll('-', '')
+        const isVisible = firstActiveBaseLayer && layer.id === firstActiveBaseLayer.id
+
+        commit('setLayerState', {
+          id: layerId,
+          key: 'isVisible',
+          value: isVisible
+        })
+      })
     },
 
     save ({ state, commit, dispatch }) {
@@ -448,6 +484,16 @@ const LayersStore = {
       } else {
         return { id: '', attributes: { name: 'default' } }
       }
+    },
+
+    /**
+     * Check if a layer is currently visible
+     * @param state
+     * @param layerId {String} Layer ID (without dashes)
+     * @returns function(*): *
+     */
+    isLayerVisible: state => layerId => {
+      return state.layerStates[layerId]?.isVisible || false
     }
   }
 }
