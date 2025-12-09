@@ -5,6 +5,7 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 
 describe('StatementExportModal', () => {
+  const MOCK_PROCEDURE_ID = 'procedure-123'
   let wrapper
 
   const findCheckboxes = () => {
@@ -34,7 +35,7 @@ describe('StatementExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false,
-        procedureId: 'fbuu48486b6'
+        procedureId: MOCK_PROCEDURE_ID
       },
       global: {
         renderStubDefaultSlot: true,
