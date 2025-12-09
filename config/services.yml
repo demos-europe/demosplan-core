@@ -967,6 +967,10 @@ services:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
+        arguments:
+            $segmentPersister: '@fos_elastica.object_persister.statementSegments'
+
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\TagService:
         lazy: true
