@@ -72,7 +72,7 @@ export default () => {
     if (isEditMode) {
       // Show hint, don't change checkbox status
       if (defaultVisibilityCheckbox && defaultVisibilityHint && !defaultVisibilityCheckbox.disabled) {
-        defaultVisibilityHint.style.removeProperty('display')
+        defaultVisibilityHint.classList.remove('hidden')
       }
     }
 
@@ -148,16 +148,16 @@ export default () => {
     if (defaultVisibilityCheckbox && defaultVisibilityHint) {
       // Don't show hint or change checkbox if it's disabled (e.g., in visibility group)
       if (defaultVisibilityCheckbox.disabled) {
-        defaultVisibilityHint.style.display = 'none'
+        defaultVisibilityHint.classList.add('hidden')
         return
       }
 
       if (isBaseLayer) {
         defaultVisibilityCheckbox.checked = false
-        defaultVisibilityHint.style.removeProperty('display')
+        defaultVisibilityHint.classList.remove('hidden')
       } else {
         defaultVisibilityCheckbox.checked = true
-        defaultVisibilityHint.style.display = 'none'
+        defaultVisibilityHint.classList.add('hidden')
       }
     }
   }

@@ -260,10 +260,9 @@
             {% if hasPermission('feature_map_layer_visibility') %}
                 <dp-inline-notification
                     id="defaultVisibilityHint"
-                    class="mb-2"
+                    class="mb-2 hidden"
                     message="{{ 'hint.gislayer.default.visibility'|trans }}"
-                    type="info"
-                    style="display: none;">
+                    type="info">
                 </dp-inline-notification>
                 <label class="u-mb-0_5">
                     <input
