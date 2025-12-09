@@ -422,6 +422,10 @@ export default {
     },
   },
 
+  emits: [
+    'showSlidebar',
+  ],
+
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
@@ -1027,7 +1031,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     updateQueryHash () {
