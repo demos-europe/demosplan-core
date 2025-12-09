@@ -292,6 +292,7 @@ export default {
       default: 0,
     },
   },
+
   emits: ['visibilityToggled'],
 
   data () {
