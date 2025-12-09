@@ -618,7 +618,11 @@ export default {
     },
 
     resetFilterFlyout () {
-      this.$refs.filterFlyout.reset()
+      const filterFlyout = this.$refs.filterFlyout
+
+      if (filterFlyout && typeof filterFlyout.reset === 'function') {
+        filterFlyout.reset()
+      }
     },
 
     resetExportModalState () {
