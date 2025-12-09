@@ -1270,6 +1270,7 @@ error.notclaimed: "Für diese Gruppe haben Sie nicht die Rechte, um ihr die Stel
 error.notsignedin: "Für diese Aktion müssen Sie angemeldet sein."
 error.api.notfound: "Das zur Bearbeitung ausgewählte Element wurde nicht gefunden."
 error.number.invalid: "Die angegebene Zahl ist ungültig"
+error.occurred: "Es ist ein Fehler aufgetreten."
 error.orga.register.request: "Beim Anlegen der Organisation ist ein Fehler aufgetreten"
 error.organisation.duplicated.slug: "Der Direktlink zu Verfahren mit der Endung {slug} ist bereits vergeben."
 error.organisation.invalid: "In den Daten der Organisation sind folgende Felder ungültig: {fields}. Bitte korrigieren Sie diese Werte, um Änderungen speichern zu können."
