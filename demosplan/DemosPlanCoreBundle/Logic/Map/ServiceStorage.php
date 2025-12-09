@@ -271,7 +271,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // If this is a base layer with default visibility, disable all other base layers
         if ($this->baseLayerVisibilityValidator->shouldDisableOtherBaseLayers($gislayer)) {
-            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident'] ?? null);
+            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident']);
         }
 
         return $result;
