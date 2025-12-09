@@ -216,7 +216,6 @@
           <div
             class="u-mv"
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
-            @click="focusDatepicker('r_submitted_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.submitted')"
@@ -238,7 +237,6 @@
        --><div
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
-            @click="focusDatepicker('r_authored_date')"
           >
             <dp-label
               :text="Translator.trans('statement.date.authored')"
@@ -349,21 +347,19 @@
       </div>
 
       <!-- Statement text -->
-      <div @click="focusEditor()">
-        <dp-label
-          :text="Translator.trans('statement.text.short')"
-          for="r_text"
-          required
-        />
-        <dp-editor
-        ref="statementText"
-        v-model="values.text"
-        :procedure-id="procedureId"
-        :toolbar-items="{ linkButton: true }"
+      <dp-label
+        :text="Translator.trans('statement.text.short')"
+        for="r_text"
         required
-        hidden-input="r_text"
       />
-      </div>
+      <dp-editor
+      ref="statementText"
+      v-model="values.text"
+      :procedure-id="procedureId"
+      :toolbar-items="{ linkButton: true }"
+      required
+      hidden-input="r_text"
+    />
 
       <slot />
 
@@ -636,18 +632,6 @@ export default {
     abort () {
       const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
       window.location.replace(href)
-    },
-
-    focusDatepicker (id) {
-      const container = document.getElementById(id)
-      const input = container?.querySelector('input')
-      input?.focus()
-    },
-
-    focusEditor () {
-      const editorRef = this.$refs.statementText
-      const input = editorRef?.$el?.querySelector('.ProseMirror, [contenteditable]')
-      input?.focus()
     },
 
     setInitialValues () {
