@@ -26,6 +26,15 @@ class BaseLayerVisibilityValidator
     ) {
     }
 
+
+    public function shouldDisableOtherBaseLayers(array $gislayer): bool
+    {
+        return isset($gislayer['type']) && 'base' === $gislayer['type']
+            && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility'];
+    }
+
+
+
     /**
      * Disable default visibility for all base layers except the given one.
      *
