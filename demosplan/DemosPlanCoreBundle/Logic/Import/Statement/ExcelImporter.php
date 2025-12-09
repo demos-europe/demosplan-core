@@ -380,6 +380,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $publicStatement = $this->getPublicStatement($currentWorksheetTitle);
         $statementData = $publicOrInstitutionWorksheet->toArray();
         $columnNames = array_shift($statementData);
+        $columnNames = $this->trimCellEntries($columnNames);
         if (0 === count($statementData)) {
             throw new MissingDataException('No data in rows found.');
         }
@@ -387,6 +388,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             if ($this->isEmpty($statement)) {
                 continue;
             }
+            $statement = $this->trimCellEntries($statement);
             $statement = \array_combine($columnNames, $statement);
             $statement[self::PUBLIC_STATEMENT] = $publicStatement;
 
@@ -416,6 +418,20 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $this->addImportViolations($constraints, $line, $currentWorksheetTitle);
             }
         }
+    }
+
+    private function trimCellEntries(array $cellEntries): array
+    {
+        return array_map(
+            function ($columnName) {
+                if (is_string($columnName)) {
+                    return trim($columnName);
+                }
+
+                return $columnName;
+            },
+            $cellEntries
+        );
     }
 
     /**
