@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { DpContextualHelp, DpDataTable, DpLoading } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpDataTable, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SegmentImportJobList',
@@ -210,15 +210,11 @@ export default {
     },
 
     formatDateTime (dateTimeString) {
-      if (!dateTimeString) return '-'
-      const date = new Date(dateTimeString)
-      return date.toLocaleString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      if (!dateTimeString) {
+        return '-'
+      }
+
+      return formatDate(dateTimeString, 'long')
     }
   },
 
