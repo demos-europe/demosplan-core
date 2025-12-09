@@ -1,6 +1,11 @@
 api_platform:
     title: Hello API Platform
     version: 1.0.0
+    mapping:
+        paths:
+            - '%kernel.project_dir%/demosplan/DemosPlanCoreBundle/ApiResources'
+            - '%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Entity'  # if you have API entities too
+
     formats:
         jsonld: ['application/ld+json']
     docs_formats:
