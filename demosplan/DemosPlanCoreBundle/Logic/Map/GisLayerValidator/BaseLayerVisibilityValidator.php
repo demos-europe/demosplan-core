@@ -12,26 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator;
 
-
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
-
-class BaseLayerVisibilityValidator {
-
+class BaseLayerVisibilityValidator
+{
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly MapService $mapService,
         private readonly MapHandler $mapHandler,
     ) {
     }
-
 
     /**
      * Disable default visibility for all base layers except the given one.
@@ -71,5 +64,4 @@ class BaseLayerVisibilityValidator {
             ]);
         }
     }
-
 }
