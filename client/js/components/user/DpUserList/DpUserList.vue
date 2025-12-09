@@ -56,25 +56,26 @@
         </div>
         <!--Button row -->
         <div class="text-right u-4-of-7 u-mb-0_5">
-          <button
-            class="btn btn--primary mb-1.5"
+          <dp-button
+            class="mb-1.5 mr-0.5"
+            color="primary"
             data-cy="userList:manageUsers"
             value="inviteSelected"
             name="manageUsers"
             type="submit"
-          >
-            {{ Translator.trans('user.marked.invite') }}
-          </button>
-
-          <button
+            :disabled="!isUserSelected"
+            :text="Translator.trans('user.marked.invite')"
+          />
+          <dp-button
             v-if="hasPermission('feature_user_delete') || true"
-            class="btn btn--warning mb-1.5"
-            type="button"
+            class="mb-1.5"
+            color="warning"
             data-cy="deleteSelectedItems"
+            type="button"
+            :disabled="!isUserSelected"
+            :text="deleteSelectedUsersLabel"
             @click="deleteItems(selectedItems)"
-          >
-            {{ deleteSelectedUsersLabel }}
-          </button>
+          />
         </div>
       </div>
     </div>
@@ -108,7 +109,15 @@
 </template>
 
 <script>
-import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import {
+  debounce,
+  DpButton,
+  DpContextualHelp,
+  DpLoading,
+  DpSearchField,
+  dpSelectAllMixin,
+  hasOwnProp,
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
@@ -116,6 +125,7 @@ export default {
   name: 'DpUserList',
 
   components: {
+    DpButton,
     DpContextualHelp,
     DpLoading,
     DpSearchField,
@@ -169,6 +179,10 @@ export default {
 
     deleteSelectedUsersLabel () {
       return Translator.trans('entities.marked.delete', { entities: Translator.trans('users'), sum: this.selectedItems.length })
+    },
+
+    isUserSelected () {
+      return this.selectedItems.length > 0
     },
 
     selectedItems () {
