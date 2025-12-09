@@ -211,6 +211,7 @@
           :total-items="rowItems.length"
           :total-pages="totalPages"
           @page-change="handlePageChange"
+          @size-change="handleSizeChange"
         />
       </div>
     </dp-sticky-element>
@@ -424,6 +425,13 @@ export default {
       this.updateFields()
     },
 
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.itemsPerPage * (this.currentPage - 1) / newSize) + 1)
+      this.itemsPerPage = newSize
+      this.currentPage = page
+      this.updateFields()
+    },
+
     insertOrga (orga) {
       // Include new orgas by default although they might not be within the searched or filtered items
       this.searchedItems[orga.ident] = 'in'
@@ -475,12 +483,6 @@ export default {
         // Otherwise reset the direction and set the field
         this.sortOrder = { key: field, direction: -1 }
       }
-      this.updateFields()
-    },
-
-    setPageItemCount (count) {
-      this.itemsPerPage = count
-      this.currentPage = this.currentPage > this.totalPages ? this.totalPages : this.currentPage
       this.updateFields()
     },
 
