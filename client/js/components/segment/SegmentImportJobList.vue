@@ -81,7 +81,7 @@
         </template>
       </dp-data-table>
 
-      <p v-else class="u-mt">
+      <p v-else class="mt-4">
         {{ Translator.trans('import.job.waiting') }}
       </p>
     </template>
