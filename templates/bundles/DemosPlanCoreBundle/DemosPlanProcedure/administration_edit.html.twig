@@ -115,14 +115,15 @@
         procedure-id="{{ proceduresettings.id|default }}">
 
         <template #default="{
-            state,
             authUsersOptions,
+            selectAllAuthUsers,
             setSelectedInternalPhase,
             setSelectedPublicPhase,
-            selectAllAuthUsers,
+            sortedAgenciesOptions,
+            state,
+            submit,
             unselectAllAuthUsers,
-            updateAddonPayload,
-            submit
+            updateAddonPayload
           }">
 
         <form
