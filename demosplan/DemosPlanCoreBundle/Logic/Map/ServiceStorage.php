@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Services\MapServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -47,6 +48,7 @@ class ServiceStorage implements MapServiceStorageInterface
         private readonly LoggerInterface $logger,
         private readonly MapHandler $handler,
         MapService $service,
+        private readonly BaseLayerVisibilityValidator $baseLayerVisibilityValidator,
         private readonly TranslatorInterface $translator,
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
@@ -271,7 +273,7 @@ class ServiceStorage implements MapServiceStorageInterface
         if (isset($gislayer['type']) && 'base' === $gislayer['type']
             && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility']
             && is_string($procedure)) {
-            $this->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident'] ?? null);
+            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident'] ?? null);
         }
 
         return $result;
@@ -504,7 +506,7 @@ class ServiceStorage implements MapServiceStorageInterface
         if (isset($gislayer['type']) && 'base' === $gislayer['type']
             && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility']
             && !$isGlobalLayer && is_string($procedure)) {
-            $this->disableOtherBaseLayersDefaultVisibility($procedure, $gislayer['id'] ?? null);
+            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $gislayer['id'] ?? null);
         }
 
         return $result;
@@ -557,45 +559,6 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         return [];
-    }
-
-    /**
-     * Disable default visibility for all base layers except the given one.
-     *
-     * @param string      $procedureId   The procedure ID
-     * @param string|null $exceptLayerId The layer ID to exclude from disabling
-     */
-    private function disableOtherBaseLayersDefaultVisibility(string $procedureId, ?string $exceptLayerId): void
-    {
-        try {
-            // Get all layers for this procedure
-            $allLayers = $this->service->getGisAdminList($procedureId);
-            $layerObjects = $this->service->getLayerObjects($allLayers);
-
-            foreach ($layerObjects as $layer) {
-                // Skip if not a base layer, or if it's the layer we're currently saving
-                if (!$layer->isBaseLayer() || $layer->getId() === $exceptLayerId) {
-                    continue;
-                }
-
-                // Skip if already disabled
-                if (!$layer->hasDefaultVisibility()) {
-                    continue;
-                }
-
-                // Disable default visibility for this base layer
-                $this->handler->updateGis([
-                    'id'                => $layer->getId(),
-                    'defaultVisibility' => false,
-                ]);
-            }
-        } catch (Exception $e) {
-            $this->logger->error('Failed to disable other base layers default visibility', [
-                'exception'     => $e,
-                'procedureId'   => $procedureId,
-                'exceptLayerId' => $exceptLayerId,
-            ]);
-        }
     }
 
     private function getProjectionValueByServiceType(array $gislayer, array $data, string $projectionLabel): string
