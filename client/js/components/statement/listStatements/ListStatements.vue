@@ -194,6 +194,7 @@
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener"
+              @click="storeNavigationContextInLocalStorage"
             >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
@@ -349,6 +350,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
@@ -987,6 +989,11 @@ export default {
       }
     },
 
+    storeNavigationContextInLocalStorage () {
+      lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
+      this.storeFilterInCache()
+    },
+
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         // Override the default success callback to display a custom message
@@ -1016,6 +1023,10 @@ export default {
   },
 
   mounted () {
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
+
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {

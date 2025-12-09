@@ -255,6 +255,7 @@
                 })"
                 data-cy="segmentsList:edit"
                 rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('edit') }}
               </a>
@@ -268,6 +269,7 @@
                 })"
                 data-cy="segmentsList:segmentsRecommendationsCreate"
                 rel="noopener"
+                @click="storeNavigationContextInLocalStorage"
               >
                 {{ Translator.trans('segments.recommendations.create') }}
               </a>
@@ -985,6 +987,18 @@ export default {
       lscache.set(this.lsKey.allSegments, allSegments)
     },
 
+    storeFilterInLocalStorage () {
+      // Persist currentQueryHash to load the filtered SegmentsList after returning to segments list
+      lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
+
+      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+    },
+
+    storeNavigationContextInLocalStorage () {
+      lscache.set(`${this.procedureId}:navigation:source`, 'SegmentsList')
+      this.storeFilterInLocalStorage()
+    },
+
     storeToggledSegments () {
       lscache.set(this.lsKey.toggledSegments, {
         trackDeselected: this.trackDeselected,
@@ -1058,6 +1072,10 @@ export default {
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
     lscache.remove(this.lsKey.currentQueryHash)
+
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
 
     if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
       Object.values(this.initialFilter).forEach(filter => {

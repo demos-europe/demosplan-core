@@ -92,7 +92,8 @@ All rights reserved
       />
       <dl
         v-else
-        class="u-mb-0_5">
+        class="u-mb-0_5"
+      >
         <dt class="font-semibold u-mb-0_25">
           {{ Translator.trans('submit.type') }}
         </dt>
@@ -140,15 +141,15 @@ All rights reserved
         />
         <dl
           v-else
-          class="mb-3">
+          class="mb-3"
+        >
           <dt class="font-semibold u-mb-0_25">
             {{ Translator.trans('procedure.public.phase') }}
           </dt>
           <dd class="text-muted">
-            {{ localStatement.attributes.procedurePhase.name || '-' }}
+            {{ localStatement.attributes.procedurePhase?.name || '-' }}
           </dd>
         </dl>
-
       </template>
     </div>
     <dp-text-area

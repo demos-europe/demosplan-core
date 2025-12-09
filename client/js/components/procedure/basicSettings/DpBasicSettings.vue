@@ -102,6 +102,12 @@ export default {
       default: '',
     },
 
+    initPublicParticipationFeedbackEnabled: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     initSimilarRecommendationProcedures: {
       required: false,
       type: Array,
@@ -132,6 +138,7 @@ export default {
       pictogramCopyright: props.initPictogramCopyright,
       procedureDescription: props.procedureExternalDesc,
       procedureName: props.initProcedureName,
+      publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
       selectedAgencies: props.initAgencies,
       selectedAuthUsers: sortAlphabetically(structuredClone(props.initAuthUsers), 'name'),
       selectedDataInputOrgas: props.initDataInputOrgas,
