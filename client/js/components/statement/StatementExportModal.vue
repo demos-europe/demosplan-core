@@ -406,7 +406,7 @@ export default {
     closeModal () {
       this.resetExportModalState()
       this.resetFilterFlyout()
-      this.$refs.exportModalInner.toggle()
+      this.resetExportModalInner()
     },
 
     async fetchFilterOptions (requestParams) {
@@ -614,15 +614,15 @@ export default {
 
     openModal () {
       this.setInitialValues()
-      this.$refs.exportModalInner.toggle()
+      this.resetExportModalInner()
     },
 
     resetFilterFlyout () {
-      const filterFlyout = this.$refs.filterFlyout
+      this.$refs.filterFlyout?.reset?.()
+    },
 
-      if (filterFlyout && typeof filterFlyout.reset === 'function') {
-        filterFlyout.reset()
-      }
+    resetExportModalInner () {
+      this.$refs.exportModalInner?.toggle?.()
     },
 
     resetExportModalState () {
