@@ -36,7 +36,7 @@
             v-for="(exportType, key) in exportTypes"
             :id="key"
             :key="key"
-            :data-cy="`exportType:${key}`"
+            :data-cy="`exportModal:exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
               text: Translator.trans(exportType.label)
@@ -49,6 +49,7 @@
             <dp-checkbox
               id="censoredCitizen"
               v-model="isCitizenDataCensored"
+              data-cy="exportModal:censoredCitizen"
               :label="{
                 text: Translator.trans('export.censored.citizen')
               }"
@@ -56,6 +57,7 @@
             <dp-checkbox
               id="censoredInstitution"
               v-model="isInstitutionDataCensored"
+              data-cy="exportModal:censoredInstitution"
               :label="{
                 text: Translator.trans('export.censored.institution')
               }"
@@ -63,6 +65,7 @@
             <dp-checkbox
               id="obscured"
               v-model="isObscure"
+              data-cy="exportModal:obscured"
               :label="{
                 text: Translator.trans('export.docx.obscured')
               }"
@@ -76,6 +79,7 @@
           <dp-checkbox
             id="singleStatementCitizen"
             v-model="isCitizenDataCensored"
+            data-cy="exportModal:singleStatementCitizen"
             :label="{
               text: Translator.trans('export.censored.citizen')
             }"
@@ -83,6 +87,7 @@
           <dp-checkbox
             id="singleStatementInstitution"
             v-model="isInstitutionDataCensored"
+            data-cy="exportModal:singleStatementInstitution"
             :label="{
               text: Translator.trans('export.censored.institution')
             }"
@@ -90,6 +95,7 @@
           <dp-checkbox
             id="singleStatementObscure"
             v-model="isObscure"
+            data-cy="exportModal:singleStatementObscure"
             :label="{
               text: Translator.trans('export.docx.obscured')
             }"
@@ -132,6 +138,7 @@
           <dp-input
             id="fileName"
             v-model="fileName"
+            data-cy="exportModal:fileName"
             class="mt-1"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
@@ -161,7 +168,7 @@
             id: `${filter.labelTranslationKey}`,
             label: Translator.trans('search.list')
           }"
-          :data-cy="`statementExportModal:${filter.labelTranslationKey}`"
+          :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
           flyout-align="top"
           flyout-position="relative"
           :operator="filter.comparisonOperator"
