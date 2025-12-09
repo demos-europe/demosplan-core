@@ -35,7 +35,7 @@ class BaseLayerVisibilityValidator
     /**
      * Disable default visibility for all base layers except the given one.
      *
-     * @param string      $procedureId   The procedure ID
+     * @param string $procedureId   The procedure ID
      * @param string $exceptLayerId The layer ID to exclude from disabling
      */
     public function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
