@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import SegmentImportJobList from '@DpJs/components/segment/SegmentImportJobList'
+import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
