@@ -14,7 +14,7 @@
 
 - Add similar submitters to the Submitter List
 - Add segment text to the boilerplate modal, if the segment and its text is available
-- Fixed missing form fields in procedure basic settings
+- Fix missing form fields in procedure basic settings
 
 
 ## v4.25.0 (2025-11-06)
