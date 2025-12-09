@@ -38,10 +38,7 @@ class StatementFormatter
             $value = $this->getStatementValue($attributeKey, $statementArray);
 
             if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
-                // Only load numberOfAnonymVotes from DB, if missing from Elasticsearch
-                if ('numberOfAnonymVotes' === $attributeKey) {
-                    $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
-                }
+                $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
                 $formattedStatement[$attributeKey] = (string) $value;
                 continue;
             }
