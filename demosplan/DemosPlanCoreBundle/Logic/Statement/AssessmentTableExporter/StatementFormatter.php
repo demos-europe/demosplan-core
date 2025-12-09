@@ -35,12 +35,16 @@ class StatementFormatter
         $formattedStatement = [];
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
-            $formattedStatement[$attributeKey] = $this->getStatementValue($attributeKey, $statementArray);
-            $formattedStatement[$attributeKey] = $this->getAnonymVotesFromDatabase($attributeKey, $formattedStatement[$attributeKey], $statementArray);
+            $value = $this->getStatementValue($attributeKey, $statementArray);
+            $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
 
+            // Ensure that these two numeric fields are represented as strings in the export to prevent empty cells
             if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
+                $formattedStatement[$attributeKey] = (string) $value;
                 continue;
             }
+
+            $formattedStatement[$attributeKey] = $value;
 
             // simplify every attribute that is an array (to string)
             if (is_array($formattedStatement[$attributeKey])) {
@@ -88,32 +92,44 @@ class StatementFormatter
     // Get the value from the statement array, including dot notation for nested values
     private function getStatementValue(string $attributeKey, array $statementArray): mixed
     {
-        $explodedParts = explode('.', $attributeKey);
+        $value = $statementArray[$attributeKey] ?? null;
 
-        return match (count($explodedParts)) {
-            2       => $statementArray[$explodedParts[0]][$explodedParts[1]] ?? null,
-            3       => $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null,
-            default => $statementArray[$attributeKey] ?? null,
-        };
+        // allow dot notation in export definition
+        $explodedParts = explode('.', (string) $attributeKey);
+
+        switch (count($explodedParts)) {
+            case 2:
+                $value = $statementArray[$explodedParts[0]][$explodedParts[1]] ?? null;
+                break;
+
+            case 3:
+                $value = $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]] ?? null;
+                break;
+
+            default:
+                break;
+        }
+
+        return $value;
     }
 
-    // Handle numeric fields: load numberOfAnonymVotes from database if missing, ensure numeric value
+    // Get numberOfAnonymVotes from database if missing
     private function getAnonymVotesFromDatabase(string $attributeKey, mixed $value, array $statementArray): mixed
     {
-        // Not a numeric field → return unchanged
-        if (!in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
+        // Only handle numberOfAnonymVotes, other fields return unchanged
+        if ($attributeKey !== 'numberOfAnonymVotes') {
             return $value;
         }
 
-        // Load the numberOfAnonymVotes from a database if missing from Elasticsearch
-        if ('numberOfAnonymVotes' === $attributeKey && null === $value && isset($statementArray['id'])) {
+        // Load value from database if missing from Elasticsearch
+        if (null === $value && isset($statementArray['id'])) {
             try {
                 $statementEntity = $this->statementHandler->getStatement($statementArray['id']);
-                if (null !== $statementEntity) {
+                if ($statementEntity !== null) {
                     $value = $statementEntity->getNumberOfAnonymVotes();
                 }
             } catch (Exception $e) {
-                $this->logger->warning('Could not load numberOfAnonymVotes from database for statement: '.$statementArray['id']);
+                $this->logger->warning('Could not load '.$attributeKey.' from database for statement: '.$statementArray['id']);
             }
         }
 

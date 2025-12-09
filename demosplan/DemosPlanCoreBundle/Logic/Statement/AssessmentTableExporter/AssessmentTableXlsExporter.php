@@ -497,7 +497,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
-            $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
+            $formattedStatement = $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statement);
 
             // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
@@ -546,10 +546,5 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatements->toArray();
-    }
-
-    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
-    {
-        return $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statementArray);
     }
 }
