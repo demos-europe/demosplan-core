@@ -301,11 +301,11 @@
 
           <!-- Tags -->
           <template v-if="hasPermission('feature_statements_tag')">
-              <dp-label
-                :text="Translator.trans('tags')"
-                for="r_tags[]"
-              />
-              <dp-multiselect
+            <dp-label
+              :text="Translator.trans('tags')"
+              for="r_tags[]"
+            />
+            <dp-multiselect
               v-model="values.tags"
               class="u-mb"
               group-label="title"
@@ -438,8 +438,8 @@ import {
   DpSelect,
   DpTextArea,
   DpUploadFiles,
-  dpValidateMixin
-  , hasOwnProp,
+  dpValidateMixin,
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
