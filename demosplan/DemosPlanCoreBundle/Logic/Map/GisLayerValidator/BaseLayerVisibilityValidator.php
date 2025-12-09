@@ -19,6 +19,8 @@ use Psr\Log\LoggerInterface;
 
 class BaseLayerVisibilityValidator
 {
+
+    final public const BASE_LAYER_TYPE = 'base';
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly MapService $mapService,
@@ -26,10 +28,10 @@ class BaseLayerVisibilityValidator
     ) {
     }
 
-    public function shouldDisableOtherBaseLayers(array $gislayer): bool
+    public function shouldDisableOtherBaseLayers(array $gisLayer): bool
     {
-        return isset($gislayer['type']) && 'base' === $gislayer['type']
-            && isset($gislayer['defaultVisibility']) && true === $gislayer['defaultVisibility'];
+        return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
+            && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
     }
 
     /**
