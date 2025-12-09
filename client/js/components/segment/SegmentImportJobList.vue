@@ -112,6 +112,7 @@ export default {
       type: String,
       required: true
     },
+    
     initUrl: {
       type: String,
       required: true
