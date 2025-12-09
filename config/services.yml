@@ -994,9 +994,6 @@ services:
         tags:
             - { name: "dplan.assessment.table.exporter" }
 
-    # Statement Formatter
-    demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\StatementFormatter: ~
-
     # XLS Exporter
     demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter:
         lazy: true

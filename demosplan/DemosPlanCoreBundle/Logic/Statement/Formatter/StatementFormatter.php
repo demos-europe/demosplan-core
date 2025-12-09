@@ -36,10 +36,12 @@ class StatementFormatter
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $value = $this->getStatementValue($attributeKey, $statementArray);
-            $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
 
-            // Ensure that these two numeric fields are represented as strings in the export to prevent empty cells
             if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
+                // Only load numberOfAnonymVotes from DB, if missing from Elasticsearch
+                if ('numberOfAnonymVotes' === $attributeKey) {
+                    $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
+                }
                 $formattedStatement[$attributeKey] = (string) $value;
                 continue;
             }
