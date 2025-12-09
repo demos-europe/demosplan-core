@@ -563,6 +563,7 @@ export default {
         currentQuery,
       } = params
 
+      // Load filter options only when no filters are active. If filters are active, skip loading and scroll to the flyout.
       if (currentQuery && currentQuery.length > 0) {
         this.scrollModalToBottom()
         return
