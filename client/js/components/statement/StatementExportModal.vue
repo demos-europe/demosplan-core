@@ -153,7 +153,7 @@
         </fieldset>
       </fieldset>
 
-      <fieldset>
+      <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
           class="o-form__label text-base mb-1"
