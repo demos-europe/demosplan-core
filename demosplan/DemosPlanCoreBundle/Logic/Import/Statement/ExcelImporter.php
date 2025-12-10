@@ -268,7 +268,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             $statement[self::STATEMENT_TEXT] = $text;
 
-            $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
+            /** reason for offset 0 is the flush { @see StatementCopier::copyStatementObjectWithinProcedureWithRelatedFiles }
+             * within the method. It will cause the { @see StatementService::getNextValidExternalIdForProcedure }
+             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush
+             */
+            $generatedOriginalStatement = $this->createNewOriginalStatement($statement, 0, $statementLine, $statementWorksheetTitle);
             $generatedStatement = $this->createCopy($generatedOriginalStatement);
 
             $violations = $this->statementValidator->validate($generatedStatement, [Statement::IMPORT_VALIDATION]);
@@ -392,9 +396,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $statement = \array_combine($columnNames, $statement);
             $statement[self::PUBLIC_STATEMENT] = $publicStatement;
 
+            /** reason for offset 0 is the flush { @see StatementCopier::copyStatementObjectWithinProcedureWithRelatedFiles }
+             * within the method. It will cause the { @see StatementService::getNextValidExternalIdForProcedure }
+             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush
+             */
             $generatedOriginalStatement = $this->createNewOriginalStatement(
                 $statement,
-                count($this->generatedStatements),
+                0,
                 $line,
                 $currentWorksheetTitle
             );
