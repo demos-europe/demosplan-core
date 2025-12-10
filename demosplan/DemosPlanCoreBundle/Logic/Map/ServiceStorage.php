@@ -496,14 +496,14 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $this->validateGisLayer($gislayer);
 
-        $result = $this->handler->updateGis($gislayer);
+        $updatedGisLayer = $this->handler->updateGis($gislayer);
 
         // If this is a base layer with default visibility, disable all other base layers
         if (!$isGlobalLayer) {
-            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $result);
+            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
         }
 
-        return $result;
+        return $updatedGisLayer;
     }
 
     private function isOaf(array $data): bool
