@@ -12,7 +12,7 @@ use demosplan\DemosPlanCoreBundle\StateProvider\ClaimStateProvider;
     operations: [
         new Get(),
     ],
-    //routePrefix: '/3.0',
+    routePrefix: '/3.0',
     provider: ClaimStateProvider::class,
     // processor: ClaimStateProcessor::class
 )]
