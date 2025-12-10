@@ -427,7 +427,7 @@
                                 {#{ contextualHelp('help.public.detail.planningdocuments') }#}
 
                                 {# renders public_elements_list.html.twig #}
-                                {{ render(controller('demosplan\\DemosPlanCoreBundle\\Controller\\Document\\DemosPlanDocumentController::publicDocumentListAction', {'procedure': procedure, 'title': title, 'draftStatementId': templateVars.draftStatement.id|default})) }}
+                                {{ render(controller('demosplan\\DemosPlanCoreBundle\\Controller\\Document\\DemosPlanDocumentController::publicDocumentList', {'procedure': procedure, 'title': title, 'draftStatementId': templateVars.draftStatement.id|default})) }}
                             </div>
 
                         {% endif %}

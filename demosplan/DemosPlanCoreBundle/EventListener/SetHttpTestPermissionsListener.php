@@ -30,14 +30,14 @@ class SetHttpTestPermissionsListener
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ($this->kernel->getEnvironment() !== 'test') {
+        if ('test' !== $this->kernel->getEnvironment()) {
             return;
         }
 
         $request = $controllerEvent->getRequest();
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);
-            $this->permissions->enablePermissions(explode(',', $permissions));
+            $this->permissions->enablePermissions(explode(',', (string) $permissions));
         }
     }
 }

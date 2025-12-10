@@ -22,10 +22,7 @@ class ArrayObject extends \ArrayObject
         parent::__construct($mergedValues, $flags, $iterator_class);
     }
 
-    /**
-     * @param mixed $offset
-     */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         if (0 == parent::count()) {
             return false;
@@ -34,10 +31,7 @@ class ArrayObject extends \ArrayObject
         return array_key_exists($offset, parent::getArrayCopy()) ? true : property_exists($this, $offset);
     }
 
-    /**
-     * @param mixed $offset
-     */
-    public function offsetGet($offset): mixed
+    public function offsetGet(mixed $offset): mixed
     {
         $getterMethod = 'get'.ucfirst((string) $offset);
         if (method_exists($this, $getterMethod)) {
@@ -56,11 +50,7 @@ class ArrayObject extends \ArrayObject
         return null;
     }
 
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         parent::offsetSet($offset, $value);
 

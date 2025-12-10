@@ -40,7 +40,7 @@ abstract class AbstractCustomField implements CustomFieldInterface
     private function validateBasicStructure(array $options): void
     {
         // Check all options have non-empty labels
-        if (!collect($options)->every(fn ($option) => isset($option['label']) && !empty(trim($option['label'])))) {
+        if (!collect($options)->every(fn ($option) => isset($option['label']) && !in_array(trim((string) $option['label']), ['', '0'], true))) {
             throw new InvalidArgumentException('All options must have a non-empty label');
         }
 
@@ -57,7 +57,7 @@ abstract class AbstractCustomField implements CustomFieldInterface
             ->filter(fn ($option) => isset($option['id']))
             ->pluck('id')
             ->each(function ($id) {
-                if (null === $this->getCustomOptionValueById($id)) {
+                if (!$this->getCustomOptionValueById($id) instanceof CustomFieldOption) {
                     throw new InvalidArgumentException("Invalid option ID: {$id}");
                 }
             });

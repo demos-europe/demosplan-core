@@ -70,6 +70,7 @@
           :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
           name="r_plisId"
           :options="plisNameOptions"
+          required
         />
 
         <dl>

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadySegmentedException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
@@ -30,7 +31,7 @@ class SegmentableStatementValidator
     public function validate(string $statementId): void
     {
         $statement = $this->statementHandler->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             throw StatementNotFoundException::createFromId($statementId);
         }
         $statementAssignee = $statement->getAssignee();

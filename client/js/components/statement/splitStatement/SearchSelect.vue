@@ -15,12 +15,14 @@
       :clear-on-select="false"
       :close-on-select="false"
       label="title"
-      :options="options"
+      :options="filteredOptions"
       :placeholder="placeHolder"
       :preserve-search="true"
       selection-controls
       track-by="title"
+      :use-default-search="false"
       @input="updateSelected"
+      @search-change="updateSearchValue"
     >
       <template v-slot:option="{ props }">
         <input
@@ -59,6 +61,12 @@ export default {
     DpMultiselect,
   },
 
+  data () {
+    return {
+      search: ''
+    }
+  },
+
   props: {
     options: {
       type: Array,
@@ -87,12 +95,52 @@ export default {
       tagById: 'tagById',
       categorizedTags: 'categorizedTags',
     }),
+
+    filteredOptions () {
+      const searchValue = this.search.toLowerCase()
+
+      if (!searchValue) {
+        return this.options
+      }
+
+      const matches = this.options.filter(option =>
+        option.title.toLowerCase().includes(searchValue)
+      )
+
+      /**
+       * Sorting:
+       * - prioritize items whose titles START with the search value
+       * - followed by items that only CONTAIN the search value
+       */
+      return matches.sort((a, b) => {
+        const aTitle = a.title.toLowerCase()
+        const bTitle = b.title.toLowerCase()
+
+        const aStarts = aTitle.startsWith(searchValue)
+        const bStarts = bTitle.startsWith(searchValue)
+
+        if (aStarts && !bStarts) {
+          return -1
+        }
+
+        if (!aStarts && bStarts) {
+          return 1
+        }
+
+        /* If both items match equally well, sort them alphabetically */
+        return aTitle.localeCompare(bTitle, 'de')
+      })
+    }
   },
 
   methods: {
     ...mapActions('SplitStatement', [
       'updateCurrentTags',
     ]),
+
+    updateSearchValue (value) {
+      this.search = value.toLowerCase()
+    },
 
     /**
      * @typedef {Object} Tag

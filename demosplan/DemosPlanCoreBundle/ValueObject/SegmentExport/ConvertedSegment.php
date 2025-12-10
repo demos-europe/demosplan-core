@@ -20,14 +20,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class ConvertedSegment extends ValueObject
 {
-    protected string $text;
-    protected string $recommendationText;
-
-    public function __construct(string $text, string $recommendationText)
+    public function __construct(protected string $text, protected string $recommendationText)
     {
-        $this->text = $text;
-        $this->recommendationText = $recommendationText;
-
         $this->lock();
     }
 }

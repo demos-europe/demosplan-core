@@ -150,6 +150,7 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
+  debounce,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -302,6 +303,16 @@ export default {
     },
   },
 
+  watch: {
+    'mapOptions.baseLayer' (newVal) {
+      this.debouncedUpdateBaselayer(newVal)
+    },
+
+    'mapOptions.baseLayerLayers' (newVal) {
+      this.debouncedUpdateBaselayerLayers(newVal)
+    },
+  },
+
   methods: {
     createMap () {
       const namedProjections = [
@@ -329,6 +340,14 @@ export default {
 
       return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
+
+    debouncedUpdateBaselayer: debounce(function (newVal) {
+      this.baselayer = newVal
+    }, 1000),
+
+    debouncedUpdateBaselayerLayers: debounce(function (newVal) {
+      this.baselayerLayers = newVal
+    }, 1000),
 
     /**
      * Define extent for map

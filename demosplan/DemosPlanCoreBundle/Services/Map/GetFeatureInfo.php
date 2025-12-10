@@ -78,7 +78,7 @@ class GetFeatureInfo
         private readonly DatasheetService $datasheetService,
         GlobalConfigInterface $config,
         HttpCall $httpCall,
-        private readonly StatementGeoService $statementGeoService
+        private readonly StatementGeoService $statementGeoService,
     ) {
         $this->globalConfig = $config;
 
@@ -250,12 +250,12 @@ class GetFeatureInfo
                 // schneide alle hart eingetragenen styles aus
                 $return = preg_replace('|style=\\"(.*?)\\"|', '', $result[1]);
                 // valigns raus
-                $return = preg_replace('|valign=\\"(.*?)\\"|', '', $return);
+                $return = preg_replace('|valign=\\"(.*?)\\"|', '', (string) $return);
                 // strip script tag
-                $return = preg_replace('|<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|mi', '', $return);
+                $return = preg_replace('|<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>|mi', '', (string) $return);
                 // Ersetze h2 durch h4
-                $return = preg_replace('|h2>|', 'h4>', $return);
-                $return = strip_tags($return, '<h4><table><tr><th><td><strong><b><a>');
+                $return = preg_replace('|h2>|', 'h4>', (string) $return);
+                $return = strip_tags((string) $return, '<h4><table><tr><th><td><strong><b><a>');
             }
         }
 

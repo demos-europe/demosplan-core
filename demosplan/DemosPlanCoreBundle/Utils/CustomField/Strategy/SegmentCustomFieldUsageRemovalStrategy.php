@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use Doctrine\DBAL\Exception;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
@@ -27,7 +28,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
 
     /**
      * @throws PersistResourceException
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function removeUsages(string $customFieldId): void
     {
@@ -46,7 +47,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
     private function removeCustomFieldFromSegment(Segment $segment, string $customFieldId): void
     {
         $originalCustomFields = $segment->getCustomFields();
-        if (null === $originalCustomFields) {
+        if (!$originalCustomFields instanceof CustomFieldValuesList) {
             return;
         }
         $customFields = clone $segment->getCustomFields();
@@ -72,7 +73,7 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
     private function removeDeletedOptionsFromSegment(Segment $segment, string $customFieldId, array $deletedOptionIds): void
     {
         $originalCustomFields = $segment->getCustomFields();
-        if (null === $originalCustomFields) {
+        if (!$originalCustomFields instanceof CustomFieldValuesList) {
             return;
         }
         $customFields = clone $originalCustomFields;

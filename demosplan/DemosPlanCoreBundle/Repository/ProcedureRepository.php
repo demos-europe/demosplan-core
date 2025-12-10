@@ -151,7 +151,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
             }
 
@@ -314,7 +314,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (!is_array($procedureIds)) {
                 $procedureIds = [$procedureIds];
             }
-            if (0 === count($procedureIds)) {
+            if ([] === $procedureIds) {
                 throw new \InvalidArgumentException('No ProcedureIds given to delete');
             }
 
@@ -493,10 +493,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->findBy(['procedure' => $procedureId]);
         foreach ($procedureSettingsToDelete as $procedureSetting) {
             if (0 < strlen($procedureSetting->getPlanPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanPDF());
+                $filesToDelete[] = $procedureSetting->getPlanPDF();
             }
             if (0 < strlen($procedureSetting->getPlanDrawPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanDrawPDF());
+                $filesToDelete[] = $procedureSetting->getPlanDrawPDF();
             }
         }
 

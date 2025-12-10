@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
@@ -95,7 +96,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $user = $this->currentUser->getUser();
         $userOrganisation = $user->getOrga();
         // users without organisation get no access to any procedure
-        if (null === $userOrganisation) {
+        if (!$userOrganisation instanceof OrgaInterface) {
             return [$this->conditionFactory->false()];
         }
 

@@ -12,20 +12,20 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
-use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
-use Doctrine\Common\Annotations\Reader;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
@@ -36,14 +36,13 @@ use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
  * Procedure permissions are enhanced in {@link AccessProcedureListener}, general
  * procedure access check is also done in {@link AccessProcedureListener}.
  */
-class CheckPermissionListener
+class CheckPermissionEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
-        private readonly Reader $reader,
         private readonly RequestStack $requestStack,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -100,19 +99,9 @@ class CheckPermissionListener
         $dplanPermissions = [];
 
         // Check if there is a DplanPermissions-Attribute. If so, get the permissions
-        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(AttributeDplanPermissions::class);
-        if (0 < count($dplanPermissionsAttributes)) {
+        $dplanPermissionsAttributes = $reflectionMethod->getAttributes(DplanPermissions::class);
+        if ([] !== $dplanPermissionsAttributes) {
             $dplanPermissions = $dplanPermissionsAttributes[0]->newInstance()->getPermissions();
-        }
-
-        // If dplanPermissions is still empty, check for annotation
-        if ([] === $dplanPermissions) {
-            /** @var AnnotationDplanPermissions $dplanPermissionsAnnotation */
-            $dplanPermissionsAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, AnnotationDplanPermissions::class);
-
-            if (null !== $dplanPermissionsAnnotation) {
-                $dplanPermissions = $dplanPermissionsAnnotation->getPermissions();
-            }
         }
 
         return $dplanPermissions;
@@ -134,5 +123,13 @@ class CheckPermissionListener
             $this->logger->error('Session Initialization not successful', [$e]);
             throw new SessionUnavailableException('Session Initialization not successful: '.$e);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [KernelEvents::CONTROLLER => ['onControllerRequest', 4]];
     }
 }

@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -29,7 +29,7 @@ use EDT\Wrapping\Contracts\AccessException;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
@@ -37,12 +37,11 @@ use Webmozart\Assert\Assert;
 class DemosPlanCustomerController extends BaseController
 {
     /**
-     * @DplanPermissions("area_customer_settings")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_customer_settings')]
     #[Route(path: '/einstellungen/plattform', methods: ['GET'], name: 'dplan_user_customer_showSettingsPage', options: ['expose' => true])]
-    public function showSettingsPageAction(
+    public function showSettingsPage(
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
@@ -85,12 +84,11 @@ class DemosPlanCustomerController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_customer_settings")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_customer_settings')]
     #[Route(path: '/einstellungen/plattform', methods: ['POST'], name: 'DemosPlan_user_setting_page_post', options: ['expose' => true])]
-    public function editSettingsAction(
+    public function editSettings(
         CustomerHandler $customerHandler,
         Request $request,
         FileUploadService $fileUploadService,
@@ -125,12 +123,11 @@ class DemosPlanCustomerController extends BaseController
     }
 
     /**
-     * @DplanPermissions("area_customer_send_mail_to_users")
-     *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_customer_send_mail_to_users')]
     #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users', options: ['expose' => true])]
-    public function sendMailToAllCustomersAction(
+    public function sendMailToAllCustomers(
         CustomerHandler $customerHandler,
         HTMLSanitizer $HTMLSanitizer,
         MailService $mailService,

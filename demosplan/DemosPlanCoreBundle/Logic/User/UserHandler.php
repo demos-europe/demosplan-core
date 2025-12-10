@@ -1062,7 +1062,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
                     $this->getMessageBag()->add('error', 'error.undefined');
 
-                    return;
+                    return null;
                 }
 
                 throw new \InvalidArgumentException("Undefined or unknown requestData['manageOrgasAction']: {$manageOrgasAction}");
@@ -1371,7 +1371,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return string|void
+     * @return string|null
      *
      * @throws MessageBagException
      */
@@ -1400,6 +1400,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         } else {
             $this->getMessageBag()->add('error', 'error.delete');
         }
+
+        return null;
     }
 
     /**
@@ -2033,7 +2035,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         $customers = $orga->getCustomersByActivationStatus($orgaTypeName, $activationStatus);
 
         // If parameter $currentCustomer is not null then we will exclude other customers/subdomains
-        if (null !== $currentCustomer) {
+        if ($currentCustomer instanceof Customer) {
             $customers = array_filter(
                 $customers,
                 static fn (Customer $customer) => $customer->getSubdomain() === $currentCustomer->getSubdomain()
@@ -2052,8 +2054,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
-                if (empty($masterUser->getPassword())) {
+            if ($masterUser instanceof User) {
+                if (null === $masterUser->getPassword() || '' === $masterUser->getPassword() || '0' === $masterUser->getPassword()) {
                     $this->inviteUser($masterUser);
                 }
                 $to = $masterUser->getEmail();
@@ -2082,7 +2084,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         foreach ($customers as $customer) {
             $masterUser = $orga->getMasterUser($customer);
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $to = $masterUser->getEmail();
                 $from = $this->globalConfig->getEmailSystem();
                 $customerName = $customer->getName();
@@ -2127,7 +2129,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             // if no user could be found, grant master user minimal required role
             $masterUser = $orga->getMasterUser($customer->getSubdomain());
-            if (null !== $masterUser) {
+            if ($masterUser instanceof User) {
                 $roles = $this->roleHandler->getUserRolesByCodes([$minimumRoles[$orgaTypeName]]);
                 $masterUser->addDplanrole($roles[0], $customer);
                 $this->userService->updateUserObject($masterUser);

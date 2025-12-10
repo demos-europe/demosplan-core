@@ -14,11 +14,11 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageSerializableInterface;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
+use Illuminate\Support\Collection;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection;
 
 use function collect;
 
@@ -136,7 +136,7 @@ class MessageBag implements MessageBagInterface
         string $domain = 'messages',
         string $routeName = '',
         array $routeParameters = [],
-        string $linkText = ''
+        string $linkText = '',
     ): void {
         if ('' === $routeName) {
             $this->addObject(MessageSerializable::createMessage($severity, $message, $params));
@@ -195,7 +195,7 @@ class MessageBag implements MessageBagInterface
         string $severity,
         string $message,
         array $params = [],
-        string $domain = 'messages'
+        string $domain = 'messages',
     ): void {
         $this->validateMessageInputData($severity, $message);
 

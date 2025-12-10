@@ -34,7 +34,7 @@ class LocationHandler
      */
     public function getFilterResultMessage(array $locations, int $nResults): string
     {
-        $parameters = 0 < count($locations)
+        $parameters = [] !== $locations
             ? ['locationName' => $locations[0]->getName()]
             : [];
         $parameters['count'] = count($parameters);

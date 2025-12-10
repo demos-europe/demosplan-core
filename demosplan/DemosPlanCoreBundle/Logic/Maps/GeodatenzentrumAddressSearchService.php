@@ -123,7 +123,7 @@ class GeodatenzentrumAddressSearchService
             return $result['features'];
         } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|DecodingExceptionInterface $e) {
             throw new LogicException('Geocoding service not available: '.$e->getMessage(), 0, $e);
-        } catch (RedirectionExceptionInterface $e) {
+        } catch (RedirectionExceptionInterface) {
             // Expected redirections are ignored, service continues normally
             return [];
         }
@@ -186,7 +186,7 @@ class GeodatenzentrumAddressSearchService
                 'service'   => 'GeodatenzentrumAddressSearchService',
                 'method'    => 'formatResult',
                 'error'     => $e->getMessage(),
-                'errorType' => get_class($e),
+                'errorType' => $e::class,
                 'rawResult' => $result,
                 'file'      => $e->getFile(),
                 'line'      => $e->getLine(),
@@ -220,7 +220,7 @@ class GeodatenzentrumAddressSearchService
         $this->logger->error('Address search failed', [
             ...$logContext,
             'error'          => $e->getMessage(),
-            'errorType'      => get_class($e),
+            'errorType'      => $e::class,
             'file'           => $e->getFile(),
             'line'           => $e->getLine(),
             'processingTime' => round((microtime(true) - $startTime) * 1000, 2).'ms',
