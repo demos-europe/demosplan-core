@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\StateProvider;
 
 use ApiPlatform\Metadata\Operation;
@@ -13,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 class ClaimStateProvider implements ProviderInterface
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
     ) {
     }
 
@@ -21,7 +29,7 @@ class ClaimStateProvider implements ProviderInterface
     {
         $resourceClass = $operation->getClass();
 
-        if ($resourceClass !== ClaimResource::class) {
+        if (ClaimResource::class !== $resourceClass) {
             return null;
         }
 
