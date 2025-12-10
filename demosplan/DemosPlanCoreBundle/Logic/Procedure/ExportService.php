@@ -23,13 +23,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
-use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
@@ -42,6 +40,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -795,7 +794,7 @@ class ExportService
                 'filter' => [
                     'procedureId' => [
                         'condition' => [
-                            'path' => 'procedure.id',
+                            'path'  => 'procedure.id',
                             'value' => $procedureId,
                         ],
                     ],
@@ -872,7 +871,7 @@ class ExportService
                 'filter' => [
                     'procedureId' => [
                         'condition' => [
-                            'path' => 'procedure.id',
+                            'path'  => 'procedure.id',
                             'value' => $procedureId,
                         ],
                     ],
@@ -892,7 +891,7 @@ class ExportService
             /** @var Statement[] $statementEntities */
             $statementEntities = array_values(array_filter(
                 $allEntities,
-                fn($entity) => get_class($entity) === Statement::class || $entity->getSegments()->isEmpty()
+                fn ($entity) => Statement::class === get_class($entity) || $entity->getSegments()->isEmpty()
             ));
 
             if (empty($statementEntities)) {
