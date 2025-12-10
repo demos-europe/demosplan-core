@@ -1528,6 +1528,7 @@ explanation.newsletter: "Es wird empfohlen, den Newsletter zu bestellen, da Sie 
 explanation.no.statement.final.no.email: "Es kann keine Schlussmitteilung per E-Mail versendet werden, da die/der Nutzer*in keine E-Mail-Adresse angegeben hat."
 explanation.no.statement.final.no.feedback.wanted: "Die/der Autor*in möchte keine Rückmeldung zu dieser Stellungnahme erhalten"
 explanation.no.statement.final.sent: "Die/der Autor*in möchte eine Rückmeldung per Post. Es kann keine Schlussmitteilung per E-Mail versendet werden."
+explanation.statement.final.feedback.feature.disabled: "Rückmeldung an Bürger*innen ist in diesem Verfahren nicht aktiviert."
 explanation.no.vote.possible: "Mitzeichnung nicht möglich, da der/die Autor*in die Stellungnahme nicht online veröffentlichen möchte."
 explanation.no.public.vote.possible: "Sie können Mitzeichnende hinzufügen, die Stellungnahme ist jedoch nicht für das öffentliche Mitzeichnen freigeschaltet."
 explanation.noentries: "Es sind keine Einträge vorhanden."
@@ -1946,6 +1947,7 @@ gislayer: "Kartenebenen"
 gislayer.defined: 'Kartenebenen sind definiert'
 gislayer.define: 'Kartenebenen definieren'
 gislayer.visibilitygroup.toggle: 'Sichtbarkeit der Gruppe umschalten'
+gislayer.removed.from.visibility.group: 'Wenn Sie Ihre Änderungen speichern, werden die folgenden Kartenebenen aus ihrer Sichtbarkeitsgruppe entfernt: {layers}.'
 globalnews.administrate: "Portal-Mitteilungen verwalten"
 globalnews: "Portal-Mitteilungen"
 go.back.to.personal.data: "Zurück zu Kontaktdaten"
@@ -2936,7 +2938,7 @@ public.participation.panel.institution.description_1: "Institutionen benötigen 
 public.participation.panel.institution.description_2: "<a class=\"{css}\" href=\"{url}\">Jetzt registrieren.</a>"
 public.participation.participate: "Stellung nehmen"
 public.participation.publication: "Veröffentlichung von Stellungnahmen von Bürger*innen in diesem Verfahren erlauben"
-public.participation.feedback: "Die Checkbox \"Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten\" für die Bürger*innen hinzufügen"
+public.participation.feedback: "Die Option \"Ich möchte eine Rückmeldung zu meiner Stellungnahme erhalten\" für die Bürger*innen anzeigen"
 public.participation.receive_notifications: "Expert*innen prüfen Ihre Stellungnahme. Lassen Sie sich über das Ergebnis informieren!"
 public.participation.relation: "Ortsbezug"
 public.participation.relation.map: "Ortsbezug in der Karte"
@@ -4197,6 +4199,7 @@ warning.deny.move.statement.taken.internId: "Die Stellungnahme kann nicht versch
 warning.deny.move.statement.has.elements: "Die Stellungnahme kann nicht verschoben werden, da sie Planungsdokumentenbezüge hat."
 warning.deny.move.statement.has.paragraphs: "Die Stellungnahme kann nicht verschoben werden, da sie Absatzbezüge hat."
 warning.deny.move.statement.has.document: "Die Stellungnahme kann nicht verschoben werden, da sie Dokmentenbezüge hat."
+warning.disable.feedback.feature: "Hinweis: Wenn diese Option für Bürger*innen nicht angezeigt wird, können Sie keine Schlussmitteilungen mehr versenden."
 warning.draftStatement.already.submitted: "Stellungnahme {draftStatementId} wurde bereits eingereicht."
 warning.document.import.toplevel: "Dateien auf oberster Ebene des Archivs können nicht importiert werden. Bitte speichern Sie sie unterhalb eines Ordners"
 warning.addressBookEntry.not.created: "E-Mail-Adressbucheintrag konnte nicht erstellt werden."

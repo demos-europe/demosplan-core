@@ -109,19 +109,21 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        :init-public-participation-feedback-enabled="{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'true' : 'false' }}"
         init-pictogram-alt-text="{{ proceduresettings.pictogramAltText|default }}"
         init-pictogram-copyright="{{ proceduresettings.pictogramCopyright|default }}"
         procedure-id="{{ proceduresettings.id|default }}">
 
         <template #default="{
-            state,
             authUsersOptions,
+            selectAllAuthUsers,
             setSelectedInternalPhase,
             setSelectedPublicPhase,
-            selectAllAuthUsers,
+            sortedAgenciesOptions,
+            state,
+            submit,
             unselectAllAuthUsers,
-            updateAddonPayload,
-            submit
+            updateAddonPayload
           }">
 
         <form
@@ -974,8 +976,9 @@
 
                                 {% if hasPermission('feature_feedback_on_statement_controllable') %}
                                     <label>
-                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" {#  #}{{ proceduresettings.settings.publicParticipationFeedbackEnabled ? 'checked' : '' }}>
-                                        {{ "public.participation.feedback"|trans }}
+                                        <input type="checkbox" name="r_publicParticipationFeedbackEnabled" v-model="publicParticipationFeedbackEnabled">
+                                        <span>{{ "public.participation.feedback"|trans }}</span>
+                                        <span v-if="!publicParticipationFeedbackEnabled" class="block flash flash-warning mt-1 mx-3"><i class="fa u-mt-0_125 u-mr-0_25 float-left fa-exclamation-triangle" aria-hidden="true"></i>{{ "warning.disable.feedback.feature"|trans }}</span>
                                     </label>
                                 {% else %}
                                     {# allow publishing the possibility of Feedback by default #}
