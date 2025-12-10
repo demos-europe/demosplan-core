@@ -270,7 +270,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             /** reason for offset 0 is the flush { @see StatementCopier::copyStatementObjectWithinProcedureWithRelatedFiles }
              * within the method. It will cause the { @see StatementService::getNextValidExternalIdForProcedure }
-             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush
+             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush.
              */
             $generatedOriginalStatement = $this->createNewOriginalStatement($statement, 0, $statementLine, $statementWorksheetTitle);
             $generatedStatement = $this->createCopy($generatedOriginalStatement);
@@ -398,7 +398,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             /** reason for offset 0 is the flush { @see StatementCopier::copyStatementObjectWithinProcedureWithRelatedFiles }
              * within the method. It will cause the { @see StatementService::getNextValidExternalIdForProcedure }
-             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush
+             * to return the actual value within the current transaction - offset was used to counteract the behavior without flush.
              */
             $generatedOriginalStatement = $this->createNewOriginalStatement(
                 $statement,
