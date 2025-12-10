@@ -50,10 +50,6 @@ security:
                 check_path:      /api/ai/auth/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-        api_claims:
-          pattern: ^/api/claim_resources
-          stateless: true
-          security: false  # No authentication required
         api:
             pattern: ^/api/\d.+
             stateless: true
