@@ -28,7 +28,7 @@ class BaseLayerVisibilityValidator
     ) {
     }
 
-    public function shouldDisableOtherBaseLayers(array $gisLayer): bool
+    public function ensureOnlyOneBaseLayerIsVisible(array $gisLayer): bool
     {
         return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
             && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
