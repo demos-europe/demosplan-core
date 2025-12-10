@@ -37,13 +37,8 @@ class StatementFormatter
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $value = $this->getStatementValue($attributeKey, $statementArray);
 
-            if ('numberOfAnonymVotes' === $attributeKey) {
+            if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
                 $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
-                $formattedStatement[$attributeKey] = (string) $value;
-                continue;
-            }
-
-            if ('votesNum' === $attributeKey) {
                 $formattedStatement[$attributeKey] = (string) $value;
                 continue;
             }
