@@ -1601,14 +1601,6 @@ feature_procedure_export_include_statements_and_segments:
     expose: false
     label: 'Procedure export with statements and segments'
     loginRequired: true
-feature_procedure_export_use_statement_list_format:
-    description: |-
-        When enabled, the procedure export will use statement list docx format instead of
-        the assessment table format. This provides a simpler export format for statements
-        in projects where the assessment table structure is not needed.
-    expose: false
-    label: 'Use statement list format instead of assessment table in procedure export'
-    loginRequired: true
 feature_procedure_external_desc_crop:
     description: 'Crop external procedure description'
     label: 'Crop external procedure description'
