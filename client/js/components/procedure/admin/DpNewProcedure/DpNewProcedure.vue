@@ -169,7 +169,7 @@
         type="hidden"
         name="agencyMainEmailAddress[fullAddress]"
         value=""
-      />
+      >
       <dp-text-area
         id="r_desc"
         class="mb-4"
@@ -316,7 +316,6 @@ export default {
     procedureTypes: {
       type: Array,
       required: true,
-      default: () => [],
     },
 
     token: {
