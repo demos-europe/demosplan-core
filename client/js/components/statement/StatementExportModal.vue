@@ -59,6 +59,12 @@
               :label="{
                 text: Translator.trans('export.docx.obscured')
               }" />
+            <dp-checkbox
+              id="excludeStatementText"
+              v-model="excludeStatementText"
+              :label="{
+                text: Translator.trans('export.exclude.statement.text')
+              }" />
           </template>
         </div>
       </fieldset>
@@ -83,6 +89,12 @@
             :label="{
               text: Translator.trans('export.docx.obscured')
             }" />
+          <dp-checkbox
+            id="singleStatementExcludeText"
+            v-model="excludeStatementText"
+            :label="{
+              text: Translator.trans('export.exclude.statement.text')
+            }" />
         </div>
       </fieldset>
 
@@ -97,6 +109,7 @@
         <div class="grid grid-cols-5 gap-3 mt-1 mb-5">
           <dp-input
             v-for="(column, key) in docxColumns"
+            v-show="!(excludeStatementText && key === 'col2')"
             :id="key"
             :key="key"
             v-model="column.title"
@@ -227,6 +240,7 @@ export default {
       isInstitutionDataCensored: false,
       isCitizenDataCensored: false,
       isObscure: false,
+      excludeStatementText: false,
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
   },
@@ -289,7 +303,8 @@ export default {
         shouldConfirm,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isCitizenDataCensored: this.isCitizenDataCensored,
-        isObscured: this.isObscure
+        isObscured: this.isObscure,
+        excludeStatementText: this.excludeStatementText
       })
       this.closeModal()
     },
