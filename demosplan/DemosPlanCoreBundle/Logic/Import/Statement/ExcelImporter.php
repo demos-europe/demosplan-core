@@ -556,36 +556,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Handle Tags
         if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
-            $this->processSegmentTags($statement, $segmentData['Schlagworte'], $miscTopic, $segment, $line, $worksheetTitle, $flushAndPersist);
-            $procedureId = $statement->getProcedure()->getId();
-            $tagTitlesString = $segmentData['Schlagworte'];
-            if (is_numeric($tagTitlesString)) {
-                $tagTitlesString = (string) $tagTitlesString;
-            }
-            $tagTitles = explode(',', (string) $tagTitlesString);
-
-            foreach ($tagTitles as $tagTitle) {
-                $tagTitle = new UnicodeString($tagTitle);
-                $tagTitle = $tagTitle->trim()->toString();
-                $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
-
-                $createNewTag = !$matchingTag instanceof Tag;
-                if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
-                }
-
-                // Check if valid tag
-                $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
-
-                if (0 === $violations->count()) {
-                    $segment->addTag($matchingTag);
-                    if ($createNewTag) {
-                        $this->generatedTags[] = $matchingTag;
-                    }
-                } else {
-                    $this->addImportViolations($violations, $line, $worksheetTitle);
-                }
-            }
+            $this->processSegmentTags(
+                $statement,
+                $segmentData['Schlagworte'],
+                $miscTopic,
+                $segment,
+                $line,
+                $worksheetTitle,
+                $flushAndPersist
+            );
         }
 
         return $segment;
@@ -817,8 +796,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitle = $tagTitle->trim()->toString();
 
             $matchingTag = $this->tagService->findUniqueByTitle($tagTitle, $procedureId);
+            $createNewTag = !$matchingTag instanceof Tag;
 
-            if (null === $matchingTag) {
+            if ($createNewTag) {
                 $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, $flushAndPersist);
                 $this->generatedTags[] = $matchingTag;
             }
