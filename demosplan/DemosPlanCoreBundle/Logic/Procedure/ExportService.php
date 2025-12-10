@@ -23,17 +23,22 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
@@ -49,6 +54,7 @@ use Monolog\Logger;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -117,12 +123,16 @@ class ExportService
         private readonly ElementsService $elementsService,
         private readonly ExportReportService $exportReportService,
         FileService $serviceFile,
+        private readonly JsonApiActionService $jsonApiActionService,
         LoggerInterface $logger,
         NewsOutput $newsOutput,
         ParagraphExporter $paragraphExporter,
         PermissionsInterface $permissions,
         ProcedureOutput $procedureOutput,
         private readonly ProcedureService $procedureService,
+        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter,
+        private readonly StatementExporter $statementExporter,
+        private readonly StatementResourceType $statementResourceType,
         private readonly StatementService $statementService,
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
@@ -212,68 +222,80 @@ class ExportService
 
                 // get all PDFs
 
-                // Institutionen-Liste
-                if ($this->permissions->hasPermission('feature_procedure_export_include_public_interest_bodies_member_list')) {
-                    $zip = $this->addMemberListToZip($procedureId, $procedureName, $zip);
+                // If statements and segments export is enabled, only include protocol, statements and segments
+                $segmentsExportEnabled = $this->permissions->hasPermission('feature_procedure_export_include_statements_and_segments');
+
+                if (!$segmentsExportEnabled) {
+                    // Institutionen-Liste
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_public_interest_bodies_member_list')) {
+                        $zip = $this->addMemberListToZip($procedureId, $procedureName, $zip);
+                    }
+
+                    // Titelblatt
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_cover_page')) {
+                        $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                    }
+
+                    // Aktuelles
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
+                        $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
+                    }
+
+                    // Abwägungstabelle mit Namen
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
+                        $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    }
+
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
+                        $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    }
+
+                    // Abwägungstabelle ohne Namen (anonym)
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
+                        $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    }
+
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
+                        $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    }
+
+                    // OriginalStellungnahmen
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
+                        $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
+                    }
+
+                    // Paragraph Elements
+                    $zip = $this->addParagraphElementsToZip($procedureId, $procedureName, $zip);
+
+                    // Planzeichnung
+                    $zip = $this->addMapToZip($procedureId, $procedureName, $zip);
+
+                    // Planunsgdokumente ()
+                    $zip = $this->addAllPlanningDocumentsToZip($procedureId, $procedureName, $zip);
+
+                    // Stellungnahmen ToeB (Endfassungen)
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_statement_final_group')) {
+                        $zip = $this->addStatementsFinalGroupToZip($procedureId, $procedureName, $zip);
+                    }
+                    // Stellungnahmen ToeB (Freigaben)
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_statement_released')) {
+                        $zip = $this->addStatementsReleasedToZip($procedureId, $procedureName, $zip);
+                    }
+                    // Stellungnahmen Buerger (Endfassungen)
+                    if ($this->permissions->hasPermission('feature_procedure_export_include_public_statements')) {
+                        $zip = $this->addPublicStatementsToZip($procedureId, $procedureName, $zip);
+                    }
                 }
 
-                // Titelblatt
-                if ($this->permissions->hasPermission('feature_procedure_export_include_cover_page')) {
-                    $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
-                }
-
-                // Aktuelles
-                if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
-                    $zip = $this->addNewsToZip($procedureId, $procedureName, $zip);
-                }
-
-                // Abwägungstabelle mit Namen
-                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
-                }
-
-                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
-                }
-
-                // Abwägungstabelle ohne Namen (anonym)
-                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
-                }
-
-                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
-                }
-
-                // OriginalStellungnahmen
-                if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
-                    $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
-                }
-
-                // Paragraph Elements
-                $zip = $this->addParagraphElementsToZip($procedureId, $procedureName, $zip);
-
-                // Planzeichnung
-                $zip = $this->addMapToZip($procedureId, $procedureName, $zip);
-
-                // Planunsgdokumente ()
-                $zip = $this->addAllPlanningDocumentsToZip($procedureId, $procedureName, $zip);
-
-                // Stellungnahmen ToeB (Endfassungen)
-                if ($this->permissions->hasPermission('feature_procedure_export_include_statement_final_group')) {
-                    $zip = $this->addStatementsFinalGroupToZip($procedureId, $procedureName, $zip);
-                }
-                // Stellungnahmen ToeB (Freigaben)
-                if ($this->permissions->hasPermission('feature_procedure_export_include_statement_released')) {
-                    $zip = $this->addStatementsReleasedToZip($procedureId, $procedureName, $zip);
-                }
-                // Stellungnahmen Buerger (Endfassungen)
-                if ($this->permissions->hasPermission('feature_procedure_export_include_public_statements')) {
-                    $zip = $this->addPublicStatementsToZip($procedureId, $procedureName, $zip);
-                }
-                // reports
+                // reports (always included)
                 if ($this->permissions->hasPermission('feature_export_protocol')) {
                     $zip = $this->addReportToZip($procedureId, $procedureName, $zip);
+                }
+                // Stellungnahmen Abschnitte (Statement Segments DOCX) - when enabled, only protocol, statements and segments are exported
+                if ($segmentsExportEnabled) {
+                    $zip = $this->addStatementSegmentsToZip($procedureId, $procedureName, $zip);
+                    // Stellungnahmen (Statements DOCX)
+                    $zip = $this->addStatementsToZip($procedureId, $procedureName, $zip);
                 }
             }
         }
@@ -756,6 +778,149 @@ class ExportService
             $this->logger->info('Verfahrensprotokoll created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
             $this->logger->warning('Verfahrensprotokoll could not be created. ', [$e]);
+        }
+
+        return $zip;
+    }
+
+    public function addStatementSegmentsToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
+    {
+        try {
+            // Set current procedure (required by StatementResourceType)
+            $procedure = $this->procedureService->getProcedure($procedureId);
+            $this->currentProcedureService->setProcedure($procedure);
+
+            // Build query params exactly like SegmentsExportController does
+            $queryParams = new ParameterBag([
+                'filter' => [
+                    'procedureId' => [
+                        'condition' => [
+                            'path' => 'procedure.id',
+                            'value' => $procedureId,
+                        ],
+                    ],
+                ],
+                'sort' => '-submitDate',
+            ]);
+
+            // Get statement entities using JSON:API (same as controller)
+            /** @var Statement[] $statementEntities */
+            $statementEntities = array_values(
+                $this->jsonApiActionService->getObjectsByQueryParams(
+                    $queryParams,
+                    $this->statementResourceType
+                )->getList()
+            );
+
+            if (empty($statementEntities)) {
+                $this->logger->info('No statements found for segments export', ['id' => $procedureId, 'name' => $procedureName]);
+
+                return $zip;
+            }
+
+            // Generate DOCX with segments grouped by statement
+            $tableHeaders = [
+                'col1' => $this->translator->trans('segments.export.segment.id'),
+                'col2' => $this->translator->trans('segments.export.statement.label'),
+                'col3' => $this->translator->trans('segment.recommendation'),
+            ];
+
+            $exportResult = $this->segmentsByStatementsExporter->exportAll(
+                $tableHeaders,
+                $this->procedureService->getProcedure($procedureId),
+                false, // obscure = false
+                false, // censorCitizenData = false
+                false, // censorInstitutionData = false
+                ...$statementEntities
+            );
+
+            // Add DOCX to ZIP
+            $segmentsFolder = $procedureName.'/'.$this->literals['statements'].'/Abschnitte';
+            $docxFilename = $segmentsFolder.'/Abschnitte_Gruppiert.docx';
+
+            // Create temp file and add to ZIP
+            $internalFilename = 'tmp_export_segments_'.Uuid::uuid().'.docx';
+            $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
+            $exportResult->save($filepath);
+            $this->zipExportService->addFileToZipStream($filepath, $docxFilename, $zip);
+
+            // Cleanup temp file
+            $fs = new Filesystem();
+            $fs->remove($filepath);
+
+            // Add attachments to separate Anhang folder
+            $attachmentFolder = $segmentsFolder.'/Anhang/';
+            $this->attachStatementFilesToZip($statementEntities, $attachmentFolder, $zip);
+
+            $this->logger->info('Statement segments export created', ['id' => $procedureId, 'name' => $procedureName]);
+        } catch (Exception $e) {
+            $this->logger->warning('Statement segments export could not be created. ', [$e]);
+        }
+
+        return $zip;
+    }
+
+    public function addStatementsToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
+    {
+        try {
+            // Set current procedure (required by StatementResourceType)
+            $procedure = $this->procedureService->getProcedure($procedureId);
+            $this->currentProcedureService->setProcedure($procedure);
+
+            // Build query params - get all entities first
+            $queryParams = new ParameterBag([
+                'filter' => [
+                    'procedureId' => [
+                        'condition' => [
+                            'path' => 'procedure.id',
+                            'value' => $procedureId,
+                        ],
+                    ],
+                ],
+                'sort' => '-submitDate',
+            ]);
+
+            // Get all entities (includes both Statement and Segment)
+            $allEntities = array_values(
+                $this->jsonApiActionService->getObjectsByQueryParams(
+                    $queryParams,
+                    $this->statementResourceType
+                )->getList()
+            );
+
+            // Filter to keep Statement entities OR entities with no segments (unsplit statements)
+            /** @var Statement[] $statementEntities */
+            $statementEntities = array_values(array_filter(
+                $allEntities,
+                fn($entity) => get_class($entity) === Statement::class || $entity->getSegments()->isEmpty()
+            ));
+
+            if (empty($statementEntities)) {
+                $this->logger->info('No statements found for statements export', ['id' => $procedureId, 'name' => $procedureName]);
+
+                return $zip;
+            }
+
+            // Generate DOCX with statements using StatementExporter
+            $exportResult = $this->statementExporter->exportAll($procedure, ...$statementEntities);
+
+            // Add DOCX to ZIP at Stellungnahmen/Stellungnahmen_Liste.docx
+            $statementsFolder = $procedureName.'/'.$this->literals['statements'];
+            $docxFilename = $statementsFolder.'/Stellungnahmen_Liste.docx';
+
+            // Create temp file and add to ZIP
+            $internalFilename = 'tmp_export_statements_'.Uuid::uuid().'.docx';
+            $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
+            $exportResult->save($filepath);
+            $this->zipExportService->addFileToZipStream($filepath, $docxFilename, $zip);
+
+            // Cleanup temp file
+            $fs = new Filesystem();
+            $fs->remove($filepath);
+
+            $this->logger->info('Statements export created', ['id' => $procedureId, 'name' => $procedureName]);
+        } catch (Exception $e) {
+            $this->logger->warning('Statements export could not be created. ', [$e]);
         }
 
         return $zip;
