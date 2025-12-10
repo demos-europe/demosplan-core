@@ -9,31 +9,15 @@ use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\ClaimResource;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 class ClaimStateProvider implements ProviderInterface
 {
     public function __construct(
-       // private EntityManagerInterface $entityManager,
-        //private UserRepository $userRepository
+        private UserRepository $userRepository
     ) {
-       // $bla = '4';
     }
 
-    public function provide(Operation $operation, array $uriVariables = [],
-                            array $context = []): object|array|null
-    {
-        // TEMPORARILY hardcode the response to test
-        $claim = new ClaimResource();
-        $claim->id = $uriVariables['id'] ?? '1';
-        $claim->name = 'Test User';
-        $claim->orgaName = 'Test Organization';
-
-        return $claim;
-    }
-
-
-    /*public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $resourceClass = $operation->getClass();
 
@@ -48,7 +32,7 @@ class ClaimStateProvider implements ProviderInterface
 
         // Handle collection (GET /api/claim_resources)
         return $this->provideCollection($context);
-    }*/
+    }
 
     private function provideSingle(string $id): ?ClaimResource
     {
