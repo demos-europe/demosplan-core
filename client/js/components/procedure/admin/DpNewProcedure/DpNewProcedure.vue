@@ -164,7 +164,12 @@
         required
         type="email"
       />
-
+      <input
+        v-else
+        type="hidden"
+        name="agencyMainEmailAddress[fullAddress]"
+        value=""
+      />
       <dp-text-area
         id="r_desc"
         class="mb-4"
