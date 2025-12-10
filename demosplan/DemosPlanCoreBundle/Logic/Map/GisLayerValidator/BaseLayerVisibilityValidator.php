@@ -28,8 +28,16 @@ class BaseLayerVisibilityValidator
     ) {
     }
 
-    public function ensureOnlyOneBaseLayerIsVisible(array $gisLayer): bool
+    public function ensureOnlyOneBaseLayerIsVisible(string $procedureId, array $gisLayer): void
     {
+        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
+            return;
+        }
+
+        $this->disableOtherBaseLayersDefaultVisibility($procedureId, $gisLayer['id']);
+    }
+
+    private function shouldDisableOtherBaseLayers(array $gisLayer) {
         return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
             && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
     }
@@ -40,7 +48,7 @@ class BaseLayerVisibilityValidator
      * @param string $procedureId   The procedure ID
      * @param string $exceptLayerId The layer ID to exclude from disabling
      */
-    public function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
+    private function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
     {
         try {
             // Get all layers for this procedure

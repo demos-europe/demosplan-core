@@ -270,9 +270,7 @@ class ServiceStorage implements MapServiceStorageInterface
         $result = $this->service->addGis($gislayer);
 
         // If this is a base layer with default visibility, disable all other base layers
-        if ($this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($gislayer)) {
-            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $result['ident']);
-        }
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $result);
 
         return $result;
     }
@@ -501,8 +499,8 @@ class ServiceStorage implements MapServiceStorageInterface
         $result = $this->handler->updateGis($gislayer);
 
         // If this is a base layer with default visibility, disable all other base layers
-        if (!$isGlobalLayer && $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($gislayer)) {
-            $this->baseLayerVisibilityValidator->disableOtherBaseLayersDefaultVisibility($procedure, $gislayer['id'] ?? null);
+        if (!$isGlobalLayer) {
+            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $result);
         }
 
         return $result;
