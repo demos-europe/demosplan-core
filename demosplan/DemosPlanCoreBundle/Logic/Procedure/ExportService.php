@@ -957,7 +957,6 @@ class ExportService
      */
     protected function attachStatementFilesToZip(array $statements, string $folder, ZipStream $zip): void
     {
-        $fs = new DemosFilesystem();
         foreach ($statements as $statement) {
             if ($statement instanceof Statement) {
                 $fileNamePrefix = $statement->getExternId().'_';
@@ -970,7 +969,7 @@ class ExportService
             if ($statement instanceof Statement) {
                 $this->addSourceStatementAttachments($folder, $zip, $fileNamePrefix, $statement->getAttachments());
             }
-            $this->zipExportService->addFiles($fileNamePrefix, $fs, $folder, $zip, ...($statement->getFiles() ?? []));
+            $this->zipExportService->addFiles($fileNamePrefix, $folder, $zip, ...($statement->getFiles() ?? []));
         }
     }
 
