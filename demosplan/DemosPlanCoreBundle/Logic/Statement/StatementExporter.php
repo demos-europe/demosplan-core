@@ -169,7 +169,7 @@ class StatementExporter
         if ($statement->getMeta()) {
             $submitterText .= $statement->getMeta()->getAuthorName() ?? '';
             if ($statement->getMeta()->getOrgaName()) {
-                $submitterText .= ' (' . $statement->getMeta()->getOrgaName() . ')';
+                $submitterText .= ' ('.$statement->getMeta()->getOrgaName().')';
             }
         }
 
