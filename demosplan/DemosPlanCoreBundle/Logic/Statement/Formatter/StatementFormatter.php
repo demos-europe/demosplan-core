@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
+use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -142,7 +143,7 @@ class StatementFormatter
         $text = preg_replace('/<mark(?:\s+title="[^"]*")?\s*>(.*?)<\/mark>/s', '|mark|$1|mark|', (string) $text);
 
         // Convert to markdown using the HTML converter
-        $htmlConverter = new \League\HTMLToMarkdown\HtmlConverter(['strip_tags' => true]);
+        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
         $convertedText = $htmlConverter->convert($text);
 
         // Replace |underline| markers back to <u> tags after conversion
