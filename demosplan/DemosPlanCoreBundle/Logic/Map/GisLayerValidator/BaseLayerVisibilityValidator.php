@@ -37,7 +37,8 @@ class BaseLayerVisibilityValidator
         $this->disableOtherBaseLayersDefaultVisibility($procedureId, $gisLayer['id']);
     }
 
-    private function shouldDisableOtherBaseLayers(array $gisLayer) {
+    private function shouldDisableOtherBaseLayers(array $gisLayer)
+    {
         return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
             && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
     }
