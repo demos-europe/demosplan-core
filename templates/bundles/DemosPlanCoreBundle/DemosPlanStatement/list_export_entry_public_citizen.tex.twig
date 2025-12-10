@@ -19,6 +19,7 @@
             {% endif %}
 
             {# feedback #}{% if hasPermission('field_statement_feedback')
+                and statement.procedure.settings.publicParticipationFeedbackEnabled
                 and (statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaEmail').isEnabled == true
                 or statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaSnailMailOrEmail').isEnabled == true)
             %} {{ "feedback"|trans|latex|raw }}: & {% if statement.feedback is defined and statement.feedback == 'email' %}{{ "via.mail"|trans|latex|raw }}{% elseif statement.feedback is defined and statement.feedback == 'snailmail' %} {{ "via.post"|trans|latex|raw }} {% else %} {{ "notrequired"|trans|latex|raw }} {% endif %}\\{% endif %}
