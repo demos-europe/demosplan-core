@@ -37,8 +37,13 @@ class StatementFormatter
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $value = $this->getStatementValue($attributeKey, $statementArray);
 
-            if (in_array($attributeKey, ['numberOfAnonymVotes', 'votesNum'], true)) {
+            if ('numberOfAnonymVotes' === $attributeKey) {
                 $value = $this->getAnonymVotesFromDatabase($attributeKey, $value, $statementArray);
+                $formattedStatement[$attributeKey] = (string) $value;
+                continue;
+            }
+
+            if ('votesNum' === $attributeKey) {
                 $formattedStatement[$attributeKey] = (string) $value;
                 continue;
             }
@@ -115,11 +120,6 @@ class StatementFormatter
     // Get numberOfAnonymVotes from database if missing
     private function getAnonymVotesFromDatabase(string $attributeKey, mixed $value, array $statementArray): mixed
     {
-        // Only handle numberOfAnonymVotes, other fields return unchanged
-        if ('numberOfAnonymVotes' !== $attributeKey) {
-            return $value;
-        }
-
         // Load value from database if missing from Elasticsearch
         if (null === $value && isset($statementArray['id'])) {
             try {
