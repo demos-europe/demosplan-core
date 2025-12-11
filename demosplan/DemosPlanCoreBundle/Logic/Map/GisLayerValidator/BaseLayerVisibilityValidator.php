@@ -28,8 +28,12 @@ class BaseLayerVisibilityValidator
     ) {
     }
 
-    public function ensureOnlyOneBaseLayerIsVisible(string $procedureId, array $gisLayer): void
+    public function ensureOnlyOneBaseLayerIsVisible(?string $procedureId, array $gisLayer): void
     {
+        if (null === $procedureId ) {
+            return;
+        }
+
         if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
             return;
         }
