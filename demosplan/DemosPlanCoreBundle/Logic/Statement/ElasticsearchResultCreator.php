@@ -184,7 +184,8 @@ class ElasticsearchResultCreator
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = \array_unique($statementMustIds);
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $statementMustIds = \array_values(\array_unique($statementMustIds));
                 $shouldQuery = new BoolQuery();
                 // Use a single terms query with all IDs to avoid exceeding maxClauseCount
                 $shouldQuery->addShould(
@@ -214,7 +215,8 @@ class ElasticsearchResultCreator
                     continue;
                 }
 
-                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $filterValues = \is_array($filterValues) ? \array_values(\array_unique($filterValues)) : $filterValues;
 
                 if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
