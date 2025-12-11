@@ -220,7 +220,7 @@ import {
   DpRadio,
   dpRpc,
   hasOwnProp,
-  sessionStorageMixin
+  sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
@@ -306,11 +306,11 @@ export default {
         comparisonOperator: "ARRAY_CONTAINS_VALUE",
         grouping: {
           labelTranslationKey: 'topic',
-          targetPath: 'tags.topic.label'
+          targetPath: 'tags.topic.label',
         },
         labelTranslationKey: 'tags',
         rootPath: 'tags',
-        selected: false
+        selected: false,
       },
       isCitizenDataCensored: false,
       isFilterExpanded: false,
@@ -440,7 +440,7 @@ export default {
     },
 
     getFilterValues (filter = {}) {
-      this.updateSelectedTadIds(filter)
+      this.updateSelectedTagIds(filter)
       this.updateSelectedTags()
     },
 
@@ -651,7 +651,7 @@ export default {
 
         modalBody.scrollTo({
           top: modalBody.scrollHeight,
-          behavior: "smooth"
+          behavior: "smooth",
         })
       })
     },
@@ -725,7 +725,7 @@ export default {
       this.syncSelectedItemsFromFlyout()
     },
 
-    updateSelectedTadIds (filter) {
+    updateSelectedTagIds (filter) {
       this.selectedTagIds = Object.values(filter)
         .filter(item => item?.condition?.path === 'tags')
         .map(item => item.condition.value)
