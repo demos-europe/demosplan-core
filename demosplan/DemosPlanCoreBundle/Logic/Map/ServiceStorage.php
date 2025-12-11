@@ -269,8 +269,14 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $addedGisLayer = $this->service->addGis($gislayer);
 
-        // If this is a base layer with default visibility, disable all other base layers
-        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
+
+        // Globale GIS-Layer haben kein Procedure
+        if (is_string($procedure)) {
+            // If this is a base layer with default visibility, disable all other base layers
+            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
+        }
+
+
 
         return $addedGisLayer;
     }
