@@ -24,6 +24,7 @@
 - Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
 - Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
 - Fix missing form fields in procedure basic settings
+- Add anonymous voters column to statement XLSX export
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
