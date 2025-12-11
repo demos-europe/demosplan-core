@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use Exception;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
