@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * This file is part of the package demosplan.
  *
@@ -19,7 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class GisLayerValidator
 {
     public function __construct(
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -34,7 +33,7 @@ class GisLayerValidator
 
         foreach ($constraintViolations as $violation) {
             $violations[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $violation->getMessage(),
             ];
         }

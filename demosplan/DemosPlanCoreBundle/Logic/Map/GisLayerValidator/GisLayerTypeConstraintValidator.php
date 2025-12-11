@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 /**
  * This file is part of the package demosplan.
  *
@@ -13,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator;
 
-use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
 class GisLayerTypeConstraintValidator extends ConstraintValidator
 {
@@ -37,7 +36,5 @@ class GisLayerTypeConstraintValidator extends ConstraintValidator
                 $constraint->overlayTypeRequiredViolationMessage
             )->addViolation();
         }
-
     }
 }
-
