@@ -496,7 +496,6 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $updatedGisLayer = $this->handler->updateGis($gislayer);
 
-        // If this is a base layer with default visibility, disable all other base layers
         $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
 
         return $updatedGisLayer;
