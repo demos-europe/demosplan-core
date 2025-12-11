@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
 use demosplan\DemosPlanCoreBundle\Logic\LegacyFlashMessageCreator;
 use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\BaseLayerVisibilityValidator;
+use demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator\GisLayerValidator;
 use demosplan\DemosPlanCoreBundle\Services\Map\GetFeatureInfo;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -50,6 +51,7 @@ class ServiceStorage implements MapServiceStorageInterface
         MapService $service,
         private readonly BaseLayerVisibilityValidator $baseLayerVisibilityValidator,
         private readonly TranslatorInterface $translator,
+        private readonly GisLayerValidator $gisLayerValidator,
     ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
         $this->service = $service;
@@ -265,7 +267,10 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['pId'] = $procedure;
         }
 
-        $this->validateGisLayer($gislayer);
+        $validationErrors = $this->gisLayerValidator->validateGisLayerData($gislayer);
+        if (!empty($validationErrors)) {
+            throw new MapValidationException('GIS layer validation failed');
+        }
 
         $addedGisLayer = $this->service->addGis($gislayer);
 
@@ -276,25 +281,6 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         return $addedGisLayer;
-    }
-
-    /**
-     * Minimalistic validate function.
-     * <p>
-     * Feel free to extend, move or replace with Symfony Form validation.
-     *
-     * @throws MapValidationException
-     */
-    protected function validateGisLayer(array $gislayer)
-    {
-        // entweder Planzeichnung oder Geltungsbereich, nicht beide
-        if ($gislayer['bplan'] && $gislayer['scope']) {
-            throw new MapValidationException();
-        }
-        // wenn Planzeichnung oder Geltungsbereich, dann muss es ein Overlay sein
-        if (($gislayer['bplan'] || $gislayer['scope']) && 'overlay' !== $gislayer['type']) {
-            throw new MapValidationException();
-        }
     }
 
     /**
@@ -497,7 +483,10 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
-        $this->validateGisLayer($gislayer);
+        $validationErrors = $this->gisLayerValidator->validateGisLayerData($gislayer);
+        if (!empty($validationErrors)) {
+            throw new MapValidationException('GIS layer validation failed');
+        }
 
         $updatedGisLayer = $this->handler->updateGis($gislayer);
 
