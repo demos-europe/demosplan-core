@@ -42,16 +42,15 @@ class ServiceStorage implements MapServiceStorageInterface
     protected $service;
 
     public function __construct(
-        GetFeatureInfo                                $getFeatureInfo,
-        GlobalConfigInterface                         $globalConfig,
-        private readonly LegacyFlashMessageCreator    $legacyFlashMessageCreator,
-        private readonly LoggerInterface              $logger,
-        private readonly MapHandler                   $handler,
-        MapService                                    $service,
+        GetFeatureInfo $getFeatureInfo,
+        GlobalConfigInterface $globalConfig,
+        private readonly LegacyFlashMessageCreator $legacyFlashMessageCreator,
+        private readonly LoggerInterface $logger,
+        private readonly MapHandler $handler,
+        MapService $service,
         private readonly BaseLayerVisibilityValidator $baseLayerVisibilityValidator,
-        private readonly TranslatorInterface          $translator,
-    )
-    {
+        private readonly TranslatorInterface $translator,
+    ) {
         $this->serviceGetFeatureInfo = $getFeatureInfo;
         $this->service = $service;
         $this->globalConfig = $globalConfig;
@@ -59,7 +58,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
     /**
      * @param string $procedure
-     * @param array $data
+     * @param array  $data
      *
      * @return array
      *
@@ -73,9 +72,9 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
-        if (!array_key_exists('r_name', $data) || '' === trim((string)$data['r_name'])) {
+        if (!array_key_exists('r_name', $data) || '' === trim((string) $data['r_name'])) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -84,9 +83,9 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (!array_key_exists('r_type', $data) || '' === trim((string)$data['r_type'])) {
+        if (!array_key_exists('r_type', $data) || '' === trim((string) $data['r_type'])) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -95,9 +94,9 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (!array_key_exists('r_url', $data) || '' === trim((string)$data['r_url'])) {
+        if (!array_key_exists('r_url', $data) || '' === trim((string) $data['r_url'])) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -106,18 +105,18 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (isset($data['r_url']) && 0 == stripos((string)$data['r_url'], '//')) {
+        if (isset($data['r_url']) && 0 == stripos((string) $data['r_url'], '//')) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->translator->trans('error.gislayer.noprotocol'),
             ];
         }
 
         $isOaf = $this->isOaf($data);
-        if (!$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string)$data['r_layers']))
+        if (!$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))
             && !array_key_exists('r_xplanDefaultlayers', $data)) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -138,7 +137,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Validate WMS/WMTS URL contains SERVICE parameter
         $isWmsOrWmts = array_key_exists('r_serviceType', $data)
-            && in_array(strtolower(trim((string)$data['r_serviceType'])), ['wms', 'wmts'], true);
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
             $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
             if (!empty($wmsWmtsUrFormatError)) {
@@ -147,9 +146,9 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if (array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType']
-            && (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string)$data['r_tileMatrixSet']))) {
+            && (!array_key_exists('r_tileMatrixSet', $data) || '' === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -197,7 +196,7 @@ class ServiceStorage implements MapServiceStorageInterface
         // Wenn die Defaultlayer genutzt werden sollen, speichere sie als Layer ab
         if (array_key_exists('r_xplanDefaultlayers', $data) && '1' == $data['r_xplanDefaultlayers']) {
             // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
-            if (0 < strlen((string)$gislayer['layers'])) {
+            if (0 < strlen((string) $gislayer['layers'])) {
                 $gislayer['layers'] .= ',';
             }
             $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
@@ -208,7 +207,7 @@ class ServiceStorage implements MapServiceStorageInterface
         }
         // Eliminiere alle Leerzeichen zwischen Komma und Layername
         if (isset($gislayer['layers'])) {
-            $gislayer['layers'] = preg_replace('/,[\s]+/', ',', (string)$gislayer['layers']);
+            $gislayer['layers'] = preg_replace('/,[\s]+/', ',', (string) $gislayer['layers']);
         }
 
         if (array_key_exists('r_opacity', $data)) {
@@ -301,7 +300,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
     /**
      * @param string $procedure
-     * @param array $data
+     * @param array  $data
      *
      * @throws MapValidationException
      */
@@ -313,9 +312,9 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Prüfe Pflichtfelder
         $mandatoryErrors = [];
-        if (!$isGlobalLayer && (!array_key_exists('r_name', $data) || '' === trim((string)$data['r_name']))) {
+        if (!$isGlobalLayer && (!array_key_exists('r_name', $data) || '' === trim((string) $data['r_name']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -324,9 +323,9 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (!$isGlobalLayer && (!array_key_exists('r_type', $data) || '' === trim((string)$data['r_type']))) {
+        if (!$isGlobalLayer && (!array_key_exists('r_type', $data) || '' === trim((string) $data['r_type']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -335,9 +334,9 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (!$isGlobalLayer && (!array_key_exists('r_url', $data) || '' === trim((string)$data['r_url']))) {
+        if (!$isGlobalLayer && (!array_key_exists('r_url', $data) || '' === trim((string) $data['r_url']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -346,17 +345,17 @@ class ServiceStorage implements MapServiceStorageInterface
                 ),
             ];
         }
-        if (!$isGlobalLayer && (isset($data['r_url']) && 0 == stripos((string)$data['r_url'], '//'))) {
+        if (!$isGlobalLayer && (isset($data['r_url']) && 0 == stripos((string) $data['r_url'], '//'))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->translator->trans('error.gislayer.noprotocol'),
             ];
         }
 
         $isOaf = $this->isOaf($data);
-        if (!$isGlobalLayer && !$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string)$data['r_layers']))) {
+        if (!$isGlobalLayer && !$isOaf && (!array_key_exists('r_layers', $data) || '' === trim((string) $data['r_layers']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -377,7 +376,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         // Validate WMS/WMTS URL contains SERVICE parameter
         $isWmsOrWmts = array_key_exists('r_serviceType', $data)
-            && in_array(strtolower(trim((string)$data['r_serviceType'])), ['wms', 'wmts'], true);
+            && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
             $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
             if (!empty($wmsWmtsUrFormatError)) {
@@ -386,9 +385,9 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         if ((array_key_exists('r_serviceType', $data) && 'wmts' === $data['r_serviceType'])
-            && (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string)$data['r_tileMatrixSet']))) {
+            && (!array_key_exists('r_tileMatrixSet', $data) || 0 === trim((string) $data['r_tileMatrixSet']))) {
             $mandatoryErrors[] = [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->legacyFlashMessageCreator->createFlashMessage(
                     'mandatoryError',
                     [
@@ -434,13 +433,13 @@ class ServiceStorage implements MapServiceStorageInterface
              * https://yaits.demos-deutschland.de/T23509
              **/
 
-            $originalPath = parse_url((string)$data['r_url'], \PHP_URL_PATH);
+            $originalPath = parse_url((string) $data['r_url'], \PHP_URL_PATH);
             $encodedPathSegments = array_map(
-                static fn(string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
+                static fn (string $pathSegment) => rawurlencode($pathSegment), explode('/', $originalPath)
             );
 
             $encodedPath = implode('/', $encodedPathSegments);
-            $reformattedUrl = str_replace($originalPath, $encodedPath, (string)$data['r_url']);
+            $reformattedUrl = str_replace($originalPath, $encodedPath, (string) $data['r_url']);
 
             $gislayer['url'] = $reformattedUrl;
         }
@@ -448,7 +447,7 @@ class ServiceStorage implements MapServiceStorageInterface
         if (array_key_exists('r_layers', $data)) {
             $gislayer['layers'] = $data['r_layers'];
             // Eliminiere alle Leerzeichen zwischen Komma und Layername
-            $gislayer['layers'] = preg_replace('/,[\s]+/', ',', (string)$gislayer['layers']);
+            $gislayer['layers'] = preg_replace('/,[\s]+/', ',', (string) $gislayer['layers']);
         }
 
         if (array_key_exists('r_layerVersion', $data)) {
@@ -514,12 +513,12 @@ class ServiceStorage implements MapServiceStorageInterface
 
     private function isOaf(array $data): bool
     {
-        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string)$data['r_serviceType']));
+        return array_key_exists('r_serviceType', $data) && 'oaf' === strtolower(trim((string) $data['r_serviceType']));
     }
 
     private function validateOafUrlFormat(array $data): array
     {
-        $url = trim((string)$data['r_url']);
+        $url = trim((string) $data['r_url']);
         $lowerUrl = strtolower($url);
         $collectionsPattern = '/collections/';
         $collectionsIndex = strpos($lowerUrl, $collectionsPattern);
@@ -527,7 +526,7 @@ class ServiceStorage implements MapServiceStorageInterface
         // Check if URL contains /collections/ (case-insensitive)
         if (false === $collectionsIndex) {
             return [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->translator->trans('error.map.layer.oaf.missing.collections'),
             ];
         }
@@ -537,7 +536,7 @@ class ServiceStorage implements MapServiceStorageInterface
         $afterCollectionsTrimmed = trim($afterCollections, '/ ');
         if ('' === $afterCollectionsTrimmed) {
             return [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->translator->trans('error.map.layer.oaf.collections.end'),
             ];
         }
@@ -547,13 +546,13 @@ class ServiceStorage implements MapServiceStorageInterface
 
     private function validateWmsWmtsUrlFormat(array $data): array
     {
-        $url = trim((string)$data['r_url']);
+        $url = trim((string) $data['r_url']);
         $upperUrl = strtoupper($url);
 
         // Check if URL contains SERVICE parameter (case-insensitive)
         if (false === strpos($upperUrl, 'SERVICE=')) {
             return [
-                'type' => 'error',
+                'type'    => 'error',
                 'message' => $this->translator->trans('error.map.layer.missing.service'),
             ];
         }
@@ -593,7 +592,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $proxyEnabled = $data['r_featureInfoUrlProxyEnabled'] ?? 0;
         try {
-            $serviceGetFeatureInfo->setProxyEnabled((bool)$proxyEnabled);
+            $serviceGetFeatureInfo->setProxyEnabled((bool) $proxyEnabled);
             $this->logger->debug('Setting globalFeatureInfoUrlProxyEnabled saved');
         } catch (HttpException $e) {
             $this->logger->warning('Setting globalFeatureInfoUrlProxyEnabled could not be saved');
@@ -604,7 +603,7 @@ class ServiceStorage implements MapServiceStorageInterface
     /**
      * Tests if a checkbox send in a form is checked.
      *
-     * @param array $data
+     * @param array  $data
      * @param string $key
      * @param string $checkedValue
      *
@@ -641,9 +640,9 @@ class ServiceStorage implements MapServiceStorageInterface
             }
         }
 
-        $this->logger->error('No Projection Value found for ' . $projectionLabel);
+        $this->logger->error('No Projection Value found for '.$projectionLabel);
 
-        throw new InvalidArgumentException('No Projection Value found for ' . $projectionLabel);
+        throw new InvalidArgumentException('No Projection Value found for '.$projectionLabel);
     }
 
     private function isGlobalLayer(?string $procedure, array $data): bool
@@ -654,6 +653,5 @@ class ServiceStorage implements MapServiceStorageInterface
         }
 
         return isset($data['r_isGlobalLayer']) && '1' === $data['r_isGlobalLayer'];
-
     }
 }
