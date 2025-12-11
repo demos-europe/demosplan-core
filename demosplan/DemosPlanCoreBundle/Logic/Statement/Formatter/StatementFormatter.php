@@ -14,16 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter;
 
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\FormOptionsResolver;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use League\HTMLToMarkdown\HtmlConverter;
-use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFormatter
 {
     public function __construct(
-        private readonly StatementHandler $statementHandler,
-        private readonly LoggerInterface $logger,
         private readonly FormOptionsResolver $formOptionsResolver,
         private readonly AssessmentTableServiceOutput $assessmentTableOutput,
         private readonly TranslatorInterface $translator,
