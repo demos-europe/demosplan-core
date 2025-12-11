@@ -262,7 +262,6 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
-        // Globale GIS-Layer haben kein Procedure
         if (is_string($procedure)) {
             $gislayer['pId'] = $procedure;
         }
@@ -274,11 +273,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $addedGisLayer = $this->service->addGis($gislayer);
 
-        // Globale GIS-Layer haben kein Procedure
-        if (is_string($procedure)) {
-            // If this is a base layer with default visibility, disable all other base layers
-            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
-        }
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $addedGisLayer);
 
         return $addedGisLayer;
     }
@@ -490,10 +485,7 @@ class ServiceStorage implements MapServiceStorageInterface
 
         $updatedGisLayer = $this->handler->updateGis($gislayer);
 
-        // If this is a base layer with default visibility, disable all other base layers
-        if (!$isGlobalLayer) {
-            $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
-        }
+        $this->baseLayerVisibilityValidator->ensureOnlyOneBaseLayerIsVisible($procedure, $updatedGisLayer);
 
         return $updatedGisLayer;
     }
