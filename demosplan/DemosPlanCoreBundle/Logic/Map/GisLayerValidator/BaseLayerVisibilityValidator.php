@@ -30,7 +30,7 @@ class BaseLayerVisibilityValidator
 
     public function ensureOnlyOneBaseLayerIsVisible(?string $procedureId, array $gisLayer): void
     {
-        if (null === $procedureId ) {
+        if (null === $procedureId) {
             return;
         }
 
