@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- StatementExportModal: Adds a tags filter to the export modal, allowing statements to be filtered by tags during export
+
 - Move Maillane-specific database migrations to demosplan-addon-maillane
   - Remove maillane_connection and maillane_allowed_sender_email_address table creation from Version20200106150455
   - Remove maillane_connection_id field and index from _procedure table in Version20200106150455
