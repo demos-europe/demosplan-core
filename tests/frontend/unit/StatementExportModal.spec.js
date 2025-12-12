@@ -237,7 +237,7 @@ describe('StatementExportModal', () => {
   })
 
   it('calls updateSelectedTags when getFilterValues is called', () => {
-    const updateSelectedTagIdsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTadIds')
+    const updateSelectedTagIdsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTagIds')
     const updateSelectedTagsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTags')
 
     wrapper.vm.getFilterValues({})
