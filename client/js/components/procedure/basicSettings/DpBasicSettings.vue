@@ -10,14 +10,15 @@
 <template>
   <div>
     <slot
-      :state="state"
       :auth-users-options="authUsersOptions"
+      :select-all-auth-users="selectAllAuthUsers"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
-      :select-all-auth-users="selectAllAuthUsers"
+      :sorted-agencies-options="sortedAgenciesOptions"
+      :state="state"
+      :submit="submit"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
-      :submit="submit"
     />
   </div>
 </template>
@@ -152,6 +153,10 @@ export default {
       sortAlphabetically([...props.authorizedUsersOptions], 'name'),
     )
 
+    const sortedAgenciesOptions = computed(() =>
+      sortAlphabetically([...props.agenciesOptions], 'name'),
+    )
+
     const setSelectedInternalPhase = phase => {
       state.selectedInternalPhase = phase
     }
@@ -166,11 +171,12 @@ export default {
     }
 
     return {
-      state,
       authUsersOptions,
+      selectAllAuthUsers,
       setSelectedInternalPhase,
       setSelectedPublicPhase,
-      selectAllAuthUsers,
+      sortedAgenciesOptions,
+      state,
       unselectAllAuthUsers,
     }
   },
