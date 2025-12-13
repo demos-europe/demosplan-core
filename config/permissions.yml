@@ -869,10 +869,6 @@ feature_documents_new_statement:
     label: 'Planungsdokumente Neue Stellungnahme'
     loginRequired: false
     parent: area_documents
-feature_draft_statement_add_address_to_institutions:
-    description: 'This permission allows to retrieve the address of the institution by creating a new draft statement,some projects need it to display the address in the details view and in the export'
-    label: 'fetch the address of the institution by creating a new draft statement'
-    loginRequired: true
 feature_draft_statement_add_address_to_private_person:
     description: 'This permission allows to retrieve the address of the statements author by creating a new draft statement,some projects need it to display the address in the details view and in the export'
     label: 'fetch the address of the statements author by creating a new draft statement'
