@@ -311,7 +311,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber:
         arguments:
-            $logger: '@monolog.logger.dplan_404'
             $debug: '%kernel.debug%'
 
     demosplan\DemosPlanCoreBundle\EventListener\PopulateElasticaEventSubscriber:
@@ -512,7 +511,6 @@ services:
     demosplan\DemosPlanCoreBundle\Permissions\Permissions:
         arguments:
             $corePermissions: '@demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection'
-            $logger: '@monolog.logger.dplan'
 
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
@@ -603,9 +601,7 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory:
         lazy: true
 
-    demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension:
-        tags:
-            - { name: monolog.logger, channel: dplan }
+    demosplan\DemosPlanCoreBundle\Twig\Extension\LatexExtension: ~
 
     demosplan\DemosPlanCoreBundle\Twig\Extension\MapExtension:
         arguments:
@@ -728,8 +724,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter:
-        arguments:
-            $logger: '@monolog.logger.dplan'
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter:
@@ -1048,7 +1042,6 @@ services:
     # ZIP Response Generator
     demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\ZipResponseGenerator:
         arguments:
-            $logger: '@monolog.logger.dplan'
             $supportedTypes: "%file.formats.zip%"
         tags:
             - { name: "dplan.file.response.generator" }
