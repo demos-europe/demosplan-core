@@ -84,7 +84,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
         string $entityClass,
-        private readonly CustomerService $customerService,
+        private readonly CustomerService $customerService, private readonly ProcedureCoupleTokenRepository $coupleTokenRepository,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -1312,14 +1312,37 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      */
     public function getNextValidExternalIdForProcedure(string $procedureId): int
     {
-        $query1 = $this->getEntityManager()->createQueryBuilder()
-            ->select('statement.externId')
-            ->from(Statement::class, 'statement')
-            ->where('statement.procedure = :procedureId')
-            ->setParameter('procedureId', $procedureId)
-            ->groupBy('statement.externId')
-            ->getQuery();
-        $statementArrays = $query1->getResult();
+        $token = $this->coupleTokenRepository->findOneBy(['sourceProcedure' => $procedureId]);
+        if (null !== $token) {
+            $coupledProcedure = $token->getTargetProcedure();
+        } else {
+            $token = $this->coupleTokenRepository->findOneBy(['targetProcedure' => $procedureId]);
+            $coupledProcedure = $token->getSourceProcedure();
+        }
+
+        if (null !== $coupledProcedure) {
+            $coupledProcedureId = $coupledProcedure->getId();
+
+            $query1 = $this->getEntityManager()->createQueryBuilder()
+                ->select('statement.externId')
+                ->from(Statement::class, 'statement')
+                ->where('statement.procedure = :procedureId')
+                ->orWhere('statement.procedure = :targetProcedureId')
+                ->setParameter('procedureId', $procedureId)
+                ->setParameter('targetProcedureId', $coupledProcedureId)
+                ->groupBy('statement.externId')
+                ->getQuery();
+            $statementArrays = $query1->getResult();
+        } else {
+            $query1 = $this->getEntityManager()->createQueryBuilder()
+                ->select('statement.externId')
+                ->from(Statement::class, 'statement')
+                ->where('statement.procedure = :procedureId')
+                ->setParameter('procedureId', $procedureId)
+                ->groupBy('statement.externId')
+                ->getQuery();
+            $statementArrays = $query1->getResult();
+        }
 
         $query2 = $this->getEntityManager()->createQueryBuilder()
             ->select('draftStatement.number')
