@@ -19,11 +19,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\UserAccessControlServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\UserAccessControlRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserAccessControlService extends CoreService implements UserAccessControlServiceInterface
+class UserAccessControlService implements UserAccessControlServiceInterface
 {
     public function __construct(
         private readonly UserAccessControlRepository $userAccessControlRepository,
