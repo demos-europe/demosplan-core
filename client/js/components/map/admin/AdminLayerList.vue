@@ -159,8 +159,8 @@
           <div class="c-at-item__row-icon pl-0">
             <!-- DragHandler -->
           </div>
-          <div class="flex">
-            <div class="flex-1 pl-2">
+          <div class="flex pl-2">
+            <div class="flex-1">
               {{ Translator.trans('description') }}
             </div>
             <div
@@ -172,7 +172,7 @@
                 class="fa fa-eye mr-2"
               />
             </div>
-            <div class="w-1/12 text-right">
+            <div class="w-2/12 text-right">
               {{ Translator.trans('edit') }}
             </div>
           </div>
@@ -193,6 +193,7 @@
             :is-loading="(false === isEditable)"
             layer-type="base"
             :sorting-type="currentTab"
+            @visibility-toggled="ensureSingleBaseLayerVisible"
           />
         </dp-draggable>
         <div class="my-4">
@@ -484,6 +485,28 @@ export default {
       })
 
       return { ungroupedLayers, affectedGroupIds }
+    },
+
+    ensureSingleBaseLayerVisible (changedLayerId) {
+      // Get all base layers with hasDefaultVisibility true
+      const visibleBaseLayers = this.mapBaseList.filter(
+        layer => layer.attributes.hasDefaultVisibility === true,
+      )
+
+      // If more than one base layer is visible on load, disable all except the one that was just changed
+      if (visibleBaseLayers.length > 1) {
+        visibleBaseLayers.forEach(layer => {
+          if (layer.id !== changedLayerId) {
+            this.setAttributeForLayer({
+              id: layer.id,
+              attribute: 'hasDefaultVisibility',
+              value: false,
+            })
+          }
+        })
+
+        dplan.notify.notify('info', Translator.trans('map.baselayer.visibility.single'))
+      }
     },
 
     updateChildren (ev) {
