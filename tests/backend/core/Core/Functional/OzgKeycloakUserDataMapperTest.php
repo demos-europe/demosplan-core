@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakGroupBasedRoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzgKeycloakUserDataMapper;
 use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\DepartmentMapper;
+use demosplan\DemosPlanCoreBundle\Logic\OzyKeycloakDataMapper\RoleMapper;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -143,11 +146,14 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     private function createUserData(array $attributes): OzgKeycloakUserData
     {
         $resourceOwner = new KeycloakResourceOwner($attributes);
+        $roleMapper = new RoleMapper(new NullLogger());
         $userData = new OzgKeycloakUserData(
             new NullLogger(),
             new ParameterBag([
-                'keycloak_group_role_string' => 'PlaceholderForKeycloakForRole',
+                'keycloak_group_role_string'  => 'PlaceholderForKeycloakForRole',
+                'oauth_keycloak_client_id'    => 'test-client-id',
             ]),
+            $roleMapper
         );
         $userData->fill($resourceOwner);
 
@@ -195,11 +201,45 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     }
 
     /**
+     * Creates a mock ResourceOwner with resource_access roles (NEW method).
+     */
+    private function createResourceAccessResourceOwner(array $overrides = []): ResourceOwnerInterface
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $defaults = [
+            'email'                           => 'resource.user@example.com',
+            'given_name'                      => 'Resource',
+            'family_name'                     => 'Access User',
+            'organisationId'                  => 'orga-resource-123',
+            'organisationName'                => 'Resource Access Organisation',
+            'sub'                             => 'test-resource-user-001',
+            'preferred_username'              => 'resource.user',
+            'UnternehmensanschriftStrasse'    => 'Teststrasse',
+            'UnternehmensanschriftHausnummer' => '123',
+            'UnternehmensanschriftPLZ'        => '10115',
+            'UnternehmensanschriftOrt'        => 'Berlin',
+            'isPrivatePerson'                 => false,
+            'resource_access'                 => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-SB'],
+                ],
+            ],
+            'groups' => [], // No groups - should use resource_access
+        ];
+
+        $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
+        $resourceOwner->method('toArray')->willReturn(array_merge($defaults, $overrides));
+
+        return $resourceOwner;
+    }
+
+    /**
      * Creates a mock ResourceOwner for an organization user.
      */
     private function createOrganizationResourceOwner(array $overrides = []): ResourceOwnerInterface
     {
-        $customerSubdomain = $this->getContainer()->get('demosplan\DemosPlanCoreBundle\Logic\User\CustomerService')->getCurrentCustomer()->getSubdomain();
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
 
         $defaults = [
             'email'                           => 'orga.user@example.com',
@@ -231,9 +271,15 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
      */
     private function mapResourceOwnerToUser(ResourceOwnerInterface $resourceOwner): User
     {
-        $parameterBag = new ParameterBag(['keycloak_group_role_string' => 'Beteiligung-Berechtigung']);
-        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag);
-        $ozgKeycloakUserData->fill($resourceOwner);
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $parameterBag = new ParameterBag([
+            'keycloak_group_role_string'  => 'Beteiligung-Berechtigung',
+            'oauth_keycloak_client_id'    => "diplan-develop-beteiligung-{$customerSubdomain}",
+        ]);
+        $roleMapper = new RoleMapper(new NullLogger());
+        $ozgKeycloakUserData = new OzgKeycloakUserData(new NullLogger(), $parameterBag, $roleMapper);
+        $ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain);
 
         return $this->sut->mapUserData($ozgKeycloakUserData);
     }
@@ -244,7 +290,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     private function assertUserHasCitizenRole(User $user): void
     {
         $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
-        self::assertContains(Role::CITIZEN, $userRoles);
+        self::assertContains(RoleInterface::CITIZEN, $userRoles);
     }
 
     public function testMapUserDataWithIsPrivatePersonAttributeCreatesCitizenUser(): void
@@ -252,8 +298,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createPrivatePersonResourceOwner();
         $user = $this->mapResourceOwnerToUser($resourceOwner);
 
-        self::assertInstanceOf(User::class, $user);
-        self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
+        self::assertEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
         self::assertEquals('max.mustermann', $user->getLogin());
         self::assertEquals('Max', $user->getFirstname());
         self::assertEquals('Mustermann', $user->getLastname());
@@ -272,8 +317,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         ]);
         $user = $this->mapResourceOwnerToUser($resourceOwner);
 
-        self::assertInstanceOf(User::class, $user);
-        self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
+        self::assertEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
         $this->assertUserHasCitizenRole($user);
     }
 
@@ -282,14 +326,13 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $resourceOwner = $this->createOrganizationResourceOwner();
         $user = $this->mapResourceOwnerToUser($resourceOwner);
 
-        self::assertInstanceOf(User::class, $user);
-        self::assertNotEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
+        self::assertNotEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
         self::assertEquals('Test Organisation GmbH', $user->getOrga()->getName());
     }
 
     public function testBackwardCompatibilityWithCitizenRoleStillWorks(): void
     {
-        $customerSubdomain = $this->getContainer()->get('demosplan\DemosPlanCoreBundle\Logic\User\CustomerService')->getCurrentCustomer()->getSubdomain();
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
 
         $resourceOwner = $this->createMock(ResourceOwnerInterface::class);
         $resourceOwner->method('toArray')
@@ -310,8 +353,7 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
 
         $user = $this->mapResourceOwnerToUser($resourceOwner);
 
-        self::assertInstanceOf(User::class, $user);
-        self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
+        self::assertEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
         $this->assertUserHasCitizenRole($user);
     }
 
@@ -345,6 +387,132 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertEquals('Name', $secondUser->getLastname());
         self::assertEquals('updated.email@example.com', $secondUser->getEmail());
         // Still in citizen organization
-        self::assertEquals(User::ANONYMOUS_USER_ORGA_ID, $secondUser->getOrga()->getId());
+        self::assertEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $secondUser->getOrga()->getId());
+    }
+
+    /**
+     * Test NEW resource_access based role extraction (ADO-43125).
+     */
+    public function testMapUserDataWithResourceAccessRolesFPSB(): void
+    {
+        $resourceOwner = $this->createResourceAccessResourceOwner();
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        self::assertEquals('resource.user', $user->getLogin());
+        self::assertEquals('Resource', $user->getFirstname());
+        self::assertEquals('Access User', $user->getLastname());
+        self::assertNotEquals(UserInterface::ANONYMOUS_USER_ORGA_ID, $user->getOrga()->getId());
+
+        // Check that user has the correct role (FP-SB -> Fachplanung Sachbearbeitung)
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+        self::assertContains(RoleInterface::PLANNING_AGENCY_WORKER, $userRoles);
+    }
+
+    /**
+     * Test resource_access with multiple technical roles.
+     */
+    public function testMapUserDataWithMultipleResourceAccessRoles(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'multi.role@example.com',
+            'sub'                => 'test-multi-role-001',
+            'preferred_username' => 'multi.role',
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A', 'I-K'], // Multiple roles
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+
+        // Should have both roles mapped
+        self::assertContains(RoleInterface::PLANNING_AGENCY_ADMIN, $userRoles); // FP-A
+        self::assertContains(RoleInterface::PUBLIC_AGENCY_COORDINATION, $userRoles); // I-K
+    }
+
+    /**
+     * Test that resource_access takes precedence over groups (backward compatibility).
+     */
+    public function testResourceAccessTakesPrecedenceOverGroups(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'precedence.test@example.com',
+            'sub'                => 'test-precedence-001',
+            'preferred_username' => 'precedence.test',
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'], // Admin role from resource_access
+                ],
+            ],
+            'groups' => [
+                '/Beteiligung-Organisation/Test Org',
+                "/Beteiligung-Berechtigung/{$customerSubdomain}/Institutions Sachbearbeitung", // Worker role from groups
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+
+        // Should have ADMIN role from resource_access, NOT worker role from groups
+        self::assertContains(RoleInterface::PLANNING_AGENCY_ADMIN, $userRoles);
+        self::assertNotContains(RoleInterface::PUBLIC_AGENCY_WORKER, $userRoles);
+    }
+
+    /**
+     * Test fallback to group-based roles when resource_access is empty.
+     */
+    public function testFallbackToGroupBasedRolesWhenResourceAccessEmpty(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'fallback.test@example.com',
+            'sub'                => 'test-fallback-001',
+            'preferred_username' => 'fallback.test',
+            'resource_access'    => [], // Empty resource_access
+            'groups'             => [
+                '/Beteiligung-Organisation/Test Org',
+                "/Beteiligung-Berechtigung/{$customerSubdomain}/Institutions Sachbearbeitung",
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+
+        // Should have worker role from groups (fallback)
+        self::assertContains(RoleInterface::PUBLIC_AGENCY_WORKER, $userRoles);
+    }
+
+    /**
+     * Test that unknown technical roles in resource_access are logged but don't break authentication.
+     */
+    public function testUnknownTechnicalRolesAreHandledGracefully(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'unknown.role@example.com',
+            'sub'                => 'test-unknown-role-001',
+            'preferred_username' => 'unknown.role',
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-SB', 'UNKNOWN-ROLE', 'I-K'], // Mix of known and unknown
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+
+        // Should have the known roles
+        self::assertContains(RoleInterface::PLANNING_AGENCY_WORKER, $userRoles); // FP-SB
+        self::assertContains(RoleInterface::PUBLIC_AGENCY_COORDINATION, $userRoles); // I-K
+        // UNKNOWN-ROLE should be ignored (not cause failure)
     }
 }
