@@ -37,6 +37,7 @@ use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
+use Throwable;
 
 class XlsxSegmentImport
 {
@@ -491,7 +492,7 @@ class XlsxSegmentImport
         foreach ($eventsToCheck as $eventName) {
             try {
                 $listeners = $eventManager->getListeners($eventName);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // Skip events that have no registered listeners
                 continue;
             }
