@@ -489,7 +489,14 @@ class XlsxSegmentImport
         ];
 
         foreach ($eventsToCheck as $eventName) {
-            foreach ($eventManager->getListeners($eventName) as $listener) {
+            try {
+                $listeners = $eventManager->getListeners($eventName);
+            } catch (\Throwable $e) {
+                // Skip events that have no registered listeners
+                continue;
+            }
+
+            foreach ($listeners as $listener) {
                 if (str_contains(get_class($listener), 'Elastica')) {
                     $eventManager->removeEventListener($eventName, $listener);
                     $disabledListeners[$eventName][] = $listener;
