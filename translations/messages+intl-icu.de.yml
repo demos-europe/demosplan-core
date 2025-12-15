@@ -3252,6 +3252,7 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
         =1 { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderung geht dadurch verloren. }
         other { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderungen geht dadurch verloren. }
     }
+segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
 segments.export.statement.export.date: "Synopse vom {date}"
