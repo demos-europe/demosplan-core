@@ -1591,15 +1591,15 @@ feature_procedure_export_include_statement_released:
     expose: false
     label: 'Procedure export with released statement group'
     loginRequired: true
-feature_procedure_export_include_statements_and_segments:
+feature_procedure_export_include_segments:
     description: |-
         The procedure export generates a ZIP archive. If this permission is enabled
-        two documents will be included: "Abschnitte_Gruppiert.docx" containing all statement segments
-        grouped by statement, and "Stellungnahmen_Liste.docx" containing a list of all statements.
-        These will be placed in the "Stellungnahmen/Abschnitte" directory in each procedure directory.
-        Attachments for statements will be placed in the "Stellungnahmen/Abschnitte/Anhang" directory.
+        a document "Abschnitte_Gruppiert.docx" containing all statement segments
+        grouped by statement will be included.
+        The document will be placed in the "Abschnitte" directory in each procedure directory.
+        Attachments for statements will be placed in the "Abschnitte/Anhang" directory.
     expose: false
-    label: 'Procedure export with statements and segments'
+    label: 'Procedure export with segments'
     loginRequired: true
 feature_procedure_external_desc_crop:
     description: 'Crop external procedure description'
