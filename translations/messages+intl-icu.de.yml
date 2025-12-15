@@ -2090,6 +2090,7 @@ item.lockedForSelection.sharedStatement: "Die Stellungnahme kann nicht ausgewäh
 items.marked.delete: "Markierte Elemente löschen"
 items.none: "Es sind noch keine Elemente vorhanden."
 items.none.currently: "Derzeit sind keine Elemente vorhanden."
+item.select: "Element auswählen"
 items.selected: |
     {count, plural,
         =1 { Ein Eintrag ausgewählt}

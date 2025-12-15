@@ -175,7 +175,7 @@
         reduced-height
       />
 
-      <fieldset class="mb-4">
+      <fieldset class="pb-0">
         <legend class="weight--bold">
           {{ Translator.trans('period') }}
           <dp-contextual-help :text="Translator.trans('explanation.date.format')" />
