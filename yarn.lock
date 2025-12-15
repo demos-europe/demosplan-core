@@ -7494,12 +7494,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"demosewm-2c10f2@workspace:projects/demosewm":
-  version: 0.0.0-use.local
-  resolution: "demosewm-2c10f2@workspace:projects/demosewm"
-  languageName: unknown
-  linkType: soft
-
 "demosplan-core@workspace:.":
   version: 0.0.0-use.local
   resolution: "demosplan-core@workspace:."
