@@ -29,14 +29,17 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -49,6 +52,7 @@ use Monolog\Logger;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -117,12 +121,15 @@ class ExportService
         private readonly ElementsService $elementsService,
         private readonly ExportReportService $exportReportService,
         FileService $serviceFile,
+        private readonly JsonApiActionService $jsonApiActionService,
         LoggerInterface $logger,
         NewsOutput $newsOutput,
         ParagraphExporter $paragraphExporter,
         PermissionsInterface $permissions,
         ProcedureOutput $procedureOutput,
         private readonly ProcedureService $procedureService,
+        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter,
+        private readonly StatementResourceType $statementResourceType,
         private readonly StatementService $statementService,
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
@@ -274,6 +281,10 @@ class ExportService
                 // reports
                 if ($this->permissions->hasPermission('feature_export_protocol')) {
                     $zip = $this->addReportToZip($procedureId, $procedureName, $zip);
+                }
+                // Stellungnahmen Abschnitte (Statement Segments DOCX)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_segments')) {
+                    $zip = $this->addStatementSegmentsToZip($procedureId, $procedureName, $zip);
                 }
             }
         }
@@ -756,6 +767,83 @@ class ExportService
             $this->logger->info('Verfahrensprotokoll created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
             $this->logger->warning('Verfahrensprotokoll could not be created. ', [$e]);
+        }
+
+        return $zip;
+    }
+
+    public function addStatementSegmentsToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
+    {
+        try {
+            // Set current procedure (required by StatementResourceType)
+            $procedure = $this->procedureService->getProcedure($procedureId);
+            $this->currentProcedureService->setProcedure($procedure);
+
+            // Build query params exactly like SegmentsExportController does
+            $queryParams = new ParameterBag([
+                'filter' => [
+                    'procedureId' => [
+                        'condition' => [
+                            'path'  => 'procedure.id',
+                            'value' => $procedureId,
+                        ],
+                    ],
+                ],
+                'sort' => '-submitDate',
+            ]);
+
+            // Get statement entities using JSON:API (same as controller)
+            /** @var Statement[] $statementEntities */
+            $statementEntities = array_values(
+                $this->jsonApiActionService->getObjectsByQueryParams(
+                    $queryParams,
+                    $this->statementResourceType
+                )->getList()
+            );
+
+            if (empty($statementEntities)) {
+                $this->logger->info('No statements found for segments export', ['id' => $procedureId, 'name' => $procedureName]);
+
+                return $zip;
+            }
+
+            // Generate DOCX with segments grouped by statement
+            $tableHeaders = [
+                'col1' => $this->translator->trans('segments.export.segment.id'),
+                'col2' => $this->translator->trans('segments.export.statement.label'),
+                'col3' => $this->translator->trans('segment.recommendation'),
+            ];
+
+            $exportResult = $this->segmentsByStatementsExporter->exportAll(
+                $tableHeaders,
+                $this->procedureService->getProcedure($procedureId),
+                false, // obscure = false
+                false, // censorCitizenData = false
+                false, // censorInstitutionData = false
+                ...$statementEntities
+            );
+
+            // Add DOCX to ZIP
+            $segmentsFolder = $procedureName.'/Abschnitte';
+            $docxFilename = $segmentsFolder.'/Abschnitte_Gruppiert.docx';
+
+            // Create temp file and add to ZIP
+            $internalFilename = 'tmp_export_segments_'.Uuid::uuid().'.docx';
+            $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
+            $exportResult->save($filepath);
+            $this->zipExportService->addFileToZipStream($filepath, $docxFilename, $zip);
+
+            // Cleanup temp file
+            $fs = new Filesystem();
+            $fs->remove($filepath);
+
+            // Add attachments to separate Anhang folder
+            $attachmentFolder = $segmentsFolder.'/Anhang/';
+            $this->attachStatementFilesToZip($statementEntities, $attachmentFolder, $zip);
+
+            $this->logger->info('Statement segments export created', ['id' => $procedureId, 'name' => $procedureName]);
+        } catch (Exception $e) {
+            $this->logger->warning('Statement segments export could not be created. ', [$e]);
         }
 
         return $zip;
