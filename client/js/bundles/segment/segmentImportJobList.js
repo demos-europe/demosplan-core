@@ -7,19 +7,11 @@
  * All rights reserved
  */
 
-/**
- * This is the entrypoint for administration_import.html.twig
- */
-
-import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport'
 import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
-  AdministrationImport,
   SegmentImportJobList
 }
-const stores = {}
-const apiStores = ['AnnotatedStatementPdf']
 
-initialize(components, stores, apiStores)
+initialize(components)

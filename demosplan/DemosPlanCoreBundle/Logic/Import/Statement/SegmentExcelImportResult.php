@@ -94,11 +94,19 @@ final class SegmentExcelImportResult
     public function addErrors(
         ConstraintViolationListInterface $violationList,
         int $currentLineNumber,
-        string $currentWorksheetTitle
+        string $currentWorksheetTitle,
     ): void {
         foreach ($violationList as $violation) {
             $this->errors[] = new ImportError($violation, $currentLineNumber, $currentWorksheetTitle);
         }
+    }
+
+    public function addError(
+        string $message,
+        int $currentLineNumber,
+        string $currentWorksheetTitle,
+    ): void {
+        $this->errors[] = ImportError::fromMessage($message, $currentLineNumber, $currentWorksheetTitle);
     }
 
     public function hasErrors(): bool

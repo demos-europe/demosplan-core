@@ -28,6 +28,15 @@
         :used-intern-ids="JSON.parse('{{ templateVars.usedInternIds|json_encode|e('js', 'utf-8') }}')"
         :submit-type-options="JSON.parse('{{ submitTypeOptions|json_encode|e('js', 'utf-8') }}')">
     </administration-import>
+
+    {# Import Jobs List #}
+    <div id="segmentImportJobListMount" class="u-mt-2">
+        <h2>{{ 'import.jobs.list'|trans }}</h2>
+        <segment-import-job-list
+            procedure-id="{{ procedureId }}"
+            init-url="{{ path('dplan_import_jobs_api', { procedureId: procedureId }) }}">
+        </segment-import-job-list>
+    </div>
 {% endblock component_part %}
 
 {% block javascripts %}
