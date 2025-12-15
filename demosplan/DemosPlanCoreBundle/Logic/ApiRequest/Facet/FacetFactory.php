@@ -87,7 +87,7 @@ class FacetFactory
         $groups = collect($resourceType->getEntities($groupsLoadConditions, $groupsSortMethods));
 
         // Apply natural sorting to groups for human-friendly ordering (e.g., "2" before "11")
-        $groups = $this->applyNaturalSorting($groups, $facetDefinition, fn ($group) => $facetDefinition->getGroupTitle($group));
+        $groups = $this->applyNaturalSorting($groups, fn ($group) => $facetDefinition->getGroupTitle($group));
 
         // create mapping from items to their 'selected' state
         $flattedItems = $groups->flatMap(function (object $group) use ($facetDefinition): Collection {
@@ -179,7 +179,7 @@ class FacetFactory
         );
 
         // Apply natural sorting to items for human-friendly ordering (e.g., "2" before "11")
-        $items = $this->applyNaturalSorting(collect($items), $facetDefinition, fn ($item) => $facetDefinition->getItemTitle($item))->all();
+        $items = $this->applyNaturalSorting(collect($items), fn ($item) => $facetDefinition->getItemTitle($item))->all();
 
         $selections = $this->determineSelections($facetDefinition, $rawFilter, collect($items));
 
@@ -206,7 +206,7 @@ class FacetFactory
         $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []);
 
         // Apply natural sorting to items within this group for human-friendly ordering (e.g., "2" before "11")
-        $items = $this->applyNaturalSorting(collect($items), $facetDefinition, fn ($item) => $facetDefinition->getItemTitle($item))->all();
+        $items = $this->applyNaturalSorting(collect($items), fn ($item) => $facetDefinition->getItemTitle($item))->all();
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);
     }
@@ -245,13 +245,12 @@ class FacetFactory
      *
      * @template T of object
      *
-     * @param Collection<int,T>      $collection      The collection to sort
-     * @param FacetInterface<object> $facetDefinition The facet definition (for context)
-     * @param callable(T): string    $titleExtractor  Function to extract the title from each item
+     * @param Collection<int,T>   $collection     The collection to sort
+     * @param callable(T): string $titleExtractor Function to extract the title from each item
      *
      * @return Collection<int,T> The naturally sorted collection
      */
-    private function applyNaturalSorting(Collection $collection, FacetInterface $facetDefinition, callable $titleExtractor): Collection
+    private function applyNaturalSorting(Collection $collection, callable $titleExtractor): Collection
     {
         return $collection->sort(static function (object $a, object $b) use ($titleExtractor): int {
             return strnatcasecmp($titleExtractor($a), $titleExtractor($b));
