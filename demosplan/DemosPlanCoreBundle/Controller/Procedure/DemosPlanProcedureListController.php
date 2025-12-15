@@ -375,6 +375,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 unset($requestPost['municipalCode']);
             }
 
+            // Add wildcard on the start page for procedures to make search more user-friendly
+            if (array_key_exists('search', $requestPost) && '' !== $requestPost['search'] && !str_ends_with($requestPost['search'], '*')) {
+                $requestPost['search'] .= '*';
+            }
+
             $procedureHandler->setRequestValues(
                 $requestPost
             );
