@@ -60,11 +60,20 @@
         </button>
       </div>
     </form>
+
+    <!-- Import Jobs List -->
+    <div class="u-mt-2">
+      <h2>{{ Translator.trans('import.jobs.list') }}</h2>
+      <segment-import-job-list
+        :init-url="importJobsUrl"
+        :procedure-id="procedureId" />
+    </div>
   </div>
 </template>
 
 <script>
 import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import SegmentImportJobList from '../SegmentImportJobList'
 
 export default {
   name: 'ExcelImport',
@@ -73,7 +82,8 @@ export default {
 
   components: {
     DpRadio,
-    DpUploadFiles
+    DpUploadFiles,
+    SegmentImportJobList
   },
 
   props: {
@@ -112,6 +122,10 @@ export default {
 
     activeEntity () {
       return this.availableEntities.find(entity => entity.key === this.active)
+    },
+
+    importJobsUrl () {
+      return Routing.generate('dplan_import_jobs_api', { procedureId: this.procedureId })
     }
   },
 

@@ -279,7 +279,8 @@ class SegmentController extends BaseController
     #[Route(
         name: 'dplan_import_jobs_api',
         path: '/verfahren/{procedureId}/import/jobs/api',
-        methods: ['GET']
+        methods: ['GET'],
+        options: ['expose' => true]
     )]
     public function getImportJobsApi(
         CurrentProcedureService $currentProcedureService,
