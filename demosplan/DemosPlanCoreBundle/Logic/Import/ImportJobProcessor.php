@@ -161,14 +161,6 @@ class ImportJobProcessor
             $job->getProcedure()
         );
 
-        // Set progress callback (updates every 300 statements per batch)
-        // Note: Job progress is automatically flushed by the next batch flush in persistStatementsInBatches()
-        // The callback runs AFTER each batch flush, so the updated progress is flushed with the NEXT batch
-        // This provides UI updates every ~10-30 seconds without causing race conditions with batch flushing
-        $this->xlsxSegmentImport->setProgressCallback(function ($processed, $total) use ($job) {
-            $job->updateProgress($processed, $total);
-        });
-
         // Execute import (reuse existing optimized code)
         $result = $this->xlsxSegmentImport->importFromFile($fileInfo);
 
@@ -252,8 +244,6 @@ class ImportJobProcessor
             'statements' => $result->getStatementCount(),
             'segments'   => $result->getSegmentCount(),
         ]);
-        $job->setTotalItems($result->getStatementCount());
-        $job->setProcessedItems($result->getStatementCount());
         $this->entityManager->flush();
 
         // Cleanup uploaded file

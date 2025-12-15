@@ -88,20 +88,6 @@ class ImportJob extends CoreEntity
     protected $status = self::STATUS_PENDING;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="total_items", type="integer", options={"default"=0})
-     */
-    protected $totalItems = 0;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="processed_items", type="integer", options={"default"=0})
-     */
-    protected $processedItems = 0;
-
-    /**
      * @var DateTime|null
      *
      * @ORM\Column(name="last_activity_at", type="datetime", nullable=true)
@@ -219,30 +205,6 @@ class ImportJob extends CoreEntity
         return self::STATUS_FAILED === $this->status;
     }
 
-    public function getTotalItems(): int
-    {
-        return $this->totalItems;
-    }
-
-    public function setTotalItems(int $totalItems): self
-    {
-        $this->totalItems = $totalItems;
-
-        return $this;
-    }
-
-    public function getProcessedItems(): int
-    {
-        return $this->processedItems;
-    }
-
-    public function setProcessedItems(int $processedItems): self
-    {
-        $this->processedItems = $processedItems;
-
-        return $this;
-    }
-
     public function getLastActivityAt(): ?DateTime
     {
         return $this->lastActivityAt;
@@ -282,24 +244,6 @@ class ImportJob extends CoreEntity
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
-    }
-
-    public function getProgressPercentage(): int
-    {
-        if (0 === $this->totalItems) {
-            return 0;
-        }
-
-        return (int) round(($this->processedItems / $this->totalItems) * 100);
-    }
-
-    public function updateProgress(int $processed, int $total): self
-    {
-        $this->processedItems = $processed;
-        $this->totalItems = $total;
-        $this->lastActivityAt = new DateTime();
-
-        return $this;
     }
 
     public function markAsProcessing(): self

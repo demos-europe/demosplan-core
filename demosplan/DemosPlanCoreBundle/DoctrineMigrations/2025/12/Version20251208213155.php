@@ -39,8 +39,6 @@ class Version20251208213155 extends AbstractMigration
                 file_path VARCHAR(500) NOT NULL,
                 file_name VARCHAR(255) NOT NULL DEFAULT "",
                 status VARCHAR(50) NOT NULL DEFAULT "pending",
-                total_items INT NOT NULL DEFAULT 0,
-                processed_items INT NOT NULL DEFAULT 0,
                 last_activity_at DATETIME NULL,
                 result JSON NULL,
                 error TEXT NULL,
