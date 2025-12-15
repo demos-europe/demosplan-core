@@ -37,9 +37,10 @@ exports[`DpAdminLayerList should render a empty admin layer list 1`] = `
       <div class=\\"layout__item u-10-of-12 u-pl-0_5\\">
         description
       </div>
-      <div class=\\"layout__item u-1-of-12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-      <div class=\\"layout__item u-1-of-12 text-right\\">
-        edit
+      <div class="flex pl-2">
+        <div class="flex-1">description</div>
+        <div class="w-1/12 text-right"><i class="fa fa-eye mr-2"></i></div>
+        <div class="w-2/12 text-right">edit</div>
       </div>
     </div>
   </div>
