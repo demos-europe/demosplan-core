@@ -132,6 +132,7 @@
         name="r_orga_name"
         :readonly="isBobHH"
         :required="true"
+        @focus="isBobHH && handleOrgaInputFocus()"
       /><!--
    --><dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name')"
@@ -144,6 +145,7 @@
         }"
         name="r_orga_department_name"
         :readonly="isBobHH"
+        @focus="isBobHH && handleOrgaInputFocus()"
       />
     </template>
 
@@ -541,6 +543,14 @@ export default {
         }
         return acc
       }, [])
+    },
+
+    handleOrgaInputFocus () {
+      if (this.currentListIsEmpty) {
+        dplan.notify.warning(Translator.trans('institution.add'))
+      } else {
+        dplan.notify.warning(Translator.trans('institution.select'))
+      }
     },
 
     //  Display an option for select
