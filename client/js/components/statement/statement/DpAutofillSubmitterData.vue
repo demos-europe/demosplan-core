@@ -292,7 +292,6 @@ export default {
        *  subscriber data from first statement) get several "Schlussmitteilungen" and be rightly concerned about
        *  system reliability or worse, professional correctness of the procedure.
        */
-      showOrgaInputHint: false,
       inputFields: {
         general: {
           0: [
@@ -369,6 +368,8 @@ export default {
 
       //  Initially set state of the radio to citizen
       currentRole: '0',
+
+      showOrgaInputHint: false,
 
       //  Holds the currently selected submitter object
       submitter: {},
