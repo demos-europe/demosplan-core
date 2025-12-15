@@ -114,6 +114,13 @@
         <u>{{ Translator.trans('statement.citizen.hint') }}</u>:
         {{ Translator.trans('statement.citizen.assessment.table.print') }}
       </p>
+
+      <dp-inline-notification
+        v-if="showOrgaInputHint"
+        :message="currentListIsEmpty ? Translator.trans('institution.add') : Translator.trans('institution.select')"
+        class="mb-3"
+        type="info"
+      />
     </div>
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
@@ -132,6 +139,7 @@
         name="r_orga_name"
         :readonly="isBobHH"
         :required="true"
+        @blur="isBobHH && handleOrgaInputBlur()"
         @focus="isBobHH && handleOrgaInputFocus()"
       /><!--
    --><dp-input
@@ -145,6 +153,7 @@
         }"
         name="r_orga_department_name"
         :readonly="isBobHH"
+        @blur="isBobHH && handleOrgaInputBlur()"
         @focus="isBobHH && handleOrgaInputFocus()"
       />
     </template>
@@ -167,7 +176,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpContextualHelp, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpInlineNotification, DpInput, DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const emptySubmitterData = {
   city: '',
@@ -185,6 +194,7 @@ export default {
 
   components: {
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
     DpMultiselect,
   },
@@ -282,6 +292,7 @@ export default {
        *  subscriber data from first statement) get several "Schlussmitteilungen" and be rightly concerned about
        *  system reliability or worse, professional correctness of the procedure.
        */
+      showOrgaInputHint: false,
       inputFields: {
         general: {
           0: [
@@ -545,12 +556,12 @@ export default {
       }, [])
     },
 
+    handleOrgaInputBlur () {
+      this.showOrgaInputHint = false
+    },
+
     handleOrgaInputFocus () {
-      if (this.currentListIsEmpty) {
-        dplan.notify.warning(Translator.trans('institution.add'))
-      } else {
-        dplan.notify.warning(Translator.trans('institution.select'))
-      }
+      this.showOrgaInputHint = true
     },
 
     //  Display an option for select
