@@ -250,7 +250,7 @@ class FacetFactory
      *
      * @return Collection<int,T> The naturally sorted collection
      */
-    private function applyNaturalSorting(Collection $collection, callable $titleExtractor): Collection
+    public function applyNaturalSorting(Collection $collection, callable $titleExtractor): Collection
     {
         return $collection->sort(static function (object $a, object $b) use ($titleExtractor): int {
             return strnatcasecmp($titleExtractor($a), $titleExtractor($b));

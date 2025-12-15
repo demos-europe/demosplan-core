@@ -14,7 +14,6 @@ namespace Tests\Core\Facets;
 
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet\FacetFactory;
 use Illuminate\Support\Collection;
-use ReflectionClass;
 use stdClass;
 use Tests\Base\FunctionalTestCase;
 
@@ -152,15 +151,11 @@ class FacetFactoryTest extends FunctionalTestCase
     }
 
     /**
-     * Helper method to invoke the private applyNaturalSorting method using reflection.
+     * Helper method to invoke the applyNaturalSorting method.
      */
     private function invokeApplyNaturalSorting(Collection $collection, callable $extractor): Collection
     {
-        $reflection = new ReflectionClass($this->sut);
-        $method = $reflection->getMethod('applyNaturalSorting');
-        $method->setAccessible(true);
-
-        return $method->invoke($this->sut, $collection, $extractor);
+        return $this->sut->applyNaturalSorting($collection, $extractor);
     }
 
     /**
