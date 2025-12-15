@@ -189,7 +189,6 @@
           end-name="r_enddate"
           :start-label="Translator.trans('start')"
           :end-label="Translator.trans('end')"
-          aria-labels="true"
           data-cy="newProcedureForm"
           :data-dp-validate-error-fieldname="Translator.trans('period')"
           :required="hasPermission('field_required_procedure_end_date')"
