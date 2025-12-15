@@ -14,7 +14,7 @@
         {% set displayDate = news.modifyDate is defined ? news.modifyDate : news.createDate %}
         {% if displayDate is defined %}
             <span class="{{ 'font-size-smaller float-left'|prefixClass }}">
-                {{ displayDate|default|dplanDateAnnotated }}
+                {{ displayDate|dplanDateAnnotated }}
             </span>
         {% endif %}
 
