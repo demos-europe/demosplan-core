@@ -376,8 +376,16 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             // Add wildcard on the start page for procedures to make search more user-friendly
-            if (array_key_exists('search', $requestPost) && '' !== $requestPost['search'] && !str_ends_with($requestPost['search'], '*')) {
-                $requestPost['search'] .= '*';
+            if (array_key_exists('search', $requestPost) && '' !== $requestPost['search']) {
+                $search = $requestPost['search'];
+
+                $isExact = str_starts_with($search, '"') && str_ends_with($search, '"');
+                $hasWildcard = str_ends_with($search, '*');
+
+                // If not an exact search and no wildcard, add a wildcard
+                if (!$isExact && !$hasWildcard) {
+                    $requestPost['search'] .= '*';
+                }
             }
 
             $procedureHandler->setRequestValues(
