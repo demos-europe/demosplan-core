@@ -284,7 +284,14 @@
                     <br /><span class="hint">{{ "explanation.gislayer.visibility.group.locked"|trans }}</span>
                 {% endif %}
             </label>
-
+            {% else %}
+                <input
+                    type="hidden"
+                    name="r_default_visibility"
+                    data-cy="mapLayerDefaultVisibility"
+                    value="1"
+                    checked>
+            {% endif %}
             <label class="u-mt u-mb-0_5">
                 <input type="checkbox" name="r_enabled" value="1" {% if gislayer.enabled is defined and gislayer.enabled == 1  %}checked{% endif %}>
                 {{ "explanation.gislayer.enabled"|trans }}
