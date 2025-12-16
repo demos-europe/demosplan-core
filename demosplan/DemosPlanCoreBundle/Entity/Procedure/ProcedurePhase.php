@@ -255,15 +255,15 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
 
     public function copyValuesFromPhase(ProcedurePhaseInterface $sourcePhase): void
     {
-        $this->key = $sourcePhase->key;
-        $this->step = $sourcePhase->step;
-        $this->name = $sourcePhase->name;
-        $this->designatedEndDate = $sourcePhase->designatedEndDate;
-        $this->designatedSwitchDate = $sourcePhase->designatedSwitchDate;
-        $this->designatedPhase = $sourcePhase->designatedPhase;
-        $this->permissionSet = $sourcePhase->permissionSet;
-        $this->startDate = $sourcePhase->startDate;
-        $this->endDate = $sourcePhase->endDate;
+        $this->key = $sourcePhase->getKey();
+        $this->step = $sourcePhase->getStep();
+        $this->name = $sourcePhase->getName();
+        $this->designatedEndDate = $sourcePhase->getDesignatedEndDate();
+        $this->designatedSwitchDate = $sourcePhase->getDesignatedSwitchDate();
+        $this->designatedPhase = $sourcePhase->getDesignatedPhase();
+        $this->permissionSet = $sourcePhase->getPermissionSet();
+        $this->startDate = $sourcePhase->getStartDate();
+        $this->endDate = $sourcePhase->getEndDate();
     }
 
     public function getIteration(): int
