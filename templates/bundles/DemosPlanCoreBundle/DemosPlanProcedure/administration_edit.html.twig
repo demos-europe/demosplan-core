@@ -789,33 +789,38 @@
                                 {% endif %}
 
                                 <div class="u-mb">
-                                    <label class="inline-block u-mb-0" for="r_startdate">
-                                        {{ "period.institutions"|trans }}*
-                                    </label>
-                                    {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
-                                    {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
-                                        {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date.autoswitch_phase' %}
-                                    {% endif %}
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: helpTextInternalStartDate|trans,
-                                        cssClasses:'mb-1',
-                                        showPlainHint: true
-                                    } %}
+                                    <fieldset class="pb-0">
+                                        <legend class="weight--bold">
+                                            {{ "period.institutions"|trans }}*
+                                            <dp-contextual-help :text="'{{ 'period.institutions'|trans }}'"></dp-contextual-help>
+                                        </legend>
+                                        {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date' %}
+                                        {% if hasPermission('feature_auto_switch_to_procedure_end_phase') and hasPermission('feature_auto_switch_procedure_phase') %}
+                                            {% set helpTextInternalStartDate = 'text.procedure.edit.internal.start_date.autoswitch_phase' %}
+                                        {% endif %}
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: helpTextInternalStartDate|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
 
-                                    <dp-date-range-picker
-                                        class="u-2-of-4"
-                                        data-cy="procedurePeriod"
-                                        data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
-                                        start-id="r_startdate"
-                                        start-name="r_startdate"
-                                        start-value="{{ proceduresettings.startDate|default|dplanDate }}"
-                                        end-id="r_enddate"
-                                        end-name="r_enddate"
-                                        end-value="{{ proceduresettings.endDate|default|dplanDate }}"
-                                        :required="true"
-                                        :calendars-after="2"
-                                        enforce-plausible-dates>
-                                    </dp-date-range-picker>
+                                        <dp-date-range-picker
+                                            class="u-2-of-4"
+                                            data-cy="procedurePeriod"
+                                            data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
+                                            end-label="{{ 'end'|trans }}"
+                                            start-id="r_startdate"
+                                            start-label="{{ 'start'|trans }}"
+                                            start-name="r_startdate"
+                                            start-value="{{ proceduresettings.startDate|default|dplanDate }}"
+                                            end-id="r_enddate"
+                                            end-name="r_enddate"
+                                            end-value="{{ proceduresettings.endDate|default|dplanDate }}"
+                                            :required="true"
+                                            :calendars-after="2"
+                                            enforce-plausible-dates>
+                                        </dp-date-range-picker>
+                                    </fieldset>
                                 </div>
 
                                 {# Change Procedure Step Institutions #}
@@ -935,9 +940,11 @@
                                         data-cy="publicParticipationPeriod"
                                         data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
                                         start-id="r_publicParticipationStartDate"
+                                        start-label="{{ 'start'|trans }}"
                                         start-name="r_publicParticipationStartDate"
                                         start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
                                         end-id="r_publicParticipationEndDate"
+                                        end-label="{{ 'end'|trans }}"
                                         end-name="r_publicParticipationEndDate"
                                         end-value="{{ proceduresettings.publicParticipationEndDate|default|dplanDate }}"
                                         :required="true"
