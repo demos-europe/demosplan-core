@@ -385,12 +385,13 @@ const LayersStore = {
         }
 
         const layer = includes.find(el => el.id === legend.layerId)
-        if (layer && layer.attributes) {
+        if (layer?.attributes) {
           const layerId = layer.id.replaceAll('-', '')
           const isVisible = getters.isLayerVisible(layerId)
 
           if (isVisible) {
             const layerType = layer.attributes.layerType
+
             if (layerType === 'base' || layerType === 'overlay') {
               grouped[layerType].push(legend)
             }
@@ -535,7 +536,7 @@ const LayersStore = {
       const legends = state.legends
       const includes = state.apiData.included
       const elementList = legends.filter(current => {
-        return (includes.find(el => el.id === current.layerId) !== undefined)
+        return includes.some(el => el.id === current.layerId)
       })
       /* Sort elements by treeOrder before returning the list */
       elementList.sort((a, b) => (a.treeOrder).toString().padEnd(21, '0') - (b.treeOrder).toString().padEnd(21, '0'))
