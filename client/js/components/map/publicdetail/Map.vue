@@ -277,7 +277,47 @@ export default {
       }
 
       return getResolutionsFromScales(procedureScales, this.projectionUnits)
-    }
+    },
+  },
+
+  watch: {
+    layerStates: {
+      handler (updatedLayerState, oldVal) {
+        Object.entries(updatedLayerState).forEach(([id, { opacity, isVisible }]) => {
+          const layerId = id.replace(/-/g, '')
+          const layer = this.findLayerById(layerId)
+
+          if (!layer) {
+            console.warn(`Layer with id ${id} not found in map`)
+            return
+          }
+
+          if (opacity !== layer.getOpacity() * 100) {
+            layer.setOpacity(opacity / 100)
+            this.saveOpacitiesToSessionStorage(id, opacity)
+          }
+
+          if (isVisible !== layer.getVisible()) {
+            // Create source for layer if it doesn't have one and is being set to visible
+            if (isVisible && !layer.getSource()) {
+              this.setLayerSource(layer)
+            }
+
+            if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
+              const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
+              // Only toggle baselayer
+              if (typeof overviewLayer !== 'undefined') {
+                this.setLayerSource(overviewLayer)
+                overviewLayer.setVisible(isVisible)
+              }
+            }
+
+            this.toggleLayer(layerId, isVisible)
+          }
+        })
+      },
+      deep: true,
+    },
   },
 
   methods: {

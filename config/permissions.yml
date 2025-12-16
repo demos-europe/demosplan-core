@@ -1152,6 +1152,20 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_layer_visibility:
+    description: |-
+        Manage visibility settings related to the map layer (in the admin area)
+    label: 'Manage visibility settings related to the map layer (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
+feature_map_print_layer:
+    description: |-
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
+    label: 'Toggle layer visibility in exports'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_max_extent:
     description: |-
         Restrict the access to get the max extension of the public map (in the admin area)

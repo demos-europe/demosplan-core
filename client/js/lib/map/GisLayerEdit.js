@@ -55,11 +55,36 @@ export default () => {
     }
   ]
 
-  // Check if base layer and disable user toggling on load
-  if (document.querySelector('input[name="r_type"][value="base"]').checked) {
+  // Get references to default visibility elements
+  const defaultVisibilityCheckbox = document.querySelector('input[name="r_default_visibility"]')
+  const defaultVisibilityHint = document.getElementById('defaultVisibilityHint')
+
+  // Detect if we're in edit mode
+  const isEditMode = defaultVisibilityCheckbox?.dataset.cy === 'editMapLayerDefaultVisibility'
+
+  // If base layer, hide toggleVisibility checkbox and its parent (the label)
+  const isBaseLayerSelected = document.querySelector('input[name="r_type"][value="base"]')?.checked
+
+  if (isBaseLayerSelected) {
     elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue)
     })
+    if (isEditMode) {
+      // Show hint, don't change checkbox status
+      if (defaultVisibilityCheckbox && defaultVisibilityHint && !defaultVisibilityCheckbox.disabled) {
+        defaultVisibilityHint.classList.remove('hidden')
+      }
+    }
+
+    // If 'create' view, show hint + uncheck checkbox
+    if (!isEditMode) {
+      updateDefaultVisibility(true)
+    }
+  }
+
+  // If overlay selected and 'create' view, hide hint + check checkbox
+  if (!isBaseLayerSelected && !isEditMode) {
+    updateDefaultVisibility(false)
   }
 
   // Add event listener to handle checkbox change
@@ -91,9 +116,30 @@ export default () => {
     }
   }
 
+  function updateDefaultVisibility (isBaseLayer) {
+    if (defaultVisibilityCheckbox && defaultVisibilityHint) {
+      // Don't show hint or change checkbox if it's disabled (e.g., in visibility group)
+      if (defaultVisibilityCheckbox.disabled) {
+        defaultVisibilityHint.classList.add('hidden')
+        return
+      }
+
+      if (isBaseLayer) {
+        defaultVisibilityCheckbox.checked = false
+        defaultVisibilityHint.classList.remove('hidden')
+      } else {
+        defaultVisibilityCheckbox.checked = true
+        defaultVisibilityHint.classList.add('hidden')
+      }
+    }
+  }
+
   function handleUserToggle (e) {
     const radioVal = e.target.value
-    if (radioVal === 'base') {
+
+    const isBaseLayer = radioVal === 'base'
+
+    if (isBaseLayer) {
       elementsHiddenForBaseMap.forEach((element) => {
         disableNode(element.node, element.defaultValue)
       })
@@ -102,6 +148,9 @@ export default () => {
         enableNode(element.node)
       })
     }
+
+    // Update default visibility based on layer type
+    updateDefaultVisibility(isBaseLayer)
   }
 
   // Xplan default layer checkbox handling

@@ -239,6 +239,8 @@ export default {
     }
   },
 
+  emits: ['visibilityToggled'],
+
   data () {
     return {
       drag: false,
@@ -818,16 +820,23 @@ export default {
      */
     toggleHasDefaultVisibility () {
       this.preventActiveFromToggeling = true
-      // Can't be updated when it's a visiblityGroup
+      // Can't be updated when it's a visibilityGroup
       if ((this.layer.attributes.visibilityGroupId !== '' && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
         return
       }
 
+      const newValue = !this.layer.attributes.hasDefaultVisibility
+
       this.setAttributeForLayer({
         id: this.layer.id,
         attribute: 'hasDefaultVisibility',
-        value: (this.layer.attributes.hasDefaultVisibility === false)
+        value: newValue,
       })
+
+      // If this is a base layer being set to visible, emit event to parent
+      if (this.layer.attributes.isBaseLayer && newValue === true) {
+        this.$emit('visibilityToggled', this.layer.id)
+      }
 
       // If the Category hides his children we have to change the Value for the Children too so it will work in public detail
       if (this.layer.attributes.layerWithChildrenHidden) {
@@ -836,7 +845,7 @@ export default {
     },
 
     /**
-     * Set/unset the visibilitygroupId
+     * Set/unset the visibilityGroupId
      */
     toggleVisibilityGroup () {
       /*
