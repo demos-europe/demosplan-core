@@ -140,7 +140,8 @@
         :is-loading="(false === isEditable)"
         layer-type="base"
         data-cy="baseMapLayerListItem"
-        :index="idx" />
+        :index="idx"
+        @visibility-toggled="ensureSingleBaseLayerVisible" />
     </dp-draggable>
     <div class="layout--flush u-mt u-mb">
       <h3 class="layout__item u-1-of-3">
@@ -385,8 +386,30 @@ export default {
       lscache.set('layerOrderTab', sortOrder, 300)
     },
 
+    ensureSingleBaseLayerVisible (changedLayerId) {
+      // Get all base layers with hasDefaultVisibility true
+      const visibleBaseLayers = this.mapBaseList.filter(
+        layer => layer.attributes.hasDefaultVisibility === true,
+      )
+
+      // If more than one base layer is visible on load, disable all except the one that was just changed
+      if (visibleBaseLayers.length > 1) {
+        visibleBaseLayers.forEach(layer => {
+          if (layer.id !== changedLayerId) {
+            this.setAttributeForLayer({
+              id: layer.id,
+              attribute: 'hasDefaultVisibility',
+              value: false,
+            })
+          }
+        })
+
+        dplan.notify.notify('info', Translator.trans('map.baselayer.visibility.single'))
+      }
+    },
+
     ...mapActions('layers', ['save', 'get']),
-    ...mapMutations('layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
+    ...mapMutations('layers', ['setAttributeForLayer', 'setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
   },
 
   mounted () {
