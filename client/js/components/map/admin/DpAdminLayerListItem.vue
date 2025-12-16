@@ -820,7 +820,7 @@ export default {
      */
     toggleHasDefaultVisibility () {
       this.preventActiveFromToggeling = true
-      // Can't be updated when it's a visiblityGroup
+      // Can't be updated when it's a visibilityGroup
       if ((this.layer.attributes.visibilityGroupId !== '' && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
         return
       }
@@ -845,7 +845,7 @@ export default {
     },
 
     /**
-     * Set/unset the visibilitygroupId
+     * Set/unset the visibilityGroupId
      */
     toggleVisibilityGroup () {
       /*

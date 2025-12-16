@@ -141,7 +141,7 @@
         layer-type="base"
         data-cy="baseMapLayerListItem"
         :index="idx"
-        @visibility-toggled="ensureSingleBaseLayerVisible" />
+        @visibilityToggled="ensureSingleBaseLayerVisible" />
     </dp-draggable>
     <div class="layout--flush u-mt u-mb">
       <h3 class="layout__item u-1-of-3">
