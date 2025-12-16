@@ -18,6 +18,7 @@ const LayersStore = {
   state: {
     originalApiData: {},
     legends: [],
+    loadedLegends: [],
     currentSorting: 'mapOrder',
     activeLayerId: '',
     hoverLayerId: '',
@@ -72,6 +73,12 @@ const LayersStore = {
 
     setLegend (state, data) {
       state.legends.push(data)
+    },
+
+    markLegendAsLoaded (state, legendUrl) {
+      if (!state.loadedLegends.includes(legendUrl)) {
+        state.loadedLegends.push(legendUrl)
+      }
     },
 
     /**
@@ -229,15 +236,51 @@ const LayersStore = {
     },
 
     /**
-     * Get layer legends. Legends needs to be fetched for each single gislayer layer
+     * Generate legend URLs for a given layer and commit them to the store
+     * @param commit
+     * @param layer - The layer object
+     */
+    generateLayerLegends ({ commit }, layer) {
+      if (!layer.attributes.isEnabled) {
+        return
+      }
+
+      const layerParam = layer.attributes.layers
+      const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
+      const legendUrlBase = layer.attributes.url + delimiter
+
+      // Get layer layers
+      const layerParamSplit = layerParam.split(',').map(function (item) {
+        return item.trim()
+      })
+
+      // Add each layer to GetLegendGraphic request
+      for (const layerParamItem of layerParamSplit) {
+        const legendUrl = legendUrlBase + 'Layer=' + layerParamItem + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+        const legend = {
+          layerId: layer.id,
+          treeOrder: layer.attributes.treeOrder,
+          mapOrder: layer.attributes.mapOrder,
+          defaultVisibility: layer.attributes.hasDefaultVisibility,
+          url: legendUrl
+        }
+
+        commit('setLegend', legend)
+      }
+    },
+
+    /**
+     * Get layer legends. Legends need to be fetched for each single gisLayer layer
      * as some map services are not able to group legends
      * @param commit
+     * @param dispatch
      * @param getters
      */
-    buildLegends ({ commit, getters }) {
+    buildLegends ({ commit, dispatch, getters }) {
       // Initialize visibility for overlay layers
       const overlayLayers = getters.gisLayerList('overlay')
 
+      // Handle overlay layers
       for (const layer of overlayLayers) {
         const layerId = layer.id.replaceAll('-', '')
 
@@ -247,28 +290,7 @@ const LayersStore = {
           value: layer.attributes.hasDefaultVisibility
         })
 
-        const layerParam = layer.attributes.layers
-        const delimiter = (layer.attributes.url.indexOf('?') === -1) ? '?' : '&'
-        const legendUrlBase = layer.attributes.url + delimiter
-        // Get layer layers
-        const layerParamSplit = layerParam.split(',').map(function (item) {
-          return item.trim()
-        })
-        // Add each layer layer to GetLegendGraphic request
-        for (const layerParamItem of layerParamSplit) {
-          if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + layerParamItem + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
-            const legend = {
-              layerId: layer.id,
-              treeOrder: layer.attributes.treeOrder,
-              mapOrder: layer.attributes.mapOrder,
-              defaultVisibility: layer.attributes.hasDefaultVisibility,
-              url: legendUrl
-            }
-
-            commit('setLegend', legend)
-          }
-        }
+        dispatch('generateLayerLegends', layer)
       }
 
       // Initialize visibility for base layers (only one can be active at a time)
@@ -284,6 +306,8 @@ const LayersStore = {
           key: 'isVisible',
           value: isVisible
         })
+
+        dispatch('generateLayerLegends', layer)
       })
     },
 
@@ -335,36 +359,94 @@ const LayersStore = {
 
   getters: {
     /**
-     * Get complete object for striped opbject containing element-Id and Type
-     * (both have to match the coresponding included-array)
+     * Helper function to group legend images by layer type with optional filtering
+     * @param state
+     * @param getters
+     * @param shouldIncludeLegend - Callback function to determine if a legend should be included
+     * @returns {{ base: Array, overlay: Array }}
+     */
+    groupLegendsByLayerType: (state, getters) => (shouldIncludeLegend) => {
+      if (state.apiData.included === undefined) {
+        return { base: [], overlay: [] }
+      }
+
+      const legends = state.legends
+      const includes = state.apiData.included
+
+      const grouped = {
+        base: [],
+        overlay: []
+      }
+
+      legends.forEach(legend => {
+        // Apply the filter callback
+        if (!shouldIncludeLegend(legend)) {
+          return
+        }
+
+        const layer = includes.find(el => el.id === legend.layerId)
+        if (layer && layer.attributes) {
+          const layerId = layer.id.replaceAll('-', '')
+          const isVisible = getters.isLayerVisible(layerId)
+
+          if (isVisible) {
+            const layerType = layer.attributes.layerType
+            if (layerType === 'base' || layerType === 'overlay') {
+              grouped[layerType].push(legend)
+            }
+          }
+        }
+      })
+
+      // Sort each group by treeOrder
+      const sortByTreeOrder = (a, b) => {
+        return a.treeOrder.toString().padEnd(21, '0') - b.treeOrder.toString().padEnd(21, '0')
+      }
+
+      grouped.base.sort(sortByTreeOrder)
+      grouped.overlay.sort(sortByTreeOrder)
+
+      return grouped
+    },
+
+    /**
+     * Get complete object for stripped object containing element id and type
+     * (both have to match the corresponding included-array)
      *
      * @param element|Object ( {id, type} )
-     * @returns Object|element(gislayers or GisLayerCategory)
+     * @returns Object|element(gisLayer or gisLayerCategory)
      */
     element: state => element => {
-      if (typeof state.apiData.included === 'undefined') return {}
+      if (state.apiData.included === undefined) {
+        return {}
+      }
       if (element.type === 'ContextualHelp') {
         const helpText = state.apiData.included.filter(current => current.attributes.key === ('gislayer.' + element.id))
+
         if (helpText.length <= 0) {
           return { id: 'no-contextual-help', type: element.type, attributes: { text: '' } }
         } else {
           return helpText[0]
         }
       }
-      return state.apiData.included.filter(current => {
+      return state.apiData.included.find(current => {
         return current.id === element.id && current.type === element.type
-      })[0]
+      })
     },
 
     /**
      * Get List of all gisLayers
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     gisLayerList: state => type => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
+
       return state.apiData.included.filter(current => {
         const putInList = (type) ? (type === current.attributes.layerType) : true
+
         return (current.type === 'GisLayer' && putInList)
       }).sort((a, b) => (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0'))
     },
@@ -372,10 +454,13 @@ const LayersStore = {
     /**
      * Get List of all gisLayers
      *
-     * @returns Array|element(gislayers or GisLayerCategory)
+     * @returns Array|element(gisLayers or GisLayerCategory)
      */
     elementsListByAttribute: state => attribute => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
+
       return state.apiData.included.filter(current => {
         return current.attributes[attribute.type] === attribute.value
       })
@@ -400,7 +485,7 @@ const LayersStore = {
      */
     elementListForLayerSidebar: state => (categoryId, type, withCategories) => {
       //  Return if there is no data
-      if (typeof state.apiData.data === 'undefined') {
+      if (state.apiData.data === undefined) {
         return []
       }
 
@@ -443,20 +528,48 @@ const LayersStore = {
      * @returns: Array|legendList
      */
     elementListForLegendSidebar: state => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
+
       const legends = state.legends
       const includes = state.apiData.included
-
       const elementList = legends.filter(current => {
-        return (includes.find(el => el.id === current.layerId) !== 'undefined')
+        return (includes.find(el => el.id === current.layerId) !== undefined)
       })
       /* Sort elements by treeOrder before returning the list */
       elementList.sort((a, b) => (a.treeOrder).toString().padEnd(21, '0') - (b.treeOrder).toString().padEnd(21, '0'))
+
       return elementList
     },
 
+    /**
+     * Get all visible legend images grouped by layer type (base/overlay)
+     * Used for rendering legend items so they can attempt to load
+     * @returns {{ base: Array, overlay: Array }}
+     */
+    allVisibleLegendImagesGroupedByLayerType: (state, getters) => {
+      // Include all legends (no filtering by load status)
+      return getters.groupLegendsByLayerType(() => true)
+    },
+
+    /**
+     * Get successfully loaded legend images grouped by layer type (base/overlay)
+     * Used for determining if heading should be shown
+     * @returns {{ base: Array, overlay: Array }}
+     */
+    legendImagesGroupedByLayerType: (state, getters) => {
+      // Only include legends that have successfully loaded
+      return getters.groupLegendsByLayerType((legend) => {
+        return state.loadedLegends.includes(legend.url)
+      })
+    },
+
     visibilityGroupSize: state => visibilityGroupId => {
-      if (visibilityGroupId === '' || typeof state.apiData.included === 'undefined') return 0
+      if (visibilityGroupId === '' || state.apiData.included === undefined) {
+        return 0
+      }
+
       return state.apiData.included.filter(current => {
         return current.attributes.visibilityGroupId === visibilityGroupId
       }).length
@@ -469,20 +582,31 @@ const LayersStore = {
      * @returns mixed | depending on the attribute
      */
     attributeForElement: state => data => {
-      if (typeof state.apiData.included === 'undefined' || data.id === '') return ''
-      return state.apiData.included.filter(current => {
+      if (state.apiData.included === undefined || data.id === '') {
+        return ''
+      }
+
+      return state.apiData.included.find(current => {
         return current.id === data.id
-      })[0].attributes[data.attribute]
+      })?.attributes[data.attribute]
     },
 
     minimapLayer: state => {
-      if (typeof state.apiData.included === 'undefined') { return {} }
+      if (state.apiData.included === undefined) {
+        return {}
+      }
+
       const minimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
 
       if (minimap) {
         return minimap
       } else {
-        return { id: '', attributes: { name: 'default' } }
+        return {
+          id: '',
+          attributes: {
+            name: 'default'
+          }
+        }
       }
     },
 

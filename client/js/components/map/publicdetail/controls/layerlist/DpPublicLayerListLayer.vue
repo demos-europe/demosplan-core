@@ -185,8 +185,6 @@ export default {
 
       // Update visibility in store for legend filtering (legends should only be displayed for visible layers)
       this.setLayerState({ id: this.id, key: 'isVisible', value: this.isVisible })
-
-      this.$root.$emit('layer:toggleLegend', { id: this.id, isVisible: this.isVisible })
     },
 
     // If parent category is toggled, also toggle children
