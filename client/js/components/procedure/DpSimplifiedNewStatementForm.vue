@@ -217,11 +217,6 @@
             class="u-mv"
             :class="{ 'u-pr-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
           >
-            <dp-label
-              :text="Translator.trans('statement.date.submitted')"
-              :hint="Translator.trans('explanation.statement.date')"
-              for="r_submitted_date"
-            />
             <dp-datepicker
               id="r_submitted_date"
               v-model="values.submittedDate"
@@ -230,6 +225,10 @@
               name="r_submitted_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.submitted'),
+                hint: Translator.trans('explanation.statement.date')
+              }"
               :max-date="nowDate"
               :min-date="values.authoredDate"
             />
@@ -238,11 +237,6 @@
             class="u-mb"
             :class="{ 'u-pl-0_5 u-1-of-2 inline-block': !fieldsFullWidth }"
           >
-            <dp-label
-              :text="Translator.trans('statement.date.authored')"
-              :hint="Translator.trans('explanation.statement.date.authored')"
-              for="r_authored_date"
-            />
             <dp-datepicker
               id="r_authored_date"
               v-model="values.authoredDate"
@@ -251,6 +245,10 @@
               name="r_authored_date"
               value=""
               :calendars-before="2"
+              :label="{
+                text: Translator.trans('statement.date.authored'),
+                hint: Translator.trans('explanation.statement.date.authored')
+              }"
               :max-date="values.submittedDate || nowDate"
             />
           </div>
