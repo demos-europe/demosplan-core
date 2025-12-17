@@ -186,13 +186,10 @@ class SegmentController extends BaseController
             $file = $fileService->getFileInfo($uploadHash);
             $fileName = $file->getFileName();
             try {
-                $localPath = $fileService->ensureLocalFile($file->getAbsolutePath());
-
-                // Create import job record (MaintenanceCommand will process it)
                 $job = new ImportJob();
                 $job->setProcedure($procedure);
                 $job->setUser($currentUser->getUser());
-                $job->setFilePath($localPath);
+                $job->setFilePath($uploadHash);
                 $job->setFileName($fileName);
 
                 $entityManager->persist($job);
@@ -213,8 +210,7 @@ class SegmentController extends BaseController
                     ]
                 );
 
-                // Delete the file from file storage (local copy kept for processing)
-                $fileService->deleteFile($file->getHash());
+                // File cleanup happens in ImportJobProcessor after processing
             } catch (Exception $e) {
                 $this->logger->error('Failed to queue import job', [
                     'fileName'  => $fileName,

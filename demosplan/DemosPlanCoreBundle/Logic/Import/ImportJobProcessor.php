@@ -150,116 +150,159 @@ class ImportJobProcessor
         $job->markAsProcessing();
         $this->entityManager->flush();
 
-        // Create FileInfo from stored path
-        $fileInfo = new FileInfo(
-            $job->getId(),  // Use job ID as hash identifier
-            $job->getFileName(),
-            filesize($job->getFilePath()),
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            $job->getFilePath(),
-            $job->getFilePath(),
-            $job->getProcedure()
-        );
-
-        // Execute import (reuse existing optimized code)
-        $result = $this->xlsxSegmentImport->importFromFile($fileInfo);
-
-        if ($result->hasErrors()) {
-            // Rollback transaction before saving error (prevents nested transaction issues)
-            if ($this->entityManager->getConnection()->isTransactionActive()) {
-                $this->entityManager->rollback();
-            }
-
-            // Clear EntityManager to detach all rolled-back entities
-            // Without this, Doctrine tries to persist orphaned StatementMeta records
-            // that reference non-existent statements, causing foreign key violations
-            $this->entityManager->clear();
-
-            // Re-fetch the ImportJob entity after clear (it was detached)
-            $job = $this->importJobRepository->find($job->getId());
-            if (null === $job) {
-                throw ImportJobNotFoundException::create($job->getId());
-            }
-
-            // Start new transaction to save error status
-            $this->entityManager->beginTransaction();
-
-            $errors = $result->getErrorsAsArray();
-            $errorCount = count($errors);
-
-            $this->logger->error('Import job failed with validation errors', [
-                'jobId'      => $job->getId(),
-                'errorCount' => $errorCount,
-            ]);
-
-            // Create concise error summary for display (TEXT column has 65KB limit)
-            $showErrors = 40;
-            $errorSummary = sprintf(
-                "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
-                $errorCount,
-                min($showErrors, $errorCount)
-            );
-
-            // Add first errors to summary
-            $firstErrors = array_slice($errors, 0, $showErrors);
-            foreach ($firstErrors as $error) {
-                $worksheet = $error['currentWorksheet'] ?? 'Unknown';
-                $lineNumber = $error['lineNumber'] ?? '?';
-                $message = $error['message'] ?? 'Unknown error';
-                $errorSummary .= sprintf("• Arbeitsblatt \"%s\", Zeile %s: %s\n", $worksheet, $lineNumber, $message);
-            }
-
-            if ($errorCount > $showErrors) {
-                $errorSummary .= sprintf("\n... und %d weitere Fehler", $errorCount - $showErrors
-                );
-            }
-
-            // Store full error details in result field (JSON can handle large data)
-            $job->setResult([
-                'validationErrors' => $errors,
-                'errorCount'       => $errorCount,
-            ]);
-
-            // Mark as failed with summary (prevents TEXT column overflow)
-            $job->markAsFailed($errorSummary);
+        // Retrieve file from S3/Flysystem using the stored file ID (ident)
+        $fileIdent = $job->getFilePath();
+        try {
+            $fileInfo = $this->fileService->getFileInfo($fileIdent);
+        } catch (\Exception $e) {
+            $job->markAsFailed('Failed to retrieve file from storage: '.$e->getMessage());
             $this->entityManager->flush();
-            $this->entityManager->commit();  // Commit the error status to database
-
-            // Cleanup uploaded file
-            try {
-                $this->fileService->deleteLocalFile($job->getFilePath());
-            } catch (Exception $e) {
-                $this->logger->warning('Failed to cleanup import file after validation errors', [
-                    'jobId' => $job->getId(),
-                    'error' => $e->getMessage(),
-                ]);
-            }
-
-            // Return early - error has been saved, no further processing needed
+            $this->logger->error('Import job file retrieval failed', [
+                'jobId' => $job->getId(),
+                'fileIdent' => $fileIdent,
+                'procedureId' => $job->getProcedure()->getId(),
+                'error' => $e->getMessage(),
+            ]);
             return;
         }
 
-        // Mark as completed with results
-        $job->markAsCompleted([
-            'statements' => $result->getStatementCount(),
-            'segments'   => $result->getSegmentCount(),
-        ]);
-        $this->entityManager->flush();
-
-        // Cleanup uploaded file
+        // Download file locally for processing
+        $localPath = null;
         try {
-            $this->fileService->deleteLocalFile($job->getFilePath());
-        } catch (Exception $e) {
-            $this->logger->warning('Failed to cleanup import file', [
+            $localPath = $this->fileService->ensureLocalFile($fileInfo->getAbsolutePath(), $fileIdent);
+        } catch (\Exception $e) {
+            $job->markAsFailed('Failed to download file locally: '.$e->getMessage());
+            $this->entityManager->flush();
+            $this->logger->error('Import job file download failed', [
                 'jobId' => $job->getId(),
+                'fileIdent' => $fileIdent,
                 'error' => $e->getMessage(),
             ]);
+            return;
         }
 
-        $this->logger->info('Import job completed', [
-            'jobId'      => $job->getId(),
-            'statements' => $result->getStatementCount(),
-            'segments'   => $result->getSegmentCount(),
-        ]);
+        try {
+            // Create FileInfo with local path for import processing
+            $localFileInfo = new FileInfo(
+                $fileInfo->getHash(),
+                $fileInfo->getFileName(),
+                $fileInfo->getFileSize(),
+                $fileInfo->getContentType(),
+                dirname($localPath),
+                $localPath,
+                $fileInfo->getProcedure()
+            );
+
+            // Execute import (reuse existing optimized code)
+            $result = $this->xlsxSegmentImport->importFromFile($localFileInfo);
+
+            if ($result->hasErrors()) {
+                // Rollback transaction before saving error (prevents nested transaction issues)
+                if ($this->entityManager->getConnection()->isTransactionActive()) {
+                    $this->entityManager->rollback();
+                }
+
+                // Clear EntityManager to detach all rolled-back entities
+                // Without this, Doctrine tries to persist orphaned StatementMeta records
+                // that reference non-existent statements, causing foreign key violations
+                $this->entityManager->clear();
+
+                // Re-fetch the ImportJob entity after clear (it was detached)
+                $job = $this->importJobRepository->find($job->getId());
+                if (null === $job) {
+                    throw ImportJobNotFoundException::create($job->getId());
+                }
+
+                // Start new transaction to save error status
+                $this->entityManager->beginTransaction();
+
+                $errors = $result->getErrorsAsArray();
+                $errorCount = count($errors);
+
+                $this->logger->error('Import job failed with validation errors', [
+                    'jobId'      => $job->getId(),
+                    'errorCount' => $errorCount,
+                ]);
+
+                // Create concise error summary for display (TEXT column has 65KB limit)
+                $showErrors = 40;
+                $errorSummary = sprintf(
+                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
+                    $errorCount,
+                    min($showErrors, $errorCount)
+                );
+
+                // Add first errors to summary
+                $firstErrors = array_slice($errors, 0, $showErrors);
+                foreach ($firstErrors as $error) {
+                    $worksheet = $error['currentWorksheet'] ?? 'Unknown';
+                    $lineNumber = $error['lineNumber'] ?? '?';
+                    $message = $error['message'] ?? 'Unknown error';
+                    $errorSummary .= sprintf("• Arbeitsblatt \"%s\", Zeile %s: %s\n", $worksheet, $lineNumber, $message);
+                }
+
+                if ($errorCount > $showErrors) {
+                    $errorSummary .= sprintf("\n... und %d weitere Fehler", $errorCount - $showErrors
+                    );
+                }
+
+                // Store full error details in result field (JSON can handle large data)
+                $job->setResult([
+                    'validationErrors' => $errors,
+                    'errorCount'       => $errorCount,
+                ]);
+
+                // Mark as failed with summary (prevents TEXT column overflow)
+                $job->markAsFailed($errorSummary);
+                $this->entityManager->flush();
+                $this->entityManager->commit();  // Commit the error status to database
+
+                // Return early - error has been saved, no further processing needed
+                return;
+            }
+
+            // Mark as completed with results
+            $job->markAsCompleted([
+                'statements' => $result->getStatementCount(),
+                'segments'   => $result->getSegmentCount(),
+            ]);
+            $this->entityManager->flush();
+
+            $this->logger->info('Import job completed', [
+                'jobId'      => $job->getId(),
+                'statements' => $result->getStatementCount(),
+                'segments'   => $result->getSegmentCount(),
+            ]);
+        } finally {
+            // Always cleanup the local temp file downloaded from S3
+            if (null !== $localPath) {
+                try {
+                    $this->fileService->deleteLocalFile($localPath);
+                } catch (Exception $e) {
+                    $this->logger->warning('Failed to cleanup local temp file', [
+                        'jobId'     => $job->getId(),
+                        'localPath' => $localPath,
+                        'error'     => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // Always cleanup the original file from S3/Flysystem storage
+            if (isset($fileIdent)) {
+                try {
+                    $this->fileService->deleteFile($fileIdent);
+                    $this->logger->info('Cleaned up S3 file after import job', [
+                        'jobId'     => $job->getId(),
+                        'fileIdent' => $fileIdent,
+                    ]);
+                } catch (Exception $e) {
+                    $this->logger->warning('Failed to cleanup S3 file', [
+                        'jobId'     => $job->getId(),
+                        'fileIdent' => $fileIdent,
+                        'error'     => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
     }
 }

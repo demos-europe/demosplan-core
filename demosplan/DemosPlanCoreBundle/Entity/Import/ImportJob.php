@@ -272,13 +272,4 @@ class ImportJob extends CoreEntity
         return $this;
     }
 
-    /**
-     * Clean up temporary files.
-     */
-    public function cleanup(): void
-    {
-        if ($this->filePath && file_exists($this->filePath)) {
-            unlink($this->filePath);
-        }
-    }
 }
