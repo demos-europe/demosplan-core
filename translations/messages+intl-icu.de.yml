@@ -2004,6 +2004,8 @@ layer: "Kartenebene"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
 legend.download: "Legende herunterladen"
+legend.files.download: "Legenden herunterladen"
+legend.overlay_layers: "Kartenebenen"
 legend: "Legende"
 like: "Unterstützung"
 liked.by: "Unterstützt von"
