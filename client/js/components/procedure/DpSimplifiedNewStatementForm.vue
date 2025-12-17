@@ -349,7 +349,6 @@
         :text="Translator.trans('statement.text.short')"
         for="r_text"
         required
-
       />
       <dp-editor
         ref="statementText"
