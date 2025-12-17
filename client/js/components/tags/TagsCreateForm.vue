@@ -145,14 +145,16 @@ export default {
     }),
 
     topicsAsOptions () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id } = category
+      return Object.values(this.TagTopic)
+        .map(category => {
+          const { attributes, id } = category
 
-        return {
-          label: attributes.title,
-          value: id
+          return {
+            label: attributes.title,
+            value: id
         }
       })
+        .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' }))
     }
   },
 
