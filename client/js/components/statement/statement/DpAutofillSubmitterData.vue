@@ -104,20 +104,18 @@
     <!-- @improve T18818 -->
     <div
       v-if="isBobHH"
-      class="layout__item u-1-of-1"
+      class="layout__item w-full -mt-3"
     >
-      <p>
-        <u>{{ Translator.trans('statement.invitable_institution.hint') }}</u>:
-        {{ Translator.trans('statement.invitable_institution.assessment.table.print') }}
-      </p>
-      <p>
-        <u>{{ Translator.trans('statement.citizen.hint') }}</u>:
-        {{ Translator.trans('statement.citizen.assessment.table.print') }}
-      </p>
+      <dp-inline-notification
+        v-if="currentRole === '0'"
+        :message="Translator.trans('statement.citizen.assessment.table.print')"
+        class="mb-3"
+        type="info"
+      />
 
       <dp-inline-notification
-        v-if="showOrgaInputHint"
-        :message="currentListIsEmpty ? Translator.trans('institution.add') : Translator.trans('institution.select')"
+        v-if="currentRole === '1'"
+        :message="Translator.trans('statement.invitable_institution.assessment.table.print')"
         class="mb-3"
         type="info"
       />
