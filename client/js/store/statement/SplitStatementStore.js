@@ -332,7 +332,7 @@ const SplitStatementStore = {
         pendingPiTags = transformPiToJsonApi(pendingPiTags)
 
         const mergedTags = [...state.uncategorizedTags, ...pendingPiTags]
-          .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' }))
+          .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
         const availableTags = [...state.availableTags, ...pendingPiTags]
 
         commit('setProperty', { prop: 'uncategorizedTags', val: mergedTags })
