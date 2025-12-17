@@ -122,7 +122,7 @@
 
       <dp-inline-notification
         v-if="currentRole === '1' && !submitter.entityId"
-        :message="currentListIsEmpty ? Translator.trans('institution.add') : Translator.trans('institution.select')"
+        :message="institutionNotificationText"
         class="mb-3"
         type="warning"
       />
@@ -424,6 +424,16 @@ export default {
     //  Shortcut for permission checks for citizen select
     hasCitizenSelect () {
       return hasPermission('feature_statement_create_autofill_submitter_citizens')
+    },
+
+    // Notification message guiding the user to add or select an institution
+    institutionNotificationText () {
+      if (this.currentListIsEmpty) {
+        return Translator.trans('institution.add', {
+          href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId })
+        })
+      }
+      return Translator.trans('institution.select')
     },
 
     //  Shortcut to check project name
