@@ -119,6 +119,13 @@
         class="mb-3"
         type="info"
       />
+
+      <dp-inline-notification
+        v-if="currentRole === '1' && !submitter.entityId"
+        :message="currentListIsEmpty ? Translator.trans('institution.add') : Translator.trans('institution.select')"
+        class="mb-3"
+        type="warning"
+      />
     </div>
 
     <!-- User fields that are specific to institutions: orga, department. These fields shall not be changeable in Bob-HH, but visible and present to submit their values when filled by autoFill function -->
