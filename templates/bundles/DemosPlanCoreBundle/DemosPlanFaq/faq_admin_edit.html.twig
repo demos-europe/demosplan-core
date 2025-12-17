@@ -138,7 +138,7 @@
         {{ uiComponent('form.row', {
             elements: [
                 {
-                    label: { text: 'heading'|trans },
+                    label: { text: 'heading'|trans, id: 'r_title' },
                     control: { name: 'r_title', value: faq.title|default, attributes: ['data-cy=FAQTitle'] },
                     type: 'text',
                     required: true
