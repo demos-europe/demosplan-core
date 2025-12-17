@@ -436,8 +436,8 @@ import {
   DpSelect,
   DpTextArea,
   DpUploadFiles,
-  dpValidateMixin
-  , hasOwnProp,
+  dpValidateMixin,
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
