@@ -144,8 +144,6 @@
         name="r_orga_name"
         :readonly="isBobHH"
         :required="true"
-        @blur="isBobHH && handleOrgaInputBlur()"
-        @focus="isBobHH && handleOrgaInputFocus()"
       /><!--
    --><dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name')"
@@ -158,8 +156,6 @@
         }"
         name="r_orga_department_name"
         :readonly="isBobHH"
-        @blur="isBobHH && handleOrgaInputBlur()"
-        @focus="isBobHH && handleOrgaInputFocus()"
       />
     </template>
 
@@ -374,8 +370,6 @@ export default {
       //  Initially set state of the radio to citizen
       currentRole: '0',
 
-      showOrgaInputHint: false,
-
       //  Holds the currently selected submitter object
       submitter: {},
 
@@ -560,14 +554,6 @@ export default {
         }
         return acc
       }, [])
-    },
-
-    handleOrgaInputBlur () {
-      this.showOrgaInputHint = false
-    },
-
-    handleOrgaInputFocus () {
-      this.showOrgaInputHint = true
     },
 
     //  Display an option for select
