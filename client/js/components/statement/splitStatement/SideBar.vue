@@ -124,7 +124,7 @@
         class="relative btn--blank o-link--default font-semibold text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
       >
-        {{ Translator.trans('workflow.place') }}
+        {{ Translator.trans('workflow.place.and.assignment') }}
       </button>
 
       <div v-else>

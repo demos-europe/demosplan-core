@@ -175,15 +175,11 @@
         reduced-height
       />
 
-      <div class="mb-4">
-        <dp-label
-          class="mb-0"
-          for="startdate"
-          :hint="Translator.trans('explanation.date.procedure')"
-          :required="hasPermission('field_required_procedure_end_date')"
-          :text="Translator.trans('period')"
-          :tooltip="Translator.trans('explanation.date.format')"
-        />
+      <fieldset class="pb-0">
+        <legend class="weight--bold">
+          {{ Translator.trans('period') }}
+          <dp-contextual-help :text="Translator.trans('explanation.date.format')" />
+        </legend>
 
         <dp-date-range-picker
           class="w-1/2"
@@ -191,6 +187,8 @@
           start-name="r_startdate"
           end-id="enddate"
           end-name="r_enddate"
+          :start-label="Translator.trans('start')"
+          :end-label="Translator.trans('end')"
           data-cy="newProcedureForm"
           :data-dp-validate-error-fieldname="Translator.trans('period')"
           :required="hasPermission('field_required_procedure_end_date')"
@@ -203,7 +201,7 @@
           id="js__statusBox"
           class="sr-only flash"
         />
-      </div>
+      </fieldset>
 
       <div
         v-if="hasPermission('feature_procedure_couple_by_token')"
@@ -248,6 +246,7 @@
 import {
   dpApi,
   DpButton,
+  DpContextualHelp,
   DpDateRangePicker,
   DpInlineNotification,
   DpInput,
@@ -267,6 +266,7 @@ export default {
     AddonWrapper,
     CoupleTokenInput,
     DpButton,
+    DpContextualHelp,
     DpDateRangePicker,
     DpInput,
     DpLabel,
