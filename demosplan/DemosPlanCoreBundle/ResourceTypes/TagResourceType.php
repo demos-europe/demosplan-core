@@ -27,6 +27,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
@@ -37,6 +38,8 @@ use InvalidArgumentException;
 
 /**
  * @template-extends DplanResourceType<Tag>
+ *
+ * @property-read End $title
  */
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {

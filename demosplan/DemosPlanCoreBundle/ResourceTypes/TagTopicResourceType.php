@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
@@ -35,6 +36,8 @@ use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
+ *
+ * @property-read End $title
  */
 final class TagTopicResourceType extends DplanResourceType
 {

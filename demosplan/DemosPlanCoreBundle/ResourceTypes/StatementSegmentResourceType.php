@@ -63,6 +63,8 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
+        private readonly TagResourceType $tagResourceType,
+        private readonly TagTopicResourceType $tagTopicResourceType,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
@@ -133,8 +135,16 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $this->placeResourceType->sortIndex
         );
 
+        // Create sort methods for tags (items) and tag topics (groups)
+        $tagsSortMethod = $this->sortMethodFactory->propertyAscending(
+            $this->tagResourceType->title
+        );
+        $topicsSortMethod = $this->sortMethodFactory->propertyAscending(
+            $this->tagTopicResourceType->title
+        );
+
         return [
-            'tags'     => new TagsFacet($this->conditionFactory->false()),
+            'tags'     => new TagsFacet($this->conditionFactory->false(), [$tagsSortMethod], [$topicsSortMethod]),
             'assignee' => new AssigneesFacet($this->conditionFactory->false()),
             'place'    => new PlaceFacet($placeCondition, $placeSortMethod),
         ];
