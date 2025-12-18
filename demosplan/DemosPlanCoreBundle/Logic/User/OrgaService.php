@@ -352,7 +352,7 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `municipality`: Kommune (project-override: Gemeinde, Bezirk, Verfahrensträger)
+     * * `municipality`: Kommune (project-overrides: Gemeinde, Bezirk, Verfahrensträger)
      *
      * @return array<string, int<0, max>>
      */
