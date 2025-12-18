@@ -509,7 +509,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
      */
     protected function processImportJobs(OutputInterface $output): void
     {
-        $output->write('Processing import jobs... ');
         $this->logger->info('processImportJobs');
 
         try {
