@@ -27,6 +27,7 @@ final readonly class StatementProcessingContext
         public string $statementWorksheetTitle,
         public int $processedStatements,
         public float $step,
+        public string $highestDataColumn = 'Z',
     ) {
     }
 }

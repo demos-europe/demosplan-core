@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Import\ImportValidationResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\SegmentImportDTO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementImportDTO;
 use Exception;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -126,10 +127,12 @@ class ExcelValidationService
         $segmentsByStatementId = [];
         $usedInternIds = [];
         $worksheetTitle = $worksheet->getTitle() ?? 'Abschnitte';
-        $columnNames = $this->getFirstRowValues($worksheet);
+
+        // Get header row and determine actual column range (memory optimization)
+        [$columnNames, $highestDataColumn] = $this->getFirstRowValuesWithHighestColumn($worksheet);
 
         foreach ($worksheet->getRowIterator(2) as $lineNumber => $row) {
-            $values = $this->extractRowValues($row, $worksheet);
+            $values = $this->extractRowValues($row, $highestDataColumn);
 
             if ($this->isEmptyRow($values)) {
                 continue;
@@ -241,11 +244,13 @@ class ExcelValidationService
         ImportValidationResult $result,
     ): void {
         $worksheetTitle = $worksheet->getTitle() ?? 'Metadaten';
-        $columnNames = $this->getFirstRowValues($worksheet);
+
+        // Get header row and determine actual column range (memory optimization)
+        [$columnNames, $highestDataColumn] = $this->getFirstRowValuesWithHighestColumn($worksheet);
         $statementIdsSeen = [];
 
         foreach ($worksheet->getRowIterator(2) as $lineNumber => $row) {
-            $values = $this->extractRowValues($row, $worksheet);
+            $values = $this->extractRowValues($row, $highestDataColumn);
 
             if ($this->isEmptyRow($values)) {
                 continue;
@@ -354,11 +359,14 @@ class ExcelValidationService
     }
 
     /**
-     * Extract cell values from a row.
+     * Extract cell values from a row up to specified column.
+     * Memory-optimized: Only reads up to the actual data columns, not empty formatting columns.
+     *
+     * @param string $highestColumn Column letter (e.g., 'J' for column 10)
      */
-    private function extractRowValues($row, Worksheet $worksheet): array
+    private function extractRowValues($row, string $highestColumn): array
     {
-        $cellIterator = $row->getCellIterator('A', $worksheet->getHighestColumn());
+        $cellIterator = $row->getCellIterator('A', $highestColumn);
         $values = [];
         foreach ($cellIterator as $cell) {
             $values[] = $cell->getFormattedValue();
@@ -368,20 +376,76 @@ class ExcelValidationService
     }
 
     /**
-     * Get first row values as column names.
+     * Get actual highest data column by finding last non-empty header cell.
+     * Memory optimization: Scans incrementally and stops after finding empty columns.
+     *
+     * @return string Column letter (e.g., 'J')
+     */
+    private function getActualHighestDataColumn(Worksheet $worksheet): string
+    {
+        $highestDataColumn = 'A';
+        $columnIndex = 1;
+        $consecutiveEmptyColumns = 0;
+        $maxEmptyColumnsBeforeStop = 5; // Stop after 5 consecutive empty columns
+        $maxColumnIndex = 702; // ZZ column
+
+        // Scan column by column, stop after consecutive empty columns
+        while ($consecutiveEmptyColumns < $maxEmptyColumnsBeforeStop && $columnIndex <= $maxColumnIndex) {
+            $columnLetter = Coordinate::stringFromColumnIndex($columnIndex);
+            $cell = $worksheet->getCell($columnLetter.'1');
+            $value = $cell->getFormattedValue();
+
+            if (null !== $value && '' !== trim((string) $value)) {
+                $highestDataColumn = $columnLetter;
+                $consecutiveEmptyColumns = 0;
+            } else {
+                ++$consecutiveEmptyColumns;
+            }
+
+            ++$columnIndex;
+        }
+
+        return $highestDataColumn;
+    }
+
+    /**
+     * Get first row values with optimized column range.
+     *
+     * @return array{0: array<int, string>, 1: string} [column names, highest column letter]
+     */
+    private function getFirstRowValuesWithHighestColumn(Worksheet $worksheet): array
+    {
+        $highestDataColumn = $this->getActualHighestDataColumn($worksheet);
+        $firstRow = $worksheet->getRowIterator(1, 1)->current();
+        $cellIterator = $firstRow->getCellIterator('A', $highestDataColumn);
+
+        $values = [];
+        foreach ($cellIterator as $cell) {
+            $values[] = $cell->getFormattedValue();
+        }
+
+        $worksheetHighestColumn = $worksheet->getHighestColumn();
+        $columnsSaved = Coordinate::columnIndexFromString($worksheetHighestColumn)
+            - Coordinate::columnIndexFromString($highestDataColumn);
+
+        $this->logger->info('[ExcelValidation] Column range determined', [
+            'worksheet'         => $worksheet->getTitle(),
+            'worksheet_highest' => $worksheetHighestColumn,
+            'actual_highest'    => $highestDataColumn,
+            'columns_saved'     => $columnsSaved,
+        ]);
+
+        return [$values, $highestDataColumn];
+    }
+
+    /**
+     * Get first row values as column names (backwards compatibility wrapper).
      *
      * @return array<int, string>
      */
     private function getFirstRowValues(Worksheet $worksheet): array
     {
-        $firstRow = $worksheet->getRowIterator(1, 1)->current();
-        $cellIterator = $firstRow->getCellIterator('A', $worksheet->getHighestColumn());
-
-        // Extract values immediately during iteration to avoid worksheet detachment
-        $values = [];
-        foreach ($cellIterator as $cell) {
-            $values[] = $cell->getFormattedValue();
-        }
+        [$values] = $this->getFirstRowValuesWithHighestColumn($worksheet);
 
         return $values;
     }

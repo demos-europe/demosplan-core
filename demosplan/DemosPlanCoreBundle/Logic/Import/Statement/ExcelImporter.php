@@ -272,7 +272,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             'duration_sec' => round(microtime(true) - $step, 2),
         ]);
 
-        $columnNamesMeta = $this->getFirstRowOfWorksheet($metaDataWorksheet);
+        // Memory optimization: Get column names and actual highest data column
+        [$columnNamesMeta, $highestDataColumnMeta] = $this->getFirstRowOfWorksheetWithHighestColumn($metaDataWorksheet);
         $statementWorksheetTitle = $metaDataWorksheet->getTitle() ?? '';
 
         $step = microtime(true);
@@ -285,7 +286,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $segmentWorksheetTitle,
             $statementWorksheetTitle,
             0,
-            $step
+            $step,
+            $highestDataColumnMeta
         );
 
         foreach ($metaDataWorksheet->getRowIterator(2) as $statementLine => $row) {
@@ -296,7 +298,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 $context->segmentWorksheetTitle,
                 $context->statementWorksheetTitle,
                 $processedStatements,
-                $step
+                $step,
+                $context->highestDataColumn
             );
 
             $segmentsCreated = $this->processStatementRow(
@@ -464,18 +467,20 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      */
     private function getGroupedSegmentsFromWorksheet(Worksheet $segmentsWorksheet, SegmentExcelImportResult $result): array
     {
-        $columnNamesSegments = $this->getFirstRowOfWorksheet($segmentsWorksheet);
+        // Memory optimization: Get column names and actual highest data column
+        [$columnNamesSegments, $highestDataColumn] = $this->getFirstRowOfWorksheetWithHighestColumn($segmentsWorksheet);
         $segmentsWorksheetTitle = $this->getTitle($segmentsWorksheet);
 
         // Debug: Log column names to identify why tags aren't being imported
         $this->logger->info('[ExcelImporter] Segments worksheet columns', [
             'columns'         => $columnNamesSegments,
             'has_schlagworte' => in_array('Schlagworte', $columnNamesSegments, true),
+            'highest_column'  => $highestDataColumn,
         ]);
 
         $segments = [];
         foreach ($segmentsWorksheet->getRowIterator(2) as $segmentLine => $row) {
-            $segmentIterator = $row->getCellIterator('A', $segmentsWorksheet->getHighestColumn());
+            $segmentIterator = $row->getCellIterator('A', $highestDataColumn);
             $segmentData = array_map(fn (Cell $cell) => $this->replaceLineBreak($cell->getValue()), \iterator_to_array($segmentIterator));
 
             if ($this->isEmpty($segmentData)) {
@@ -772,11 +777,30 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         return $this->generatedSegments;
     }
 
+    /**
+     * Get first row values with optimized column range.
+     *
+     * @return array{0: array, 1: string} [column values, highest column letter]
+     */
+    protected function getFirstRowOfWorksheetWithHighestColumn(Worksheet $worksheet): array
+    {
+        $highestDataColumn = $this->getActualHighestDataColumn($worksheet);
+        $firstRow = $worksheet->getRowIterator(1, 1)->current();
+        $cellIterator = $firstRow->getCellIterator('A', $highestDataColumn);
+
+        $values = [];
+        foreach ($cellIterator as $cell) {
+            $values[] = $cell->getValue();
+        }
+
+        return [$values, $highestDataColumn];
+    }
+
     protected function getFirstRowOfWorksheet(Worksheet $worksheet): array
     {
-        $rowData = $worksheet->rangeToArray('A1:'.$worksheet->getHighestColumn().'1');
+        [$values] = $this->getFirstRowOfWorksheetWithHighestColumn($worksheet);
 
-        return $rowData[0];
+        return $values;
     }
 
     private function findOrCreateMiscTagTopic(): TagTopic
@@ -999,7 +1023,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $statementLine,
         SegmentExcelImportResult $result,
     ): int {
-        $statementIterator = $row->getCellIterator('A', $context->worksheet->getHighestColumn());
+        // Memory optimization: Use actual highest data column from context
+        $statementIterator = $row->getCellIterator('A', $context->highestDataColumn);
         $statement = array_map(static fn (Cell $cell) => $cell->getValue(), \iterator_to_array($statementIterator));
 
         if ($this->isEmpty($statement)) {

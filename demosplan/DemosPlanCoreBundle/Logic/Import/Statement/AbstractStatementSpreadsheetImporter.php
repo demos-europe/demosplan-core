@@ -175,4 +175,37 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
     {
         return $this->generatedTags;
     }
+
+    /**
+     * Get actual highest data column by finding last non-empty header cell.
+     * Memory optimization: Scans incrementally and stops after finding empty columns.
+     *
+     * @return string Column letter (e.g., 'J')
+     */
+    protected function getActualHighestDataColumn(Worksheet $worksheet): string
+    {
+        $highestDataColumn = 'A';
+        $columnIndex = 1;
+        $consecutiveEmptyColumns = 0;
+        $maxEmptyColumnsBeforeStop = 5; // Stop after 5 consecutive empty columns
+        $maxColumnIndex = 702; // ZZ column
+
+        // Scan column by column, stop after consecutive empty columns
+        while ($consecutiveEmptyColumns < $maxEmptyColumnsBeforeStop && $columnIndex <= $maxColumnIndex) {
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columnIndex);
+            $cell = $worksheet->getCell($columnLetter.'1');
+            $value = $cell->getValue();
+
+            if (null !== $value && '' !== trim((string) $value)) {
+                $highestDataColumn = $columnLetter;
+                $consecutiveEmptyColumns = 0;
+            } else {
+                ++$consecutiveEmptyColumns;
+            }
+
+            ++$columnIndex;
+        }
+
+        return $highestDataColumn;
+    }
 }
