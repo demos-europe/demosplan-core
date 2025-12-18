@@ -352,7 +352,7 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `procedure.agency`: Verfahrensträger
+     * * `municipality`: Kommune (or project-override: Bezirk)
      *
      * @return array<string, int<0, max>>
      */
@@ -420,9 +420,9 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `procedure.agency`: Verfahrensträger
+     * * `municipality`: Kommune (or project-override: Bezirk)
      *
-     * @return array{'procedure.agency': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
+     * @return array{'municipality': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
      */
     protected function getAcceptedOrgaCountByType(Customer $customerContext): array
     {
@@ -433,7 +433,7 @@ class OrgaService implements OrgaServiceInterface
         return [
             'invitable_institution' => $institutionCount,
             'planningagency'        => $planningAgencyCount,
-            'procedure.agency'      => $municipalityCount,
+            'municipality'          => $municipalityCount,
         ];
     }
 
