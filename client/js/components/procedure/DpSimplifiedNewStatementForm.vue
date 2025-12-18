@@ -353,6 +353,7 @@
       <dp-editor
         ref="statementText"
         v-model="values.text"
+        :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
         :toolbar-items="{ linkButton: true }"
         required
