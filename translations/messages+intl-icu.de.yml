@@ -3906,7 +3906,6 @@ text.customer.settings: |
     Für Änderungen der farblichen Darstellung wenden Sie sich bitte an <a href="mailto:support@bauleitplanung-online.de">support@bauleitplanung-online.de</a>.
 text.department.edit: "Hier können Sie Ihre Abteilungen verwalten. Ein Klick auf eine Abteilung öffnet die Detailansicht, in der die Daten bearbeitet werden können."
 text.elementimport.fileupload: "Sie können Ihre Planungsdokumente in eine Zip-Datei packen und importieren. Dabei werden alle Unterordner mit allen Dateien übernommen. In einem nächsten Schritt können Sie überprüfen, ob der Import Ihren Vorstellungen entspricht und die Titel der Dateien und Ordner ggf. anpassen."
-text.editor: "Texteditor"
 text.elementimport: "Dies ist die Vorschau, wie Ihre Dateien importiert werden würden. Standardmäßig wird der Dateiname als Dokumententitel genommen. Sie können einzelnen Dateien oder Ordnern auch einen alternativen Titel geben oder den Import abbrechen."
 text.email.change: "Nachfolgend können Sie Ihre E-Mail-Adresse ändern."
 text.email.export.confirm: "Vielen Dank, Sie haben den Export angefordert.<br />Sobald Sie diese Abfrage mit \"OK\" bestätigen, erhalten Sie einen Link zum Download des Archivs per E-Mail an {email}.<br />Wünschen Sie den Versand an eine andere Adresse, geben Sie diese bitte in folgendes Feld ein und bestätigen anschließend mit \"OK\"."
