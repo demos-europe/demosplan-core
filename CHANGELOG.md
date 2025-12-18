@@ -29,6 +29,9 @@
 - Fix missing form fields in procedure basic settings
 - Add anonymous voters column to statement XLSX export
 
+### Fixes
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
