@@ -691,6 +691,18 @@ export default {
 
     toggleAllSelectedFilterCategories () {
       this.filterManager.toggleAllCategories()
+    },
+
+    /**
+     * Clear all selections in the data table
+     * Used after bulk operations like deletion to prevent stale selections
+     */
+    clearSelections () {
+      if (this.$refs.DpDataTable) {
+        this.$refs.DpDataTable.forceElementSelections({})
+
+        this.setSelectedItems([])
+      }
     }
   },
 
