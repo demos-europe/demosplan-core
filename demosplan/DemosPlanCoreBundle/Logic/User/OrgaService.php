@@ -352,7 +352,7 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `municipality`: Kommune (or project-override: Bezirk)
+     * * `municipality`: Kommune (project-override: Gemeinde, Bezirk, Verfahrensträger)
      *
      * @return array<string, int<0, max>>
      */
@@ -420,7 +420,7 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `municipality`: Kommune (or project-override: Bezirk)
+     * * `municipality`: Kommune (project-overrides: Gemeinde, Bezirk, Verfahrensträger)
      *
      * @return array{'municipality': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
      */
