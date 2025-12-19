@@ -146,12 +146,12 @@
                     id="r_houseNumber"
                     v-model="values.submitter.housenumber"
                     data-cy="submitterForm:houseNumber"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/7 shrink"
                     :label="{
                       text: Translator.trans('street.number.short')
                     }"
                     name="r_houseNumber"
-                    :size="3"
+                    :size="4"
                   />
                 </div>
 
@@ -161,7 +161,7 @@
                     id="r_orga_postalcode"
                     v-model="values.submitter.plz"
                     data-cy="submitterForm:orgaPostalcode"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/6 shrink"
                     :label="{
                       text: Translator.trans('postalcode')
                     }"
