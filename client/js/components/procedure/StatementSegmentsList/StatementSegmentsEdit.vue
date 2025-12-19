@@ -250,39 +250,13 @@ export default {
           }
         }
 
-        try {
-          const assignee = segment.rel('assignee')
-          
-          if (!assignee) {
-            return {
-              id: '',
-              name: '',
-              orgaName: '',
-            }
-          }
+        const assignee = segment.rel('assignee')
+        const orga = assignee.rel('orga')
 
-          const orga = assignee.rel('orga')
-
-          return {
-            id: assignee.id || '',
-            name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
-            orgaName: orga?.attributes?.name || '',
-          }
-        } catch (err) {
-          // Fallback for any remaining relationship access errors
-          if (segment.relationships?.assignee?.data?.id === this.currentUser.id) {
-            return {
-              id: this.currentUser.id,
-              name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName,
-            }
-          }
-
-          return {
-            id: '',
-            name: '',
-            orgaName: '',
-          }
+        return {
+          id: assignee.id || '',
+          name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
+          orgaName: orga?.attributes?.name || '',
         }
       }
     },
