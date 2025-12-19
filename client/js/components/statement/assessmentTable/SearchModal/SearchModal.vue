@@ -27,7 +27,7 @@
       />
       <dp-input
         id="searchterm"
-        ref="searchInputOutside"
+        ref="searchInput"
         v-model="searchString"
         has-icon
         name="search_word2"
@@ -347,7 +347,7 @@ export default {
     ...mapMutations('Filter', ['setCurrentSearch']),
 
     handleOutsideClick(event) {
-      const inputWrapper = this.$refs.searchInputOutside?.$el
+      const inputWrapper = this.$refs.searchInput?.$el
       if (!inputWrapper) return
       if (!inputWrapper.contains(event.target)) {
         this.validationAttempted = false
@@ -398,7 +398,7 @@ export default {
     },
 
     submit(event) {
-      const inputElement = this.$refs.searchInputOutside?.$el?.querySelector('input')
+      const inputElement = this.$refs.searchInput?.$el?.querySelector('input')
       const isEmpty = this.searchString.trim() === ''
       const isInvalid = !inputElement?.checkValidity() || isEmpty
 
