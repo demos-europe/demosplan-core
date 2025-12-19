@@ -1157,6 +1157,7 @@ error.procedure.already.deleted: "Das Verfahren, mit dem gekoppelt werden soll, 
 error.api.statement.similarity: "Während der Berechnung der Ähnlichkeit der Stellungnahme ist ein Fehler aufgetreten: {statusCode}."
 error.api.session: "Sie müssen angemeldet sein, um diese Funktion nutzen zu können."
 error.assessmenttable.incomplete: "Die Abwägungstabelle konnte nicht vollständig geladen werden."
+error.search.empty: "Bitte geben Sie einen Suchbegriff ein."
 error.authorisation: "Sie haben nicht die nötige Berechtigung zum Löschen des Beitrags."
 error.faq.category.update: "Leider ist beim Speichern der Kategorie ein Fehler aufgetreten."
 error.copy: "Leider ist beim Kopieren ein Fehler aufgetreten."

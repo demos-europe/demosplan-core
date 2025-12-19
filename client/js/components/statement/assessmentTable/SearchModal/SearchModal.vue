@@ -14,23 +14,30 @@
 <template>
   <div class="flex">
     <!-- Search Field -->
-    <label class="relative u-m-0">
+    <label
+      class="relative u-m-0"
+      :class="{ 'show-validation': validationAttempted && searchString.trim() === '' }"
+    >
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
         data-cy="searchAssessmentWordButton"
         :class="{'color-highlight': true === highlighted}"
+        @mousedown.prevent
         @click="submit"
       />
       <dp-input
         id="searchterm"
+        ref="searchInputOutside"
         v-model="searchString"
         has-icon
         name="search_word2"
         data-cy="searchAssessmentWordField"
         :placeholder="placeholder"
         width="w-12"
+        required
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit"
+        @input="validationAttempted = false"
       />
     </label>
 
@@ -297,8 +304,9 @@ export default {
   data () {
     return {
       exactSearch: this.preselectedExactSearch,
-      searchString: this.tableSearch,
+      searchString: '',
       isOpenModal: false,
+      validationAttempted: false,
       explanations: [
         {
           title: Translator.trans('search.options'),
@@ -337,6 +345,14 @@ export default {
 
   methods: {
     ...mapMutations('Filter', ['setCurrentSearch']),
+
+    handleOutsideClick(event) {
+      const inputWrapper = this.$refs.searchInputOutside?.$el
+      if (!inputWrapper) return
+      if (!inputWrapper.contains(event.target)) {
+        this.validationAttempted = false
+      }
+    },
 
     loadSelectedCheckboxes () {
       const savedCheckboxes = JSON.parse(localStorage.getItem('selectedCheckboxes'))
@@ -381,7 +397,23 @@ export default {
       localStorage.setItem('selectedCheckboxes', JSON.stringify(selectedCheckboxes))
     },
 
-    submit (event) {
+    submit(event) {
+      const inputElement = this.$refs.searchInputOutside?.$el?.querySelector('input')
+      const isEmpty = this.searchString.trim() === ''
+      const isInvalid = !inputElement?.checkValidity() || isEmpty
+
+      if (isInvalid) {
+        event?.preventDefault()
+        event?.stopPropagation()
+
+        this.validationAttempted = true
+        inputElement?.reportValidity()
+        dplan.notify.error(Translator.trans('error.search.empty'))
+        return
+      }
+
+      this.validationAttempted = false
+
       if (this.isForm) {
         const searchWordInput = document.querySelector('input[name="search_word2"]')
         searchWordInput.value = this.searchString
@@ -404,11 +436,23 @@ export default {
   },
 
   mounted () {
+    document.addEventListener('click', this.handleOutsideClick)
     this.availableFilterFields.forEach(checkbox => {
       checkbox.checked = this.preselectedFields.includes(checkbox.id)
     })
 
     this.loadSelectedCheckboxes()
   },
+
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleOutsideClick)
+  },
 }
 </script>
+
+<style scoped>
+/* Browser native validation styling - only show after validation attempt */
+.show-validation :deep(input:invalid) {
+  border-color: #d4004b !important;
+}
+</style>
