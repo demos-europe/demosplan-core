@@ -176,7 +176,8 @@
     "prosemirror-model": "1.25.2",
     "prosemirror-view": "1.40.1",
     "prosemirror-state": "1.4.3",
-    "prosemirror-transform": "1.10.4"
+    "prosemirror-transform": "1.10.4",
+
   },
   "workspaces": [
     "projects/*"
