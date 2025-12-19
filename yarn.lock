@@ -2462,7 +2462,7 @@ __metadata:
   linkType: hard
 
 "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.2":
-  version: 0.5.9-hotfix.1
+  version: 0.5.9-hotfix.2
   resolution: "@demos-europe/demosplan-ui@npm:0.5.9-hotfix.2"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
