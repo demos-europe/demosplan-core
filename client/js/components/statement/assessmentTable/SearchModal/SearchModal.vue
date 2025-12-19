@@ -443,10 +443,6 @@ export default {
 
     this.loadSelectedCheckboxes()
   },
-
-  beforeUnmount() {
-    document.removeEventListener('click', this.handleOutsideClick)
-  },
 }
 </script>
 
