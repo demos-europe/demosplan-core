@@ -176,8 +176,7 @@
     "prosemirror-model": "1.25.2",
     "prosemirror-view": "1.40.1",
     "prosemirror-state": "1.4.3",
-    "prosemirror-transform": "1.10.4",
-    "@demos-europe/demosplan-ui": "portal:/srv/www/local_modules/demosplan-ui"
+    "prosemirror-transform": "1.10.4"
   },
   "workspaces": [
     "projects/*"
