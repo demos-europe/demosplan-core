@@ -16,7 +16,7 @@
     <!-- Search Field -->
     <label
       class="relative u-m-0"
-      :class="{ 'show-validation': validationAttempted && searchString.trim() === '' }"
+      :class="{ 'show-validation': emptySearchErrorVisible && searchString.trim() === '' }"
     >
       <button
         class="btn-icns fa fa-search c-at__controls-input-button"
@@ -37,7 +37,7 @@
         required
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit"
-        @input="validationAttempted = false"
+        @input="emptySearchErrorVisible = false"
       />
     </label>
 
@@ -303,10 +303,9 @@ export default {
 
   data () {
     return {
+      availableFilterFields,
       exactSearch: this.preselectedExactSearch,
-      searchString: '',
-      isOpenModal: false,
-      validationAttempted: false,
+      emptySearchErrorVisible: false,
       explanations: [
         {
           title: Translator.trans('search.options'),
@@ -317,7 +316,8 @@ export default {
           description: Translator.trans('search.special.characters.description'),
         },
       ],
-      availableFilterFields,
+      isOpenModal: false,
+      searchString: '',
     }
   },
 
@@ -346,11 +346,9 @@ export default {
   methods: {
     ...mapMutations('Filter', ['setCurrentSearch']),
 
-    handleOutsideClick(event) {
-      const inputWrapper = this.$refs.searchInput?.$el
-      if (!inputWrapper) return
-      if (!inputWrapper.contains(event.target)) {
-        this.validationAttempted = false
+    handleClickOutside (event) {
+      if (!this.$refs.searchInput?.$el?.contains(event.target)) {
+        this.emptySearchErrorVisible = false
       }
     },
 
@@ -406,13 +404,13 @@ export default {
         event?.preventDefault()
         event?.stopPropagation()
 
-        this.validationAttempted = true
+        this.emptySearchErrorVisible = true
         inputElement?.reportValidity()
         dplan.notify.error(Translator.trans('error.search.empty'))
         return
       }
 
-      this.validationAttempted = false
+      this.emptySearchErrorVisible = false
 
       if (this.isForm) {
         const searchWordInput = document.querySelector('input[name="search_word2"]')
@@ -436,7 +434,7 @@ export default {
   },
 
   mounted () {
-    document.addEventListener('click', this.handleOutsideClick)
+    document.addEventListener('click', this.handleClickOutside)
     this.availableFilterFields.forEach(checkbox => {
       checkbox.checked = this.preselectedFields.includes(checkbox.id)
     })
