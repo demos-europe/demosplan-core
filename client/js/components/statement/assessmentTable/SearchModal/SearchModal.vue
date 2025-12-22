@@ -405,7 +405,6 @@ export default {
         event?.stopPropagation()
 
         this.emptySearchErrorVisible = true
-        inputElement?.reportValidity()
         dplan.notify.error(Translator.trans('error.search.empty'))
         return
       }
@@ -434,6 +433,7 @@ export default {
   },
 
   mounted () {
+    this.searchString = this.tableSearch || ''
     document.addEventListener('click', this.handleClickOutside)
     this.availableFilterFields.forEach(checkbox => {
       checkbox.checked = this.preselectedFields.includes(checkbox.id)
