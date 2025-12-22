@@ -447,7 +447,6 @@ export default {
 </script>
 
 <style scoped>
-/* Browser native validation styling - only show after validation attempt */
 .show-validation :deep(input:invalid) {
   border-color: #d4004b !important;
 }
