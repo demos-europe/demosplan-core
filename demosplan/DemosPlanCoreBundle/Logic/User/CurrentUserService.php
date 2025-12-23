@@ -51,7 +51,7 @@ class CurrentUserService implements CurrentUserInterface, CurrentUserProviderInt
         return $user;
     }
 
-    public function setUser(UserInterface $user, CustomerInterface $customer = null): void
+    public function setUser(UserInterface $user, ?CustomerInterface $customer = null): void
     {
         $token = $this->getToken();
         $token->setUser($user);
