@@ -19,21 +19,21 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 /**
  * @extends PersistentProxyObjectFactory<Slug>
  *
- * @method        Slug|Proxy                     create(array|callable $attributes = [])
- * @method static Slug|Proxy                     createOne(array $attributes = [])
- * @method static Slug|Proxy                     find(object|array|mixed $criteria)
- * @method static Slug|Proxy                     findOrCreate(array $attributes)
- * @method static Slug|Proxy                     first(string $sortedField = 'id')
- * @method static Slug|Proxy                     last(string $sortedField = 'id')
- * @method static Slug|Proxy                     random(array $attributes = [])
- * @method static Slug|Proxy                     randomOrCreate(array $attributes = [])
+ * @method        Slug|Proxy                              create(array|callable $attributes = [])
+ * @method static Slug|Proxy                              createOne(array $attributes = [])
+ * @method static Slug|Proxy                              find(object|array|mixed $criteria)
+ * @method static Slug|Proxy                              findOrCreate(array $attributes)
+ * @method static Slug|Proxy                              first(string $sortedField = 'id')
+ * @method static Slug|Proxy                              last(string $sortedField = 'id')
+ * @method static Slug|Proxy                              random(array $attributes = [])
+ * @method static Slug|Proxy                              randomOrCreate(array $attributes = [])
  * @method static SlugRepository|ProxyRepositoryDecorator repository()
- * @method static Slug[]|Proxy[]                 all()
- * @method static Slug[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static Slug[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static Slug[]|Proxy[]                 findBy(array $attributes)
- * @method static Slug[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static Slug[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method static Slug[]|Proxy[]                          all()
+ * @method static Slug[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static Slug[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static Slug[]|Proxy[]                          findBy(array $attributes)
+ * @method static Slug[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static Slug[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
 final class SlugFactory extends PersistentProxyObjectFactory
 {
