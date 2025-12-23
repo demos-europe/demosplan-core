@@ -30,7 +30,7 @@ abstract class CoreCommand extends Command
      */
     protected $parameterBag;
 
-    public function __construct(ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($name);
         $this->parameterBag = $parameterBag;
