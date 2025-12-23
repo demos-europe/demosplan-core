@@ -20,21 +20,21 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 /**
  * @extends PersistentProxyObjectFactory<TagTopic>
  *
- * @method        TagTopic|Proxy                     create(array|callable $attributes = [])
- * @method static TagTopic|Proxy                     createOne(array $attributes = [])
- * @method static TagTopic|Proxy                     find(object|array|mixed $criteria)
- * @method static TagTopic|Proxy                     findOrCreate(array $attributes)
- * @method static TagTopic|Proxy                     first(string $sortedField = 'id')
- * @method static TagTopic|Proxy                     last(string $sortedField = 'id')
- * @method static TagTopic|Proxy                     random(array $attributes = [])
- * @method static TagTopic|Proxy                     randomOrCreate(array $attributes = [])
+ * @method        TagTopic|Proxy                              create(array|callable $attributes = [])
+ * @method static TagTopic|Proxy                              createOne(array $attributes = [])
+ * @method static TagTopic|Proxy                              find(object|array|mixed $criteria)
+ * @method static TagTopic|Proxy                              findOrCreate(array $attributes)
+ * @method static TagTopic|Proxy                              first(string $sortedField = 'id')
+ * @method static TagTopic|Proxy                              last(string $sortedField = 'id')
+ * @method static TagTopic|Proxy                              random(array $attributes = [])
+ * @method static TagTopic|Proxy                              randomOrCreate(array $attributes = [])
  * @method static TagTopicRepository|ProxyRepositoryDecorator repository()
- * @method static TagTopic[]|Proxy[]                 all()
- * @method static TagTopic[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static TagTopic[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static TagTopic[]|Proxy[]                 findBy(array $attributes)
- * @method static TagTopic[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static TagTopic[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method static TagTopic[]|Proxy[]                          all()
+ * @method static TagTopic[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static TagTopic[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static TagTopic[]|Proxy[]                          findBy(array $attributes)
+ * @method static TagTopic[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static TagTopic[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
 final class TagTopicFactory extends PersistentProxyObjectFactory
 {
