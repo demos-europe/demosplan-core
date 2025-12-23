@@ -182,7 +182,6 @@ import {
   DpTextArea,
 } from '@demos-europe/demosplan-ui'
 import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
-import { mapState } from 'vuex'
 
 export default {
   name: 'NewBlueprintForm',
