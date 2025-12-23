@@ -138,6 +138,7 @@
                     </dp-input>
                 {% endif %}
 
+                {% if hasPermission('feature_procedure_agency_email_addresses') %}
                 <div class="mb-4 flow-root">
                     <label class="inline-block mb-0" for="{{ form.agencyExtraEmailAddresses.vars.id }}">
                         {{ "email.address.more"|trans }}
@@ -161,6 +162,7 @@
                         :init-emails="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')">
                     </dp-email-list>
                 </div>
+                {% endif %}
 
                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
                     <div class="mb-4 flow-root">
