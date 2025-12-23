@@ -43,7 +43,7 @@ final class OrgaFactory extends PersistentProxyObjectFactory
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
         $slug = SlugFactory::createOne()->object();
 
@@ -68,7 +68,7 @@ final class OrgaFactory extends PersistentProxyObjectFactory
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return Orga::class;
     }
