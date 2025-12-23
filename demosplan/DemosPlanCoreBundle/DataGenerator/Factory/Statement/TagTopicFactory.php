@@ -13,37 +13,37 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<TagTopic>
+ * @extends PersistentProxyObjectFactory<TagTopic>
  *
- * @method        TagTopic|Proxy                     create(array|callable $attributes = [])
- * @method static TagTopic|Proxy                     createOne(array $attributes = [])
- * @method static TagTopic|Proxy                     find(object|array|mixed $criteria)
- * @method static TagTopic|Proxy                     findOrCreate(array $attributes)
- * @method static TagTopic|Proxy                     first(string $sortedField = 'id')
- * @method static TagTopic|Proxy                     last(string $sortedField = 'id')
- * @method static TagTopic|Proxy                     random(array $attributes = [])
- * @method static TagTopic|Proxy                     randomOrCreate(array $attributes = [])
- * @method static TagTopicRepository|RepositoryProxy repository()
- * @method static TagTopic[]|Proxy[]                 all()
- * @method static TagTopic[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static TagTopic[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static TagTopic[]|Proxy[]                 findBy(array $attributes)
- * @method static TagTopic[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static TagTopic[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        TagTopic|Proxy                              create(array|callable $attributes = [])
+ * @method static TagTopic|Proxy                              createOne(array $attributes = [])
+ * @method static TagTopic|Proxy                              find(object|array|mixed $criteria)
+ * @method static TagTopic|Proxy                              findOrCreate(array $attributes)
+ * @method static TagTopic|Proxy                              first(string $sortedField = 'id')
+ * @method static TagTopic|Proxy                              last(string $sortedField = 'id')
+ * @method static TagTopic|Proxy                              random(array $attributes = [])
+ * @method static TagTopic|Proxy                              randomOrCreate(array $attributes = [])
+ * @method static TagTopicRepository|ProxyRepositoryDecorator repository()
+ * @method static TagTopic[]|Proxy[]                          all()
+ * @method static TagTopic[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static TagTopic[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static TagTopic[]|Proxy[]                          findBy(array $attributes)
+ * @method static TagTopic[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static TagTopic[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
-final class TagTopicFactory extends ModelFactory
+final class TagTopicFactory extends PersistentProxyObjectFactory
 {
     public function __construct()
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    protected function defaults(): array
     {
         return [
             'procedure' => ProcedureFactory::new(),
@@ -56,7 +56,7 @@ final class TagTopicFactory extends ModelFactory
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return TagTopic::class;
     }
