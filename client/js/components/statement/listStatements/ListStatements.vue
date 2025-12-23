@@ -989,7 +989,6 @@ export default {
 
     storeNavigationContextInLocalStorage () {
       lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
-      this.storeFilterInCache()
     },
 
     triggerStatementDeletion (id) {
