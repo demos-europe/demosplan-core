@@ -98,7 +98,7 @@
     {% if noNav is not defined or not noNav %}
         <nav class="o-page__nav" aria-label="{{ 'menu.primary'|trans }}" role="navigation">
 
-            <ul id="jumpNavigation" class="c-nav relative" role="menubar">
+            <div id="jumpNavigation" class="c-nav relative" role="menubar">
 
                 {# Helper Checkbox for CSS-only menu-folding #}
                 <input id="responsive-menu-helper-checkbox" class="c-nav__menu-helper-checkbox" type="checkbox" hidden />
@@ -189,7 +189,7 @@
                     {{ 'menu.currentPage'|trans }}
                 </div>
 
-            </ul>
+            </div>
 
         </nav>
     {% endif %}

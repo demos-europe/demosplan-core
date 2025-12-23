@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- StatementExportModal: Adds a tags filter to the export modal, allowing statements to be filtered by tags during export
+
 - Add permission check for agency email fields
 - Move Maillane-specific database migrations to demosplan-addon-maillane
   - Remove maillane_connection and maillane_allowed_sender_email_address table creation from Version20200106150455
@@ -25,6 +28,7 @@
 - Attribute isPrivatePerson is used during keycloak login to recognize a private person. As a fallback Groups may still be used.
 - Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
 - Fix missing form fields in procedure basic settings
+- Add anonymous voters column to statement XLSX export
 
 ## v4.25.0 (2025-11-06)
 ## v4.24.0 (2025-11-06)

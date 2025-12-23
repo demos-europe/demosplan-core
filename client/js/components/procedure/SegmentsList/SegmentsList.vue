@@ -37,6 +37,7 @@
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             class="inline-block first:mr-1"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
+            align="left"
             :groups-object="filter.groupsObject"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
@@ -46,6 +47,7 @@
               groupedOptions: true,
               ungroupedOptions: true
             }"
+            variant="dark"
             @filter-apply="sendFilterQuery"
             @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
           />
@@ -419,6 +421,10 @@ export default {
       type: String,
     },
   },
+
+  emits: [
+    'showSlidebar',
+  ],
 
   data () {
     return {
@@ -1025,7 +1031,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     updateQueryHash () {
