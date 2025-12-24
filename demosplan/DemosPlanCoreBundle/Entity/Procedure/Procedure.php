@@ -71,7 +71,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *      )
  * })
  *
- * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
  *
  * @ProcedureTypeConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_ALL_INCLUDED})
  *
@@ -79,6 +78,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @ProcedureAllowedSegmentsConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE})
  */
+#[ProcedureTemplateConstraint(groups: [ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE])]
 class Procedure extends SluggedEntity implements ProcedureInterface
 {
     /**

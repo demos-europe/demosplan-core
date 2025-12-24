@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Constraint;
 
+use Attribute;
 use demosplan\DemosPlanCoreBundle\Validator\ProcedureTemplateConstraintValidator;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @Annotation
  */
+#[Attribute]
 class ProcedureTemplateConstraint extends Constraint
 {
     public $message = 'Procedure templates must have their master flag set to true: {procedureId}';
