@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.24.1 (2025-12-24)
 
 ### Features
 - Add warning modal in procedure settings on form-submit when public participation phase is set and interface is not activated
