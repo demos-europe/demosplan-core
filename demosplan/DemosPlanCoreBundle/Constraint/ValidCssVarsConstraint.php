@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Constraint;
 
+use Attribute;
 use demosplan\DemosPlanCoreBundle\Validator\ValidCssVarsConstraintValidator;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @Annotation
  */
+#[Attribute]
 class ValidCssVarsConstraint extends Constraint
 {
     public $ymlExceptionMessage = 'branding.yaml.invalid';

@@ -55,9 +55,7 @@ interface CustomerResourceInterface extends ResourceInterface
     #[Assert\Length(min: 5, max: 4096, groups: [CustomerResourceInterface::BASE_LAYER_LAYERS])]
     public function getBaseLayerLayers(): ?string;
 
-    /**
-     * @ValidCssVarsConstraint()
-     */
+    #[ValidCssVarsConstraint()]
     public function getCssVars(): ?string;
 
     #[Assert\Length(max: 65000, groups: [CustomerResourceInterface::ACCESSIBILITY_EXPLANATION])]

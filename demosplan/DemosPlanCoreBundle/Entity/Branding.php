@@ -42,9 +42,8 @@ class Branding extends CoreEntity implements UuidEntityInterface, BrandingInterf
      * @var ?string
      *
      * @ORM\Column(type="text", nullable=true)
-     *
-     * @ValidCssVarsConstraint()
      */
+    #[ValidCssVarsConstraint()]
     protected $cssvars;
 
     /**
