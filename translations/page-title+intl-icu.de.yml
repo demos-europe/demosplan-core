@@ -130,6 +130,7 @@ procedure.master.admin: Blaupausen
 procedure.master.new: Blaupause anlegen
 procedure.new: Verfahren anlegen
 procedure.notifications: Benachrichtigungen
+procedure.places: Bearbeitungsschritte
 procedure.proposal.create: Verfahren vorschlagen
 procedure.proposal.detail: Verfahrensvorschlag
 procedure.proposal.list: Liste der Verfahrensvorschläge

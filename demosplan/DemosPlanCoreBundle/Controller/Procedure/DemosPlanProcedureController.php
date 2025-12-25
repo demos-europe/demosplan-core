@@ -2450,6 +2450,7 @@ class DemosPlanProcedureController extends BaseController
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
+            'title'       => 'procedure.places',
         ]);
     }
 
