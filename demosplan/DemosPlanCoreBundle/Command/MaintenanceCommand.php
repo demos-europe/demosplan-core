@@ -11,9 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 /**
  * MaintenanceCommand - DEPRECATED
@@ -32,7 +32,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @see \demosplan\DemosPlanCoreBundle\MessageHandler\
  */
 #[AsCommand(name: 'dplan:maintenance', aliases: ['demos:maintenance'])]
-class MaintenanceCommand extends Command
+class MaintenanceCommand extends CoreCommand
 {
     protected static $defaultDescription = 'DemosPlan Maintenance daemon (DEPRECATED - use Symfony Scheduler)';
 
@@ -41,19 +41,27 @@ class MaintenanceCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('<error>DEPRECATION: dplan:maintenance is deprecated!</error>');
+        $output->writeln('<comment>DEPRECATION NOTICE: dplan:maintenance is deprecated!</comment>');
         $output->writeln('');
         $output->writeln('All maintenance tasks have been migrated to Symfony Scheduler + Messenger.');
+        $output->writeln('Starting messenger:consume scheduler_default for backwards compatibility...');
         $output->writeln('');
-        $output->writeln('To run maintenance tasks, use:');
+        $output->writeln('Please update your scripts to use:');
         $output->writeln('  <info>php bin/console messenger:consume scheduler_default</info>');
         $output->writeln('');
-        $output->writeln('For more information, see:');
-        $output->writeln('  - MainScheduler: demosplan/DemosPlanCoreBundle/Scheduler/MainScheduler.php');
-        $output->writeln('  - MessageHandlers: demosplan/DemosPlanCoreBundle/MessageHandler/');
-        $output->writeln('');
 
-        return Command::FAILURE;
+        // For backwards compatibility, start the messenger consumer using Process
+        // Process component properly handles terminal signals (SIGINT/SIGTERM)
+        $process = new Process(['php', 'bin/console', 'messenger:consume', 'scheduler_default']);
+        $process->setTimeout(null);
+        $process->setTty(Process::isTtySupported());
+        $process->setEnv([
+            'ACTIVE_PROJECT' => $this->parameterBag->get('demosplan.project_name'),
+        ]);
+
+        return $process->run(function ($type, $buffer) use ($output) {
+            $output->write($buffer);
+        });
     }
 
     /**
