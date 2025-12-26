@@ -11,6 +11,7 @@ use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
@@ -21,6 +22,10 @@ class MainScheduler implements ScheduleProviderInterface
 {
     private const MAINTENANCE_OFFSET = '5 seconds';
 
+    public function __construct(private readonly LockFactory $lockFactory)
+    {
+    }
+
     public function getSchedule(): Schedule
     {
         return (new Schedule())
@@ -30,6 +35,8 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new PurgeDeletedProceduresMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new AddonMaintenanceMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchElementStatesMessage()))
-            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()));
+            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
+            ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
+        ;
     }
 }
