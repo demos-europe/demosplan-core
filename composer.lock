@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76bc363a0445aed35440167c7f95124a",
+    "content-hash": "8733d784e8e7aa0332c3623409a7ee35",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -19748,64 +19748,6 @@
                 "source": "https://github.com/willdurand/JsonpCallbackValidator/tree/v2.0.0"
             },
             "time": "2022-01-30T20:33:09+00:00"
-        },
-        {
-            "name": "wrep/daemonizable-command",
-            "version": "4.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mac-cain13/daemonizable-command.git",
-                "reference": "d5cc743ba43903424b73ad8d7adc9783ada6daa7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mac-cain13/daemonizable-command/zipball/d5cc743ba43903424b73ad8d7adc9783ada6daa7",
-                "reference": "d5cc743ba43903424b73ad8d7adc9783ada6daa7",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.0",
-                "symfony/console": "^6.0 || ^7.0",
-                "symfony/dependency-injection": "^6.0 || ^7.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.0 || ^9.0"
-            },
-            "suggest": {
-                "symfony/filesystem": "If you can't use Upstart or systemd"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Wrep\\Daemonizable\\": "src/Wrep/Daemonizable/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mathijs Kadijk",
-                    "email": "mathijs@wrep.nl"
-                }
-            ],
-            "description": "Daemonizable (endless running) commands for Symfony.",
-            "homepage": "https://github.com/mac-cain13/daemonizable-command",
-            "keywords": [
-                "Symfony2",
-                "background process",
-                "backgrounding",
-                "daemon",
-                "long running process",
-                "symfony",
-                "symfony3"
-            ],
-            "support": {
-                "issues": "https://github.com/mac-cain13/daemonizable-command/issues",
-                "source": "https://github.com/mac-cain13/daemonizable-command/tree/4.1.1"
-            },
-            "time": "2023-12-11T08:15:35+00:00"
         }
     ],
     "packages-dev": [
