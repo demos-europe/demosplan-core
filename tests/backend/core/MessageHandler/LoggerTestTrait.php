@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\MessageHandler;
 
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Trait to help capture logger calls in message handler tests.
@@ -25,8 +26,6 @@ trait LoggerTestTrait
      * Creates a logger mock that captures all info() calls.
      *
      * @param int $expectedCallCount Number of expected info() calls
-     *
-     * @return LoggerInterface
      */
     private function createLoggerMockWithCapture(int $expectedCallCount): LoggerInterface
     {
@@ -56,8 +55,6 @@ trait LoggerTestTrait
      * Creates a logger mock that expects a single info() call with a specific message.
      *
      * @param string $expectedMessage The expected message
-     *
-     * @return LoggerInterface
      */
     private function createLoggerMockWithSingleCall(string $expectedMessage): LoggerInterface
     {
@@ -72,12 +69,10 @@ trait LoggerTestTrait
     /**
      * Creates a logger mock that expects an error() call.
      *
-     * @param string   $expectedMessage The expected error message
-     * @param \Throwable|null $exception       The expected exception (or null if no exception expected)
-     *
-     * @return LoggerInterface
+     * @param string         $expectedMessage The expected error message
+     * @param Throwable|null $exception       The expected exception (or null if no exception expected)
      */
-    private function createLoggerMockForError(string $expectedMessage, ?\Throwable $exception = null): LoggerInterface
+    private function createLoggerMockForError(string $expectedMessage, ?Throwable $exception = null): LoggerInterface
     {
         $logger = $this->createMock(LoggerInterface::class);
 
