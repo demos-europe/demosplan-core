@@ -34,7 +34,7 @@ final class SendEmailsMessageHandler
             $this->logger->error('Error sending mails', [$e]);
         }
         if ($mailsSent > 0) {
-            $this->logger->info('Mails sent: '.$mailsSent);
+            $this->logger->info('Mails sent: '.$mailsSent, [spl_object_id($message)]);
         }
     }
 }
