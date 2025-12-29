@@ -16,26 +16,19 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SwitchProcedurePhasesMessageHandler;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
 
 class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
 {
+    use LoggerTestTrait;
+
     private ?ProcedureService $procedureService = null;
-    private ?LoggerInterface $logger = null;
     private ?SwitchProcedurePhasesMessageHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->procedureService = $this->createMock(ProcedureService::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-
-        $this->sut = new SwitchProcedurePhasesMessageHandler(
-            $this->procedureService,
-            $this->logger
-        );
     }
 
     public function testInvokeSwitchesPhasesAndLogs(): void
@@ -45,12 +38,8 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->method('switchPhasesOfProceduresUntilNow')
             ->willReturn([3, 2]);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(3))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(3);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -60,7 +49,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             'switchPhasesOfToday',
             'Switched phases of 3 internal/public agency procedures.',
             'Switched phases of 2 external/citizen procedures.',
-        ], $loggerCalls);
+        ], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeDoesNotLogWhenNoProceduresSwitched(): void
@@ -70,9 +59,8 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->method('switchPhasesOfProceduresUntilNow')
             ->willReturn([0, 0]);
 
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with('switchPhasesOfToday');
+        $logger = $this->createLoggerMockWithSingleCall('switchPhasesOfToday');
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -85,12 +73,8 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->method('switchPhasesOfProceduresUntilNow')
             ->willReturn([5, 0]);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(3))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(3);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -100,7 +84,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             'switchPhasesOfToday',
             'Switched phases of 5 internal/public agency procedures.',
             'Switched phases of 0 external/citizen procedures.',
-        ], $loggerCalls);
+        ], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeLogsSwitchWhenOnlyExternalProceduresSwitched(): void
@@ -110,12 +94,8 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->method('switchPhasesOfProceduresUntilNow')
             ->willReturn([0, 4]);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(3))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(3);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -125,7 +105,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             'switchPhasesOfToday',
             'Switched phases of 0 internal/public agency procedures.',
             'Switched phases of 4 external/citizen procedures.',
-        ], $loggerCalls);
+        ], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeLogsErrorOnException(): void
@@ -137,9 +117,8 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->method('switchPhasesOfProceduresUntilNow')
             ->willThrowException($exception);
 
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('switchPhasesOfToday failed', [$exception]);
+        $logger = $this->createLoggerMockForError('switchPhasesOfToday failed', $exception);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
