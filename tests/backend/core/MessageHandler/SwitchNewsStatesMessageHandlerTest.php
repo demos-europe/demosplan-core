@@ -40,6 +40,19 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
         );
     }
 
+    private function createLoggerInfoCallback(string $expectedNewsCountMessage): callable
+    {
+        return function ($message) use ($expectedNewsCountMessage) {
+            if ('Maintenance: switchStatesOfNewsOfToday' === $message) {
+                return;
+            }
+            if ($expectedNewsCountMessage === $message) {
+                return;
+            }
+            $this->fail('Unexpected log message: '.$message);
+        };
+    }
+
     public function testInvokeSwitchesNewsStatesAndLogsSuccess(): void
     {
         // Arrange
@@ -58,14 +71,7 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
 
         $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->willReturnCallback(function ($message) {
-                if ('Maintenance: switchStatesOfNewsOfToday' === $message) {
-                    return;
-                } elseif ('Set states of 2 news.' === $message) {
-                    return;
-                }
-                $this->fail('Unexpected log message: '.$message);
-            });
+            ->willReturnCallback($this->createLoggerInfoCallback('Set states of 2 news.'));
 
         // Act
         ($this->sut)(new SwitchNewsStatesMessage());
@@ -87,14 +93,7 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
 
         $this->logger->expects($this->exactly(2))
             ->method('info')
-            ->willReturnCallback(function ($message) {
-                if ('Maintenance: switchStatesOfNewsOfToday' === $message) {
-                    return;
-                } elseif ('Set states of 0 news.' === $message) {
-                    return;
-                }
-                $this->fail('Unexpected log message: '.$message);
-            });
+            ->willReturnCallback($this->createLoggerInfoCallback('Set states of 0 news.'));
 
         $this->logger->expects($this->once())
             ->method('error')
