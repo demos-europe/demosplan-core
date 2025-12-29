@@ -22,6 +22,7 @@ use Tests\Base\UnitTestCase;
 
 class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
 {
+    private const PURGE_DELETED_PROCEDURES = 'Purge deleted procedures... ';
     private ?ProcedureHandler $procedureHandler = null;
     private ?GlobalConfigInterface $globalConfig = null;
     private ?LoggerInterface $logger = null;
@@ -63,7 +64,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'Purge deleted procedures is disabled.'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'Purge deleted procedures is disabled.'], $loggerCalls);
     }
 
     public function testInvokePurgesProceduresWhenEnabled(): void
@@ -89,7 +90,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'PurgeDeletedProcedures', 'Purged procedures: 3'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures', 'Purged procedures: 3'], $loggerCalls);
     }
 
     public function testInvokeDoesNotLogWhenNoProceduresPurged(): void
@@ -115,7 +116,7 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'PurgeDeletedProcedures'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures'], $loggerCalls);
     }
 
     public function testInvokeLogsErrorOnException(): void

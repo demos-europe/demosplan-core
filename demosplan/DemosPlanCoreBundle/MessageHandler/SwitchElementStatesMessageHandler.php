@@ -38,7 +38,7 @@ final class SwitchElementStatesMessageHandler
         }
 
         if ($affectedElements > 0) {
-            $this->logger->info("Switched states of $affectedElements elements.");
+            $this->logger->info("Switched states of $affectedElements elements.", [spl_object_id($message)]);
         }
     }
 }

@@ -33,7 +33,7 @@ final class PurgeDeletedProceduresMessageHandler
         $purgedProcedures = 0;
         try {
             if (true === $this->globalConfig->getUsePurgeDeletedProcedures()) {
-                $this->logger->info('PurgeDeletedProcedures');
+                $this->logger->info('PurgeDeletedProcedures', [spl_object_id($message)]);
                 $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5);
             } else {
                 $this->logger->info('Purge deleted procedures is disabled.');

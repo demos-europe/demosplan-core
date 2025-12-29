@@ -34,7 +34,7 @@ final class SwitchProcedurePhasesMessageHandler
         try {
             [$internalProcedureCounter, $externalProcedureCounter] = $this->procedureService->switchPhasesOfProceduresUntilNow();
         } catch (Exception $e) {
-            $this->logger->error('switchPhasesOfToday failed', [$e]);
+            $this->logger->error('switchPhasesOfToday failed', [$e, spl_object_id($message)]);
         }
 
         if ($internalProcedureCounter > 0 || $externalProcedureCounter > 0) {

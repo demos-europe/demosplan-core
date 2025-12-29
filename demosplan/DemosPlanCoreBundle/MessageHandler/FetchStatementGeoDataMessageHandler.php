@@ -31,7 +31,7 @@ final class FetchStatementGeoDataMessageHandler
     {
         try {
             if (true === $this->globalConfig->getUseFetchAdditionalGeodata()) {
-                $this->logger->info('Fetch Statement Geodata... ');
+                $this->logger->info('Fetch Statement Geodata... ', [spl_object_id($message)]);
                 $geoDataFetched = $this->statementService->processScheduledFetchGeoData();
                 if ($geoDataFetched > 0) {
                     $this->logger->info('Statement Geodata fetched: '.$geoDataFetched);

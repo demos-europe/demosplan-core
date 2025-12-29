@@ -36,7 +36,7 @@ final class CheckMailBouncesMessageHandler
         $bouncesProcessed = 0;
         try {
             $bouncesProcessed = $this->bounceChecker->checkEmailBounces();
-            $this->logger->info('Emailbounces');
+            $this->logger->info('Emailbounces', [spl_object_id($message)]);
         } catch (Exception $e) {
             $this->logger->error('Emailbounces failed', [$e]);
         }
