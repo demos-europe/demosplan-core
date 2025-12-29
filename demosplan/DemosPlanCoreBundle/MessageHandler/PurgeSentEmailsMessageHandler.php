@@ -32,6 +32,7 @@ final class PurgeSentEmailsMessageHandler
     public function __invoke(PurgeSentEmailsMessage $message): void
     {
         try {
+            $this->logger->info('Maintenance: deleteAfterDays()', [spl_object_id($message)]);
             $deleted = $this->mailService->deleteAfterDays((int) $this->parameterBag->get('email_delete_after_days'));
             $this->logger->info("Deleted $deleted old emails");
         } catch (Exception $e) {

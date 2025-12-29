@@ -30,7 +30,7 @@ final class SendDeadlineNotificationsMessageHandler
     public function __invoke(SendDeadlineNotificationsMessage $message): void
     {
         try {
-            $this->logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies');
+            $this->logger->info('Maintenance: sendNotificationEmailOfDeadlineForPublicAgencies', [spl_object_id($message)]);
             $this->procedureHandler->sendNotificationEmailOfDeadlineForPublicAgencies();
         } catch (Exception $exception) {
             $this->logger->error('Daily maintenance task failed for: sendNotificationEmailOfDeadlineForPublicAgencies.', [$exception]);

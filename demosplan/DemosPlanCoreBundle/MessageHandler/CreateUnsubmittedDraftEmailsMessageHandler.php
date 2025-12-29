@@ -40,7 +40,7 @@ final class CreateUnsubmittedDraftEmailsMessageHandler
         }
 
         try {
-            $this->logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()');
+            $this->logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()', [spl_object_id($message)]);
             $numberOfCreatedMails = $this->createMailsForUnsubmittedDrafts(self::DAYS_BEFORE_DEADLINE);
             $this->logger->info('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures(). Number of created mail_send entries:', [$numberOfCreatedMails]);
         } catch (Exception $exception) {

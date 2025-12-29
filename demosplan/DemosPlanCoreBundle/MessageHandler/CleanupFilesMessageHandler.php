@@ -38,7 +38,7 @@ final class CleanupFilesMessageHandler
         }
 
         try {
-            $this->logger->info('Maintenance: remove soft deleted Files');
+            $this->logger->info('Maintenance: remove soft deleted Files', [spl_object_id($message)]);
             $filesDeleted = $this->fileService->deleteSoftDeletedFiles();
             $this->logger->info('Maintenance: Soft deleted files deleted: ', [$filesDeleted]);
 

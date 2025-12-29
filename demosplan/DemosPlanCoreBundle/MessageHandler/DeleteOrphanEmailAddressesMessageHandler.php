@@ -30,6 +30,7 @@ final class DeleteOrphanEmailAddressesMessageHandler
     public function __invoke(DeleteOrphanEmailAddressesMessage $message): void
     {
         try {
+            $this->logger->info('Maintenance: deleteOrphanEmailAddresses()', [spl_object_id($message)]);
             $numberOfDeletedEmailAddresses = $this->emailAddressService->deleteOrphanEmailAddresses();
             $this->logger->info("Deleted $numberOfDeletedEmailAddresses orphan email addresses");
         } catch (Exception $e) {

@@ -38,7 +38,7 @@ final class AutoSwitchProcedurePhasesMessageHandler
         }
 
         try {
-            $this->logger->info('Maintenance: switchToEvaluationPhasesOnEndOfParticipationPhase()');
+            $this->logger->info('Maintenance: switchToEvaluationPhasesOnEndOfParticipationPhase()', [spl_object_id($message)]);
             $this->procedureHandler->switchToEvaluationPhasesOnEndOfParticipationPhase();
         } catch (Exception $exception) {
             $this->logger->error('Daily maintenance task failed for: switchToEvaluationPhasesOnEndOfParticipationPhase.', [$exception]);

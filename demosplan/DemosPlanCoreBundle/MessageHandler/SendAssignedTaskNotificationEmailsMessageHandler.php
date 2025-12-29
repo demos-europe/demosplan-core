@@ -39,7 +39,7 @@ final class SendAssignedTaskNotificationEmailsMessageHandler
         }
 
         try {
-            $this->logger->info('Maintenance: sendAssignedTaskNotificationMails()');
+            $this->logger->info('Maintenance: sendAssignedTaskNotificationMails()', [spl_object_id($message)]);
             $numberOfCreatedNotificationMails = $this->entityContentChangeService->sendAssignedTaskNotificationMails(Segment::class);
             $this->logger->info('Maintenance: sendAssignedTaskNotificationMails(). Number of created mail_send entries:', [$numberOfCreatedNotificationMails]);
         } catch (Exception $exception) {

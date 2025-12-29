@@ -34,7 +34,7 @@ final class DailyMaintenanceEventMessageHandler
         try {
             $event = new DailyMaintenanceEvent();
             $this->eventDispatcher->dispatch($event, DailyMaintenanceEventInterface::class);
-            $this->logger->info('Daily maintenance event dispatched for addon subscribers');
+            $this->logger->info('Daily maintenance event dispatched for addon subscribers', [spl_object_id($message)]);
         } catch (Exception $exception) {
             $this->logger->error('Daily maintenance task failed for: event subscriber(s).', [$exception]);
         }

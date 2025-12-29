@@ -31,7 +31,7 @@ final class SwitchNewsStatesMessageHandler
     public function __invoke(SwitchNewsStatesMessage $message): void
     {
         try {
-            $this->logger->info('Maintenance: switchStatesOfNewsOfToday');
+            $this->logger->info('Maintenance: switchStatesOfNewsOfToday', [spl_object_id($message)]);
             $this->setStateOfNewsOfToday();
         } catch (Exception $e) {
             $this->logger->error('Daily maintenance task failed for: switching of news state.', [$e]);
