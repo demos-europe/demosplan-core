@@ -98,7 +98,7 @@
     {% if noNav is not defined or not noNav %}
         <nav class="o-page__nav" aria-label="{{ 'menu.primary'|trans }}" role="navigation">
 
-            <div id="jumpNavigation" class="c-nav relative" role="menubar">
+            <div id="jumpNavigation" class="c-nav relative">
 
                 {# Helper Checkbox for CSS-only menu-folding #}
                 <input id="responsive-menu-helper-checkbox" class="c-nav__menu-helper-checkbox" type="checkbox" hidden />
@@ -119,7 +119,7 @@
                     <ul class="c-nav__menu">
 
                         {% if hasPermission('area_public_participation') %}
-                            <li class="c-nav__item{{ route_name == 'core_home' ? ' current' : '' }}" role="menuitem">
+                            <li class="c-nav__item{{ route_name == 'core_home' ? ' current' : '' }}">
                                 <a
                                     href="{{ path('core_home') }}"
                                     data-cy="headerNav:home"
@@ -130,7 +130,7 @@
                             </li>
                         {% endif %}
 
-                        <li class="c-nav__item{{ route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] ? ' current' : '' }}" role="menuitem">
+                        <li class="c-nav__item{{ route_name in ["DemosPlan_globalnews_news", "DemosPlan_globalnews_news_detail"] ? ' current' : '' }}">
                             <a
                                 href="{{ path("DemosPlan_globalnews_news") }}"
                                 data-cy="headerNav:news"
@@ -140,7 +140,7 @@
                             </a>
                         </li>
 
-                        <li class="c-nav__item{{ route_name == 'DemosPlan_misccontent_static_information' ? ' current' : '' }}" role="menuitem">
+                        <li class="c-nav__item{{ route_name == 'DemosPlan_misccontent_static_information' ? ' current' : '' }}">
                             <a
                                 href="{{ path('DemosPlan_misccontent_static_information') }}"
                                 data-cy="headerNav:aboutProject"
@@ -150,7 +150,7 @@
                             </a>
                         </li>
 
-                        <li class="c-nav__item{{ route_name == 'DemosPlan_faq' ? ' current' : '' }}" role="menuitem">
+                        <li class="c-nav__item{{ route_name == 'DemosPlan_faq' ? ' current' : '' }}">
                             <a
                                 href="{{ path("DemosPlan_faq") }}"
                                 data-cy="headerNav:faq"
@@ -161,7 +161,7 @@
                         </li>
 
                         {% if hasPermission('area_development') %}
-                            <li class="c-nav__item{{ route_name in routesForDevelopment ? ' current' : '' }}" role="menuitem">
+                            <li class="c-nav__item{{ route_name in routesForDevelopment ? ' current' : '' }}">
                                 <a
                                     href="{{ path('DemosPlan_forum_development', {'forum': 'forum'}) }}"
                                     {% if route_name in routesForDevelopment %}aria-describedby="currentPageDescription" aria-current="page"{% endif %}
