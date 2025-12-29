@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\AddonMaintenanceEventInterface;
@@ -15,7 +23,7 @@ final class AddonMaintenanceMessageHandler
 {
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -29,6 +37,6 @@ final class AddonMaintenanceMessageHandler
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }
-        $this->logger->info('Finished Addon Maintenance.');
+        $this->logger->info('Finished Addon Maintenance.', [spl_object_id($message)]);
     }
 }

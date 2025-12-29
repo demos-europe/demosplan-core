@@ -17,29 +17,22 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\PurgeDeletedProceduresMessageHandler;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
 
 class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
 {
+    use LoggerTestTrait;
+
+    private const PURGE_DELETED_PROCEDURES = 'Purge deleted procedures... ';
     private ?ProcedureHandler $procedureHandler = null;
     private ?GlobalConfigInterface $globalConfig = null;
-    private ?LoggerInterface $logger = null;
     private ?PurgeDeletedProceduresMessageHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->procedureHandler = $this->createMock(ProcedureHandler::class);
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-
-        $this->sut = new PurgeDeletedProceduresMessageHandler(
-            $this->procedureHandler,
-            $this->globalConfig,
-            $this->logger
-        );
     }
 
     public function testInvokeLogsDisabledWhenFeatureDisabled(): void
@@ -52,18 +45,14 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         $this->procedureHandler->expects($this->never())
             ->method('purgeDeletedProcedures');
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(2))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(2);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'Purge deleted procedures is disabled.'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'Purge deleted procedures is disabled.'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokePurgesProceduresWhenEnabled(): void
@@ -78,18 +67,14 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->with(5)
             ->willReturn(3);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(3))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(3);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'PurgeDeletedProcedures', 'Purged procedures: 3'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures', 'Purged procedures: 3'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeDoesNotLogWhenNoProceduresPurged(): void
@@ -104,18 +89,14 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->with(5)
             ->willReturn(0);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(2))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(2);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame(['Purge deleted procedures... ', 'PurgeDeletedProcedures'], $loggerCalls);
+        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeLogsErrorOnException(): void
@@ -131,9 +112,8 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
             ->method('purgeDeletedProcedures')
             ->willThrowException($exception);
 
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('Purge Procedures failed', [$exception]);
+        $logger = $this->createLoggerMockForError('Purge Procedures failed', $exception);
+        $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());

@@ -16,26 +16,19 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SwitchElementStatesMessageHandler;
 use Exception;
-use Psr\Log\LoggerInterface;
 use Tests\Base\UnitTestCase;
 
 class SwitchElementStatesMessageHandlerTest extends UnitTestCase
 {
+    use LoggerTestTrait;
+
     private ?ElementsService $elementService = null;
-    private ?LoggerInterface $logger = null;
     private ?SwitchElementStatesMessageHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->elementService = $this->createMock(ElementsService::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-
-        $this->sut = new SwitchElementStatesMessageHandler(
-            $this->elementService,
-            $this->logger
-        );
     }
 
     public function testInvokeSwitchesElementStatesAndLogs(): void
@@ -45,18 +38,14 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->method('autoSwitchElementsState')
             ->willReturn(5);
 
-        $loggerCalls = [];
-        $this->logger->expects($this->exactly(2))
-            ->method('info')
-            ->willReturnCallback(function ($message) use (&$loggerCalls) {
-                $loggerCalls[] = $message;
-            });
+        $logger = $this->createLoggerMockWithCapture(2);
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
 
         // Assert
-        $this->assertSame(['switchStatesOfToday', 'Switched states of 5 elements.'], $loggerCalls);
+        $this->assertSame(['switchStatesOfToday', 'Switched states of 5 elements.'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeDoesNotLogWhenNoElementsSwitched(): void
@@ -66,9 +55,8 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->method('autoSwitchElementsState')
             ->willReturn(0);
 
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with('switchStatesOfToday');
+        $logger = $this->createLoggerMockWithSingleCall('switchStatesOfToday');
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
@@ -83,9 +71,8 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->method('autoSwitchElementsState')
             ->willThrowException($exception);
 
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('switchStatesOfToday failed', [$exception]);
+        $logger = $this->createLoggerMockForError('switchStatesOfToday failed', $exception);
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
