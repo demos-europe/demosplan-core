@@ -24,7 +24,7 @@ final class SwitchNewsStatesMessageHandler
 {
     public function __construct(
         private readonly ProcedureNewsService $procedureNewsService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

@@ -76,9 +76,9 @@ class CreateUnsubmittedDraftEmailsMessageHandlerTest extends UnitTestCase
         $this->logger->expects($this->exactly(2))
             ->method('info')
             ->willReturnCallback(function ($message, $context = []) {
-                if ($message === 'Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()') {
+                if ('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures()' === $message) {
                     $this->assertEmpty($context);
-                } elseif ($message === 'Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures(). Number of created mail_send entries:') {
+                } elseif ('Maintenance: createMailsForUnsubmittedDraftsInSoonEndingProcedures(). Number of created mail_send entries:' === $message) {
                     $this->assertSame([5], $context);
                 }
             });

@@ -59,9 +59,9 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
         $this->logger->expects($this->exactly(2))
             ->method('info')
             ->willReturnCallback(function ($message) {
-                if ($message === 'Maintenance: switchStatesOfNewsOfToday') {
+                if ('Maintenance: switchStatesOfNewsOfToday' === $message) {
                     return;
-                } elseif ($message === 'Set states of 2 news.') {
+                } elseif ('Set states of 2 news.' === $message) {
                     return;
                 }
                 $this->fail('Unexpected log message: '.$message);
@@ -88,9 +88,9 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
         $this->logger->expects($this->exactly(2))
             ->method('info')
             ->willReturnCallback(function ($message) {
-                if ($message === 'Maintenance: switchStatesOfNewsOfToday') {
+                if ('Maintenance: switchStatesOfNewsOfToday' === $message) {
                     return;
-                } elseif ($message === 'Set states of 0 news.') {
+                } elseif ('Set states of 0 news.' === $message) {
                     return;
                 }
                 $this->fail('Unexpected log message: '.$message);

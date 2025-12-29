@@ -25,7 +25,7 @@ final class AutoSwitchProcedurePhasesMessageHandler
     public function __construct(
         private readonly ProcedureHandler $procedureHandler,
         private readonly PermissionsInterface $permissions,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

@@ -27,7 +27,7 @@ final class CreateUnsubmittedDraftEmailsMessageHandler
     public function __construct(
         private readonly DraftStatementHandler $draftStatementHandler,
         private readonly PermissionsInterface $permissions,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

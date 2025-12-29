@@ -23,7 +23,7 @@ final class DeleteOrphanEmailAddressesMessageHandler
 {
     public function __construct(
         private readonly EmailAddressService $emailAddressService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

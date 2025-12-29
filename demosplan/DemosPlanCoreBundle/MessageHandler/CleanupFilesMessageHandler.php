@@ -25,7 +25,7 @@ final class CleanupFilesMessageHandler
     public function __construct(
         private readonly FileService $fileService,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

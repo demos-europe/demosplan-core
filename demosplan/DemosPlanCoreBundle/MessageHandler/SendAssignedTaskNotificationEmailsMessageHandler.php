@@ -26,7 +26,7 @@ final class SendAssignedTaskNotificationEmailsMessageHandler
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly PermissionsInterface $permissions,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

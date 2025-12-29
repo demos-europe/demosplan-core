@@ -78,9 +78,9 @@ class SendAssignedTaskNotificationEmailsMessageHandlerTest extends UnitTestCase
         $this->logger->expects($this->exactly(2))
             ->method('info')
             ->willReturnCallback(function ($message, $context = []) {
-                if ($message === 'Maintenance: sendAssignedTaskNotificationMails()') {
+                if ('Maintenance: sendAssignedTaskNotificationMails()' === $message) {
                     $this->assertEmpty($context);
-                } elseif ($message === 'Maintenance: sendAssignedTaskNotificationMails(). Number of created mail_send entries:') {
+                } elseif ('Maintenance: sendAssignedTaskNotificationMails(). Number of created mail_send entries:' === $message) {
                     $this->assertSame([5], $context);
                 }
             });

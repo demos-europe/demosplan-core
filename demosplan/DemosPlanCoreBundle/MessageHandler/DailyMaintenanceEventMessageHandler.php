@@ -25,7 +25,7 @@ final class DailyMaintenanceEventMessageHandler
 {
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
