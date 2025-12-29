@@ -59,7 +59,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
         $this->assertSame([
             'switchPhasesOfToday',
             'Switched phases of 3 internal/public agency procedures.',
-            'Switched phases of 2 external/citizen procedures.'
+            'Switched phases of 2 external/citizen procedures.',
         ], $loggerCalls);
     }
 
@@ -99,7 +99,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
         $this->assertSame([
             'switchPhasesOfToday',
             'Switched phases of 5 internal/public agency procedures.',
-            'Switched phases of 0 external/citizen procedures.'
+            'Switched phases of 0 external/citizen procedures.',
         ], $loggerCalls);
     }
 
@@ -124,7 +124,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
         $this->assertSame([
             'switchPhasesOfToday',
             'Switched phases of 0 internal/public agency procedures.',
-            'Switched phases of 4 external/citizen procedures.'
+            'Switched phases of 4 external/citizen procedures.',
         ], $loggerCalls);
     }
 

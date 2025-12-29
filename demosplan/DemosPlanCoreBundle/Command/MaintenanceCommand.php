@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 /**
- * MaintenanceCommand - DEPRECATED
+ * MaintenanceCommand - DEPRECATED.
  *
  * This command has been refactored to use Symfony Scheduler + Messenger.
  * All maintenance tasks are now scheduled via MainScheduler and executed
@@ -64,7 +64,7 @@ class MaintenanceCommand extends CoreCommand
         });
     }
 
-    /**
+    /*
      * All maintenance task methods have been moved to MessageHandlers.
      * @deprecated
      * @see \demosplan\DemosPlanCoreBundle\MessageHandler\SendEmailsMessageHandler

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -15,7 +23,7 @@ final class CheckMailBouncesMessageHandler
     public function __construct(
         private readonly BounceChecker $bounceChecker,
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

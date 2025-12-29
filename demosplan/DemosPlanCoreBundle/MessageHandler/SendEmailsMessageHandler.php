@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -13,10 +21,8 @@ final class SendEmailsMessageHandler
 {
     public function __construct(
         private readonly MailService $mailService,
-        private readonly LoggerInterface $logger
-    )
-    {
-
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function __invoke(SendEmailsMessage $message): void
