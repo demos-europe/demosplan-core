@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProvider;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
@@ -43,13 +44,17 @@ class AdminProcedureStateProvider implements ProviderInterface
             throw new AccessDeniedHttpException('Access denied: insufficient permissions to access admin procedures');
         }
 
+        // Handle collection (GET /api/admin_procedure_resources)
+        if ($operation instanceof CollectionOperationInterface) {
+            return $this->provideCollection($context);
+        }
+
         // Handle single item (GET /api/admin_procedure_resources/{id})
         if (isset($uriVariables['id'])) {
             return $this->provideSingle($uriVariables['id']);
         }
 
-        // Handle collection (GET /api/admin_procedure_resources)
-        return $this->provideCollection($context);
+        return null;
     }
 
     private function provideSingle(string $id): ?AdminProcedureResource
