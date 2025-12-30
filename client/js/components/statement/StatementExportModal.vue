@@ -299,7 +299,7 @@ export default {
       },
       fileName: '',
       filter: {
-        comparisonOperator: "ARRAY_CONTAINS_VALUE",
+        comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
           labelTranslationKey: 'topic',
           targetPath: 'tags.topic.label',
@@ -416,9 +416,9 @@ export default {
       try {
         const { data } = await dpRpc('segments.facets.list', requestParams, 'filterList')
 
-        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList')
-          ? data[0].result
-          : null
+        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ?
+          data[0].result :
+          null
 
         return result || null
       } catch (error) {
@@ -647,7 +647,7 @@ export default {
 
         modalBody.scrollTo({
           top: modalBody.scrollHeight,
-          behavior: "smooth",
+          behavior: 'smooth',
         })
       })
     },
@@ -684,7 +684,7 @@ export default {
       return requestParams
     },
 
-    syncSelectedItemsFromFlyout() {
+    syncSelectedItemsFromFlyout () {
       const filterFlyout = this.$refs.filterFlyout
 
       if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
