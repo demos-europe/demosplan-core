@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\ApiResources\AdminProcedureResource;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AdminProcedureStateProvider implements ProviderInterface
 {
@@ -36,6 +37,12 @@ class AdminProcedureStateProvider implements ProviderInterface
         if (AdminProcedureResource::class !== $resourceClass) {
             return null;
         }
+
+        // Explicit permission check - throw exception if not granted
+        if (!$this->isAvailable()) {
+            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access admin procedures');
+        }
+
 
         // Handle single item (GET /api/admin_procedure_resources/{id})
         if (isset($uriVariables['id'])) {
@@ -113,5 +120,10 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->statementsCount = $statementCounts[$procedureId] ?? 0;*/
 
         return $adminProcedure;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('area_admin_procedures');
     }
 }
