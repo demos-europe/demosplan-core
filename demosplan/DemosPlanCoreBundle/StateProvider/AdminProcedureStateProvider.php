@@ -43,7 +43,6 @@ class AdminProcedureStateProvider implements ProviderInterface
             throw new AccessDeniedHttpException('Access denied: insufficient permissions to access admin procedures');
         }
 
-
         // Handle single item (GET /api/admin_procedure_resources/{id})
         if (isset($uriVariables['id'])) {
             return $this->provideSingle($uriVariables['id']);
