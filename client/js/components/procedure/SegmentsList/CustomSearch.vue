@@ -12,15 +12,15 @@
     <div class="relative">
       <dp-search-field
         data-cy="customSearch:currentSearchTerm"
+        number-of-additional-icons="1"
         :placeholder="Translator.trans('searchterm')"
         @search="term => handleSearch(term)"
         @reset="$emit('reset')"
       >
         <dp-flyout
           align="left"
+          class="pt-0.5"
           data-cy="customSearch:searchCustomLimitFields"
-          class="top-0.5 right-0"
-          position="absolute"
           :padded="false"
         >
           <template v-slot:trigger>
