@@ -18,8 +18,6 @@ use demosplan\DemosPlanCoreBundle\ApiResources\AdminProcedureResource;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminProcedureResourceType;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class AdminProcedureStateProvider implements ProviderInterface
 {
@@ -68,7 +66,6 @@ class AdminProcedureStateProvider implements ProviderInterface
 
         return $adminProcedures;
     }
-
 
     private function mapProcedureToAdminProcedureResource(Procedure $procedure): AdminProcedureResource
     {
