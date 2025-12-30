@@ -113,7 +113,7 @@
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')"
         />
-        <div class="grid grid-cols-5 gap-3 mt-1 mb-3">
+        <div class="grid grid-cols-3 gap-3 mt-1 mb-3">
           <dp-input
             v-for="(column, key) in docxColumns"
             :id="key"
