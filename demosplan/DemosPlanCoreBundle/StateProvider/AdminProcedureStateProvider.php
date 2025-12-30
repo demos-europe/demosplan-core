@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\AdminProcedureResource;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -22,6 +23,8 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 class AdminProcedureStateProvider implements ProviderInterface
 {
     public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
     ) {
     }
@@ -57,7 +60,10 @@ class AdminProcedureStateProvider implements ProviderInterface
     private function provideCollection(array $context = []): array
     {
         // Get all procedures and filter them using the voter
-        $procedures = $this->procedureRepository->findAll();
+
+        $accessConditions = $this->getAccessConditions();
+
+        $procedures = $this->procedureRepository->getEntities($accessConditions, []);
 
         $adminProcedures = [];
         foreach ($procedures as $procedure) {
@@ -65,6 +71,14 @@ class AdminProcedureStateProvider implements ProviderInterface
         }
 
         return $adminProcedures;
+    }
+
+    private function getAccessConditions(): array
+    {
+        return $this->procedureService->getAdminProcedureConditions(
+            false,
+            $this->currentUser->getUser()
+        );
     }
 
     private function mapProcedureToAdminProcedureResource(Procedure $procedure): AdminProcedureResource
