@@ -168,7 +168,7 @@ abstract class BaseController extends AbstractController
         }
 
         try {
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanCore/error.html.twig',
                 [
                     'title' => 'Ein Fehler ist aufgetreten',
@@ -271,20 +271,12 @@ abstract class BaseController extends AbstractController
     {
         return $this->globalConfig->getFormOptions()[$key] ?? null;
     }
-
-    /**
-     * Always process the Controller's own message bag.
-     *
-     * {@inheritdoc}
-     *
-     * @throws Exception
-     */
-    public function renderTemplate($view, array $parameters = [], ?Response $response = null): Response
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
         $this->viewRenderer->processRequestStatus();
         $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);
 
-        return $this->render($view, $parameters, $response);
+        return parent::render($view, $parameters, $response);
     }
 
     /**
