@@ -572,11 +572,6 @@ class DemosPlanStatementController extends BaseController
             return $this->submitStatement($request, $_route, $procedure, $notificationReceiverRepository, $permissions, $statementHandler, $orgaHandler, $procedureService);
         }
 
-        // Emailversand
-        if ($requestPost->has('statement_send')) {
-            return $this->sendStatement($request, $translator, $_route, $procedure);
-        }
-
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $outputResult = $this->draftStatementHandler->statementListHandler(
             $procedure,
@@ -1102,83 +1097,198 @@ class DemosPlanStatementController extends BaseController
             $this->generateUrl('DemosPlan_statement_list_draft', ['procedure' => $procedure]).$urlFragment
         );
     }
+    /**
+     * Combined route for draft statement email (handles both GET and POST).
+     *
+     * @throws Exception
+     * @throws MessageBagException
+     */
+    #[Route(
+        name: 'DemosPlan_statement_draft_send',
+        path: '/verfahren/{procedure}/stellungnahmen/draft/{statementID}/send',
+        methods: ['GET', 'POST'],
+        options: ['expose' => true]
+    )]
+    #[DplanPermissions(['area_statements_draft', 'feature_statements_draft_email'])]
+    public function sendDraftStatement(
+        Request $request,
+        Breadcrumb $breadcrumb,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $statementID
+    ): Response {
+        if ($request->isMethod('POST')) {
+            return $this->processSendStatement(
+                $request,
+                $translator,
+                $procedure,
+                'DemosPlan_statement_list_draft'
+            );
+        }
+
+        return $this->renderStatementEmailForm(
+            $breadcrumb,
+            $translator,
+            $procedure,
+            $statementID,
+            'draft',
+            'DemosPlan_statement_list_draft',
+            'statements'
+        );
+    }
 
     /**
-     * @param string $procedure
-     * @param string $statementID
+     * Combined route for released statement email (handles both GET and POST).
      *
-     * @return RedirectResponse|Response
-     *
-     * @throws Throwable
+     * @throws Exception
+     * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_statement_send', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/send', options: ['expose' => true])]
-    public function sendStatementViaEmail(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
-    {
-        $templateVars = [];
+    #[Route(
+        name: 'DemosPlan_statement_released_send',
+        path: '/verfahren/{procedure}/stellungnahmen/released/{statementID}/send',
+        methods: ['GET', 'POST'],
+        options: ['expose' => true]
+    )]
+    #[DplanPermissions(['area_statements_released', 'feature_statements_released_email'])]
+    public function sendReleasedStatement(
+        Request $request,
+        Breadcrumb $breadcrumb,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $statementID
+    ): Response {
+        if ($request->isMethod('POST')) {
+            return $this->processSendStatement(
+                $request,
+                $translator,
+                $procedure,
+                'DemosPlan_statement_list_released'
+            );
+        }
+
+        return $this->renderStatementEmailForm(
+            $breadcrumb,
+            $translator,
+            $procedure,
+            $statementID,
+            'released',
+            'DemosPlan_statement_list_released',
+            'statements.released'
+        );
+    }
+
+    /**
+     * Combined route for released group statement email (handles both GET and POST).
+     *
+     * @throws Exception
+     * @throws MessageBagException
+     */
+    #[Route(
+        name: 'DemosPlan_statement_released_group_send',
+        path: '/verfahren/{procedure}/stellungnahmen/released-group/{statementID}/send',
+        methods: ['GET', 'POST'],
+        options: ['expose' => true]
+    )]
+    #[DplanPermissions(['area_statements_released', 'feature_statements_released_group_email'])]
+    public function sendReleasedGroupStatement(
+        Request $request,
+        Breadcrumb $breadcrumb,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $statementID
+    ): Response {
+        if ($request->isMethod('POST')) {
+            return $this->processSendStatement(
+                $request,
+                $translator,
+                $procedure,
+                'DemosPlan_statement_list_released_group'
+            );
+        }
+
+        return $this->renderStatementEmailForm(
+            $breadcrumb,
+            $translator,
+            $procedure,
+            $statementID,
+            'released_group',
+            'DemosPlan_statement_list_released_group',
+            'statements.released.group'
+        );
+    }
+
+    /**
+     * Combined route for final statement email (handles both GET and POST).
+     *
+     * @throws Exception
+     * @throws MessageBagException
+     */
+    #[Route(
+        name: 'DemosPlan_statement_final_send',
+        path: '/verfahren/{procedure}/stellungnahmen/final/{statementID}/send',
+        methods: ['GET', 'POST'],
+        options: ['expose' => true]
+    )]
+    #[DplanPermissions(['area_statements_final', 'feature_statements_final_email'])]
+    public function sendFinalStatement(
+        Request $request,
+        Breadcrumb $breadcrumb,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $statementID
+    ): Response {
+        if ($request->isMethod('POST')) {
+            return $this->processSendStatement(
+                $request,
+                $translator,
+                $procedure,
+                'DemosPlan_statement_list_final_group'
+            );
+        }
+
+        return $this->renderStatementEmailForm(
+            $breadcrumb,
+            $translator,
+            $procedure,
+            $statementID,
+            'final',
+            'DemosPlan_statement_list_final_group',
+            'statements.final.group'
+        );
+    }
+
+    /**
+     * Shared helper method to render statement email form.
+     *
+     * @param string $statementType      Type of statement: 'draft', 'released', 'released_group', or 'final'
+     * @param string $backRoute          Route name to return to after cancellation
+     * @param string $breadcrumbTitleKey Translation key for breadcrumb title
+     *
+     * @throws Exception
+     */
+    private function renderStatementEmailForm(
+        Breadcrumb $breadcrumb,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $statementID,
+        string $statementType,
+        string $backRoute,
+        string $breadcrumbTitleKey
+    ): Response {
         try {
-            // Send Statement kann von meheren Stellen aus angesprungen werden. Es muss daher der Ursprungsort mitgegeben werden und dahin zuruckgesprungen werden
-            $requestPost = $request->query->all();
-            if (\array_key_exists('target', $requestPost) && 'released_group' === $requestPost['target']) {
-                $target = 'DemosPlan_statement_list_released_group';
-                $permission = 'feature_statements_released_group_email';
-                $area = 'area_statements_released';
-                $breadcrumb->addItem(
-                    [
-                        'title' => $translator->trans(
-                            'statements.released.group',
-                            [],
-                            'page-title'
-                        ),
-                        'url'   => $this->generateUrl(
-                            'DemosPlan_statement_list_released_group',
-                            ['procedure' => $procedure]
-                        ),
-                    ]
-                );
-            } elseif (\array_key_exists('target', $requestPost) && 'released' === $requestPost['target']) {
-                $target = 'DemosPlan_statement_list_released';
-                $permission = 'feature_statements_released_email';
-                $area = 'area_statements_released';
-                $breadcrumb->addItem(
-                    [
-                        'title' => $translator->trans('statements.released', [], 'page-title'),
-                        'url'   => $this->generateUrl('DemosPlan_statement_list_released', ['procedure' => $procedure]),
-                    ]
-                );
-            } elseif (\array_key_exists('target', $requestPost) && 'final_group' === $requestPost['target']) {
-                $target = 'DemosPlan_statement_list_final_group';
-                $permission = 'feature_statements_final_email';
-                $area = 'area_statements_final';
-                $breadcrumb->addItem(
-                    [
-                        'title' => $translator->trans('statements.final.group', [], 'page-title'),
-                        'url'   => $this->generateUrl(
-                            'DemosPlan_statement_list_final_group',
-                            ['procedure' => $procedure]
-                        ),
-                    ]
-                );
-            } else {
-                $target = 'DemosPlan_statement_list_draft';
-                $permission = 'feature_statements_draft_email';
-                $area = 'area_statements_draft';
-                $breadcrumb->addItem(
-                    [
-                        'title' => $translator->trans('statements'),
-                        'url'   => $this->generateUrl('DemosPlan_statement_list_draft', ['procedure' => $procedure]),
-                    ]
-                );
-            }
-            $templateVars['breadcrumb'] = $breadcrumb;
+            // Add breadcrumb item
+            $breadcrumb->addItem([
+                'title' => $translator->trans($breadcrumbTitleKey, [], 'page-title'),
+                'url' => $this->generateUrl($backRoute, ['procedure' => $procedure]),
+            ]);
 
-            $this->initialize([$area, $permission]);
-
-            // Baue den Stellungnahmetext zusammen
+            // Fetch draft statement
             $draftStatement = $this->draftStatementHandler->getSingleDraftStatement($statementID);
             if (null === $draftStatement) {
                 throw DraftStatementNotFoundException::createFromId($statementID);
             }
 
+            // Extract statement details
             $statementParagraph = '';
             $statementDocument = '';
             $statementSingleDocument = '';
@@ -1192,48 +1302,135 @@ class DemosPlanStatementController extends BaseController
                 $statementSingleDocument = $draftStatement['document']['title'];
             }
 
+            // Build email template variables
             $mailTemplateVars = [
-                'user_name'                => $this->currentUser->getUser()->getFullname(),
-                'user_email'               => $this->currentUser->getUser()->getEmail(),
-                'procedure_name'           => $this->currentProcedureService->getProcedure()->getName(),
-                'organisation_name'        => $this->currentProcedureService->getProcedure()->getOrgaName(),
-                'statement_id'             => $draftStatement['number'],
-                'statement_document'       => $statementDocument,
-                'statement_paragraph'      => $statementParagraph,
+                'user_name' => $this->currentUser->getUser()->getFullname(),
+                'user_email' => $this->currentUser->getUser()->getEmail(),
+                'procedure_name' => $this->currentProcedureService->getProcedure()->getName(),
+                'organisation_name' => $this->currentProcedureService->getProcedure()->getOrgaName(),
+                'statement_id' => $draftStatement['number'],
+                'statement_document' => $statementDocument,
+                'statement_paragraph' => $statementParagraph,
                 'statement_singleDocument' => $statementSingleDocument,
-                'statement_text'           => \html_entity_decode(
+                'statement_text' => \html_entity_decode(
                     \strip_tags((string) $draftStatement['text']),
                     \ENT_QUOTES,
                     'utf-8'
                 ),
             ];
 
-            $templateVars['mailbody'] = $this->twig
+            // Render email body
+            $mailbody = $this->twig
                 ->load('@DemosPlanCore/DemosPlanStatement/send_statement_email.html.twig')
-                ->renderBlock(
-                    'body_plain',
-                    [
-                        'templateVars' => $mailTemplateVars,
-                    ]
-                );
+                ->renderBlock('body_plain', ['templateVars' => $mailTemplateVars]);
 
-            $templateVars['procedure'] = $procedure;
-            $templateVars['backroute'] = $target;
-            $templateVars['statementID'] = $statementID;
-            $templateVars['procedureLayer'] = 'participation';
+            // Prepare template variables
+            $templateVars = [
+                'breadcrumb' => $breadcrumb,
+                'mailbody' => $mailbody,
+                'procedure' => $procedure,
+                'backroute' => $backRoute,
+                'statementID' => $statementID,
+                'statementType' => $statementType,
+                'procedureLayer' => 'participation',
+            ];
 
             return $this->renderTemplate(
                 '@DemosPlanCore/DemosPlanStatement/send_statement.html.twig',
                 [
                     'templateVars' => $templateVars,
-                    'procedure'    => $procedure,
-                    'target'       => $target,
-                    'title'        => 'statements.send.per.email',
+                    'procedure' => $procedure,
+                    'target' => $backRoute,
+                    'title' => 'statements.send.per.email',
                 ]
             );
         } catch (Exception $e) {
             return $this->handleError($e);
         }
+    }
+
+    /**
+     * Shared helper method to process statement email sending.
+     *
+     * @throws MessageBagException
+     */
+    private function processSendStatement(
+        Request $request,
+        TranslatorInterface $translator,
+        string $procedure,
+        string $backRoute
+    ): RedirectResponse {
+        $requestPost = $request->request;
+
+        // Validate and extract email addresses
+        try {
+            $to = $this->getEmailAddresses(
+                $translator,
+                explode(',', (string) $requestPost->get('sendasemail_recipient'))
+            );
+        } catch (InvalidArgumentException) {
+            // Redirect back to form on validation error
+            return $this->redirectToRoute(
+                $request->attributes->get('_route'),
+                [
+                    'procedure' => $procedure,
+                    'statementID' => $request->request->get('statementID'),
+                ]
+            );
+        }
+
+        // Prepare and send email
+        $from = $this->currentUser->getUser()->getEmail();
+        $cc = $this->currentUser->getUser()->getEmail();
+        $vars['mailsubject'] = $translator->trans(
+            'email.subject.procedure',
+            ['procedure_name' => $this->currentProcedureService->getProcedure()->getName()]
+        );
+        $vars['mailbody'] = $requestPost->get('sendasemail_message');
+
+        $this->mailService->sendMail(
+            'dm_stellungnahme',
+            'de_DE',
+            $to,
+            $from,
+            $cc,
+            '',
+            'extern',
+            $vars
+        );
+
+        // Success message
+        $this->getMessageBag()->add(
+            'confirm',
+            $translator->trans('confirm.email.copy.sent')
+        );
+
+        // Redirect to list
+        return $this->redirectToRoute($backRoute, ['procedure' => $procedure]);
+    }
+
+    /**
+     * @deprecated Use type-specific routes: DemosPlan_statement_{draft|released|released_group|final}_send
+     *
+     * @throws Exception
+     */
+    #[Route(name: 'DemosPlan_statement_send', path: '/verfahren/{procedure}/stellungnahmen/{statementID}/send', options: ['expose' => true])]
+    public function sendStatementViaEmail(Breadcrumb $breadcrumb, Request $request, TranslatorInterface $translator, $procedure, $statementID)
+    {
+        // Redirect to appropriate new route based on 'target' parameter
+        $target = $request->query->get('target', 'draft');
+
+        $routeMap = [
+            'draft' => 'DemosPlan_statement_draft_send',
+            'released' => 'DemosPlan_statement_released_send',
+            'released_group' => 'DemosPlan_statement_released_group_send',
+            'final_group' => 'DemosPlan_statement_final_send',
+        ];
+
+        return $this->redirectToRoute(
+            $routeMap[$target] ?? 'DemosPlan_statement_draft_send',
+            ['procedure' => $procedure, 'statementID' => $statementID]
+        );
     }
 
     #[DplanPermissions('feature_statements_draft_versions')]
@@ -2077,71 +2274,6 @@ class DemosPlanStatementController extends BaseController
         return $this->redirectToRoute(
             $_route,
             ['procedure' => $procedure]
-        );
-    }
-
-    /**
-     * Verschicke Stellungnahme per Email.
-     *
-     * @param string $_route
-     * @param string $procedure
-     *
-     * @throws Exception
-     */
-    protected function sendStatement(Request $request, TranslatorInterface $translator, $_route, $procedure): RedirectResponse
-    {
-        $vars = [];
-        $requestPost = $request->request;
-
-        $this->permissions->checkPermission('feature_statements_draft_email');
-        $this->permissions->checkPermission('feature_statements_released_email');
-        $this->permissions->checkPermission(
-            'feature_statements_released_group_email'
-        );
-        $this->permissions->checkPermission('feature_statements_final_email');
-
-        try {
-            $to = $this->getEmailAddresses($translator, explode(',', (string) $requestPost->get('sendasemail_recipient')));
-        } catch (InvalidArgumentException) {
-            return $this->redirectToRoute(
-                'DemosPlan_statement_send',
-                [
-                    'procedure'   => $procedure,
-                    'statementID' => $request->request->get('statementID'),
-                ]
-            );
-        }
-        $from = $this->currentUser->getUser()->getEmail();
-        $cc = $this->currentUser->getUser()->getEmail();
-        $mailScope = 'extern';
-        $vars['mailsubject'] = $translator->trans(
-            'email.subject.procedure',
-            [
-                'procedure_name' => $this->currentProcedureService->getProcedure()->getName(),
-            ]
-        );
-        $vars['mailbody'] = $requestPost->get('sendasemail_message');
-
-        $this->mailService->sendMail(
-            'dm_stellungnahme',
-            'de_DE',
-            $to,
-            $from,
-            $cc,
-            '',
-            $mailScope,
-            $vars
-        );
-        $this->getMessageBag()->add(
-            'confirm',
-            $translator->trans('confirm.email.copy.sent')
-        );
-
-        return $this->redirectToRoute(
-            $_route,
-            [
-                'procedure' => $procedure,
-            ]
         );
     }
 

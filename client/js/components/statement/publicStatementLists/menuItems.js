@@ -33,6 +33,14 @@ const targets = {
   final_group: 'DemosPlan_statement_list_final_group',
 }
 
+// Map target types to email routes (handles both GET and POST)
+const emailRoutes = {
+  draft: 'DemosPlan_statement_draft_send',
+  released: 'DemosPlan_statement_released_send',
+  released_group: 'DemosPlan_statement_released_group_send',
+  final_group: 'DemosPlan_statement_final_send',
+}
+
 const generateMenuItems = ({ fields, id, number, procedureId, target, isPublished }) => {
   const menuItems = {
     email: {
@@ -41,7 +49,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       attrs: {
         'data-cy': 'emailSendAs',
       },
-      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target }),
+      url: Routing.generate(emailRoutes[target] || 'DemosPlan_statement_draft_send', { statementID: id, procedure: procedureId }),
       text: Translator.trans('email.send.as'),
     },
 
