@@ -36,7 +36,7 @@ class AccessProcedureListener
 
         // file uploads itself should not be checked for procedure permissions
         // permissions are checked during access
-        if ($controllerEvent->getController()[0] instanceof TusController) {
+        if (is_array($controllerEvent->getController()) && $controllerEvent->getController()[0] instanceof TusController) {
             return;
         }
 

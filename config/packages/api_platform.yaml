@@ -1,0 +1,23 @@
+api_platform:
+    title: Hello API Platform
+    version: 1.0.0
+    mapping:
+        paths:
+            - '%kernel.project_dir%/demosplan/DemosPlanCoreBundle/ApiResources'
+            - '%kernel.project_dir%/demosplan/DemosPlanCoreBundle/Entity'  # if you have API entities too
+
+    formats:
+        jsonld: ['application/ld+json']
+        json:  ['application/json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
+    defaults:
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        extra_properties:
+            standard_put: true
+            rfc_7807_compliant_errors: true
+    keep_legacy_inflector: false
+    use_symfony_listeners: false

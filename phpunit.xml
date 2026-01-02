@@ -26,6 +26,10 @@
         <!-- postgresql+advisory://db_user:db_password@localhost/db_name -->
         <env name="LOCK_DSN" value="flock"/>
         <!-- ###- symfony/lock ### -->
+
+        <!-- ###+ nelmio/cors-bundle ### -->
+        <env name="CORS_ALLOW_ORIGIN" value="'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'"/>
+        <!-- ###- nelmio/cors-bundle ### -->
     </php>
 
     <source>
