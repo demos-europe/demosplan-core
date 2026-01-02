@@ -412,15 +412,22 @@ const SplitStatementStore = {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
       dataToSend.attributes.textualReference = state.initText
 
-      // Check if we're using new order-based format (same check as saveSegmentsFinal)
-      const useOrderBased = state.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
-
-      if (useOrderBased && state.contentBlocks && state.contentBlocks.length > 0) {
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       *
+       * IMPORTANT: The schema has a oneOf constraint - we must send EITHER segments OR contentBlocks, not both!
+       */
+      if (state.contentBlocks && state.contentBlocks.length > 0) {
         // NEW: Send contentBlocks for order-based format
         dataToSend.attributes.contentBlocks = state.contentBlocks
+        // Remove segments to satisfy oneOf constraint
+        delete dataToSend.attributes.segments
       } else {
-        // LEGACY: Send segments for position-based format
+        // FALLBACK: Send segments for position-based format (backward compatibility)
         dataToSend.attributes.segments = state.segments
+        // Remove contentBlocks to satisfy oneOf constraint
+        delete dataToSend.attributes.contentBlocks
       }
 
       const payload = {
@@ -451,18 +458,22 @@ const SplitStatementStore = {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
       /*
-       * Check if we're using new order-based format
-       * The segmentationStatus is in initialData.attributes (from segmentDraftList)
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       *
+       * IMPORTANT: The schema has a oneOf constraint - we must send EITHER segments OR contentBlocks, not both!
        */
-      const useOrderBased = state.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
-
-      if (useOrderBased && state.contentBlocks && state.contentBlocks.length > 0) {
+      if (state.contentBlocks && state.contentBlocks.length > 0) {
         // NEW: Send contentBlocks instead of segmentsWithText
         dataToSend.attributes.contentBlocks = state.contentBlocks
+        // Remove segments to satisfy oneOf constraint
+        delete dataToSend.attributes.segments
         // StatementText is optional for order-based, backend computes it
       } else {
-        // LEGACY: Send segmentsWithText and statementText
+        // FALLBACK: Send segmentsWithText and statementText (backward compatibility)
         dataToSend.attributes.segments = state.segmentsWithText
+        // Remove contentBlocks to satisfy oneOf constraint
+        delete dataToSend.attributes.contentBlocks
         dataToSend.attributes.statementText = state.statementText
       }
 

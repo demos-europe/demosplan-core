@@ -94,7 +94,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
 
         foreach ($statement->getSegmentsOfStatement() as $segment) {
             $allBlocks[] = [
-                'type' => 'Segment',
+                'type' => 'segment',
                 'order' => $segment->getOrderInStatement(),
                 'data' => [
                     'id' => $segment->getId(),
@@ -109,7 +109,7 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
 
         foreach ($statement->getTextSections() as $textSection) {
             $allBlocks[] = [
-                'type' => 'TextSection',
+                'type' => 'textSection',
                 'order' => $textSection->getOrderInStatement(),
                 'data' => [
                     'text' => $textSection->getText(),

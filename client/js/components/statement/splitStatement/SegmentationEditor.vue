@@ -124,11 +124,11 @@ export default {
       const sortedBlocks = [...blocks].sort((a, b) => (a.order || 0) - (b.order || 0))
 
       return sortedBlocks.map(block => {
-        if (block.type === 'Segment') {
+        if (block.type === 'segment') {
           // Wrap segment content with <segment-mark> tag
           return `<segment-mark id="${block.id}" data-segment-id="${block.id}" data-order="${block.order || 0}">${block.textRaw || block.text || ''}</segment-mark>`
-        } else if (block.type === 'TextSection') {
-          // TextSection is plain HTML without wrapping
+        } else if (block.type === 'textSection') {
+          // textSection is plain HTML without wrapping
           return block.textRaw || block.text || ''
         } else {
           // Unknown block type, treat as plain HTML

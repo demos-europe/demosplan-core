@@ -96,8 +96,7 @@ class SegmentationService
             $allParts[] = [
                 'order' => $textSection->getOrderInStatement(),
                 'html' => sprintf(
-                    '<div data-section-type="%s" data-section-order="%d">%s</div>',
-                    $textSection->getSectionType(),
+                    '<div data-section-order="%d">%s</div>',
                     $textSection->getOrderInStatement(),
                     $textSection->getText()
                 ),
@@ -182,6 +181,7 @@ class SegmentationService
         $textSection->setTextRaw($data['textRaw']);
         $textSection->setText($data['text']);
 
+        $statement->addTextSection($textSection);
         $this->entityManager->persist($textSection);
     }
 }

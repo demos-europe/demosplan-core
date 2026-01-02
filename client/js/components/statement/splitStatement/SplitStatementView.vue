@@ -555,7 +555,7 @@ export default {
       const blocks = []
       let order = 1
 
-      // Serialize document to HTML
+      // Serialize document to HTML with segment spans preserved
       const state = this.prosemirror.view.state
       const { schema } = state
       const serializer = DOMSerializer.fromSchema(schema)
@@ -564,36 +564,71 @@ export default {
       const wrapper = document.createElement('div')
       wrapper.appendChild(fragment)
 
-      // Walk through all top-level elements
-      const nodes = wrapper.querySelectorAll('p, ul, ol, h1, h2, h3, h4, h5, h6, blockquote')
+      // ProseMirror serializes segments as <span data-segment-id="..."> inside block elements
+      // We need to walk through the content and extract segments and text sections
 
-      nodes.forEach(node => {
-        // Check if this node contains a segment mark
-        const segmentSpan = node.querySelector('span[data-segment-id]')
+      // Process each block-level element (p, div, h1, etc.)
+      Array.from(wrapper.children).forEach(blockNode => {
+        if (blockNode.nodeType !== Node.ELEMENT_NODE) return
 
-        if (segmentSpan) {
-          const segmentId = segmentSpan.getAttribute('data-segment-id')
-          const segment = this.segments.find(s => s.id === segmentId)
+        // Walk through children of this block to find segments and text
+        let currentTextSection = ''
 
-          if (segment) {
-            blocks.push({
-              type: 'Segment',
-              id: segmentId,
-              order: order++,
-              textRaw: node.outerHTML,
-              text: node.textContent,
-              tags: segment.tags || [],
-              place: segment.place || null,
-              status: segment.status || 'confirmed',
-            })
+        const processChild = (child) => {
+          // Check if this is a segment span
+          if (child.nodeType === Node.ELEMENT_NODE &&
+              child.tagName === 'SPAN' &&
+              child.hasAttribute('data-segment-id')) {
+
+            // Save any accumulated text before this segment
+            if (currentTextSection.trim()) {
+              blocks.push({
+                type: 'textSection',
+                id: uuid(),
+                order: order++,
+                textRaw: `<${blockNode.tagName.toLowerCase()}>${currentTextSection}</${blockNode.tagName.toLowerCase()}>`,
+                text: currentTextSection.trim(),
+              })
+              currentTextSection = ''
+            }
+
+            // Add the segment
+            const segmentId = child.getAttribute('data-segment-id')
+            const segment = this.segments.find(s => s.id === segmentId)
+
+            if (segment) {
+              blocks.push({
+                type: 'segment',
+                id: segmentId,
+                order: order++,
+                textRaw: child.innerHTML,
+                text: child.textContent,
+                tags: segment.tags || [],
+                place: segment.place || null,
+                status: segment.status || 'confirmed',
+              })
+            }
+          } else {
+            // Accumulate non-segment content
+            if (child.nodeType === Node.TEXT_NODE) {
+              currentTextSection += child.textContent
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+              currentTextSection += child.outerHTML
+            }
           }
-        } else {
-          // This is unstructured content (TextSection)
+        }
+
+        // Process all children of this block
+        Array.from(blockNode.childNodes).forEach(processChild)
+
+        // Save any remaining text after last segment
+        if (currentTextSection.trim()) {
           blocks.push({
-            type: 'TextSection',
+            type: 'textSection',
+            id: uuid(),
             order: order++,
-            textRaw: node.outerHTML,
-            text: node.textContent,
+            textRaw: `<${blockNode.tagName.toLowerCase()}>${currentTextSection}</${blockNode.tagName.toLowerCase()}>`,
+            text: currentTextSection.trim(),
           })
         }
       })
@@ -761,13 +796,12 @@ export default {
       const { id, charStart, charEnd } = this.segmentById(segmentId)
       setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
 
-      // Check if we're using new order-based format
-      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
-      if (useOrderBased) {
-        // Extract and update contentBlocks for order-based format
-        const contentBlocks = this.extractContentBlocks()
-        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
-      }
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       */
+      const contentBlocks = this.extractContentBlocks()
+      this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
 
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
@@ -831,13 +865,12 @@ export default {
       this.ignoreProsemirrorUpdates = false
       this.updateTextualReference()
 
-      // Check if we're using new order-based format
-      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
-      if (useOrderBased) {
-        // Extract and update contentBlocks for order-based format
-        const contentBlocks = this.extractContentBlocks()
-        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
-      }
+      /*
+       * Always use new order-based format with contentBlocks
+       * This ensures TextSections are properly created even on first segmentation
+       */
+      const contentBlocks = this.extractContentBlocks()
+      this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
 
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
@@ -899,39 +932,19 @@ export default {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
             /*
-             * Check if we're using new order-based format (contentBlocks) or legacy position-based
-             * The segmentationStatus is in initialData.attributes (from segmentDraftList)
+             * Always use new order-based format (contentBlocks)
+             * This ensures TextSections are properly created even on first segmentation
              */
-            const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+            // NEW: Extract content blocks with order
+            const contentBlocks = this.extractContentBlocks()
+            this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
 
-            if (useOrderBased) {
-              // NEW: Extract content blocks with order
-              const contentBlocks = this.extractContentBlocks()
-              this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
-
-              /*
-               * For order-based, we don't need full statement text
-               * Backend will compute it from blocks
-               */
-              this.saveSegmentsFinal()
-                .then(() => this.setProperty({ prop: 'isBusy', val: false }))
-            } else {
-              // LEGACY: Use position-based approach
-              const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-              const segmentsWithText = this.segments
-                .filter(segment => !!ranges[segment.id])
-                .map(segment => {
-                  return {
-                    ...segment,
-                    text: ranges[segment.id].text,
-                  }
-                })
-              this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
-              const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
-              this.setProperty({ prop: 'statementText', val: currentStatementText })
-              this.saveSegmentsFinal()
-                .then(() => this.setProperty({ prop: 'isBusy', val: false }))
-            }
+            /*
+             * For order-based, we don't need full statement text
+             * Backend will compute it from blocks
+             */
+            this.saveSegmentsFinal()
+              .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
             console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))

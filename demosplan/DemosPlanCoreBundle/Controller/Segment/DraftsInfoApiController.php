@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -120,6 +121,7 @@ class DraftsInfoApiController extends APIController
     public function confirmDrafts(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,
+        EntityManagerInterface $entityManager,
         EventDispatcherInterface $eventDispatcher,
         Request $request,
         SegmentHandlerInterface $segmentHandler,
@@ -131,12 +133,14 @@ class DraftsInfoApiController extends APIController
             $data = $request->getContent();
             // save the input JSON into the target statement (referenced in the JSON)
             $statementId = $draftsInfoHandler->save($data);
-            // extract and create the segments from the input JSON
-            /** @var array<int, Segment> $segments */
-            $segments = $transformer->transform(
+            // extract and create the segments and text sections from the input JSON
+            $result = $transformer->transform(
                 $data,
                 SegmentTransformerInterface::DRAFTS_INFO
             );
+
+            $segments = $result['segments'] ?? [];
+            $textSections = $result['textSections'] ?? [];
 
             if (0 === count($segments)) {
                 $this->messageBag->add('error', 'statement.has.no.segments');
@@ -147,10 +151,21 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
-            // Mark statement as segmented so future saves use the new order-based format
+            // persist the text sections
+            if (count($textSections) > 0) {
+                foreach ($textSections as $textSection) {
+                    $entityManager->persist($textSection);
+                }
+                $entityManager->flush();
+            }
+
+            // Mark statement as segmented so it uses the new order-based format
+            // This ensures future edits will properly handle both segments and text sections
             $statement = $statementHandler->getStatementWithCertainty($statementId);
-            $statement->setSegmentationStatus(\demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus::SEGMENTED);
-            $statementHandler->updateStatementObject($statement);
+            if (!$statement->isSegmented()) {
+                $statement->setSegmentationStatus(\demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus::SEGMENTED);
+                $statementHandler->updateStatementObject($statement);
+            }
 
             // request additional statement processing (asynchronous)
             $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
