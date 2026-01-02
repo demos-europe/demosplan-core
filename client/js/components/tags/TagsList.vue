@@ -30,11 +30,12 @@
           <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
+
+          <addon-wrapper hook-name="tag.extend.form" />
+
           <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
-
-          <addon-wrapper hook-name="tag.extend.form" />
 
           <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
