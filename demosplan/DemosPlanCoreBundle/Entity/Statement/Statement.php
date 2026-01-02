@@ -2378,7 +2378,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function getTextShort(): string
     {
-        return HTMLFragmentSlicer::getShortened($this->text);
+        return HTMLFragmentSlicer::getShortened($this->getText());
     }
 
     /**

@@ -584,7 +584,7 @@ export default {
               text: node.textContent,
               tags: segment.tags || [],
               place: segment.place || null,
-              status: segment.status || 'confirmed'
+              status: segment.status || 'confirmed',
             })
           }
         } else {
@@ -594,7 +594,6 @@ export default {
             order: order++,
             textRaw: node.outerHTML,
             text: node.textContent,
-            sectionType: 'INTERLUDE'
           })
         }
       })
@@ -761,6 +760,15 @@ export default {
       this.ignoreProsemirrorUpdates = true
       const { id, charStart, charEnd } = this.segmentById(segmentId)
       setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
+
+      // Check if we're using new order-based format
+      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+      if (useOrderBased) {
+        // Extract and update contentBlocks for order-based format
+        const contentBlocks = this.extractContentBlocks()
+        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+      }
+
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -822,6 +830,15 @@ export default {
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
       this.updateTextualReference()
+
+      // Check if we're using new order-based format
+      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+      if (useOrderBased) {
+        // Extract and update contentBlocks for order-based format
+        const contentBlocks = this.extractContentBlocks()
+        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+      }
+
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -881,8 +898,10 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Check if we're using new order-based format (contentBlocks) or legacy position-based
-            // The segmentationStatus is in initialData.attributes (from segmentDraftList)
+            /*
+             * Check if we're using new order-based format (contentBlocks) or legacy position-based
+             * The segmentationStatus is in initialData.attributes (from segmentDraftList)
+             */
             const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
 
             if (useOrderBased) {
@@ -890,8 +909,10 @@ export default {
               const contentBlocks = this.extractContentBlocks()
               this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
 
-              // For order-based, we don't need full statement text
-              // Backend will compute it from blocks
+              /*
+               * For order-based, we don't need full statement text
+               * Backend will compute it from blocks
+               */
               this.saveSegmentsFinal()
                 .then(() => this.setProperty({ prop: 'isBusy', val: false }))
             } else {
@@ -937,6 +958,16 @@ export default {
 
       this.disableEditMode()
       this.updateTextualReference()
+
+      // Check if we're using new order-based format
+      const useOrderBased = this.$store.state.SplitStatement.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+
+      if (useOrderBased) {
+        // Extract and update contentBlocks for order-based format
+        const contentBlocks = this.extractContentBlocks()
+        this.setProperty({ prop: 'contentBlocks', val: contentBlocks })
+      }
+
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -979,7 +1010,7 @@ export default {
       /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
         prop: 'initText',
-        val: textualReference
+        val: textualReference,
       })
     },
 

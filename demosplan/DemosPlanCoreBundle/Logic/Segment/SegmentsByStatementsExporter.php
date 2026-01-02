@@ -357,4 +357,18 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             ? "$fileName-$dbId.docx"
             : "$fileName.docx";
     }
+
+    /**
+     * Sort segments by their orderInStatement property.
+     *
+     * @param Segment[] $segments
+     *
+     * @return Segment[]
+     */
+    private function sortSegmentsByOrderInStatement(array $segments): array
+    {
+        usort($segments, static fn (Segment $a, Segment $b): int => $a->getOrderInStatement() <=> $b->getOrderInStatement());
+
+        return $segments;
+    }
 }

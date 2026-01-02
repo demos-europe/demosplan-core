@@ -235,12 +235,12 @@ const SplitStatementStore = {
 
           // Check if we have contentBlocks (new format) or segments (legacy format)
           const hasContentBlocks = hasOwnProp(initialData.attributes, 'contentBlocks')
-          const segments = hasContentBlocks
-            ? [] // Don't populate segments for new format
-            : (initialData.attributes.segments || [])
-          const contentBlocks = hasContentBlocks
-            ? (initialData.attributes.contentBlocks || [])
-            : []
+          const segments = hasContentBlocks ?
+            [] : // Don't populate segments for new format
+            (initialData.attributes.segments || [])
+          const contentBlocks = hasContentBlocks ?
+            (initialData.attributes.contentBlocks || []) :
+            []
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
@@ -411,7 +411,18 @@ const SplitStatementStore = {
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
       dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = state.segments
+
+      // Check if we're using new order-based format (same check as saveSegmentsFinal)
+      const useOrderBased = state.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
+
+      if (useOrderBased && state.contentBlocks && state.contentBlocks.length > 0) {
+        // NEW: Send contentBlocks for order-based format
+        dataToSend.attributes.contentBlocks = state.contentBlocks
+      } else {
+        // LEGACY: Send segments for position-based format
+        dataToSend.attributes.segments = state.segments
+      }
+
       const payload = {
         id: state.statementId,
         type: 'Statement',
@@ -439,14 +450,16 @@ const SplitStatementStore = {
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
-      // Check if we're using new order-based format
-      // The segmentationStatus is in initialData.attributes (from segmentDraftList)
+      /*
+       * Check if we're using new order-based format
+       * The segmentationStatus is in initialData.attributes (from segmentDraftList)
+       */
       const useOrderBased = state.initialData?.attributes?.segmentationStatus === 'SEGMENTED'
 
       if (useOrderBased && state.contentBlocks && state.contentBlocks.length > 0) {
         // NEW: Send contentBlocks instead of segmentsWithText
         dataToSend.attributes.contentBlocks = state.contentBlocks
-        // statementText is optional for order-based, backend computes it
+        // StatementText is optional for order-based, backend computes it
       } else {
         // LEGACY: Send segmentsWithText and statementText
         dataToSend.attributes.segments = state.segmentsWithText

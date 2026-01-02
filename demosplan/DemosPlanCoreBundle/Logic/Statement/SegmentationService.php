@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -182,7 +181,6 @@ class SegmentationService
         $textSection->setOrderInStatement($data['order']);
         $textSection->setTextRaw($data['textRaw']);
         $textSection->setText($data['text']);
-        $textSection->setSectionType(TextSectionType::from($data['sectionType']));
 
         $this->entityManager->persist($textSection);
     }

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Exception\EditLockedException;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -269,7 +268,6 @@ class SegmentEditService
         $textSection->setOrderInStatement($segment->getOrderInStatement());
         $textSection->setText($segment->getText());
         $textSection->setTextRaw($segment->getText());
-        $textSection->setSectionType(TextSectionType::INTERLUDE);
 
         $statement->removeSegment($segment);
         $statement->addTextSection($textSection);

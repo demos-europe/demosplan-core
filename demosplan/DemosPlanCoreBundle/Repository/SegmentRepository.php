@@ -20,7 +20,7 @@ use Exception;
  */
 class SegmentRepository extends CoreRepository
 {
-    private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
+    private const ORDER_IN_STATEMENT_IS_NOT_NULL = 'segment.orderInStatement IS NOT NULL';
     private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
     /**
      * @return array<Segment>
@@ -132,9 +132,9 @@ class SegmentRepository extends CoreRepository
     {
         $em = $this->getEntityManager();
 
-        // First, get the target segment's orderInProcedure
+        // First, get the target segment's orderInStatement
         $targetQuery = $em->createQueryBuilder()
-            ->select('segment.id', 'segment.orderInProcedure')
+            ->select('segment.id', 'segment.orderInStatement')
             ->from(Segment::class, 'segment')
             ->where('segment.id = :segmentId')
             ->andWhere(self::PARENT_STATEMENT_CONDITION)
@@ -148,15 +148,15 @@ class SegmentRepository extends CoreRepository
             return null;
         }
 
-        $targetOrder = $targetResult['orderInProcedure'];
+        $targetOrder = $targetResult['orderInStatement'];
 
-        // Count how many segments in this statement have orderInProcedure <= target
+        // Count how many segments in this statement have orderInStatement <= target
         $positionQuery = $em->createQueryBuilder()
             ->select('COUNT(segment.id)')
             ->from(Segment::class, 'segment')
             ->where(self::PARENT_STATEMENT_CONDITION)
-            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
-            ->andWhere('segment.orderInProcedure <= :targetOrder')
+            ->andWhere(self::ORDER_IN_STATEMENT_IS_NOT_NULL)
+            ->andWhere('segment.orderInStatement <= :targetOrder')
             ->setParameter('statementId', $statementId)
             ->setParameter('targetOrder', $targetOrder)
             ->getQuery();
@@ -168,7 +168,7 @@ class SegmentRepository extends CoreRepository
             ->select('COUNT(segment.id)')
             ->from(Segment::class, 'segment')
             ->where(self::PARENT_STATEMENT_CONDITION)
-            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->andWhere(self::ORDER_IN_STATEMENT_IS_NOT_NULL)
             ->setParameter('statementId', $statementId)
             ->getQuery();
 

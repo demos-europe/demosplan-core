@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -72,14 +71,6 @@ class TextSection extends CoreEntity
     #[Assert\NotBlank]
     protected $text;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="section_type", type="string", length=20, nullable=false)
-     */
-    #[Assert\NotNull]
-    protected $sectionType = 'interlude';
-
     public function getId()
     {
         return $this->id;
@@ -129,18 +120,6 @@ class TextSection extends CoreEntity
     public function setText(string $text): self
     {
         $this->text = $text;
-
-        return $this;
-    }
-
-    public function getSectionType(): string
-    {
-        return $this->sectionType;
-    }
-
-    public function setSectionType(TextSectionType $sectionType): self
-    {
-        $this->sectionType = $sectionType->value;
 
         return $this;
     }

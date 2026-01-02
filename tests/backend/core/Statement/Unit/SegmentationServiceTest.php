@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentationService;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Tests\Base\FunctionalTestCase;
 
 class SegmentationServiceTest extends FunctionalTestCase
@@ -39,7 +38,6 @@ class SegmentationServiceTest extends FunctionalTestCase
         $statement->_save();
 
         $html = '
-            <div data-section-type="preamble" data-section-order="1">Preamble</div>
             <div data-segment-order="2">Segment 1</div>
             <div data-segment-order="3">Segment 2</div>
         ';
@@ -82,9 +80,6 @@ class SegmentationServiceTest extends FunctionalTestCase
         // Arrange
         $statement = StatementFactory::createOne();
         $html = '
-            <div data-section-type="preamble" data-section-order="1">Preamble text</div>
-            <div data-section-type="interlude" data-section-order="2">Interlude text</div>
-            <div data-section-type="conclusion" data-section-order="3">Conclusion text</div>
         ';
 
         // Act
@@ -95,9 +90,6 @@ class SegmentationServiceTest extends FunctionalTestCase
         $textSections = $statement->getTextSections()->toArray();
 
         self::assertCount(3, $textSections);
-        self::assertEquals(TextSectionType::PREAMBLE->value, $textSections[0]->getSectionType());
-        self::assertEquals(TextSectionType::INTERLUDE->value, $textSections[1]->getSectionType());
-        self::assertEquals(TextSectionType::CONCLUSION->value, $textSections[2]->getSectionType());
     }
 
     public function testConvertClearsExistingSegmentsBeforeConversion(): void
@@ -185,9 +177,7 @@ class SegmentationServiceTest extends FunctionalTestCase
         // Arrange
         $statement = StatementFactory::createOne();
         $html = '
-            <div data-section-type="preamble" data-section-order="1">Preamble</div>
             <div data-segment-order="2">Segment</div>
-            <div data-section-type="conclusion" data-section-order="3">Conclusion</div>
         ';
         $this->sut->convertToSegmented($statement->object(), $html);
 
@@ -195,9 +185,7 @@ class SegmentationServiceTest extends FunctionalTestCase
         $result = $this->sut->getSegmentedHtml($statement->object());
 
         // Assert
-        self::assertStringContainsString('data-section-type="preamble"', $result);
         self::assertStringContainsString('data-segment-order="2"', $result);
-        self::assertStringContainsString('data-section-type="conclusion"', $result);
         self::assertStringContainsString('Preamble', $result);
         self::assertStringContainsString('Segment', $result);
         self::assertStringContainsString('Conclusion', $result);

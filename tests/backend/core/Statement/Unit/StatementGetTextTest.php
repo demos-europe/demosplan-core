@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TextSectionFactory;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Tests\Base\FunctionalTestCase;
 
 class StatementGetTextTest extends FunctionalTestCase
@@ -46,7 +45,6 @@ class StatementGetTextTest extends FunctionalTestCase
         // Create preamble
         TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::PREAMBLE,
             'orderInStatement' => 1,
             'text' => 'This is the preamble.',
         ]);
@@ -61,7 +59,6 @@ class StatementGetTextTest extends FunctionalTestCase
         // Create interlude
         TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::INTERLUDE,
             'orderInStatement' => 3,
             'text' => 'This is an interlude between segments.',
         ]);
@@ -76,7 +73,6 @@ class StatementGetTextTest extends FunctionalTestCase
         // Create conclusion
         TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::CONCLUSION,
             'orderInStatement' => 5,
             'text' => 'This is the conclusion.',
         ]);
@@ -133,7 +129,6 @@ class StatementGetTextTest extends FunctionalTestCase
 
         TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::PREAMBLE,
             'orderInStatement' => 1,
             'text' => 'Only preamble text.',
         ]);

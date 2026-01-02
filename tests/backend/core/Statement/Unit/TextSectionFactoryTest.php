@@ -15,7 +15,6 @@ namespace Tests\Core\Statement\Unit;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TextSectionFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Tests\Base\FunctionalTestCase;
 
 class TextSectionFactoryTest extends FunctionalTestCase
@@ -32,7 +31,6 @@ class TextSectionFactoryTest extends FunctionalTestCase
         self::assertEquals(1, $textSection->getOrderInStatement());
         self::assertNotEmpty($textSection->getTextRaw());
         self::assertNotEmpty($textSection->getText());
-        self::assertEquals(TextSectionType::INTERLUDE->value, $textSection->getSectionType());
     }
 
     public function testFactoryCanCreatePreambleSection(): void
@@ -43,12 +41,10 @@ class TextSectionFactoryTest extends FunctionalTestCase
         // Act
         $textSection = TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::PREAMBLE,
             'orderInStatement' => 1,
         ]);
 
         // Assert
-        self::assertEquals(TextSectionType::PREAMBLE->value, $textSection->getSectionType());
         self::assertSame($statement->object(), $textSection->getStatement());
         self::assertEquals(1, $textSection->getOrderInStatement());
     }
@@ -61,12 +57,10 @@ class TextSectionFactoryTest extends FunctionalTestCase
         // Act
         $textSection = TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::CONCLUSION,
             'orderInStatement' => 5,
         ]);
 
         // Assert
-        self::assertEquals(TextSectionType::CONCLUSION->value, $textSection->getSectionType());
         self::assertSame($statement->object(), $textSection->getStatement());
         self::assertEquals(5, $textSection->getOrderInStatement());
     }
@@ -79,19 +73,16 @@ class TextSectionFactoryTest extends FunctionalTestCase
         // Act
         $preamble = TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::PREAMBLE,
             'orderInStatement' => 1,
         ]);
 
         $interlude = TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::INTERLUDE,
             'orderInStatement' => 2,
         ]);
 
         $conclusion = TextSectionFactory::createOne([
             'statement' => $statement,
-            'sectionType' => TextSectionType::CONCLUSION,
             'orderInStatement' => 3,
         ]);
 

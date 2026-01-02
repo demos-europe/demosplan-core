@@ -110,8 +110,14 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         } else {
             // LEGACY: Extract segments from segments array
             $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-            // Sort by charEnd position in the text
-            usort($draftsList, static fn (array $draft1, array $draft2): int => ($draft1['charEnd'] ?? 0) < ($draft2['charEnd'] ?? 0) ? -1 : 1);
+            /*
+             * Sort by charEnd position in the text ONLY if charEnd values are present
+             * If all segments have charEnd=0 (or missing), preserve array order from frontend
+             */
+            $hasCharEnd = !empty(array_filter($draftsList, static fn (array $draft): bool => ($draft['charEnd'] ?? 0) > 0));
+            if ($hasCharEnd) {
+                usort($draftsList, static fn (array $draft1, array $draft2): int => ($draft1['charEnd'] ?? 0) < ($draft2['charEnd'] ?? 0) ? -1 : 1);
+            }
         }
 
         $counter = 1;

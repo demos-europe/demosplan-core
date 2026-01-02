@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ConcurrentModificationException;
 use demosplan\DemosPlanCoreBundle\Exception\EditLockedException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OrderManagementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentEditService;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Tests\Base\FunctionalTestCase;
 
 class SegmentEditServiceTest extends FunctionalTestCase

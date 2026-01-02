@@ -114,7 +114,6 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
                 'data' => [
                     'text' => $textSection->getText(),
                     'textRaw' => $textSection->getTextRaw(),
-                    'sectionType' => $textSection->getSectionType(),
                 ],
             ];
         }

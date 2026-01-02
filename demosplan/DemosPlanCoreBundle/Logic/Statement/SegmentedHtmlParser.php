@@ -85,19 +85,22 @@ class SegmentedHtmlParser
             }
         }
 
-        // Find all elements with data-section-type attribute (text sections)
-        $sectionNodes = $xpath->query('//*[@data-section-type]');
+        // Find all elements with data-section-order attribute (text sections)
+        $sectionNodes = $xpath->query('//*[@data-section-order]');
         foreach ($sectionNodes as $node) {
             if ($node instanceof DOMElement) {
+                // Skip segment nodes (they have data-segment-id)
+                if ($node->hasAttribute('data-segment-id')) {
+                    continue;
+                }
+
                 $order = (int) $node->getAttribute('data-section-order');
-                $sectionType = $node->getAttribute('data-section-type');
                 $textRaw = $this->getInnerHtml($node, $dom);
                 $text = trim(strip_tags($textRaw));
 
                 $results[] = [
                     'order' => $order,
                     'type' => 'textSection',
-                    'sectionType' => $sectionType,
                     'text' => $text,
                     'textRaw' => $textRaw,
                 ];

@@ -24,7 +24,6 @@ use EDT\PathBuilding\End;
  * @property-read End $orderInStatement
  * @property-read End $textRaw
  * @property-read End $text
- * @property-read End $sectionType
  */
 final class TextSectionResourceType extends DplanResourceType
 {
@@ -88,7 +87,6 @@ final class TextSectionResourceType extends DplanResourceType
         $config->orderInStatement->setReadableByPath();
         $config->textRaw->setReadableByPath();
         $config->text->setReadableByPath();
-        $config->sectionType->setReadableByPath();
 
         // Set the statement relationship as readable
         $config->statement->setReadableByPath();

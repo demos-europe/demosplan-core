@@ -147,8 +147,13 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
+            // Mark statement as segmented so future saves use the new order-based format
+            $statement = $statementHandler->getStatementWithCertainty($statementId);
+            $statement->setSegmentationStatus(\demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus::SEGMENTED);
+            $statementHandler->updateStatementObject($statement);
+
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 

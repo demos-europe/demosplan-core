@@ -15,7 +15,6 @@ namespace Tests\Core\Statement\Unit;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentationService;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Tests\Base\FunctionalTestCase;
 
 class SegmentationServiceSimpleTest extends FunctionalTestCase
@@ -47,9 +46,6 @@ class SegmentationServiceSimpleTest extends FunctionalTestCase
         self::assertCount(3, $statement->getTextSections());
 
         $textSections = $statement->getTextSections()->toArray();
-        self::assertEquals(TextSectionType::PREAMBLE->value, $textSections[0]->getSectionType());
-        self::assertEquals(TextSectionType::INTERLUDE->value, $textSections[1]->getSectionType());
-        self::assertEquals(TextSectionType::CONCLUSION->value, $textSections[2]->getSectionType());
     }
 
     public function testConvertHandlesEmptyHtml(): void

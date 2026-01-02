@@ -67,11 +67,8 @@ class SegmentedHtmlParserTest extends TestCase
     {
         // Arrange
         $html = '
-            <div data-section-type="preamble" data-section-order="1">This is the preamble.</div>
             <div data-segment-order="2">Segment 1</div>
-            <div data-section-type="interlude" data-section-order="3">Interlude text</div>
             <div data-segment-order="4">Segment 2</div>
-            <div data-section-type="conclusion" data-section-order="5">Conclusion text</div>
         ';
 
         // Act
@@ -82,7 +79,6 @@ class SegmentedHtmlParserTest extends TestCase
 
         // Preamble
         self::assertEquals(1, $result[0]['order']);
-        self::assertEquals('preamble', $result[0]['sectionType']);
         self::assertEquals('textSection', $result[0]['type']);
         self::assertEquals('This is the preamble.', $result[0]['text']);
 
@@ -92,7 +88,6 @@ class SegmentedHtmlParserTest extends TestCase
 
         // Interlude
         self::assertEquals(3, $result[2]['order']);
-        self::assertEquals('interlude', $result[2]['sectionType']);
         self::assertEquals('textSection', $result[2]['type']);
 
         // Segment 2
@@ -101,7 +96,6 @@ class SegmentedHtmlParserTest extends TestCase
 
         // Conclusion
         self::assertEquals(5, $result[4]['order']);
-        self::assertEquals('conclusion', $result[4]['sectionType']);
         self::assertEquals('textSection', $result[4]['type']);
     }
 

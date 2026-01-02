@@ -114,7 +114,9 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->submitDate->setReadableByPath()->setAliasedPath(Paths::statement()->submit);
         $originalStatementConfig->isSubmittedByCitizen
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
-        $originalStatementConfig->fullText->setReadableByPath()->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->fullText->setReadableByCallable(
+            static fn (Statement $statement): string => $statement->getText()
+        )->setAliasedPath(Paths::statement()->text);
         $originalStatementConfig->shortText->setReadableByCallable(
             static fn (Statement $statement): string => $statement->getTextShort()
         )->setAliasedPath(Paths::statement()->text);

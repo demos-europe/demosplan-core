@@ -25,7 +25,6 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TextSection> $orderInStatement
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TextSection> $textRaw
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TextSection> $text
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TextSection> $sectionType
  * @property-read ToOneRelationshipConfigBuilderInterface<TextSection, Statement> $statement
  */
 class TextSectionResourceConfigBuilder extends MagicResourceConfigBuilder

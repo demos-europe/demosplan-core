@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Repository\TextSectionRepository;
-use demosplan\DemosPlanCoreBundle\ValueObject\TextSectionType;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -50,7 +49,6 @@ final class TextSectionFactory extends PersistentProxyObjectFactory
             'orderInStatement' => 1,
             'textRaw' => '<p>Default text section content</p>',
             'text' => 'Default text section content',
-            'sectionType' => TextSectionType::INTERLUDE,
         ];
     }
 }

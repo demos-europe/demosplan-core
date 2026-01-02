@@ -396,7 +396,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                                     'order' => $textSection->getOrderInStatement(),
                                     'text' => $textSection->getText(),
                                     'textRaw' => $textSection->getTextRaw(),
-                                    'sectionType' => $textSection->getSectionType(),
                                 ];
                             }
 
@@ -464,6 +463,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // updatable with special permission and on manual statements only
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
             $configBuilder->fullText
+                ->readable(true, static fn (Statement $statement): string => $statement->getText())
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->text);
             $configBuilder->initialOrganisationName
