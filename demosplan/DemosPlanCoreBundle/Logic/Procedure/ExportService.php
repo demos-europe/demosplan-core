@@ -929,10 +929,10 @@ class ExportService
     /**
      * Add FileContainer files for a statement to the ZIP export.
      *
-     * @param string    $fileFolderPath  The folder path within the ZIP where files will be placed
-     * @param ZipStream $zip             The ZIP stream to add files to
-     * @param string    $fileNamePrefix  Prefix to prepend to each file name (e.g., statement externId)
-     * @param Statement $statement       The statement whose FileContainer files should be exported
+     * @param string    $fileFolderPath The folder path within the ZIP where files will be placed
+     * @param ZipStream $zip            The ZIP stream to add files to
+     * @param string    $fileNamePrefix Prefix to prepend to each file name (e.g., statement externId)
+     * @param Statement $statement      The statement whose FileContainer files should be exported
      */
     private function addStatementFileContainers(
         string $fileFolderPath,
@@ -961,7 +961,7 @@ class ExportService
         } catch (Exception $e) {
             $this->logger->warning('Could not export FileContainer files for statement', [
                 'statementId' => $statement->getId(),
-                'exception' => $e,
+                'exception'   => $e,
             ]);
         }
     }
