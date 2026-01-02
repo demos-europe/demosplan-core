@@ -96,7 +96,7 @@
         data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
-        :is-selectable="isSourceAndCoupledProcedure"
+        :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"
         :header-fields="headerFields"
         is-expandable
         :items="items"
