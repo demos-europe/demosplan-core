@@ -893,6 +893,7 @@ class ExportService
 
             if ($statement instanceof Statement) {
                 $this->addSourceStatementAttachments($folder, $zip, $fileNamePrefix, $statement->getAttachments());
+                $this->addStatementFileContainers($folder, $zip, $fileNamePrefix, $statement);
             }
             $this->zipExportService->addFiles($fileNamePrefix, $fs, $folder, $zip, ...($statement->getFiles() ?? []));
         }
@@ -912,6 +913,39 @@ class ExportService
                     $attachment->getFile()->getId()
                 )
             )->each(
+                function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+                    $this->zipExportService->addFileToZip(
+                        $fileFolderPath,
+                        $fileInfo,
+                        $zip,
+                        $fileNamePrefix
+                    );
+                }
+            );
+    }
+
+    /**
+     * Add FileContainer files for a statement to the ZIP export.
+     * Uses $statement->getFiles() which is populated by DoctrineStatementListener.
+     * Adds files using the same method as attachments (addFileToZip with FileInfo objects).
+     *
+     * @param string    $fileFolderPath The folder path within the ZIP where files will be placed
+     * @param ZipStream $zip            The ZIP stream to add files to
+     * @param string    $fileNamePrefix Prefix to prepend to each file name (e.g., statement externId)
+     * @param Statement $statement      The statement whose FileContainer files should be exported
+     */
+    private function addStatementFileContainers(
+        string $fileFolderPath,
+        ZipStream $zip,
+        string $fileNamePrefix,
+        Statement $statement,
+    ): void {
+        $files = $statement->getFiles() ?? [];
+        collect($files)
+            ->map(
+                fn (string $fileString): FileInfo => $this->fileService->getFileInfoFromFileString($fileString)
+            )
+            ->each(
                 function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
                     $this->zipExportService->addFileToZip(
                         $fileFolderPath,
