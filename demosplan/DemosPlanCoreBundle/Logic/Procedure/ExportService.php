@@ -39,6 +39,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -120,6 +121,7 @@ class ExportService
         DraftStatementService $draftStatementService,
         private readonly ElementsService $elementsService,
         private readonly ExportReportService $exportReportService,
+        private readonly FileContainerRepository $fileContainerRepository,
         FileService $serviceFile,
         private readonly JsonApiActionService $jsonApiActionService,
         LoggerInterface $logger,
@@ -893,6 +895,7 @@ class ExportService
 
             if ($statement instanceof Statement) {
                 $this->addSourceStatementAttachments($folder, $zip, $fileNamePrefix, $statement->getAttachments());
+                $this->addStatementFileContainers($folder, $zip, $fileNamePrefix, $statement);
             }
             $this->zipExportService->addFiles($fileNamePrefix, $fs, $folder, $zip, ...($statement->getFiles() ?? []));
         }
@@ -921,6 +924,46 @@ class ExportService
                     );
                 }
             );
+    }
+
+    /**
+     * Add FileContainer files for a statement to the ZIP export.
+     *
+     * @param string    $fileFolderPath  The folder path within the ZIP where files will be placed
+     * @param ZipStream $zip             The ZIP stream to add files to
+     * @param string    $fileNamePrefix  Prefix to prepend to each file name (e.g., statement externId)
+     * @param Statement $statement       The statement whose FileContainer files should be exported
+     */
+    private function addStatementFileContainers(
+        string $fileFolderPath,
+        ZipStream $zip,
+        string $fileNamePrefix,
+        Statement $statement,
+    ): void {
+        try {
+            $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+            collect($fileContainers)
+                ->map(
+                    fn ($fileContainer) => $this->fileService->getFileInfo(
+                        $fileContainer->getFile()->getId()
+                    )
+                )
+                ->each(
+                    function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+                        $this->zipExportService->addFileToZip(
+                            $fileFolderPath,
+                            $fileInfo,
+                            $zip,
+                            $fileNamePrefix
+                        );
+                    }
+                );
+        } catch (Exception $e) {
+            $this->logger->warning('Could not export FileContainer files for statement', [
+                'statementId' => $statement->getId(),
+                'exception' => $e,
+            ]);
+        }
     }
 
     private function addDocxToZip(DocxExportResult $exportResult, ZipStream $zip, string $filename): void
