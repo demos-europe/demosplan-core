@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Webmozart\Assert\Assert;
 
 class AdminProcedureStateProvider implements ProviderInterface
 {
@@ -33,11 +34,8 @@ class AdminProcedureStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $resourceClass = $operation->getClass();
 
-        if (AdminProcedureResource::class !== $resourceClass) {
-            return null;
-        }
+        Assert::same($operation->getClass(), AdminProcedureResource::class);
 
         // Explicit permission check - throw exception if not granted
         if (!$this->isAvailable()) {
