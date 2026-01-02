@@ -1,8 +1,15 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
-use ApiPlatform\Metadata\DeleteOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
@@ -12,13 +19,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use Exception;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class AdminProcedureStateProcesor implements ProcessorInterface
 {
-
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
@@ -36,11 +41,7 @@ class AdminProcedureStateProcesor implements ProcessorInterface
 
         if ($operation instanceof Patch && $this->isUpdateAllowed()) {
             $procedure = $this->mapProcedureToAdminProcedureResource($data);
-
-
-
         }
-
     }
 
     private function mapProcedureToAdminProcedureResource(AdminProcedureResource $adminProcedureResource): Procedure
@@ -54,6 +55,7 @@ class AdminProcedureStateProcesor implements ProcessorInterface
         }
 
         $procedure->setName($adminProcedureResource->name);
+
         return $procedure;
     }
 
