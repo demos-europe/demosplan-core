@@ -96,30 +96,6 @@ class AdminProcedureStateProvider implements ProviderInterface
         $adminProcedure->id = $procedure->getId();
         $adminProcedure->name = $procedure->getName();
         $adminProcedure->externalName = $procedure->getExternalName();
-        /*$adminProcedure->creationDate = $procedure->getCreatedDate();
-        $adminProcedure->publicParticipation = $procedure->getPublicParticipation();
-
-        // Phase-related dates
-        if ($procedure->getPhase()) {
-            $adminProcedure->internalStartDate = $procedure->getPhase()->getStartDate();
-            $adminProcedure->internalEndDate = $procedure->getPhase()->getEndDate();
-            $adminProcedure->internalPhaseIdentifier = $procedure->getPhase()->getKey();
-        }
-
-        if ($procedure->getPublicParticipationPhase()) {
-            $adminProcedure->externalStartDate = $procedure->getPublicParticipationPhase()->getStartDate();
-            $adminProcedure->externalEndDate = $procedure->getPublicParticipationPhase()->getEndDate();
-            $adminProcedure->externalPhaseIdentifier = $procedure->getPublicParticipationPhase()->getKey();
-        }
-
-        // Statement counts (optimize performance in real implementation)
-        $procedureId = $procedure->getId();
-        $originalCounts = $this->procedureService->getOriginalStatementsCounts([$procedureId]);
-        $statementCounts = $this->procedureService->getStatementsCounts([$procedureId]);
-
-        $adminProcedure->originalStatementsCount = $originalCounts[$procedureId] ?? 0;
-        $adminProcedure->statementsCount = $statementCounts[$procedureId] ?? 0;*/
-
         return $adminProcedure;
     }
 
