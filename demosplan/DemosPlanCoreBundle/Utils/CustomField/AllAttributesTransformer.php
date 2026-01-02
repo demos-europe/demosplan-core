@@ -18,6 +18,7 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeReadabilityInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use InvalidArgumentException;
+use League\Fractal\ParamBag;
 use League\Fractal\Scope;
 use Psr\Log\LoggerInterface;
 
@@ -67,7 +68,7 @@ class AllAttributesTransformer extends DynamicTransformer
     protected function getEffectiveAttributeReadabilities(Scope $scope): array
     {
         $fieldsetBag = $scope->getManager()->getFieldset($this->typeName);
-        if (null === $fieldsetBag) {
+        if (!$fieldsetBag instanceof ParamBag) {
             // If no fieldset was requested, return ALL attribute fields
             // Get attributes from the ResourceReadability which is accessible in this class
             return $this->readability->getAttributes();

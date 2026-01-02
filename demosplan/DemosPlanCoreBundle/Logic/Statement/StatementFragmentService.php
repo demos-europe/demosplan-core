@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -543,7 +544,7 @@ class StatementFragmentService
         // get variables
         $assignee = $fragmentObject->getAssignee();
         $currentUserLayerObject = $this->currentUser->getUser();
-        if (null === $currentUserLayerObject) {
+        if (!$currentUserLayerObject instanceof UserInterface) {
             throw new NullPointerException('Current user is null.');
         }
         $currentUserUserObject = $this->userRepository->get($currentUserLayerObject->getId());
@@ -1015,7 +1016,7 @@ class StatementFragmentService
             }
             $fragmentList = $this->getStatementFragmentsDepartment($esQuery, $requestValues);
 
-            if (0 === count((array) $fragmentList)) {
+            if ([] === (array) $fragmentList) {
                 return $result;
             }
 
@@ -1167,7 +1168,7 @@ class StatementFragmentService
                         }
                     }
                     // if no searchfields match User does not want to search in fragments
-                    if (0 === count($usedSearchfields)) {
+                    if ([] === $usedSearchfields) {
                         return $this->searchService->getESEmptyResult()->lock();
                     }
                 }
@@ -1264,7 +1265,7 @@ class StatementFragmentService
                             }
                         }
                         // user wants to see not existent query as well as some filter
-                        if (0 < count($shouldNotFilter)) {
+                        if ([] !== $shouldNotFilter) {
                             $shouldNotBool = new BoolQuery();
                             array_map($shouldNotBool->addMustNot(...), $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
@@ -1549,7 +1550,7 @@ class StatementFragmentService
             $permissionEnabled = $this->permissions->hasPermission('feature_statement_assignment');
             $statement = $this->statementService->getStatement($data['statementId']);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->logger->error('Create StatementFragment failed: Related Statement not found.', ['id' => $data['statementId']]);
                 throw new EntityNotFoundException('Create StatementFragment failed: Statement not found.');
             }

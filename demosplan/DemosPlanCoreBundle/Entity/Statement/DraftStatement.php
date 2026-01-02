@@ -468,7 +468,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      *
      * @ORM\Column(name="_ds_misc_data", type="array", nullable=true)
      */
-    protected $miscData;
+    protected $miscData = [];
 
     /**
      * True in case of the draft-statement was given anonymously.
@@ -490,7 +490,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         $this->rejectedDate = DateTime::createFromFormat('d.m.Y', '2.1.1970');
         $this->statementAttributes = new ArrayCollection();
         $this->files = new ArrayCollection();
-        $this->miscData = [];
     }
 
     public function getId(): ?string
@@ -814,12 +813,10 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     public function removeFile(DraftStatementFileInterface $draftStatementFile): self
     {
-        if ($this->files->removeElement($draftStatementFile)) {
-            // set the owning side to null (unless already changed)
-            if ($draftStatementFile->getDraftStatement() === $this) {
-                // set to null to activate orphan removal
-                $draftStatementFile->setDraftStatement(null);
-            }
+        // set the owning side to null (unless already changed)
+        if ($this->files->removeElement($draftStatementFile) && $draftStatementFile->getDraftStatement() === $this) {
+            // set to null to activate orphan removal
+            $draftStatementFile->setDraftStatement(null);
         }
 
         return $this;
@@ -1382,11 +1379,8 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
             if ($this->isDeleted()) {
                 return false;
             }
-            if ($this->getProcedure()->isDeleted()) {
-                return false;
-            }
 
-            return true;
+            return !$this->getProcedure()->isDeleted();
         } catch (Exception) {
             return false;
         }

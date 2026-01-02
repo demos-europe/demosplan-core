@@ -26,7 +26,7 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementExportController extends BaseController
@@ -55,7 +55,7 @@ class StatementExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterCsvAction(
+    public function exportByStatementsFilterCsv(
         JsonApiActionService $jsonApiActionService,
         OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
@@ -97,12 +97,12 @@ class StatementExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterDocxAction(
+    public function exportByStatementsFilterDocx(
         JsonApiActionService $jsonApiActionService,
         OriginalStatementExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
         CurrentProcedureService $currentProcedureService,
-    ) {
+    ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(

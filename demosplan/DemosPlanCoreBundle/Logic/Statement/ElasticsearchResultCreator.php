@@ -162,7 +162,7 @@ class ElasticsearchResultCreator
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
             $fragmentEsResult = (new ElasticsearchResult())->lock();
 
-            if ((null !== $search && '' !== $search) || 0 < count($userFragmentFilters)) {
+            if ((null !== $search && '' !== $search) || [] !== $userFragmentFilters) {
                 $userFragmentFilters['procedureId'] = $procedureId;
                 $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult(
                     $userFragmentFilters,
@@ -184,7 +184,8 @@ class ElasticsearchResultCreator
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = \array_unique($statementMustIds);
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $statementMustIds = \array_values(\array_unique($statementMustIds));
                 $shouldQuery = new BoolQuery();
                 // Use a single terms query with all IDs to avoid exceeding maxClauseCount
                 $shouldQuery->addShould(
@@ -203,10 +204,8 @@ class ElasticsearchResultCreator
                     1
                 );
                 $boolMustFilter[] = $shouldQuery;
-            } else {
-                if ($searchQuery instanceof Query) {
-                    $boolMustFilter[] = $searchQuery;
-                }
+            } elseif ($searchQuery instanceof Query) {
+                $boolMustFilter[] = $searchQuery;
             }
 
             foreach ($userFilters as $filterName => $filterValues) {
@@ -214,7 +213,8 @@ class ElasticsearchResultCreator
                     continue;
                 }
 
-                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $filterValues = \is_array($filterValues) ? \array_values(\array_unique($filterValues)) : $filterValues;
 
                 if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
@@ -250,7 +250,7 @@ class ElasticsearchResultCreator
 
                     array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
-                    if (0 < count($shouldNotFilter)) {
+                    if ([] !== $shouldNotFilter) {
                         $shouldNotBool = new BoolQuery();
                         array_map($shouldNotBool->addMustNot(...), $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
@@ -1301,10 +1301,10 @@ class ElasticsearchResultCreator
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
             $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
-            if (true === $useEsResult2 || true === $useAggregationResult2) {
-                $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
-                $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ?
+            if ($useEsResult2 || $useAggregationResult2) {
+                $countKey2 = $useEsResult2 ? 'count' : 'doc_count';
+                $valueKey2 = $useEsResult2 ? 'value' : 'key';
+                $listToUse2 = $useEsResult2 ?
                     $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
@@ -1370,7 +1370,7 @@ class ElasticsearchResultCreator
                 }
             }
             // do not create search query if only fragment fields are chosen
-            if (0 < count($usedSearchfields)) {
+            if ([] !== $usedSearchfields) {
                 $searchQuery = $this->elasticSearchService->createSearchQuery(
                     $search,
                     $usedSearchfields
@@ -1624,7 +1624,7 @@ class ElasticsearchResultCreator
      */
     private function getParagraphMap($bucket, $idKey = 'key'): array
     {
-        if (!\is_array($bucket) || 0 === count($bucket)) {
+        if (!\is_array($bucket) || [] === $bucket) {
             return [];
         }
         $ids = [];

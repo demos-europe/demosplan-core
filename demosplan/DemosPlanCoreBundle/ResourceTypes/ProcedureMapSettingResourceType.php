@@ -13,11 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapExtentValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedureMapSettingResourceConfigBuilder;
@@ -35,6 +37,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         protected readonly ContentService $contentService,
         protected readonly MasterTemplateService $masterTemplateService,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        protected readonly MapExtentValidator $mapExtentValidator,
     ) {
     }
 
@@ -56,6 +59,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             ->updatable([], function (ProcedureSettings $procedureSettings, ?array $boundingBox): array {
                 $procedureSettings->setMapExtent($this->convertStartEndCoordinatesToFlatList($boundingBox));
 
+                // Validate that boundingBox is within mapExtent
+                $this->validateMapExtentContainsBoundingBox($procedureSettings);
+
                 return [];
             })
             ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
@@ -68,6 +74,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $configBuilder->mapExtent
                 ->updatable([], function (ProcedureSettings $procedureSettings, ?array $mapExtent): array {
                     $procedureSettings->setBoundingBox($this->convertStartEndCoordinatesToFlatList($mapExtent));
+
+                    // Validate that boundingBox is within mapExtent
+                    $this->validateMapExtentContainsBoundingBox($procedureSettings);
 
                     return [];
                 })
@@ -129,7 +138,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                         ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY,
                         $procedureSetting
                     );
-                    if (null === $setting) {
+                    if (!$setting instanceof Setting) {
                         $setting = $this->contentService->createEmptySetting(
                             $procedureSetting->getProcedure(),
                             ContentService::LAYER_GROUPS_ALTERNATE_VISIBILITY
@@ -146,7 +155,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
                         $procedureSetting
                     );
 
-                    return null === $setting ? false : $setting->getContentBool();
+                    return $setting instanceof Setting ? $setting->getContentBool() : false;
                 });
         }
 
@@ -250,7 +259,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
 
         $expectedKeys = ['latitude', 'longitude'];
-        foreach ($coordinates as $key => $value) {
+        foreach (array_keys($coordinates) as $key) {
             Assert::oneOf($key, $expectedKeys, 'Unexpected key in coordinates array');
         }
 
@@ -274,9 +283,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     {
         $rawAvailableProjections = $this->globalConfig->getMapAvailableProjections();
 
-        $availableProjections = array_map(function ($availableProjection) {
-            return $this->createAvailableProjectionVO($availableProjection);
-        }, $rawAvailableProjections);
+        $availableProjections = array_map(fn ($availableProjection) => $this->createAvailableProjectionVO($availableProjection), $rawAvailableProjections);
 
         return $availableProjections;
     }
@@ -333,7 +340,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return null !== $this->currentProcedureService->getProcedure()
+        return $this->currentProcedureService->getProcedure() instanceof Procedure
             && $this->currentUser->hasAnyPermissions('area_admin_map');
     }
 
@@ -355,7 +362,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -365,5 +372,17 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue($procedureId, Paths::procedureSettings()->procedure->id),
             $this->conditionFactory->propertyHasValue(false, Paths::procedureSettings()->procedure->deleted),
         ];
+    }
+
+    /**
+     * Validates that the mapExtent (stored as boundingBox in DB) contains
+     * the boundingBox (stored as mapExtent in DB).
+     */
+    protected function validateMapExtentContainsBoundingBox(ProcedureSettings $procedureSettings): void
+    {
+        $mapExtent = $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true);
+        $boundingBox = $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true);
+
+        $this->mapExtentValidator->validateExtentContainsBoundingBox($mapExtent, $boundingBox);
     }
 }

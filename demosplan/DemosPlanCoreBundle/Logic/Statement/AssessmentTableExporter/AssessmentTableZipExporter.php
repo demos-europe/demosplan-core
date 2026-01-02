@@ -180,7 +180,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
             // set the stn attachment:
             // if present just take the given one.
             $files[$index]['originalAttachment'] = $this->getOriginalAttachment($statementId);
-            if (null === $files[$index]['originalAttachment']) {
+            if (!$files[$index]['originalAttachment'] instanceof File) {
                 // if not present yet, invoke the pdfCreator and create an original-stn-pdf to use instead
                 $parameters['statementId'] =
                     $this->statementService->getStatement($statementId)?->getOriginal()->getId();
@@ -220,7 +220,7 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $spreadsheet = $xlsxWriter->getSpreadsheet();
         $sheet = $spreadsheet->getSheetByName($this->translator->trans('considerationtable'));
 
-        if (null === $sheet) {
+        if (!$sheet instanceof Worksheet) {
             $this->logger->error(self::SHEET_MISSING_IN_XLSX_LOG, [$sheet]);
             throw new AssessmentTableZipExportException('error', self::SHEET_MISSING_IN_XLSX);
         }

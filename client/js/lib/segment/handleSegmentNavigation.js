@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 /**
  * Validates if a string is a valid UUID v4 format
@@ -55,11 +55,10 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     try {
       const url = Routing.generate('dplan_segment_position', {
         segmentId: segmentId,
-        statementId: statementId
+        statementId: statementId,
       })
 
       return await dpApi.get(url)
-        .then(checkResponse)
     } catch (error) {
       console.error('Failed to get segment position:', error)
       return null
@@ -82,26 +81,26 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       return {
         calculatedPage: null,
         perPage: null,
-        segmentId: null
+        segmentId: null,
       }
     }
 
     // Get segment position to calculate correct page
     const positionData = await getSegmentPosition(targetSegmentId)
 
-    if (!positionData?.position) {
+    if (!positionData?.data?.position) {
       // Remove invalid segment parameter from URL
       removeSegmentParameter()
 
       return {
         calculatedPage: null,
         perPage: null,
-        segmentId: null
+        segmentId: null,
       }
     }
 
     const perPage = currentPerPage || defaultPagination.perPage
-    const calculatedPage = Math.ceil(positionData.position / perPage)
+    const calculatedPage = Math.ceil(positionData.data.position / perPage)
 
     // Update localStorage with calculated page
     const paginationData = { currentPage: calculatedPage, perPage }
@@ -111,7 +110,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     return {
       calculatedPage,
       perPage,
-      segmentId: targetSegmentId
+      segmentId: targetSegmentId,
     }
   }
 
@@ -128,11 +127,13 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
 
     // Only override initialization if we have a segment parameter
     if (hasSegmentParam) {
-      // Initialize with default pagination, ignoring localStorage for page number
-      // The correct page will be calculated in fetchSegments
+      /*
+       * Initialize with default pagination, ignoring localStorage for page number
+       * The correct page will be calculated in fetchSegments
+       */
       const pagination = {
         currentPage: 1,
-        perPage: defaultPagination.perPage
+        perPage: defaultPagination.perPage,
       }
 
       // Check localStorage only for perPage setting

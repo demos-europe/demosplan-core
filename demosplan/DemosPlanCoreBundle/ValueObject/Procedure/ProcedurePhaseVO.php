@@ -36,7 +36,7 @@ class ProcedurePhaseVO extends ValueObject
     protected string $key;
 
     protected string $name;
-    protected ?string $participationState;
+    protected ?string $participationState = null;
     protected string $permissionsSet;
 
     protected string $phaseType;

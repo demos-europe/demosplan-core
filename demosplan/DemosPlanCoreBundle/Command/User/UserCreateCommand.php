@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,10 +30,9 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+#[AsCommand(name: 'dplan:user:create', description: 'Creates a new user with customer, orga, department and roles')]
 class UserCreateCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:user:create';
-    protected static $defaultDescription = 'Creates a new user with customer, orga, department and roles';
     /**
      * @var mixed|QuestionHelper
      */
@@ -43,7 +43,7 @@ class UserCreateCommand extends CoreCommand
         private readonly OrgaRepository $orgaRepository,
         ParameterBagInterface $parameterBag,
         private readonly UserRepository $userRepository,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();

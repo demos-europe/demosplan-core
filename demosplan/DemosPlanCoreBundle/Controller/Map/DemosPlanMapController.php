@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Exception\MapValidationException;
@@ -37,7 +37,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -49,16 +49,15 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Karte zum Verwalten der Karteneigenschaften wie BoundingBox & Startkartenausschnitt.
      *
-     * @DplanPermissions("area_admin_map")
-     *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_map')]
     #[Route(name: 'DemosPlan_map_administration_map', path: '/verfahren/{procedureId}/verwalten/globaleGisEinstellungen', options: ['expose' => true])]
-    public function mapAdminAction(
+    public function mapAdmin(
         Breadcrumb $breadcrumb,
         TranslatorInterface $translator,
         ProcedureService $procedureService,
@@ -89,16 +88,15 @@ class DemosPlanMapController extends BaseController
      * Warning: This action needs to be situated in front of DemosPlan_map_administration_gislayer_edit
      * otherwise "/neu" would be interpreted as "/{gislayerID}"
      *
-     * @DplanPermissions("area_admin_map")
-     *
      * @param string $procedure
      *
      * @return Response
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_admin_map')]
     #[Route(name: 'DemosPlan_map_administration_gislayer_new', path: '/verfahren/{procedure}/verwalten/gislayer/neu', options: ['expose' => true])]
-    public function mapAdminGislayerNewAction(
+    public function mapAdminGislayerNew(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         Request $request,
@@ -168,8 +166,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Editformulars.
      *
-     * @DplanPermissions("area_admin_map")
-     *
      * @param string $procedure
      * @param string $gislayerID
      *
@@ -177,8 +173,9 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_admin_map')]
     #[Route(name: 'DemosPlan_map_administration_gislayer_edit', path: '/verfahren/{procedure}/verwalten/gislayer/{gislayerID}', options: ['expose' => true])]
-    public function mapAdminGislayerEditAction(
+    public function mapAdminGislayerEdit(
         Breadcrumb $breadcrumb,
         FileUploadService $fileUploadService,
         MapService $mapService,
@@ -252,8 +249,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des LayerCategory-Newformulars.
      *
-     *  @DplanPermissions({"area_admin_map","feature_map_category"})
-     *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
@@ -261,15 +256,16 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
     #[Route(name: 'DemosPlan_map_administration_gislayer_category_new', path: '/verfahren/{procedureId}/verwalten/gislayergroup/new-category', options: ['expose' => true])]
-    public function mapAdminGislayerCategoryNewAction(MapHandler $mapHandler, Request $request, $procedureId)
+    public function mapAdminGislayerCategoryNew(MapHandler $mapHandler, Request $request, $procedureId)
     {
         $request = $request->request->all();
         $categoriesOfProcedure = $mapHandler->getRootLayerCategoryForProcedure($procedureId);
         $relatedCategoryId = $categoriesOfProcedure->getId();
         // create new if necessary data is given:
         if (array_key_exists('r_layerCategoryName', $request)) {
-            $childrenHidden = array_key_exists('r_layerWithChildrenHidden', $request) ? true : false;
+            $childrenHidden = array_key_exists('r_layerWithChildrenHidden', $request);
             $name = $request['r_layerCategoryName'];
             // set custom category if given, else use rootCategory
             if (array_key_exists('r_layerCategoryCategory', $request)) {
@@ -320,8 +316,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Anzeige des Layer-Kagetorie-Editformulars.
      *
-     * @DplanPermissions({"area_admin_map","feature_map_category"})
-     *
      * @param string $procedureId
      * @param string $gislayerCategoryId
      *
@@ -330,8 +324,9 @@ class DemosPlanMapController extends BaseController
      * @throws MessageBagException
      * @throws Exception
      */
+    #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
     #[Route(name: 'DemosPlan_map_administration_gislayer_category_edit', path: '/verfahren/{procedureId}/verwalten/gislayergroup/{gislayerCategoryId}/edit', options: ['expose' => true])]
-    public function mapAdminGisLayerCategoryEditAction(MapHandler $mapHandler, Request $request, $procedureId, $gislayerCategoryId)
+    public function mapAdminGisLayerCategoryEdit(MapHandler $mapHandler, Request $request, $procedureId, $gislayerCategoryId)
     {
         try {
             $currentCategory = $mapHandler->getGisLayerCategory($gislayerCategoryId);
@@ -385,16 +380,15 @@ class DemosPlanMapController extends BaseController
      * //improve T12925
      * Planzeichnung verwalten.
      *
-     * @DplanPermissions("area_admin_map")
-     *
      * @param string $procedureId
      *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_map')]
     #[Route(name: 'DemosPlan_map_administration_gislayer', path: '/verfahren/{procedureId}/verwalten/gislayer', options: ['expose' => true])]
-    public function mapAdminGislayerAction(
+    public function mapAdminGislayer(
         Breadcrumb $breadcrumb,
         CurrentProcedureService $currentProcedureService,
         ElementHandler $elementHandler,
@@ -413,7 +407,7 @@ class DemosPlanMapController extends BaseController
         if (array_key_exists('manualsort', $requestPost)) {
             $manualSort = $requestPost['manualsort'];
             if ('' !== $manualSort && 'delete' !== $manualSort) {
-                $layerIds = explode(', ', $requestPost['manualsort']);
+                $layerIds = explode(', ', (string) $requestPost['manualsort']);
                 $mapService->reOrder($layerIds);
             }
         }
@@ -508,14 +502,13 @@ class DemosPlanMapController extends BaseController
     /**
      * Globale GIS-Layer vwewalten.
      *
-     * @DplanPermissions("area_admin_gislayer_global_edit")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_gislayer_global_edit')]
     #[Route(name: 'DemosPlan_map_administration_gislayer_global', path: '/gislayer')]
-    public function mapAdminGislayerGlobalAction(
+    public function mapAdminGislayerGlobal(
         GetFeatureInfo $getFeatureInfo,
         Request $request,
         ServiceStorage $serviceStorage,
@@ -568,8 +561,6 @@ class DemosPlanMapController extends BaseController
     /**
      * Globale GIS-Layer bearbeiten.
      *
-     * @DplanPermissions("area_admin_gislayer_global_edit")
-     *
      * @param string      $type
      * @param string|null $gislayerID
      *
@@ -577,9 +568,10 @@ class DemosPlanMapController extends BaseController
      *
      * @throws MessageBagException
      */
+    #[DplanPermissions('area_admin_gislayer_global_edit')]
     #[Route(name: 'DemosPlan_map_administration_gislayer_global_new', path: '/gislayer/neu', defaults: ['type' => 'new'])]
     #[Route(name: 'DemosPlan_map_administration_gislayer_global_edit', path: '/gislayer/{gislayerID}', defaults: ['type' => 'edit'])]
-    public function mapAdminGislayerGlobalEditAction(
+    public function mapAdminGislayerGlobalEdit(
         MapService $mapService,
         Request $request,
         FileUploadService $fileUploadService,
@@ -657,13 +649,10 @@ class DemosPlanMapController extends BaseController
     /**
      * Rufe die Sachdateninformationen ab.
      * Via Controller, weil per JavaScript nicht auf andere Domains zugegriffen werden darf.
-     *
-     * @DplanPermissions("area_map_participation_area")
-     *
-     * @return Response
      */
+    #[DplanPermissions('area_map_participation_area')]
     #[Route(name: 'DemosPlan_map_get_feature_info', path: '/getFeatureInfo/{procedure}', options: ['expose' => true])]
-    public function getFeatureInfoAjaxAction(GetFeatureInfo $getFeatureInfo, Request $request)
+    public function getFeatureInfoAjax(GetFeatureInfo $getFeatureInfo, Request $request): Response
     {
         try {
             // may be initialized without initialize(), as no private information is exposed
@@ -705,14 +694,11 @@ class DemosPlanMapController extends BaseController
      * Get procedure by procedureType and clicked coordinate
      * proxy request through controller to avoid cors issues.
      *
-     * @DplanPermissions("feature_procedure_planning_area_match")
-     *
      * @param string $procedure
-     *
-     * @return JsonResponse
      */
+    #[DplanPermissions('feature_procedure_planning_area_match')]
     #[Route(name: 'DemosPlan_map_get_planning_area', path: '/getPlanningArea/{procedure}', options: ['expose' => true])]
-    public function getPlanningAreaAjaxAction(GetFeatureInfo $getFeatureInfo, ProcedureHandler $procedureHandler, Request $request, TranslatorInterface $translator, $procedure)
+    public function getPlanningAreaAjax(GetFeatureInfo $getFeatureInfo, ProcedureHandler $procedureHandler, Request $request, TranslatorInterface $translator, $procedure): JsonResponse
     {
         try {
             $procedureObject = $procedureHandler->getProcedureWithCertainty($procedure);

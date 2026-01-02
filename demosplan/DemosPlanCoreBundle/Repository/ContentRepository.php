@@ -226,20 +226,18 @@ class ContentRepository extends CoreRepository implements ArrayInterface
     {
         $globalContent->setRoles([]);
 
-        if (array_key_exists('group_code', $data)) {
-            if (is_array($data['group_code'])) {
-                $allRolesForSelectedGroups = [];
-                foreach ($data['group_code'] as $code) {
-                    $roles = $this->getEntityManager()
-                        ->getRepository(Role::class)
-                        ->findBy(['groupCode' => $code]);
+        if (array_key_exists('group_code', $data) && is_array($data['group_code'])) {
+            $allRolesForSelectedGroups = [];
+            foreach ($data['group_code'] as $code) {
+                $roles = $this->getEntityManager()
+                    ->getRepository(Role::class)
+                    ->findBy(['groupCode' => $code]);
 
-                    foreach ($roles as $role) {
-                        $allRolesForSelectedGroups[] = $role;
-                    }
+                foreach ($roles as $role) {
+                    $allRolesForSelectedGroups[] = $role;
                 }
-                $globalContent->setRoles($allRolesForSelectedGroups);
             }
+            $globalContent->setRoles($allRolesForSelectedGroups);
         }
     }
 
@@ -281,7 +279,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 ->andWhere('category.enabled = true')
                 ->orderBy('category.title');
 
-            if (false === empty($categoryNames)) {
+            if ([] !== $categoryNames) {
                 $query->andWhere('category.name IN (:categoryNames)')
                     ->setParameter('categoryNames', $categoryNames, Connection::PARAM_STR_ARRAY);
             }

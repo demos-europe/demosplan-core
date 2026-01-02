@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -362,7 +363,7 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
     protected function getParentParagraph(Paragraph $paragraph, array $parentMapping)
     {
         $parentParagraph = $paragraph->getParent();
-        if (null !== $parentParagraph && isset($parentMapping[$parentParagraph->getId()])) {
+        if ($parentParagraph instanceof ParagraphInterface && isset($parentMapping[$parentParagraph->getId()])) {
             return $parentMapping[$parentParagraph->getId()];
         }
 

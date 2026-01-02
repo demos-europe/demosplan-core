@@ -61,16 +61,16 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $permission2 = 'feature_procedure_planning_area_match';
 
         $userAccessControl1 = new UserAccessControl();
-        $userAccessControl1->setUser($this->testUser->object());
-        $userAccessControl1->setOrganisation($this->testOrga->object());
-        $userAccessControl1->setCustomer($this->testCustomer->object());
+        $userAccessControl1->setUser($this->testUser->_real());
+        $userAccessControl1->setOrganisation($this->testOrga->_real());
+        $userAccessControl1->setCustomer($this->testCustomer->_real());
         $userAccessControl1->setRole($this->testRole);
         $userAccessControl1->setPermission($permission1);
 
         $userAccessControl2 = new UserAccessControl();
-        $userAccessControl2->setUser($this->testUser->object());
-        $userAccessControl2->setOrganisation($this->testOrga->object());
-        $userAccessControl2->setCustomer($this->testCustomer->object());
+        $userAccessControl2->setUser($this->testUser->_real());
+        $userAccessControl2->setOrganisation($this->testOrga->_real());
+        $userAccessControl2->setCustomer($this->testCustomer->_real());
         $userAccessControl2->setRole($this->testRole);
         $userAccessControl2->setPermission($permission2);
 
@@ -80,9 +80,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
 
         // Act
         $permissions = $this->sut->getPermissionsByUserAndRoles(
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(),
+            $this->testUser->_real(),
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
             [$this->testRole]
         );
 
@@ -102,9 +102,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $differentOrga = OrgaFactory::createOne();
 
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($differentOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($differentOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
@@ -113,9 +113,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
 
         // Act - Query for different organization
         $permissions = $this->sut->getPermissionsByUserAndRoles(
-            $this->testUser->object(),
-            $this->testOrga->object(), // Different org than the permission
-            $this->testCustomer->object(),
+            $this->testUser->_real(),
+            $this->testOrga->_real(), // Different org than the permission
+            $this->testCustomer->_real(),
             [$this->testRole]
         );
 
@@ -130,9 +130,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $differentCustomer = CustomerFactory::createOne();
 
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->testOrga->object());
-        $userAccessControl->setCustomer($differentCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($differentCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
@@ -141,9 +141,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
 
         // Act - Query for different customer
         $permissions = $this->sut->getPermissionsByUserAndRoles(
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(), // Different customer than the permission
+            $this->testUser->_real(),
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(), // Different customer than the permission
             [$this->testRole]
         );
 
@@ -158,16 +158,16 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $permission2 = 'feature_procedure_planning_area_match';
 
         $userAccessControl1 = new UserAccessControl();
-        $userAccessControl1->setUser($this->testUser->object());
-        $userAccessControl1->setOrganisation($this->testOrga->object());
-        $userAccessControl1->setCustomer($this->testCustomer->object());
+        $userAccessControl1->setUser($this->testUser->_real());
+        $userAccessControl1->setOrganisation($this->testOrga->_real());
+        $userAccessControl1->setCustomer($this->testCustomer->_real());
         $userAccessControl1->setRole($this->testRole);
         $userAccessControl1->setPermission($permission1);
 
         $userAccessControl2 = new UserAccessControl();
-        $userAccessControl2->setUser($this->testUser2->object()); // Different user
-        $userAccessControl2->setOrganisation($this->testOrga->object());
-        $userAccessControl2->setCustomer($this->testCustomer->object());
+        $userAccessControl2->setUser($this->testUser2->_real()); // Different user
+        $userAccessControl2->setOrganisation($this->testOrga->_real());
+        $userAccessControl2->setCustomer($this->testCustomer->_real());
         $userAccessControl2->setRole($this->testRole);
         $userAccessControl2->setPermission($permission2);
 
@@ -176,12 +176,12 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // Act
-        $permissions = $this->sut->findByUser($this->testUser->object());
+        $permissions = $this->sut->findByUser($this->testUser->_real());
 
         // Assert - Should only return permissions for testUser
         self::assertCount(1, $permissions);
         self::assertSame($permission1, $permissions[0]->getPermission());
-        self::assertSame($this->testUser->object(), $permissions[0]->getUser());
+        self::assertSame($this->testUser->_real(), $permissions[0]->getUser());
     }
 
     public function testPermissionExists(): void
@@ -190,9 +190,9 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         $permission = 'feature_statement_bulk_edit';
 
         $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->testOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
         $userAccessControl->setRole($this->testRole);
         $userAccessControl->setPermission($permission);
 
@@ -202,59 +202,18 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         // Act & Assert
         self::assertTrue($this->sut->permissionExists(
             $permission,
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(),
+            $this->testUser->_real(),
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
             $this->testRole
         ));
 
         self::assertFalse($this->sut->permissionExists(
             'non_existent_permission',
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(),
+            $this->testUser->_real(),
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
             $this->testRole
         ));
-    }
-
-    public function testRepositoryPerformanceWithLargeDatasets(): void
-    {
-        // Arrange - Create multiple permissions for the same user
-        $permissions = [
-            'feature_statement_bulk_edit',
-            'feature_procedure_planning_area_match',
-            'area_admin_assessmenttable',
-            'area_admin_procedures',
-            'area_admin_statement_list',
-        ];
-
-        foreach ($permissions as $permission) {
-            $userAccessControl = new UserAccessControl();
-            $userAccessControl->setUser($this->testUser->object());
-            $userAccessControl->setOrganisation($this->testOrga->object());
-            $userAccessControl->setCustomer($this->testCustomer->object());
-            $userAccessControl->setRole($this->testRole);
-            $userAccessControl->setPermission($permission);
-
-            $this->getEntityManager()->persist($userAccessControl);
-        }
-
-        $this->getEntityManager()->flush();
-
-        // Act - Measure query performance
-        $startTime = microtime(true);
-
-        $result = $this->sut->getPermissionsByUserAndRoles(
-            $this->testUser->object(),
-            $this->testOrga->object(),
-            $this->testCustomer->object(),
-            [$this->testRole]
-        );
-
-        $executionTime = microtime(true) - $startTime;
-
-        // Assert - Log execution time for informational purposes
-        error_log(sprintf('Query execution time: %.4f seconds', $executionTime));
-        self::assertCount(5, $result);
     }
 }

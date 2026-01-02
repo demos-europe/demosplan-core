@@ -217,7 +217,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                             }
 
                             if (isset($item['cluster']) && is_array($item['cluster'])
-                                && 0 < count($item['cluster'])) {
+                                && [] !== $item['cluster']) {
                                 if (false === $anonymous) {
                                     $departments = $this
                                         ->assessmentTableOutput
@@ -356,7 +356,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     {
         $filterSetReferenceSorting = [];
 
-        if (true !== $original) {
+        if (!$original) {
             $filterSetStatements = $this->statementHandler->getResultsByFilterSetHash(
                 $filterSetHash,
                 $procedureId
@@ -382,7 +382,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $item = $this->assessmentTableOutput->formatStatementArray($statement);
                 $items->push($item);
             } else {
-                if (true === $original) {
+                if ($original) {
                     $warning = 'Attempted to export statement fragments while exporting original statements.'.
                         ' This doesn\'t make sense from a business logic perspective.';
                     throw new LogicException($warning);
@@ -529,7 +529,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     protected function filterForSelectedStatementFragments(array $statementFragments, array $selectedFragmentIds = []): array
     {
-        if (0 < count($selectedFragmentIds)) {
+        if ([] !== $selectedFragmentIds) {
             // filter if there are selected ids
             $unorderedList = [];
             foreach ($statementFragments as $fragment) {

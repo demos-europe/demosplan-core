@@ -48,7 +48,7 @@ class CustomFieldValueType extends JsonType
                 static function (?CustomFieldValuesList $customField) use (
                     $json
                 ) {
-                    if (null === $customField) {
+                    if (!$customField instanceof CustomFieldValuesList) {
                         return null;
                     }
 

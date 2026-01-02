@@ -136,7 +136,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
     public function setCustomer(?CustomerInterface $customer): self
     {
         $this->customer = $customer;
-        if (null !== $customer && !$customer->getUserRoles()->contains($this)) {
+        if ($customer instanceof CustomerInterface && !$customer->getUserRoles()->contains($this)) {
             $customer->getUserRoles()->add($this);
         }
 
